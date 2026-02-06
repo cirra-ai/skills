@@ -1,0 +1,197 @@
+{
+  "name": "sf-ai-agentscript-cirra-ai",
+  "version": "1.4.0",
+  "description": "Agent Script DSL development skill for Salesforce Agentforce using Cirra AI MCP Server. Enables writing deterministic agents in a single .agent file with FSM architecture, instruction resolution, and hybrid reasoning.",
+  "author": "Jag Valaiyapathy",
+  "license": "Apache-2.0",
+  "compatibility": "Requires Agentforce license, API v65.0+, Einstein Agent User, Cirra AI MCP Server access",
+  "changelog": {
+    "1.4.0": "Refactored to use Cirra AI MCP Server instead of Salesforce CLI. All Agent Script syntax, FSM patterns, scoring, critical warnings, and lifecycle hooks preserved. Deployment method changed from sf-cli to cirra_ai_* tools. Removed hooks section as not applicable to MCP-based workflow."
+  },
+  "requirements": {
+    "mcp_server": "Cirra AI MCP Server",
+    "api_version": "65.0+",
+    "license": "Agentforce",
+    "tools_required": [
+      "cirra_ai_init",
+      "soql_query",
+      "tooling_api_query",
+      "metadata_read",
+      "metadata_create",
+      "metadata_update"
+    ]
+  },
+  "commands": [
+    {
+      "name": "Query Einstein Agent User",
+      "description": "Find available Einstein Agent User for default_agent_user field",
+      "tool": "soql_query",
+      "category": "Agent Configuration"
+    },
+    {
+      "name": "Retrieve Agent Script",
+      "description": "Fetch existing AiAuthoringBundle or GenAiPlannerBundle from org",
+      "tool": "metadata_read",
+      "category": "Agent Management"
+    },
+    {
+      "name": "Deploy Agent Script",
+      "description": "Create/update AiAuthoringBundle in org via metadata API",
+      "tool": "metadata_create|metadata_update",
+      "category": "Agent Deployment"
+    },
+    {
+      "name": "Query Agent Definitions",
+      "description": "Check existing agents and configurations in org",
+      "tool": "soql_query",
+      "category": "Agent Introspection"
+    }
+  ],
+  "topics": [
+    {
+      "id": "agent-design",
+      "title": "Agent Design Fundamentals",
+      "sections": [
+        "Deterministic vs Subjective Logic",
+        "FSM Architecture Patterns",
+        "Variable State Management",
+        "Security via available when guards"
+      ]
+    },
+    {
+      "id": "agentscript-syntax",
+      "title": "Agent Script DSL Syntax",
+      "sections": [
+        "Block Structure & Order",
+        "Config, Variables, System Blocks",
+        "Topic & Action Definitions",
+        "Instruction Resolution Patterns",
+        "Reserved Field Names & Constraints"
+      ]
+    },
+    {
+      "id": "deterministic-building-blocks",
+      "title": "6 Deterministic Building Blocks",
+      "sections": [
+        "Conditionals (if/else)",
+        "Topic Filters (available when)",
+        "Variable Checks",
+        "Inline Actions (run)",
+        "Utility Actions",
+        "Variable Injection"
+      ]
+    },
+    {
+      "id": "fsm-patterns",
+      "title": "FSM Architecture Patterns",
+      "sections": [
+        "Hub and Spoke",
+        "Verification Gate",
+        "Post-Action Loop",
+        "Topic Re-entry with Latches"
+      ]
+    },
+    {
+      "id": "deployment",
+      "title": "Deployment via Cirra AI MCP",
+      "sections": [
+        "Initialize Cirra AI Connection",
+        "Create AiAuthoringBundle Metadata",
+        "Query Target Org Configuration",
+        "Verify Einstein Agent User",
+        "Monitor Deployment Status",
+        "Troubleshooting Deployment Errors"
+      ]
+    },
+    {
+      "id": "testing-validation",
+      "title": "Testing & Validation",
+      "sections": [
+        "LSP Syntax Validation",
+        "Manual Pre-Deployment Checks",
+        "Canvas View Corruption Prevention",
+        "Preview Mode Testing",
+        "Trace Debugging"
+      ]
+    },
+    {
+      "id": "production-gotchas",
+      "title": "Production Gotchas",
+      "sections": [
+        "Credit Consumption Table",
+        "Lifecycle Hooks (before/after_reasoning)",
+        "Supervision vs Handoff",
+        "Action Output Flags",
+        "Canvas View Bugs",
+        "Token & Size Limits",
+        "Einstein Agent User Formats"
+      ]
+    },
+    {
+      "id": "cirra-ai-integration",
+      "title": "Cirra AI MCP Server Integration",
+      "sections": [
+        "Tool Mapping: sf CLI → Cirra AI",
+        "Query Patterns with SOQL",
+        "Metadata CRUD Operations",
+        "Error Handling & Recovery",
+        "Best Practices for MCP Workflow"
+      ]
+    }
+  ],
+  "scoring": {
+    "total": 100,
+    "categories": [
+      {
+        "name": "Structure & Syntax",
+        "points": 20,
+        "criteria": "Block ordering, indentation consistency, required fields present"
+      },
+      {
+        "name": "Deterministic Logic",
+        "points": 25,
+        "criteria": "Security via available when, post-action checks, proper conditionals"
+      },
+      {
+        "name": "Instruction Resolution",
+        "points": 20,
+        "criteria": "Correct use of -> vs |, template injection, action execution"
+      },
+      {
+        "name": "FSM Architecture",
+        "points": 15,
+        "criteria": "Clear topic separation, explicit transitions, state management"
+      },
+      {
+        "name": "Action Configuration",
+        "points": 10,
+        "criteria": "Correct protocols, input/output mapping, error handling"
+      },
+      {
+        "name": "Deployment Readiness",
+        "points": 10,
+        "criteria": "Valid default_agent_user, no compilation errors, metadata complete"
+      }
+    ]
+  },
+  "cross_skill_orchestration": {
+    "before": [
+      {
+        "skill": "/sf-flow",
+        "reason": "Create Flows for flow:// action targets"
+      }
+    ],
+    "after": [
+      {
+        "skill": "/sf-ai-agentforce-testing",
+        "reason": "Test topic routing and actions"
+      }
+    ],
+    "for_deployment": [
+      {
+        "skill": "Cirra AI MCP Server (built-in)",
+        "reason": "Deploy agent via metadata_create/metadata_update tools"
+      }
+    ]
+  }
+}

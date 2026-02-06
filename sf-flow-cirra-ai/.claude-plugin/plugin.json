@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "name": "sf-flow-cirra-ai",
+  "display_name": "Salesforce Flow Builder (Cirra AI)",
+  "description": "Creates and validates Salesforce flows with 110-point scoring using Cirra AI MCP Server",
+  "version": "2.1.0",
+  "author": "Jag Valaiyapathy",
+  "license": "Apache-2.0",
+  "repository": "https://github.com/jag-cli/sf-skills",
+  "capabilities": [
+    "flow_generation",
+    "flow_validation",
+    "flow_deployment",
+    "flow_retrieval"
+  ],
+  "compatible_models": [
+    "claude-opus-4-6",
+    "claude-sonnet-4-20250514",
+    "claude-haiku-4-5-20251001"
+  ],
+  "mcp_requirements": {
+    "required": true,
+    "server": "cirra_ai",
+    "tools": [
+      "soql_query",
+      "tooling_api_query",
+      "metadata_create",
+      "metadata_read",
+      "metadata_list",
+      "sobject_describe",
+      "cirra_ai_init"
+    ]
+  },
+  "skills": [
+    {
+      "id": "sf-flow",
+      "name": "sf-flow",
+      "path": "skills/sf-flow"
+    }
+  ]
+}

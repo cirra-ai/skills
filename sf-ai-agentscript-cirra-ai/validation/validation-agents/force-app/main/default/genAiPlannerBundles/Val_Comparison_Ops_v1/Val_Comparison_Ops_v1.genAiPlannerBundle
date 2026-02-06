@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiPlannerBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Tests comparison and logical operators</description>
+    <localTopicLinks>
+        <genAiPluginName>done_16jVZ000000BVJp</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>entry_16jVZ000000BVJp</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>test_comparisons_16jVZ000000BVJp</genAiPluginName>
+    </localTopicLinks>
+    <localTopics>
+        <fullName>done_16jVZ000000BVJp</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Validation complete</description>
+        <developerName>done_16jVZ000000BVJp</developerName>
+        <genAiPluginInstructions>
+            <description>This agent tests comparison operators.</description>
+            <developerName>instruction0_179VZ000000H54v</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179VZ000000H54v</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localDeveloperName>done</localDeveloperName>
+        <masterLabel>Done</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <localTopics>
+        <fullName>entry_16jVZ000000BVJp</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Entry point</description>
+        <developerName>entry_16jVZ000000BVJp</developerName>
+        <genAiPluginInstructions>
+            <description>This agent tests comparison operators.</description>
+            <developerName>instruction0_179VZ000000H54w</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179VZ000000H54w</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localDeveloperName>entry</localDeveloperName>
+        <masterLabel>Entry</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <localTopics>
+        <fullName>test_comparisons_16jVZ000000BVJp</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Test comparison operations</description>
+        <developerName>test_comparisons_16jVZ000000BVJp</developerName>
+        <genAiPluginInstructions>
+            <description>This agent tests comparison operators.</description>
+            <developerName>instruction0_179VZ000000H54x</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179VZ000000H54x</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localDeveloperName>test_comparisons</localDeveloperName>
+        <masterLabel>Test Comparisons</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <masterLabel>Validation: Comparison Operators</masterLabel>
+    <plannerType>Atlas__ConcurrentMultiAgentOrchestration</plannerType>
+</GenAiPlannerBundle>

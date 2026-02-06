@@ -1,0 +1,399 @@
+# Data Grounding & Multi-Agent Guide
+
+> High-stakes enterprise agents cannot rely on training data. They must be **grounded in real-time business data** and coordinate with **specialized agents** for complex tasks.
+
+---
+
+## Two Pillars
+
+| Pillar | Icon | Description |
+|--------|------|-------------|
+| 🔽 **Retriever Actions** | Filter | Dynamic filtering ensures agents only see relevant data |
+| 🔀 **Multi-Agent SOMA** | Branch | Primary agents delegate to expert agents |
+
+---
+
+## Retriever Actions
+
+### Connecting Agents to Data Cloud
+
+Retriever Actions connect your agent to Data Cloud Search Indexes, enabling context-aware knowledge retrieval.
+
+**Capabilities:**
+- ✅ Search Index wraps unstructured data (PDFs, docs, web pages)
+- ✅ Chunking parses text, tables, and images into searchable segments
+- ✅ Returns relevant chunks based on semantic similarity
+- ✅ Integrated with Data Cloud for current data
+
+### Basic Retriever Action
+
+```yaml
+actions:
+  fetch_refund_policy:
+    description: "Retrieve refund policy from knowledge base"
+    target: "retriever://RefundSOP_Retriever"
+    inputs:
+      query: string
+    outputs:
+      chunks: list[object]
+      relevance_scores: list[number]
+```
+
+### Retrieval Pipeline
+
+```
+┌────────────┐    ┌────────────────┐    ┌─────────────────┐    ┌─────────────────┐    ┌──────────────┐
+│ User Query │ → │ Dynamic Filter │ → │ Data Cloud Index│ → │ Relevant Chunks │ → │ LLM Response │
+└────────────┘    └────────────────┘    └─────────────────┘    └─────────────────┘    └──────────────┘
+```
+
+---
+
+### Filtered Retrieval with Flows
+
+> Agent Script cannot filter retrieval results inline. When you need filtered knowledge retrieval, wrap the retriever in a Flow.
+
+**Problem**: Direct `retriever://` targets don't support inline filtering.
+
+**Solution**: Use `flow://` to wrap the retriever with filter logic.
+
+```yaml
+# WRONG - No filtering capability
+actions:
+  fetch_policy:
+    target: "retriever://RefundSOP_Index"  # Can't filter!
+
+# CORRECT - Flow handles filtering
+actions:
+  fetch_regional_policy:
+    description: "Fetch policy filtered by customer region"
+    inputs:
+      query: string
+      customer_country: string
+        description: "Country code for regional filtering"
+    outputs:
+      chunks: list[object]
+      policy_region: string
+    target: "flow://GetRegionalRefundPolicy"  # Flow filters internally
+```
+
+> ⚠️ **Security Note**: Filtering in a Flow prevents accidental cross-region data exposure. The Flow enforces the filter - the LLM cannot bypass it.
+
+---
+
+### Safe Expressions
+
+Agent Script uses a safe subset of Python for expressions:
+
+**Allowed Operations:**
+| Category | Operators |
+|----------|-----------|
+| **Comparison** | `==`, `<>` (not-equal), `>`, `<`, `>=`, `<=` |
+| **Logical** | `and`, `or`, `not` |
+| **String** | `contains`, `startswith`, `endswith` |
+
+**Security Constraints:**
+- ❌ No `import` statements
+- ❌ No file access
+- ❌ No arbitrary code execution
+
+```python
+# Valid safe expressions:
+@variables.risk_score > 80
+@variables.country == "Germany"
+@variables.is_vip and @variables.order_total > 100
+not @variables.verified
+
+# INVALID (security risk):
+import os     # NOT ALLOWED
+eval(...)     # NOT ALLOWED
+open(...)     # NOT ALLOWED
+```
+
+---
+
+## The 6 Action Target Protocols
+
+Every action uses a `target:` field to specify where to send the request.
+
+| Protocol | Use When | Example |
+|----------|----------|---------|
+| `flow://` | Data operations, business logic | `target: "flow://GetOrderStatus"` |
+| `apex://` | Custom calculations, validation | `target: "apex://RefundCalculator"` |
+| `generatePromptResponse://` | Grounded LLM responses | `target: "generatePromptResponse://Summary"` |
+| `retriever://` | RAG knowledge search | `target: "retriever://Policy_Index"` |
+| `externalService://` | Third-party APIs | `target: "externalService://AddressAPI"` |
+| `standardInvocableAction://` | Built-in SF actions | `target: "standardInvocableAction://email"` |
+
+---
+
+### Protocol 1: Salesforce Flow (`flow://`)
+
+**Use Case**: Data operations, business logic, filtered retrieval
+
+```yaml
+actions:
+  get_order_status:
+    description: "Retrieves order details by order number"
+    inputs:
+      order_number: string
+        description: "The order ID to look up"
+    outputs:
+      status: string
+      tracking_number: string
+    target: "flow://GetOrderStatus"
+```
+
+---
+
+### Protocol 2: Apex Class (`apex://`)
+
+**Use Case**: Custom calculations, complex validation
+
+```yaml
+actions:
+  calculate_refund:
+    description: "Calculate refund amount based on policy rules"
+    inputs:
+      order_id: string
+      refund_reason: string
+    outputs:
+      refund_amount: currency
+      requires_approval: boolean
+    target: "apex://RefundCalculatorService"
+```
+
+---
+
+### Protocol 3: Prompt Template (`generatePromptResponse://`)
+
+**Use Case**: Grounded LLM responses, summarization
+
+```yaml
+actions:
+  summarize_case:
+    description: "Generate a summary of the customer case"
+    inputs:
+      "Input:caseId": id
+        description: "The Case record ID"
+    outputs:
+      promptResponse: string
+        is_displayable: True
+    target: "generatePromptResponse://Generate_Case_Summary"
+```
+
+> ⚠️ Note: Input keys use quoted strings with colon notation (`"Input:caseId"`)
+
+---
+
+### Protocol 4: Data Cloud Retriever (`retriever://`)
+
+**Use Case**: Knowledge base search, FAQ lookup
+
+```yaml
+actions:
+  search_knowledge:
+    description: "Search the knowledge base for relevant info"
+    inputs:
+      query: string
+    outputs:
+      chunks: list[object]
+      relevance_scores: list[number]
+    target: "retriever://RefundPolicy_Retriever"
+```
+
+---
+
+### Protocol 5: External Service (`externalService://`)
+
+**Use Case**: Third-party APIs via Named Credentials
+
+```yaml
+actions:
+  verify_address:
+    description: "Validate shipping address via external API"
+    inputs:
+      street: string
+      city: string
+      postal_code: string
+    outputs:
+      is_valid: boolean
+      normalized_address: object
+    target: "externalService://AddressValidation"
+```
+
+---
+
+### Protocol 6: Standard Invocable (`standardInvocableAction://`)
+
+**Use Case**: Built-in Salesforce actions (email, tasks, Chatter)
+
+```yaml
+actions:
+  send_email:
+    description: "Send confirmation email to customer"
+    inputs:
+      recipient_email: string
+      template_id: id
+    outputs:
+      success: boolean
+    target: "standardInvocableAction://emailSimple"
+```
+
+---
+
+### Protocol Selection Guide
+
+| If you need... | Use this protocol |
+|----------------|-------------------|
+| Complex data queries, record updates | `flow://` |
+| Custom calculations, validation | `apex://` |
+| LLM-generated summaries | `generatePromptResponse://` |
+| Knowledge search, RAG | `retriever://` |
+| External REST APIs | `externalService://` |
+| Standard SF actions | `standardInvocableAction://` |
+
+---
+
+## Same Org Multi-Agent (SOMA)
+
+When a primary agent encounters specialized needs, it can coordinate with expert agents.
+
+### Two Coordination Patterns
+
+| Pattern | Description | Return Behavior |
+|---------|-------------|-----------------|
+| 🔀 **Delegation** | Farm out, then return | ✅ Control returns to original agent |
+| ➡️ **Handoff** | Transfer permanently | ❌ No return - original agent exits |
+
+---
+
+### Pattern 1: Delegation
+
+**Flow:**
+```
+┌─────────┐    DELEGATE    ┌────────────┐    RETURN    ┌─────────┐
+│ Primary │ ─────────────▶ │ Specialist │ ───────────▶ │ Primary │
+└─────────┘                └────────────┘              └─────────┘
+```
+
+**Use Cases:**
+- Tax questions → Compliance Agent
+- Technical issues → Support Specialist
+- Order changes → Fulfillment Agent
+
+**Implementation:**
+```yaml
+# Delegation uses transition to a specialist topic
+# Control returns after specialist completes
+reasoning:
+  actions:
+    ask_compliance: @utils.transition to @topic.compliance
+      description: "Delegate tax questions to specialist"
+      # Returns here after specialist finishes
+
+    ask_refund_help: @utils.transition to @topic.refund_specialist
+      description: "Delegate refund calculations"
+      # Control returns to continue conversation
+```
+
+---
+
+### Pattern 2: Handoff
+
+**Flow:**
+```
+┌─────────┐    HANDOFF    ┌────────┐    NO RETURN
+│ Primary │ ────────────▶ │ Target │ ────────────▶ ✗
+└─────────┘               └────────┘
+```
+
+**Use Cases:**
+- Escalation to human agent
+- Domain boundary (Sales → Support)
+- Fraud detection requiring specialized handling
+
+**Implementation:**
+```yaml
+# Permanent handoff - conversation leaves this agent
+reasoning:
+  actions:
+    escalate_to_human: @utils.escalate
+      description: "Transfer to live support"
+      # Conversation ends for this agent
+```
+
+---
+
+### Delegation vs Handoff Decision
+
+| Use This | When You Need |
+|----------|---------------|
+| `@utils.transition to @topic.X` | Temporary delegation - control returns |
+| `@utils.escalate` | Permanent handoff to human |
+| `@agent.X` (Connections) | Permanent handoff to another agent |
+
+> **KEY INSIGHT**: The difference is whether the original agent continues after the specialist finishes.
+
+---
+
+## Variable Configuration for Grounding
+
+### Linked Variables for Session Context
+
+```yaml
+variables:
+  # WRONG - mutable allows modification
+  CustomerCountry: mutable string = ""
+
+  # CORRECT - linked preserves session data
+  CustomerCountry: linked string
+    source: @session.Country
+```
+
+**Why This Matters:**
+- `mutable string = ""` starts empty - filter won't work
+- `linked string` pulls from session - filter gets real value
+
+---
+
+### Debug Exercise: Wrong Policy Applied
+
+**Symptom**: German customer received US refund policy
+
+**Root Cause Trace:**
+
+| Step | Wrong Implementation | Correct Implementation |
+|------|---------------------|------------------------|
+| 1. Session Start | `CustomerCountry: ""` | `CustomerCountry: "Germany"` |
+| 2. Filter | `Region == ""` | `Region == "Germany"` |
+| 3. Knowledge Fetch | US_Refund_Policy | EU_Refund_Policy_GDPR |
+| 4. Refund | $10 credit | Full refund (€45.99) |
+
+**Fix**: Change `mutable string = ""` to `linked string` with `source: @session.Country`
+
+---
+
+## Best Practices
+
+### 1. Always Filter Regional Data
+Never return unfiltered results for region-specific policies.
+
+### 2. Use Flows for Complex Filtering
+Agent Script can't filter inline - wrap retrievers in Flows.
+
+### 3. Validate Session Variables
+Ensure linked variables have sources - empty values cause wrong retrievals.
+
+### 4. Choose Delegation vs Handoff Carefully
+Delegation returns control; handoff is permanent.
+
+### 5. Use `available when` for Sensitive Protocols
+Guard external service calls with verification checks.
+
+```yaml
+actions:
+  call_payment_api: @actions.charge_card
+    target: "externalService://PaymentGateway"
+    available when @variables.customer_verified == True
+```

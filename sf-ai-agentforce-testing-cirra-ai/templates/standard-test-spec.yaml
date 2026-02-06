@@ -1,0 +1,100 @@
+# Standard Agent Test Specification Template
+# Compatible with sf agent test create CLI command
+#
+# Usage:
+#   1. Replace <Agent_Name> with your agent's API name
+#   2. Replace topic names and actions with your agent's values
+#   3. Create test: sf agent test create --spec standard-test-spec.yaml --api-name <Test_Name> --target-org <alias>
+#   4. Run test: sf agent test run --api-name <Test_Name> --wait 10 --result-format json --target-org <alias>
+#
+# Generate automatically:
+#   python3 generate-test-spec.py --agent-file <Agent.agent> --output spec.yaml
+
+# Required: Type of subject being tested (must be AGENT)
+subjectType: AGENT
+
+# Required: API name of the agent to test
+subjectName: <Agent_Name>
+
+# Test cases - each tests a specific utterance
+testCases:
+  # ═══════════════════════════════════════════════════════════════════════
+  # TOPIC ROUTING TESTS
+  # Verify that user messages route to the correct topic
+  # ═══════════════════════════════════════════════════════════════════════
+
+  # FAQ Topic - Menu question
+  - utterance: "What's on your menu?"
+    expectation:
+      topic: coffee_faq
+      actionSequence: []
+
+  # FAQ Topic - Price question
+  - utterance: "How much is a latte?"
+    expectation:
+      topic: coffee_faq
+      actionSequence: []
+
+  # FAQ Topic - Hours question
+  - utterance: "When do you open on Saturday?"
+    expectation:
+      topic: coffee_faq
+      actionSequence: []
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # ACTION INVOCATION TESTS
+  # Verify that actions are invoked when expected
+  # ═══════════════════════════════════════════════════════════════════════
+
+  # Book Search - Title search
+  - utterance: "Can you search for Harry Potter?"
+    expectation:
+      topic: book_search
+      actionSequence:
+        - search_book_catalog
+
+  # Book Search - Author search
+  - utterance: "Find books by Stephen King"
+    expectation:
+      topic: book_search
+      actionSequence:
+        - search_book_catalog
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # EDGE CASE TESTS
+  # Verify handling of off-topic and edge case requests
+  # ═══════════════════════════════════════════════════════════════════════
+
+  # Off-topic - Weather (should stay in router)
+  - utterance: "What's the weather today?"
+    expectation:
+      topic: topic_selector
+      actionSequence: []
+
+  # Off-topic - Joke (should stay in router)
+  - utterance: "Tell me a joke"
+    expectation:
+      topic: topic_selector
+      actionSequence: []
+
+# ═══════════════════════════════════════════════════════════════════════════
+# NOTES:
+#
+# Test Expectations:
+#   - topic: The topic the agent should route to
+#   - actionSequence: List of action names that should be invoked (in order)
+#     - Use [] for tests where no actions should be invoked
+#
+# Common Test Categories:
+#   1. Topic Routing: Test that utterances route to correct topics
+#   2. Action Invocation: Test that actions are called when expected
+#   3. Edge Cases: Off-topic handling, graceful declines
+#   4. Guardrails: Harmful request blocking (add specific tests as needed)
+#   5. Escalation: Human handoff triggers (add specific tests as needed)
+#
+# Best Practices:
+#   - Include at least one test per topic
+#   - Include at least one test per action
+#   - Include off-topic tests to verify routing fallback
+#   - Use realistic user utterances (not technical language)
+# ═══════════════════════════════════════════════════════════════════════════

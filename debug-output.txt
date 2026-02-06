@@ -1,0 +1,10 @@
++ set -euo pipefail
++ OWNER=cirra-ai
++ REPO=skills
++ BRANCH=setup/repo-standard
++ MAIN_BRANCH=main
++ TOKEN=
++ '[' -z '' ']'
++ echo 'ERROR: Set GITHUB_TOKEN environment variable to a PAT with repo and admin scopes.'
+ERROR: Set GITHUB_TOKEN environment variable to a PAT with repo and admin scopes.
++ exit 1

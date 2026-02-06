@@ -1,0 +1,345 @@
+# FSM Architecture Guide
+
+> Design agent behavior as a finite state machine with deterministic nodes and explicit transitions.
+
+---
+
+## Why FSM Architecture?
+
+### The Problem with Prompt-Only Agents
+
+| Anti-Pattern | Description |
+|--------------|-------------|
+| **ReAct Pattern** | Agents get stuck in reasoning loops without guardrails |
+| **Doom-Prompting** | Prompts grow exponentially to handle edge cases |
+| **Goal Drift** | Agents forget original intent after several turns |
+
+> **KEY INSIGHT**: "LLMs are non-deterministic by design. Without structured control flow, enterprise agents become unpredictable, expensive, and impossible to debug."
+
+### The FSM Solution
+
+| FSM Concept | Traffic Light Example | Agent Benefit |
+|-------------|----------------------|---------------|
+| **States** | Red, Green, Yellow | Agent always knows exactly what it's doing |
+| **Transitions** | Timer expires | No ambiguity about what happens next |
+| **Determinism** | Red → Green (guaranteed) | Auditable, testable, trustworthy |
+
+---
+
+## The Three FSM Pillars
+
+| Pillar | Definition | Agent Benefit |
+|--------|------------|---------------|
+| **States** | Distinct "modes" the system can be in | Clear context at any moment |
+| **Transitions** | Explicit rules for moving between states | Defined paths, no surprises |
+| **Determinism** | Same input → same output | Auditable and testable |
+
+---
+
+## The 5 Node Patterns
+
+### Pattern Overview
+
+| Pattern | Color | Purpose |
+|---------|-------|---------|
+| 🔵 **ROUTING** | Blue | Routes based on intent |
+| 🔵 **VERIFICATION** | Light Blue | Security checks |
+| 🟡 **DATA-LOOKUP** | Yellow | External data fetch |
+| 🟢 **PROCESSING** | Green | Business logic |
+| 🔴 **HANDOFF** | Red | Human escalation |
+
+---
+
+### Pattern 1: ROUTING (Topic Selector)
+
+**Purpose**: Routes conversations based on detected intent
+
+```yaml
+start_agent topic_selector:
+  description: "Route to appropriate topic based on intent"
+  reasoning:
+    instructions: ->
+      | You are the support agent.
+        Classify the customer's intent and route:
+        - Refund requests go to identity verification
+        - General inquiries are handled directly
+    actions:
+      start_refund: @utils.transition to @topic.identity_verification
+        description: "Customer wants a refund"
+      handle_inquiry: @utils.transition to @topic.general_support
+        description: "General question or inquiry"
+```
+
+**When to Use**: Entry point for multi-purpose agents
+
+---
+
+### Pattern 2: VERIFICATION (Identity Gate)
+
+**Purpose**: Enforces security checks before proceeding
+
+```yaml
+topic identity_verification:
+  description: "Verify customer identity before refund"
+  reasoning:
+    instructions: ->
+      if @variables.failed_attempts >= 3:
+        | Too many failed attempts. Escalating to human agent.
+      if @variables.email_verified == True:
+        | Identity verified. Proceed to risk assessment.
+      else:
+        | Ask customer to verify their email address.
+    actions:
+      verify_email: @actions.verify_email
+        description: "Verify customer email"
+        with email = @variables.customer_email
+        set @variables.email_verified = @outputs.verified
+      proceed: @utils.transition to @topic.risk_assessment
+        description: "Continue to risk assessment"
+        available when @variables.email_verified == True
+      escalate: @utils.escalate
+        description: "Transfer to human agent"
+        available when @variables.failed_attempts >= 3
+```
+
+**When to Use**: Before accessing sensitive data or actions
+
+---
+
+### Pattern 3: DATA-LOOKUP (Risk Assessment)
+
+**Purpose**: Fetches data from external sources
+
+```yaml
+topic risk_assessment:
+  description: "Fetch customer data and assess churn risk"
+  reasoning:
+    instructions: ->
+      | Fetch customer profile using the action.
+        Once loaded, review:
+        - Churn Risk: {!@variables.churn_risk_score}%
+        - Lifetime Value: {!@variables.lifetime_value}
+    actions:
+      get_profile: @actions.get_customer_profile
+        description: "Load customer data from CRM"
+        with customer_id = @variables.customer_id
+        set @variables.churn_risk_score = @outputs.churn_risk
+        set @variables.lifetime_value = @outputs.ltv
+      process_refund: @utils.transition to @topic.refund_processor
+        description: "Continue to refund processing"
+```
+
+**When to Use**: When decisions require external data
+
+---
+
+### Pattern 4: PROCESSING (Refund Processor)
+
+**Purpose**: Applies business logic based on conditions
+
+```yaml
+topic refund_processor:
+  description: "Process refund based on churn risk"
+  reasoning:
+    instructions: ->
+      if @variables.churn_risk_score >= 80:
+        | HIGH CHURN RISK - Approve full refund.
+      if @variables.churn_risk_score < 80:
+        | LOW CHURN RISK - Offer partial credit.
+    actions:
+      approve_full: @actions.process_refund
+        available when @variables.churn_risk_score >= 80
+        with amount = @variables.order_total
+        with type = "full"
+      offer_credit: @actions.issue_credit
+        available when @variables.churn_risk_score < 80
+        with amount = 10
+```
+
+**When to Use**: Applying business rules to data
+
+---
+
+### Pattern 5: HANDOFF (Escalation)
+
+**Purpose**: Transfers conversation to human agent
+
+```yaml
+topic escalation:
+  description: "Escalate to human agent"
+  reasoning:
+    instructions: ->
+      | Customer has failed verification 3 times.
+        Escalating to a human agent for assistance.
+    actions:
+      handoff: @utils.escalate
+        description: "Transfer to human agent"
+```
+
+**When to Use**: Failed verification, complex issues, customer request
+
+---
+
+## Architecture Patterns
+
+### Pattern 1: Hub and Spoke
+
+Central router to specialized topics.
+
+```
+       ┌─────────────┐
+       │ topic_sel   │
+       │   (hub)     │
+       └──────┬──────┘
+    ┌─────────┼─────────┐
+    ▼         ▼         ▼
+┌────────┐ ┌────────┐ ┌────────┐
+│refunds │ │ orders │ │support │
+│(spoke) │ │(spoke) │ │(spoke) │
+└────────┘ └────────┘ └────────┘
+```
+
+**When to Use**: Multi-purpose agents with distinct request types
+
+---
+
+### Pattern 2: Linear Flow
+
+Sequential A → B → C pipeline.
+
+```
+┌───────┐    ┌────────┐    ┌─────────┐    ┌─────────┐
+│ entry │ → │ verify │ → │ process │ → │ confirm │
+└───────┘    └────────┘    └─────────┘    └─────────┘
+```
+
+**When to Use**: Mandatory steps (onboarding, checkout, compliance)
+
+---
+
+### Pattern 3: Escalation Chain
+
+Tiered support with complexity-based routing.
+
+```
+┌───────┐    ┌───────┐    ┌──────────┐    ┌─────────┐
+│  L1   │ → │  L2   │ → │    L3    │ → │  human  │
+│(basic)│    │ (adv) │    │ (expert) │    │  agent  │
+└───┬───┘    └───┬───┘    └────┬─────┘    └─────────┘
+    ▼            ▼             ▼
+[resolved]  [resolved]    [resolved]
+```
+
+**When to Use**: Support workflows with complexity levels
+
+---
+
+### Pattern 4: Verification Gate
+
+Security gate before protected topics.
+
+```
+              ┌───────────┐
+              │   entry   │
+              └─────┬─────┘
+                    ▼
+              ┌───────────┐◄─────────────┐
+              │  VERIFY   │              │
+              │  (GATE)   │              │
+              └─────┬─────┘              │
+          ┌─────────┴─────────┐          │
+          ▼                   ▼          │
+    [verified=True]    [verified=False]──┘
+          │
+    ┌─────┴─────────────┐
+    ▼         ▼         ▼
+┌─────────┐┌─────────┐┌──────────┐
+│ account ││payments ││ settings │
+│(protect)││(protect)││(protected)│
+└─────────┘└─────────┘└──────────┘
+```
+
+**When to Use**: Sensitive data, payments, PII access
+
+---
+
+## Deterministic vs. Subjective Classification
+
+### Classification Framework
+
+| Put in Deterministic Nodes if... | Put in Subjective Reasoning if... |
+|----------------------------------|-----------------------------------|
+| Security/safety requirement | Conversational/greeting |
+| Financial threshold | Context understanding needed |
+| Data fetch required | Natural language generation |
+| Counter/state management | Flexible interpretation needed |
+| Hard cutoff rule | Response explanation |
+
+### Examples
+
+| Requirement | Classification | Reasoning |
+|-------------|----------------|-----------|
+| "ALWAYS verify identity before refund" | **Deterministic** | Security - must be code-enforced |
+| "Start with a friendly greeting" | **Subjective** | Conversational - LLM flexibility |
+| "IF churn > 80, full refund" | **Deterministic** | Financial threshold - no exceptions |
+| "Explain the refund status" | **Subjective** | Natural language generation |
+| "Count failed verification attempts" | **Deterministic** | Counter logic - must be accurate |
+| "Redirect off-topic questions" | **Subjective** | Context understanding required |
+
+---
+
+## State Machine Example: Pronto Refund Agent
+
+```
+                              ┌────────────────────┐
+                              │ Identity           │  verified
+                 refund       │ Verification       │─────────────┐
+                 intent       │ (VERIFICATION)     │             │
+┌────────────────┐           └─────────┬──────────┘             ▼
+│ Topic Selector │──────────▶          │              ┌─────────────────┐
+│   (ROUTING)    │                     │ failed 3x    │ Risk Assessment │
+└────────────────┘                     │              │ (DATA-LOOKUP)   │
+                                       │              └────────┬────────┘
+                                       ▼                       │ score loaded
+                              ┌────────────────┐               ▼
+                              │  Escalation    │      ┌─────────────────┐
+                              │  (HANDOFF)     │      │ Refund Processor│
+                              └────────────────┘      │  (PROCESSING)   │
+                                                      └─────────────────┘
+```
+
+### State Definitions
+
+| State | Type | Entry Condition | Exit Conditions |
+|-------|------|-----------------|-----------------|
+| Topic Selector | ROUTING | Conversation start | Intent detected |
+| Identity Verification | VERIFICATION | Refund intent | Verified OR 3 failures |
+| Risk Assessment | DATA-LOOKUP | Identity verified | Score loaded |
+| Refund Processor | PROCESSING | Score loaded | Refund complete |
+| Escalation | HANDOFF | 3 failures | Human takeover |
+
+---
+
+## Best Practices
+
+### 1. Single Responsibility per Topic
+Each topic should handle ONE concern. If a topic does verification AND processing, split it.
+
+### 2. Explicit Transitions
+Always define how to enter AND exit each state. No dead ends.
+
+### 3. Guard Sensitive Transitions
+Use `available when` to make actions invisible when conditions aren't met.
+
+```yaml
+actions:
+  process_payment: @actions.charge_card
+    available when @variables.customer_verified == True
+    # LLM literally cannot see this action if not verified
+```
+
+### 4. Design for the Happy Path First
+Map the success flow, then add failure states.
+
+### 5. Use Escalation as a Safety Net
+When in doubt, escalate to human. It's better than a bad automated decision.

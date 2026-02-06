@@ -1,0 +1,12 @@
+{
+  "name": "sf-permissions-cirra-ai",
+  "version": "1.0.0",
+  "description": "Salesforce Permission Set analysis, visualization, and auditing via Cirra AI MCP tools. Analyze permissions, visualize PS/PSG hierarchies, and audit 'Who has X?' access.",
+  "author": "Jag Valaiyapathy",
+  "license": "Apache-2.0",
+  "keywords": ["salesforce", "permissions", "security", "audit", "permission-sets", "cirra-ai"],
+  "mcpTools": {
+    "required": ["cirra_ai_init", "soql_query", "tooling_api_query", "sobject_describe"],
+    "optional": ["sobjects_list"]
+  }
+}

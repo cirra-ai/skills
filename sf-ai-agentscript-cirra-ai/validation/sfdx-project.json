@@ -1,0 +1,12 @@
+{
+  "packageDirectories": [
+    {
+      "path": "validation-agents/force-app",
+      "default": true
+    }
+  ],
+  "name": "sf-ai-agentscript-validation",
+  "namespace": "",
+  "sfdcLoginUrl": "https://login.salesforce.com",
+  "sourceApiVersion": "65.0"
+}
