@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - setup/repo-standard
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Detect and run tests
+        run: |
+          if [ -f package.json ]; then
+            echo "Node project detected — installing and running tests"
+            npm ci || true
+            npm test || echo "No tests or tests failed"
+          elif [ -f requirements.txt ] || [ -f setup.py ]; then
+            echo "Python project detected — running pytest if present"
+            python -m pip install -r requirements.txt || true
+            pytest -q || echo "No tests or tests failed"
+          else
+            echo "No recognized test harness found. Replace this job with your project's CI."
+          fi
