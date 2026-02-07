@@ -1,0 +1,14 @@
+{
+  "name": "cirra-ai-skills",
+  "private": true,
+  "description": "Cirra AI skill plugins for Claude Code",
+  "license": "Apache-2.0",
+  "scripts": {
+    "lint": "prettier --check . && ruff check .",
+    "lint:fix": "prettier --write . && ruff check --fix .",
+    "format": "prettier --write . && ruff format ."
+  },
+  "devDependencies": {
+    "prettier": "^3.5.3"
+  }
+}

@@ -1,0 +1,11 @@
+*.xml
+*.apex
+*.cls
+*.agent
+*.genAiPlannerBundle
+*.soql
+*.sample
+*.csv
+*.txt
+*.yaml
+*.yml
