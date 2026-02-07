@@ -278,7 +278,7 @@ sf-skills-cirra-ai/sf-apex/skill/
 
 1. Original skill remains available at original path
 2. Both skills can coexist
-3. Choose by skill name: `sf-apex` (CLI) vs `sf-apex-cirra-ai` (MCP)
+3. Choose by skill name: `sf-apex` (CLI) vs `cirra-ai-sf-apex` (MCP)
 
 ---
 
@@ -315,7 +315,7 @@ The sf-apex skill is now truly cloud-agnostic - it works wherever Cirra AI MCP S
 ## Version Information
 
 - **Original**: sf-apex v1.1.0 (CLI-based)
-- **Refactored**: sf-apex-cirra-ai v2.0.0 (MCP-based)
+- **Refactored**: cirra-ai-sf-apex v2.0.0 (MCP-based)
 - **Author**: Jag Valaiyapathy
 - **Refactor Date**: 2025-02-06
 - **Refactor Agent**: Claude Code Agent

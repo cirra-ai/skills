@@ -1,4 +1,4 @@
-# sf-apex-cirra-ai Refactored Plugin - Complete File Index
+# cirra-ai-sf-apex Refactored Plugin - Complete File Index
 
 ## Project Overview
 
@@ -88,7 +88,7 @@ sf-skills-cirra-ai/
 **Purpose**: Declares MCP tool requirements for the skill
 **Contains**:
 
-- Plugin name: `sf-apex-cirra-ai`
+- Plugin name: `cirra-ai-sf-apex`
 - Version: `2.0.0`
 - Description
 - Author metadata
@@ -275,10 +275,10 @@ sf-skills-cirra-ai/
 ```
 Copy entire directory:
 /sessions/lucid-loving-albattani/mnt/outputs/sf-skills-cirra-ai/sf-apex/exploded/
-to: ~/.claude/plugins/sf-apex-cirra-ai/
+to: ~/.claude/plugins/cirra-ai-sf-apex/
 
 Structure becomes:
-~/.claude/plugins/sf-apex-cirra-ai/
+~/.claude/plugins/cirra-ai-sf-apex/
 ├── .claude-plugin/
 │   └── plugin.json
 └── skills/sf-apex/
@@ -309,7 +309,7 @@ Structure becomes:
 Once installed, invoke with:
 
 ```
-User: @sf-apex-cirra-ai Generate a service class for Account
+User: @cirra-ai-sf-apex Generate a service class for Account
 ```
 
 ---
@@ -433,7 +433,7 @@ When using this refactored skill, verify:
 - [ ] All 7 required tools are available
 - [ ] SKILL.md is readable (choice of exploded or flat layout)
 - [ ] plugin.json is in .claude-plugin/ directory
-- [ ] User can invoke with @sf-apex-cirra-ai
+- [ ] User can invoke with @cirra-ai-sf-apex
 - [ ] cirra_ai_init() is called first in workflow
 - [ ] Code is generated as strings (not files)
 - [ ] Deployment uses metadata_create()

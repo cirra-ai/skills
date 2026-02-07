@@ -1,0 +1,108 @@
+{
+  "name": "cirra-ai-sf-data",
+  "displayName": "Salesforce Data Operations (Cirra AI MCP)",
+  "version": "1.0.0",
+  "description": "Salesforce data operations expert with 130-point scoring using Cirra AI MCP Server. Execute SOQL queries, create test data, perform bulk data operations directly in Salesforce orgs without CLI dependency.",
+  "author": {
+    "name": "Cirra AI (based on original by Jag Valaiyapathy)",
+    "email": "info@cirra.ai"
+  },
+  "repository": "https://github.com/cirra-ai/skills",
+  "license": "MIT",
+  "category": "salesforce-data",
+  "tags": ["soql", "dml", "test-data", "bulk-operations", "salesforce", "cirra-ai"],
+  "requiredTools": [
+    "mcp__caab1d08-75da-4dcc-9b4b-6b0d572282f8__soql_query",
+    "mcp__caab1d08-75da-4dcc-9b4b-6b0d572282f8__sobject_dml",
+    "mcp__caab1d08-75da-4dcc-9b4b-6b0d572282f8__sobject_describe",
+    "mcp__caab1d08-75da-4dcc-9b4b-6b0d572282f8__tooling_api_query",
+    "mcp__caab1d08-75da-4dcc-9b4b-6b0d572282f8__cirra_ai_init"
+  ],
+  "metadata": {
+    "version": "1.0.0",
+    "framework": "Cirra AI MCP",
+    "scoring": "130 points across 7 categories",
+    "executionMode": "remote-only",
+    "cirraAIDependency": true
+  },
+  "capabilities": {
+    "queries": {
+      "soql": "Execute SOQL queries with relationships, aggregates, filters",
+      "toolingApi": "Query metadata using Tooling API"
+    },
+    "dml": {
+      "insert": "Create records",
+      "update": "Modify existing records",
+      "delete": "Remove records",
+      "upsert": "Insert or update based on external ID"
+    },
+    "bulk": {
+      "bulkInsert": "Insert multiple records in single operation",
+      "bulkUpdate": "Update multiple records in single operation",
+      "bulkDelete": "Delete multiple records in single operation",
+      "bulkUpsert": "Bulk upsert with external ID support"
+    },
+    "utilities": {
+      "describe": "Get object metadata and field information",
+      "tracking": "Track created record IDs for cleanup",
+      "validation": "Validate data before operations"
+    }
+  },
+  "configuration": {
+    "requiresOrgConnection": true,
+    "orgConnectionMethod": "cirra-ai-init",
+    "dataRetention": "Records in target org only; no local files",
+    "apiVersion": "62.0+",
+    "supportedObjects": "All Salesforce standard and custom objects"
+  },
+  "integrations": {
+    "skills": ["sf-metadata", "sf-apex", "sf-flow"],
+    "tools": ["Cirra AI MCP Server (soql_query, sobject_dml, sobject_describe, tooling_api_query)"]
+  },
+  "scoring": {
+    "categories": [
+      {
+        "name": "Query Efficiency",
+        "points": 25,
+        "focus": "Selective filters, no N+1, LIMIT clauses"
+      },
+      {
+        "name": "Bulk Safety",
+        "points": 25,
+        "focus": "Batch sizing, no DML/SOQL in loops, optimized operations"
+      },
+      {
+        "name": "Data Integrity",
+        "points": 20,
+        "focus": "Required fields, valid relationships, data validation"
+      },
+      {
+        "name": "Security & FLS",
+        "points": 20,
+        "focus": "User mode queries, field-level security awareness, no PII patterns"
+      },
+      {
+        "name": "Test Patterns",
+        "points": 15,
+        "focus": "201+ records for batch boundary testing, edge cases"
+      },
+      {
+        "name": "Cleanup & Isolation",
+        "points": 15,
+        "focus": "Cleanup queries, rollback support, test isolation"
+      },
+      {
+        "name": "Documentation",
+        "points": 10,
+        "focus": "Purpose, outcomes, validation results documented"
+      }
+    ],
+    "thresholds": {
+      "excellent": "117+",
+      "good": "104-116",
+      "satisfactory": "91-103",
+      "fair": "78-90",
+      "blocked": "<78"
+    }
+  }
+}

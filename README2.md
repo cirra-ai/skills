@@ -183,12 +183,12 @@ Scoring thresholds remain:
 
 1. Copy the skill to your Claude plugins directory
 2. Use either `exploded` or `skill` layout (both work identically)
-3. Invoke with skill name: `sf-apex-cirra-ai`
+3. Invoke with skill name: `cirra-ai-sf-apex`
 
 ### Invoke Examples
 
 ```
-User: Create a service class for Account processing using sf-apex-cirra-ai
+User: Create a service class for Account processing using cirra-ai-sf-apex
 
 Claude will:
 1. Call cirra_ai_init()
@@ -293,7 +293,7 @@ Complete reference for:
 
 ## Version Information
 
-- **Skill Name**: sf-apex-cirra-ai
+- **Skill Name**: cirra-ai-sf-apex
 - **Version**: 2.0.0 (MCP-based)
 - **API Level**: Salesforce 65.0
 - **Author**: Jag Valaiyapathy

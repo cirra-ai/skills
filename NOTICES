@@ -1,0 +1,16 @@
+THIRD-PARTY CREDITS
+
+The following plugins and skills were adapted from corresponding skills in the https://github.com/Jaganpro/sf-skills/ repository maintained by Jag Valaiyapathy:
+- cirra-ai-sf-ai-agentforce-testing
+- cirra-ai-sf-ai-agentscript
+- cirra-ai-sf-apex
+- cirra-ai-sf-data
+- cirra-ai-sf-flow
+- cirra-ai-sf-lwc
+- cirra-ai-sf-metadata
+- cirra-ai-sf-permissions
+- cirra-ai-sf-soql
+
+The original artifacts are licensed under the MIT license: https://github.com/Jaganpro/sf-skills/blob/main/LICENSE
+
+These skills were modified to run with the Cirra AI MCP Server.

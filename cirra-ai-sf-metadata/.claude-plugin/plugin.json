@@ -1,0 +1,22 @@
+{
+  "name": "cirra-ai-sf-metadata",
+  "version": "1.0.0",
+  "description": "Salesforce metadata generation, org querying, and validation via Cirra AI MCP Server. 120-point scoring across 6 categories.",
+  "author": {
+    "name": "Cirra AI (based on original by Jag Valaiyapathy)",
+    "email": "info@cirra.ai"
+  },
+  "repository": "https://github.com/cirra-ai/skills",
+  "license": "MIT",
+  "keywords": [
+    "salesforce",
+    "metadata",
+    "cirra-ai",
+    "objects",
+    "fields",
+    "permissions",
+    "profiles",
+    "validation",
+    "deployment"
+  ]
+}

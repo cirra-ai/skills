@@ -15,30 +15,30 @@
       "source": "./",
       "strict": false,
       "skills": [
-        "./sf-apex",
-        "./sf-flow",
-        "./sf-metadata",
-        "./sf-data",
+        "./cirra-ai-sf-apex",
+        "./cirra-ai-sf-flow",
+        "./cirra-ai-sf-metadata",
+        "./cirra-ai-sf-data",
         "./sf-deploy",
         "./skill-builder",
         "./sf-ai-agentforce-legacy",
         "./sf-diagram-mermaid",
         "./sf-integration",
         "./sf-connected-apps",
-        "./sf-lwc",
+        "./cirra-ai-sf-lwc",
         "./sf-debug",
-        "./sf-soql",
+        "./cirra-ai-sf-soql",
         "./sf-testing",
         "./sf-diagram-nanobananapro",
-        "./sf-ai-agentforce-testing",
-        "./sf-ai-agentscript",
+        "./cirra-ai-sf-ai-agentforce-testing",
+        "./cirra-ai-sf-ai-agentscript",
         "./sf-ai-agentforce-observability"
       ]
     },
     {
-      "name": "sf-apex",
+      "name": "cirra-ai-sf-apex",
       "description": "Apex code generation and review with 150-point scoring and TAF patterns",
-      "source": "./sf-apex",
+      "source": "./cirra-ai-sf-apex",
       "version": "1.0.0",
       "author": {
         "name": "Cirra AI",
@@ -49,9 +49,9 @@
       "keywords": ["apex", "trigger", "test-class", "batch", "queueable"]
     },
     {
-      "name": "sf-flow",
+      "name": "cirra-ai-sf-flow",
       "description": "Salesforce Flow creation and validation with 110-point scoring",
-      "source": "./sf-flow",
+      "source": "./cirra-ai-sf-flow",
       "version": "1.0.0",
       "author": {
         "name": "Cirra AI",
@@ -62,9 +62,9 @@
       "keywords": ["flow", "screen-flow", "autolaunched", "subflow"]
     },
     {
-      "name": "sf-metadata",
+      "name": "cirra-ai-sf-metadata",
       "description": "Salesforce metadata generation and org querying with 120-point scoring",
-      "source": "./sf-metadata",
+      "source": "./cirra-ai-sf-metadata",
       "version": "1.0.0",
       "author": {
         "name": "Cirra AI",
@@ -75,9 +75,9 @@
       "keywords": ["metadata", "custom-field", "object", "permission"]
     },
     {
-      "name": "sf-data",
+      "name": "cirra-ai-sf-data",
       "description": "Salesforce data operations with SOQL expertise, test data factories, and 130-point validation",
-      "source": "./sf-data",
+      "source": "./cirra-ai-sf-data",
       "version": "1.0.0",
       "author": {
         "name": "Cirra AI",
@@ -166,9 +166,9 @@
       "keywords": ["oauth", "connected-app", "jwt", "authorization"]
     },
     {
-      "name": "sf-lwc",
+      "name": "cirra-ai-sf-lwc",
       "description": "Lightning Web Components development with SLDS 2 validation and 140-point scoring",
-      "source": "./sf-lwc",
+      "source": "./cirra-ai-sf-lwc",
       "version": "1.0.0",
       "author": {
         "name": "Cirra AI",
@@ -192,9 +192,9 @@
       "keywords": ["debug", "logs", "governor-limits", "trace"]
     },
     {
-      "name": "sf-soql",
+      "name": "cirra-ai-sf-soql",
       "description": "SOQL query generation, optimization, and 100-point validation",
-      "source": "./sf-soql",
+      "source": "./cirra-ai-sf-soql",
       "version": "1.0.0",
       "author": {
         "name": "Cirra AI",
@@ -231,9 +231,9 @@
       "keywords": ["gemini", "nano-banana", "image", "erd"]
     },
     {
-      "name": "sf-ai-agentforce-testing",
+      "name": "cirra-ai-sf-ai-agentforce-testing",
       "description": "Agentforce agent testing with test execution, coverage analysis, and agentic fix loops",
-      "source": "./sf-ai-agentforce-testing",
+      "source": "./cirra-ai-sf-ai-agentforce-testing",
       "version": "1.0.0",
       "author": {
         "name": "Cirra AI",
@@ -244,9 +244,9 @@
       "keywords": ["agent-testing", "test-spec", "coverage"]
     },
     {
-      "name": "sf-ai-agentscript",
+      "name": "cirra-ai-sf-ai-agentscript",
       "description": "Agent Script DSL authoring with 100-point scoring, instruction resolution patterns, and FSM architecture",
-      "source": "./sf-ai-agentscript",
+      "source": "./cirra-ai-sf-ai-agentscript",
       "version": "1.0.0",
       "author": {
         "name": "Cirra AI",
