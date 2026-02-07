@@ -155,7 +155,7 @@ Skill(skill="sf-data", args="Create 251 Quote__c records")
 
 1. **Always create Permission Sets** with object/field metadata
 2. **Use `sobject_describe`** to verify existing structure before creating
-3. **Check sfdx-project.json** exists before generating metadata
+3. **Verify org connection** with `cirra_ai_init()` before generating metadata
 4. **Use consistent naming** across related objects (Quote**c, Quote_Line_Item**c)
 5. **Document relationships** in object descriptions
 

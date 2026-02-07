@@ -2,23 +2,25 @@
 
 Reference for Salesforce Einstein Agent Runtime API v1 — the REST API used for multi-turn agent testing.
 
+> **Status:** This API is NOT yet proxied by the Cirra AI MCP Server. This document serves as a reference for a future MCP enhancement. See JIRA PLTFRM ticket for tracking.
+
 ---
 
 ## Overview
 
-The Agent Runtime API provides programmatic access to Agentforce agents via REST endpoints. Unlike the CLI-based Agent Testing Center (single-utterance tests), this API supports **multi-turn conversations** with full session lifecycle management.
+The Agent Runtime API provides programmatic access to Agentforce agents via REST endpoints. Unlike the Tooling API-based Agent Testing Center (single-utterance tests), this API supports **multi-turn conversations** with full session lifecycle management.
 
 > ⚠️ **Agent API is NOT supported for agents of type "Agentforce (Default)".** Only custom agents created via Agentforce Builder are supported.
 
-| Feature                               | Agent Testing Center (CLI) | Agent Runtime API      |
-| ------------------------------------- | -------------------------- | ---------------------- |
-| Multi-turn conversations              | ❌ No                      | ✅ Yes                 |
-| Session state management              | ❌ No                      | ✅ Yes                 |
-| Context preservation testing          | ❌ No                      | ✅ Yes                 |
-| Topic re-matching validation          | ❌ No                      | ✅ Yes                 |
-| Requires AiEvaluationDefinition       | ✅ Yes                     | ❌ No                  |
-| Requires Agent Testing Center feature | ✅ Yes                     | ❌ No                  |
-| Auth mechanism                        | cirra_ai_init() / org auth | Client Credentials ECA |
+| Feature                               | Agent Testing Center (Tooling API) | Agent Runtime API          |
+| ------------------------------------- | ---------------------------------- | -------------------------- |
+| Multi-turn conversations              | ❌ No                              | ✅ Yes                     |
+| Session state management              | ❌ No                              | ✅ Yes                     |
+| Context preservation testing          | ❌ No                              | ✅ Yes                     |
+| Topic re-matching validation          | ❌ No                              | ✅ Yes                     |
+| Requires AiEvaluationDefinition       | ✅ Yes                             | ❌ No                      |
+| Requires Agent Testing Center feature | ✅ Yes                             | ❌ No                      |
+| Available via MCP                     | ✅ Yes (tooling_api_*)             | ❌ Not yet (future enhancement) |
 
 ---
 
@@ -36,16 +38,13 @@ https://api.salesforce.com/einstein/ai-agent/v1
 
 The Agent Runtime API requires an **OAuth 2.0 access token** obtained via **Client Credentials flow** from an External Client App (ECA).
 
-```bash
-# Obtain access token
-SF_TOKEN=$(curl -s -X POST "https://${SF_MY_DOMAIN}/services/oauth2/token" \
-  -d "grant_type=client_credentials" \
-  -d "client_id=${CONSUMER_KEY}" \
-  -d "client_secret=${CONSUMER_SECRET}" \
-  | jq -r '.access_token')
+Authentication is handled automatically by the Cirra AI MCP Server:
+
+```python
+cirra_ai_init()
 ```
 
-**Required:** An External Client App configured with Client Credentials flow. See [ECA Setup Guide](eca-setup-guide.md).
+Authentication details are managed by the Cirra AI platform (MCP Server → Backend → Salesforce via auto-created Connected App).
 
 ---
 
@@ -133,7 +132,7 @@ Content-Type: application/json
 | ------ | ------------ | --------------------------------- |
 | 400    | Bad Request  | Invalid agentId or malformed body |
 | 401    | Unauthorized | Invalid or expired token          |
-| 403    | Forbidden    | ECA scopes insufficient           |
+| 403    | Forbidden    | Insufficient scopes               |
 | 404    | Not Found    | Agent not found or not activated  |
 | 429    | Rate Limited | Too many concurrent sessions      |
 
@@ -356,66 +355,16 @@ The `Id` field from the query result is the `{agentId}` used in session creation
 
 ---
 
-## Complete Multi-Turn Example
+## Complete Multi-Turn Flow
 
-```bash
-#!/bin/bash
-# Multi-turn agent conversation test
+A multi-turn conversation follows this sequence:
 
-SF_MY_DOMAIN="your-domain.my.salesforce.com"
-CONSUMER_KEY="your_key"
-CONSUMER_SECRET="your_secret"
-AGENT_ID="0XxRM0000004ABC"
+1. **Discover agent ID**: `tooling_api_query(sobjectType="BotDefinition", whereClause="IsActive=true")`
+2. **Create session**: `POST /einstein/ai-agent/v1/agents/{agentId}/sessions`
+3. **Send each turn**: `POST /einstein/ai-agent/v1/sessions/{sessionId}/messages` (incrementing `sequenceId`)
+4. **End session**: `DELETE /einstein/ai-agent/v1/sessions/{sessionId}`
 
-# 1. Get access token
-SF_TOKEN=$(curl -s -X POST "https://${SF_MY_DOMAIN}/services/oauth2/token" \
-  -d "grant_type=client_credentials&client_id=${CONSUMER_KEY}&client_secret=${CONSUMER_SECRET}" \
-  | jq -r '.access_token')
-
-# 2. Create session
-SESSION_ID=$(curl -s -X POST \
-  "https://api.salesforce.com/einstein/ai-agent/v1/agents/${AGENT_ID}/sessions" \
-  -H "Authorization: Bearer ${SF_TOKEN}" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "externalSessionKey":"'"$(uuidgen | tr A-Z a-z)"'",
-    "instanceConfig":{"endpoint":"https://'"${SF_MY_DOMAIN}"'"},
-    "streamingCapabilities":{"chunkTypes":["Text"]},
-    "bypassUser":true
-  }' | jq -r '.sessionId')
-
-echo "Session: ${SESSION_ID}"
-
-# 3. Turn 1: Initial request
-R1=$(curl -s -X POST \
-  "https://api.salesforce.com/einstein/ai-agent/v1/sessions/${SESSION_ID}/messages" \
-  -H "Authorization: Bearer ${SF_TOKEN}" \
-  -H "Content-Type: application/json" \
-  -d '{"message":{"sequenceId":1,"type":"Text","text":"I need to cancel my appointment"}}')
-echo "Turn 1 Response: $(echo $R1 | jq -r '.messages[0].message')"
-
-# 4. Turn 2: Follow-up
-R2=$(curl -s -X POST \
-  "https://api.salesforce.com/einstein/ai-agent/v1/sessions/${SESSION_ID}/messages" \
-  -H "Authorization: Bearer ${SF_TOKEN}" \
-  -H "Content-Type: application/json" \
-  -d '{"message":{"sequenceId":2,"type":"Text","text":"Actually, can I reschedule instead?"}}')
-echo "Turn 2 Response: $(echo $R2 | jq -r '.messages[0].message')"
-
-# 5. Turn 3: Context check
-R3=$(curl -s -X POST \
-  "https://api.salesforce.com/einstein/ai-agent/v1/sessions/${SESSION_ID}/messages" \
-  -H "Authorization: Bearer ${SF_TOKEN}" \
-  -H "Content-Type: application/json" \
-  -d '{"message":{"sequenceId":3,"type":"Text","text":"What was my original request about?"}}')
-echo "Turn 3 Response: $(echo $R3 | jq -r '.messages[0].message')"
-
-# 6. End session
-curl -s -X DELETE \
-  "https://api.salesforce.com/einstein/ai-agent/v1/sessions/${SESSION_ID}" \
-  -H "Authorization: Bearer ${SF_TOKEN}"
-echo "Session ended."
-```
+> **Note:** The Cirra AI MCP Server does not yet proxy Agent Runtime API calls. This flow is documented as a reference for a future MCP enhancement. See the [Multi-Turn Testing Guide](multi-turn-testing-guide.md) for test scenario design patterns that can be used once the proxy is available.
 
 ---
 
@@ -463,7 +412,7 @@ When analyzing multi-turn responses, check these indicators:
 3. **Increment sequenceId** — Never reuse or skip sequence numbers
 4. **Check for empty responses** — Agent may not respond if not activated
 5. **Handle rate limits** — Add retry logic with backoff for 429 responses
-6. **Keep credentials in memory** — Never write ECA secrets to files
+6. **Keep credentials in memory** — Never write secrets to files
 
 ---
 
@@ -471,7 +420,7 @@ When analyzing multi-turn responses, check these indicators:
 
 | Error                    | Cause                        | Fix                        |
 | ------------------------ | ---------------------------- | -------------------------- |
-| 401 on token request     | Wrong Consumer Key/Secret    | Verify ECA credentials     |
+| 401 on token request     | Wrong credentials            | Verify Connected App setup |
 | 401 on API call          | Token expired                | Re-authenticate            |
 | 404 on session create    | Wrong Agent ID               | Re-query BotDefinition     |
 | 400 "Invalid session"    | Session already ended        | Create new session         |
@@ -485,6 +434,5 @@ When analyzing multi-turn responses, check these indicators:
 
 | Resource                 | Link                                                                    |
 | ------------------------ | ----------------------------------------------------------------------- |
-| ECA Setup                | [eca-setup-guide.md](eca-setup-guide.md)                                |
 | Multi-Turn Testing Guide | [multi-turn-testing-guide.md](multi-turn-testing-guide.md)              |
 | Test Patterns            | [multi-turn-test-patterns.md](../resources/multi-turn-test-patterns.md) |

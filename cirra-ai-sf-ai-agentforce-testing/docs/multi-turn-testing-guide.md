@@ -326,7 +326,6 @@ Multi-Turn Test Failed
 | Resource                    | Link                                                                    |
 | --------------------------- | ----------------------------------------------------------------------- |
 | Agent Runtime API Reference | [agent-api-reference.md](agent-api-reference.md)                        |
-| ECA Setup Guide             | [eca-setup-guide.md](eca-setup-guide.md)                                |
 | Test Patterns Reference     | [multi-turn-test-patterns.md](../resources/multi-turn-test-patterns.md) |
 | Coverage Analysis           | [coverage-analysis.md](coverage-analysis.md)                            |
 | Agentic Fix Loops           | [agentic-fix-loops.md](../resources/agentic-fix-loops.md)               |

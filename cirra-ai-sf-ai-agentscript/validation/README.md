@@ -56,7 +56,7 @@ If a validation agent fails to deploy:
 
 ```
 validation/
-├── sfdx-project.json           # SFDX project config
+├── project-config.json          # Project config
 ├── README.md                   # This file
 └── validation-agents/
     └── force-app/main/default/aiAuthoringBundles/

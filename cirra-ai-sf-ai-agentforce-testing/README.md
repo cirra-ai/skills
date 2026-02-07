@@ -112,9 +112,9 @@ When enabled, the skill will:
 
 ## Documentation
 
-- [CLI Commands Reference](docs/cli-commands.md)
 - [Test Spec Guide](docs/test-spec-guide.md)
-- [Connected App Setup](docs/connected-app-setup.md)
+- [Agent Runtime API Reference](docs/agent-api-reference.md)
+- [Multi-Turn Testing Guide](docs/multi-turn-testing-guide.md)
 - [Coverage Analysis](docs/coverage-analysis.md)
 - [Agentic Fix Loop](docs/agentic-fix-loop.md)
 

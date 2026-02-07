@@ -199,11 +199,11 @@ All CLI commands in supporting documentation replaced with Cirra AI MCP Server t
 
 | File | Changes |
 |---|---|
-| `docs/connected-app-setup.md` | `sf org login/display/deploy/activate/preview` → MCP |
-| `docs/agent-api-reference.md` | `sf data query --use-tooling-api` + auth table → MCP |
+| `docs/connected-app-setup.md` | **Deleted** — dead doc (users don't set up Connected Apps) |
+| `docs/eca-setup-guide.md` | **Deleted** — dead doc (users don't set up ECAs) |
+| `docs/agent-api-reference.md` | `sf data query --use-tooling-api` + auth table → MCP; ECA refs removed |
 | `docs/agentic-fix-loop.md` | `sf agent test run/results/validate/publish` → MCP |
 | `docs/coverage-analysis.md` | `sf agent test run/results/create` + CI/CD → MCP |
-| `docs/eca-setup-guide.md` | `sf agent preview` annotated as UI-only |
 | `docs/test-spec-guide.md` | `sf agent test create` → MCP |
 
 **sf-ai-agentforce-testing resources:**
@@ -232,16 +232,31 @@ Two scripts that shelled out to `sf agent test` CLI commands have been **deleted
 - `run-automated-tests.py` — Orchestrated `sf agent test list/create/run` via subprocess
 - `test-fix-loop.sh` — Ran `sf agent test run` in a bash loop
 
-**Replaced by:** The SKILL.md already documents equivalent operations via Cirra AI Tooling API (`tooling_api_query(AiEvaluationDefinition)`, `tooling_api_dml(create, AiEvaluationRun)`, etc.), and the multi-turn test runner (`multi_turn_test_runner.py`) provides API-based testing without any CLI dependency.
+**Replaced by:** The SKILL.md documents equivalent operations via Cirra AI Tooling API (`tooling_api_query(AiEvaluationDefinition)`, `tooling_api_dml(create, AiEvaluationRun)`, etc.).
+
+**Also deleted (make direct HTTP calls to Agent Runtime API — cannot work in Cowork's sandbox):**
+
+- `multi_turn_test_runner.py` — Multi-turn test orchestrator using urllib to call Agent Runtime API directly
+- `agent_api_client.py` — Pure Python HTTP client for Agent Runtime API sessions/messages
+
+**Also deleted (OAuth setup docs — users don't set up OAuth apps; Cirra AI handles auth automatically):**
+
+- `docs/eca-setup-guide.md` — External Client App setup instructions (dead doc)
+- `docs/connected-app-setup.md` — Connected App setup instructions (dead doc)
+
+**Also deleted (validation tests for removed scripts):**
+
+- `validation/scenarios/tier1_api_client/` — Tests for deleted agent_api_client.py
+- `validation/scenarios/tier2_test_runner/` — Tests for deleted multi_turn_test_runner.py
+- `validation/scenarios/tier4_negative/` — Tests importing from deleted scripts
+- `validation/scenarios/tier5_live_api/` — Live API tests importing from deleted scripts
 
 **Kept (CLI-independent):**
 
-- `multi_turn_test_runner.py` — Direct Agent Runtime API calls (no CLI needed)
-- `agent_api_client.py` — Pure Python HTTP client for Agent Runtime API
-- `generate-test-spec.py` — Parses .agent files, generates YAML (no CLI invocation)
-- `parse-agent-test-results.py` — Parses test output (no CLI invocation)
+- `generate-test-spec.py` — Parses .agent files, generates YAML (no CLI or HTTP invocation)
+- `parse-agent-test-results.py` — Parses test output (no CLI or HTTP invocation)
 
-**Still not available via MCP:** `sf agent preview` (interactive UI-only feature) and `sf agent generate test-spec` (interactive CLI-only).
+**Still not available via MCP:** `sf agent preview` (interactive UI-only feature) and `sf agent generate test-spec` (interactive CLI-only). Agent Runtime API proxy is a desired enhancement (see JIRA PLTFRM ticket).
 
 ### 2. `@salesforce/sfdx-lwc-jest` npm Package
 
@@ -291,9 +306,7 @@ The following files intentionally retain SF CLI references and should NOT be mod
 - **CREDITS.md files** — Attribution to sf CLI team and docs
 - **REFACTORING_SUMMARY.md, INDEX.md, README2.md** — Document the migration itself
 - **plugin.json changelog entries** — Historical record of migration
-- **`sfdx-project.json`** — Salesforce project file name (not a CLI command)
-- **`@salesforce/sfdx-lwc-jest`** — npm package name (not a CLI command)
-- **`curl`-based bash blocks** — API calls, not CLI commands
+- **`@salesforce/sfdx-lwc-jest`** — npm package name, runs locally via Node.js
 
 ## Migration Status: COMPLETE
 
@@ -303,8 +316,9 @@ All actionable SF CLI references have been remediated. The migration covered:
 - **6 README.md** files updated
 - **5 hook scripts** fixed (CLI messages → MCP)
 - **5 hook scripts** cleaned (dead code removal)
-- **2 CLI-dependent scripts** deleted
-- **6 CLI reference docs** deleted
+- **4 CLI/HTTP-dependent scripts** deleted (2 CLI + 2 Agent Runtime API)
+- **8 CLI reference/OAuth docs** deleted (6 CLI + 2 OAuth setup)
+- **4 validation test tiers** deleted (tests for removed scripts)
 - **8 example files** updated with MCP equivalents
 - **11 template files** updated with MCP equivalents
 - **~40 supporting docs/resources** updated with MCP equivalents

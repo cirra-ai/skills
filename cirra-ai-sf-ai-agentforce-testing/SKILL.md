@@ -1,9 +1,9 @@
 ---
 name: sf-ai-agentforce-testing
 description: >
-  Comprehensive Agentforce testing skill with dual-track workflow: multi-turn API testing
-  (primary) and CLI Testing Center (secondary). Execute multi-turn conversations via Agent
-  Runtime API, run single-utterance tests via Cirra AI MCP, analyze topic/action/context coverage,
+  Comprehensive Agentforce testing skill with dual-track workflow: multi-turn conversation testing
+  (primary) and CLI Testing Center (secondary). Design multi-turn test scenarios,
+  run single-utterance tests via Cirra AI MCP, analyze topic/action/context coverage,
   and automatically fix failing agents with 100-point scoring across 7 categories. Uses Cirra AI
   MCP Server instead of Salesforce CLI for org access.
 license: MIT
@@ -22,11 +22,11 @@ metadata:
 
 # sf-ai-agentforce-testing: Agentforce Test Execution & Coverage Analysis (Cirra AI MCP)
 
-Expert testing engineer specializing in Agentforce agent testing via **dual-track workflow**: multi-turn Agent Runtime API testing (primary) and CLI Testing Center (secondary). Uses **Cirra AI MCP Server** for org access, metadata queries, and test management. Execute multi-turn conversations, analyze topic/action/context coverage, and automatically fix issues via sf-ai-agentscript (or sf-ai-agentforce-legacy for existing agents).
+Expert testing engineer specializing in Agentforce agent testing via **dual-track workflow**: multi-turn conversation testing (primary) and CLI Testing Center (secondary). Uses **Cirra AI MCP Server** for org access, metadata queries, and test management. Design multi-turn test scenarios, analyze topic/action/context coverage, and automatically fix issues via sf-ai-agentscript (or sf-ai-agentforce-legacy for existing agents).
 
 ## Core Responsibilities
 
-1. **Multi-Turn API Testing** (PRIMARY): Execute multi-turn conversations via Agent Runtime API
+1. **Multi-Turn Testing** (PRIMARY): Design and evaluate multi-turn conversation scenarios
 2. **CLI Test Execution** (SECONDARY): Run single-utterance tests via Cirra AI `tooling_api_dml` on AiEvaluationDefinition
 3. **Test Spec / Scenario Generation**: Create YAML test specifications and multi-turn scenarios
 4. **Coverage Analysis**: Track topic, action, context preservation, and re-matching coverage
@@ -40,20 +40,18 @@ Expert testing engineer specializing in Agentforce agent testing via **dual-trac
 | Need                      | Document                                                             | Description                                       |
 | ------------------------- | -------------------------------------------------------------------- | ------------------------------------------------- |
 | **Agent Runtime API**     | [agent-api-reference.md](docs/agent-api-reference.md)                | REST endpoints for multi-turn testing             |
-| **ECA Setup**             | [eca-setup-guide.md](docs/eca-setup-guide.md)                        | External Client App for API authentication        |
 | **Multi-Turn Testing**    | [multi-turn-testing-guide.md](docs/multi-turn-testing-guide.md)      | Multi-turn test design and execution              |
 | **Test Patterns**         | [multi-turn-test-patterns.md](resources/multi-turn-test-patterns.md) | 6 multi-turn test patterns with examples          |
 | **Cirra AI Tool Mapping** | [cirra-ai-integration.md](docs/cirra-ai-integration.md)              | Complete MCP Server tool reference                |
 | **Test spec format**      | [test-spec-reference.md](resources/test-spec-reference.md)           | YAML specification format and examples            |
 | **Auto-fix workflow**     | [agentic-fix-loops.md](resources/agentic-fix-loops.md)               | Automated test-fix cycles (10 failure categories) |
-| **Live preview setup**    | [connected-app-setup.md](docs/connected-app-setup.md)                | OAuth for live preview mode                       |
 | **Coverage metrics**      | [coverage-analysis.md](docs/coverage-analysis.md)                    | Topic/action/multi-turn coverage analysis         |
 | **Fix decision tree**     | [agentic-fix-loop.md](docs/agentic-fix-loop.md)                      | Detailed fix strategies                           |
 
 **⚡ Quick Links:**
 
 - [Scoring System](#scoring-system-100-points) - 7-category validation
-- [Phase A: Multi-Turn API Testing](#phase-a-multi-turn-api-testing-primary) - Primary workflow
+- [Phase A: Multi-Turn Testing](#phase-a-multi-turn-testing-primary) - Primary workflow
 - [Phase B: CLI Testing Center](#phase-b-cli-testing-center-secondary) - Secondary workflow (Cirra AI)
 - [Agentic Fix Loop](#phase-c-agentic-fix-loop) - Auto-fix workflow
 - [Multi-Turn Templates](#multi-turn-test-templates) - Pre-built test scenarios
@@ -86,15 +84,15 @@ Expert testing engineer specializing in Agentforce agent testing via **dual-trac
 ```
 Phase 0: Prerequisites & Agent Discovery (Cirra AI tooling_api_query)
     │
-    ├──► Phase A: Multi-Turn API Testing (PRIMARY)
+    ├──► Phase A: Multi-Turn Testing (PRIMARY)
     │    A1: ECA Credential Setup
     │    A2: Agent Discovery & Metadata Retrieval (Cirra AI)
     │    A3: Test Scenario Planning (interview user)
-    │    A4: Multi-Turn Execution (Agent Runtime API)
+    │    A4: Multi-Turn Execution (scenario-based evaluation)
     │    A5: Results & Scoring
     │
     └──► Phase B: CLI Testing Center (SECONDARY, Cirra AI)
-         B1: Test Spec Creation (Python script or manual)
+         B1: Test Spec Creation (script or manual)
          B2: Test Execution (tooling_api_dml on AiEvaluationDefinition)
          B3: Results Analysis (tooling_api_query)
     │
@@ -112,7 +110,7 @@ Phase E: Observability Integration (STDM analysis)
 | Need topic re-matching validation                          | Phase A                                        |
 | Need context preservation testing                          | Phase A                                        |
 | Agent Testing Center IS available + single-utterance tests | Phase B                                        |
-| CI/CD pipeline integration                                 | Phase A (Python scripts) or Phase B (Cirra AI) |
+| CI/CD pipeline integration                                 | Phase B (Cirra AI)                             |
 | Quick smoke test                                           | Phase B                                        |
 
 ---
@@ -250,7 +248,7 @@ If error: → Agent Testing Center NOT enabled → Phase A only
 
 ---
 
-## Phase A: Multi-Turn API Testing (PRIMARY)
+## Phase A: Multi-Turn Testing (PRIMARY)
 
 ### A1: ECA Credential Setup
 
@@ -279,14 +277,10 @@ Skill(skill="sf-connected-apps", args="Create External Client App with Client Cr
 
 **Verify credentials work:**
 
-```bash
-# Test token request (credentials passed inline, never stored in files)
-curl -s -X POST "https://${SF_MY_DOMAIN}/services/oauth2/token" \
-  -d "grant_type=client_credentials&client_id=${CONSUMER_KEY}&client_secret=${CONSUMER_SECRET}" \
-  | jq '.access_token | length'
+```python
+# Test org connection via Cirra AI MCP Server
+cirra_ai_init()
 ```
-
-See [ECA Setup Guide](docs/eca-setup-guide.md) for complete instructions.
 
 ### A2: Agent Discovery & Metadata Retrieval
 
@@ -355,110 +349,15 @@ Claude uses the agent metadata from A2 to **auto-generate multi-turn scenarios**
 
 ### A4: Multi-Turn Execution
 
-Execute conversations via Agent Runtime API using the **reusable Python scripts** in `hooks/scripts/`.
-
 > ⚠️ **Agent API is NOT supported for agents of type "Agentforce (Default)".** Only custom agents created via Agentforce Builder are supported.
+>
+> **Note:** Automated multi-turn API testing requires Agent Runtime API proxy support in the MCP server (not yet available). Until then, use the YAML test templates below to design multi-turn scenarios and execute them manually via the Agent Preview UI, or use Phase B for single-utterance automated testing.
 
-**Option 1: Run Test Scenarios from YAML Templates (Recommended)**
-
-Use the multi-turn test runner to execute entire scenario suites:
-
-```bash
-# Run comprehensive test suite against an agent
-python3 hooks/scripts/multi_turn_test_runner.py \
-  --my-domain "${SF_MY_DOMAIN}" \
-  --consumer-key "${CONSUMER_KEY}" \
-  --consumer-secret "${CONSUMER_SECRET}" \
-  --agent-id "${AGENT_ID}" \
-  --scenarios templates/multi-turn-comprehensive.yaml \
-  --verbose
-
-# Run specific scenario within a suite
-python3 hooks/scripts/multi_turn_test_runner.py \
-  --my-domain "${SF_MY_DOMAIN}" \
-  --consumer-key "${CONSUMER_KEY}" \
-  --consumer-secret "${CONSUMER_SECRET}" \
-  --agent-id "${AGENT_ID}" \
-  --scenarios templates/multi-turn-topic-routing.yaml \
-  --scenario-filter topic_switch_natural \
-  --verbose
-
-# With context variables and JSON output for fix loop
-python3 hooks/scripts/multi_turn_test_runner.py \
-  --my-domain "${SF_MY_DOMAIN}" \
-  --consumer-key "${CONSUMER_KEY}" \
-  --consumer-secret "${CONSUMER_SECRET}" \
-  --agent-id "${AGENT_ID}" \
-  --scenarios templates/multi-turn-comprehensive.yaml \
-  --var '$Context.AccountId=001XXXXXXXXXXXX' \
-  --var '$Context.EndUserLanguage=en_US' \
-  --output results.json \
-  --verbose
-```
-
-**Exit codes:** `0` = all passed, `1` = some failed (fix loop should process), `2` = execution error
-
-**Option 2: Use Environment Variables (cleaner for repeated runs)**
-
-```bash
-export SF_MY_DOMAIN="your-domain.my.salesforce.com"
-export SF_CONSUMER_KEY="your_key"
-export SF_CONSUMER_SECRET="your_secret"
-export SF_AGENT_ID="0XxRM0000004ABC"
-
-# Now run without credential flags
-python3 hooks/scripts/multi_turn_test_runner.py \
-  --scenarios templates/multi-turn-comprehensive.yaml \
-  --verbose
-```
-
-**Option 3: Python API for Ad-Hoc Testing**
-
-For custom scenarios or debugging, use the client directly:
-
-```python
-from hooks.scripts.agent_api_client import AgentAPIClient
-
-client = AgentAPIClient(
-    my_domain="your-domain.my.salesforce.com",
-    consumer_key="...",
-    consumer_secret="..."
-)
-
-# Context manager auto-ends session
-with client.session(agent_id="0XxRM000...") as session:
-    r1 = session.send("I need to cancel my appointment")
-    print(f"Turn 1: {r1.agent_text}")
-
-    r2 = session.send("Actually, reschedule instead")
-    print(f"Turn 2: {r2.agent_text}")
-
-    r3 = session.send("What was my original request?")
-    print(f"Turn 3: {r3.agent_text}")
-    # Check context preservation
-    if "cancel" in r3.agent_text.lower():
-        print("✅ Context preserved")
-
-# With initial variables
-variables = [
-    {"name": "$Context.AccountId", "type": "Id", "value": "001XXXXXXXXXXXX"},
-    {"name": "$Context.EndUserLanguage", "type": "Text", "value": "en_US"},
-]
-with client.session(agent_id="0Xx...", variables=variables) as session:
-    r1 = session.send("What orders do I have?")
-```
-
-**Connectivity Test:**
-
-```bash
-# Verify ECA credentials and API connectivity
-python3 hooks/scripts/agent_api_client.py
-# Reads SF_MY_DOMAIN, SF_CONSUMER_KEY, SF_CONSUMER_SECRET from env
-```
+Claude uses the YAML scenario templates from A3 to structure multi-turn test conversations. Each scenario defines a sequence of turns with expected outcomes.
 
 **Per-Turn Analysis Checklist:**
 
-The test runner automatically evaluates each turn against expectations defined in the YAML template:
+When evaluating multi-turn conversations, check each turn against these criteria:
 
 | #   | Check                     | YAML Key                          | How Evaluated                               |
 | --- | ------------------------- | --------------------------------- | ------------------------------------------- |
@@ -871,45 +770,14 @@ Skill(skill="sf-ai-agentforce-observability", args="Analyze STDM sessions for ag
 
 ---
 
-## Automated Testing (Python Scripts)
+## Automated Testing (Helper Scripts)
 
-Python scripts execute directly without needing sf CLI and work with both API and Cirra AI approaches.
+Helper scripts for test spec generation work with Cirra AI approaches.
 
-| Script                         | Purpose                                                                     | Dependencies              |
-| ------------------------------ | --------------------------------------------------------------------------- | ------------------------- |
-| `agent_api_client.py`          | Reusable Agent Runtime API v1 client (auth, sessions, messaging, variables) | stdlib only               |
-| `multi_turn_test_runner.py`    | Multi-turn test orchestrator (reads YAML, executes, evaluates, reports)     | pyyaml + agent_api_client |
-| `generate-test-spec.py`       | Parse .agent files, generate test YAML specs                                | stdlib only               |
-| `parse-agent-test-results.py` | Parse and format test results for analysis                                  | stdlib only               |
-
-**Multi-Turn Testing (Agent Runtime API):**
-
-```bash
-# Install test runner dependency
-pip3 install pyyaml
-
-# Run multi-turn test suite against an agent
-python3 hooks/scripts/multi_turn_test_runner.py \
-  --my-domain your-domain.my.salesforce.com \
-  --consumer-key YOUR_KEY \
-  --consumer-secret YOUR_SECRET \
-  --agent-id 0XxRM0000004ABC \
-  --scenarios templates/multi-turn-comprehensive.yaml \
-  --output results.json --verbose
-
-# Or set env vars and omit credential flags
-export SF_MY_DOMAIN=your-domain.my.salesforce.com
-export SF_CONSUMER_KEY=YOUR_KEY
-export SF_CONSUMER_SECRET=YOUR_SECRET
-python3 hooks/scripts/multi_turn_test_runner.py \
-  --agent-id 0XxRM0000004ABC \
-  --scenarios templates/multi-turn-topic-routing.yaml \
-  --var '$Context.AccountId=001XXXXXXXXXXXX' \
-  --verbose
-
-# Connectivity test (verify ECA credentials work)
-python3 hooks/scripts/agent_api_client.py
-```
+| Script                         | Purpose                                        | Dependencies   |
+| ------------------------------ | ---------------------------------------------- | -------------- |
+| `generate-test-spec.py`        | Parse .agent files, generate test YAML specs   | stdlib only    |
+| `parse-agent-test-results.py`  | Parse and format test results for analysis     | stdlib only    |
 
 **Test Spec Generation:**
 
@@ -936,15 +804,11 @@ USER: Run automated test-fix loop for Coral_Cloud_Agent
 
 CLAUDE CODE:
 1. Phase 0: Initialize Cirra AI (cirra_ai_init)
-2. Phase A: Run multi-turn scenarios via Python test runner
-   python3 hooks/scripts/multi_turn_test_runner.py \
-     --agent-id ${AGENT_ID} \
-     --scenarios templates/multi-turn-comprehensive.yaml \
-     --output results.json --verbose
-3. Analyze failures from results.json (10 categories)
-4. If fixable: Skill(skill="sf-ai-agentscript", args="Fix...")
-5. Re-run failed scenarios with --scenario-filter
-6. Phase B (if available): Create and run tests via Cirra AI tooling_api_dml/query
+2. Phase A: Design multi-turn scenarios from YAML templates, execute via Agent Preview UI
+3. Phase B (if available): Create and run tests via Cirra AI tooling_api_dml/query
+4. Analyze failures (10 categories)
+5. If fixable: Skill(skill="sf-ai-agentscript", args="Fix...")
+6. Re-run failed tests
 7. Repeat until passing or max retries (3)
 ```
 
@@ -983,60 +847,42 @@ CLAUDE CODE:
 
 ## Quick Start Example
 
-### Multi-Turn API Testing (Recommended)
+### Multi-Turn Testing
 
-**Quick Start with Python Scripts:**
-
-```bash
+```
 # 0. Initialize Cirra AI (one-time)
-# (via AskUserQuestion flow in Phase 0)
+cirra_ai_init(sf_user="your.email@company.com")
 
 # 1. Get agent ID (via Cirra AI)
-# tooling_api_query(BotDefinition, whereClause="DeveloperName='My_Agent'...")
+tooling_api_query(BotDefinition, whereClause="DeveloperName='My_Agent'", fields=["Id", "DeveloperName"])
 
-# 2. Run multi-turn tests (credentials from env or flags)
-python3 hooks/scripts/multi_turn_test_runner.py \
-  --my-domain "${SF_MY_DOMAIN}" \
-  --consumer-key "${CONSUMER_KEY}" \
-  --consumer-secret "${CONSUMER_SECRET}" \
-  --agent-id "${AGENT_ID}" \
-  --scenarios templates/multi-turn-comprehensive.yaml \
-  --output results.json --verbose
-```
+# 2. Retrieve agent metadata for scenario generation
+metadata_read(type="GenAiPlannerBundle", fullNames=["My_Agent"])
 
-**Ad-Hoc Python Usage:**
-
-```python
-from hooks.scripts.agent_api_client import AgentAPIClient
-
-client = AgentAPIClient()  # reads SF_MY_DOMAIN, SF_CONSUMER_KEY, SF_CONSUMER_SECRET from env
-with client.session(agent_id="0XxRM000...") as session:
-    r1 = session.send("I need to cancel my appointment")
-    r2 = session.send("Actually, reschedule it instead")
-    r3 = session.send("What was my original request about?")
-    # Session auto-ends when exiting context manager
+# 3. Design multi-turn scenarios using YAML templates (see templates/)
+# 4. Execute via Agent Preview UI and evaluate against per-turn checklist
 ```
 
 ### CLI Testing (If Agent Testing Center Available)
 
 **Using Cirra AI MCP:**
 
-```bash
+```
 # 0. Initialize Cirra AI (one-time)
 
-# 1. Generate test spec (manual or Python)
+# 1. Generate test spec
 python3 hooks/scripts/generate-test-spec.py \
   --agent-file ./agents/MyAgent.agent \
   --output ./tests/myagent-tests.yaml
 
 # 2. Create test in org (Cirra AI)
-# tooling_api_dml(create, AiEvaluationDefinition, record={...from YAML...})
+tooling_api_dml(create, AiEvaluationDefinition, record={...from YAML...})
 
 # 3. Run tests (Cirra AI)
-# tooling_api_dml(create, AiEvaluationRun, record={...})
+tooling_api_dml(create, AiEvaluationRun, record={...})
 
 # 4. View results (Cirra AI)
-# tooling_api_query(AiEvaluationRun, whereClause="id='${RUN_ID}'")
+tooling_api_query(AiEvaluationRun, whereClause="id='${RUN_ID}'")
 ```
 
 ---
@@ -1060,18 +906,6 @@ tooling_api_query(sObject="AiEvaluationDefinition", limit=1)
 - Agent Testing Center feature NOT enabled in org
 - Use Phase A (Agent Runtime API) exclusively
 - Contact Salesforce admin to enable testing center
-
-### MEDIUM: Python Script Dependencies
-
-**Status**: 🟡 Requires pyyaml for multi-turn testing
-
-**Install**:
-
-```bash
-pip3 install pyyaml
-```
-
-**Agent API Client**: stdlib only (no external deps)
 
 ### LOW: Interactive Preview Not Available via Cirra AI
 
