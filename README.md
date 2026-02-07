@@ -2,7 +2,7 @@
 
 ![CI](https://github.com/cirra-ai/skills/actions/workflows/ci.yml/badge.svg)
 
-Skills and prompts for managing SFDC orgs
+Coming soon! Plugins and skills for managing SFDC orgs using Cirra AI
 
 ## Contributing
 
