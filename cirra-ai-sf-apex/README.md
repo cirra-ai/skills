@@ -13,11 +13,11 @@ Generates and reviews Salesforce Apex code with 2025 best practices and 150-poin
 ## Installation
 
 ```bash
-# Install as part of sf-skills
-claude /plugin install github:Jaganpro/sf-skills
+# Install standalone
+claude /plugin install github:cirra-ai/skills/cirra-ai-sf-apex
 
-# Or install standalone
-claude /plugin install github:Jaganpro/sf-skills/sf-apex
+# Or install the complete Cirra AI skills suite
+claude /plugin install github:cirra-ai/skills
 ```
 
 ## Quick Start

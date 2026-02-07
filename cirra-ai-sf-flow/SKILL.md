@@ -145,10 +145,10 @@ Use **AskUserQuestion** to gather:
 
 **Template Path Resolution** (try in order):
 
-1. **Marketplace folder**: `~/.claude/plugins/marketplaces/sf-skills/sf-flow/templates/[template].xml`
-2. **Project folder**: `[project-root]/sf-flow/templates/[template].xml`
+1. **Marketplace folder**: `~/.claude/plugins/marketplaces/cirra-ai/cirra-ai-sf-flow/templates/[template].xml`
+2. **Project folder**: `[project-root]/cirra-ai-sf-flow/templates/[template].xml`
 
-**Example**: `Read: ~/.claude/plugins/marketplaces/sf-skills/sf-flow/templates/record-triggered-flow-template.xml`
+**Example**: `Read: ~/.claude/plugins/marketplaces/cirra-ai/cirra-ai-sf-flow/templates/record-triggered-flow-template.xml`
 
 **Naming Convention** (Recommended Prefixes):
 

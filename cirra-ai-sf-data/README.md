@@ -14,13 +14,11 @@ Salesforce data operations skill for Claude Code. Provides SOQL expertise, test 
 ## Installation
 
 ```bash
-/plugin install github:Jaganpro/sf-skills/sf-data
-```
+# Install standalone
+claude /plugin install github:cirra-ai/skills/cirra-ai-sf-data
 
-Or install the complete sf-skills suite:
-
-```bash
-/plugin install github:Jaganpro/sf-skills
+# Or install the complete Cirra AI skills suite
+claude /plugin install github:cirra-ai/skills
 ```
 
 ## Usage

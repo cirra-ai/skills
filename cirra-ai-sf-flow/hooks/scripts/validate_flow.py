@@ -47,7 +47,7 @@ import os
 # Import validators from shared location
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PLUGIN_ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR))  # sf-flow/
-SKILLS_ROOT = os.path.dirname(PLUGIN_ROOT)  # sf-skills/
+SKILLS_ROOT = os.path.dirname(PLUGIN_ROOT)  # skills root
 SHARED_SCRIPTS = os.path.join(SKILLS_ROOT, "shared", "hooks", "scripts")
 sys.path.insert(0, SHARED_SCRIPTS)
 from naming_validator import NamingValidator  # noqa: E402

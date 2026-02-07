@@ -6,7 +6,7 @@ This document tracks the identification and remediation of Salesforce CLI (`sf C
 
 ### Step 1: plugin.json Description Alignment
 
-Cross-referenced each `cirra-ai-*/.claude-plugin/plugin.json` description against the original in `sf-skills/` to ensure descriptions match the original's detail level with "using Cirra AI MCP Server" appended.
+Cross-referenced each `cirra-ai-*/.claude-plugin/plugin.json` description against the original upstream versions to ensure descriptions match the original's detail level with "using Cirra AI MCP Server" appended.
 
 **Files updated:**
 - `cirra-ai-sf-lwc/.claude-plugin/plugin.json` — Was extremely terse, restored SLDS 2 validation, 140-point scoring, dark mode, accessibility
@@ -74,7 +74,7 @@ All `cirra-ai-*/README.md` files updated:
 
 ### Dead Code Removal — Salesforce Code Analyzer & Live Query Plan
 
-The `code_analyzer` Python module (including `code_analyzer.scanner`, `code_analyzer.score_merger`, and `code_analyzer.live_query_plan`) was never ported from the original sf-skills repo. All imports always failed with `ImportError`, producing only "not available" output messages. This dead code has been **completely removed** from 5 hook scripts:
+The `code_analyzer` Python module (including `code_analyzer.scanner`, `code_analyzer.score_merger`, and `code_analyzer.live_query_plan`) was never ported from the original upstream repo. All imports always failed with `ImportError`, producing only "not available" output messages. This dead code has been **completely removed** from 5 hook scripts:
 
 | Script | What was removed |
 |---|---|

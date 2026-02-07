@@ -10,10 +10,10 @@ This project contains the refactored **sf-apex** Salesforce Apex code generation
 
 ## File Structure and Purpose
 
-### Root Directory: `/sessions/lucid-loving-albattani/mnt/outputs/sf-skills-cirra-ai/`
+### Root Directory: `/sessions/lucid-loving-albattani/mnt/outputs/cirra-ai-skills/`
 
 ```
-sf-skills-cirra-ai/
+cirra-ai-skills/
 ├── README.md                           ← Start here: Quick start guide
 ├── INDEX.md                            ← This file
 ├── REFACTORING_SUMMARY.md              ← Detailed migration documentation
@@ -33,7 +33,7 @@ sf-skills-cirra-ai/
 
 ### 1. **README.md** (Start Here)
 
-**Location**: `/sessions/lucid-loving-albattani/mnt/outputs/sf-skills-cirra-ai/README.md`
+**Location**: `/sessions/lucid-loving-albattani/mnt/outputs/cirra-ai-skills/README.md`
 
 **Purpose**: Quick start and overview
 **Contains**:
@@ -56,7 +56,7 @@ sf-skills-cirra-ai/
 
 ### 2. **REFACTORING_SUMMARY.md**
 
-**Location**: `/sessions/lucid-loving-albattani/mnt/outputs/sf-skills-cirra-ai/REFACTORING_SUMMARY.md`
+**Location**: `/sessions/lucid-loving-albattani/mnt/outputs/cirra-ai-skills/REFACTORING_SUMMARY.md`
 
 **Purpose**: Detailed migration and transformation documentation
 **Contains**:
@@ -83,7 +83,7 @@ sf-skills-cirra-ai/
 
 ### 3. **plugin.json** (MCP Configuration)
 
-**Location**: `/sessions/lucid-loving-albattani/mnt/outputs/sf-skills-cirra-ai/sf-apex/exploded/.claude-plugin/plugin.json`
+**Location**: `/sessions/lucid-loving-albattani/mnt/outputs/cirra-ai-skills/sf-apex/exploded/.claude-plugin/plugin.json`
 
 **Purpose**: Declares MCP tool requirements for the skill
 **Contains**:
@@ -119,11 +119,11 @@ sf-skills-cirra-ai/
 
 #### Copy 1: Exploded Layout
 
-**Location**: `/sessions/lucid-loving-albattani/mnt/outputs/sf-skills-cirra-ai/sf-apex/exploded/skills/sf-apex/SKILL.md`
+**Location**: `/sessions/lucid-loving-albattani/mnt/outputs/cirra-ai-skills/sf-apex/exploded/skills/sf-apex/SKILL.md`
 
 #### Copy 2: Flat Layout
 
-**Location**: `/sessions/lucid-loving-albattani/mnt/outputs/sf-skills-cirra-ai/sf-apex/skill/sf-apex/SKILL.md`
+**Location**: `/sessions/lucid-loving-albattani/mnt/outputs/cirra-ai-skills/sf-apex/skill/sf-apex/SKILL.md`
 
 **Purpose**: Complete skill documentation and usage guide
 **Length**: 607 lines of comprehensive reference material
@@ -274,7 +274,7 @@ sf-skills-cirra-ai/
 
 ```
 Copy entire directory:
-/sessions/lucid-loving-albattani/mnt/outputs/sf-skills-cirra-ai/sf-apex/exploded/
+/sessions/lucid-loving-albattani/mnt/outputs/cirra-ai-skills/sf-apex/exploded/
 to: ~/.claude/plugins/cirra-ai-sf-apex/
 
 Structure becomes:
@@ -289,7 +289,7 @@ Structure becomes:
 
 ```
 Copy entire directory:
-/sessions/lucid-loving-albattani/mnt/outputs/sf-skills-cirra-ai/sf-apex/skill/
+/sessions/lucid-loving-albattani/mnt/outputs/cirra-ai-skills/sf-apex/skill/
 to: ~/.claude/plugins/
 
 Structure becomes:
@@ -342,11 +342,11 @@ User: @cirra-ai-sf-apex Generate a service class for Account
 - **Base**: Original sf-apex v1.1.0
 - **Changes**: Replaced CLI with Cirra AI MCP Server
 - **Status**: Production-ready
-- **Location**: `/sessions/lucid-loving-albattani/mnt/outputs/sf-skills-cirra-ai/`
+- **Location**: `/sessions/lucid-loving-albattani/mnt/outputs/cirra-ai-skills/`
 
 ### v1.1.0 (Original - CLI-Based)
 
-- **Location**: `/sessions/lucid-loving-albattani/mnt/.local-plugins/marketplaces/sf-skills/sf-apex/`
+- **Location**: `/sessions/lucid-loving-albattani/mnt/.local-plugins/marketplaces/cirra-ai/cirra-ai-sf-apex/`
 - **Status**: Still available, can coexist with v2.0.0
 - **Note**: Uses `sf project deploy`, `sf project retrieve`, etc.
 

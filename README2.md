@@ -36,7 +36,7 @@ Both files contain identical refactored documentation.
 ## Directory Structure
 
 ```
-sf-skills-cirra-ai/
+cirra-ai-skills/
 ├── README.md (this file)
 ├── REFACTORING_SUMMARY.md (detailed migration guide)
 └── sf-apex/
@@ -303,7 +303,7 @@ Complete reference for:
 ## Original CLI Version
 
 The original sf-apex plugin (v1.1.0) is still available at:
-`/sessions/lucid-loving-albattani/mnt/.local-plugins/marketplaces/sf-skills/sf-apex/`
+`/sessions/lucid-loving-albattani/mnt/.local-plugins/marketplaces/cirra-ai/cirra-ai-sf-apex/`
 
 ## Support & Questions
 

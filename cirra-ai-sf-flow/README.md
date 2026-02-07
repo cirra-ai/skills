@@ -15,11 +15,11 @@ Creates and validates Salesforce Flows with 110-point scoring and Winter '26 bes
 ## Installation
 
 ```bash
-# Install as part of sf-skills
-claude /plugin install github:Jaganpro/sf-skills
+# Install standalone
+claude /plugin install github:cirra-ai/skills/cirra-ai-sf-flow
 
-# Or install standalone
-claude /plugin install github:Jaganpro/sf-skills/sf-flow
+# Or install the complete Cirra AI skills suite
+claude /plugin install github:cirra-ai/skills
 ```
 
 ## Quick Start

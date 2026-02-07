@@ -19,7 +19,7 @@ from pathlib import Path
 # Add shared modules path
 SCRIPT_DIR = Path(__file__).parent
 PLUGIN_ROOT = SCRIPT_DIR.parent.parent  # sf-data/
-SKILLS_ROOT = PLUGIN_ROOT.parent  # sf-skills/
+SKILLS_ROOT = PLUGIN_ROOT.parent  # skills root
 SHARED_DIR = SKILLS_ROOT / "shared"
 sys.path.insert(0, str(SHARED_DIR))
 

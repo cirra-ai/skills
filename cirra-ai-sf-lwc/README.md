@@ -14,11 +14,11 @@ Lightning Web Components development skill with PICKLES architecture methodology
 ## Installation
 
 ```bash
-# Install as part of sf-skills
-claude /plugin install github:Jaganpro/sf-skills
+# Install standalone
+claude /plugin install github:cirra-ai/skills/cirra-ai-sf-lwc
 
-# Or install standalone
-claude /plugin install github:Jaganpro/sf-skills/sf-lwc
+# Or install the complete Cirra AI skills suite
+claude /plugin install github:cirra-ai/skills
 ```
 
 ## Quick Start

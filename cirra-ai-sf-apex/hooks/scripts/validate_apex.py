@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Apex Validator for sf-skills plugin.
+Apex Validator for Cirra AI skills plugin.
 
 Validates Salesforce Apex code (.cls, .trigger) for common anti-patterns
 and best practice violations.

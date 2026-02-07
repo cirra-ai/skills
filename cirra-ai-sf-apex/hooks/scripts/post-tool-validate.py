@@ -25,7 +25,7 @@ sys.path.insert(0, SCRIPT_DIR)
 
 # Find shared modules (../../shared relative to sf-apex)
 PLUGIN_ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR))  # sf-apex/
-SKILLS_ROOT = os.path.dirname(PLUGIN_ROOT)  # sf-skills/
+SKILLS_ROOT = os.path.dirname(PLUGIN_ROOT)  # skills root
 SHARED_DIR = os.path.join(SKILLS_ROOT, "shared")
 sys.path.insert(0, SHARED_DIR)
 

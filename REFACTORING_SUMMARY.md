@@ -241,7 +241,7 @@ Claude:
 ### Exploded Layout
 
 ```
-sf-skills-cirra-ai/sf-apex/exploded/
+cirra-ai-skills/sf-apex/exploded/
 ├── .claude-plugin/
 │   └── plugin.json (new MCP tools declaration)
 └── skills/sf-apex/
@@ -251,7 +251,7 @@ sf-skills-cirra-ai/sf-apex/exploded/
 ### Flat Layout
 
 ```
-sf-skills-cirra-ai/sf-apex/skill/
+cirra-ai-skills/sf-apex/skill/
 └── sf-apex/
     └── SKILL.md (identical to exploded version)
 ```

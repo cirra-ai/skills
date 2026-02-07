@@ -10,8 +10,8 @@
   },
   "plugins": [
     {
-      "name": "sf-skills",
-      "description": "Complete Salesforce admin suite - Apex, Flow, Metadata, Data, Deployment, and Skill Builder (install all at once)",
+      "name": "cirra-ai-sf-skills",
+      "description": "Complete Cirra AI Salesforce skills suite - Apex, Flow, Metadata, Data, Deployment, and Skill Builder (install all at once)",
       "source": "./",
       "strict": false,
       "skills": [

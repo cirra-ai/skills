@@ -24,11 +24,11 @@
 ## Installation
 
 ```bash
-# Install as part of sf-skills marketplace
-claude /plugin install github:Jaganpro/sf-skills
+# Install standalone
+claude /plugin install github:cirra-ai/skills/cirra-ai-sf-ai-agentscript
 
-# Or standalone
-claude /plugin install github:Jaganpro/sf-skills/sf-ai-agentscript
+# Or install the complete Cirra AI skills suite
+claude /plugin install github:cirra-ai/skills
 ```
 
 ## Quick Start
