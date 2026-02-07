@@ -4,7 +4,7 @@ Salesforce data operations skill for Claude Code. Provides SOQL expertise, test 
 
 ## Features
 
-- **CRUD Operations**: Create, read, update, delete records via sf CLI
+- **CRUD Operations**: Create, read, update, delete records via Cirra AI MCP Server
 - **SOQL Expertise**: Complex relationship queries, polymorphic fields, aggregations
 - **Test Data Factories**: Bulk-ready Apex factories for standard objects
 - **Bulk Operations**: Import/export via Bulk API 2.0
@@ -90,23 +90,21 @@ sf-data/
 └── examples/                  # Usage examples
 ```
 
-## sf CLI Commands Wrapped
+## Cirra AI MCP Tools
 
-| Operation   | Command                                                                    |
-| ----------- | -------------------------------------------------------------------------- |
-| Query       | `sf data query --query "..." --target-org [alias]`                         |
-| Create      | `sf data create record --sobject [Object] --values "..."`                  |
-| Update      | `sf data update record --sobject [Object] --record-id [Id] --values "..."` |
-| Delete      | `sf data delete record --sobject [Object] --record-id [Id]`                |
-| Bulk Import | `sf data import bulk --file [csv] --sobject [Object]`                      |
-| Bulk Delete | `sf data delete bulk --file [csv] --sobject [Object]`                      |
-| Tree Export | `sf data export tree --query "..." --output-dir [dir]`                     |
-| Tree Import | `sf data import tree --files [json]`                                       |
-| Apex Run    | `sf apex run --file [script.apex]`                                         |
+| Operation   | MCP Tool                                       |
+| ----------- | ---------------------------------------------- |
+| Query       | `soql_query(sObject, fields, whereClause)`     |
+| Create      | `sobject_dml(operation="insert", ...)`         |
+| Update      | `sobject_dml(operation="update", ...)`         |
+| Delete      | `sobject_dml(operation="delete", ...)`         |
+| Upsert      | `sobject_dml(operation="upsert", ...)`         |
+| Describe    | `sobject_describe(sObject)`                    |
+| Tooling     | `tooling_api_query(sObject, fields)`           |
 
 ## Requirements
 
-- sf CLI v2
+- Cirra AI MCP Server
 - Target Salesforce org (sandbox or production)
 - Claude Code with skill plugins enabled
 
@@ -114,3 +112,4 @@ sf-data/
 
 MIT License. See LICENSE file.
 Copyright (c) 2024-2025 Jag Valaiyapathy
+Copyright (c) 2026 Cirra AI, Inc.

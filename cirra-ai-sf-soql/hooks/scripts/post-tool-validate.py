@@ -7,7 +7,6 @@ feedback for SOQL files (*.soql).
 
 Integrates:
 1. Static SOQL validation (syntax, best practices)
-2. Live Query Plan Analysis (if org connected)
 
 Hook Input (stdin): JSON with tool_input and tool_response
 Hook Output (stdout): JSON with optional output message
@@ -32,7 +31,7 @@ sys.path.insert(0, SHARED_DIR)
 
 def validate_soql_file(file_path: str) -> dict:
     """
-    Validate a .soql file with static analysis and live query plan.
+    Validate a .soql file with static analysis.
 
     Args:
         file_path: Path to .soql file
@@ -61,45 +60,7 @@ def validate_soql_file(file_path: str) -> dict:
         recommendations.extend(static_result.get("recommendations", []))
 
         # ═══════════════════════════════════════════════════════════════════
-        # PHASE 2: Live Query Plan Analysis (if org connected)
-        # ═══════════════════════════════════════════════════════════════════
-        live_result = None
-        org_name = None
-
-        try:
-            from code_analyzer.live_query_plan import LiveQueryPlanAnalyzer
-
-            analyzer = LiveQueryPlanAnalyzer()
-            if analyzer.is_org_available():
-                org_name = analyzer.get_target_org()
-                live_result = analyzer.analyze(content)
-
-                if live_result.success:
-                    # Add live plan insights as issues/recommendations
-                    if not live_result.is_selective:
-                        issues.append(
-                            {
-                                "severity": "WARNING",
-                                "message": f"Non-selective query (cost: {live_result.relative_cost:.1f})",
-                                "source": "LivePlan",
-                            }
-                        )
-
-                    # Add notes as recommendations
-                    for note in live_result.notes:
-                        recommendations.append(str(note))
-
-                    # Get optimization suggestions
-                    suggestions = analyzer.get_optimization_suggestions(live_result)
-                    recommendations.extend(suggestions)
-
-        except ImportError:
-            pass  # Live analysis not available
-        except Exception:
-            pass  # Don't fail on live analysis errors
-
-        # ═══════════════════════════════════════════════════════════════════
-        # PHASE 3: Format Output
+        # PHASE 2: Format Output
         # ═══════════════════════════════════════════════════════════════════
         output_parts.append("")
         output_parts.append(f"🔍 SOQL Validation: {file_name}")
@@ -118,34 +79,6 @@ def validate_soql_file(file_path: str) -> dict:
 
         if static_result.get("has_hardcoded_ids"):
             output_parts.append("⚠️ Contains hardcoded IDs")
-
-        # Live Query Plan section
-        output_parts.append("")
-        if live_result and live_result.success:
-            output_parts.append("🌐 Live Query Plan Analysis")
-            output_parts.append(f"   Org: {org_name}")
-            output_parts.append(f"   {live_result.icon} Selective: {live_result.is_selective}")
-            output_parts.append(
-                f"   📊 Relative Cost: {live_result.relative_cost:.2f} ({live_result.selectivity_rating})"
-            )
-            output_parts.append(f"   📈 Operation: {live_result.leading_operation}")
-
-            if live_result.cardinality > 0:
-                output_parts.append(
-                    f"   📋 Cardinality: {live_result.cardinality:,} / {live_result.sobject_cardinality:,}"
-                )
-
-            if live_result.notes:
-                output_parts.append("")
-                output_parts.append("   📝 Query Plan Notes:")
-                for note in live_result.notes[:3]:
-                    output_parts.append(f"      • {str(note)[:70]}")
-        elif org_name is None:
-            output_parts.append("🌐 Live Query Plan: No org connected")
-            output_parts.append("   Run 'sf org login web' to enable live analysis")
-        elif live_result and not live_result.success:
-            output_parts.append("🌐 Live Query Plan: Error")
-            output_parts.append(f"   {live_result.error[:60]}")
 
         # Issues
         if issues:

@@ -89,7 +89,7 @@
     },
     {
       "name": "sf-deploy",
-      "description": "Salesforce DevOps automation using sf CLI v2",
+      "description": "Salesforce DevOps automation using Cirra AI MCP Server",
       "source": "./sf-deploy",
       "version": "1.0.0",
       "author": {
@@ -97,8 +97,8 @@
         "url": "https://github.com/cirra-ai"
       },
       "category": "devops",
-      "tags": ["salesforce", "deployment", "ci-cd", "sfdx"],
-      "keywords": ["deploy", "sfdx", "validation", "ci-cd"]
+      "tags": ["salesforce", "deployment", "ci-cd", "cirra-ai"],
+      "keywords": ["deploy", "metadata-api", "validation", "ci-cd"]
     },
     {
       "name": "skill-builder",

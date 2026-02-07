@@ -1733,7 +1733,7 @@ class EnhancedFlowValidator:
             report.append('   Request: "Deploy flow to [target-org] with --dry-run first"')
             report.append("")
             report.append("   ⚠️  NEVER use 'sf project deploy' directly via Bash")
-            report.append("   ✅  ALWAYS use sf-deploy skill for consistent deployment")
+            report.append("   ✅  ALWAYS use metadata_create via Cirra AI MCP Server for deployment")
             report.append("═" * 70)
 
         report.append("\n")

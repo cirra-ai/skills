@@ -59,62 +59,15 @@ def main():
         validator = DataOperationValidator(file_path)
         result = validator.validate()
 
-        # Add live query plan analysis for .soql files
-        live_plan_result = None
-        if extension == ".soql":
-            live_plan_result = run_live_plan_analysis(file_path)
-
         # Output validation report
         if result:
-            output = {"output": format_validation_report(result, live_plan_result)}
+            output = {"output": format_validation_report(result)}
             print(json.dumps(output))
 
     except Exception as e:
         # Log error but don't block the write
         error_output = {"output": f"⚠️ Validation skipped: {str(e)}"}
         print(json.dumps(error_output))
-
-
-def run_live_plan_analysis(file_path: str) -> dict:
-    """
-    Run live query plan analysis for SOQL files.
-
-    Args:
-        file_path: Path to .soql file
-
-    Returns:
-        dict with live plan results or None
-    """
-    try:
-        from code_analyzer.live_query_plan import LiveQueryPlanAnalyzer
-
-        # Read file content
-        with open(file_path) as f:
-            query = f.read().strip()
-
-        if not query:
-            return None
-
-        analyzer = LiveQueryPlanAnalyzer()
-        if not analyzer.is_org_available():
-            return {"available": False, "org": None}
-
-        org_name = analyzer.get_target_org()
-        plan_result = analyzer.analyze(query)
-
-        return {
-            "available": True,
-            "org": org_name,
-            "plan": plan_result,
-            "suggestions": analyzer.get_optimization_suggestions(plan_result)
-            if plan_result.success
-            else [],
-        }
-
-    except ImportError:
-        return None
-    except Exception:
-        return None
 
 
 def is_data_file(file_path: str) -> bool:
@@ -153,7 +106,7 @@ def is_data_file(file_path: str) -> bool:
     return False
 
 
-def format_validation_report(result: dict, live_plan_result: dict = None) -> str:
+def format_validation_report(result: dict) -> str:
     """Format the validation result as a readable report."""
     lines = []
 
@@ -180,48 +133,6 @@ def format_validation_report(result: dict, live_plan_result: dict = None) -> str
             pct = (cat_score / cat_max * 100) if cat_max > 0 else 0
             status = "✅" if pct >= 80 else "⚠️" if pct >= 60 else "❌"
             lines.append(f"{status} {cat_name}: {cat_score}/{cat_max} ({pct:.0f}%)")
-        lines.append("")
-
-    # Live Query Plan Analysis (if available)
-    if live_plan_result:
-        lines.append("🌐 Live Query Plan Analysis")
-        lines.append("─" * 60)
-
-        if not live_plan_result.get("available"):
-            lines.append("   ⚠️ No org connected - run: sf org login web")
-        elif live_plan_result.get("plan"):
-            plan = live_plan_result["plan"]
-            org = live_plan_result.get("org", "unknown")
-            lines.append(f"   Org: {org}")
-
-            if plan.success:
-                lines.append(f"   {plan.icon} Selective: {plan.is_selective}")
-                lines.append(
-                    f"   📊 Relative Cost: {plan.relative_cost:.2f} ({plan.selectivity_rating})"
-                )
-                lines.append(f"   📈 Operation: {plan.leading_operation}")
-
-                if plan.cardinality > 0:
-                    lines.append(
-                        f"   📋 Cardinality: {plan.cardinality:,} / {plan.sobject_cardinality:,}"
-                    )
-
-                if plan.notes:
-                    lines.append("")
-                    lines.append("   📝 Query Plan Notes:")
-                    for note in plan.notes[:3]:
-                        lines.append(f"      • {str(note)[:55]}")
-
-                # Add suggestions to recommendations
-                suggestions = live_plan_result.get("suggestions", [])
-                if suggestions:
-                    lines.append("")
-                    lines.append("   💡 Optimization Suggestions:")
-                    for sug in suggestions[:3]:
-                        lines.append(f"      • {sug[:55]}")
-            else:
-                lines.append(f"   ❌ Error: {plan.error[:50]}")
-
         lines.append("")
 
     # Issues

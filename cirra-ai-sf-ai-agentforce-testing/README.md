@@ -4,7 +4,7 @@ Comprehensive Agentforce testing skill with test execution, coverage analysis, a
 
 ## Features
 
-- **Test Execution**: Run agent tests via sf CLI with result analysis
+- **Test Execution**: Run agent tests via Cirra AI MCP Server with result analysis
 - **Test Spec Generation**: Create YAML test specifications
 - **Coverage Analysis**: Topic selection, action invocation coverage
 - **Preview Mode**: Interactive simulated and live agent testing
@@ -120,7 +120,7 @@ When enabled, the skill will:
 
 ## Requirements
 
-- sf CLI v2
+- Cirra AI MCP Server
 - Target Salesforce org with Agentforce enabled
 - Agent published and activated for testing
 - Connected App for live preview mode (optional)
@@ -129,3 +129,4 @@ When enabled, the skill will:
 
 MIT License. See LICENSE file.
 Copyright (c) 2024-2025 Jag Valaiyapathy
+Copyright (c) 2026 Cirra AI, Inc.

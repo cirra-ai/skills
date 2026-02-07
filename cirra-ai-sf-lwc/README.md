@@ -109,7 +109,7 @@ S → Security     │ Enforce permissions, FLS, and data protection
 
 ## Requirements
 
-- sf CLI v2
+- Cirra AI MCP Server
 - Node.js 18+ (for Jest tests)
 - Target Salesforce org
 - API Version 65.0+ (Winter '26) or 66.0+ (Spring '26)
@@ -118,3 +118,4 @@ S → Security     │ Enforce permissions, FLS, and data protection
 
 MIT License. See LICENSE file.
 Copyright (c) 2024-2025 Jag Valaiyapathy
+Copyright (c) 2026 Cirra AI, Inc.

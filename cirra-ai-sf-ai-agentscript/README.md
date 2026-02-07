@@ -9,17 +9,17 @@
 - ✅ **FSM architecture patterns** - Hub-and-spoke, verification gates, escalation chains
 - ✅ **Instruction resolution guidance** - Three-phase execution model
 - ✅ **Debugging support** - Trace analysis and forensic debugging
-- ✅ **CLI deployment** - Retrieve, validate, deploy via `sf agent` commands
+- ✅ **MCP deployment** - Retrieve, validate, deploy via Cirra AI MCP Server
 - ✅ **Cross-skill integration** - Works with sf-flow, sf-ai-agentforce-testing, sf-deploy
 
 ## Requirements
 
-| Requirement         | Value                   |
-| ------------------- | ----------------------- |
-| API Version         | 62.0+                   |
-| License             | Agentforce              |
-| Einstein Agent User | Required in org         |
-| SF CLI              | v2+ with agent commands |
+| Requirement         | Value                     |
+| ------------------- | ------------------------- |
+| API Version         | 65.0+                     |
+| License             | Agentforce                |
+| Einstein Agent User | Required in org           |
+| Cirra AI MCP Server | Required for org access   |
 
 ## Installation
 
@@ -45,10 +45,11 @@ Tell Claude what your agent should do, and it will generate a scored Agent Scrip
 
 ### 3. Validate & Deploy
 
-```bash
-sf agent validate --source-dir ./my-agent
-sf agent deploy --source-dir ./my-agent --target-org prod
-```
+Use Cirra AI MCP tools:
+
+- `metadata_create` to deploy agent bundles
+- `metadata_read` to retrieve existing agents
+- `tooling_api_query` to verify deployment
 
 ## Scoring System
 
@@ -120,7 +121,5 @@ Create Flows   Write agent         Test routing           Deploy to org
 ## License
 
 MIT License - See [LICENSE](LICENSE)
-
----
-
-Created by [Jag Valaiyapathy](https://github.com/Jaganpro)
+Copyright (c) 2024-2025 Jag Valaiyapathy
+Copyright (c) 2026 Cirra AI, Inc.

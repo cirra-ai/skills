@@ -303,10 +303,10 @@ def main():
     print(f"   📁 Location: {output_path}")
     print("\n💡 Next steps:")
     print(
-        f"   1. Deploy: sf project deploy start --source-dir {os.path.dirname(output_path)} --target-org <alias>"
+        f"   1. Deploy: Use metadata_create(type='PermissionSet', metadata=[...]) via Cirra AI MCP Server"
     )
     print(
-        f"   2. Assign: sf org assign permset --name {object_name.replace('__c', '')}_Access --target-org <alias>"
+        f"   2. Assign: Use sobject_dml to insert PermissionSetAssignment for {object_name.replace('__c', '')}_Access"
     )
 
 

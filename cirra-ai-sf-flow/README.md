@@ -110,7 +110,7 @@ Always deploy custom objects/fields BEFORE flows that reference them.
 
 ## Requirements
 
-- sf CLI v2
+- Cirra AI MCP Server
 - Target Salesforce org
 - API Version 65.0+ (Winter '26)
 
@@ -118,3 +118,4 @@ Always deploy custom objects/fields BEFORE flows that reference them.
 
 MIT License. See LICENSE file.
 Copyright (c) 2024-2025 Jag Valaiyapathy
+Copyright (c) 2026 Cirra AI, Inc.

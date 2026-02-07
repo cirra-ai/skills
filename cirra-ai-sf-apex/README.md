@@ -92,7 +92,7 @@ The skill generates:
 
 ## Requirements
 
-- sf CLI v2
+- Cirra AI MCP Server
 - Target Salesforce org
 - Java 11+ (for Apex LSP validation)
 
@@ -100,3 +100,4 @@ The skill generates:
 
 MIT License. See LICENSE file.
 Copyright (c) 2024-2025 Jag Valaiyapathy
+Copyright (c) 2026 Cirra AI, Inc.
