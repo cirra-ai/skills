@@ -637,81 +637,20 @@ testCases:
         - search_book_catalog
 ```
 
-#### 2. run-automated-tests.py
+#### 2. Claude Code Integration
 
-**Purpose:** Orchestrate full test workflow from spec generation to fix suggestions.
+Claude Code orchestrates the test workflow directly using Cirra AI MCP tools:
 
-**Usage:**
-
-```bash
-python3 hooks/scripts/run-automated-tests.py \
-  --agent-name Coffee_Shop_FAQ_Agent \
-  --agent-dir /path/to/project \
-  --target-org AgentforceScriptDemo
-```
-
-**Workflow Steps:**
-
-1. Check if Agent Testing Center is enabled
-2. Generate test spec from agent definition
-3. Create test definition in org (AiEvaluationDefinition)
-4. Run tests (`sf agent test run --result-format json`)
-5. Parse and display results
+1. Generate test spec from agent file using `generate-test-spec.py`
+2. Create test definition in org via `tooling_api_dml(create, AiEvaluationDefinition)`
+3. Execute test run via `tooling_api_dml(create, AiEvaluationRun)`
+4. Fetch results via `tooling_api_query(AiEvaluationRun)`
+5. Parse results with `parse-agent-test-results.py`
 6. Suggest fixes for failures (enables agentic fix loop)
 
-**Output:**
-
-```
-📊 AGENT TEST RESULTS
-════════════════════════════════════════════════════════════════
-
-Agent: Coffee_Shop_FAQ_Agent
-Org: AgentforceScriptDemo
-Duration: 45.2s
-Mode: Simulated
-
-SUMMARY
-───────────────────────────────────────────────────────────────
-✅ Passed:    18
-❌ Failed:    2
-⏭️ Skipped:   0
-📈 Topic Selection: 95%
-🎯 Action Invocation: 90%
-
-FAILED TESTS
-───────────────────────────────────────────────────────────────
-❌ test_complex_order_inquiry
-   Utterance: "What's the status of orders 12345 and 67890?"
-   Expected: get_order_status invoked 2 times
-   Actual: get_order_status invoked 1 time
-   Category: ACTION_INVOCATION_COUNT_MISMATCH
-
-   🔧 Suggested Fix:
-   Skill(skill="sf-ai-agentscript", args="Fix action 'get_order_status' in Coffee_Shop_FAQ_Agent - add handling for multiple order numbers in single utterance")
-
-❌ test_edge_case_empty_input
-   Utterance: ""
-   Expected: graceful_handling
-   Actual: no_response
-   Category: EDGE_CASE_FAILURE
-
-   🔧 Suggested Fix:
-   Skill(skill="sf-ai-agentscript", args="Add empty input handling to Coffee_Shop_FAQ_Agent system instructions")
-```
-
-#### 3. Claude Code Integration
-
-Claude Code can invoke automated tests directly:
-
 ```bash
-# Run full automated workflow
-python3 ~/.claude/plugins/cache/sf-skills/.../sf-ai-agentforce-testing/hooks/scripts/run-automated-tests.py \
-  --agent-name MyAgent \
-  --agent-file /path/to/MyAgent.agent \
-  --target-org dev
-
-# Generate spec only
-python3 ~/.claude/plugins/cache/sf-skills/.../sf-ai-agentforce-testing/hooks/scripts/generate-test-spec.py \
+# Generate spec from agent file
+python3 hooks/scripts/generate-test-spec.py \
   --agent-file /path/to/MyAgent.agent \
   --output /tmp/MyAgent-tests.yaml \
   --verbose

@@ -875,12 +875,12 @@ Skill(skill="sf-ai-agentforce-observability", args="Analyze STDM sessions for ag
 
 Python scripts execute directly without needing sf CLI and work with both API and Cirra AI approaches.
 
-| Script                      | Purpose                                                                     | Dependencies              |
-| --------------------------- | --------------------------------------------------------------------------- | ------------------------- |
-| `agent_api_client.py`       | Reusable Agent Runtime API v1 client (auth, sessions, messaging, variables) | stdlib only               |
-| `multi_turn_test_runner.py` | Multi-turn test orchestrator (reads YAML, executes, evaluates, reports)     | pyyaml + agent_api_client |
-| `generate-test-spec.py`     | Parse .agent files, generate CLI test YAML specs                            | stdlib only               |
-| `run-automated-tests.py`    | Orchestrate full CLI test workflow with fix suggestions                     | stdlib only               |
+| Script                         | Purpose                                                                     | Dependencies              |
+| ------------------------------ | --------------------------------------------------------------------------- | ------------------------- |
+| `agent_api_client.py`          | Reusable Agent Runtime API v1 client (auth, sessions, messaging, variables) | stdlib only               |
+| `multi_turn_test_runner.py`    | Multi-turn test orchestrator (reads YAML, executes, evaluates, reports)     | pyyaml + agent_api_client |
+| `generate-test-spec.py`       | Parse .agent files, generate test YAML specs                                | stdlib only               |
+| `parse-agent-test-results.py` | Parse and format test results for analysis                                  | stdlib only               |
 
 **Multi-Turn Testing (Agent Runtime API):**
 
@@ -911,7 +911,7 @@ python3 hooks/scripts/multi_turn_test_runner.py \
 python3 hooks/scripts/agent_api_client.py
 ```
 
-**CLI Testing (via Cirra AI):**
+**Test Spec Generation:**
 
 ```bash
 # Generate test spec from agent file
@@ -919,34 +919,15 @@ python3 hooks/scripts/generate-test-spec.py \
   --agent-file /path/to/Agent.agent \
   --output specs/Agent-tests.yaml
 
-# Create test using Cirra AI tooling_api_dml
+# Then create test in org using Cirra AI tooling_api_dml
 # (See Phase B2 for Cirra AI calls)
-
-# Run full automated workflow with Cirra AI
-python3 hooks/scripts/run-automated-tests.py \
-  --agent-name MyAgent \
-  --agent-dir /path/to/project \
-  --use-cirra-ai true
 ```
 
 ---
 
 ## 🔄 Automated Test-Fix Loop
 
-> **v2.0.0-cirra** | Supports both multi-turn API failures and CLI test failures
-
-### Quick Start
-
-```bash
-# Run the test-fix loop (CLI tests via Cirra AI)
-./hooks/scripts/test-fix-loop.sh Test_Agentforce_v1 AgentforceTesting 3
-
-# Exit codes:
-#   0 = All tests passed
-#   1 = Fixes needed (Claude Code should invoke sf-ai-agentforce)
-#   2 = Max attempts reached, escalate to human
-#   3 = Error (org unreachable, test not found, etc.)
-```
+> **v2.0.0-cirra** | Multi-turn API testing with automated fix loop
 
 ### Claude Code Integration
 

@@ -91,15 +91,23 @@ Also updated:
 
 ## Known Limitations — Cannot Replace with MCP
 
-### 2. Agentforce Testing CLI Commands (`sf agent test`)
+### 2. Agentforce Testing CLI Scripts — Removed
 
-**Files:**
-- `cirra-ai-sf-ai-agentforce-testing/hooks/scripts/run-automated-tests.py` — Orchestrates `sf agent test list/create/run`
-- `cirra-ai-sf-ai-agentforce-testing/hooks/scripts/test-fix-loop.sh` — Runs `sf agent test run` in fix loop
-- `cirra-ai-sf-ai-agentforce-testing/hooks/scripts/generate-test-spec.py` — Outputs `sf agent test create` instructions
-- `cirra-ai-sf-ai-agentforce-testing/hooks/scripts/parse-agent-test-results.py` — Parses `sf agent test` JSON output
+Two scripts that shelled out to `sf agent test` CLI commands have been **deleted** since Claude Cowork cannot run SF CLI:
 
-The `sf agent test` and `sf agent preview` commands are **CLI-only features** with no Metadata API or REST API equivalent. The Agent Testing Center and Agent Preview features are only accessible through the sf CLI's `@salesforce/plugin-agent` extension. These scripts cannot be migrated to MCP and remain as-is. The SKILL.md already documents the dual-track approach (MCP primary, CLI secondary for testing).
+- `run-automated-tests.py` — Orchestrated `sf agent test list/create/run` via subprocess
+- `test-fix-loop.sh` — Ran `sf agent test run` in a bash loop
+
+**Replaced by:** The SKILL.md already documents equivalent operations via Cirra AI Tooling API (`tooling_api_query(AiEvaluationDefinition)`, `tooling_api_dml(create, AiEvaluationRun)`, etc.), and the multi-turn test runner (`multi_turn_test_runner.py`) provides API-based testing without any CLI dependency.
+
+**Kept (CLI-independent):**
+
+- `multi_turn_test_runner.py` — Direct Agent Runtime API calls (no CLI needed)
+- `agent_api_client.py` — Pure Python HTTP client for Agent Runtime API
+- `generate-test-spec.py` — Parses .agent files, generates YAML (no CLI invocation)
+- `parse-agent-test-results.py` — Parses test output (no CLI invocation)
+
+**Still not available via MCP:** `sf agent preview` (interactive UI-only feature) and `sf agent generate test-spec` (interactive CLI-only).
 
 ### 3. `@salesforce/sfdx-lwc-jest` npm Package
 
