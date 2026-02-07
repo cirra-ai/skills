@@ -7,6 +7,7 @@ This skill was built upon the collective wisdom of the Salesforce developer comm
 ## Authors & Contributors
 
 ### Jag Valaiyapathy
+
 **Original skill author**
 
 ---
@@ -19,4 +20,4 @@ This skill was built upon the collective wisdom of the Salesforce developer comm
 
 ---
 
-*If we've missed anyone whose work influenced this skill, please let us know so we can add proper attribution.*
+_If we've missed anyone whose work influenced this skill, please let us know so we can add proper attribution._

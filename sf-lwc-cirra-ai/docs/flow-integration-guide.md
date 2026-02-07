@@ -33,11 +33,11 @@ This guide covers building Lightning Web Components for use in Salesforce Flow S
 
 ## Quick Reference
 
-| Direction | Mechanism | Use Case |
-|-----------|-----------|----------|
-| Flow → LWC | `@api` with `role="inputOnly"` | Pass context data to component |
-| LWC → Flow | `FlowAttributeChangeEvent` | Return user selections/data |
-| LWC → Navigation | `FlowNavigationFinishEvent` | Trigger Next/Back/Finish |
+| Direction        | Mechanism                      | Use Case                       |
+| ---------------- | ------------------------------ | ------------------------------ |
+| Flow → LWC       | `@api` with `role="inputOnly"` | Pass context data to component |
+| LWC → Flow       | `FlowAttributeChangeEvent`     | Return user selections/data    |
+| LWC → Navigation | `FlowNavigationFinishEvent`    | Trigger Next/Back/Finish       |
 
 ---
 
@@ -75,14 +75,14 @@ This guide covers building Lightning Web Components for use in Salesforce Flow S
 
 ### Supported Property Types
 
-| Type | Description | Example |
-|------|-------------|---------|
-| `String` | Text values | Record IDs, names |
-| `Boolean` | True/false | Flags, completion status |
-| `Integer` | Whole numbers | Counts, indexes |
-| `Date` | Date values | Due dates |
-| `DateTime` | Date and time | Timestamps |
-| `@salesforce/schema/*` | SObject references | Record types |
+| Type                   | Description        | Example                  |
+| ---------------------- | ------------------ | ------------------------ |
+| `String`               | Text values        | Record IDs, names        |
+| `Boolean`              | True/false         | Flags, completion status |
+| `Integer`              | Whole numbers      | Counts, indexes          |
+| `Date`                 | Date values        | Due dates                |
+| `DateTime`             | Date and time      | Timestamps               |
+| `@salesforce/schema/*` | SObject references | Record types             |
 
 ---
 
@@ -102,10 +102,12 @@ import { FlowAttributeChangeEvent } from 'lightning/flowSupport';
 // Dispatch event to update Flow variable
 // First param: @api property name (must match meta.xml exactly)
 // Second param: new value
-this.dispatchEvent(new FlowAttributeChangeEvent(
-    'selectedRecordId',  // Property name
-    this.recordId        // Value
-));
+this.dispatchEvent(
+  new FlowAttributeChangeEvent(
+    'selectedRecordId', // Property name
+    this.recordId // Value
+  )
+);
 ```
 
 ### Example: Selection Handler
@@ -153,12 +155,12 @@ import { FlowNavigationFinishEvent } from 'lightning/flowSupport';
 
 ### Navigation Actions
 
-| Action | Description | When Available |
-|--------|-------------|----------------|
-| `'NEXT'` | Go to next screen | Mid-flow screens |
-| `'BACK'` | Go to previous screen | After first screen |
-| `'FINISH'` | Complete the flow | Final screens |
-| `'PAUSE'` | Pause flow (if enabled) | Pausable flows |
+| Action     | Description             | When Available     |
+| ---------- | ----------------------- | ------------------ |
+| `'NEXT'`   | Go to next screen       | Mid-flow screens   |
+| `'BACK'`   | Go to previous screen   | After first screen |
+| `'FINISH'` | Complete the flow       | Final screens      |
+| `'PAUSE'`  | Pause flow (if enabled) | Pausable flows     |
 
 ### Usage
 
@@ -199,12 +201,12 @@ handleNext() {
 ### Conditional Navigation Buttons
 
 ```html
-<template lwc:if={canGoBack}>
-    <lightning-button label="Back" onclick={handleBack}></lightning-button>
+<template lwc:if="{canGoBack}">
+  <lightning-button label="Back" onclick="{handleBack}"></lightning-button>
 </template>
 
-<template lwc:if={canGoNext}>
-    <lightning-button label="Next" variant="brand" onclick={handleNext}></lightning-button>
+<template lwc:if="{canGoNext}">
+  <lightning-button label="Next" variant="brand" onclick="{handleNext}"></lightning-button>
 </template>
 ```
 
@@ -306,49 +308,53 @@ import FlowScreenComponent from 'c/flowScreenComponent';
 import { FlowAttributeChangeEvent, FlowNavigationFinishEvent } from 'lightning/flowSupport';
 
 // Mock the flow support module
-jest.mock('lightning/flowSupport', () => ({
+jest.mock(
+  'lightning/flowSupport',
+  () => ({
     FlowAttributeChangeEvent: jest.fn(),
-    FlowNavigationFinishEvent: jest.fn()
-}), { virtual: true });
+    FlowNavigationFinishEvent: jest.fn(),
+  }),
+  { virtual: true }
+);
 
 describe('c-flow-screen-component', () => {
-    afterEach(() => {
-        while (document.body.firstChild) {
-            document.body.removeChild(document.body.firstChild);
-        }
-        jest.clearAllMocks();
+  afterEach(() => {
+    while (document.body.firstChild) {
+      document.body.removeChild(document.body.firstChild);
+    }
+    jest.clearAllMocks();
+  });
+
+  it('dispatches FlowAttributeChangeEvent on selection', async () => {
+    const element = createElement('c-flow-screen-component', {
+      is: FlowScreenComponent,
     });
+    element.availableActions = ['NEXT', 'BACK'];
+    document.body.appendChild(element);
 
-    it('dispatches FlowAttributeChangeEvent on selection', async () => {
-        const element = createElement('c-flow-screen-component', {
-            is: FlowScreenComponent
-        });
-        element.availableActions = ['NEXT', 'BACK'];
-        document.body.appendChild(element);
+    // Simulate selection
+    const tile = element.shadowRoot.querySelector('.record-tile');
+    tile.click();
 
-        // Simulate selection
-        const tile = element.shadowRoot.querySelector('.record-tile');
-        tile.click();
+    // Verify event dispatched
+    expect(FlowAttributeChangeEvent).toHaveBeenCalled();
+  });
 
-        // Verify event dispatched
-        expect(FlowAttributeChangeEvent).toHaveBeenCalled();
+  it('dispatches FlowNavigationFinishEvent on next', async () => {
+    const element = createElement('c-flow-screen-component', {
+      is: FlowScreenComponent,
     });
+    element.availableActions = ['NEXT'];
+    element.selectedRecordId = '001xx000000001';
+    document.body.appendChild(element);
 
-    it('dispatches FlowNavigationFinishEvent on next', async () => {
-        const element = createElement('c-flow-screen-component', {
-            is: FlowScreenComponent
-        });
-        element.availableActions = ['NEXT'];
-        element.selectedRecordId = '001xx000000001';
-        document.body.appendChild(element);
+    // Click next button
+    const nextButton = element.shadowRoot.querySelector('lightning-button[label="Next"]');
+    nextButton.click();
 
-        // Click next button
-        const nextButton = element.shadowRoot.querySelector('lightning-button[label="Next"]');
-        nextButton.click();
-
-        // Verify navigation event
-        expect(FlowNavigationFinishEvent).toHaveBeenCalledWith('NEXT');
-    });
+    // Verify navigation event
+    expect(FlowNavigationFinishEvent).toHaveBeenCalledWith('NEXT');
+  });
 });
 ```
 
@@ -417,13 +423,13 @@ connectedCallback() {
 
 ## Troubleshooting
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Output not updating in Flow | Missing FlowAttributeChangeEvent | Always dispatch event after updating @api property |
-| Navigation buttons not showing | Wrong availableActions | Check Flow provides availableActions correctly |
-| Component not appearing | Missing `isExposed: true` | Set in meta.xml |
-| Properties not mapping | Role mismatch | Use `inputOnly` for inputs, `outputOnly` for outputs |
-| Values reset on navigation | Local state not persisted | Use @api properties for all persisted data |
+| Issue                          | Cause                            | Solution                                             |
+| ------------------------------ | -------------------------------- | ---------------------------------------------------- |
+| Output not updating in Flow    | Missing FlowAttributeChangeEvent | Always dispatch event after updating @api property   |
+| Navigation buttons not showing | Wrong availableActions           | Check Flow provides availableActions correctly       |
+| Component not appearing        | Missing `isExposed: true`        | Set in meta.xml                                      |
+| Properties not mapping         | Role mismatch                    | Use `inputOnly` for inputs, `outputOnly` for outputs |
+| Values reset on navigation     | Local state not persisted        | Use @api properties for all persisted data           |
 
 ---
 
@@ -438,6 +444,7 @@ Use the template at `templates/flow-screen-component/` as a starting point.
 ### Overview
 
 Flow can receive complex Apex types through `apex://` type bindings. This enables:
+
 - Passing sObjects directly (not just IDs)
 - Passing wrapper/DTO classes with multiple fields
 - Two-way data binding for record editing
@@ -508,27 +515,25 @@ import { api, LightningElement } from 'lwc';
 import { FlowAttributeChangeEvent } from 'lightning/flowSupport';
 
 export default class AccountEditor extends LightningElement {
-    // Receive sObject from Flow
-    @api accountRecord;
+  // Receive sObject from Flow
+  @api accountRecord;
 
-    // Track local modifications
-    _modifiedAccount;
+  // Track local modifications
+  _modifiedAccount;
 
-    connectedCallback() {
-        // Create a working copy
-        this._modifiedAccount = { ...this.accountRecord };
-    }
+  connectedCallback() {
+    // Create a working copy
+    this._modifiedAccount = { ...this.accountRecord };
+  }
 
-    handleNameChange(event) {
-        this._modifiedAccount.Name = event.target.value;
-    }
+  handleNameChange(event) {
+    this._modifiedAccount.Name = event.target.value;
+  }
 
-    handleSave() {
-        // Send modified record back to Flow
-        this.dispatchEvent(
-            new FlowAttributeChangeEvent('updatedAccount', this._modifiedAccount)
-        );
-    }
+  handleSave() {
+    // Send modified record back to Flow
+    this.dispatchEvent(new FlowAttributeChangeEvent('updatedAccount', this._modifiedAccount));
+  }
 }
 ```
 
@@ -538,29 +543,30 @@ export default class AccountEditor extends LightningElement {
 import { api, LightningElement } from 'lwc';
 
 export default class OrderSummaryViewer extends LightningElement {
-    @api orderSummary; // apex://OrderController.OrderSummaryWrapper
+  @api orderSummary; // apex://OrderController.OrderSummaryWrapper
 
-    get formattedTotal() {
-        return this.orderSummary?.totalAmount?.toLocaleString('en-US', {
-            style: 'currency',
-            currency: 'USD'
-        });
-    }
+  get formattedTotal() {
+    return this.orderSummary?.totalAmount?.toLocaleString('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    });
+  }
 
-    get lineItems() {
-        return this.orderSummary?.lineItems || [];
-    }
+  get lineItems() {
+    return this.orderSummary?.lineItems || [];
+  }
 
-    get customerName() {
-        // Access nested sObject
-        return this.orderSummary?.customer?.Name || 'Unknown';
-    }
+  get customerName() {
+    // Access nested sObject
+    return this.orderSummary?.customer?.Name || 'Unknown';
+  }
 }
 ```
 
 ### Flow Configuration for apex:// Types
 
 1. **Create an Invocable Action** that returns your wrapper:
+
    ```apex
    @InvocableMethod
    public static List<MyWrapper> getData(List<String> inputs) { ... }
@@ -641,16 +647,17 @@ handleLineItemChange(event) {
 
 ### Limitations
 
-| Limitation | Workaround |
-|------------|------------|
-| No `@JsonAccess` support | Ensure wrapper classes don't require JSON annotation |
-| 1000 record limit per collection | Paginate or filter in Apex before passing |
-| No generic types | Create specific wrapper classes |
-| Complex nesting depth | Flatten deep hierarchies |
+| Limitation                       | Workaround                                           |
+| -------------------------------- | ---------------------------------------------------- |
+| No `@JsonAccess` support         | Ensure wrapper classes don't require JSON annotation |
+| 1000 record limit per collection | Paginate or filter in Apex before passing            |
+| No generic types                 | Create specific wrapper classes                      |
+| Complex nesting depth            | Flatten deep hierarchies                             |
 
 ### Debugging Tips
 
 1. **Console log received data** to verify structure:
+
    ```javascript
    connectedCallback() {
        console.log('Received from Flow:', JSON.stringify(this.inputWrapper));
@@ -665,10 +672,10 @@ handleLineItemChange(event) {
 
 ## Cross-Skill Integration
 
-| Integration | See Also |
-|-------------|----------|
-| Flow → Apex → LWC | [triangle-pattern.md](triangle-pattern.md) |
-| Apex @AuraEnabled | [sf-apex/docs/best-practices.md](../../sf-apex/docs/best-practices.md) |
-| Flow Templates | [sf-flow/templates/](../../sf-flow/templates/) |
-| Async Notifications | [async-notification-patterns.md](async-notification-patterns.md) |
-| State Management | [state-management.md](state-management.md) |
+| Integration         | See Also                                                               |
+| ------------------- | ---------------------------------------------------------------------- |
+| Flow → Apex → LWC   | [triangle-pattern.md](triangle-pattern.md)                             |
+| Apex @AuraEnabled   | [sf-apex/docs/best-practices.md](../../sf-apex/docs/best-practices.md) |
+| Flow Templates      | [sf-flow/templates/](../../sf-flow/templates/)                         |
+| Async Notifications | [async-notification-patterns.md](async-notification-patterns.md)       |
+| State Management    | [state-management.md](state-management.md)                             |

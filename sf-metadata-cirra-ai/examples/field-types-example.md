@@ -7,6 +7,7 @@ This example demonstrates all common field types with real-world usage.
 ## Text Fields
 
 ### Standard Text
+
 ```xml
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Product_SKU__c</fullName>
@@ -23,6 +24,7 @@ This example demonstrates all common field types with real-world usage.
 ```
 
 ### Long Text Area
+
 ```xml
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Internal_Notes__c</fullName>
@@ -36,6 +38,7 @@ This example demonstrates all common field types with real-world usage.
 ```
 
 ### Rich Text Area
+
 ```xml
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Product_Description__c</fullName>
@@ -53,6 +56,7 @@ This example demonstrates all common field types with real-world usage.
 ## Numeric Fields
 
 ### Integer (Whole Number)
+
 ```xml
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Quantity__c</fullName>
@@ -68,6 +72,7 @@ This example demonstrates all common field types with real-world usage.
 ```
 
 ### Decimal
+
 ```xml
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Weight_Kg__c</fullName>
@@ -82,6 +87,7 @@ This example demonstrates all common field types with real-world usage.
 ```
 
 ### Currency
+
 ```xml
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Unit_Price__c</fullName>
@@ -97,6 +103,7 @@ This example demonstrates all common field types with real-world usage.
 ```
 
 ### Percent
+
 ```xml
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Discount_Percent__c</fullName>
@@ -116,6 +123,7 @@ This example demonstrates all common field types with real-world usage.
 ## Date/Time Fields
 
 ### Date
+
 ```xml
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Contract_Start_Date__c</fullName>
@@ -129,6 +137,7 @@ This example demonstrates all common field types with real-world usage.
 ```
 
 ### DateTime
+
 ```xml
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Last_Contact_DateTime__c</fullName>
@@ -145,6 +154,7 @@ This example demonstrates all common field types with real-world usage.
 ## Boolean Field
 
 ### Checkbox
+
 ```xml
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Is_VIP_Customer__c</fullName>
@@ -161,6 +171,7 @@ This example demonstrates all common field types with real-world usage.
 ## Picklist Fields
 
 ### Single-Select Picklist
+
 ```xml
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Priority__c</fullName>
@@ -199,6 +210,7 @@ This example demonstrates all common field types with real-world usage.
 ```
 
 ### Multi-Select Picklist
+
 ```xml
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Product_Categories__c</fullName>
@@ -238,6 +250,7 @@ This example demonstrates all common field types with real-world usage.
 ## Relationship Fields
 
 ### Lookup
+
 ```xml
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Primary_Contact__c</fullName>
@@ -263,6 +276,7 @@ This example demonstrates all common field types with real-world usage.
 ```
 
 ### Master-Detail
+
 ```xml
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Order__c</fullName>
@@ -284,6 +298,7 @@ This example demonstrates all common field types with real-world usage.
 ## Special Fields
 
 ### Email
+
 ```xml
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Support_Email__c</fullName>
@@ -297,6 +312,7 @@ This example demonstrates all common field types with real-world usage.
 ```
 
 ### Phone
+
 ```xml
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Mobile_Phone__c</fullName>
@@ -309,6 +325,7 @@ This example demonstrates all common field types with real-world usage.
 ```
 
 ### URL
+
 ```xml
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>LinkedIn_Profile__c</fullName>
@@ -325,6 +342,7 @@ This example demonstrates all common field types with real-world usage.
 ## Formula Fields
 
 ### Text Formula
+
 ```xml
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Full_Address__c</fullName>
@@ -338,6 +356,7 @@ Country__c</formula>
 ```
 
 ### Number Formula (Calculated)
+
 ```xml
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Line_Total__c</fullName>
@@ -352,6 +371,7 @@ Country__c</formula>
 ```
 
 ### Checkbox Formula
+
 ```xml
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Is_Overdue__c</fullName>
@@ -383,6 +403,7 @@ Country__c</formula>
 ```
 
 ### Roll-Up with Filter
+
 ```xml
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Completed_Tasks_Count__c</fullName>
@@ -403,18 +424,18 @@ Country__c</formula>
 
 ## Summary
 
-| Field Type | Use Case | Key Settings |
-|------------|----------|--------------|
-| Text | Short strings | `length` (1-255) |
-| LongTextArea | Multi-line text | `length`, `visibleLines` |
-| Number | Quantities, rates | `precision`, `scale` |
-| Currency | Money | `precision`, `scale` |
-| Date | Calendar dates | - |
-| DateTime | Timestamps | - |
-| Checkbox | True/False | `defaultValue` (required) |
-| Picklist | Single choice | `valueSet` |
-| MultiselectPicklist | Multiple choices | `valueSet`, `visibleLines` |
-| Lookup | Optional relationship | `referenceTo`, `deleteConstraint` |
-| MasterDetail | Required relationship | `referenceTo`, `relationshipOrder` |
-| Formula | Calculated | `formula`, return type |
-| Summary | Aggregation | `summaryOperation`, `summarizedField` |
+| Field Type          | Use Case              | Key Settings                          |
+| ------------------- | --------------------- | ------------------------------------- |
+| Text                | Short strings         | `length` (1-255)                      |
+| LongTextArea        | Multi-line text       | `length`, `visibleLines`              |
+| Number              | Quantities, rates     | `precision`, `scale`                  |
+| Currency            | Money                 | `precision`, `scale`                  |
+| Date                | Calendar dates        | -                                     |
+| DateTime            | Timestamps            | -                                     |
+| Checkbox            | True/False            | `defaultValue` (required)             |
+| Picklist            | Single choice         | `valueSet`                            |
+| MultiselectPicklist | Multiple choices      | `valueSet`, `visibleLines`            |
+| Lookup              | Optional relationship | `referenceTo`, `deleteConstraint`     |
+| MasterDetail        | Required relationship | `referenceTo`, `relationshipOrder`    |
+| Formula             | Calculated            | `formula`, return type                |
+| Summary             | Aggregation           | `summaryOperation`, `summarizedField` |

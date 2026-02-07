@@ -27,9 +27,7 @@ class TestAuthenticate:
 
     def test_successful_auth(self, mock_urlopen):
         """Successful auth stores the token and returns it."""
-        mock_urlopen.return_value = make_mock_response(
-            200, {"access_token": "tok123"}
-        )
+        mock_urlopen.return_value = make_mock_response(200, {"access_token": "tok123"})
 
         client = AgentAPIClient(
             my_domain="https://test.my.salesforce.com",
@@ -43,9 +41,7 @@ class TestAuthenticate:
 
     def test_token_issued_at_set(self, mock_urlopen):
         """After auth, _token_issued_at should be a positive timestamp."""
-        mock_urlopen.return_value = make_mock_response(
-            200, {"access_token": "tok123"}
-        )
+        mock_urlopen.return_value = make_mock_response(200, {"access_token": "tok123"})
 
         client = AgentAPIClient(
             my_domain="https://test.my.salesforce.com",

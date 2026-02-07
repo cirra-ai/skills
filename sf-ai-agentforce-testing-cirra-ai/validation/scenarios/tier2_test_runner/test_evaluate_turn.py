@@ -15,16 +15,13 @@ import pytest
 
 from multi_turn_test_runner import (
     evaluate_turn,
-    _run_check,
-    _matches_patterns,
-    GUARDRAIL_PATTERNS,
-    ESCALATION_PATTERNS,
 )
 
 
 # ─────────────────────────────────────────────────────────────────────────
 # response_not_empty
 # ─────────────────────────────────────────────────────────────────────────
+
 
 @pytest.mark.tier2
 @pytest.mark.offline
@@ -51,6 +48,7 @@ def test_response_not_empty_fails(sample_turn_result):
 # response_contains
 # ─────────────────────────────────────────────────────────────────────────
 
+
 @pytest.mark.tier2
 @pytest.mark.offline
 def test_response_contains_passes(sample_turn_result):
@@ -72,6 +70,7 @@ def test_response_contains_fails(sample_turn_result):
 # ─────────────────────────────────────────────────────────────────────────
 # response_contains_any
 # ─────────────────────────────────────────────────────────────────────────
+
 
 @pytest.mark.tier2
 @pytest.mark.offline
@@ -95,6 +94,7 @@ def test_response_contains_any_fails(sample_turn_result):
 # response_not_contains
 # ─────────────────────────────────────────────────────────────────────────
 
+
 @pytest.mark.tier2
 @pytest.mark.offline
 def test_response_not_contains_passes(sample_turn_result):
@@ -117,6 +117,7 @@ def test_response_not_contains_fails(sample_turn_result):
 # topic_contains
 # ─────────────────────────────────────────────────────────────────────────
 
+
 @pytest.mark.tier2
 @pytest.mark.offline
 def test_topic_contains_passes(sample_turn_result):
@@ -129,6 +130,7 @@ def test_topic_contains_passes(sample_turn_result):
 # ─────────────────────────────────────────────────────────────────────────
 # escalation_triggered
 # ─────────────────────────────────────────────────────────────────────────
+
 
 @pytest.mark.tier2
 @pytest.mark.offline
@@ -167,6 +169,7 @@ def test_escalation_not_triggered(sample_turn_result):
 # guardrail_triggered
 # ─────────────────────────────────────────────────────────────────────────
 
+
 @pytest.mark.tier2
 @pytest.mark.offline
 def test_guardrail_triggered_passes(sample_turn_result):
@@ -189,6 +192,7 @@ def test_guardrail_not_triggered(sample_turn_result):
 # action_invoked
 # ─────────────────────────────────────────────────────────────────────────
 
+
 @pytest.mark.tier2
 @pytest.mark.offline
 def test_action_invoked_passes(sample_turn_result):
@@ -205,6 +209,7 @@ def test_action_invoked_passes(sample_turn_result):
 # response_acknowledges_change
 # ─────────────────────────────────────────────────────────────────────────
 
+
 @pytest.mark.tier2
 @pytest.mark.offline
 def test_response_acknowledges_change(sample_turn_result):
@@ -217,6 +222,7 @@ def test_response_acknowledges_change(sample_turn_result):
 # ─────────────────────────────────────────────────────────────────────────
 # response_offers_help
 # ─────────────────────────────────────────────────────────────────────────
+
 
 @pytest.mark.tier2
 @pytest.mark.offline
@@ -231,6 +237,7 @@ def test_response_offers_help(sample_turn_result):
 # no_re_ask_for
 # ─────────────────────────────────────────────────────────────────────────
 
+
 @pytest.mark.tier2
 @pytest.mark.offline
 def test_no_re_ask_for_passes(sample_turn_result):
@@ -244,9 +251,7 @@ def test_no_re_ask_for_passes(sample_turn_result):
 @pytest.mark.offline
 def test_no_re_ask_for_fails(sample_turn_result):
     """Response that re-asks for info should fail."""
-    turn = sample_turn_result(
-        agent_text="Could you please provide the order number?"
-    )
+    turn = sample_turn_result(agent_text="Could you please provide the order number?")
     result = evaluate_turn(turn, {"no_re_ask_for": "order number"}, [])
     assert result["passed"] is False
 
@@ -254,6 +259,7 @@ def test_no_re_ask_for_fails(sample_turn_result):
 # ─────────────────────────────────────────────────────────────────────────
 # context_retained
 # ─────────────────────────────────────────────────────────────────────────
+
 
 @pytest.mark.tier2
 @pytest.mark.offline
@@ -277,6 +283,7 @@ def test_context_retained_fails(sample_turn_result):
 # resumes_normal
 # ─────────────────────────────────────────────────────────────────────────
 
+
 @pytest.mark.tier2
 @pytest.mark.offline
 def test_resumes_normal_passes(sample_turn_result):
@@ -290,13 +297,12 @@ def test_resumes_normal_passes(sample_turn_result):
 # conversation_resolved
 # ─────────────────────────────────────────────────────────────────────────
 
+
 @pytest.mark.tier2
 @pytest.mark.offline
 def test_conversation_resolved(sample_turn_result):
     """Response with resolution phrases should pass."""
-    turn = sample_turn_result(
-        agent_text="Is there anything else I can help with?"
-    )
+    turn = sample_turn_result(agent_text="Is there anything else I can help with?")
     result = evaluate_turn(turn, {"conversation_resolved": True}, [])
     assert result["passed"] is True
 
@@ -304,6 +310,7 @@ def test_conversation_resolved(sample_turn_result):
 # ─────────────────────────────────────────────────────────────────────────
 # response_declines_gracefully
 # ─────────────────────────────────────────────────────────────────────────
+
 
 @pytest.mark.tier2
 @pytest.mark.offline
@@ -317,6 +324,7 @@ def test_response_declines_gracefully(sample_turn_result):
 # ─────────────────────────────────────────────────────────────────────────
 # Unknown / edge-case checks
 # ─────────────────────────────────────────────────────────────────────────
+
 
 @pytest.mark.tier2
 @pytest.mark.offline
@@ -334,17 +342,11 @@ def test_unknown_check_passes(sample_turn_result):
 def test_multiple_checks_mixed(sample_turn_result):
     """Mix of passing and failing checks, verify counts."""
     turn = sample_turn_result(agent_text="Hello there, I can help")
+    # Build expectations with one passing and one failing check.
     expectations = {
-        "response_not_empty": True,        # passes
-        "response_contains": "help",       # passes
-        "response_contains": "order",      # fails  (dict dedup: last wins)
-    }
-    # Since dicts dedup, use a different approach: build expectations with
-    # one passing and one failing check.
-    expectations = {
-        "response_not_empty": True,        # passes (has content)
-        "response_contains": "order",      # fails  ("order" not in text)
-        "escalation_triggered": False,     # passes (no escalation)
+        "response_not_empty": True,  # passes (has content)
+        "response_contains": "order",  # fails  ("order" not in text)
+        "escalation_triggered": False,  # passes (no escalation)
     }
     result = evaluate_turn(turn, expectations, [])
     assert result["total_checks"] == 3

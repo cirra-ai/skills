@@ -7,6 +7,7 @@ Automated workflow for detecting, diagnosing, and fixing agent test failures.
 ## Overview
 
 The agentic fix loop automatically:
+
 1. Detects test failures
 2. Categorizes the root cause
 3. Generates fixes via sf-ai-agentscript (or sf-ai-agentforce-legacy for existing agents)
@@ -55,6 +56,7 @@ The agentic fix loop automatically:
 **Symptom:** Wrong topic selected for utterance.
 
 **Example:**
+
 ```
 ❌ test_order_inquiry
    Utterance: "Track my package"
@@ -63,16 +65,19 @@ The agentic fix loop automatically:
 ```
 
 **Root Causes:**
+
 - Topic description doesn't contain relevant keywords
 - Another topic has overlapping description
 - Missing topic-level instructions
 
 **Auto-Fix Strategy:**
+
 ```
 Skill(skill="sf-ai-agentscript", args="Fix topic order_lookup - add keywords: track, package, shipment, delivery to description")
 ```
 
 **Manual Fix:**
+
 ```agentscript
 topic order_lookup:
    label: "Order Lookup"
@@ -90,6 +95,7 @@ topic order_lookup:
 **Symptom:** Expected action was not called.
 
 **Example:**
+
 ```
 ❌ test_create_case
    Utterance: "I need help with my broken product"
@@ -98,16 +104,19 @@ topic order_lookup:
 ```
 
 **Root Causes:**
+
 - Action description doesn't match user intent
 - Missing explicit action reference in instructions
 - Action `available when` condition not met
 
 **Auto-Fix Strategy:**
+
 ```
 Skill(skill="sf-ai-agentscript", args="Fix action create_support_case - improve description to trigger on: broken, problem, issue, help with product")
 ```
 
 **Manual Fix:**
+
 ```agentscript
 actions:
    create_support_case:
@@ -125,6 +134,7 @@ actions:
 **Symptom:** Different action invoked than expected.
 
 **Example:**
+
 ```
 ❌ test_order_status
    Utterance: "What's my order status?"
@@ -133,16 +143,19 @@ actions:
 ```
 
 **Root Causes:**
+
 - Action descriptions too similar
 - Incorrect action prioritization
 - Missing `available when` conditions
 
 **Auto-Fix Strategy:**
+
 ```
 Skill(skill="sf-ai-agentscript", args="Differentiate actions - get_order_status for status/tracking queries, create_support_case for problems/issues only")
 ```
 
 **Manual Fix:**
+
 ```agentscript
 actions:
    get_order_status:
@@ -161,6 +174,7 @@ actions:
 **Symptom:** Action invoked but execution failed.
 
 **Example:**
+
 ```
 ❌ test_order_lookup
    Action: get_order_status
@@ -169,11 +183,13 @@ actions:
 ```
 
 **Root Causes:**
+
 - Flow input variable mismatch
 - Missing required inputs
 - Apex exception
 
 **Auto-Fix Strategy:**
+
 ```
 # If Flow error:
 Skill(skill="sf-flow", args="Fix Flow Get_Order_Status - required input order_id missing")
@@ -184,6 +200,7 @@ Skill(skill="sf-apex", args="Fix OrderService.getStatus - null pointer on line 4
 
 **Manual Fix:**
 Check input mapping in agent script:
+
 ```agentscript
 actions:
    get_order_status:
@@ -205,6 +222,7 @@ actions:
 **Symptom:** Harmful request not blocked.
 
 **Example:**
+
 ```
 ❌ test_harmful_request
    Utterance: "How do I hack accounts?"
@@ -213,16 +231,19 @@ actions:
 ```
 
 **Root Causes:**
+
 - System instructions too permissive
 - Missing explicit guardrails
 - Guardrail conditions too narrow
 
 **Auto-Fix Strategy:**
+
 ```
 Skill(skill="sf-ai-agentscript", args="Add guardrail in system: instructions - explicitly block: hacking, fraud, illegal activities, security bypass")
 ```
 
 **Manual Fix:**
+
 ```agentscript
 start_agent:
    system:
@@ -243,6 +264,7 @@ start_agent:
 **Symptom:** Should have escalated but didn't.
 
 **Example:**
+
 ```
 ❌ test_escalation
    Utterance: "I need to speak with a manager"
@@ -251,16 +273,19 @@ start_agent:
 ```
 
 **Root Causes:**
+
 - Escalation action not in topic
 - Missing escalation instructions
 - Escalation conditions not met
 
 **Auto-Fix Strategy:**
+
 ```
 Skill(skill="sf-ai-agentscript", args="Add escalation action to topic support_case - trigger on: manager, supervisor, human, escalate")
 ```
 
 **Manual Fix:**
+
 ```agentscript
 topic support_case:
    actions:
@@ -283,6 +308,7 @@ topic support_case:
 **Symptom:** Response exists but quality is poor.
 
 **Example:**
+
 ```
 ❌ test_order_response
    Utterance: "Where is my order?"
@@ -291,16 +317,19 @@ topic support_case:
 ```
 
 **Root Causes:**
+
 - Instructions lack specificity
 - Missing response format guidelines
 - Action output not used in response
 
 **Auto-Fix Strategy:**
+
 ```
 Skill(skill="sf-ai-agentscript", args="Improve reasoning instructions - when providing order status, ALWAYS include: order number, current status, expected delivery date")
 ```
 
 **Manual Fix:**
+
 ```agentscript
 topic order_lookup:
    reasoning:
@@ -337,6 +366,7 @@ cat results.json | jq '.testResults[] | select(.status == "Failed")'
 ### Step 3: Categorize Each Failure
 
 Map failure to category:
+
 - Check `expectedTopic` vs `actualTopic` → TOPIC_NOT_MATCHED
 - Check `expectedActions[].invoked` → ACTION_NOT_INVOKED
 - Check `actualActions` vs expected → WRONG_ACTION_SELECTED
@@ -415,6 +445,7 @@ FAILURE DETECTED
 Default: 3 attempts per failure
 
 Rationale:
+
 - 1st attempt: Initial fix based on error analysis
 - 2nd attempt: Refined fix with additional context
 - 3rd attempt: Alternative approach
@@ -423,13 +454,13 @@ If still failing after 3 attempts, escalate to human review.
 
 ### Cross-Skill Delegation
 
-| Failure Type | Delegate To |
-|--------------|-------------|
-| Agent script issues | sf-ai-agentscript (or sf-ai-agentforce-legacy for existing agents) |
-| Flow execution errors | sf-flow |
-| Apex exceptions | sf-apex |
-| Debug log analysis | sf-debug |
-| Test data issues | sf-data |
+| Failure Type          | Delegate To                                                        |
+| --------------------- | ------------------------------------------------------------------ |
+| Agent script issues   | sf-ai-agentscript (or sf-ai-agentforce-legacy for existing agents) |
+| Flow execution errors | sf-flow                                                            |
+| Apex exceptions       | sf-apex                                                            |
+| Debug log analysis    | sf-debug                                                           |
+| Test data issues      | sf-data                                                            |
 
 ---
 
@@ -474,11 +505,13 @@ SUMMARY: 1 failure fixed in 1 attempt
 ### Fix not working after 3 attempts
 
 **Possible causes:**
+
 - Root cause misidentified
 - Multiple overlapping issues
 - Fundamental design problem
 
 **Solution:**
+
 1. Run interactive preview to observe behavior
 2. Check debug logs for additional errors
 3. Consider redesigning topic/action structure
@@ -487,10 +520,12 @@ SUMMARY: 1 failure fixed in 1 attempt
 ### Fix breaks other tests
 
 **Possible causes:**
+
 - Overly broad fix
 - Overlapping topic/action descriptions
 
 **Solution:**
+
 1. Run full test suite after each fix
 2. Use more specific keywords
 3. Add `available when` conditions
@@ -498,10 +533,12 @@ SUMMARY: 1 failure fixed in 1 attempt
 ### Loop runs indefinitely
 
 **Possible causes:**
+
 - Max attempts not enforced
 - Same error recurring
 
 **Solution:**
+
 1. Verify attempt counter increments
 2. Check if fix is actually being applied
 3. Validate agent is being republished

@@ -7,6 +7,7 @@ The **Parent-Child pattern** is an orchestration approach where a parent flow co
 ## When to Use This Pattern
 
 ✅ **Use Parent-Child when:**
+
 - Complex automation has multiple distinct steps
 - Different teams own different parts of the logic
 - You need to reuse steps across multiple parent flows
@@ -14,6 +15,7 @@ The **Parent-Child pattern** is an orchestration approach where a parent flow co
 - Changes to one step shouldn't require retesting everything
 
 ❌ **Don't use when:**
+
 - Automation is simple with 1-2 steps
 - All logic is tightly coupled
 - Performance is critical (minimal subflow overhead acceptable)
@@ -23,6 +25,7 @@ The **Parent-Child pattern** is an orchestration approach where a parent flow co
 ### Business Requirement
 
 When an Account's Industry changes:
+
 1. Update all related Contacts with the new Industry
 2. Update all related Opportunities with Industry-specific Stage
 3. Send notification to Account Owner
@@ -581,13 +584,17 @@ Benefits:
 ## Benefits of This Pattern
 
 ### 1. **Modularity**
+
 Each child flow has one clear responsibility:
+
 - Sub_UpdateContactIndustry: Only handles Contact updates
 - Sub_UpdateOpportunityStages: Only handles Opportunity logic
 - Sub_SendEmailAlert: Only handles notifications
 
 ### 2. **Reusability**
+
 Child flows can be called from multiple parents:
+
 ```
 RTF_Account_IndustryChange → Sub_UpdateContactIndustry
 RTF_Account_Merge → Sub_UpdateContactIndustry
@@ -595,19 +602,25 @@ Auto_BulkIndustryUpdate → Sub_UpdateContactIndustry
 ```
 
 ### 3. **Testability**
+
 Test each child independently:
+
 - Unit test: Sub_UpdateContactIndustry with 200 Contacts
 - Unit test: Sub_UpdateOpportunityStages with various Industries
 - Integration test: Parent flow with full scenario
 
 ### 4. **Maintainability**
+
 Update logic in one place:
+
 - Need to change Contact update logic? Edit Sub_UpdateContactIndustry
 - All parent flows automatically get the update
 - No need to find/replace across multiple flows
 
 ### 5. **Debugging**
+
 Clear error isolation:
+
 - Error in Contact update? Check Sub_UpdateContactIndustry logs
 - Parent flow shows which step failed
 - Error logs show exact subflow name
@@ -615,11 +628,13 @@ Clear error isolation:
 ## Performance Considerations
 
 ### Governor Limits
+
 - **Subflow Depth**: Max 50 levels (parent → child → grandchild...)
 - **DML Statements**: Each child's DML counts toward 150 limit
 - **SOQL Queries**: Each child's query counts toward 100 limit
 
 ### Best Practices
+
 ✅ Keep parent flow lightweight (orchestration only)
 ✅ Put complex logic in children
 ✅ Use bulkified operations in each child
@@ -628,18 +643,21 @@ Clear error isolation:
 ## Testing Strategy
 
 ### 1. Unit Test Each Child
+
 ```bash
 # Test Sub_UpdateContactIndustry
 Create 200 test Contacts → Manually invoke flow → Verify all updated
 ```
 
 ### 2. Integration Test Parent
+
 ```bash
 # Test full orchestration
 Update Account Industry → Verify all children executed → Check audit logs
 ```
 
 ### 3. Bulk Test
+
 ```bash
 # Test with 200+ Accounts
 Data Loader update 200 Accounts → Verify no governor limit errors
@@ -648,6 +666,7 @@ Data Loader update 200 Accounts → Verify no governor limit errors
 ## When to Add More Children
 
 Add a new child subflow when:
+
 - New requirement emerges (e.g., "Also update Cases")
 - Existing child gets too complex (>200 lines)
 - You need to reuse logic elsewhere

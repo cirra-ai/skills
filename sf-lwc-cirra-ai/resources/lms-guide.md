@@ -21,11 +21,13 @@ Complete guide to cross-DOM component communication using Lightning Message Serv
 ## Overview
 
 Lightning Message Service (LMS) enables communication between components across different DOM contexts:
+
 - Lightning Web Components (LWC)
 - Aura Components
 - Visualforce pages (in Lightning Experience)
 
 **Key Benefits**:
+
 - Cross-DOM communication (Shadow DOM boundaries)
 - Loosely coupled components
 - Publish-subscribe pattern
@@ -35,15 +37,15 @@ Lightning Message Service (LMS) enables communication between components across 
 
 ## When to Use LMS
 
-| Use Case | Recommended Pattern |
-|----------|---------------------|
-| Parent → Child | `@api` properties (simple, direct) |
-| Child → Parent | Custom Events (simple, direct) |
-| Sibling → Sibling (same hierarchy) | Parent mediator + Custom Events |
-| **Cross-DOM communication** | **Lightning Message Service** |
-| **App Builder page components** | **Lightning Message Service** |
-| **Aura ↔ LWC communication** | **Lightning Message Service** |
-| **Visualforce ↔ LWC (in LEX)** | **Lightning Message Service** |
+| Use Case                           | Recommended Pattern                |
+| ---------------------------------- | ---------------------------------- |
+| Parent → Child                     | `@api` properties (simple, direct) |
+| Child → Parent                     | Custom Events (simple, direct)     |
+| Sibling → Sibling (same hierarchy) | Parent mediator + Custom Events    |
+| **Cross-DOM communication**        | **Lightning Message Service**      |
+| **App Builder page components**    | **Lightning Message Service**      |
+| **Aura ↔ LWC communication**       | **Lightning Message Service**      |
+| **Visualforce ↔ LWC (in LEX)**     | **Lightning Message Service**      |
 
 **Rule of Thumb**: Use LMS when components cannot directly reference each other or cross DOM boundaries.
 
@@ -103,45 +105,47 @@ import { publish, MessageContext } from 'lightning/messageService';
 import ACCOUNT_SELECTED_CHANNEL from '@salesforce/messageChannel/AccountSelected__c';
 
 export default class AccountPublisher extends LightningElement {
-    @wire(MessageContext)
-    messageContext;
+  @wire(MessageContext)
+  messageContext;
 
-    handleAccountClick(event) {
-        const accountId = event.target.dataset.id;
-        const accountName = event.target.dataset.name;
+  handleAccountClick(event) {
+    const accountId = event.target.dataset.id;
+    const accountName = event.target.dataset.name;
 
-        // Create payload
-        const payload = {
-            accountId: accountId,
-            accountName: accountName,
-            source: 'accountPublisher'
-        };
+    // Create payload
+    const payload = {
+      accountId: accountId,
+      accountName: accountName,
+      source: 'accountPublisher',
+    };
 
-        // Publish message
-        publish(this.messageContext, ACCOUNT_SELECTED_CHANNEL, payload);
-    }
+    // Publish message
+    publish(this.messageContext, ACCOUNT_SELECTED_CHANNEL, payload);
+  }
 }
 ```
 
 ```html
 <!-- accountPublisher.html -->
 <template>
-    <div class="slds-card">
-        <div class="slds-card__header">
-            <h2 class="slds-text-heading_medium">Account List</h2>
-        </div>
-        <div class="slds-card__body">
-            <template for:each={accounts} for:item="account">
-                <div key={account.Id}
-                     class="slds-box slds-m-around_small"
-                     data-id={account.Id}
-                     data-name={account.Name}
-                     onclick={handleAccountClick}>
-                    {account.Name}
-                </div>
-            </template>
-        </div>
+  <div class="slds-card">
+    <div class="slds-card__header">
+      <h2 class="slds-text-heading_medium">Account List</h2>
     </div>
+    <div class="slds-card__body">
+      <template for:each="{accounts}" for:item="account">
+        <div
+          key="{account.Id}"
+          class="slds-box slds-m-around_small"
+          data-id="{account.Id}"
+          data-name="{account.Name}"
+          onclick="{handleAccountClick}"
+        >
+          {account.Name}
+        </div>
+      </template>
+    </div>
+  </div>
 </template>
 ```
 
@@ -187,72 +191,77 @@ handlePublish(accountData) {
 ```javascript
 // accountSubscriber.js
 import { LightningElement, wire } from 'lwc';
-import { subscribe, unsubscribe, MessageContext, APPLICATION_SCOPE } from 'lightning/messageService';
+import {
+  subscribe,
+  unsubscribe,
+  MessageContext,
+  APPLICATION_SCOPE,
+} from 'lightning/messageService';
 import ACCOUNT_SELECTED_CHANNEL from '@salesforce/messageChannel/AccountSelected__c';
 
 export default class AccountSubscriber extends LightningElement {
-    subscription = null;
-    selectedAccountId;
-    selectedAccountName;
+  subscription = null;
+  selectedAccountId;
+  selectedAccountName;
 
-    @wire(MessageContext)
-    messageContext;
+  @wire(MessageContext)
+  messageContext;
 
-    connectedCallback() {
-        this.subscribeToChannel();
+  connectedCallback() {
+    this.subscribeToChannel();
+  }
+
+  disconnectedCallback() {
+    this.unsubscribeFromChannel();
+  }
+
+  subscribeToChannel() {
+    if (!this.subscription) {
+      this.subscription = subscribe(
+        this.messageContext,
+        ACCOUNT_SELECTED_CHANNEL,
+        (message) => this.handleMessage(message),
+        { scope: APPLICATION_SCOPE }
+      );
     }
+  }
 
-    disconnectedCallback() {
-        this.unsubscribeFromChannel();
-    }
+  unsubscribeFromChannel() {
+    unsubscribe(this.subscription);
+    this.subscription = null;
+  }
 
-    subscribeToChannel() {
-        if (!this.subscription) {
-            this.subscription = subscribe(
-                this.messageContext,
-                ACCOUNT_SELECTED_CHANNEL,
-                (message) => this.handleMessage(message),
-                { scope: APPLICATION_SCOPE }
-            );
-        }
-    }
+  handleMessage(message) {
+    this.selectedAccountId = message.accountId;
+    this.selectedAccountName = message.accountName;
 
-    unsubscribeFromChannel() {
-        unsubscribe(this.subscription);
-        this.subscription = null;
-    }
-
-    handleMessage(message) {
-        this.selectedAccountId = message.accountId;
-        this.selectedAccountName = message.accountName;
-
-        console.log('Message received from:', message.source);
-        console.log('Account ID:', message.accountId);
-    }
+    console.log('Message received from:', message.source);
+    console.log('Account ID:', message.accountId);
+  }
 }
 ```
 
 ```html
 <!-- accountSubscriber.html -->
 <template>
-    <div class="slds-card">
-        <div class="slds-card__header">
-            <h2 class="slds-text-heading_medium">Selected Account</h2>
-        </div>
-        <div class="slds-card__body">
-            <template lwc:if={selectedAccountId}>
-                <dl class="slds-dl_horizontal">
-                    <dt class="slds-dl_horizontal__label">Account ID:</dt>
-                    <dd class="slds-dl_horizontal__detail">{selectedAccountId}</dd>
-                    <dt class="slds-dl_horizontal__label">Account Name:</dt>
-                    <dd class="slds-dl_horizontal__detail">{selectedAccountName}</dd>
-                </dl>
-            </template>
-            <template lwc:else>
-                <p class="slds-text-color_weak">No account selected</p>
-            </template>
-        </div>
+  <div class="slds-card">
+    <div class="slds-card__header">
+      <h2 class="slds-text-heading_medium">Selected Account</h2>
     </div>
+    <div class="slds-card__body">
+      <template lwc:if="{selectedAccountId}">
+        <dl class="slds-dl_horizontal">
+          <dt class="slds-dl_horizontal__label">Account ID:</dt>
+          <dd class="slds-dl_horizontal__detail">{selectedAccountId}</dd>
+          <dt class="slds-dl_horizontal__label">Account Name:</dt>
+          <dd class="slds-dl_horizontal__detail">{selectedAccountName}</dd>
+        </dl>
+      </template>
+      <template lwc:else>
+        <p class="slds-text-color_weak">No account selected</p>
+      </template>
+    </div>
+  </div>
 </template>
 ```
 
@@ -291,33 +300,26 @@ async loadAccountDetails(accountId) {
 
 LMS supports two subscription scopes:
 
-| Scope | Behavior | Use Case |
-|-------|----------|----------|
-| `APPLICATION_SCOPE` | Receive messages from entire app | Cross-page communication, global state |
-| `undefined` (default) | Receive messages only within active tab | Tab-specific communication |
+| Scope                 | Behavior                                | Use Case                               |
+| --------------------- | --------------------------------------- | -------------------------------------- |
+| `APPLICATION_SCOPE`   | Receive messages from entire app        | Cross-page communication, global state |
+| `undefined` (default) | Receive messages only within active tab | Tab-specific communication             |
 
 ### Application Scope Example
 
 ```javascript
 import { APPLICATION_SCOPE } from 'lightning/messageService';
 
-subscribe(
-    this.messageContext,
-    ACCOUNT_SELECTED_CHANNEL,
-    (message) => this.handleMessage(message),
-    { scope: APPLICATION_SCOPE }
-);
+subscribe(this.messageContext, ACCOUNT_SELECTED_CHANNEL, (message) => this.handleMessage(message), {
+  scope: APPLICATION_SCOPE,
+});
 ```
 
 ### Tab Scope Example
 
 ```javascript
 // No scope specified = tab scope only
-subscribe(
-    this.messageContext,
-    ACCOUNT_SELECTED_CHANNEL,
-    (message) => this.handleMessage(message)
-);
+subscribe(this.messageContext, ACCOUNT_SELECTED_CHANNEL, (message) => this.handleMessage(message));
 ```
 
 ---
@@ -328,43 +330,43 @@ subscribe(
 
 ```javascript
 export default class MultiSubscriber extends LightningElement {
-    accountSubscription = null;
-    contactSubscription = null;
+  accountSubscription = null;
+  contactSubscription = null;
 
-    @wire(MessageContext) messageContext;
+  @wire(MessageContext) messageContext;
 
-    connectedCallback() {
-        // Subscribe to account channel
-        this.accountSubscription = subscribe(
-            this.messageContext,
-            ACCOUNT_SELECTED_CHANNEL,
-            (message) => this.handleAccountMessage(message),
-            { scope: APPLICATION_SCOPE }
-        );
+  connectedCallback() {
+    // Subscribe to account channel
+    this.accountSubscription = subscribe(
+      this.messageContext,
+      ACCOUNT_SELECTED_CHANNEL,
+      (message) => this.handleAccountMessage(message),
+      { scope: APPLICATION_SCOPE }
+    );
 
-        // Subscribe to contact channel
-        this.contactSubscription = subscribe(
-            this.messageContext,
-            CONTACT_SELECTED_CHANNEL,
-            (message) => this.handleContactMessage(message),
-            { scope: APPLICATION_SCOPE }
-        );
-    }
+    // Subscribe to contact channel
+    this.contactSubscription = subscribe(
+      this.messageContext,
+      CONTACT_SELECTED_CHANNEL,
+      (message) => this.handleContactMessage(message),
+      { scope: APPLICATION_SCOPE }
+    );
+  }
 
-    disconnectedCallback() {
-        unsubscribe(this.accountSubscription);
-        unsubscribe(this.contactSubscription);
-        this.accountSubscription = null;
-        this.contactSubscription = null;
-    }
+  disconnectedCallback() {
+    unsubscribe(this.accountSubscription);
+    unsubscribe(this.contactSubscription);
+    this.accountSubscription = null;
+    this.contactSubscription = null;
+  }
 
-    handleAccountMessage(message) {
-        // Handle account-specific logic
-    }
+  handleAccountMessage(message) {
+    // Handle account-specific logic
+  }
 
-    handleContactMessage(message) {
-        // Handle contact-specific logic
-    }
+  handleContactMessage(message) {
+    // Handle contact-specific logic
+  }
 }
 ```
 
@@ -372,44 +374,44 @@ export default class MultiSubscriber extends LightningElement {
 
 ```javascript
 export default class PublisherSubscriber extends LightningElement {
-    subscription = null;
-    @wire(MessageContext) messageContext;
+  subscription = null;
+  @wire(MessageContext) messageContext;
 
-    connectedCallback() {
-        // Subscribe to messages from OTHER components
-        this.subscription = subscribe(
-            this.messageContext,
-            ACCOUNT_SELECTED_CHANNEL,
-            (message) => this.handleMessage(message),
-            { scope: APPLICATION_SCOPE }
-        );
+  connectedCallback() {
+    // Subscribe to messages from OTHER components
+    this.subscription = subscribe(
+      this.messageContext,
+      ACCOUNT_SELECTED_CHANNEL,
+      (message) => this.handleMessage(message),
+      { scope: APPLICATION_SCOPE }
+    );
+  }
+
+  disconnectedCallback() {
+    unsubscribe(this.subscription);
+  }
+
+  handleMessage(message) {
+    // Filter out own messages
+    if (message.source === 'myComponent') {
+      return;
     }
+    // Process external messages
+    this.selectedAccountId = message.accountId;
+  }
 
-    disconnectedCallback() {
-        unsubscribe(this.subscription);
-    }
+  handleLocalSelection(event) {
+    const accountId = event.detail.id;
 
-    handleMessage(message) {
-        // Filter out own messages
-        if (message.source === 'myComponent') {
-            return;
-        }
-        // Process external messages
-        this.selectedAccountId = message.accountId;
-    }
+    // Publish for other components
+    publish(this.messageContext, ACCOUNT_SELECTED_CHANNEL, {
+      accountId,
+      source: 'myComponent',
+    });
 
-    handleLocalSelection(event) {
-        const accountId = event.detail.id;
-
-        // Publish for other components
-        publish(this.messageContext, ACCOUNT_SELECTED_CHANNEL, {
-            accountId,
-            source: 'myComponent'
-        });
-
-        // Update own state directly (don't rely on subscription)
-        this.selectedAccountId = accountId;
-    }
+    // Update own state directly (don't rely on subscription)
+    this.selectedAccountId = accountId;
+  }
 }
 ```
 
@@ -417,43 +419,43 @@ export default class PublisherSubscriber extends LightningElement {
 
 ```javascript
 export default class ConditionalSubscriber extends LightningElement {
-    @api enableLiveUpdates = false;
-    subscription = null;
-    @wire(MessageContext) messageContext;
+  @api enableLiveUpdates = false;
+  subscription = null;
+  @wire(MessageContext) messageContext;
 
-    connectedCallback() {
-        if (this.enableLiveUpdates) {
-            this.subscribeToChannel();
-        }
+  connectedCallback() {
+    if (this.enableLiveUpdates) {
+      this.subscribeToChannel();
     }
+  }
 
-    @api
-    toggleLiveUpdates(enabled) {
-        this.enableLiveUpdates = enabled;
-        if (enabled) {
-            this.subscribeToChannel();
-        } else {
-            this.unsubscribeFromChannel();
-        }
+  @api
+  toggleLiveUpdates(enabled) {
+    this.enableLiveUpdates = enabled;
+    if (enabled) {
+      this.subscribeToChannel();
+    } else {
+      this.unsubscribeFromChannel();
     }
+  }
 
-    subscribeToChannel() {
-        if (!this.subscription) {
-            this.subscription = subscribe(
-                this.messageContext,
-                ACCOUNT_SELECTED_CHANNEL,
-                (message) => this.handleMessage(message),
-                { scope: APPLICATION_SCOPE }
-            );
-        }
+  subscribeToChannel() {
+    if (!this.subscription) {
+      this.subscription = subscribe(
+        this.messageContext,
+        ACCOUNT_SELECTED_CHANNEL,
+        (message) => this.handleMessage(message),
+        { scope: APPLICATION_SCOPE }
+      );
     }
+  }
 
-    unsubscribeFromChannel() {
-        if (this.subscription) {
-            unsubscribe(this.subscription);
-            this.subscription = null;
-        }
+  unsubscribeFromChannel() {
+    if (this.subscription) {
+      unsubscribe(this.subscription);
+      this.subscription = null;
     }
+  }
 }
 ```
 
@@ -461,38 +463,38 @@ export default class ConditionalSubscriber extends LightningElement {
 
 ```javascript
 export default class MessageBuffer extends LightningElement {
-    messageQueue = [];
-    isProcessing = false;
+  messageQueue = [];
+  isProcessing = false;
 
-    handleMessage(message) {
-        this.messageQueue.push(message);
-        this.processQueue();
+  handleMessage(message) {
+    this.messageQueue.push(message);
+    this.processQueue();
+  }
+
+  async processQueue() {
+    if (this.isProcessing || this.messageQueue.length === 0) {
+      return;
     }
 
-    async processQueue() {
-        if (this.isProcessing || this.messageQueue.length === 0) {
-            return;
-        }
+    this.isProcessing = true;
 
-        this.isProcessing = true;
-
-        while (this.messageQueue.length > 0) {
-            const message = this.messageQueue.shift();
-            await this.processMessage(message);
-        }
-
-        this.isProcessing = false;
+    while (this.messageQueue.length > 0) {
+      const message = this.messageQueue.shift();
+      await this.processMessage(message);
     }
 
-    async processMessage(message) {
-        // Simulate async processing
-        return new Promise(resolve => {
-            setTimeout(() => {
-                this.selectedAccountId = message.accountId;
-                resolve();
-            }, 100);
-        });
-    }
+    this.isProcessing = false;
+  }
+
+  async processMessage(message) {
+    // Simulate async processing
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        this.selectedAccountId = message.accountId;
+        resolve();
+      }, 100);
+    });
+  }
 }
 ```
 
@@ -532,14 +534,14 @@ publish(this.messageContext, CHANNEL, { id: '001xxx' });
 
 // GOOD - Clear, descriptive payload
 publish(this.messageContext, CHANNEL, {
-    accountId: '001xxx000003DGQ',
-    accountName: 'Acme Corp',
-    source: 'accountList',
-    timestamp: Date.now(),
-    metadata: {
-        action: 'selected',
-        view: 'list'
-    }
+  accountId: '001xxx000003DGQ',
+  accountName: 'Acme Corp',
+  source: 'accountList',
+  timestamp: Date.now(),
+  metadata: {
+    action: 'selected',
+    view: 'list',
+  },
 });
 ```
 
@@ -587,22 +589,27 @@ handleMessage(message) {
 ### Issue: Messages Not Received
 
 **Checklist**:
+
 1. Is `MessageContext` wired correctly?
+
    ```javascript
    @wire(MessageContext) messageContext;
    ```
 
 2. Is subscription active?
+
    ```javascript
    console.log('Subscription:', this.subscription); // Should not be null
    ```
 
 3. Is the message channel deployed?
+
    ```bash
    sf project deploy start -m LightningMessageChannel
    ```
 
 4. Are publisher and subscriber using the same channel?
+
    ```javascript
    // Both should import the same channel
    import CHANNEL from '@salesforce/messageChannel/AccountSelected__c';
@@ -619,6 +626,7 @@ handleMessage(message) {
 **Cause**: Not unsubscribing in `disconnectedCallback()`
 
 **Fix**:
+
 ```javascript
 disconnectedCallback() {
     unsubscribe(this.subscription);
@@ -631,6 +639,7 @@ disconnectedCallback() {
 **Cause**: Component receives its own published messages
 
 **Fix**: Filter by source
+
 ```javascript
 handleMessage(message) {
     if (message.source === this.componentName) {
@@ -649,20 +658,24 @@ handleMessage(message) {
 ```javascript
 // testUtils.js
 export const createMessageContextMock = () => {
-    return jest.fn();
+  return jest.fn();
 };
 
 export const mockPublish = jest.fn();
 export const mockSubscribe = jest.fn();
 export const mockUnsubscribe = jest.fn();
 
-jest.mock('lightning/messageService', () => ({
+jest.mock(
+  'lightning/messageService',
+  () => ({
     publish: mockPublish,
     subscribe: mockSubscribe,
     unsubscribe: mockUnsubscribe,
     MessageContext: Symbol('MessageContext'),
-    APPLICATION_SCOPE: Symbol('APPLICATION_SCOPE')
-}), { virtual: true });
+    APPLICATION_SCOPE: Symbol('APPLICATION_SCOPE'),
+  }),
+  { virtual: true }
+);
 ```
 
 ### Test Publisher
@@ -676,29 +689,29 @@ import ACCOUNT_SELECTED_CHANNEL from '@salesforce/messageChannel/AccountSelected
 jest.mock('lightning/messageService');
 
 describe('c-account-publisher', () => {
-    afterEach(() => {
-        jest.clearAllMocks();
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('publishes account selection', () => {
+    const element = createElement('c-account-publisher', {
+      is: AccountPublisher,
     });
+    document.body.appendChild(element);
 
-    it('publishes account selection', () => {
-        const element = createElement('c-account-publisher', {
-            is: AccountPublisher
-        });
-        document.body.appendChild(element);
+    // Trigger selection
+    const accountCard = element.shadowRoot.querySelector('[data-id="001xxx"]');
+    accountCard.click();
 
-        // Trigger selection
-        const accountCard = element.shadowRoot.querySelector('[data-id="001xxx"]');
-        accountCard.click();
-
-        // Assert publish was called
-        expect(publish).toHaveBeenCalledWith(
-            expect.anything(),
-            ACCOUNT_SELECTED_CHANNEL,
-            expect.objectContaining({
-                accountId: '001xxx'
-            })
-        );
-    });
+    // Assert publish was called
+    expect(publish).toHaveBeenCalledWith(
+      expect.anything(),
+      ACCOUNT_SELECTED_CHANNEL,
+      expect.objectContaining({
+        accountId: '001xxx',
+      })
+    );
+  });
 });
 ```
 
@@ -712,41 +725,41 @@ import { subscribe } from 'lightning/messageService';
 jest.mock('lightning/messageService');
 
 describe('c-account-subscriber', () => {
-    let messageHandler;
+  let messageHandler;
 
-    beforeEach(() => {
-        subscribe.mockImplementation((context, channel, handler, options) => {
-            messageHandler = handler;
-            return { subscription: 'mock-subscription' };
-        });
+  beforeEach(() => {
+    subscribe.mockImplementation((context, channel, handler, options) => {
+      messageHandler = handler;
+      return { subscription: 'mock-subscription' };
+    });
+  });
+
+  it('subscribes on connected', () => {
+    const element = createElement('c-account-subscriber', {
+      is: AccountSubscriber,
+    });
+    document.body.appendChild(element);
+
+    expect(subscribe).toHaveBeenCalled();
+  });
+
+  it('handles incoming message', async () => {
+    const element = createElement('c-account-subscriber', {
+      is: AccountSubscriber,
+    });
+    document.body.appendChild(element);
+
+    // Simulate message
+    messageHandler({
+      accountId: '001xxx',
+      accountName: 'Acme Corp',
     });
 
-    it('subscribes on connected', () => {
-        const element = createElement('c-account-subscriber', {
-            is: AccountSubscriber
-        });
-        document.body.appendChild(element);
+    await Promise.resolve();
 
-        expect(subscribe).toHaveBeenCalled();
-    });
-
-    it('handles incoming message', async () => {
-        const element = createElement('c-account-subscriber', {
-            is: AccountSubscriber
-        });
-        document.body.appendChild(element);
-
-        // Simulate message
-        messageHandler({
-            accountId: '001xxx',
-            accountName: 'Acme Corp'
-        });
-
-        await Promise.resolve();
-
-        const accountName = element.shadowRoot.querySelector('.account-name');
-        expect(accountName.textContent).toBe('Acme Corp');
-    });
+    const accountName = element.shadowRoot.querySelector('.account-name');
+    expect(accountName.textContent).toBe('Acme Corp');
+  });
 });
 ```
 
@@ -785,27 +798,27 @@ import CONTACT_SELECTED from '@salesforce/messageChannel/ContactSelected__c';
 import getContacts from '@salesforce/apex/ContactController.getContacts';
 
 export default class ContactList extends LightningElement {
-    @api accountId;
-    contacts;
-    @wire(MessageContext) messageContext;
+  @api accountId;
+  contacts;
+  @wire(MessageContext) messageContext;
 
-    @wire(getContacts, { accountId: '$accountId' })
-    wiredContacts({ data, error }) {
-        if (data) {
-            this.contacts = data;
-        }
+  @wire(getContacts, { accountId: '$accountId' })
+  wiredContacts({ data, error }) {
+    if (data) {
+      this.contacts = data;
     }
+  }
 
-    handleContactSelect(event) {
-        const contactId = event.currentTarget.dataset.id;
-        const contact = this.contacts.find(c => c.Id === contactId);
+  handleContactSelect(event) {
+    const contactId = event.currentTarget.dataset.id;
+    const contact = this.contacts.find((c) => c.Id === contactId);
 
-        publish(this.messageContext, CONTACT_SELECTED, {
-            contactId: contact.Id,
-            contactName: contact.Name,
-            accountId: this.accountId
-        });
-    }
+    publish(this.messageContext, CONTACT_SELECTED, {
+      contactId: contact.Id,
+      contactName: contact.Name,
+      accountId: this.accountId,
+    });
+  }
 }
 ```
 
@@ -819,34 +832,34 @@ import CONTACT_SELECTED from '@salesforce/messageChannel/ContactSelected__c';
 import getContactDetails from '@salesforce/apex/ContactController.getContactDetails';
 
 export default class ContactDetails extends LightningElement {
-    subscription = null;
-    contactId;
-    contactDetails;
-    @wire(MessageContext) messageContext;
+  subscription = null;
+  contactId;
+  contactDetails;
+  @wire(MessageContext) messageContext;
 
-    connectedCallback() {
-        this.subscription = subscribe(
-            this.messageContext,
-            CONTACT_SELECTED,
-            (message) => this.handleContactSelected(message),
-            { scope: APPLICATION_SCOPE }
-        );
-    }
+  connectedCallback() {
+    this.subscription = subscribe(
+      this.messageContext,
+      CONTACT_SELECTED,
+      (message) => this.handleContactSelected(message),
+      { scope: APPLICATION_SCOPE }
+    );
+  }
 
-    disconnectedCallback() {
-        unsubscribe(this.subscription);
-    }
+  disconnectedCallback() {
+    unsubscribe(this.subscription);
+  }
 
-    async handleContactSelected(message) {
-        this.contactId = message.contactId;
-        try {
-            this.contactDetails = await getContactDetails({
-                contactId: message.contactId
-            });
-        } catch (error) {
-            console.error('Error loading contact details:', error);
-        }
+  async handleContactSelected(message) {
+    this.contactId = message.contactId;
+    try {
+      this.contactDetails = await getContactDetails({
+        contactId: message.contactId,
+      });
+    } catch (error) {
+      console.error('Error loading contact details:', error);
     }
+  }
 }
 ```
 

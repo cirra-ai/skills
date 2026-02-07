@@ -5,6 +5,7 @@ Complete end-to-end example of data operations using sf-data skill.
 ## Scenario
 
 Create a Deal Desk workflow test environment with:
+
 - Accounts with varying revenue tiers
 - Contacts as decision makers
 - Opportunities at different stages
@@ -17,12 +18,14 @@ Request: "Describe object Account in org dev - show required fields and picklist
 ```
 
 **Response shows:**
+
 - Required: Name
 - Picklists: Industry, Type, Rating
 
 ## Phase 2: Create Records
 
 ### sf CLI - Single Record
+
 ```bash
 sf data create record \
   --sobject Account \
@@ -32,6 +35,7 @@ sf data create record \
 ```
 
 **Output:**
+
 ```json
 {
   "status": 0,
@@ -43,6 +47,7 @@ sf data create record \
 ```
 
 ### sf CLI - Query Created Record
+
 ```bash
 sf data query \
   --query "SELECT Id, Name, Industry, AnnualRevenue FROM Account WHERE Name = 'Enterprise Corp'" \
@@ -53,6 +58,7 @@ sf data query \
 ## Phase 3: Update Records
 
 ### Update Single Record
+
 ```bash
 sf data update record \
   --sobject Account \
@@ -62,6 +68,7 @@ sf data update record \
 ```
 
 ### Verify Update
+
 ```bash
 sf data get record \
   --sobject Account \
@@ -72,6 +79,7 @@ sf data get record \
 ## Phase 4: Create Related Records
 
 ### Create Contact for Account
+
 ```bash
 sf data create record \
   --sobject Contact \
@@ -80,6 +88,7 @@ sf data create record \
 ```
 
 ### Create Opportunity
+
 ```bash
 sf data create record \
   --sobject Opportunity \
@@ -90,6 +99,7 @@ sf data create record \
 ## Phase 5: Query Relationships
 
 ### Parent-to-Child (Subquery)
+
 ```bash
 sf data query \
   --query "SELECT Id, Name, (SELECT Id, Name, Title FROM Contacts), (SELECT Id, Name, Amount, StageName FROM Opportunities) FROM Account WHERE Name = 'Enterprise Corp'" \
@@ -98,6 +108,7 @@ sf data query \
 ```
 
 ### Child-to-Parent (Dot Notation)
+
 ```bash
 sf data query \
   --query "SELECT Id, Name, Account.Name, Account.Industry FROM Contact WHERE Account.Name = 'Enterprise Corp'" \
@@ -107,6 +118,7 @@ sf data query \
 ## Phase 6: Delete Records
 
 ### Delete in Correct Order
+
 Children first, then parents:
 
 ```bash
@@ -164,6 +176,7 @@ System.debug('Created hierarchy: Account=' + acc.Id + ', Contact=' + con.Id + ',
 ```
 
 Execute:
+
 ```bash
 sf apex run --file create-hierarchy.apex --target-org dev
 ```

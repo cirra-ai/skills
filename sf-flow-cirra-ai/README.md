@@ -34,6 +34,7 @@ Request: "Create a before-save flow to auto-populate Account fields"
 ### 2. Answer requirements questions
 
 The skill will ask about:
+
 - Flow type (Record-Triggered, Screen, Autolaunched, etc.)
 - Trigger object and timing (Before/After Save)
 - Entry conditions
@@ -42,52 +43,53 @@ The skill will ask about:
 ### 3. Review generated flow
 
 The skill generates:
+
 - Complete Flow XML metadata
 - Proper element naming with alphabetical ordering
 - Entry conditions and fault connectors
 
 ## Scoring System (110 Points)
 
-| Category | Points | Focus |
-|----------|--------|-------|
-| Bulkification | 25 | No DML/queries in loops, collection variables |
-| Entry Criteria | 20 | Selective, indexed fields |
-| Naming | 20 | Consistent element names, descriptions |
-| Fault Handling | 20 | Fault paths on all DML/queries |
-| Performance | 15 | Minimal elements, efficient paths |
-| Documentation | 10 | Element descriptions, flow description |
+| Category       | Points | Focus                                         |
+| -------------- | ------ | --------------------------------------------- |
+| Bulkification  | 25     | No DML/queries in loops, collection variables |
+| Entry Criteria | 20     | Selective, indexed fields                     |
+| Naming         | 20     | Consistent element names, descriptions        |
+| Fault Handling | 20     | Fault paths on all DML/queries                |
+| Performance    | 15     | Minimal elements, efficient paths             |
+| Documentation  | 10     | Element descriptions, flow description        |
 
 **Minimum Score**: 88 (80%) for deployment
 
 ## Key Insights
 
-| Rule | Details |
-|------|---------|
-| Before vs After Save | Before: same-record updates (no DML). After: related records, callouts |
-| Test with 251 records | Batch boundary at 200. Test bulk behavior |
-| $Record context | Single record, not a collection. Platform handles batching |
-| Transform vs Loop | Transform: data mapping (30-50% faster). Loop: per-record decisions |
-| Deploy as Draft | Always deploy flows as Draft first, then activate |
+| Rule                  | Details                                                                |
+| --------------------- | ---------------------------------------------------------------------- |
+| Before vs After Save  | Before: same-record updates (no DML). After: related records, callouts |
+| Test with 251 records | Batch boundary at 200. Test bulk behavior                              |
+| $Record context       | Single record, not a collection. Platform handles batching             |
+| Transform vs Loop     | Transform: data mapping (30-50% faster). Loop: per-record decisions    |
+| Deploy as Draft       | Always deploy flows as Draft first, then activate                      |
 
 ## Templates
 
-| Template | Use Case |
-|----------|----------|
-| `before-save-template.xml` | Field auto-population |
-| `after-save-template.xml` | Related record updates |
-| `screen-flow-template.xml` | User interaction flows |
-| `autolaunched-template.xml` | Background automation |
-| `scheduled-template.xml` | Time-based automation |
-| `wait-template.xml` | Wait element patterns |
+| Template                    | Use Case               |
+| --------------------------- | ---------------------- |
+| `before-save-template.xml`  | Field auto-population  |
+| `after-save-template.xml`   | Related record updates |
+| `screen-flow-template.xml`  | User interaction flows |
+| `autolaunched-template.xml` | Background automation  |
+| `scheduled-template.xml`    | Time-based automation  |
+| `wait-template.xml`         | Wait element patterns  |
 
 ## Cross-Skill Integration
 
-| Related Skill | When to Use |
-|---------------|-------------|
-| sf-apex | Create @InvocableMethod for complex logic |
-| sf-lwc | Create screen components for custom UI |
-| sf-metadata | Deploy custom objects BEFORE flows |
-| sf-deploy | Deploy flows to org |
+| Related Skill | When to Use                               |
+| ------------- | ----------------------------------------- |
+| sf-apex       | Create @InvocableMethod for complex logic |
+| sf-lwc        | Create screen components for custom UI    |
+| sf-metadata   | Deploy custom objects BEFORE flows        |
+| sf-deploy     | Deploy flows to org                       |
 
 ## Orchestration Order
 

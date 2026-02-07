@@ -10,7 +10,6 @@ Each test is parametrized over all 4 multi-turn templates.
 
 import yaml
 import pytest
-from pathlib import Path
 
 MULTI_TURN_TEMPLATES = [
     "multi-turn-comprehensive.yaml",
@@ -40,9 +39,7 @@ class TestTemplateParsing:
         with open(path) as f:
             data = yaml.safe_load(f)
         assert "scenarios" in data, f"Template {template_name} missing 'scenarios' key"
-        assert len(data["scenarios"]) >= 1, (
-            f"Template {template_name} has zero scenarios"
-        )
+        assert len(data["scenarios"]) >= 1, f"Template {template_name} has zero scenarios"
 
     def test_scenarios_have_names(self, templates_dir, template_name):
         """Every scenario has a 'name' key."""
@@ -50,9 +47,7 @@ class TestTemplateParsing:
         with open(path) as f:
             data = yaml.safe_load(f)
         for i, scenario in enumerate(data["scenarios"]):
-            assert "name" in scenario, (
-                f"Scenario {i} in {template_name} missing 'name'"
-            )
+            assert "name" in scenario, f"Scenario {i} in {template_name} missing 'name'"
 
     def test_scenarios_have_turns(self, templates_dir, template_name):
         """Every scenario has a 'turns' key with at least one turn."""
@@ -61,9 +56,7 @@ class TestTemplateParsing:
             data = yaml.safe_load(f)
         for scenario in data["scenarios"]:
             sname = scenario.get("name", "?")
-            assert "turns" in scenario, (
-                f"Scenario '{sname}' in {template_name} missing 'turns'"
-            )
+            assert "turns" in scenario, f"Scenario '{sname}' in {template_name} missing 'turns'"
             assert len(scenario["turns"]) >= 1, (
                 f"Scenario '{sname}' in {template_name} has zero turns"
             )

@@ -10,10 +10,11 @@ This example demonstrates creating a Screen Flow that collects customer feedback
 ## Scenario
 
 Create an interactive form where users can:
+
 - Select a product from a picklist
 - Rate their experience (1-5 stars)
 - Provide comments
-- Submit feedback to a custom Feedback__c object
+- Submit feedback to a custom Feedback\_\_c object
 
 ## User Request
 
@@ -73,12 +74,12 @@ rating (1-5), and comments, then save to the Feedback__c object."
 
 ### Navigation Control Rules Applied
 
-| Screen | allowBack | allowFinish | Reason |
-|--------|-----------|-------------|--------|
-| Welcome | `false` | `true` | First screen - no previous |
-| Feedback Form | `true` | `true` | Allow user to go back |
-| Thank You | `false` | `true` | **Record already created** - prevent duplicate |
-| Error | `true` | `true` | Let user try again |
+| Screen        | allowBack | allowFinish | Reason                                         |
+| ------------- | --------- | ----------- | ---------------------------------------------- |
+| Welcome       | `false`   | `true`      | First screen - no previous                     |
+| Feedback Form | `true`    | `true`      | Allow user to go back                          |
+| Thank You     | `false`   | `true`      | **Record already created** - prevent duplicate |
+| Error         | `true`    | `true`      | Let user try again                             |
 
 ---
 
@@ -349,30 +350,36 @@ The record wasn't created, so no duplicate risk.
 ## UX Best Practices Demonstrated
 
 ### 1. Progress Indicators
+
 Every screen shows "Step X of 3" to orient users.
 
 ### 2. Clear Instructions
+
 - Welcome screen explains time commitment (2 minutes)
-- Form screen explains required fields (*)
+- Form screen explains required fields (\*)
 - Help text on complex fields
 
 ### 3. Input Preservation
+
 `inputsOnNextNavToAssocScrn="UseStoredValues"` preserves user input when navigating back.
 
 ### 4. Strategic Back Button Control
-| Screen | allowBack | Reason |
-|--------|-----------|--------|
-| Welcome | false | No previous screen |
-| Form | true | Let users go back to re-read instructions |
-| Thank You | **false** | **Prevent duplicate submission** |
-| Error | true | Let users try again |
+
+| Screen    | allowBack | Reason                                    |
+| --------- | --------- | ----------------------------------------- |
+| Welcome   | false     | No previous screen                        |
+| Form      | true      | Let users go back to re-read instructions |
+| Thank You | **false** | **Prevent duplicate submission**          |
+| Error     | true      | Let users try again                       |
 
 ### 5. User-Friendly Error Messages
+
 - Technical `$Flow.FaultMessage` displayed in italic
 - Clear instruction on recovery options
 - Both "Previous" and "Finish" available
 
 ### 6. Consistent Visual Hierarchy
+
 - Large, bold headers (20px)
 - Subdued progress text (gray)
 - Success confirmation with checkmark
@@ -383,28 +390,33 @@ Every screen shows "Step X of 3" to orient users.
 ## Testing Checklist (v2.0.0)
 
 ### Path Coverage
+
 - [ ] Happy path: Welcome → Form → Create → Thank You
 - [ ] Error path: Welcome → Form → Error → (Previous) → Form → Success
 - [ ] Exit from error: Welcome → Form → Error → Finish
 
 ### Navigation Testing
+
 - [ ] Welcome: No "Previous" button visible
 - [ ] Form: Both "Previous" and "Next" visible
 - [ ] Thank You: No "Previous" button (prevents duplicate)
 - [ ] Error: Both "Previous" and "Finish" visible
 
 ### Input Validation
+
 - [ ] Empty product → validation message
 - [ ] Rating 0 or 6 → validation message (if min/max configured)
 - [ ] All required fields empty → validation messages
 - [ ] Long comments (32,000+ chars) → handled gracefully
 
 ### User Context
+
 - [ ] Works as System Administrator
 - [ ] Works as Standard User
 - [ ] Works as Community User (if exposed externally)
 
 ### Edge Cases
+
 - [ ] Special characters in comments: `<>&"'`
 - [ ] Unicode/Emoji in comments
 - [ ] Browser back button behavior
@@ -422,7 +434,7 @@ The skill asks:
 → Screen Flow
 
 **Q2: What is the purpose?**
-→ "Collect customer feedback and save to Feedback__c object"
+→ "Collect customer feedback and save to Feedback\_\_c object"
 
 **Q3: Target org?**
 → "sandbox"
@@ -430,9 +442,10 @@ The skill asks:
 ### Phase 2: Flow Design
 
 The skill designs:
+
 - **Screen 1**: Welcome message with progress indicator
 - **Screen 2**: Feedback form with validation
-- **Create Record**: Save to Feedback__c (with fault path)
+- **Create Record**: Save to Feedback\_\_c (with fault path)
 - **Screen 3**: Thank you confirmation (back disabled)
 - **Error Screen**: Recovery option (back enabled)
 
@@ -461,6 +474,7 @@ Score: 108/110 ⭐⭐⭐⭐⭐ Excellent
 ### Phase 4: Deployment
 
 **Step 1: Check-Only Validation**
+
 ```
 Deploying flow with --check-only flag...
 ✓ Validation successful
@@ -469,6 +483,7 @@ Deploying flow with --check-only flag...
 ```
 
 **Step 2: Actual Deployment**
+
 ```
 Deploying to sandbox...
 ✓ Deployment successful

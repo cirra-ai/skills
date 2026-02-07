@@ -40,10 +40,10 @@ Build complex UIs by composing simple components.
 ```html
 <!-- Compose components -->
 <template>
-    <c-page-header title="Accounts"></c-page-header>
-    <c-account-filters onfilter={handleFilter}></c-account-filters>
-    <c-account-list accounts={filteredAccounts}></c-account-list>
-    <c-pagination total={totalCount} onpage={handlePage}></c-pagination>
+  <c-page-header title="Accounts"></c-page-header>
+  <c-account-filters onfilter="{handleFilter}"></c-account-filters>
+  <c-account-list accounts="{filteredAccounts}"></c-account-list>
+  <c-pagination total="{totalCount}" onpage="{handlePage}"></c-pagination>
 </template>
 ```
 
@@ -81,23 +81,23 @@ Data flows down (props), events bubble up.
 
 ### Data Source Decision Tree
 
-| Scenario | Recommended Approach |
-|----------|---------------------|
-| Single record by ID | Lightning Data Service (`getRecord`) |
-| Simple record CRUD | `lightning-record-form` / `lightning-record-edit-form` |
-| Complex queries | Apex with `@AuraEnabled(cacheable=true)` |
-| Related records, filtering | GraphQL wire adapter |
-| Real-time updates | Platform Events / Streaming API |
-| External data | Named Credentials + Apex callout |
+| Scenario                   | Recommended Approach                                   |
+| -------------------------- | ------------------------------------------------------ |
+| Single record by ID        | Lightning Data Service (`getRecord`)                   |
+| Simple record CRUD         | `lightning-record-form` / `lightning-record-edit-form` |
+| Complex queries            | Apex with `@AuraEnabled(cacheable=true)`               |
+| Related records, filtering | GraphQL wire adapter                                   |
+| Real-time updates          | Platform Events / Streaming API                        |
+| External data              | Named Credentials + Apex callout                       |
 
 ### GraphQL vs Apex Decision
 
-| Use GraphQL When | Use Apex When |
-|------------------|---------------|
-| Fetching related objects | Complex business logic |
-| Client-side filtering | Aggregate queries (COUNT, SUM) |
-| Cursor-based pagination | Bulk DML operations |
-| Reducing over-fetching | Callouts to external systems |
+| Use GraphQL When         | Use Apex When                  |
+| ------------------------ | ------------------------------ |
+| Fetching related objects | Complex business logic         |
+| Client-side filtering    | Aggregate queries (COUNT, SUM) |
+| Cursor-based pagination  | Bulk DML operations            |
+| Reducing over-fetching   | Callouts to external systems   |
 
 ### Wire Service Best Practices
 
@@ -183,13 +183,13 @@ onerror                    onErrorOccurred
 
 ### When to Use LMS vs Events
 
-| Scenario | Use |
-|----------|-----|
-| Parent-child communication | Custom events |
-| Sibling components (same parent) | Events via parent |
+| Scenario                              | Use                       |
+| ------------------------------------- | ------------------------- |
+| Parent-child communication            | Custom events             |
+| Sibling components (same parent)      | Events via parent         |
 | Components on different parts of page | Lightning Message Service |
-| LWC to Aura communication | LMS |
-| LWC to Visualforce | LMS |
+| LWC to Aura communication             | LMS                       |
+| LWC to Visualforce                    | LMS                       |
 
 ### Debouncing Pattern
 
@@ -221,14 +221,15 @@ The `lwc:spread` directive dynamically spreads object properties as component at
 ```html
 <!-- Without lwc:spread (verbose) -->
 <lightning-button
-    label={buttonLabel}
-    variant={buttonVariant}
-    disabled={isDisabled}
-    onclick={handleClick}>
+  label="{buttonLabel}"
+  variant="{buttonVariant}"
+  disabled="{isDisabled}"
+  onclick="{handleClick}"
+>
 </lightning-button>
 
 <!-- With lwc:spread (dynamic) -->
-<lightning-button lwc:spread={buttonAttributes} onclick={handleClick}></lightning-button>
+<lightning-button lwc:spread="{buttonAttributes}" onclick="{handleClick}"></lightning-button>
 ```
 
 ```javascript
@@ -243,11 +244,11 @@ get buttonAttributes() {
 
 #### lwc:spread vs @api Object Binding
 
-| Approach | Use When | Reactivity |
-|----------|----------|------------|
-| `lwc:spread={obj}` | Passing multiple attributes dynamically | Re-renders on object change |
-| `@api config` | Passing structured data to custom component | Must spread in child |
-| Individual `@api` props | Simple, known properties | Each prop triggers render |
+| Approach                | Use When                                    | Reactivity                  |
+| ----------------------- | ------------------------------------------- | --------------------------- |
+| `lwc:spread={obj}`      | Passing multiple attributes dynamically     | Re-renders on object change |
+| `@api config`           | Passing structured data to custom component | Must spread in child        |
+| Individual `@api` props | Simple, known properties                    | Each prop triggers render   |
 
 #### Conditional Attribute Spreading
 
@@ -273,7 +274,7 @@ get inputAttributes() {
 ```
 
 ```html
-<lightning-input lwc:spread={inputAttributes} onchange={handleChange}></lightning-input>
+<lightning-input lwc:spread="{inputAttributes}" onchange="{handleChange}"></lightning-input>
 ```
 
 #### Event Handlers with lwc:spread
@@ -282,7 +283,7 @@ get inputAttributes() {
 
 ```html
 <!-- ✅ CORRECT: Event handler separate from spread -->
-<lightning-button lwc:spread={buttonProps} onclick={handleClick}></lightning-button>
+<lightning-button lwc:spread="{buttonProps}" onclick="{handleClick}"></lightning-button>
 
 <!-- ❌ INCORRECT: onclick in spread object won't work -->
 <!-- buttonProps = { label: 'Save', onclick: this.handleClick } -->
@@ -299,32 +300,32 @@ The `lwc:on` directive solves the limitation above by enabling **dynamic event b
 ```javascript
 // component.js
 export default class DynamicEventComponent extends LightningElement {
-    // Define event handlers as object properties
-    eventHandlers = {
-        click: this.handleClick.bind(this),
-        mouseover: this.handleMouseOver.bind(this),
-        focus: this.handleFocus.bind(this)
-    };
+  // Define event handlers as object properties
+  eventHandlers = {
+    click: this.handleClick.bind(this),
+    mouseover: this.handleMouseOver.bind(this),
+    focus: this.handleFocus.bind(this),
+  };
 
-    handleClick() {
-        console.log('Element clicked!');
-    }
+  handleClick() {
+    console.log('Element clicked!');
+  }
 
-    handleMouseOver() {
-        console.log('Mouse over!');
-    }
+  handleMouseOver() {
+    console.log('Mouse over!');
+  }
 
-    handleFocus() {
-        console.log('Element focused!');
-    }
+  handleFocus() {
+    console.log('Element focused!');
+  }
 }
 ```
 
 ```html
 <!-- template.html -->
 <template>
-    <!-- Bind multiple event handlers dynamically -->
-    <button lwc:on={eventHandlers}>Click Me</button>
+  <!-- Bind multiple event handlers dynamically -->
+  <button lwc:on="{eventHandlers}">Click Me</button>
 </template>
 ```
 
@@ -335,37 +336,34 @@ For fully dynamic components, combine both directives:
 ```javascript
 // component.js
 export default class FullyDynamicButton extends LightningElement {
-    // Properties via lwc:spread
-    buttonAttributes = {
-        label: 'Save',
-        variant: 'brand',
-        disabled: false
-    };
+  // Properties via lwc:spread
+  buttonAttributes = {
+    label: 'Save',
+    variant: 'brand',
+    disabled: false,
+  };
 
-    // Events via lwc:on
-    buttonEvents = {
-        click: this.handleClick.bind(this),
-        focus: this.handleFocus.bind(this)
-    };
+  // Events via lwc:on
+  buttonEvents = {
+    click: this.handleClick.bind(this),
+    focus: this.handleFocus.bind(this),
+  };
 
-    handleClick() {
-        this.dispatchEvent(new CustomEvent('save'));
-    }
+  handleClick() {
+    this.dispatchEvent(new CustomEvent('save'));
+  }
 
-    handleFocus() {
-        console.log('Button focused');
-    }
+  handleFocus() {
+    console.log('Button focused');
+  }
 }
 ```
 
 ```html
 <!-- template.html -->
 <template>
-    <!-- Best of both worlds: dynamic props AND dynamic events -->
-    <lightning-button
-        lwc:spread={buttonAttributes}
-        lwc:on={buttonEvents}>
-    </lightning-button>
+  <!-- Best of both worlds: dynamic props AND dynamic events -->
+  <lightning-button lwc:spread="{buttonAttributes}" lwc:on="{buttonEvents}"> </lightning-button>
 </template>
 ```
 
@@ -376,27 +374,27 @@ Pass event handler configurations from parent components:
 ```javascript
 // childComponent.js
 export default class ChildComponent extends LightningElement {
-    @api eventConfig; // { click: handler, change: handler }
+  @api eventConfig; // { click: handler, change: handler }
 
-    get resolvedHandlers() {
-        // Ensure handlers are properly bound
-        const handlers = {};
-        if (this.eventConfig) {
-            Object.entries(this.eventConfig).forEach(([event, handler]) => {
-                handlers[event] = typeof handler === 'function' ? handler : () => {};
-            });
-        }
-        return handlers;
+  get resolvedHandlers() {
+    // Ensure handlers are properly bound
+    const handlers = {};
+    if (this.eventConfig) {
+      Object.entries(this.eventConfig).forEach(([event, handler]) => {
+        handlers[event] = typeof handler === 'function' ? handler : () => {};
+      });
     }
+    return handlers;
+  }
 }
 ```
 
 ```html
 <!-- childComponent.html -->
 <template>
-    <div lwc:on={resolvedHandlers}>
-        <slot></slot>
-    </div>
+  <div lwc:on="{resolvedHandlers}">
+    <slot></slot>
+  </div>
 </template>
 ```
 
@@ -425,13 +423,14 @@ toggleHoverHandler() {
 
 #### lwc:spread vs lwc:on Comparison
 
-| Directive | Purpose | Use Case |
-|-----------|---------|----------|
-| `lwc:spread` | Dynamic **properties/attributes** | Pass label, variant, disabled dynamically |
-| `lwc:on` | Dynamic **event handlers** | Bind click, change, custom events dynamically |
-| Both together | Fully dynamic configuration | Reusable wrapper components, dynamic UIs |
+| Directive     | Purpose                           | Use Case                                      |
+| ------------- | --------------------------------- | --------------------------------------------- |
+| `lwc:spread`  | Dynamic **properties/attributes** | Pass label, variant, disabled dynamically     |
+| `lwc:on`      | Dynamic **event handlers**        | Bind click, change, custom events dynamically |
+| Both together | Fully dynamic configuration       | Reusable wrapper components, dynamic UIs      |
 
 **Important Notes**:
+
 - Do NOT mutate the object passed to `lwc:on` - create a new object to update handlers
 - Event type names should be lowercase without the `on` prefix (use `click` not `onclick`)
 - Always use `.bind(this)` or arrow functions to preserve context
@@ -535,12 +534,12 @@ async handleSubmit() {
 
 ### When to Use Each Pattern
 
-| Pattern | Best For | Avoid When |
-|---------|----------|------------|
-| `lwc:spread` | Many dynamic attributes, base component wrappers | Need event binding, simple static props |
-| Object spread | Config merging, immutable updates | Deep objects (consider structuredClone) |
-| Destructuring | Extracting multiple values, API responses | Simple single-property access |
-| Array spread | Adding/removing items immutably | Large arrays (performance concern) |
+| Pattern       | Best For                                         | Avoid When                              |
+| ------------- | ------------------------------------------------ | --------------------------------------- |
+| `lwc:spread`  | Many dynamic attributes, base component wrappers | Need event binding, simple static props |
+| Object spread | Config merging, immutable updates                | Deep objects (consider structuredClone) |
+| Destructuring | Extracting multiple values, API responses        | Simple single-property access           |
+| Array spread  | Adding/removing items immutably                  | Large arrays (performance concern)      |
 
 ---
 
@@ -555,11 +554,11 @@ Spring '26 introduces **complex template expressions**, enabling JavaScript expr
 ```html
 <!-- BEFORE Spring '26: Required getters for any logic -->
 <template>
-    <!-- Simple property binding only -->
-    <template lwc:if={isValid}>...</template>
+  <!-- Simple property binding only -->
+  <template lwc:if="{isValid}">...</template>
 
-    <!-- Complex conditions needed a getter -->
-    <template lwc:if={showLoadingState}>...</template>
+  <!-- Complex conditions needed a getter -->
+  <template lwc:if="{showLoadingState}">...</template>
 </template>
 ```
 
@@ -573,58 +572,56 @@ get showLoadingState() {
 ```html
 <!-- AFTER Spring '26 (Beta): Complex expressions in template -->
 <template>
-    <!-- Logical operators -->
-    <template lwc:if={!isLoading && items.length > 0}>
-        <c-item-list items={items}></c-item-list>
-    </template>
+  <!-- Logical operators -->
+  <template lwc:if="{!isLoading" && items.length>
+    0}>
+    <c-item-list items="{items}"></c-item-list>
+  </template>
 
-    <!-- Optional chaining -->
-    <template lwc:if={user?.permissions?.canEdit}>
-        <lightning-button label="Edit"></lightning-button>
-    </template>
+  <!-- Optional chaining -->
+  <template lwc:if="{user?.permissions?.canEdit}">
+    <lightning-button label="Edit"></lightning-button>
+  </template>
 
-    <!-- Arithmetic expressions -->
-    <span class="slds-text-body_small">
-        Total: ${total * taxRate}
-    </span>
+  <!-- Arithmetic expressions -->
+  <span class="slds-text-body_small"> Total: ${total * taxRate} </span>
 
-    <!-- Comparison operators -->
-    <template lwc:if={items.length >= minItems}>
-        <c-pagination></c-pagination>
-    </template>
+  <!-- Comparison operators -->
+  <template lwc:if="{items.length"
+    >= minItems}>
+    <c-pagination></c-pagination>
+  </template>
 </template>
 ```
 
 ### Supported Expression Types
 
-| Expression Type | Example | Notes |
-|-----------------|---------|-------|
-| **Logical NOT** | `{!isLoading}` | Negation |
-| **Logical AND** | `{a && b}` | Short-circuit evaluation |
-| **Logical OR** | `{a \|\| b}` | Short-circuit evaluation |
-| **Comparison** | `{count > 0}`, `{status === 'active'}` | `==`, `===`, `!=`, `!==`, `<`, `>`, `<=`, `>=` |
-| **Arithmetic** | `{price * quantity}` | `+`, `-`, `*`, `/`, `%` |
-| **Optional Chaining** | `{user?.profile?.name}` | Safe property access |
-| **Nullish Coalescing** | `{value ?? 'default'}` | Default for null/undefined |
-| **Ternary** | `{isActive ? 'Yes' : 'No'}` | Conditional value |
-| **Array Access** | `{items[0]}` | Index-based access |
-| **String Concatenation** | `{firstName + ' ' + lastName}` | String joining |
+| Expression Type          | Example                                | Notes                                          |
+| ------------------------ | -------------------------------------- | ---------------------------------------------- |
+| **Logical NOT**          | `{!isLoading}`                         | Negation                                       |
+| **Logical AND**          | `{a && b}`                             | Short-circuit evaluation                       |
+| **Logical OR**           | `{a \|\| b}`                           | Short-circuit evaluation                       |
+| **Comparison**           | `{count > 0}`, `{status === 'active'}` | `==`, `===`, `!=`, `!==`, `<`, `>`, `<=`, `>=` |
+| **Arithmetic**           | `{price * quantity}`                   | `+`, `-`, `*`, `/`, `%`                        |
+| **Optional Chaining**    | `{user?.profile?.name}`                | Safe property access                           |
+| **Nullish Coalescing**   | `{value ?? 'default'}`                 | Default for null/undefined                     |
+| **Ternary**              | `{isActive ? 'Yes' : 'No'}`            | Conditional value                              |
+| **Array Access**         | `{items[0]}`                           | Index-based access                             |
+| **String Concatenation** | `{firstName + ' ' + lastName}`         | String joining                                 |
 
 ### Best Practices for Complex Expressions
 
 ```html
 <!-- ✅ GOOD: Simple inline logic -->
-<template lwc:if={!isLoading && hasData}>
-    ...
-</template>
+<template lwc:if="{!isLoading" && hasData}> ... </template>
 
 <!-- ✅ GOOD: Optional chaining for safety -->
 <span>{account?.Owner?.Name}</span>
 
 <!-- ⚠️ CAUTION: Keep expressions readable -->
 <!-- If expression is long, consider a getter for maintainability -->
-<template lwc:if={isEditable && hasPermission && !isLocked && status === 'draft'}>
-    <!-- Consider: get canEdit() { return ...; } -->
+<template lwc:if="{isEditable" && hasPermission && !isLocked && status="" ="" ="draft" }>
+  <!-- Consider: get canEdit() { return ...; } -->
 </template>
 
 <!-- ❌ AVOID: Side effects in expressions -->
@@ -651,19 +648,19 @@ get showLoadingState() {
 
 ### Lifecycle Hook Guidance
 
-| Hook | When to Use | Avoid |
-|------|-------------|-------|
-| `constructor()` | Initialize properties | DOM access (not ready) |
-| `connectedCallback()` | Subscribe to events, fetch data | Heavy processing |
-| `renderedCallback()` | DOM-dependent logic | Infinite loops, property changes |
-| `disconnectedCallback()` | Cleanup subscriptions/listeners | Async operations |
+| Hook                     | When to Use                     | Avoid                            |
+| ------------------------ | ------------------------------- | -------------------------------- |
+| `constructor()`          | Initialize properties           | DOM access (not ready)           |
+| `connectedCallback()`    | Subscribe to events, fetch data | Heavy processing                 |
+| `renderedCallback()`     | DOM-dependent logic             | Infinite loops, property changes |
+| `disconnectedCallback()` | Cleanup subscriptions/listeners | Async operations                 |
 
 ### Lazy Loading
 
 ```html
 <!-- Only render when needed -->
-<template lwc:if={showDetails}>
-    <c-expensive-component record-id={recordId}></c-expensive-component>
+<template lwc:if="{showDetails}">
+  <c-expensive-component record-id="{recordId}"></c-expensive-component>
 </template>
 ```
 
@@ -706,20 +703,20 @@ LWC re-rendering is asynchronous. Use this helper to document and await render c
 ```javascript
 // testUtils.js
 export const runRenderingLifecycle = async (reasons = ['render']) => {
-    while (reasons.length > 0) {
-        await Promise.resolve(reasons.pop());
-    }
+  while (reasons.length > 0) {
+    await Promise.resolve(reasons.pop());
+  }
 };
 
 // Usage in tests
 it('updates after property change', async () => {
-    const element = createElement('c-example', { is: Example });
-    document.body.appendChild(element);
+  const element = createElement('c-example', { is: Example });
+  document.body.appendChild(element);
 
-    element.greeting = 'new value';
-    await runRenderingLifecycle(['property change', 'render']);
+  element.greeting = 'new value';
+  await runRenderingLifecycle(['property change', 'render']);
 
-    expect(element.shadowRoot.querySelector('div').textContent).toBe('new value');
+  expect(element.shadowRoot.querySelector('div').textContent).toBe('new value');
 });
 ```
 
@@ -739,13 +736,13 @@ Clean up after each test to prevent state bleed:
 
 ```javascript
 describe('c-my-component', () => {
-    afterEach(() => {
-        // Clean up DOM
-        while (document.body.firstChild) {
-            document.body.removeChild(document.body.firstChild);
-        }
-        jest.clearAllMocks();
-    });
+  afterEach(() => {
+    // Clean up DOM
+    while (document.body.firstChild) {
+      document.body.removeChild(document.body.firstChild);
+    }
+    jest.clearAllMocks();
+  });
 });
 ```
 
@@ -756,30 +753,34 @@ Some components use ResizeObserver. Add polyfill in jest.setup.js:
 ```javascript
 // jest.setup.js
 if (!window.ResizeObserver) {
-    window.ResizeObserver = class ResizeObserver {
-        constructor(callback) {
-            this.callback = callback;
-        }
-        observe() {}
-        unobserve() {}
-        disconnect() {}
-    };
+  window.ResizeObserver = class ResizeObserver {
+    constructor(callback) {
+      this.callback = callback;
+    }
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
 }
 ```
 
 ### Mocking Apex Methods
 
 ```javascript
-jest.mock('@salesforce/apex/MyController.getData', () => ({
-    default: jest.fn()
-}), { virtual: true });
+jest.mock(
+  '@salesforce/apex/MyController.getData',
+  () => ({
+    default: jest.fn(),
+  }),
+  { virtual: true }
+);
 
 // In test
 import getData from '@salesforce/apex/MyController.getData';
 
 it('displays data', async () => {
-    getData.mockResolvedValue(MOCK_DATA);
-    // ... test code
+  getData.mockResolvedValue(MOCK_DATA);
+  // ... test code
 });
 ```
 
@@ -826,13 +827,13 @@ LWC automatically escapes content in templates. Never bypass this.
 
 ### Required Practices
 
-| Element | Requirement |
-|---------|-------------|
-| Buttons | `label` or `aria-label` |
-| Icons | `alternative-text` |
-| Form inputs | Associated `<label>` |
-| Dynamic content | `aria-live` region |
-| Loading states | `aria-busy="true"` |
+| Element         | Requirement             |
+| --------------- | ----------------------- |
+| Buttons         | `label` or `aria-label` |
+| Icons           | `alternative-text`      |
+| Form inputs     | Associated `<label>`    |
+| Dynamic content | `aria-live` region      |
+| Loading states  | `aria-busy="true"`      |
 
 ### Keyboard Navigation
 
@@ -903,25 +904,25 @@ disconnectedCallback() {
 ```css
 /* BEFORE (SLDS 1 - Deprecated) */
 .my-card {
-    background-color: #ffffff;
-    color: #333333;
+  background-color: #ffffff;
+  color: #333333;
 }
 
 /* AFTER (SLDS 2 - Dark Mode Ready) */
 .my-card {
-    background-color: var(--slds-g-color-surface-container-1, #ffffff);
-    color: var(--slds-g-color-on-surface, #181818);
+  background-color: var(--slds-g-color-surface-container-1, #ffffff);
+  color: var(--slds-g-color-on-surface, #181818);
 }
 ```
 
 ### Key Global Styling Hooks
 
-| Category | SLDS 2 Variable |
-|----------|-----------------|
-| Surface | `--slds-g-color-surface-1` to `-4` |
-| Text | `--slds-g-color-on-surface` |
-| Border | `--slds-g-color-border-1`, `-2` |
-| Spacing | `--slds-g-spacing-0` to `-12` |
+| Category | SLDS 2 Variable                    |
+| -------- | ---------------------------------- |
+| Surface  | `--slds-g-color-surface-1` to `-4` |
+| Text     | `--slds-g-color-on-surface`        |
+| Border   | `--slds-g-color-border-1`, `-2`    |
+| Spacing  | `--slds-g-spacing-0` to `-12`      |
 
 **Important**: `--slds-c-*` (component-level hooks) are NOT supported in SLDS 2 yet.
 

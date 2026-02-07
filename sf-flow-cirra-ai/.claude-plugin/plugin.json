@@ -7,17 +7,8 @@
   "author": "Jag Valaiyapathy",
   "license": "Apache-2.0",
   "repository": "https://github.com/jag-cli/sf-skills",
-  "capabilities": [
-    "flow_generation",
-    "flow_validation",
-    "flow_deployment",
-    "flow_retrieval"
-  ],
-  "compatible_models": [
-    "claude-opus-4-6",
-    "claude-sonnet-4-20250514",
-    "claude-haiku-4-5-20251001"
-  ],
+  "capabilities": ["flow_generation", "flow_validation", "flow_deployment", "flow_retrieval"],
+  "compatible_models": ["claude-opus-4-6", "claude-sonnet-4-20250514", "claude-haiku-4-5-20251001"],
   "mcp_requirements": {
     "required": true,
     "server": "cirra_ai",

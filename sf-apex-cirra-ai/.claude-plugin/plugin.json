@@ -7,7 +7,7 @@
     "url": "https://github.com/cirra-ai"
   },
   "license": "Apache-2.0",
-  "repository": "https://github.com/cirra-ai/skills"
+  "repository": "https://github.com/cirra-ai/skills",
   "keywords": ["salesforce", "apex", "trigger", "testing", "cirra-ai", "metadata-api"],
   "requirements": {
     "cirra_ai_team": "Required - Cirra AI team identifier",
@@ -23,10 +23,6 @@
       "metadata_read",
       "sobject_describe"
     ],
-    "optional": [
-      "metadata_delete",
-      "tooling_api_dml",
-      "sobjects_list"
-    ]
+    "optional": ["metadata_delete", "tooling_api_dml", "sobjects_list"]
   }
 }

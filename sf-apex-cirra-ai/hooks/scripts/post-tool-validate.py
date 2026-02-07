@@ -41,7 +41,6 @@ def validate_apex_with_ca(file_path: str) -> dict:
         dict with validation results and output message
     """
     output_parts = []
-    file_name = os.path.basename(file_path)
 
     try:
         # ═══════════════════════════════════════════════════════════════════
@@ -52,11 +51,11 @@ def validate_apex_with_ca(file_path: str) -> dict:
         validator = ApexValidator(file_path)
         custom_results = validator.validate()
 
-        custom_score = custom_results.get('score', 0)
-        custom_max = custom_results.get('max_score', 150)
-        custom_issues = custom_results.get('issues', [])
-        custom_scores = custom_results.get('scores', {})
-        custom_rating = custom_results.get('rating', '')
+        custom_score = custom_results.get("score", 0)
+        custom_max = custom_results.get("max_score", 150)
+        custom_issues = custom_results.get("issues", [])
+        custom_scores = custom_results.get("scores", {})
+        custom_rating = custom_results.get("rating", "")
 
         # ═══════════════════════════════════════════════════════════════════
         # PHASE 1.5: LLM Pattern Validation (Java types, hallucinated methods)
@@ -64,20 +63,23 @@ def validate_apex_with_ca(file_path: str) -> dict:
         llm_issues = []
         try:
             from llm_pattern_validator import LLMPatternValidator
+
             llm_validator = LLMPatternValidator(file_path)
             llm_results = llm_validator.validate()
-            llm_issues = llm_results.get('issues', [])
+            llm_issues = llm_results.get("issues", [])
 
             # Add LLM issues to custom_issues with adjusted severity
             for issue in llm_issues:
-                custom_issues.append({
-                    'severity': issue.get('severity', 'WARNING'),
-                    'category': issue.get('category', 'llm_pattern'),
-                    'message': issue.get('message', ''),
-                    'line': issue.get('line', 0),
-                    'fix': issue.get('fix', ''),
-                    'source': 'llm-validator'
-                })
+                custom_issues.append(
+                    {
+                        "severity": issue.get("severity", "WARNING"),
+                        "category": issue.get("category", "llm_pattern"),
+                        "message": issue.get("message", ""),
+                        "line": issue.get("line", 0),
+                        "fix": issue.get("fix", ""),
+                        "source": "llm-validator",
+                    }
+                )
         except ImportError:
             pass  # LLM validator not available
         except Exception:
@@ -129,7 +131,7 @@ def validate_apex_with_ca(file_path: str) -> dict:
             from soql_extractor import SOQLExtractor
 
             # Read file content for SOQL extraction
-            with open(file_path, 'r') as f:
+            with open(file_path) as f:
                 file_content = f.read()
 
             analyzer = LiveQueryPlanAnalyzer()
@@ -144,29 +146,33 @@ def validate_apex_with_ca(file_path: str) -> dict:
                 # Analyze each query (limit to first 5 to avoid timeout)
                 for query_info in queries[:5]:
                     # Skip dynamic variable queries
-                    if query_info.query_type == 'dynamic_variable':
+                    if query_info.query_type == "dynamic_variable":
                         continue
 
                     plan_result = analyzer.analyze(query_info.query)
-                    live_plan_results.append({
-                        'line': query_info.line,
-                        'query': query_info.query[:60],
-                        'in_loop': query_info.in_loop,
-                        'plan': plan_result
-                    })
+                    live_plan_results.append(
+                        {
+                            "line": query_info.line,
+                            "query": query_info.query[:60],
+                            "in_loop": query_info.in_loop,
+                            "plan": plan_result,
+                        }
+                    )
 
                     # Add non-selective queries to issues
                     if plan_result.success and not plan_result.is_selective:
-                        custom_issues.append({
-                            'severity': 'WARNING',
-                            'line': query_info.line,
-                            'message': f'Non-selective SOQL (cost: {plan_result.relative_cost:.1f}, op: {plan_result.leading_operation})',
-                            'fix': 'Add indexed fields to WHERE clause or reduce result set'
-                        })
+                        custom_issues.append(
+                            {
+                                "severity": "WARNING",
+                                "line": query_info.line,
+                                "message": f"Non-selective SOQL (cost: {plan_result.relative_cost:.1f}, op: {plan_result.leading_operation})",
+                                "fix": "Add indexed fields to WHERE clause or reduce result set",
+                            }
+                        )
 
         except ImportError:
             pass  # Live analysis not available
-        except Exception as e:
+        except Exception:
             pass  # Don't fail validation on live plan errors
 
         # ═══════════════════════════════════════════════════════════════════
@@ -177,13 +183,11 @@ def validate_apex_with_ca(file_path: str) -> dict:
         rating = custom_rating
         rating_stars = 0
         ca_deductions = 0
-        deductions = []
 
         if ca_violations and ca_available:
             try:
                 merger = ScoreMerger(
-                    custom_scores=custom_scores,
-                    custom_max_scores=validator.scores
+                    custom_scores=custom_scores, custom_max_scores=validator.scores
                 )
                 merged = merger.merge(
                     [v if isinstance(v, dict) else v.__dict__ for v in ca_violations],
@@ -195,8 +199,7 @@ def validate_apex_with_ca(file_path: str) -> dict:
                 rating = merged.rating
                 rating_stars = merged.rating_stars
                 ca_deductions = merged.ca_deductions
-                deductions = merged.deductions
-            except Exception as e:
+            except Exception:
                 # Fallback to custom score only
                 pass
 
@@ -220,7 +223,7 @@ def validate_apex_with_ca(file_path: str) -> dict:
         stars = "" * rating_stars + "" * (5 - rating_stars)
 
         output_parts.append("")
-        output_parts.append(f" Apex Validation: {file_name}")
+        output_parts.append(f" Apex Validation: {os.path.basename(file_path)}")
         output_parts.append("" * 60)
 
         # Combined score
@@ -263,10 +266,12 @@ def validate_apex_with_ca(file_path: str) -> dict:
             output_parts.append("")
             output_parts.append(f"🌐 Live Query Plan Analysis (Org: {org_name})")
             for lp in live_plan_results[:3]:  # Show first 3
-                plan = lp['plan']
+                plan = lp["plan"]
                 if plan.success:
-                    loop_warn = " ⚠️ IN LOOP" if lp['in_loop'] else ""
-                    output_parts.append(f"   L{lp['line']}: {plan.icon} Cost {plan.relative_cost:.1f} ({plan.leading_operation}){loop_warn}")
+                    loop_warn = " ⚠️ IN LOOP" if lp["in_loop"] else ""
+                    output_parts.append(
+                        f"   L{lp['line']}: {plan.icon} Cost {plan.relative_cost:.1f} ({plan.leading_operation}){loop_warn}"
+                    )
                     if plan.notes:
                         output_parts.append(f"      📝 {str(plan.notes[0])[:55]}")
             if len(live_plan_results) > 3:
@@ -282,47 +287,69 @@ def validate_apex_with_ca(file_path: str) -> dict:
 
         # Add custom issues
         for issue in custom_issues:
-            severity = issue.get('severity', 'INFO')
-            all_issues.append({
-                'severity': severity,
-                'source': 'sf-skills',
-                'line': issue.get('line', 0),
-                'message': issue.get('message', ''),
-                'fix': issue.get('fix', ''),
-            })
+            severity = issue.get("severity", "INFO")
+            all_issues.append(
+                {
+                    "severity": severity,
+                    "source": "sf-skills",
+                    "line": issue.get("line", 0),
+                    "message": issue.get("message", ""),
+                    "fix": issue.get("fix", ""),
+                }
+            )
 
         # Add CA violations
         for v in ca_violations:
             if isinstance(v, dict):
-                all_issues.append({
-                    'severity': v.get('severity_label', 'INFO'),
-                    'source': f"CA:{v.get('engine', '')}",
-                    'line': v.get('line', 0),
-                    'message': v.get('message', '')[:80],
-                    'rule': v.get('rule', ''),
-                })
+                all_issues.append(
+                    {
+                        "severity": v.get("severity_label", "INFO"),
+                        "source": f"CA:{v.get('engine', '')}",
+                        "line": v.get("line", 0),
+                        "message": v.get("message", "")[:80],
+                        "rule": v.get("rule", ""),
+                    }
+                )
 
         if all_issues:
             output_parts.append("")
             output_parts.append(f" Issues Found ({len(all_issues)}):")
 
             # Sort by severity
-            severity_order = {'CRITICAL': 0, 'HIGH': 1, 'MODERATE': 2, 'WARNING': 3, 'LOW': 4, 'INFO': 5}
-            all_issues.sort(key=lambda x: severity_order.get(x['severity'], 5))
+            severity_order = {
+                "CRITICAL": 0,
+                "HIGH": 1,
+                "MODERATE": 2,
+                "WARNING": 3,
+                "LOW": 4,
+                "INFO": 5,
+            }
+            all_issues.sort(key=lambda x: severity_order.get(x["severity"], 5))
 
             # Display up to 12 issues
             for issue in all_issues[:12]:
-                icon = {'CRITICAL': '', 'HIGH': '', 'MODERATE': '', 'WARNING': '', 'LOW': '', 'INFO': ''}.get(
-                    issue['severity'], ''
+                icon = {
+                    "CRITICAL": "",
+                    "HIGH": "",
+                    "MODERATE": "",
+                    "WARNING": "",
+                    "LOW": "",
+                    "INFO": "",
+                }.get(issue["severity"], "")
+                source = f"[{issue['source']}]" if issue.get("source") else ""
+                line_info = f"L{issue['line']}" if issue.get("line") else ""
+                message = (
+                    issue["message"][:65] + "..."
+                    if len(issue["message"]) > 65
+                    else issue["message"]
                 )
-                source = f"[{issue['source']}]" if issue.get('source') else ""
-                line_info = f"L{issue['line']}" if issue.get('line') else ""
-                message = issue['message'][:65] + "..." if len(issue['message']) > 65 else issue['message']
 
-                output_parts.append(f"   {icon} {issue['severity']} {source} {line_info}: {message}")
+                output_parts.append(
+                    f"   {icon} {issue['severity']} {source} {line_info}: {message}"
+                )
 
-                if issue.get('fix'):
-                    fix = issue['fix'][:55] + "..." if len(issue['fix']) > 55 else issue['fix']
+                if issue.get("fix"):
+                    fix = issue["fix"][:55] + "..." if len(issue["fix"]) > 55 else issue["fix"]
                     output_parts.append(f"      Fix: {fix}")
 
             if len(all_issues) > 12:
@@ -333,21 +360,12 @@ def validate_apex_with_ca(file_path: str) -> dict:
 
         output_parts.append("" * 60)
 
-        return {
-            "continue": True,
-            "output": "\n".join(output_parts)
-        }
+        return {"continue": True, "output": "\n".join(output_parts)}
 
     except ImportError as e:
-        return {
-            "continue": True,
-            "output": f" Apex validator not available: {e}"
-        }
+        return {"continue": True, "output": f" Apex validator not available: {e}"}
     except Exception as e:
-        return {
-            "continue": True,
-            "output": f" Apex validation error: {e}"
-        }
+        return {"continue": True, "output": f" Apex validation error: {e}"}
 
 
 def main():
@@ -387,10 +405,7 @@ def main():
         return 0
     except Exception as e:
         # Unexpected error, log but don't block
-        print(json.dumps({
-            "continue": True,
-            "output": f" Hook error: {e}"
-        }))
+        print(json.dumps({"continue": True, "output": f" Hook error: {e}"}))
         return 0
 
 

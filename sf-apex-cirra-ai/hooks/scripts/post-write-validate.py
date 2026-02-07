@@ -36,7 +36,7 @@ def validate_apex(file_path: str) -> dict:
         output = f"\n🔍 Apex Validation: {os.path.basename(file_path)}\n"
         output += f"Score: {results.get('score', 0)}/150\n"
 
-        issues = results.get('issues', [])
+        issues = results.get("issues", [])
         if issues:
             output += "Issues found:\n"
             for issue in issues[:10]:
@@ -46,21 +46,12 @@ def validate_apex(file_path: str) -> dict:
         else:
             output += "✅ No issues found!\n"
 
-        return {
-            "continue": True,
-            "output": output
-        }
+        return {"continue": True, "output": output}
 
     except ImportError as e:
-        return {
-            "continue": True,
-            "output": f"⚠️ Apex validator not available: {e}"
-        }
+        return {"continue": True, "output": f"⚠️ Apex validator not available: {e}"}
     except Exception as e:
-        return {
-            "continue": True,
-            "output": f"⚠️ Apex validation error: {e}"
-        }
+        return {"continue": True, "output": f"⚠️ Apex validation error: {e}"}
 
 
 def main():
@@ -100,10 +91,7 @@ def main():
         return 0
     except Exception as e:
         # Unexpected error, log but don't block
-        print(json.dumps({
-            "continue": True,
-            "output": f"⚠️ Hook error: {e}"
-        }))
+        print(json.dumps({"continue": True, "output": f"⚠️ Hook error: {e}"}))
         return 0
 
 

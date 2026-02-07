@@ -11,7 +11,6 @@ Tests:
     4. test_expired_token_triggers_reauth — Expired token triggers re-authentication
 """
 
-import json
 import os
 import subprocess
 import sys
@@ -32,6 +31,7 @@ from conftest import make_mock_response
 # Tests
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.tier4
 @pytest.mark.offline
 def test_missing_agent_id_exits_2(scripts_dir):
@@ -40,7 +40,8 @@ def test_missing_agent_id_exits_2(scripts_dir):
         [
             sys.executable,
             str(scripts_dir / "multi_turn_test_runner.py"),
-            "--scenarios", "test.yaml",
+            "--scenarios",
+            "test.yaml",
         ],
         capture_output=True,
         text=True,
@@ -66,8 +67,10 @@ def test_nonexistent_scenario_file_exits_2(scripts_dir):
         [
             sys.executable,
             str(scripts_dir / "multi_turn_test_runner.py"),
-            "--agent-id", "0XxRM0000004ABC",
-            "--scenarios", "/nonexistent/path/scenarios.yaml",
+            "--agent-id",
+            "0XxRM0000004ABC",
+            "--scenarios",
+            "/nonexistent/path/scenarios.yaml",
         ],
         capture_output=True,
         text=True,

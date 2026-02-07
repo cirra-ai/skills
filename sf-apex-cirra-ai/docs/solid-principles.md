@@ -4,13 +4,13 @@
 
 SOLID principles guide object-oriented design for maintainable, flexible code.
 
-| Principle | Summary |
-|-----------|---------|
-| **S**ingle Responsibility | One reason to change |
-| **O**pen/Closed | Open for extension, closed for modification |
-| **L**iskov Substitution | Subtypes must be substitutable |
-| **I**nterface Segregation | Small, specific interfaces |
-| **D**ependency Inversion | Depend on abstractions |
+| Principle                 | Summary                                     |
+| ------------------------- | ------------------------------------------- |
+| **S**ingle Responsibility | One reason to change                        |
+| **O**pen/Closed           | Open for extension, closed for modification |
+| **L**iskov Substitution   | Subtypes must be substitutable              |
+| **I**nterface Segregation | Small, specific interfaces                  |
+| **D**ependency Inversion  | Depend on abstractions                      |
 
 ---
 
@@ -392,10 +392,10 @@ static void testOrderService() {
 
 ## Summary
 
-| Principle | Violation Sign | Solution |
-|-----------|---------------|----------|
-| SRP | Class has multiple reasons to change | Split into focused classes |
-| OCP | Adding features requires modifying existing code | Use strategy pattern, interfaces |
-| LSP | Type checking before using base type | Redesign hierarchy, use composition |
-| ISP | Empty method implementations | Split into smaller interfaces |
-| DIP | Creating concrete dependencies in constructor | Inject dependencies via constructor |
+| Principle | Violation Sign                                   | Solution                            |
+| --------- | ------------------------------------------------ | ----------------------------------- |
+| SRP       | Class has multiple reasons to change             | Split into focused classes          |
+| OCP       | Adding features requires modifying existing code | Use strategy pattern, interfaces    |
+| LSP       | Type checking before using base type             | Redesign hierarchy, use composition |
+| ISP       | Empty method implementations                     | Split into smaller interfaces       |
+| DIP       | Creating concrete dependencies in constructor    | Inject dependencies via constructor |

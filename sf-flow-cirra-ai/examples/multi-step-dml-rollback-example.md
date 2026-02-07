@@ -13,6 +13,7 @@ When a flow performs multiple DML operations (Create, Update, Delete), a failure
 ### Business Scenario
 
 A screen flow that:
+
 1. Creates an **Account** record
 2. Creates a **Primary Contact** for that Account
 3. Creates an initial **Opportunity** for the Account
@@ -476,18 +477,23 @@ If step 3 fails, we must delete the Contact (step 2) and Account (step 1) to pre
 ## Key Patterns Demonstrated
 
 ### 1. Store IDs Immediately After Creation
+
 Always capture the Id of created records in a variable so you can delete them if needed later.
 
 ### 2. Rollback in Reverse Order
+
 Delete dependent records first (Contact), then parent records (Account). This respects referential integrity.
 
 ### 3. Continue Rollback Chain on Failure
+
 Even if a rollback delete fails, continue to the next delete. Use fault connectors that continue the chain.
 
 ### 4. Capture Error Context
+
 Store both the error message (`$Flow.FaultMessage`) and which step failed (`var_ErrorStep`) for debugging.
 
 ### 5. Use Output Variables
+
 Expose `out_Success` and `out_ErrorDetails` so calling flows/processes can handle the result.
 
 ---

@@ -24,7 +24,7 @@ import json
 import os
 import sys
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Any
 
 # Add shared lsp-engine to path
 SCRIPT_DIR = Path(__file__).parent
@@ -64,7 +64,7 @@ def get_attempt_count(file_path: str) -> int:
     """Get the current attempt count for a file."""
     try:
         if ATTEMPT_FILE.exists():
-            with open(ATTEMPT_FILE, "r") as f:
+            with open(ATTEMPT_FILE) as f:
                 attempts = json.load(f)
                 return attempts.get(file_path, 0)
     except Exception:
@@ -77,7 +77,7 @@ def increment_attempt_count(file_path: str) -> int:
     attempts = {}
     try:
         if ATTEMPT_FILE.exists():
-            with open(ATTEMPT_FILE, "r") as f:
+            with open(ATTEMPT_FILE) as f:
                 attempts = json.load(f)
     except Exception:
         pass
@@ -98,7 +98,7 @@ def reset_attempt_count(file_path: str):
     """Reset attempt count when validation succeeds."""
     try:
         if ATTEMPT_FILE.exists():
-            with open(ATTEMPT_FILE, "r") as f:
+            with open(ATTEMPT_FILE) as f:
                 attempts = json.load(f)
             if file_path in attempts:
                 del attempts[file_path]
@@ -109,7 +109,7 @@ def reset_attempt_count(file_path: str):
 
 
 def format_lwc_diagnostics(
-    result: Dict[str, Any],
+    result: dict[str, Any],
     file_path: str,
     max_attempts: int = 3,
     current_attempt: int = 1,
@@ -175,7 +175,9 @@ def format_lwc_diagnostics(
 
             source = diag.get("source", "lwc")
 
-            lines.append(f"{icon} [{severity_name}] line {start_line}: {message} (source: {source})")
+            lines.append(
+                f"{icon} [{severity_name}] line {start_line}: {message} (source: {source})"
+            )
         lines.append("")
 
     # Instructions for Claude
@@ -241,7 +243,7 @@ def main():
     # Try to import LSP engine
     try:
         from lsp_client import LSPClient
-    except ImportError as e:
+    except ImportError:
         # LSP engine not available - skip validation silently
         # This allows the plugin to work even without LSP
         sys.exit(0)
@@ -255,7 +257,7 @@ def main():
     # Create LSP client with LWC wrapper and language ID
     try:
         client = LSPClient(wrapper_path=str(lwc_wrapper), language_id="javascript")
-    except Exception as e:
+    except Exception:
         # LSP initialization error - skip silently
         sys.exit(0)
 
@@ -269,10 +271,7 @@ def main():
 
     # Format output
     output = format_lwc_diagnostics(
-        result,
-        file_path,
-        max_attempts=MAX_ATTEMPTS,
-        current_attempt=current_attempt
+        result, file_path, max_attempts=MAX_ATTEMPTS, current_attempt=current_attempt
     )
 
     # If no output (validation passed), reset attempt count

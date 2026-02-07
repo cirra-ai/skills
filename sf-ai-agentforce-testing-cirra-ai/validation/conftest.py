@@ -30,9 +30,9 @@ import tempfile
 import shutil
 import pytest
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Any
 from unittest.mock import patch, MagicMock
-from urllib.error import HTTPError, URLError
+from urllib.error import HTTPError
 
 # Add skill scripts to path
 SKILL_ROOT = Path(__file__).parent.parent
@@ -40,20 +40,18 @@ SCRIPTS_DIR = SKILL_ROOT / "hooks" / "scripts"
 TEMPLATES_DIR = SKILL_ROOT / "templates"
 sys.path.insert(0, str(SCRIPTS_DIR))
 
-from agent_api_client import (
+from agent_api_client import (  # noqa: E402
     AgentAPIClient,
     AgentSession,
     AgentMessage,
     TurnResult,
-    AgentAPIError,
-    parse_variables,
-    _parse_messages,
 )
 
 
 # =============================================================================
 # Pytest Configuration
 # =============================================================================
+
 
 def pytest_configure(config):
     """Register custom markers."""
@@ -86,23 +84,36 @@ def pytest_collection_modifyitems(config, items):
 
 def pytest_addoption(parser):
     """Add custom CLI options."""
-    parser.addoption("--offline", action="store_true", default=False,
-                     help="Run only offline tests (skip T5 live API)")
-    parser.addoption("--tier", action="store", default=None,
-                     help="Run specific tier only (T1, T2, T3, T4, T5)")
-    parser.addoption("--my-domain", action="store", default=None,
-                     help="Salesforce My Domain for T5 live tests")
-    parser.addoption("--consumer-key", action="store", default=None,
-                     help="ECA Consumer Key for T5 live tests")
-    parser.addoption("--consumer-secret", action="store", default=None,
-                     help="ECA Consumer Secret for T5 live tests")
-    parser.addoption("--agent-id", action="store", default=None,
-                     help="BotDefinition ID for T5 live tests")
+    parser.addoption(
+        "--offline",
+        action="store_true",
+        default=False,
+        help="Run only offline tests (skip T5 live API)",
+    )
+    parser.addoption(
+        "--tier", action="store", default=None, help="Run specific tier only (T1, T2, T3, T4, T5)"
+    )
+    parser.addoption(
+        "--my-domain", action="store", default=None, help="Salesforce My Domain for T5 live tests"
+    )
+    parser.addoption(
+        "--consumer-key", action="store", default=None, help="ECA Consumer Key for T5 live tests"
+    )
+    parser.addoption(
+        "--consumer-secret",
+        action="store",
+        default=None,
+        help="ECA Consumer Secret for T5 live tests",
+    )
+    parser.addoption(
+        "--agent-id", action="store", default=None, help="BotDefinition ID for T5 live tests"
+    )
 
 
 # =============================================================================
 # Path Fixtures
 # =============================================================================
+
 
 @pytest.fixture(scope="session")
 def scripts_dir() -> Path:
@@ -127,6 +138,7 @@ def scenario_registry() -> dict:
 # =============================================================================
 # Mock urllib Fixtures
 # =============================================================================
+
 
 def make_mock_response(status: int = 200, body: Any = None, headers: dict = None):
     """
@@ -209,6 +221,7 @@ def mock_urlopen():
 # Mock Client Fixtures
 # =============================================================================
 
+
 @pytest.fixture
 def mock_client():
     """
@@ -248,35 +261,41 @@ def mock_session(mock_client):
 # TurnResult & AgentMessage Factories
 # =============================================================================
 
+
 @pytest.fixture
 def sample_agent_messages():
     """Factory for AgentMessage lists."""
+
     def _factory(
-        messages: List[Dict] = None,
+        messages: list[dict] = None,
         default_type: str = "Inform",
-    ) -> List[AgentMessage]:
+    ) -> list[AgentMessage]:
         if messages is None:
             messages = [{"message": "Hello, how can I help you?"}]
         result = []
         for msg in messages:
-            result.append(AgentMessage(
-                type=msg.get("type", default_type),
-                id=msg.get("id", f"msg-{len(result)+1:03d}"),
-                message=msg.get("message", ""),
-                feedback_id=msg.get("feedback_id", ""),
-                plan_id=msg.get("plan_id", ""),
-                is_content_safe=msg.get("is_content_safe", True),
-                result=msg.get("result", []),
-                cited_references=msg.get("cited_references", []),
-                raw=msg.get("raw", {}),
-            ))
+            result.append(
+                AgentMessage(
+                    type=msg.get("type", default_type),
+                    id=msg.get("id", f"msg-{len(result) + 1:03d}"),
+                    message=msg.get("message", ""),
+                    feedback_id=msg.get("feedback_id", ""),
+                    plan_id=msg.get("plan_id", ""),
+                    is_content_safe=msg.get("is_content_safe", True),
+                    result=msg.get("result", []),
+                    cited_references=msg.get("cited_references", []),
+                    raw=msg.get("raw", {}),
+                )
+            )
         return result
+
     return _factory
 
 
 @pytest.fixture
 def sample_turn_result(sample_agent_messages):
     """Factory for TurnResult with configurable messages."""
+
     def _factory(
         user_message: str = "Hello",
         agent_text: str = "Hello, how can I help you?",
@@ -284,7 +303,7 @@ def sample_turn_result(sample_agent_messages):
         sequence_id: int = 1,
         elapsed_ms: float = 150.0,
         error: str = None,
-        messages: List[Dict] = None,
+        messages: list[dict] = None,
         has_escalation: bool = False,
         has_action_result: bool = False,
     ) -> TurnResult:
@@ -305,6 +324,7 @@ def sample_turn_result(sample_agent_messages):
             elapsed_ms=elapsed_ms,
             error=error,
         )
+
     return _factory
 
 
@@ -312,16 +332,18 @@ def sample_turn_result(sample_agent_messages):
 # YAML Scenario Fixtures
 # =============================================================================
 
+
 @pytest.fixture
 def mock_yaml_scenario():
     """Factory for YAML scenario dicts matching the template structure."""
+
     def _factory(
         name: str = "test_scenario",
         description: str = "A test scenario",
         pattern: str = "topic_re_matching",
-        turns: List[Dict] = None,
-        session_variables: List[Dict] = None,
-    ) -> Dict:
+        turns: list[dict] = None,
+        session_variables: list[dict] = None,
+    ) -> dict:
         if turns is None:
             turns = [
                 {
@@ -348,12 +370,14 @@ def mock_yaml_scenario():
         if session_variables:
             scenario["session_variables"] = session_variables
         return scenario
+
     return _factory
 
 
 # =============================================================================
 # Temp Directory Fixtures
 # =============================================================================
+
 
 @pytest.fixture
 def temp_output_dir():
@@ -367,29 +391,22 @@ def temp_output_dir():
 # Live API Fixtures (T5)
 # =============================================================================
 
+
 @pytest.fixture(scope="session")
-def live_credentials(request) -> Dict[str, str]:
+def live_credentials(request) -> dict[str, str]:
     """
     Salesforce credentials from CLI options or environment variables.
 
     Skips test if no credentials available.
     """
-    my_domain = (
-        request.config.getoption("--my-domain")
-        or os.environ.get("SF_MY_DOMAIN", "")
+    my_domain = request.config.getoption("--my-domain") or os.environ.get("SF_MY_DOMAIN", "")
+    consumer_key = request.config.getoption("--consumer-key") or os.environ.get(
+        "SF_CONSUMER_KEY", ""
     )
-    consumer_key = (
-        request.config.getoption("--consumer-key")
-        or os.environ.get("SF_CONSUMER_KEY", "")
+    consumer_secret = request.config.getoption("--consumer-secret") or os.environ.get(
+        "SF_CONSUMER_SECRET", ""
     )
-    consumer_secret = (
-        request.config.getoption("--consumer-secret")
-        or os.environ.get("SF_CONSUMER_SECRET", "")
-    )
-    agent_id = (
-        request.config.getoption("--agent-id")
-        or os.environ.get("SF_AGENT_ID", "")
-    )
+    agent_id = request.config.getoption("--agent-id") or os.environ.get("SF_AGENT_ID", "")
 
     if not all([my_domain, consumer_key, consumer_secret, agent_id]):
         pytest.skip(

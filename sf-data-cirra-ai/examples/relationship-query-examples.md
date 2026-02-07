@@ -5,6 +5,7 @@ Comprehensive SOQL relationship patterns for complex data retrieval.
 ## Parent-to-Child Queries (Subqueries)
 
 ### Basic Subquery
+
 ```sql
 SELECT Id, Name,
     (SELECT Id, FirstName, LastName, Email FROM Contacts)
@@ -20,6 +21,7 @@ sf data query \
 ```
 
 ### Multiple Subqueries
+
 ```sql
 SELECT Id, Name,
     (SELECT Id, Name, Title FROM Contacts),
@@ -30,6 +32,7 @@ WHERE Id = '001XXXXXXXXXXXX'
 ```
 
 ### Filtered Subquery
+
 ```sql
 SELECT Id, Name,
     (SELECT Id, Name, Amount
@@ -44,6 +47,7 @@ WHERE AnnualRevenue > 1000000
 ## Child-to-Parent Queries (Dot Notation)
 
 ### Basic Relationship
+
 ```sql
 SELECT Id, FirstName, LastName,
        Account.Name, Account.Industry
@@ -58,6 +62,7 @@ sf data query \
 ```
 
 ### Multi-Level Traversal
+
 ```sql
 SELECT Id, Name, Amount,
        Account.Name,
@@ -68,6 +73,7 @@ WHERE Account.Industry = 'Finance'
 ```
 
 ### Custom Object Relationships
+
 ```sql
 -- __r suffix for custom relationships
 SELECT Id, Name,
@@ -79,6 +85,7 @@ FROM Custom_Child__c
 ## Polymorphic Relationships (TYPEOF)
 
 ### Task Who/What Fields
+
 ```sql
 SELECT Id, Subject, Status,
     TYPEOF Who
@@ -101,6 +108,7 @@ sf data query \
 ```
 
 ### Event Relationships
+
 ```sql
 SELECT Id, Subject, StartDateTime,
     TYPEOF Who
@@ -114,6 +122,7 @@ WHERE StartDateTime >= TODAY
 ## Aggregate Queries
 
 ### Basic Aggregation
+
 ```sql
 SELECT Industry, COUNT(Id) total, SUM(AnnualRevenue) revenue
 FROM Account
@@ -129,6 +138,7 @@ sf data query \
 ```
 
 ### Rollup by Date
+
 ```sql
 SELECT CALENDAR_MONTH(CloseDate) month,
        SUM(Amount) total,
@@ -141,6 +151,7 @@ ORDER BY CALENDAR_MONTH(CloseDate)
 ```
 
 ### Aggregate with Relationships
+
 ```sql
 SELECT Account.Industry,
        COUNT(Id) opportunities,
@@ -153,6 +164,7 @@ GROUP BY Account.Industry
 ## Semi-Joins and Anti-Joins
 
 ### Semi-Join (Records WITH Related)
+
 ```sql
 -- Accounts that HAVE Opportunities
 SELECT Id, Name
@@ -163,6 +175,7 @@ WHERE Id IN (
 ```
 
 ### Anti-Join (Records WITHOUT Related)
+
 ```sql
 -- Accounts WITHOUT Contacts
 SELECT Id, Name
@@ -173,6 +186,7 @@ WHERE Id NOT IN (
 ```
 
 ### Complex Semi-Join
+
 ```sql
 -- Contacts at Accounts with large deals
 SELECT Id, FirstName, LastName
@@ -188,6 +202,7 @@ WHERE AccountId IN (
 ## Date Functions and Filters
 
 ### Date Literals
+
 ```sql
 SELECT Id, Name, CreatedDate
 FROM Account
@@ -196,6 +211,7 @@ WHERE CreatedDate = THIS_WEEK
 ```
 
 ### Date Functions in SELECT
+
 ```sql
 SELECT DAY_IN_MONTH(CreatedDate) day,
        WEEK_IN_YEAR(CreatedDate) week,
@@ -210,6 +226,7 @@ GROUP BY DAY_IN_MONTH(CreatedDate),
 ## Query Optimization Tips
 
 ### Use Indexed Fields
+
 ```sql
 -- GOOD: Query on indexed fields (Id, Name, CreatedDate, SystemModstamp)
 SELECT Id, Name FROM Account WHERE Name LIKE 'Acme%'
@@ -219,6 +236,7 @@ SELECT Id, Name FROM Account WHERE Custom_Unindexed__c = 'value'
 ```
 
 ### Limit Records Retrieved
+
 ```sql
 -- Always use LIMIT for exploration
 SELECT Id, Name FROM Account LIMIT 100
@@ -228,6 +246,7 @@ SELECT Id, Name FROM Account LIMIT 100 OFFSET 200
 ```
 
 ### Select Only Needed Fields
+
 ```sql
 -- GOOD: Only needed fields
 SELECT Id, Name, Industry FROM Account
@@ -239,10 +258,10 @@ SELECT Id, Name, Industry, Description, BillingStreet, BillingCity,
 
 ## Common Errors
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `Invalid relationship` | Wrong relationship name | Check `__r` suffix for custom |
-| `MALFORMED_QUERY` | Syntax error | Validate SOQL syntax |
-| `SELECT too complex` | Too many levels | Max 5 levels of relationships |
-| `Subquery limit` | >20 subqueries | Reduce number of child queries |
-| `Non-selective query` | No indexed filter | Add indexed field to WHERE |
+| Error                  | Cause                   | Solution                       |
+| ---------------------- | ----------------------- | ------------------------------ |
+| `Invalid relationship` | Wrong relationship name | Check `__r` suffix for custom  |
+| `MALFORMED_QUERY`      | Syntax error            | Validate SOQL syntax           |
+| `SELECT too complex`   | Too many levels         | Max 5 levels of relationships  |
+| `Subquery limit`       | >20 subqueries          | Reduce number of child queries |
+| `Non-selective query`  | No indexed filter       | Add indexed field to WHERE     |

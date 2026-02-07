@@ -6,14 +6,14 @@ Comprehensive guide to using Wait elements in Salesforce Flows for time-based an
 
 Wait elements have **strict flow type requirements**:
 
-| Flow Type | Wait Supported? | Notes |
-|-----------|-----------------|-------|
-| **Autolaunched Flow** | ✅ Yes | Primary use case |
-| **Scheduled Flow** | ✅ Yes | Often combined with scheduling |
-| **Orchestration** | ✅ Yes | For complex multi-step processes |
-| **Screen Flow** | ❌ No | Cannot pause user sessions |
-| **Record-Triggered Flow** | ❌ No | Must complete synchronously |
-| **Platform Event Flow** | ❌ No | Event-driven, no waiting |
+| Flow Type                 | Wait Supported? | Notes                            |
+| ------------------------- | --------------- | -------------------------------- |
+| **Autolaunched Flow**     | ✅ Yes          | Primary use case                 |
+| **Scheduled Flow**        | ✅ Yes          | Often combined with scheduling   |
+| **Orchestration**         | ✅ Yes          | For complex multi-step processes |
+| **Screen Flow**           | ❌ No           | Cannot pause user sessions       |
+| **Record-Triggered Flow** | ❌ No           | Must complete synchronously      |
+| **Platform Event Flow**   | ❌ No           | Event-driven, no waiting         |
 
 **Key Insight**: If you need wait behavior in a Record-Triggered Flow, call an Autolaunched subflow that contains the Wait element.
 
@@ -26,11 +26,13 @@ Wait elements have **strict flow type requirements**:
 Pauses flow execution for a fixed duration.
 
 **Use Cases:**
+
 - Send follow-up email 24 hours after form submission
 - Escalate case if not resolved within 48 hours
 - Wait 7 days before survey request
 
 **XML Structure:**
+
 ```xml
 <waits>
     <name>Wait_7_Days</name>
@@ -64,6 +66,7 @@ Pauses flow execution for a fixed duration.
 ```
 
 **TimeOffsetUnit Options:**
+
 - `Minutes`
 - `Hours`
 - `Days`
@@ -76,11 +79,13 @@ Pauses flow execution for a fixed duration.
 Pauses until a specific date/time is reached.
 
 **Use Cases:**
+
 - Resume on contract expiration date
 - Notify before subscription renewal
 - Trigger on scheduled meeting time
 
 **XML Structure:**
+
 ```xml
 <waits>
     <name>Wait_Until_Renewal</name>
@@ -102,6 +107,7 @@ Pauses until a specific date/time is reached.
 ```
 
 **Pro Tip:** Use a formula to calculate the target date:
+
 ```xml
 <formulas>
     <name>formula_RenewalReminder</name>
@@ -118,11 +124,13 @@ Pauses until a specific date/time is reached.
 Pauses until a field meets specified criteria OR timeout expires.
 
 **Use Cases:**
+
 - Resume when Case Status changes to 'Closed'
 - Resume when Approval Status is 'Approved'
 - Resume when Payment is 'Received'
 
 **XML Structure:**
+
 ```xml
 <waits>
     <name>Wait_For_Approval</name>
@@ -190,6 +198,7 @@ Pauses until a field meets specified criteria OR timeout expires.
 ### 2. Consider Governor Limits
 
 Waiting flows consume org resources:
+
 - Each paused flow interview counts against limits
 - Long waits with many instances can accumulate
 - Monitor with Setup → Flows → Paused and Waiting Interviews
@@ -217,6 +226,7 @@ Waiting flows consume org resources:
 ### 4. Test with Shorter Durations
 
 In sandbox environments:
+
 - Use minutes instead of days for testing
 - Verify timeout paths work correctly
 - Check debug logs for wait behavior
@@ -224,6 +234,7 @@ In sandbox environments:
 ### 5. Document Wait Logic
 
 Add XML comments explaining:
+
 - Why this duration was chosen
 - What happens on timeout
 - Business context for the wait
@@ -284,14 +295,14 @@ Submit for Approval → Wait for Approval (30 day max)
 
 Consider Platform Events when:
 
-| Scenario | Use Wait | Use Platform Event |
-|----------|----------|-------------------|
-| Fixed time delay | ✅ | ❌ |
-| Wait for date | ✅ | ❌ |
-| External system callback | ❌ | ✅ |
-| Real-time field change | ❌ | ✅ |
-| Complex event correlation | ❌ | ✅ |
-| Simple status check | ✅ | ❌ |
+| Scenario                  | Use Wait | Use Platform Event |
+| ------------------------- | -------- | ------------------ |
+| Fixed time delay          | ✅       | ❌                 |
+| Wait for date             | ✅       | ❌                 |
+| External system callback  | ❌       | ✅                 |
+| Real-time field change    | ❌       | ✅                 |
+| Complex event correlation | ❌       | ✅                 |
+| Simple status check       | ✅       | ❌                 |
 
 **Platform Event Advantage:** Immediate response when event fires, no polling delay.
 

@@ -4,22 +4,22 @@ This file tracks the validation history of the sf-ai-agentscript skill. Validati
 
 ## Latest Validation
 
-| Status | Date | Version | Agents Deployed | Test Org |
-|--------|------|---------|-----------------|----------|
-| ✅ PASS | 2026-01-20 | v1.1.0 | 8/8 | R6-Agentforce-SandboxFull |
+| Status  | Date       | Version | Agents Deployed | Test Org                  |
+| ------- | ---------- | ------- | --------------- | ------------------------- |
+| ✅ PASS | 2026-01-20 | v1.1.0  | 8/8             | R6-Agentforce-SandboxFull |
 
 ## Validation Agent Results
 
-| Agent | Pattern Tested | Deploy | Duration | Notes |
-|-------|----------------|--------|----------|-------|
-| Val_Minimal_Syntax | Core block structure | ✅ PASS | 15.9s | config, system, start_agent, topic blocks |
-| Val_Arithmetic_Ops | +/- operators | ✅ PASS | 17.9s | Addition and subtraction working |
-| Val_Comparison_Ops | Comparison operators | ✅ PASS | 27.7s | ==, !=, <, <=, >, >=, and, or, not |
-| Val_Variable_Scopes | @variables namespace | ✅ PASS | 21.8s | mutable string/number/boolean |
-| Val_Topic_Transitions | @utils.transition | ✅ PASS | 30.6s | Permanent handoffs between topics |
-| Val_Latch_Pattern | Boolean re-entry | ✅ PASS | 18.6s | Latch variable for topic re-entry |
-| Val_Loop_Guard | Iteration protection | ✅ PASS | 16.6s | Counter-based loop guard |
-| Val_Interpolation | Variable injection | ✅ PASS | 22.6s | {!@variables.x} in strings |
+| Agent                 | Pattern Tested       | Deploy  | Duration | Notes                                     |
+| --------------------- | -------------------- | ------- | -------- | ----------------------------------------- |
+| Val_Minimal_Syntax    | Core block structure | ✅ PASS | 15.9s    | config, system, start_agent, topic blocks |
+| Val_Arithmetic_Ops    | +/- operators        | ✅ PASS | 17.9s    | Addition and subtraction working          |
+| Val_Comparison_Ops    | Comparison operators | ✅ PASS | 27.7s    | ==, !=, <, <=, >, >=, and, or, not        |
+| Val_Variable_Scopes   | @variables namespace | ✅ PASS | 21.8s    | mutable string/number/boolean             |
+| Val_Topic_Transitions | @utils.transition    | ✅ PASS | 30.6s    | Permanent handoffs between topics         |
+| Val_Latch_Pattern     | Boolean re-entry     | ✅ PASS | 18.6s    | Latch variable for topic re-entry         |
+| Val_Loop_Guard        | Iteration protection | ✅ PASS | 16.6s    | Counter-based loop guard                  |
+| Val_Interpolation     | Variable injection   | ✅ PASS | 22.6s    | {!@variables.x} in strings                |
 
 **Total Duration**: ~171.6s
 
@@ -88,9 +88,9 @@ done
 
 ## History
 
-| Date | Version | Status | Passed | Failed | Notes |
-|------|---------|--------|--------|--------|-------|
-| 2026-01-20 | v1.1.0 | ✅ PASS | 8/8 | 0 | Initial validation framework implementation |
+| Date       | Version | Status  | Passed | Failed | Notes                                       |
+| ---------- | ------- | ------- | ------ | ------ | ------------------------------------------- |
+| 2026-01-20 | v1.1.0  | ✅ PASS | 8/8    | 0      | Initial validation framework implementation |
 
 ## Next Validation Due
 
@@ -110,8 +110,8 @@ done
 
 ### Common Issues
 
-| Issue | Cause | Resolution |
-|-------|-------|------------|
-| `Nonexistent flag: --source-dir` | CLI version change | Use `sf agent publish --api-name` instead |
-| `Unknown error` on publish | Usually successful | Check full JSON output for actual status |
-| `Default agent user not found` | Wrong org or user inactive | Query target org for Einstein Agent User |
+| Issue                            | Cause                      | Resolution                                |
+| -------------------------------- | -------------------------- | ----------------------------------------- |
+| `Nonexistent flag: --source-dir` | CLI version change         | Use `sf agent publish --api-name` instead |
+| `Unknown error` on publish       | Usually successful         | Check full JSON output for actual status  |
+| `Default agent user not found`   | Wrong org or user inactive | Query target org for Einstein Agent User  |

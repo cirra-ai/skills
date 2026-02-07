@@ -11,15 +11,7 @@
   "metadata": {
     "category": "testing",
     "tier": "1",
-    "keywords": [
-      "agentforce",
-      "testing",
-      "multi-turn",
-      "api",
-      "coverage",
-      "cli",
-      "agentic-fix"
-    ],
+    "keywords": ["agentforce", "testing", "multi-turn", "api", "coverage", "cli", "agentic-fix"],
     "dependencies": [
       "sf-ai-agentscript",
       "sf-data",

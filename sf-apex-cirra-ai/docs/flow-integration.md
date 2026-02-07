@@ -27,9 +27,9 @@ This guide covers creating Apex classes callable from Salesforce Flows using `@I
 
 ## Quick Reference
 
-| Annotation | Purpose | Required |
-|------------|---------|----------|
-| `@InvocableMethod` | Marks method as Flow-callable | Yes |
+| Annotation           | Purpose                          | Required           |
+| -------------------- | -------------------------------- | ------------------ |
+| `@InvocableMethod`   | Marks method as Flow-callable    | Yes                |
 | `@InvocableVariable` | Marks property as Flow parameter | Yes (for wrappers) |
 
 ---
@@ -52,13 +52,13 @@ public static List<Response> execute(List<Request> requests) {
 
 ### Parameters
 
-| Parameter | Description | Required |
-|-----------|-------------|----------|
-| `label` | Display name in Flow Builder action list | Yes |
-| `description` | Help text shown when configuring action | No |
-| `category` | Groups actions in Flow Builder | No |
-| `callout` | Set `true` if method makes HTTP callouts | No (default: false) |
-| `configurationEditor` | Custom LWC for configuration UI | No |
+| Parameter             | Description                              | Required            |
+| --------------------- | ---------------------------------------- | ------------------- |
+| `label`               | Display name in Flow Builder action list | Yes                 |
+| `description`         | Help text shown when configuring action  | No                  |
+| `category`            | Groups actions in Flow Builder           | No                  |
+| `callout`             | Set `true` if method makes HTTP callouts | No (default: false) |
+| `configurationEditor` | Custom LWC for configuration UI          | No                  |
 
 ### Method Signature Rules
 
@@ -95,28 +95,28 @@ public class Request {
 
 ### Parameters
 
-| Parameter | Description | Required |
-|-----------|-------------|----------|
-| `label` | Display name in Flow mapping UI | Yes |
-| `description` | Help text for the variable | No |
-| `required` | Whether Flow must provide a value | No (default: false) |
+| Parameter     | Description                       | Required            |
+| ------------- | --------------------------------- | ------------------- |
+| `label`       | Display name in Flow mapping UI   | Yes                 |
+| `description` | Help text for the variable        | No                  |
+| `required`    | Whether Flow must provide a value | No (default: false) |
 
 ### Supported Data Types
 
-| Type | Flow Equivalent | Notes |
-|------|-----------------|-------|
-| `Boolean` | Boolean | |
-| `Date` | Date | |
-| `DateTime` | DateTime | |
-| `Decimal` | Number | |
-| `Double` | Number | |
-| `Integer` | Number | |
-| `Long` | Number | |
-| `String` | Text | |
-| `Time` | Time | |
-| `Id` | Text (Record ID) | Stores as 18-char ID |
-| `SObject` | Record | Any standard/custom object |
-| `List<T>` | Collection | Collection of any above type |
+| Type       | Flow Equivalent  | Notes                        |
+| ---------- | ---------------- | ---------------------------- |
+| `Boolean`  | Boolean          |                              |
+| `Date`     | Date             |                              |
+| `DateTime` | DateTime         |                              |
+| `Decimal`  | Number           |                              |
+| `Double`   | Number           |                              |
+| `Integer`  | Number           |                              |
+| `Long`     | Number           |                              |
+| `String`   | Text             |                              |
+| `Time`     | Time             |                              |
+| `Id`       | Text (Record ID) | Stores as 18-char ID         |
+| `SObject`  | Record           | Any standard/custom object   |
+| `List<T>`  | Collection       | Collection of any above type |
 
 ---
 
@@ -298,6 +298,7 @@ public class InvocableException extends Exception {}
 ```
 
 **Flow Fault Connector:**
+
 ```xml
 <actionCalls>
     <name>Call_Apex</name>
@@ -333,6 +334,7 @@ public class Response {
 ### Collection Iteration in Flow
 
 When your invocable returns a List inside the Response, Flow can:
+
 1. Use it directly in data tables
 2. Loop over it with a Loop element
 3. Pass it to another invocable action
@@ -483,11 +485,11 @@ When your Invocable is deployed, Flows call it like this:
 
 ## Cross-Skill Integration
 
-| Integration | See Also |
-|-------------|----------|
-| Flow → LWC → Apex | [triangle-pattern.md](triangle-pattern.md) |
-| Apex → LWC | [docs/lwc-controller-patterns.md](./lwc-controller-patterns.md) (via @AuraEnabled) |
-| Agentforce Actions | sf-ai-agentscript skill (similar pattern for agent actions) |
+| Integration        | See Also                                                                           |
+| ------------------ | ---------------------------------------------------------------------------------- |
+| Flow → LWC → Apex  | [triangle-pattern.md](triangle-pattern.md)                                         |
+| Apex → LWC         | [docs/lwc-controller-patterns.md](./lwc-controller-patterns.md) (via @AuraEnabled) |
+| Agentforce Actions | sf-ai-agentscript skill (similar pattern for agent actions)                        |
 
 ---
 

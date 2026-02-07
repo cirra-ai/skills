@@ -22,6 +22,7 @@ When processing collections in Salesforce Flow, choosing between **Transform** a
 ```
 
 **Simple Rule to Remember:**
+
 - **Shaping data** → Use **Transform** (30-50% faster)
 - **Making decisions per record** → Use **Loop**
 
@@ -32,6 +33,7 @@ When processing collections in Salesforce Flow, choosing between **Transform** a
 Transform is ideal when you need to:
 
 ### 1. Map One Collection to Another
+
 Converting a collection of one record type to another (e.g., Contacts → Opportunity Contact Roles).
 
 ```
@@ -40,6 +42,7 @@ Converting a collection of one record type to another (e.g., Contacts → Opport
 ```
 
 ### 2. Bulk Field Assignments
+
 Assigning the same field values across all records in a collection.
 
 ```
@@ -48,6 +51,7 @@ Transform handles this in a single server-side operation.
 ```
 
 ### 3. Simple Calculations Using Formulas
+
 Transform supports formulas for generating dynamic values during mapping.
 
 ```
@@ -55,6 +59,7 @@ Example: Calculate FullName from FirstName + ' ' + LastName
 ```
 
 ### 4. Prepare Records for Create/Update Operations
+
 Building a collection of records to insert or update.
 
 ```
@@ -62,6 +67,7 @@ Example: Map Account fields to new Case records before bulk insert
 ```
 
 ### 5. Reduce Flow Elements
+
 Transform consolidates what would be Loop + Assignment into a single element, making flows cleaner and easier to maintain.
 
 ---
@@ -71,6 +77,7 @@ Transform consolidates what would be Loop + Assignment into a single element, ma
 Loop is required when:
 
 ### 1. IF/ELSE Logic Per Record
+
 Different records need different processing paths.
 
 ```
@@ -81,6 +88,7 @@ Example:
 ```
 
 ### 2. Counters, Flags, or Multi-Step Calculations
+
 You need to maintain state across iterations.
 
 ```
@@ -90,6 +98,7 @@ Example: Count how many records meet certain criteria
 ```
 
 ### 3. Business Rules Vary Per Record
+
 Each record may follow a different logic path based on its values.
 
 ```
@@ -97,6 +106,7 @@ Example: Route leads to different queues based on State + Industry
 ```
 
 ### 4. Complex Conditional Transformations
+
 When the transformation logic itself is conditional and complex.
 
 ```
@@ -109,14 +119,14 @@ Example: If record has parent → use parent's values
 
 ## Performance Comparison
 
-| Metric | Transform | Loop + Assignment |
-|--------|-----------|-------------------|
+| Metric               | Transform        | Loop + Assignment     |
+| -------------------- | ---------------- | --------------------- |
 | **Processing Model** | Server-side bulk | Client-side iteration |
-| **Speed** | 30-50% faster | Baseline |
-| **CPU Time** | Lower | Higher |
-| **DML Statements** | No change | No change |
-| **Flow Elements** | 1 element | 2+ elements |
-| **Maintainability** | Simpler | More complex |
+| **Speed**            | 30-50% faster    | Baseline              |
+| **CPU Time**         | Lower            | Higher                |
+| **DML Statements**   | No change        | No change             |
+| **Flow Elements**    | 1 element        | 2+ elements           |
+| **Maintainability**  | Simpler          | More complex          |
 
 ### Why Transform is Faster
 
@@ -231,15 +241,15 @@ Transform processes the entire collection as a single server-side operation, whi
 
 ### Key Elements
 
-| Element | Purpose |
-|---------|---------|
-| `inputVariable` | Source collection to transform |
-| `outputVariable` | Target collection (output) |
-| `transformValueActions` | Individual field mappings |
+| Element                    | Purpose                                       |
+| -------------------------- | --------------------------------------------- |
+| `inputVariable`            | Source collection to transform                |
+| `outputVariable`           | Target collection (output)                    |
+| `transformValueActions`    | Individual field mappings                     |
 | `transformValueActionType` | `Map` (direct copy) or `Formula` (calculated) |
-| `inputReference` | Source field path |
-| `outputReference` | Target field path |
-| `formula` | Formula expression (when type is Formula) |
+| `inputReference`           | Source field path                             |
+| `outputReference`          | Target field path                             |
+| `formula`                  | Formula expression (when type is Formula)     |
 
 ---
 
@@ -452,6 +462,7 @@ If you have existing flows using Loop for simple field mapping, consider migrati
 ## Attribution
 
 This guide was inspired by content shared by:
+
 - **Jalumchi Akpoke** - Transform vs Loop decision pattern visualization
 - **Shubham Bhardwaj** - Original YouTube video on Transform efficiency
 

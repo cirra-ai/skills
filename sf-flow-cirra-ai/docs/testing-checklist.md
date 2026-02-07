@@ -114,13 +114,13 @@
 
 ## Sign-Off
 
-| Item | Completed | Date | Tester |
-|------|-----------|------|--------|
-| Development Testing | | | |
-| UAT Testing | | | |
-| Bulk Testing | | | |
-| Security Review | | | |
-| Production Deployment | | | |
+| Item                  | Completed | Date | Tester |
+| --------------------- | --------- | ---- | ------ |
+| Development Testing   |           |      |        |
+| UAT Testing           |           |      |        |
+| Bulk Testing          |           |      |        |
+| Security Review       |           |      |        |
+| Production Deployment |           |      |        |
 
 ---
 

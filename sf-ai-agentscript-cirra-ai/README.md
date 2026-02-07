@@ -14,12 +14,12 @@
 
 ## Requirements
 
-| Requirement | Value |
-|-------------|-------|
-| API Version | 62.0+ |
-| License | Agentforce |
-| Einstein Agent User | Required in org |
-| SF CLI | v2+ with agent commands |
+| Requirement         | Value                   |
+| ------------------- | ----------------------- |
+| API Version         | 62.0+                   |
+| License             | Agentforce              |
+| Einstein Agent User | Required in org         |
+| SF CLI              | v2+ with agent commands |
 
 ## Installation
 
@@ -34,14 +34,17 @@ claude /plugin install github:Jaganpro/sf-skills/sf-ai-agentscript
 ## Quick Start
 
 ### 1. Invoke the Skill
+
 ```
 /sf-ai-agentscript
 ```
 
 ### 2. Describe Your Agent
+
 Tell Claude what your agent should do, and it will generate a scored Agent Script.
 
 ### 3. Validate & Deploy
+
 ```bash
 sf agent validate --source-dir ./my-agent
 sf agent deploy --source-dir ./my-agent --target-org prod
@@ -49,14 +52,14 @@ sf agent deploy --source-dir ./my-agent --target-org prod
 
 ## Scoring System
 
-| Category | Points | Focus |
-|----------|--------|-------|
-| Structure & Syntax | 20 | Block ordering, indentation, required fields |
-| Deterministic Logic | 25 | Security guards, post-action checks |
-| Instruction Resolution | 20 | Arrow syntax, template injection |
-| FSM Architecture | 15 | Topic separation, transitions |
-| Action Configuration | 10 | Protocols, I/O mapping |
-| Deployment Readiness | 10 | Valid user, clean validation |
+| Category               | Points | Focus                                        |
+| ---------------------- | ------ | -------------------------------------------- |
+| Structure & Syntax     | 20     | Block ordering, indentation, required fields |
+| Deterministic Logic    | 25     | Security guards, post-action checks          |
+| Instruction Resolution | 20     | Arrow syntax, template injection             |
+| FSM Architecture       | 15     | Topic separation, transitions                |
+| Action Configuration   | 10     | Protocols, I/O mapping                       |
+| Deployment Readiness   | 10     | Valid user, clean validation                 |
 
 **Thresholds:** 90+ Excellent | 80-89 Very Good | 70-79 Good | 60-69 Needs Work | <60 Critical
 
@@ -93,12 +96,12 @@ actions:
 
 ## Documentation
 
-| Document | Description |
-|----------|-------------|
-| [SKILL.md](SKILL.md) | Main entry point with scoring system |
-| [resources/](resources/) | Comprehensive guides per topic |
-| [docs/](docs/) | Quick reference guides |
-| [templates/](templates/) | Example .agent files |
+| Document                 | Description                          |
+| ------------------------ | ------------------------------------ |
+| [SKILL.md](SKILL.md)     | Main entry point with scoring system |
+| [resources/](resources/) | Comprehensive guides per topic       |
+| [docs/](docs/)           | Quick reference guides               |
+| [templates/](templates/) | Example .agent files                 |
 
 ## Cross-Skill Workflow
 

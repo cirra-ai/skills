@@ -61,7 +61,7 @@ const initialValues = new Map();
  * const cart = store.getState('cart');
  */
 function getState(key) {
-    return state.get(key);
+  return state.get(key);
 }
 
 /**
@@ -74,22 +74,22 @@ function getState(key) {
  * store.setState('cart', { items: [...cart.items, newItem], total: newTotal });
  */
 function setState(key, value) {
-    const oldValue = state.get(key);
-    state.set(key, value);
+  const oldValue = state.get(key);
+  state.set(key, value);
 
-    if (DEBUG_MODE) {
-        console.log(`[Store] ${key} updated:`, { old: oldValue, new: value });
+  if (DEBUG_MODE) {
+    console.log(`[Store] ${key} updated:`, { old: oldValue, new: value });
+  }
+
+  // Notify all subscribers for this key
+  const keySubscribers = subscribers.get(key) || [];
+  keySubscribers.forEach((callback) => {
+    try {
+      callback(value, oldValue);
+    } catch (e) {
+      console.error(`[Store] Subscriber error for "${key}":`, e);
     }
-
-    // Notify all subscribers for this key
-    const keySubscribers = subscribers.get(key) || [];
-    keySubscribers.forEach(callback => {
-        try {
-            callback(value, oldValue);
-        } catch (e) {
-            console.error(`[Store] Subscriber error for "${key}":`, e);
-        }
-    });
+  });
 }
 
 /**
@@ -109,26 +109,26 @@ function setState(key, value) {
  * if (this._unsubscribe) this._unsubscribe();
  */
 function subscribe(key, callback) {
-    if (!subscribers.has(key)) {
-        subscribers.set(key, []);
-    }
-    subscribers.get(key).push(callback);
+  if (!subscribers.has(key)) {
+    subscribers.set(key, []);
+  }
+  subscribers.get(key).push(callback);
 
-    if (DEBUG_MODE) {
-        console.log(`[Store] Subscribed to "${key}", total: ${subscribers.get(key).length}`);
-    }
+  if (DEBUG_MODE) {
+    console.log(`[Store] Subscribed to "${key}", total: ${subscribers.get(key).length}`);
+  }
 
-    // Return unsubscribe function
-    return () => {
-        const keySubscribers = subscribers.get(key) || [];
-        const index = keySubscribers.indexOf(callback);
-        if (index > -1) {
-            keySubscribers.splice(index, 1);
-            if (DEBUG_MODE) {
-                console.log(`[Store] Unsubscribed from "${key}", remaining: ${keySubscribers.length}`);
-            }
-        }
-    };
+  // Return unsubscribe function
+  return () => {
+    const keySubscribers = subscribers.get(key) || [];
+    const index = keySubscribers.indexOf(callback);
+    if (index > -1) {
+      keySubscribers.splice(index, 1);
+      if (DEBUG_MODE) {
+        console.log(`[Store] Unsubscribed from "${key}", remaining: ${keySubscribers.length}`);
+      }
+    }
+  };
 }
 
 /**
@@ -143,11 +143,11 @@ function subscribe(key, callback) {
  * const cart = store.initState('cart', { items: [], total: 0 });
  */
 function initState(key, defaultValue) {
-    if (!state.has(key)) {
-        state.set(key, defaultValue);
-        initialValues.set(key, JSON.parse(JSON.stringify(defaultValue)));
-    }
-    return state.get(key);
+  if (!state.has(key)) {
+    state.set(key, defaultValue);
+    initialValues.set(key, JSON.parse(JSON.stringify(defaultValue)));
+  }
+  return state.get(key);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -163,23 +163,23 @@ function initState(key, defaultValue) {
  * store.resetState('cart'); // Resets to initial { items: [], total: 0 }
  */
 function resetState(key) {
-    if (initialValues.has(key)) {
-        const initial = JSON.parse(JSON.stringify(initialValues.get(key)));
-        setState(key, initial);
-    }
+  if (initialValues.has(key)) {
+    const initial = JSON.parse(JSON.stringify(initialValues.get(key)));
+    setState(key, initial);
+  }
 }
 
 /**
  * Clear all state (useful for testing or logout).
  */
 function clearAll() {
-    state.clear();
-    subscribers.clear();
-    initialValues.clear();
+  state.clear();
+  subscribers.clear();
+  initialValues.clear();
 
-    if (DEBUG_MODE) {
-        console.log('[Store] All state cleared');
-    }
+  if (DEBUG_MODE) {
+    console.log('[Store] All state cleared');
+  }
 }
 
 /**
@@ -188,7 +188,7 @@ function clearAll() {
  * @returns {Array<string>} Array of state keys
  */
 function getKeys() {
-    return Array.from(state.keys());
+  return Array.from(state.keys());
 }
 
 /**
@@ -198,7 +198,7 @@ function getKeys() {
  * @returns {boolean} True if key exists
  */
 function hasState(key) {
-    return state.has(key);
+  return state.has(key);
 }
 
 /**
@@ -208,7 +208,7 @@ function hasState(key) {
  * @returns {number} Number of active subscribers
  */
 function getSubscriberCount(key) {
-    return (subscribers.get(key) || []).length;
+  return (subscribers.get(key) || []).length;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -231,32 +231,32 @@ let isBatching = false;
  * }); // Subscribers notified once after all updates
  */
 function batch(updateFn) {
-    isBatching = true;
-    batchUpdates = [];
+  isBatching = true;
+  batchUpdates = [];
 
-    try {
-        updateFn();
-    } finally {
-        isBatching = false;
+  try {
+    updateFn();
+  } finally {
+    isBatching = false;
 
-        // Notify subscribers for all changed keys
-        const changedKeys = new Set(batchUpdates.map(u => u.key));
-        changedKeys.forEach(key => {
-            const lastUpdate = batchUpdates.filter(u => u.key === key).pop();
-            if (lastUpdate) {
-                const keySubscribers = subscribers.get(key) || [];
-                keySubscribers.forEach(callback => {
-                    try {
-                        callback(lastUpdate.value, lastUpdate.oldValue);
-                    } catch (e) {
-                        console.error(`[Store] Batch subscriber error for "${key}":`, e);
-                    }
-                });
-            }
+    // Notify subscribers for all changed keys
+    const changedKeys = new Set(batchUpdates.map((u) => u.key));
+    changedKeys.forEach((key) => {
+      const lastUpdate = batchUpdates.filter((u) => u.key === key).pop();
+      if (lastUpdate) {
+        const keySubscribers = subscribers.get(key) || [];
+        keySubscribers.forEach((callback) => {
+          try {
+            callback(lastUpdate.value, lastUpdate.oldValue);
+          } catch (e) {
+            console.error(`[Store] Batch subscriber error for "${key}":`, e);
+          }
         });
+      }
+    });
 
-        batchUpdates = [];
-    }
+    batchUpdates = [];
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -264,19 +264,19 @@ function batch(updateFn) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export default {
-    // Core API
-    getState,
-    setState,
-    subscribe,
-    initState,
+  // Core API
+  getState,
+  setState,
+  subscribe,
+  initState,
 
-    // Utilities
-    resetState,
-    clearAll,
-    getKeys,
-    hasState,
-    getSubscriberCount,
+  // Utilities
+  resetState,
+  clearAll,
+  getKeys,
+  hasState,
+  getSubscriberCount,
 
-    // Batch operations
-    batch
+  // Batch operations
+  batch,
 };

@@ -9,13 +9,14 @@ metadata capture.
 import pytest
 from unittest.mock import MagicMock, patch
 
-from agent_api_client import AgentAPIClient, AgentAPIError, TurnResult, AgentMessage
+from agent_api_client import AgentAPIError, TurnResult, AgentMessage
 from multi_turn_test_runner import execute_scenario
 
 
 # ─────────────────────────────────────────────────────────────────────────
 # Helpers
 # ─────────────────────────────────────────────────────────────────────────
+
 
 def _make_turn_result(agent_text="I can help you.", has_action=False, has_esc=False):
     """Build a minimal TurnResult for mocking session.send()."""
@@ -45,6 +46,7 @@ def _make_mock_session(turn_results):
 # ─────────────────────────────────────────────────────────────────────────
 # Tests
 # ─────────────────────────────────────────────────────────────────────────
+
 
 @pytest.mark.tier2
 @pytest.mark.offline
@@ -141,8 +143,10 @@ def test_variable_merge(mock_client):
     mock_sess = _make_mock_session([turn1])
 
     with patch.object(mock_client, "session", return_value=mock_sess) as patched_session:
-        result = execute_scenario(
-            mock_client, "agent-id-001", scenario,
+        execute_scenario(
+            mock_client,
+            "agent-id-001",
+            scenario,
             global_variables=global_variables,
         )
 

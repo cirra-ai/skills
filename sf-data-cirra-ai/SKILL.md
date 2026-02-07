@@ -6,12 +6,12 @@ description: >
   importing/exporting data via Cirra AI MCP Server (remote org operations only).
 license: MIT
 metadata:
-  version: "2.0.0"
-  author: "Refactored for Cirra AI MCP"
-  original_author: "Jag Valaiyapathy"
-  scoring: "130 points across 7 categories"
-  framework: "Cirra AI MCP Server"
-  executionMode: "remote-org-only"
+  version: '2.0.0'
+  author: 'Refactored for Cirra AI MCP'
+  original_author: 'Jag Valaiyapathy'
+  scoring: '130 points across 7 categories'
+  framework: 'Cirra AI MCP Server'
+  executionMode: 'remote-org-only'
 ---
 
 # Salesforce Data Operations Expert (sf-data-cirra)
@@ -23,6 +23,7 @@ This is a **refactored version** that removes sf CLI dependency and uses **Cirra
 ## Executive Overview
 
 The sf-data-cirra skill provides comprehensive data management capabilities:
+
 - **CRUD Operations**: Query, insert, update, delete, upsert records via Cirra AI MCP
 - **SOQL Expertise**: Complex relationships, aggregates, polymorphic queries
 - **Test Data Generation**: Factory patterns for standard and custom objects
@@ -37,15 +38,15 @@ The sf-data-cirra skill provides comprehensive data management capabilities:
 
 **REMOTE-ONLY MODE**: Cirra AI MCP operates directly against Salesforce orgs.
 
-| Operation | Tool | Org Required? | Output |
-|-----------|------|---------------|--------|
-| **Query Records** | `soql_query` | Yes | Results in memory |
-| **Create Records** | `sobject_dml` (insert) | Yes | Record IDs in response |
-| **Update Records** | `sobject_dml` (update) | Yes | Success/failure status |
-| **Delete Records** | `sobject_dml` (delete) | Yes | Count deleted |
-| **Upsert Records** | `sobject_dml` (upsert) | Yes | Upsert results |
-| **Describe Objects** | `sobject_describe` | Yes | Object metadata |
-| **Tooling API Query** | `tooling_api_query` | Yes | Metadata records |
+| Operation             | Tool                   | Org Required? | Output                 |
+| --------------------- | ---------------------- | ------------- | ---------------------- |
+| **Query Records**     | `soql_query`           | Yes           | Results in memory      |
+| **Create Records**    | `sobject_dml` (insert) | Yes           | Record IDs in response |
+| **Update Records**    | `sobject_dml` (update) | Yes           | Success/failure status |
+| **Delete Records**    | `sobject_dml` (delete) | Yes           | Count deleted          |
+| **Upsert Records**    | `sobject_dml` (upsert) | Yes           | Upsert results         |
+| **Describe Objects**  | `sobject_describe`     | Yes           | Object metadata        |
+| **Tooling API Query** | `tooling_api_query`    | Yes           | Metadata records       |
 
 ⚠️ **CRITICAL**: Always call `cirra_ai_init()` FIRST before any Cirra AI operations!
 
@@ -75,27 +76,27 @@ The sf-data-cirra skill provides comprehensive data management capabilities:
 
 **sf-data operates on REMOTE org data.** Objects/fields must exist before sf-data can create records.
 
-| Error | Meaning | Fix |
-|-------|---------|-----|
-| `INVALID_FIELD` | Field doesn't exist or FLS blocks | Use `sobject_describe` to verify field names |
-| `MALFORMED_QUERY` | Invalid SOQL syntax | Check relationship names, field types in SOQL pattern |
-| `FIELD_CUSTOM_VALIDATION_EXCEPTION` | Validation rule triggered | Use valid data matching validation logic |
-| `REQUIRED_FIELD_MISSING` | Required field not set | Include all required fields in records |
-| `INVALID_CROSS_REFERENCE_KEY` | Invalid relationship ID | Verify parent record exists before inserting child |
-| `TOO_MANY_SOQL_QUERIES` | 100 query limit | Batch queries, use relationships to avoid multiple queries |
-| `TOO_MANY_DML_STATEMENTS` | 150 DML limit | Batch records in single sobject_dml call, not multiple calls |
+| Error                               | Meaning                           | Fix                                                          |
+| ----------------------------------- | --------------------------------- | ------------------------------------------------------------ |
+| `INVALID_FIELD`                     | Field doesn't exist or FLS blocks | Use `sobject_describe` to verify field names                 |
+| `MALFORMED_QUERY`                   | Invalid SOQL syntax               | Check relationship names, field types in SOQL pattern        |
+| `FIELD_CUSTOM_VALIDATION_EXCEPTION` | Validation rule triggered         | Use valid data matching validation logic                     |
+| `REQUIRED_FIELD_MISSING`            | Required field not set            | Include all required fields in records                       |
+| `INVALID_CROSS_REFERENCE_KEY`       | Invalid relationship ID           | Verify parent record exists before inserting child           |
+| `TOO_MANY_SOQL_QUERIES`             | 100 query limit                   | Batch queries, use relationships to avoid multiple queries   |
+| `TOO_MANY_DML_STATEMENTS`           | 150 DML limit                     | Batch records in single sobject_dml call, not multiple calls |
 
 ---
 
 ## 🔑 Key Insights
 
-| Insight | Why | Action |
-|---------|-----|--------|
-| **Test with 201+ records** | Crosses 200-record batch boundary | Always bulk test with 201+ records |
-| **FLS blocks access** | "Field does not exist" often = FLS not missing field | Query using user context; not all fields visible |
-| **Cleanup is essential** | Test isolation and data hygiene | Always provide cleanup SOQL queries |
-| **Batch limit is 200** | Salesforce batch processing boundary | Break operations into 200-record chunks if needed |
-| **Single call efficiency** | Avoid governor limits | Use single `sobject_dml` call with 200+ records, not multiple calls |
+| Insight                    | Why                                                  | Action                                                              |
+| -------------------------- | ---------------------------------------------------- | ------------------------------------------------------------------- |
+| **Test with 201+ records** | Crosses 200-record batch boundary                    | Always bulk test with 201+ records                                  |
+| **FLS blocks access**      | "Field does not exist" often = FLS not missing field | Query using user context; not all fields visible                    |
+| **Cleanup is essential**   | Test isolation and data hygiene                      | Always provide cleanup SOQL queries                                 |
+| **Batch limit is 200**     | Salesforce batch processing boundary                 | Break operations into 200-record chunks if needed                   |
+| **Single call efficiency** | Avoid governor limits                                | Use single `sobject_dml` call with 200+ records, not multiple calls |
 
 ---
 
@@ -108,10 +109,11 @@ The sf-data-cirra skill provides comprehensive data management capabilities:
 **Phase 3: Discover** → Use `sobject_describe` or `tooling_api_query` to verify object/field structure
 
 **Phase 4: Execute** → Run appropriate Cirra AI MCP tool:
-  - Query: `soql_query`
-  - CRUD: `sobject_dml`
-  - Describe: `sobject_describe`
-  - Metadata: `tooling_api_query`
+
+- Query: `soql_query`
+- CRUD: `sobject_dml`
+- Describe: `sobject_describe`
+- Metadata: `tooling_api_query`
 
 **Phase 5: Verify & Cleanup** → Query to confirm results, provide cleanup queries
 
@@ -120,6 +122,7 @@ The sf-data-cirra skill provides comprehensive data management capabilities:
 ## Cirra AI MCP Tool Reference
 
 ### 1. Initialize Connection
+
 **Tool**: `cirra_ai_init`
 **Purpose**: Initialize Cirra AI session and authenticate org
 **Must be called FIRST before any other operations**
@@ -132,6 +135,7 @@ Parameters:
 ```
 
 ### 2. Query Records (SOQL)
+
 **Tool**: `soql_query`
 **Purpose**: Execute SOQL queries to retrieve data
 
@@ -146,6 +150,7 @@ Parameters:
 ```
 
 **Example**: Query Accounts in Technology
+
 ```
 soql_query(
   sObject="Account",
@@ -157,6 +162,7 @@ soql_query(
 ```
 
 ### 3. DML Operations (Insert/Update/Delete/Upsert)
+
 **Tool**: `sobject_dml`
 **Purpose**: Create, modify, or delete records
 
@@ -170,6 +176,7 @@ Parameters:
 ```
 
 **Example 1: Insert Records**
+
 ```
 sobject_dml(
   sObject="Account",
@@ -183,6 +190,7 @@ sobject_dml(
 ```
 
 **Example 2: Bulk Upsert Records**
+
 ```
 sobject_dml(
   sObject="Account",
@@ -197,6 +205,7 @@ sobject_dml(
 ```
 
 **Example 3: Delete Records by ID**
+
 ```
 sobject_dml(
   sObject="Account",
@@ -210,6 +219,7 @@ sobject_dml(
 ```
 
 ### 4. Describe Object (Metadata)
+
 **Tool**: `sobject_describe`
 **Purpose**: Get object structure, fields, relationships
 
@@ -220,6 +230,7 @@ Parameters:
 ```
 
 **Example**: Get Account structure
+
 ```
 sobject_describe(
   sObject="Account",
@@ -230,6 +241,7 @@ sobject_describe(
 Response includes: fields (name, type, required, length), relationships, record types, etc.
 
 ### 5. Tooling API Queries
+
 **Tool**: `tooling_api_query`
 **Purpose**: Query metadata objects (CustomField, CustomObject, etc.)
 
@@ -243,6 +255,7 @@ Parameters:
 ```
 
 **Example**: Find all custom fields on Account
+
 ```
 tooling_api_query(
   sObject="CustomField",
@@ -255,15 +268,15 @@ tooling_api_query(
 
 ## SOQL Relationship Patterns
 
-| Pattern | Syntax | Use When | Tool |
-|---------|--------|----------|------|
-| **Parent-to-Child** | `(SELECT Id FROM Contacts)` | Need child details from parent | soql_query |
-| **Child-to-Parent** | `Account.Name` (up to 5 levels) | Need parent fields from child | soql_query |
-| **Polymorphic** | `TYPEOF What WHEN Account THEN Name END` | Who/What fields | soql_query |
-| **Self-Referential** | `ParentAccount.Name` | Hierarchical data | soql_query |
-| **Aggregate** | `COUNT(), SUM() GROUP BY` | Statistics | soql_query |
-| **Semi-Join** | `WHERE Id IN (SELECT AccountId FROM Contact)` | Records WITH related | soql_query |
-| **Anti-Join** | `WHERE Id NOT IN (SELECT ...)` | Records WITHOUT related | soql_query |
+| Pattern              | Syntax                                        | Use When                       | Tool       |
+| -------------------- | --------------------------------------------- | ------------------------------ | ---------- |
+| **Parent-to-Child**  | `(SELECT Id FROM Contacts)`                   | Need child details from parent | soql_query |
+| **Child-to-Parent**  | `Account.Name` (up to 5 levels)               | Need parent fields from child  | soql_query |
+| **Polymorphic**      | `TYPEOF What WHEN Account THEN Name END`      | Who/What fields                | soql_query |
+| **Self-Referential** | `ParentAccount.Name`                          | Hierarchical data              | soql_query |
+| **Aggregate**        | `COUNT(), SUM() GROUP BY`                     | Statistics                     | soql_query |
+| **Semi-Join**        | `WHERE Id IN (SELECT AccountId FROM Contact)` | Records WITH related           | soql_query |
+| **Anti-Join**        | `WHERE Id NOT IN (SELECT ...)`                | Records WITHOUT related        | soql_query |
 
 ---
 
@@ -271,15 +284,15 @@ tooling_api_query(
 
 ### Validation Scoring (130 Points)
 
-| Category | Points | Key Focus |
-|----------|--------|-----------|
-| Query Efficiency | 25 | Selective filters, no N+1, LIMIT clauses |
-| Bulk Safety | 25 | Batch sizing, Cirra AI single calls with 200+ records |
-| Data Integrity | 20 | Required fields, valid relationships |
-| Security & FLS | 20 | User context awareness, no PII patterns |
-| Test Patterns | 15 | 201+ records, edge cases |
-| Cleanup & Isolation | 15 | Rollback, cleanup queries |
-| Documentation | 10 | Purpose, outcomes documented |
+| Category            | Points | Key Focus                                             |
+| ------------------- | ------ | ----------------------------------------------------- |
+| Query Efficiency    | 25     | Selective filters, no N+1, LIMIT clauses              |
+| Bulk Safety         | 25     | Batch sizing, Cirra AI single calls with 200+ records |
+| Data Integrity      | 20     | Required fields, valid relationships                  |
+| Security & FLS      | 20     | User context awareness, no PII patterns               |
+| Test Patterns       | 15     | 201+ records, edge cases                              |
+| Cleanup & Isolation | 15     | Rollback, cleanup queries                             |
+| Documentation       | 10     | Purpose, outcomes documented                          |
 
 **Thresholds**: ⭐⭐⭐⭐⭐ 117+ | ⭐⭐⭐⭐ 104-116 | ⭐⭐⭐ 91-103 | ⭐⭐ 78-90 | ⭐ <78 (blocked)
 
@@ -288,6 +301,7 @@ tooling_api_query(
 ## Test Data Factory Pattern
 
 ### Naming Convention
+
 ```
 TestDataFactory_[ObjectName]
 ```
@@ -344,6 +358,7 @@ public class TestDataFactory_Account {
 Instead of running Apex factories, use `sobject_dml` directly:
 
 **Example: Create 201 Accounts (crossing batch boundary)**
+
 ```
 sobject_dml(
   sObject="Account",
@@ -359,6 +374,7 @@ sobject_dml(
 ```
 
 **Distributed Test Data** (Hot/Warm/Cold scoring):
+
 ```
 sobject_dml(
   sObject="Lead",
@@ -381,11 +397,11 @@ sobject_dml(
 
 ### Cleanup Patterns
 
-| Method | Code | Best For |
-|--------|------|----------|
-| By IDs | `DELETE [SELECT Id FROM Account WHERE Id IN :ids]` | Known records |
-| By Pattern | `DELETE [SELECT Id FROM Account WHERE Name LIKE 'Test%']` | Test data |
-| By Date | `WHERE CreatedDate >= :startTime AND Name LIKE 'Test%'` | Recent test data |
+| Method     | Code                                                      | Best For         |
+| ---------- | --------------------------------------------------------- | ---------------- |
+| By IDs     | `DELETE [SELECT Id FROM Account WHERE Id IN :ids]`        | Known records    |
+| By Pattern | `DELETE [SELECT Id FROM Account WHERE Name LIKE 'Test%']` | Test data        |
+| By Date    | `WHERE CreatedDate >= :startTime AND Name LIKE 'Test%'`   | Recent test data |
 
 ### Cleanup via SOQL (call after verifying records)
 
@@ -401,6 +417,7 @@ soql_query(
 ```
 
 Then provide cleanup instruction:
+
 ```
 sobject_dml(
   sObject="Account",
@@ -414,16 +431,16 @@ sobject_dml(
 
 ## Cross-Skill Integration
 
-| From Skill | To sf-data-cirra | When |
-|------------|------------------|------|
-| sf-apex | → sf-data-cirra | "Create 201 Accounts for bulk testing" |
-| sf-flow | → sf-data-cirra | "Create Opportunities with StageName='Closed Won'" |
-| sf-metadata | → sf-data-cirra | After verifying fields exist |
+| From Skill  | To sf-data-cirra | When                                               |
+| ----------- | ---------------- | -------------------------------------------------- |
+| sf-apex     | → sf-data-cirra  | "Create 201 Accounts for bulk testing"             |
+| sf-flow     | → sf-data-cirra  | "Create Opportunities with StageName='Closed Won'" |
+| sf-metadata | → sf-data-cirra  | After verifying fields exist                       |
 
-| From sf-data-cirra | To Skill | When |
-|--------------------|----------|------|
-| sf-data-cirra | → sf-metadata | Use `sobject_describe` instead |
-| sf-data-cirra | → sf-apex | "Generate test records for test class" |
+| From sf-data-cirra | To Skill      | When                                   |
+| ------------------ | ------------- | -------------------------------------- |
+| sf-data-cirra      | → sf-metadata | Use `sobject_describe` instead         |
+| sf-data-cirra      | → sf-apex     | "Generate test records for test class" |
 
 ---
 
@@ -442,16 +459,16 @@ The following sf CLI features are **NOT supported** in Cirra AI MCP version:
 
 ## Common Error Patterns & Solutions
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `INVALID_FIELD` | Field doesn't exist | Use `sobject_describe` to verify field API names |
-| `MALFORMED_QUERY` | Invalid SOQL syntax | Check relationship names, field types, use tool examples |
-| `FIELD_CUSTOM_VALIDATION_EXCEPTION` | Validation rule triggered | Provide data matching validation logic |
-| `REQUIRED_FIELD_MISSING` | Required field not set | Include all required fields in records array |
-| `INVALID_CROSS_REFERENCE_KEY` | Invalid relationship ID | Verify parent record exists; query first |
-| `TOO_MANY_SOQL_QUERIES` | 100 query limit | Combine queries using relationships |
-| `TOO_MANY_DML_STATEMENTS` | 150 DML limit | Use single `sobject_dml` call with array of 200+ records |
-| `cirra_ai_init not called` | Session not initialized | Always call `cirra_ai_init()` FIRST |
+| Error                               | Cause                     | Solution                                                 |
+| ----------------------------------- | ------------------------- | -------------------------------------------------------- |
+| `INVALID_FIELD`                     | Field doesn't exist       | Use `sobject_describe` to verify field API names         |
+| `MALFORMED_QUERY`                   | Invalid SOQL syntax       | Check relationship names, field types, use tool examples |
+| `FIELD_CUSTOM_VALIDATION_EXCEPTION` | Validation rule triggered | Provide data matching validation logic                   |
+| `REQUIRED_FIELD_MISSING`            | Required field not set    | Include all required fields in records array             |
+| `INVALID_CROSS_REFERENCE_KEY`       | Invalid relationship ID   | Verify parent record exists; query first                 |
+| `TOO_MANY_SOQL_QUERIES`             | 100 query limit           | Combine queries using relationships                      |
+| `TOO_MANY_DML_STATEMENTS`           | 150 DML limit             | Use single `sobject_dml` call with array of 200+ records |
+| `cirra_ai_init not called`          | Session not initialized   | Always call `cirra_ai_init()` FIRST                      |
 
 ---
 

@@ -28,11 +28,11 @@ This document details how sf-metadata fits into the multi-skill workflow for Sal
 
 ## Why sf-metadata Goes First
 
-| Step | Depends On sf-metadata | What Fails Without It |
-|------|------------------------|----------------------|
-| sf-flow | ✅ Must exist | Flow references non-existent field/object |
-| sf-deploy | ✅ Must exist | Nothing to deploy |
-| sf-data | ✅ Must be deployed | `SObject type 'X' not supported` |
+| Step      | Depends On sf-metadata | What Fails Without It                     |
+| --------- | ---------------------- | ----------------------------------------- |
+| sf-flow   | ✅ Must exist          | Flow references non-existent field/object |
+| sf-deploy | ✅ Must exist          | Nothing to deploy                         |
+| sf-data   | ✅ Must be deployed    | `SObject type 'X' not supported`          |
 
 **sf-metadata creates the foundation** that all other skills build upon.
 
@@ -79,6 +79,7 @@ When building agents with external API integrations:
 ### Before sf-flow
 
 sf-metadata must create:
+
 - Custom Objects (the flow will reference)
 - Custom Fields (used in flow variables, assignments)
 - Picklist Values (used in flow decisions)
@@ -87,6 +88,7 @@ sf-metadata must create:
 ### Before sf-apex
 
 sf-metadata must create:
+
 - Custom Objects (Apex queries/DML targets)
 - Custom Fields (referenced in SOQL, field sets)
 - Custom Metadata Types (configuration storage)
@@ -115,12 +117,12 @@ sf-deploy:
 
 ## Common Errors from Wrong Order
 
-| Error | Cause | Correct Order |
-|-------|-------|---------------|
-| `Field does not exist: Status__c` | Flow created before field | sf-metadata → sf-flow |
-| `Invalid reference: Quote__c` | Flow created before object | sf-metadata → sf-flow |
-| `SObject type 'Quote__c' not supported` | Data created before deploy | sf-deploy → sf-data |
-| `Cannot find FlowDefinition` | Agent references missing flow | sf-flow → sf-ai-agentforce |
+| Error                                   | Cause                         | Correct Order              |
+| --------------------------------------- | ----------------------------- | -------------------------- |
+| `Field does not exist: Status__c`       | Flow created before field     | sf-metadata → sf-flow      |
+| `Invalid reference: Quote__c`           | Flow created before object    | sf-metadata → sf-flow      |
+| `SObject type 'Quote__c' not supported` | Data created before deploy    | sf-deploy → sf-data        |
+| `Cannot find FlowDefinition`            | Agent references missing flow | sf-flow → sf-ai-agentforce |
 
 ---
 
@@ -140,12 +142,12 @@ Skill(skill="sf-data", args="Create 251 Quote__c records")
 
 ## Cross-Skill Integration Table
 
-| From Skill | To sf-metadata | When |
-|------------|----------------|------|
-| sf-apex | → sf-metadata | "Describe Quote__c" (discover fields before coding) |
-| sf-flow | → sf-metadata | "Describe object fields, record types" (verify structure) |
-| sf-data | → sf-metadata | "Describe Custom_Object__c fields" (discover structure) |
-| sf-ai-agentforce | → sf-metadata | "Create custom object for agent data" |
+| From Skill       | To sf-metadata | When                                                      |
+| ---------------- | -------------- | --------------------------------------------------------- |
+| sf-apex          | → sf-metadata  | "Describe Quote\_\_c" (discover fields before coding)     |
+| sf-flow          | → sf-metadata  | "Describe object fields, record types" (verify structure) |
+| sf-data          | → sf-metadata  | "Describe Custom_Object\_\_c fields" (discover structure) |
+| sf-ai-agentforce | → sf-metadata  | "Create custom object for agent data"                     |
 
 ---
 
@@ -154,16 +156,16 @@ Skill(skill="sf-data", args="Create 251 Quote__c records")
 1. **Always create Permission Sets** with object/field metadata
 2. **Use sf sobject describe** to verify existing structure before creating
 3. **Check sfdx-project.json** exists before generating metadata
-4. **Use consistent naming** across related objects (Quote__c, Quote_Line_Item__c)
+4. **Use consistent naming** across related objects (Quote**c, Quote_Line_Item**c)
 5. **Document relationships** in object descriptions
 
 ---
 
 ## Related Documentation
 
-| Topic | Location |
-|-------|----------|
-| Metadata templates | `sf-metadata/templates/` |
-| Field types guide | `sf-metadata/docs/field-types-guide.md` |
+| Topic              | Location                                 |
+| ------------------ | ---------------------------------------- |
+| Metadata templates | `sf-metadata/templates/`                 |
+| Field types guide  | `sf-metadata/docs/field-types-guide.md`  |
 | Naming conventions | `sf-metadata/docs/naming-conventions.md` |
-| sf-deploy skill | `sf-deploy/SKILL.md` |
+| sf-deploy skill    | `sf-deploy/SKILL.md`                     |

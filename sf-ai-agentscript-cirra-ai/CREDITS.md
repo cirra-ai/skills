@@ -10,16 +10,16 @@ Created by [Jag Valaiyapathy](https://github.com/Jaganpro)
 
 This skill was developed from comprehensive documentation screenshots covering 8 modules (96 total screenshots):
 
-| Module | Topic | Coverage |
-|--------|-------|----------|
-| 1 | Why Agent Script? | The Problem, Three Innovations, Reasoning Engine, Deterministic Toolkit |
-| 2 | FSM Architecture | Legacy Issues, FSM Fundamentals, 5 Node Patterns, Deterministic vs Subjective |
-| 3 | Agent Script Syntax | Block Structure, Variables, Topics, Pre-Deployment Checklist |
-| 4 | Instruction Resolution | Three Phases, Pre-LLM, LLM Processing, Post-Action Loop |
-| 5 | Grounding & Multi-Agent | Retriever Actions, 6 Action Protocols, SOMA Patterns |
-| 6 | Forensic Debugging | Interaction Details, Trace Waterfall, Variable State, Script Linting |
-| 7 | Batch Testing | Testing Center, Quality Evaluations, LLM-as-Judge, Deployment Lifecycle |
-| 8 | CLI & Deployment | Authoring Bundle, CLI Commands, Pro-Code Workflow, Metadata Shuttling |
+| Module | Topic                   | Coverage                                                                      |
+| ------ | ----------------------- | ----------------------------------------------------------------------------- |
+| 1      | Why Agent Script?       | The Problem, Three Innovations, Reasoning Engine, Deterministic Toolkit       |
+| 2      | FSM Architecture        | Legacy Issues, FSM Fundamentals, 5 Node Patterns, Deterministic vs Subjective |
+| 3      | Agent Script Syntax     | Block Structure, Variables, Topics, Pre-Deployment Checklist                  |
+| 4      | Instruction Resolution  | Three Phases, Pre-LLM, LLM Processing, Post-Action Loop                       |
+| 5      | Grounding & Multi-Agent | Retriever Actions, 6 Action Protocols, SOMA Patterns                          |
+| 6      | Forensic Debugging      | Interaction Details, Trace Waterfall, Variable State, Script Linting          |
+| 7      | Batch Testing           | Testing Center, Quality Evaluations, LLM-as-Judge, Deployment Lifecycle       |
+| 8      | CLI & Deployment        | Authoring Bundle, CLI Commands, Pro-Code Workflow, Metadata Shuttling         |
 
 ### Official Salesforce Documentation
 
@@ -39,13 +39,13 @@ This skill integrates with other sf-skills:
 
 ## Key Concepts Attribution
 
-| Concept | Source |
-|---------|--------|
-| FSM Architecture | Salesforce Agent Script Workshop |
-| Instruction Resolution (3-phase model) | Salesforce Agent Script Workshop |
-| Deterministic Building Blocks | Salesforce Agent Script Workshop |
-| SOMA (Same Org Multi-Agent) | Salesforce Agent Script Workshop |
-| 100-Point Scoring System | sf-skills Pattern (adapted from sf-ai-agentforce) |
+| Concept                                | Source                                            |
+| -------------------------------------- | ------------------------------------------------- |
+| FSM Architecture                       | Salesforce Agent Script Workshop                  |
+| Instruction Resolution (3-phase model) | Salesforce Agent Script Workshop                  |
+| Deterministic Building Blocks          | Salesforce Agent Script Workshop                  |
+| SOMA (Same Org Multi-Agent)            | Salesforce Agent Script Workshop                  |
+| 100-Point Scoring System               | sf-skills Pattern (adapted from sf-ai-agentforce) |
 
 ## Tools & Technologies
 
@@ -59,4 +59,4 @@ MIT License - See [LICENSE](LICENSE)
 
 ---
 
-*Last updated: January 2026*
+_Last updated: January 2026_

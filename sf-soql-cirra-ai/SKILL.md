@@ -6,29 +6,29 @@ description: >
   queries that respect governor limits and security requirements. Powered by Cirra AI MCP Server.
 license: MIT
 metadata:
-  version: "2.0.0"
-  author: "Jag Valaiyapathy"
-  migrated_to_cirra_ai: "2025-02"
-  scoring: "100 points across 5 categories"
+  version: '2.0.0'
+  author: 'Jag Valaiyapathy'
+  migrated_to_cirra_ai: '2025-02'
+  scoring: '100 points across 5 categories'
 hooks:
   PreToolUse:
     - matcher: Bash
       hooks:
         - type: command
-          command: "python3 ${SHARED_HOOKS}/scripts/guardrails.py"
+          command: 'python3 ${SHARED_HOOKS}/scripts/guardrails.py'
           timeout: 5000
   PostToolUse:
-    - matcher: "Write|Edit"
+    - matcher: 'Write|Edit'
       hooks:
         - type: command
-          command: "python3 ${SKILL_HOOKS}/post-tool-validate.py"
+          command: 'python3 ${SKILL_HOOKS}/post-tool-validate.py'
           timeout: 10000
         - type: command
-          command: "python3 ${SHARED_HOOKS}/suggest-related-skills.py sf-soql"
+          command: 'python3 ${SHARED_HOOKS}/suggest-related-skills.py sf-soql'
           timeout: 5000
   SubagentStop:
     - type: command
-      command: "python3 ${SHARED_HOOKS}/scripts/chain-validator.py sf-soql"
+      command: 'python3 ${SHARED_HOOKS}/scripts/chain-validator.py sf-soql'
       timeout: 5000
 ---
 
@@ -51,6 +51,7 @@ Expert database engineer specializing in Salesforce Object Query Language (SOQL)
 ### Phase 1: Requirements Gathering
 
 Use **AskUserQuestion** to gather:
+
 - What data is needed (objects, fields)
 - Filter criteria (WHERE conditions)
 - Sort requirements (ORDER BY)
@@ -61,11 +62,11 @@ Use **AskUserQuestion** to gather:
 
 **Natural Language Examples**:
 
-| Request | Generated SOQL |
-|---------|----------------|
-| "Get all active accounts with their contacts" | `SELECT Id, Name, (SELECT Id, Name FROM Contacts) FROM Account WHERE IsActive__c = true` |
-| "Find contacts created this month" | `SELECT Id, Name, Email FROM Contact WHERE CreatedDate = THIS_MONTH` |
-| "Count opportunities by stage" | `SELECT StageName, COUNT(Id) FROM Opportunity GROUP BY StageName` |
+| Request                                            | Generated SOQL                                                                            |
+| -------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| "Get all active accounts with their contacts"      | `SELECT Id, Name, (SELECT Id, Name FROM Contacts) FROM Account WHERE IsActive__c = true`  |
+| "Find contacts created this month"                 | `SELECT Id, Name, Email FROM Contact WHERE CreatedDate = THIS_MONTH`                      |
+| "Count opportunities by stage"                     | `SELECT StageName, COUNT(Id) FROM Opportunity GROUP BY StageName`                         |
 | "Get accounts with revenue over 1M sorted by name" | `SELECT Id, Name, AnnualRevenue FROM Account WHERE AnnualRevenue > 1000000 ORDER BY Name` |
 
 ### Phase 3: Optimization
@@ -73,7 +74,7 @@ Use **AskUserQuestion** to gather:
 **Query Optimization Checklist**:
 
 1. **Selectivity**: Does WHERE clause use indexed fields?
-2. **Field Selection**: Only query needed fields (not SELECT *)
+2. **Field Selection**: Only query needed fields (not SELECT \*)
 3. **Limit**: Is LIMIT appropriate for use case?
 4. **Relationship Depth**: Avoid deep traversals (max 5 levels)
 5. **Aggregate Queries**: Use for counts instead of loading all records
@@ -112,15 +113,16 @@ sobject_describe(
 
 ## Best Practices (100-Point Scoring)
 
-| Category | Points | Key Rules |
-|----------|--------|-----------|
-| **Selectivity** | 25 | Indexed fields in WHERE, selective filters |
-| **Performance** | 25 | Appropriate LIMIT, minimal fields, no unnecessary joins |
-| **Security** | 20 | WITH SECURITY_ENFORCED or stripInaccessible |
-| **Correctness** | 15 | Proper syntax, valid field references |
-| **Readability** | 15 | Formatted, meaningful aliases, comments |
+| Category        | Points | Key Rules                                               |
+| --------------- | ------ | ------------------------------------------------------- |
+| **Selectivity** | 25     | Indexed fields in WHERE, selective filters              |
+| **Performance** | 25     | Appropriate LIMIT, minimal fields, no unnecessary joins |
+| **Security**    | 20     | WITH SECURITY_ENFORCED or stripInaccessible             |
+| **Correctness** | 15     | Proper syntax, valid field references                   |
+| **Readability** | 15     | Formatted, meaningful aliases, comments                 |
 
 **Scoring Thresholds**:
+
 ```
 ⭐⭐⭐⭐⭐ 90-100 pts → Production-optimized query
 ⭐⭐⭐⭐   80-89 pts  → Good query, minor optimizations possible
@@ -159,31 +161,31 @@ SELECT FIELDS(STANDARD) FROM Account
 
 ### WHERE Clause Operators
 
-| Operator | Example | Notes |
-|----------|---------|-------|
-| `=` | `Name = 'Acme'` | Exact match |
-| `!=` | `Status != 'Closed'` | Not equal |
-| `<`, `>`, `<=`, `>=` | `Amount > 1000` | Comparison |
-| `LIKE` | `Name LIKE 'Acme%'` | Wildcard match |
-| `IN` | `Status IN ('New', 'Open')` | Multiple values |
-| `NOT IN` | `Type NOT IN ('Other')` | Exclude values |
-| `INCLUDES` | `Interests__c INCLUDES ('Golf')` | Multi-select picklist |
-| `EXCLUDES` | `Interests__c EXCLUDES ('Golf')` | Multi-select exclude |
+| Operator             | Example                          | Notes                 |
+| -------------------- | -------------------------------- | --------------------- |
+| `=`                  | `Name = 'Acme'`                  | Exact match           |
+| `!=`                 | `Status != 'Closed'`             | Not equal             |
+| `<`, `>`, `<=`, `>=` | `Amount > 1000`                  | Comparison            |
+| `LIKE`               | `Name LIKE 'Acme%'`              | Wildcard match        |
+| `IN`                 | `Status IN ('New', 'Open')`      | Multiple values       |
+| `NOT IN`             | `Type NOT IN ('Other')`          | Exclude values        |
+| `INCLUDES`           | `Interests__c INCLUDES ('Golf')` | Multi-select picklist |
+| `EXCLUDES`           | `Interests__c EXCLUDES ('Golf')` | Multi-select exclude  |
 
 ### Date Literals
 
-| Literal | Meaning |
-|---------|---------|
-| `TODAY` | Current day |
-| `YESTERDAY` | Previous day |
-| `THIS_WEEK` | Current week (Sun-Sat) |
-| `LAST_WEEK` | Previous week |
-| `THIS_MONTH` | Current month |
-| `LAST_MONTH` | Previous month |
-| `THIS_QUARTER` | Current quarter |
-| `THIS_YEAR` | Current year |
-| `LAST_N_DAYS:n` | Last n days |
-| `NEXT_N_DAYS:n` | Next n days |
+| Literal         | Meaning                |
+| --------------- | ---------------------- |
+| `TODAY`         | Current day            |
+| `YESTERDAY`     | Previous day           |
+| `THIS_WEEK`     | Current week (Sun-Sat) |
+| `LAST_WEEK`     | Previous week          |
+| `THIS_MONTH`    | Current month          |
+| `LAST_MONTH`    | Previous month         |
+| `THIS_QUARTER`  | Current quarter        |
+| `THIS_YEAR`     | Current year           |
+| `LAST_N_DAYS:n` | Last n days            |
+| `NEXT_N_DAYS:n` | Next n days            |
 
 ```sql
 -- Created in last 30 days
@@ -223,12 +225,12 @@ WHERE Industry = 'Technology'
 
 ### Relationship Names
 
-| Object | Relationship Name | Example |
-|--------|-------------------|---------|
-| Account → Contacts | `Contacts` | `(SELECT Id FROM Contacts)` |
-| Account → Opportunities | `Opportunities` | `(SELECT Id FROM Opportunities)` |
-| Account → Cases | `Cases` | `(SELECT Id FROM Cases)` |
-| Contact → Cases | `Cases` | `(SELECT Id FROM Cases)` |
+| Object                             | Relationship Name      | Example                                 |
+| ---------------------------------- | ---------------------- | --------------------------------------- |
+| Account → Contacts                 | `Contacts`             | `(SELECT Id FROM Contacts)`             |
+| Account → Opportunities            | `Opportunities`        | `(SELECT Id FROM Opportunities)`        |
+| Account → Cases                    | `Cases`                | `(SELECT Id FROM Cases)`                |
+| Contact → Cases                    | `Cases`                | `(SELECT Id FROM Cases)`                |
 | Opportunity → OpportunityLineItems | `OpportunityLineItems` | `(SELECT Id FROM OpportunityLineItems)` |
 
 ### Custom Object Relationships
@@ -302,6 +304,7 @@ GROUP BY ROLLUP(LeadSource, Rating)
 ### Indexing Strategy
 
 **Indexed Fields** (Always Selective):
+
 - Id
 - Name
 - OwnerId
@@ -313,6 +316,7 @@ GROUP BY ROLLUP(LeadSource, Rating)
 - Lookup fields (when unique)
 
 **Standard Indexed Fields by Object**:
+
 - Account: AccountNumber, Site
 - Contact: Email
 - Lead: Email
@@ -360,6 +364,7 @@ tooling_api_query(
 ```
 
 **Plan Output Interpretation**:
+
 - `Cardinality`: Estimated rows returned
 - `ExecutionTime`: Query execution time in milliseconds
 - `Fields`: Index fields used
@@ -403,12 +408,12 @@ List<Account> safeAccounts = decision.getRecords();
 
 ## Governor Limits
 
-| Limit | Synchronous | Asynchronous |
-|-------|-------------|--------------|
-| Total SOQL Queries | 100 | 200 |
-| Records Retrieved | 50,000 | 50,000 |
-| Query Rows (queryMore) | 2,000 | 2,000 |
-| Query Locator Rows | 10 million | 10 million |
+| Limit                  | Synchronous | Asynchronous |
+| ---------------------- | ----------- | ------------ |
+| Total SOQL Queries     | 100         | 200          |
+| Records Retrieved      | 50,000      | 50,000       |
+| Query Rows (queryMore) | 2,000       | 2,000        |
+| Query Locator Rows     | 10 million  | 10 million   |
 
 ### Efficient Patterns
 
@@ -573,11 +578,13 @@ sobjects_list(
 ## Migration from SF CLI to Cirra AI
 
 ### Old: SF CLI Command
+
 ```bash
 sf data query --query "SELECT Id, Name FROM Account WHERE IsActive__c = true" --target-org my-org
 ```
 
 ### New: Cirra AI MCP Server
+
 ```python
 # Step 1: Initialize (only once per session)
 cirra_ai_init(sf_user="username")
@@ -604,11 +611,13 @@ soql_query(
 ## Best Practices for Cirra AI Integration
 
 ### 1. Always Initialize First
+
 ```python
 cirra_ai_init(sf_user="your-username")
 ```
 
 ### 2. Use Structured Queries
+
 ```python
 # Good: Structured parameters
 soql_query(
@@ -623,6 +632,7 @@ soql_query(
 ```
 
 ### 3. Query Performance
+
 ```python
 # Optimize selectivity - use indexed fields
 soql_query(
@@ -635,6 +645,7 @@ soql_query(
 ```
 
 ### 4. Complex Queries
+
 For queries with subqueries or complex relationships, build the SOQL string logically, then use the tool with the key components:
 
 ```python
@@ -652,39 +663,41 @@ soql_query(
 
 ## Cross-Skill Integration
 
-| Skill | When to Use | Example |
-|-------|-------------|---------|
-| sf-apex | Embed queries in Apex | `Skill(skill="sf-apex", args="Create service with SOQL query for accounts")` |
-| sf-data | Execute queries against org | `Skill(skill="sf-data", args="Query active accounts from production")` |
-| sf-debug | Analyze query performance | `Skill(skill="sf-debug", args="Analyze slow query in debug logs")` |
-| sf-lwc | Generate wire queries | `Skill(skill="sf-lwc", args="Create component with wired account query")` |
+| Skill    | When to Use                 | Example                                                                      |
+| -------- | --------------------------- | ---------------------------------------------------------------------------- |
+| sf-apex  | Embed queries in Apex       | `Skill(skill="sf-apex", args="Create service with SOQL query for accounts")` |
+| sf-data  | Execute queries against org | `Skill(skill="sf-data", args="Query active accounts from production")`       |
+| sf-debug | Analyze query performance   | `Skill(skill="sf-debug", args="Analyze slow query in debug logs")`           |
+| sf-lwc   | Generate wire queries       | `Skill(skill="sf-lwc", args="Create component with wired account query")`    |
 
 ---
 
 ## Natural Language Examples
 
-| Request | Cirra AI Execution |
-|---------|-------------------|
-| "Get me all accounts" | `soql_query(sObject="Account", fields=["Id", "Name"], limit=1000)` |
-| "Find contacts without email" | `soql_query(sObject="Contact", fields=["Id", "Name"], whereClause="Email = null")` |
-| "Accounts created by John Smith" | `soql_query(sObject="Account", fields=["Id", "Name"], whereClause="CreatedBy.Name = 'John Smith'")` |
-| "Top 10 opportunities by amount" | `soql_query(sObject="Opportunity", fields=["Id", "Name", "Amount"], orderBy="Amount DESC", limit=10)` |
-| "Accounts in California" | `soql_query(sObject="Account", fields=["Id", "Name"], whereClause="BillingState = 'CA'")` |
-| "Contacts with @gmail emails" | `soql_query(sObject="Contact", fields=["Id", "Name", "Email"], whereClause="Email LIKE '%@gmail.com'")` |
+| Request                              | Cirra AI Execution                                                                                              |
+| ------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| "Get me all accounts"                | `soql_query(sObject="Account", fields=["Id", "Name"], limit=1000)`                                              |
+| "Find contacts without email"        | `soql_query(sObject="Contact", fields=["Id", "Name"], whereClause="Email = null")`                              |
+| "Accounts created by John Smith"     | `soql_query(sObject="Account", fields=["Id", "Name"], whereClause="CreatedBy.Name = 'John Smith'")`             |
+| "Top 10 opportunities by amount"     | `soql_query(sObject="Opportunity", fields=["Id", "Name", "Amount"], orderBy="Amount DESC", limit=10)`           |
+| "Accounts in California"             | `soql_query(sObject="Account", fields=["Id", "Name"], whereClause="BillingState = 'CA'")`                       |
+| "Contacts with @gmail emails"        | `soql_query(sObject="Contact", fields=["Id", "Name", "Email"], whereClause="Email LIKE '%@gmail.com'")`         |
 | "Opportunities closing this quarter" | `soql_query(sObject="Opportunity", fields=["Id", "Name", "CloseDate"], whereClause="CloseDate = THIS_QUARTER")` |
-| "Cases opened in last 7 days" | `soql_query(sObject="Case", fields=["Id", "Subject"], whereClause="CreatedDate = LAST_N_DAYS:7")` |
-| "Total revenue by industry" | `soql_query(sObject="Account", fields=["Industry", "SUM(AnnualRevenue)"], groupBy="Industry")` |
-| "Count accounts by status" | `soql_query(sObject="Account", fields=["Status__c", "COUNT(Id)"], groupBy="Status__c")` |
+| "Cases opened in last 7 days"        | `soql_query(sObject="Case", fields=["Id", "Subject"], whereClause="CreatedDate = LAST_N_DAYS:7")`               |
+| "Total revenue by industry"          | `soql_query(sObject="Account", fields=["Industry", "SUM(AnnualRevenue)"], groupBy="Industry")`                  |
+| "Count accounts by status"           | `soql_query(sObject="Account", fields=["Status__c", "COUNT(Id)"], groupBy="Status__c")`                         |
 
 ---
 
 ## Dependencies
 
 **Required**:
+
 - Cirra AI MCP Server connection configured
 - Salesforce org authenticated with Cirra AI
 
 **Recommended**:
+
 - sf-debug (for query performance analysis)
 - sf-apex (for embedding in Apex code)
 
@@ -692,24 +705,24 @@ soql_query(
 
 ## Documentation
 
-| Document | Description |
-|----------|-------------|
-| [soql-reference.md](docs/soql-reference.md) | Complete SOQL syntax reference |
-| [cirra-ai-migration.md](docs/cirra-ai-migration.md) | Detailed migration guide from SF CLI |
-| [anti-patterns.md](docs/anti-patterns.md) | Common mistakes and how to avoid them |
-| [selector-patterns.md](docs/selector-patterns.md) | Query abstraction patterns (vanilla Apex) |
+| Document                                                | Description                                                         |
+| ------------------------------------------------------- | ------------------------------------------------------------------- |
+| [soql-reference.md](docs/soql-reference.md)             | Complete SOQL syntax reference                                      |
+| [cirra-ai-migration.md](docs/cirra-ai-migration.md)     | Detailed migration guide from SF CLI                                |
+| [anti-patterns.md](docs/anti-patterns.md)               | Common mistakes and how to avoid them                               |
+| [selector-patterns.md](docs/selector-patterns.md)       | Query abstraction patterns (vanilla Apex)                           |
 | [field-coverage-rules.md](docs/field-coverage-rules.md) | Ensure queries include all accessed fields (LLM mistake prevention) |
 
 ## Templates
 
-| Template | Description |
-|----------|-------------|
-| [basic-queries.soql](templates/basic-queries.soql) | Basic SOQL syntax examples |
-| [aggregate-queries.soql](templates/aggregate-queries.soql) | COUNT, SUM, GROUP BY patterns |
-| [relationship-queries.soql](templates/relationship-queries.soql) | Parent-child traversals |
-| [optimization-patterns.soql](templates/optimization-patterns.soql) | Selectivity and indexing |
-| [selector-class.cls](templates/selector-class.cls) | Selector class template |
-| [bulkified-query-pattern.cls](templates/bulkified-query-pattern.cls) | Map-based bulk lookups |
+| Template                                                             | Description                   |
+| -------------------------------------------------------------------- | ----------------------------- |
+| [basic-queries.soql](templates/basic-queries.soql)                   | Basic SOQL syntax examples    |
+| [aggregate-queries.soql](templates/aggregate-queries.soql)           | COUNT, SUM, GROUP BY patterns |
+| [relationship-queries.soql](templates/relationship-queries.soql)     | Parent-child traversals       |
+| [optimization-patterns.soql](templates/optimization-patterns.soql)   | Selectivity and indexing      |
+| [selector-class.cls](templates/selector-class.cls)                   | Selector class template       |
+| [bulkified-query-pattern.cls](templates/bulkified-query-pattern.cls) | Map-based bulk lookups        |
 
 ---
 

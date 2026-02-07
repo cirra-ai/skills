@@ -6,12 +6,12 @@
 
 ## Design Principles
 
-| Principle | Description |
-|-----------|-------------|
-| **Declarative Over Imperative** | Describe WHAT the agent should do, not HOW step-by-step |
-| **Human-Readable by Design** | Syntax resembles structured English - non-engineers can read it |
-| **Single File Portability** | Entire agent definition in one `.agent` file - copy/paste ready |
-| **Version Control Friendly** | Plain text works with Git - diff, review, rollback |
+| Principle                       | Description                                                     |
+| ------------------------------- | --------------------------------------------------------------- |
+| **Declarative Over Imperative** | Describe WHAT the agent should do, not HOW step-by-step         |
+| **Human-Readable by Design**    | Syntax resembles structured English - non-engineers can read it |
+| **Single File Portability**     | Entire agent definition in one `.agent` file - copy/paste ready |
+| **Version Control Friendly**    | Plain text works with Git - diff, review, rollback              |
 
 ---
 
@@ -23,15 +23,15 @@
 system → config → variables → language → connections → topic → start_agent
 ```
 
-| Block | Required | Purpose |
-|-------|----------|---------|
-| `system:` | ✅ Yes | Global messages and instructions |
-| `config:` | ✅ Yes | Agent metadata and identification |
-| `variables:` | Optional | State management (mutable/linked) |
-| `language:` | Optional | Supported languages |
-| `connections:` | Optional | External system integrations |
-| `topic:` | ✅ Yes | Conversation topics (one or more) |
-| `start_agent:` | ✅ Yes | Entry point (exactly one) |
+| Block          | Required | Purpose                           |
+| -------------- | -------- | --------------------------------- |
+| `system:`      | ✅ Yes   | Global messages and instructions  |
+| `config:`      | ✅ Yes   | Agent metadata and identification |
+| `variables:`   | Optional | State management (mutable/linked) |
+| `language:`    | Optional | Supported languages               |
+| `connections:` | Optional | External system integrations      |
+| `topic:`       | ✅ Yes   | Conversation topics (one or more) |
+| `start_agent:` | ✅ Yes   | Entry point (exactly one)         |
 
 > ✅ **Validated Finding**: Documentation implies strict ordering, but both config-first and system-first orderings compile. Pick one convention and be consistent.
 
@@ -44,16 +44,16 @@ system → config → variables → language → connections → topic → start
 ```yaml
 system:
   messages:
-    welcome: "Hello! How can I help?"
-    error: "Sorry, something went wrong."
-  instructions: "You are a helpful assistant."
+    welcome: 'Hello! How can I help?'
+    error: 'Sorry, something went wrong.'
+  instructions: 'You are a helpful assistant.'
 ```
 
-| Field | Purpose |
-|-------|---------|
-| `messages.welcome` | Initial greeting message |
-| `messages.error` | Fallback error message |
-| `instructions` | Global system prompt for the agent |
+| Field              | Purpose                            |
+| ------------------ | ---------------------------------- |
+| `messages.welcome` | Initial greeting message           |
+| `messages.error`   | Fallback error message             |
+| `instructions`     | Global system prompt for the agent |
 
 ---
 
@@ -61,18 +61,18 @@ system:
 
 ```yaml
 config:
-  agent_name: "RefundAgent"
-  agent_label: "Refund Agent"
-  description: "Handles refund requests"
-  default_agent_user: "admin@yourorg.com"
+  agent_name: 'RefundAgent'
+  agent_label: 'Refund Agent'
+  description: 'Handles refund requests'
+  default_agent_user: 'admin@yourorg.com'
 ```
 
-| Field | Required | Purpose |
-|-------|----------|---------|
-| `agent_name` | ✅ Yes | Internal identifier (snake_case, no spaces) |
-| `agent_label` | ✅ Yes | Display name in UI |
-| `description` | ✅ Yes | Agent description |
-| `default_agent_user` | ⚠️ **REQUIRED** | Must be valid Einstein Agent User |
+| Field                | Required        | Purpose                                     |
+| -------------------- | --------------- | ------------------------------------------- |
+| `agent_name`         | ✅ Yes          | Internal identifier (snake_case, no spaces) |
+| `agent_label`        | ✅ Yes          | Display name in UI                          |
+| `description`        | ✅ Yes          | Agent description                           |
+| `default_agent_user` | ⚠️ **REQUIRED** | Must be valid Einstein Agent User           |
 
 > ⚠️ **Critical**: `default_agent_user` must exist in the org with the "Einstein Agent User" profile. Query: `SELECT Username FROM User WHERE Profile.Name = 'Einstein Agent User' AND IsActive = true`
 
@@ -98,24 +98,24 @@ variables:
 
 #### Variable Types
 
-| Type | Description | Example |
-|------|-------------|---------|
-| `string` | Text values | `name: mutable string = ""` |
-| `number` | Numeric values | `count: mutable number = 0` |
-| `boolean` | True/false flags | `verified: mutable boolean = False` |
-| `object` | Structured data | `data: mutable object = {}` |
-| `date` | Calendar dates | `created: mutable date` |
-| `timestamp` | Date and time | `updated: mutable timestamp` |
-| `currency` | Money values | `amount: mutable currency` |
-| `id` | Unique identifiers | `record_id: mutable id` |
-| `list[T]` | Arrays of type T | `items: mutable list[string] = []` |
+| Type        | Description        | Example                             |
+| ----------- | ------------------ | ----------------------------------- |
+| `string`    | Text values        | `name: mutable string = ""`         |
+| `number`    | Numeric values     | `count: mutable number = 0`         |
+| `boolean`   | True/false flags   | `verified: mutable boolean = False` |
+| `object`    | Structured data    | `data: mutable object = {}`         |
+| `date`      | Calendar dates     | `created: mutable date`             |
+| `timestamp` | Date and time      | `updated: mutable timestamp`        |
+| `currency`  | Money values       | `amount: mutable currency`          |
+| `id`        | Unique identifiers | `record_id: mutable id`             |
+| `list[T]`   | Arrays of type T   | `items: mutable list[string] = []`  |
 
 #### Variable Modifiers
 
-| Modifier | Behavior | Use Case |
-|----------|----------|----------|
-| `mutable` | Read/write - can be changed during conversation | Counters, flags, accumulated state |
-| `linked` | Read-only - populated from external source | Session IDs, user profiles, context data |
+| Modifier  | Behavior                                        | Use Case                                 |
+| --------- | ----------------------------------------------- | ---------------------------------------- |
+| `mutable` | Read/write - can be changed during conversation | Counters, flags, accumulated state       |
+| `linked`  | Read-only - populated from external source      | Session IDs, user profiles, context data |
 
 > ⚠️ **Booleans are capitalized**: Use `True`/`False`, not `true`/`false`
 
@@ -125,8 +125,8 @@ variables:
 
 ```yaml
 language:
-  default: "en_US"
-  supported: ["en_US", "es_ES", "fr_FR"]
+  default: 'en_US'
+  supported: ['en_US', 'es_ES', 'fr_FR']
 ```
 
 ---
@@ -136,19 +136,19 @@ language:
 ```yaml
 connections:
   crm_system:
-    type: "http"
-    credential: "CRM_Named_Credential"
-    base_url: "https://api.example.com/v1"
+    type: 'http'
+    credential: 'CRM_Named_Credential'
+    base_url: 'https://api.example.com/v1'
 ```
 
 #### Connection Types
 
-| Type | Label | Purpose |
-|------|-------|---------|
-| `http` | API | External REST/SOAP services via Named Credentials |
-| `dataCloud` | DATACLOUD | Customer 360 data for personalization |
-| `mulesoft` | MULESOFT | Enterprise integrations and API orchestration |
-| `flow` | FLOW | Salesforce automation and internal data |
+| Type        | Label     | Purpose                                           |
+| ----------- | --------- | ------------------------------------------------- |
+| `http`      | API       | External REST/SOAP services via Named Credentials |
+| `dataCloud` | DATACLOUD | Customer 360 data for personalization             |
+| `mulesoft`  | MULESOFT  | Enterprise integrations and API orchestration     |
+| `flow`      | FLOW      | Salesforce automation and internal data           |
 
 ---
 
@@ -165,11 +165,11 @@ topic main:
         description: "Action description"
 ```
 
-| Field | Purpose |
-|-------|---------|
-| `description` | Helps LLM understand topic purpose |
-| `reasoning.instructions` | Instructions for this topic |
-| `reasoning.actions` | Available actions in this topic |
+| Field                    | Purpose                            |
+| ------------------------ | ---------------------------------- |
+| `description`            | Helps LLM understand topic purpose |
+| `reasoning.instructions` | Instructions for this topic        |
+| `reasoning.actions`      | Available actions in this topic    |
 
 ---
 
@@ -194,9 +194,9 @@ start_agent entry:
 
 ### Pipe vs Arrow Syntax
 
-| Syntax | Use When | Example |
-|--------|----------|---------|
-| `instructions: \|` | Simple multi-line text (no expressions) | `instructions: \| Help the user.` |
+| Syntax             | Use When                                | Example                             |
+| ------------------ | --------------------------------------- | ----------------------------------- |
+| `instructions: \|` | Simple multi-line text (no expressions) | `instructions: \| Help the user.`   |
 | `instructions: ->` | Complex logic with conditionals/actions | `instructions: -> if @variables.x:` |
 
 ### Arrow Syntax (`->`) Patterns
@@ -225,15 +225,15 @@ reasoning:
 
 ### Instruction Syntax Elements
 
-| Element | Syntax | Purpose |
-|---------|--------|---------|
-| Literal text | `\| text` | Text that becomes part of LLM prompt |
-| Conditional | `if @variables.x:` | Resolves before LLM sees instructions |
-| Else clause | `else:` | Alternative path |
-| Inline action | `run @actions.x` | Execute action during resolution |
-| Set variable | `set @var = @outputs.y` | Capture action output |
-| Template injection | Curly-bang syntax: {!@variables.x} | Insert variable value into text |
-| Deterministic transition | `transition to @topic.x` | Change topic without LLM |
+| Element                  | Syntax                             | Purpose                               |
+| ------------------------ | ---------------------------------- | ------------------------------------- |
+| Literal text             | `\| text`                          | Text that becomes part of LLM prompt  |
+| Conditional              | `if @variables.x:`                 | Resolves before LLM sees instructions |
+| Else clause              | `else:`                            | Alternative path                      |
+| Inline action            | `run @actions.x`                   | Execute action during resolution      |
+| Set variable             | `set @var = @outputs.y`            | Capture action output                 |
+| Template injection       | Curly-bang syntax: {!@variables.x} | Insert variable value into text       |
+| Deterministic transition | `transition to @topic.x`           | Change topic without LLM              |
 
 ---
 
@@ -254,52 +254,52 @@ actions:
 
 **Core Targets (Validated)**
 
-| Protocol | Use When | Status |
-|----------|----------|--------|
-| `flow://` | Data operations, business logic | ✅ Validated |
-| `apex://` | Custom calculations, validation | ✅ Validated |
-| `generatePromptResponse://` | Grounded LLM responses | ✅ Validated |
-| `api://` | REST API callouts | ✅ Validated |
-| `retriever://` | RAG knowledge search | ✅ Validated |
-| `externalService://` | Third-party APIs via Named Credential | ✅ Validated |
-| `standardInvocableAction://` | Built-in SF actions | ✅ Validated |
+| Protocol                     | Use When                              | Status       |
+| ---------------------------- | ------------------------------------- | ------------ |
+| `flow://`                    | Data operations, business logic       | ✅ Validated |
+| `apex://`                    | Custom calculations, validation       | ✅ Validated |
+| `generatePromptResponse://`  | Grounded LLM responses                | ✅ Validated |
+| `api://`                     | REST API callouts                     | ✅ Validated |
+| `retriever://`               | RAG knowledge search                  | ✅ Validated |
+| `externalService://`         | Third-party APIs via Named Credential | ✅ Validated |
+| `standardInvocableAction://` | Built-in SF actions                   | ✅ Validated |
 
 **Additional Targets (From agent-script-recipes)**
 
-| Protocol | Use When | Status |
-|----------|----------|--------|
-| `datacloudDataGraphAction://` | Data Cloud graph queries | ⚠️ Untested |
-| `datacloudSegmentAction://` | Data Cloud segment operations | ⚠️ Untested |
-| `triggerByKnowledgeSource://` | Knowledge-triggered actions | ⚠️ Untested |
-| `contextGrounding://` | Context grounding operations | ⚠️ Untested |
-| `predictiveAI://` | Einstein predictions | ⚠️ Untested |
-| `runAction://` | Sub-action execution | ⚠️ Untested |
-| `external://` | External services | ⚠️ Untested |
-| `copilotAction://` | Copilot actions | ⚠️ Untested |
-| `@topic.X` | Topic delegation (supervision) | ✅ Validated |
+| Protocol                      | Use When                       | Status       |
+| ----------------------------- | ------------------------------ | ------------ |
+| `datacloudDataGraphAction://` | Data Cloud graph queries       | ⚠️ Untested  |
+| `datacloudSegmentAction://`   | Data Cloud segment operations  | ⚠️ Untested  |
+| `triggerByKnowledgeSource://` | Knowledge-triggered actions    | ⚠️ Untested  |
+| `contextGrounding://`         | Context grounding operations   | ⚠️ Untested  |
+| `predictiveAI://`             | Einstein predictions           | ⚠️ Untested  |
+| `runAction://`                | Sub-action execution           | ⚠️ Untested  |
+| `external://`                 | External services              | ⚠️ Untested  |
+| `copilotAction://`            | Copilot actions                | ⚠️ Untested  |
+| `@topic.X`                    | Topic delegation (supervision) | ✅ Validated |
 
 > **Note**: Untested targets are documented in the official AGENT_SCRIPT.md rules. They may require specific licenses, org configurations, or future API versions.
 
 ### Utility Actions
 
-| Action | Purpose | Example |
-|--------|---------|---------|
+| Action                          | Purpose                     | Example                                     |
+| ------------------------------- | --------------------------- | ------------------------------------------- |
 | `@utils.transition to @topic.x` | LLM-chosen topic navigation | `go_main: @utils.transition to @topic.main` |
-| `@utils.escalate` | Hand off to human agent | `escalate: @utils.escalate` |
-| `@utils.setVariables` | Set multiple variables | `set_vars: @utils.setVariables` |
+| `@utils.escalate`               | Hand off to human agent     | `escalate: @utils.escalate`                 |
+| `@utils.setVariables`           | Set multiple variables      | `set_vars: @utils.setVariables`             |
 
 ---
 
 ## Resource References
 
-| Syntax | Purpose | Example |
-|--------|---------|---------|
-| `@variables.x` | Reference a variable | `@variables.customer_id` |
-| `@actions.x` | Reference an action | `@actions.process_refund` |
-| `@topic.x` | Reference a topic | `@topic.escalation` |
-| `@outputs.x` | Reference action output | `@outputs.status` |
-| `@session.x` | Reference session data | `@session.sessionID` |
-| `@context.x` | Reference context data | `@context.userProfile` |
+| Syntax         | Purpose                 | Example                   |
+| -------------- | ----------------------- | ------------------------- |
+| `@variables.x` | Reference a variable    | `@variables.customer_id`  |
+| `@actions.x`   | Reference an action     | `@actions.process_refund` |
+| `@topic.x`     | Reference a topic       | `@topic.escalation`       |
+| `@outputs.x`   | Reference action output | `@outputs.status`         |
+| `@session.x`   | Reference session data  | `@session.sessionID`      |
+| `@context.x`   | Reference context data  | `@context.userProfile`    |
 
 ---
 
@@ -307,20 +307,20 @@ actions:
 
 ### Indentation
 
-| ✅ CORRECT | ❌ INCORRECT |
-|------------|-------------|
-| 2-space consistent | Mixed tabs and spaces |
-| 3-space consistent | Inconsistent spacing |
-| Tabs consistent | Tab in one block, spaces in another |
+| ✅ CORRECT         | ❌ INCORRECT                        |
+| ------------------ | ----------------------------------- |
+| 2-space consistent | Mixed tabs and spaces               |
+| 3-space consistent | Inconsistent spacing                |
+| Tabs consistent    | Tab in one block, spaces in another |
 
 > **CRITICAL**: Never mix tabs and spaces in the same file. This causes compilation errors.
 
 ### Boolean Values
 
 | ✅ CORRECT | ❌ INCORRECT |
-|------------|-------------|
-| `True` | `true` |
-| `False` | `false` |
+| ---------- | ------------ |
+| `True`     | `true`       |
+| `False`    | `false`      |
 
 ---
 
@@ -426,11 +426,11 @@ start_agent topic_selector:
 
 ## Common Pitfalls
 
-| Pitfall | Symptom | Fix |
-|---------|---------|-----|
-| Mixed tabs/spaces | `SyntaxError: cannot mix` | Use consistent indentation |
-| Invalid boolean | Type mismatch | Use `True`/`False` (capitalized) |
-| Spaces in variable names | Parse error | Use `snake_case` |
-| Mutable + linked | Conflicting modifiers | Choose one modifier |
-| Missing `source:` for linked | Variable empty | Add `source: @session.X` |
-| Missing `default_agent_user` | Internal error on deploy | Add valid Einstein Agent User |
+| Pitfall                      | Symptom                   | Fix                              |
+| ---------------------------- | ------------------------- | -------------------------------- |
+| Mixed tabs/spaces            | `SyntaxError: cannot mix` | Use consistent indentation       |
+| Invalid boolean              | Type mismatch             | Use `True`/`False` (capitalized) |
+| Spaces in variable names     | Parse error               | Use `snake_case`                 |
+| Mutable + linked             | Conflicting modifiers     | Choose one modifier              |
+| Missing `source:` for linked | Variable empty            | Add `source: @session.X`         |
+| Missing `default_agent_user` | Internal error on deploy  | Add valid Einstein Agent User    |

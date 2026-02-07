@@ -24,6 +24,7 @@ List<Account> accounts = [SELECT Id, Name, Industry FROM Account WHERE Id IN :ac
 ```
 
 **Problems**:
+
 1. **Duplication**: Same query logic repeated
 2. **Inconsistency**: Different fields queried in different places
 3. **Fragility**: Field deletion breaks multiple classes
@@ -128,6 +129,7 @@ public inherited sharing class AccountSelector {
 ```
 
 **Usage**:
+
 ```apex
 // Clean, readable, testable
 List<Account> accounts = AccountSelector.byIds(accountIdSet);
@@ -227,6 +229,7 @@ public inherited sharing class OpportunitySelector {
 ```
 
 **Test Usage**:
+
 ```apex
 @IsTest
 private class OpportunitySelectorTest {
@@ -374,6 +377,7 @@ public inherited sharing class QueryBuilder {
 ```
 
 **Usage**:
+
 ```apex
 // Fluent API for dynamic queries
 List<SObject> results = new QueryBuilder('Account')
@@ -437,6 +441,7 @@ public inherited sharing class BulkQueryHelper {
 ```
 
 **Usage in Trigger**:
+
 ```apex
 // ❌ WRONG: Query per record
 for (Opportunity opp : Trigger.new) {
@@ -463,24 +468,24 @@ for (Opportunity opp : Trigger.new) {
 
 ## Best Practices Summary
 
-| Practice | Benefit |
-|----------|---------|
-| Centralize in Selector classes | One place to update field lists |
-| Use `WITH SECURITY_ENFORCED` | Automatic FLS enforcement |
-| Return empty List, not null | Prevents NullPointerException |
-| Use `inherited sharing` | Respects caller's sharing context |
-| Make fields list a constant | Easy to update across queries |
-| Add null/empty checks | Prevent unnecessary queries |
-| Support mocking in tests | Faster tests, no database dependencies |
+| Practice                       | Benefit                                |
+| ------------------------------ | -------------------------------------- |
+| Centralize in Selector classes | One place to update field lists        |
+| Use `WITH SECURITY_ENFORCED`   | Automatic FLS enforcement              |
+| Return empty List, not null    | Prevents NullPointerException          |
+| Use `inherited sharing`        | Respects caller's sharing context      |
+| Make fields list a constant    | Easy to update across queries          |
+| Add null/empty checks          | Prevent unnecessary queries            |
+| Support mocking in tests       | Faster tests, no database dependencies |
 
 ---
 
 ## When to Use Each Pattern
 
-| Scenario | Pattern |
-|----------|---------|
-| Simple, static queries | Pattern 1: Basic Selector |
-| Need sharing mode control | Pattern 2: Sharing Modes |
-| Heavy unit testing | Pattern 3: Mockable Selector |
-| Dynamic filters at runtime | Pattern 4: Query Builder |
-| Trigger/batch bulk operations | Pattern 5: Bulkified Query |
+| Scenario                      | Pattern                      |
+| ----------------------------- | ---------------------------- |
+| Simple, static queries        | Pattern 1: Basic Selector    |
+| Need sharing mode control     | Pattern 2: Sharing Modes     |
+| Heavy unit testing            | Pattern 3: Mockable Selector |
+| Dynamic filters at runtime    | Pattern 4: Query Builder     |
+| Trigger/batch bulk operations | Pattern 5: Bulkified Query   |

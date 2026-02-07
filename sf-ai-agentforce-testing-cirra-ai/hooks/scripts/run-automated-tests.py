@@ -22,33 +22,31 @@ Prerequisites:
 
 import argparse
 import json
-import os
 import subprocess
 import sys
 import tempfile
 from pathlib import Path
 from datetime import datetime
-from typing import Optional, Tuple
 
 # Import the test spec generator
 SCRIPT_DIR = Path(__file__).parent
 sys.path.insert(0, str(SCRIPT_DIR))
 
 try:
-    from generate_test_spec import parse_agent_file, generate_test_spec, generate_test_cases
+    from generate_test_spec import parse_agent_file, generate_test_spec
 except ImportError:
     # Fallback if module import fails
     generate_test_spec = None
 
 
-def run_command(cmd: list, capture_output: bool = True) -> Tuple[int, str, str]:
+def run_command(cmd: list, capture_output: bool = True) -> tuple[int, str, str]:
     """Run a command and return (exit_code, stdout, stderr)."""
     try:
         result = subprocess.run(
             cmd,
             capture_output=capture_output,
             text=True,
-            timeout=300  # 5 minute timeout
+            timeout=300,  # 5 minute timeout
         )
         return result.returncode, result.stdout, result.stderr
     except subprocess.TimeoutExpired:
@@ -63,7 +61,7 @@ def check_agent_testing_center(target_org: str) -> bool:
     print("STEP 1: Checking Agent Testing Center Availability")
     print("=" * 65)
 
-    cmd = ['sf', 'agent', 'test', 'list', '--target-org', target_org, '--json']
+    cmd = ["sf", "agent", "test", "list", "--target-org", target_org, "--json"]
     exit_code, stdout, stderr = run_command(cmd)
 
     if exit_code == 0:
@@ -72,7 +70,7 @@ def check_agent_testing_center(target_org: str) -> bool:
 
     # Check for specific error messages
     combined_output = stdout + stderr
-    if 'INVALID_TYPE' in combined_output or 'Not available' in combined_output:
+    if "INVALID_TYPE" in combined_output or "Not available" in combined_output:
         print("   Agent Testing Center is NOT ENABLED")
         print("")
         print("   To enable Agent Testing Center:")
@@ -86,7 +84,7 @@ def check_agent_testing_center(target_org: str) -> bool:
     return False
 
 
-def find_agent_file(agent_name: str, agent_dir: Optional[str], agent_file: Optional[str]) -> Optional[Path]:
+def find_agent_file(agent_name: str, agent_dir: str | None, agent_file: str | None) -> Path | None:
     """Find the .agent file to test."""
     if agent_file:
         path = Path(agent_file)
@@ -97,14 +95,14 @@ def find_agent_file(agent_name: str, agent_dir: Optional[str], agent_file: Optio
 
     if agent_dir:
         dir_path = Path(agent_dir)
-        agent_files = list(dir_path.glob('*.agent'))
+        agent_files = list(dir_path.glob("*.agent"))
         if agent_files:
             return agent_files[0]
 
         # Try looking in standard DX structure
-        bundle_path = dir_path / 'force-app/main/default/aiAuthoringBundles' / agent_name
+        bundle_path = dir_path / "force-app/main/default/aiAuthoringBundles" / agent_name
         if bundle_path.exists():
-            agent_files = list(bundle_path.glob('*.agent'))
+            agent_files = list(bundle_path.glob("*.agent"))
             if agent_files:
                 return agent_files[0]
 
@@ -113,9 +111,9 @@ def find_agent_file(agent_name: str, agent_dir: Optional[str], agent_file: Optio
 
     # Try current directory DX structure
     cwd = Path.cwd()
-    bundle_path = cwd / 'force-app/main/default/aiAuthoringBundles' / agent_name
+    bundle_path = cwd / "force-app/main/default/aiAuthoringBundles" / agent_name
     if bundle_path.exists():
-        agent_files = list(bundle_path.glob('*.agent'))
+        agent_files = list(bundle_path.glob("*.agent"))
         if agent_files:
             return agent_files[0]
 
@@ -123,7 +121,7 @@ def find_agent_file(agent_name: str, agent_dir: Optional[str], agent_file: Optio
     return None
 
 
-def generate_test_spec_file(agent_file: Path, output_dir: Path, agent_name: str) -> Optional[Path]:
+def generate_test_spec_file(agent_file: Path, output_dir: Path, agent_name: str) -> Path | None:
     """Generate test spec YAML file from agent definition."""
     print("")
     print("=" * 65)
@@ -134,13 +132,16 @@ def generate_test_spec_file(agent_file: Path, output_dir: Path, agent_name: str)
     output_path = output_dir / f"{agent_name}-testSpec.yaml"
 
     # Try using generate-test-spec.py
-    spec_script = SCRIPT_DIR / 'generate-test-spec.py'
+    spec_script = SCRIPT_DIR / "generate-test-spec.py"
     if spec_script.exists():
         cmd = [
-            sys.executable, str(spec_script),
-            '--agent-file', str(agent_file),
-            '--output', str(output_path),
-            '--verbose'
+            sys.executable,
+            str(spec_script),
+            "--agent-file",
+            str(agent_file),
+            "--output",
+            str(output_path),
+            "--verbose",
         ]
         exit_code, stdout, stderr = run_command(cmd, capture_output=False)
 
@@ -175,11 +176,17 @@ def create_test_in_org(spec_file: Path, test_name: str, target_org: str) -> bool
     print(f"   Target org: {target_org}")
 
     cmd = [
-        'sf', 'agent', 'test', 'create',
-        '--spec', str(spec_file),
-        '--api-name', test_name,
-        '--target-org', target_org,
-        '--json'
+        "sf",
+        "agent",
+        "test",
+        "create",
+        "--spec",
+        str(spec_file),
+        "--api-name",
+        test_name,
+        "--target-org",
+        target_org,
+        "--json",
     ]
 
     exit_code, stdout, stderr = run_command(cmd)
@@ -190,12 +197,12 @@ def create_test_in_org(spec_file: Path, test_name: str, target_org: str) -> bool
 
     # Check for specific errors
     combined = stdout + stderr
-    if 'INVALID_TYPE' in combined or 'Not available' in combined:
+    if "INVALID_TYPE" in combined or "Not available" in combined:
         print("   Error: Agent Testing Center not available")
         print("   Run 'sf agent test list' to verify access")
         return False
 
-    if 'already exists' in combined.lower():
+    if "already exists" in combined.lower():
         print("   Test definition already exists - will use existing")
         return True
 
@@ -203,7 +210,7 @@ def create_test_in_org(spec_file: Path, test_name: str, target_org: str) -> bool
     return False
 
 
-def run_tests(test_name: str, target_org: str, wait_minutes: int = 10) -> Tuple[bool, str]:
+def run_tests(test_name: str, target_org: str, wait_minutes: int = 10) -> tuple[bool, str]:
     """Run agent tests and return results."""
     print("")
     print("=" * 65)
@@ -215,11 +222,18 @@ def run_tests(test_name: str, target_org: str, wait_minutes: int = 10) -> Tuple[
     print("   Running tests (this may take a few minutes)...")
 
     cmd = [
-        'sf', 'agent', 'test', 'run',
-        '--api-name', test_name,
-        '--wait', str(wait_minutes),
-        '--result-format', 'json',
-        '--target-org', target_org
+        "sf",
+        "agent",
+        "test",
+        "run",
+        "--api-name",
+        test_name,
+        "--wait",
+        str(wait_minutes),
+        "--result-format",
+        "json",
+        "--target-org",
+        target_org,
     ]
 
     exit_code, stdout, stderr = run_command(cmd)
@@ -228,7 +242,7 @@ def run_tests(test_name: str, target_org: str, wait_minutes: int = 10) -> Tuple[
         print("   Tests completed")
         return True, stdout
 
-    print(f"   Tests may have failed or timed out")
+    print("   Tests may have failed or timed out")
     print(f"   Exit code: {exit_code}")
 
     # Return whatever output we got for parsing
@@ -245,60 +259,57 @@ def parse_and_display_results(output: str, agent_name: str) -> dict:
     # Try to parse as JSON
     try:
         data = json.loads(output)
-        result = data.get('result', data)
+        result = data.get("result", data)
     except json.JSONDecodeError:
         print("   Warning: Could not parse JSON output")
         print("   Raw output:")
         print(output[:500])
-        return {'passed': 0, 'failed': 0, 'total': 0}
+        return {"passed": 0, "failed": 0, "total": 0}
 
     # Extract results
-    summary = {
-        'passed': 0,
-        'failed': 0,
-        'total': 0,
-        'failures': []
-    }
+    summary = {"passed": 0, "failed": 0, "total": 0, "failures": []}
 
-    test_cases = result.get('testCases', result.get('results', []))
+    test_cases = result.get("testCases", result.get("results", []))
 
     for test in test_cases:
-        outcome = test.get('status', test.get('outcome', '')).lower()
-        if outcome in ['pass', 'passed', 'success']:
-            summary['passed'] += 1
-        elif outcome in ['fail', 'failed', 'error']:
-            summary['failed'] += 1
-            summary['failures'].append({
-                'name': test.get('name', test.get('testCaseName', 'Unknown')),
-                'utterance': test.get('utterance', test.get('input', '')),
-                'expected_topic': test.get('expectedTopic', ''),
-                'actual_topic': test.get('actualTopic', ''),
-                'expected_actions': test.get('expectedActions', []),
-                'actual_actions': test.get('actualActions', []),
-                'error': test.get('errorMessage', test.get('message', ''))
-            })
+        outcome = test.get("status", test.get("outcome", "")).lower()
+        if outcome in ["pass", "passed", "success"]:
+            summary["passed"] += 1
+        elif outcome in ["fail", "failed", "error"]:
+            summary["failed"] += 1
+            summary["failures"].append(
+                {
+                    "name": test.get("name", test.get("testCaseName", "Unknown")),
+                    "utterance": test.get("utterance", test.get("input", "")),
+                    "expected_topic": test.get("expectedTopic", ""),
+                    "actual_topic": test.get("actualTopic", ""),
+                    "expected_actions": test.get("expectedActions", []),
+                    "actual_actions": test.get("actualActions", []),
+                    "error": test.get("errorMessage", test.get("message", "")),
+                }
+            )
 
-    summary['total'] = summary['passed'] + summary['failed']
+    summary["total"] = summary["passed"] + summary["failed"]
 
     # Display results
     print("")
-    status_icon = "PASS" if summary['failed'] == 0 else "FAIL"
+    status_icon = "PASS" if summary["failed"] == 0 else "FAIL"
     print(f"   {status_icon}: {summary['passed']}/{summary['total']} tests passed")
     print("")
 
-    if summary['failures']:
+    if summary["failures"]:
         print("   FAILURES:")
         print("   " + "-" * 60)
-        for i, f in enumerate(summary['failures'], 1):
+        for i, f in enumerate(summary["failures"], 1):
             print(f"   {i}. {f['name']}")
-            if f['utterance']:
-                utt = f['utterance'][:60] + '...' if len(f['utterance']) > 60 else f['utterance']
-                print(f"      Utterance: \"{utt}\"")
-            if f['expected_topic'] and f['actual_topic']:
+            if f["utterance"]:
+                utt = f["utterance"][:60] + "..." if len(f["utterance"]) > 60 else f["utterance"]
+                print(f'      Utterance: "{utt}"')
+            if f["expected_topic"] and f["actual_topic"]:
                 print(f"      Expected topic: {f['expected_topic']}")
                 print(f"      Actual topic: {f['actual_topic']}")
-            if f['error']:
-                err = f['error'][:80] + '...' if len(f['error']) > 80 else f['error']
+            if f["error"]:
+                err = f["error"][:80] + "..." if len(f["error"]) > 80 else f["error"]
                 print(f"      Error: {err}")
             print("")
 
@@ -307,7 +318,7 @@ def parse_and_display_results(output: str, agent_name: str) -> dict:
 
 def suggest_fixes(summary: dict, agent_name: str) -> None:
     """Suggest fixes for failing tests (enables agentic fix loop)."""
-    if summary['failed'] == 0:
+    if summary["failed"] == 0:
         print("")
         print("=" * 65)
         print("ALL TESTS PASSED!")
@@ -324,10 +335,10 @@ def suggest_fixes(summary: dict, agent_name: str) -> None:
     topic_failures = []
     action_failures = []
 
-    for f in summary['failures']:
-        if f['expected_actions'] and not f['actual_actions']:
+    for f in summary["failures"]:
+        if f["expected_actions"] and not f["actual_actions"]:
             action_failures.append(f)
-        elif f['expected_topic'] != f['actual_topic']:
+        elif f["expected_topic"] != f["actual_topic"]:
             topic_failures.append(f)
         else:
             topic_failures.append(f)  # Default
@@ -340,9 +351,11 @@ def suggest_fixes(summary: dict, agent_name: str) -> None:
         print("   Suggested fix: Improve topic descriptions and scope.")
         print("")
         print("   Claude Code command:")
-        print(f"   Skill(skill=\"sf-ai-agentforce\", args=\"Fix topic routing for {agent_name}:")
+        print(f'   Skill(skill="sf-ai-agentforce", args="Fix topic routing for {agent_name}:')
         for f in topic_failures[:3]:  # Show first 3
-            print(f"     - Utterance '{f['utterance'][:40]}...' should route to {f['expected_topic']}\")")
+            print(
+                f"     - Utterance '{f['utterance'][:40]}...' should route to {f['expected_topic']}\")"
+            )
         print("")
 
     if action_failures:
@@ -353,10 +366,10 @@ def suggest_fixes(summary: dict, agent_name: str) -> None:
         print("   Suggested fix: Check action descriptions and trigger conditions.")
         print("")
         print("   Claude Code command:")
-        print(f"   Skill(skill=\"sf-ai-agentforce\", args=\"Fix action triggers for {agent_name}:")
+        print(f'   Skill(skill="sf-ai-agentforce", args="Fix action triggers for {agent_name}:')
         for f in action_failures[:3]:
-            actions = ', '.join(f['expected_actions']) if f['expected_actions'] else 'actions'
-            print(f"     - Utterance should trigger {actions}\")")
+            actions = ", ".join(f["expected_actions"]) if f["expected_actions"] else "actions"
+            print(f'     - Utterance should trigger {actions}")')
         print("")
 
     print("NEXT STEPS:")
@@ -370,7 +383,7 @@ def suggest_fixes(summary: dict, agent_name: str) -> None:
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Automated Agentforce Agent Testing',
+        description="Automated Agentforce Agent Testing",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Prerequisites:
@@ -389,17 +402,21 @@ Examples:
   # Skip test creation (use existing test)
   python3 run-automated-tests.py --agent-name Coffee_Shop_FAQ_Agent \\
       --target-org MyOrg --skip-create
-        """
+        """,
     )
 
-    parser.add_argument('--agent-name', required=True, help='API name of the agent')
-    parser.add_argument('--agent-file', help='Path to .agent file')
-    parser.add_argument('--agent-dir', help='Path to project directory')
-    parser.add_argument('--target-org', required=True, help='Target org alias')
-    parser.add_argument('--output-dir', help='Directory for generated spec files')
-    parser.add_argument('--wait', type=int, default=10, help='Wait timeout in minutes (default: 10)')
-    parser.add_argument('--skip-create', action='store_true', help='Skip test creation, use existing')
-    parser.add_argument('--skip-check', action='store_true', help='Skip Agent Testing Center check')
+    parser.add_argument("--agent-name", required=True, help="API name of the agent")
+    parser.add_argument("--agent-file", help="Path to .agent file")
+    parser.add_argument("--agent-dir", help="Path to project directory")
+    parser.add_argument("--target-org", required=True, help="Target org alias")
+    parser.add_argument("--output-dir", help="Directory for generated spec files")
+    parser.add_argument(
+        "--wait", type=int, default=10, help="Wait timeout in minutes (default: 10)"
+    )
+    parser.add_argument(
+        "--skip-create", action="store_true", help="Skip test creation, use existing"
+    )
+    parser.add_argument("--skip-check", action="store_true", help="Skip Agent Testing Center check")
 
     args = parser.parse_args()
 
@@ -417,7 +434,9 @@ Examples:
         if not check_agent_testing_center(args.target_org):
             print("")
             print("FALLBACK: Use sf agent preview for manual testing:")
-            print(f"   sf agent preview --api-name {args.agent_name} --target-org {args.target_org}")
+            print(
+                f"   sf agent preview --api-name {args.agent_name} --target-org {args.target_org}"
+            )
             sys.exit(1)
     else:
         print("Skipping Agent Testing Center check (--skip-check)")
@@ -428,7 +447,11 @@ Examples:
         print("Error: Could not find agent file")
         sys.exit(1)
 
-    output_dir = Path(args.output_dir) if args.output_dir else Path(tempfile.gettempdir()) / 'agentforce-tests'
+    output_dir = (
+        Path(args.output_dir)
+        if args.output_dir
+        else Path(tempfile.gettempdir()) / "agentforce-tests"
+    )
     output_dir.mkdir(parents=True, exist_ok=True)
 
     spec_file = generate_test_spec_file(agent_file, output_dir, args.agent_name)
@@ -452,7 +475,7 @@ Examples:
     suggest_fixes(summary, args.agent_name)
 
     # Exit code based on test results
-    sys.exit(0 if summary['failed'] == 0 else 1)
+    sys.exit(0 if summary["failed"] == 0 else 1)
 
 
 if __name__ == "__main__":

@@ -7,7 +7,7 @@ Based on [sf-permissions in Jaganpro/sf-skills](https://github.com/Jaganpro/sf-s
 ## What's Changed
 
 - Removed Python scripts and sf CLI dependency
-- Fully refactored to use Cirra AI MCP tools (soql_query, tooling_api_query, metadata_read, permission_set_* tools)
+- Fully refactored to use Cirra AI MCP tools (soql*query, tooling_api_query, metadata_read, permission_set*\* tools)
 - Added Cirra AI parameter format guidance to avoid common validation errors
 - Streamlined workflows for org audits, access detection, and user analysis
 

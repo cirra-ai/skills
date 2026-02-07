@@ -145,11 +145,11 @@ Does the conversation return to original agent?
 
 ## Transition Type Cheat Sheet
 
-| Syntax | Type | Control |
-|--------|------|---------|
-| `@utils.transition to @topic.X` | LLM-chosen | LLM decides when to use |
-| `transition to @topic.X` | Deterministic | Always executes when reached |
-| `@utils.escalate` | Permanent handoff | Human takeover |
+| Syntax                          | Type              | Control                      |
+| ------------------------------- | ----------------- | ---------------------------- |
+| `@utils.transition to @topic.X` | LLM-chosen        | LLM decides when to use      |
+| `transition to @topic.X`        | Deterministic     | Always executes when reached |
+| `@utils.escalate`               | Permanent handoff | Human takeover               |
 
 ---
 
@@ -176,6 +176,7 @@ instructions: ->
 ```
 
 **Why this order?**
+
 1. Post-action at TOP → triggers immediately on loop
 2. Data loading next → LLM needs current data
 3. Instructions last → LLM sees resolved values
@@ -272,28 +273,28 @@ is_verified: mutable boolean = True   # CORRECT
 
 ## Syntax Quick Reference
 
-| Pattern | Purpose |
-|---------|---------|
-| `instructions: ->` | Arrow syntax, enables expressions |
-| `instructions: \|` | Pipe syntax, simple multi-line |
-| `if @variables.x:` | Conditional (pre-LLM) |
-| `run @actions.x` | Execute during resolution |
-| `set @var = @outputs.y` | Capture action output |
-| Curly-bang: {!@variables.x} | Template injection |
-| `available when` | Control action visibility |
-| `transition to @topic.x` | Deterministic topic change |
-| `@utils.transition to` | LLM-chosen topic change |
-| `@utils.escalate` | Human handoff |
+| Pattern                     | Purpose                           |
+| --------------------------- | --------------------------------- |
+| `instructions: ->`          | Arrow syntax, enables expressions |
+| `instructions: \|`          | Pipe syntax, simple multi-line    |
+| `if @variables.x:`          | Conditional (pre-LLM)             |
+| `run @actions.x`            | Execute during resolution         |
+| `set @var = @outputs.y`     | Capture action output             |
+| Curly-bang: {!@variables.x} | Template injection                |
+| `available when`            | Control action visibility         |
+| `transition to @topic.x`    | Deterministic topic change        |
+| `@utils.transition to`      | LLM-chosen topic change           |
+| `@utils.escalate`           | Human handoff                     |
 
 ---
 
 ## The 6 Deterministic Building Blocks
 
-| # | Block | Example |
-|---|-------|---------|
-| 1 | Conditionals | `if @variables.failed_attempts >= 3:` |
-| 2 | Topic Filters | `available when @variables.cart_items > 0` |
-| 3 | Variable Checks | `if @variables.churn_risk >= 80:` |
-| 4 | Inline Actions | `run @actions.load_customer` |
-| 5 | Utility Actions | `@utils.transition`, `@utils.escalate` |
-| 6 | Variable Injection | Curly-bang: {!@variables.customer_name} |
+| #   | Block              | Example                                    |
+| --- | ------------------ | ------------------------------------------ |
+| 1   | Conditionals       | `if @variables.failed_attempts >= 3:`      |
+| 2   | Topic Filters      | `available when @variables.cart_items > 0` |
+| 3   | Variable Checks    | `if @variables.churn_risk >= 80:`          |
+| 4   | Inline Actions     | `run @actions.load_customer`               |
+| 5   | Utility Actions    | `@utils.transition`, `@utils.escalate`     |
+| 6   | Variable Injection | Curly-bang: {!@variables.customer_name}    |

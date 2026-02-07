@@ -4,16 +4,17 @@ When and how to use Salesforce Bulk API operations.
 
 ## Decision Matrix
 
-| Record Count | Recommended API | Command |
-|--------------|-----------------|---------|
-| 1-10 | Single Record | `sf data create record` |
-| 11-2000 | Standard API | `sf data query` + Apex |
-| 2000-10M | Bulk API 2.0 | `sf data import bulk` |
-| 10M+ | Data Loader | External tool |
+| Record Count | Recommended API | Command                 |
+| ------------ | --------------- | ----------------------- |
+| 1-10         | Single Record   | `sf data create record` |
+| 11-2000      | Standard API    | `sf data query` + Apex  |
+| 2000-10M     | Bulk API 2.0    | `sf data import bulk`   |
+| 10M+         | Data Loader     | External tool           |
 
 ## Bulk API 2.0 Commands
 
 ### Import (Insert)
+
 ```bash
 sf data import bulk \
   --file accounts.csv \
@@ -23,6 +24,7 @@ sf data import bulk \
 ```
 
 ### Update
+
 ```bash
 sf data update bulk \
   --file updates.csv \
@@ -32,6 +34,7 @@ sf data update bulk \
 ```
 
 ### Upsert (Insert or Update)
+
 ```bash
 sf data upsert bulk \
   --file upsert.csv \
@@ -42,6 +45,7 @@ sf data upsert bulk \
 ```
 
 ### Delete
+
 ```bash
 sf data delete bulk \
   --file delete.csv \
@@ -51,6 +55,7 @@ sf data delete bulk \
 ```
 
 ### Export
+
 ```bash
 sf data export bulk \
   --query "SELECT Id, Name FROM Account" \
@@ -68,12 +73,12 @@ sf data export bulk \
 
 ## Bulk API Limits
 
-| Limit | Value |
-|-------|-------|
-| Batches per 24 hours | 10,000 |
+| Limit                | Value      |
+| -------------------- | ---------- |
+| Batches per 24 hours | 10,000     |
 | Records per 24 hours | 10,000,000 |
-| Max file size | 100 MB |
-| Max concurrent jobs | 100 |
+| Max file size        | 100 MB     |
+| Max concurrent jobs  | 100        |
 
 ## Error Handling
 

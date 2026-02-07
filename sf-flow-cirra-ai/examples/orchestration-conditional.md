@@ -7,6 +7,7 @@ The **Conditional pattern** uses a parent flow to evaluate conditions and dynami
 ## When to Use This Pattern
 
 ✅ **Use Conditional when:**
+
 - Different scenarios require completely different logic
 - You want to avoid complex branching in a single flow
 - Child flows can be developed by different teams
@@ -14,6 +15,7 @@ The **Conditional pattern** uses a parent flow to evaluate conditions and dynami
 - You need to add new scenarios without modifying existing logic
 
 ❌ **Don't use when:**
+
 - All steps must execute regardless of conditions
 - Logic is simple (use inline decisions instead)
 - Conditions are trivial (no need for separate subflows)
@@ -548,10 +550,13 @@ Parent: RTF_Case_TriageRouter (Decision Hub)
 ## Key Characteristics
 
 ### 1. **Single Decision Point**
+
 All routing logic centralized in one decision element in the parent flow
 
 ### 2. **Mutually Exclusive Paths**
+
 Only ONE child subflow executes per scenario:
+
 ```
 If Critical → Sub_EscalateCriticalCase ONLY
 If High+Tech → Sub_HandleTechnicalCase ONLY
@@ -560,10 +565,13 @@ Else → Sub_HandleStandardCase ONLY
 ```
 
 ### 3. **Specialized Children**
+
 Each child flow is optimized for its specific scenario with unique logic
 
 ### 4. **Easy to Extend**
+
 Add new scenarios by adding new rules and new child subflows:
+
 ```xml
 <!-- Adding VIP customer handling -->
 <rules>
@@ -585,27 +593,32 @@ Add new scenarios by adding new rules and new child subflows:
 ## Benefits of Conditional Pattern
 
 ### ✅ Separation of Concerns
+
 - Routing logic in parent
 - Business logic in children
 - No mixing of concerns
 
 ### ✅ Team Collaboration
+
 - Critical escalation team owns Sub_EscalateCriticalCase
 - Technical support team owns Sub_HandleTechnicalCase
 - Billing team owns Sub_HandleBillingCase
 - Teams work independently
 
 ### ✅ Simplified Testing
+
 - Test routing logic separately from business logic
 - Mock child subflows for parent testing
 - Test each child independently with representative data
 
 ### ✅ Performance Optimization
+
 - Only execute logic needed for the scenario
 - Avoid unnecessary queries and DML
 - Faster execution than "check everything" approach
 
 ### ✅ Maintainability
+
 - Add new scenarios without touching existing children
 - Modify specific scenario logic without affecting others
 - Clear separation makes debugging easier
@@ -670,11 +683,13 @@ For scenarios where routing rules are stored as metadata:
 ## Performance Considerations
 
 ### Governor Limits
+
 - **DML Statements**: Only the executed child's DML counts (not all children)
 - **SOQL Queries**: Only the executed child's queries count
 - **Execution Time**: Faster than sequential (no unnecessary steps)
 
 ### Optimization Tips
+
 1. Order decision rules by frequency (most common first)
 2. Use indexed fields in routing conditions
 3. Keep routing decision fast (<100ms)

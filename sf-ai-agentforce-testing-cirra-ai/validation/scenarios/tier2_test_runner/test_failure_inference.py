@@ -48,8 +48,7 @@ def test_all_categories_mapped():
     for check_name, expected_category in KNOWN_CHECK_TO_CATEGORY.items():
         category = _infer_failure_category(check_name, dummy_turn)
         assert category == expected_category, (
-            f"Check '{check_name}' expected category '{expected_category}', "
-            f"got '{category}'"
+            f"Check '{check_name}' expected category '{expected_category}', got '{category}'"
         )
 
 

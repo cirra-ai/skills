@@ -37,6 +37,7 @@ Comprehensive guide to advanced Apex patterns including Trigger Actions Framewor
 All triggers MUST use the Trigger Actions Framework pattern when the package is installed:
 
 **Trigger** (one per object):
+
 ```apex
 trigger AccountTrigger on Account (
     before insert, after insert,
@@ -48,6 +49,7 @@ trigger AccountTrigger on Account (
 ```
 
 **Single-Context Action Class** (one interface):
+
 ```apex
 public class TA_Account_SetDefaults implements TriggerAction.BeforeInsert {
     public void beforeInsert(List<Account> newList) {
@@ -61,6 +63,7 @@ public class TA_Account_SetDefaults implements TriggerAction.BeforeInsert {
 ```
 
 **Multi-Context Action Class** (multiple interfaces):
+
 ```apex
 public class TA_Lead_CalculateScore implements TriggerAction.BeforeInsert, TriggerAction.BeforeUpdate {
 
@@ -112,16 +115,17 @@ public class TA_Lead_CalculateScore implements TriggerAction.BeforeInsert, Trigg
 
 For each trigger action class, create a Custom Metadata record:
 
-| Field | Value | Description |
-|-------|-------|-------------|
-| Label | TA Lead Calculate Score | Human-readable name |
-| Trigger_Action_Name__c | TA_Lead_CalculateScore | Apex class name |
-| Object__c | Lead | sObject API name |
-| Context__c | Before Insert | Trigger context |
-| Order__c | 1 | Execution order (lower = first) |
-| Active__c | true | Enable/disable without deploy |
+| Field                    | Value                   | Description                     |
+| ------------------------ | ----------------------- | ------------------------------- |
+| Label                    | TA Lead Calculate Score | Human-readable name             |
+| Trigger_Action_Name\_\_c | TA_Lead_CalculateScore  | Apex class name                 |
+| Object\_\_c              | Lead                    | sObject API name                |
+| Context\_\_c             | Before Insert           | Trigger context                 |
+| Order\_\_c               | 1                       | Execution order (lower = first) |
+| Active\_\_c              | true                    | Enable/disable without deploy   |
 
 **Example Custom Metadata XML** (`Trigger_Action.TA_Lead_CalculateScore_BI.md-meta.xml`):
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata">
@@ -149,6 +153,7 @@ For each trigger action class, create a Custom Metadata record:
 **NOTE**: Create separate CMT records for each context (Before Insert, Before Update, etc.)
 
 **Deploy Custom Metadata:**
+
 ```bash
 sf project deploy start --metadata CustomMetadata:Trigger_Action.TA_Lead_CalculateScore_BI --target-org myorg
 ```
@@ -176,6 +181,7 @@ trigger LeadTrigger on Lead (before insert, before update) {
 ```
 
 **Service Class:**
+
 ```apex
 public with sharing class LeadScoringService {
 
@@ -217,15 +223,15 @@ public with sharing class LeadScoringService {
 
 ### TAF vs Standard Pattern Comparison
 
-| Feature | TAF Pattern | Standard Pattern |
-|---------|-------------|------------------|
-| **Package Required** | Yes | No |
-| **Complexity** | Lower (single-purpose classes) | Higher (monolithic trigger) |
-| **Maintainability** | High (separate files) | Medium (one trigger file) |
-| **Declarative Control** | Yes (CMT records) | No |
-| **Order Control** | Yes (Order__c field) | Manual in code |
-| **Bypass Mechanism** | Built-in (Active__c) | Manual Custom Setting |
-| **Testing** | Easy (test action classes) | Medium (test trigger + service) |
+| Feature                 | TAF Pattern                    | Standard Pattern                |
+| ----------------------- | ------------------------------ | ------------------------------- |
+| **Package Required**    | Yes                            | No                              |
+| **Complexity**          | Lower (single-purpose classes) | Higher (monolithic trigger)     |
+| **Maintainability**     | High (separate files)          | Medium (one trigger file)       |
+| **Declarative Control** | Yes (CMT records)              | No                              |
+| **Order Control**       | Yes (Order\_\_c field)         | Manual in code                  |
+| **Bypass Mechanism**    | Built-in (Active\_\_c)         | Manual Custom Setting           |
+| **Testing**             | Easy (test action classes)     | Medium (test trigger + service) |
 
 **Recommendation**: Use TAF when available, fall back to Standard Pattern when TAF is not installed.
 
@@ -237,9 +243,9 @@ Apex classes can be called from Flow using `@InvocableMethod`. This pattern enab
 
 ### Quick Reference
 
-| Annotation | Purpose |
-|------------|---------|
-| `@InvocableMethod` | Makes method callable from Flow |
+| Annotation           | Purpose                                         |
+| -------------------- | ----------------------------------------------- |
+| `@InvocableMethod`   | Makes method callable from Flow                 |
 | `@InvocableVariable` | Exposes properties in Request/Response wrappers |
 
 ### Template
@@ -372,6 +378,7 @@ public with sharing class AccountValidator {
 ### Common Patterns
 
 **Pattern 1: DML Operations**
+
 ```apex
 @InvocableMethod(label='Create Related Contacts')
 public static List<Response> createContacts(List<Request> requests) {
@@ -400,6 +407,7 @@ public static List<Response> createContacts(List<Request> requests) {
 ```
 
 **Pattern 2: External Callouts**
+
 ```apex
 @InvocableMethod(label='Send to External System')
 public static List<Response> sendData(List<Request> requests) {
@@ -426,6 +434,7 @@ public static List<Response> sendData(List<Request> requests) {
 ```
 
 **See Also**:
+
 - [docs/flow-integration.md](../docs/flow-integration.md) - Complete @InvocableMethod guide
 - [docs/triangle-pattern.md](../docs/triangle-pattern.md) - Flow-LWC-Apex triangle (Apex perspective)
 
@@ -435,13 +444,13 @@ public static List<Response> sendData(List<Request> requests) {
 
 ### Decision Matrix
 
-| Scenario | Use | Pros | Cons |
-|----------|-----|------|------|
-| Simple callout, fire-and-forget | `@future(callout=true)` | Simple, built-in | No return value, no chaining |
-| Complex logic, needs chaining | `Queueable` | Return ID, chain jobs, complex types | More code |
-| Process millions of records | `Batch Apex` | Handles huge volumes | Complex, overhead |
-| Scheduled/recurring job | `Schedulable` | Cron-like scheduling | Requires separate Queueable/Batch |
-| Post-queueable cleanup | `Queueable Finalizer` | Guaranteed execution | Only for Queueable |
+| Scenario                        | Use                     | Pros                                 | Cons                              |
+| ------------------------------- | ----------------------- | ------------------------------------ | --------------------------------- |
+| Simple callout, fire-and-forget | `@future(callout=true)` | Simple, built-in                     | No return value, no chaining      |
+| Complex logic, needs chaining   | `Queueable`             | Return ID, chain jobs, complex types | More code                         |
+| Process millions of records     | `Batch Apex`            | Handles huge volumes                 | Complex, overhead                 |
+| Scheduled/recurring job         | `Schedulable`           | Cron-like scheduling                 | Requires separate Queueable/Batch |
+| Post-queueable cleanup          | `Queueable Finalizer`   | Guaranteed execution                 | Only for Queueable                |
 
 ### @future Pattern
 
@@ -689,6 +698,7 @@ public inherited sharing class AccountSelector {
 ```
 
 **Benefits**:
+
 - Centralized SOQL queries
 - Reusable across multiple classes
 - Easier to test (mock Selector)
@@ -699,6 +709,7 @@ public inherited sharing class AccountSelector {
 ## Reference
 
 **Full Documentation**: See `docs/` folder for comprehensive guides:
+
 - `trigger-actions-framework.md` - TAF setup and advanced patterns
 - `design-patterns.md` - 12 Apex design patterns
 - `flow-integration.md` - Complete @InvocableMethod guide

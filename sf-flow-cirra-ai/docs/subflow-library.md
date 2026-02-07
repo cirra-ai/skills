@@ -5,6 +5,7 @@
 The Subflow Library provides pre-built, production-ready subflows that accelerate flow development and enforce best practices. Instead of recreating common patterns, use these standardized components to build flows faster while maintaining consistency.
 
 **Benefits:**
+
 - ⚡ **Faster Development**: Pre-built patterns save 30-50% development time
 - 🔒 **Built-in Error Handling**: Fault paths and logging included
 - ✅ **Best Practices**: Bulkified, tested, and validated
@@ -16,15 +17,18 @@ The Subflow Library provides pre-built, production-ready subflows that accelerat
 ## Available Subflows
 
 ### 1. Sub_LogError
+
 **Purpose**: Structured error logging for fault paths
 **File**: `templates/subflows/subflow-error-logger.xml`
 
 **When to Use**:
+
 - In fault paths of DML operations
 - When you need to capture and track flow failures
 - For production observability and debugging
 
 **Input Variables**:
+
 - `varFlowName` (String): Name of the calling flow
 - `varRecordId` (String): ID of the record being processed
 - `varErrorMessage` (String): Error message (typically `$Flow.FaultMessage`)
@@ -32,6 +36,7 @@ The Subflow Library provides pre-built, production-ready subflows that accelerat
 **Output Variables**: None
 
 **Example**:
+
 ```xml
 <subflows>
     <name>Log_Update_Error</name>
@@ -58,7 +63,8 @@ The Subflow Library provides pre-built, production-ready subflows that accelerat
 ```
 
 **Prerequisites**:
-Create Flow_Error_Log__c custom object with fields:
+Create Flow_Error_Log\_\_c custom object with fields:
+
 - `Flow_Name__c` (Text, 255)
 - `Record_Id__c` (Text, 18)
 - `Error_Message__c` (Long Text Area, 32,768)
@@ -68,15 +74,18 @@ Create Flow_Error_Log__c custom object with fields:
 ---
 
 ### 2. Sub_SendEmailAlert
+
 **Purpose**: Standard email notifications
 **File**: `templates/subflows/subflow-email-alert.xml`
 
 **When to Use**:
+
 - Send notifications when certain conditions are met
 - Alert users about flow completion or errors
 - Standardize email formatting across flows
 
 **Input Variables**:
+
 - `varEmailAddresses` (String): Comma-separated email addresses
 - `varEmailSubject` (String): Email subject line
 - `varEmailBody` (String): Email body content
@@ -84,6 +93,7 @@ Create Flow_Error_Log__c custom object with fields:
 **Output Variables**: None
 
 **Example**:
+
 ```xml
 <subflows>
     <name>Notify_Manager</name>
@@ -110,6 +120,7 @@ Create Flow_Error_Log__c custom object with fields:
 ```
 
 **Best Practices**:
+
 - Use formula fields or text templates to build dynamic email bodies
 - Consider using email templates instead for complex HTML emails
 - Validate email addresses before passing to subflow
@@ -117,22 +128,27 @@ Create Flow_Error_Log__c custom object with fields:
 ---
 
 ### 3. Sub_ValidateRecord
+
 **Purpose**: Common validation patterns
 **File**: `templates/subflows/subflow-record-validator.xml`
 
 **When to Use**:
+
 - Validate required fields before DML operations
 - Check business rules before proceeding
 - Return validation status to parent flow
 
 **Input Variables**:
+
 - `varFieldValue` (String): Field value to validate
 
 **Output Variables**:
+
 - `varIsValid` (Boolean): `true` if validation passed, `false` otherwise
 - `varValidationMessage` (String): Validation result message
 
 **Example**:
+
 ```xml
 <subflows>
     <name>Validate_Industry</name>
@@ -170,6 +186,7 @@ Create Flow_Error_Log__c custom object with fields:
 
 **Extension**:
 Customize the validation logic in the subflow for your specific needs:
+
 - Add more complex rules (regex, format checks)
 - Validate multiple fields
 - Check against external systems
@@ -177,21 +194,25 @@ Customize the validation logic in the subflow for your specific needs:
 ---
 
 ### 4. Sub_UpdateRelatedRecords
+
 **Purpose**: Bulk update pattern with error handling
 **File**: `templates/subflows/subflow-bulk-updater.xml`
 
 **When to Use**:
+
 - Update collections of related records
 - Maintain bulkification best practices
 - Centralize common update logic
 
 **Input Variables**:
+
 - `colRecordsToUpdate` (SObject Collection): Collection of records to update
 - `varNewValue` (String): New value to assign (customize for your field type)
 
 **Output Variables**: None
 
 **Example**:
+
 ```xml
 <!-- First, collect records in a loop -->
 <loops>
@@ -246,21 +267,26 @@ Customize the validation logic in the subflow for your specific needs:
 ---
 
 ### 5. Sub_QueryRecordsWithRetry
+
 **Purpose**: Query with built-in error handling
 **File**: `templates/subflows/subflow-query-with-retry.xml`
 
 **When to Use**:
+
 - Query related records with fault handling
 - Standardize query patterns
 - Log query failures for troubleshooting
 
 **Input Variables**:
+
 - `varAccountId` (String): Filter criteria (customize for your query)
 
 **Output Variables**:
+
 - Automatically stores query results (use `storeOutputAutomatically="true"`)
 
 **Example**:
+
 ```xml
 <subflows>
     <name>Get_Related_Contacts</name>
@@ -327,7 +353,7 @@ sf project deploy start \
 
 ### Step 3: Create Required Custom Objects
 
-For **Sub_LogError**, create the Flow_Error_Log__c object:
+For **Sub_LogError**, create the Flow_Error_Log\_\_c object:
 
 ```bash
 # Using Salesforce CLI
@@ -477,16 +503,19 @@ Extend Sub_LogError to send Platform Events:
 ## Troubleshooting
 
 ### "Subflow not found" Error
+
 - ✅ Verify subflow is activated in target org
 - ✅ Check API name matches exactly (`Sub_LogError`, not `Sub_Log_Error`)
 - ✅ Deploy subflow before deploying parent flow
 
 ### "Input variable not found" Error
+
 - ✅ Verify variable names match subflow definition
 - ✅ Check variable data types (String vs. SObject Collection)
 - ✅ Ensure required inputs are provided
 
 ### Performance Issues
+
 - ✅ Check debug logs for subflow execution time
 - ✅ Avoid calling subflows inside loops
 - ✅ Use bulk operations with collections
@@ -495,9 +524,9 @@ Extend Sub_LogError to send Platform Events:
 
 ## Version History
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0 | 2024-11-30 | Initial library: 5 subflows (LogError, EmailAlert, Validator, BulkUpdater, QueryWithRetry) |
+| Version | Date       | Changes                                                                                    |
+| ------- | ---------- | ------------------------------------------------------------------------------------------ |
+| 1.0     | 2024-11-30 | Initial library: 5 subflows (LogError, EmailAlert, Validator, BulkUpdater, QueryWithRetry) |
 
 ---
 
@@ -512,9 +541,10 @@ Extend Sub_LogError to send Platform Events:
 ## Support
 
 For issues or questions:
+
 1. Check subflow XML for correct variable names and types
 2. Test subflow independently before using in parent flow
-3. Review error logs in Flow_Error_Log__c (if using Sub_LogError)
+3. Review error logs in Flow_Error_Log\_\_c (if using Sub_LogError)
 4. Check debug logs for detailed execution information
 
 **Happy flow building! 🚀**

@@ -11,33 +11,18 @@ This guide consolidates best practices for building maintainable, performant, an
 ## Table of Contents
 
 **Strategy & Planning**
+
 1. [When NOT to Use Flow](#1-when-not-to-use-flow) ⚠️ NEW
 2. [Pre-Development Planning](#2-pre-development-planning) ⚠️ NEW
 3. [When to Escalate to Apex](#3-when-to-escalate-to-apex) ⚠️ NEW
 
-**Flow Element Design**
-4. [Flow Element Organization](#4-flow-element-organization)
-5. [Using $Record in Record-Triggered Flows](#5-using-record-in-record-triggered-flows)
-6. [Querying Relationship Data](#6-querying-relationship-data)
-7. [Query Optimization](#7-query-optimization)
-8. [Transform vs Loop Elements](#8-transform-vs-loop-elements)
-9. [Collection Filter Optimization](#9-collection-filter-optimization)
+**Flow Element Design** 4. [Flow Element Organization](#4-flow-element-organization) 5. [Using $Record in Record-Triggered Flows](#5-using-record-in-record-triggered-flows) 6. [Querying Relationship Data](#6-querying-relationship-data) 7. [Query Optimization](#7-query-optimization) 8. [Transform vs Loop Elements](#8-transform-vs-loop-elements) 9. [Collection Filter Optimization](#9-collection-filter-optimization)
 
-**Architecture & Integration**
-10. [When to Use Subflows](#10-when-to-use-subflows)
-11. [Custom Metadata for Business Logic](#11-custom-metadata-for-business-logic) ⚠️ NEW
+**Architecture & Integration** 10. [When to Use Subflows](#10-when-to-use-subflows) 11. [Custom Metadata for Business Logic](#11-custom-metadata-for-business-logic) ⚠️ NEW
 
-**Error Handling & Transactions**
-12. [Three-Tier Error Handling](#12-three-tier-error-handling)
-13. [Multi-Step DML Rollback Strategy](#13-multi-step-dml-rollback-strategy)
-14. [Transaction Management](#14-transaction-management)
+**Error Handling & Transactions** 12. [Three-Tier Error Handling](#12-three-tier-error-handling) 13. [Multi-Step DML Rollback Strategy](#13-multi-step-dml-rollback-strategy) 14. [Transaction Management](#14-transaction-management)
 
-**User Experience & Maintenance**
-15. [Screen Flow UX Best Practices](#15-screen-flow-ux-best-practices)
-16. [Bypass Mechanism for Data Loads](#16-bypass-mechanism-for-data-loads)
-17. [Flow Activation Guidelines](#17-flow-activation-guidelines)
-18. [Variable Naming Conventions](#18-variable-naming-conventions)
-19. [Flow & Element Descriptions](#19-flow--element-descriptions) ⚠️ NEW
+**User Experience & Maintenance** 15. [Screen Flow UX Best Practices](#15-screen-flow-ux-best-practices) 16. [Bypass Mechanism for Data Loads](#16-bypass-mechanism-for-data-loads) 17. [Flow Activation Guidelines](#17-flow-activation-guidelines) 18. [Variable Naming Conventions](#18-variable-naming-conventions) 19. [Flow & Element Descriptions](#19-flow--element-descriptions) ⚠️ NEW
 
 ---
 
@@ -47,27 +32,27 @@ Before building a Flow, evaluate whether simpler declarative tools might better 
 
 ### Prefer Declarative Configuration Over Flow
 
-| Requirement | Better Alternative | Why |
-|-------------|-------------------|-----|
-| Same-record field calculation | **Formula Field** | No runtime cost, always current, no maintenance |
-| Data validation with error message | **Validation Rule** | Built-in UI, simpler to debug, better performance |
-| Parent aggregate from children | **Roll-Up Summary Field** | Automatic, real-time, zero maintenance |
-| Field defaulting on create | **Field Default Value** | Native platform feature, cleaner |
-| Simple required field logic | **Page Layout / Field-Level Security** | Declarative, no code |
-| Conditional field visibility | **Dynamic Forms** | UI-native, better UX |
-| Simple field updates on related records | **Workflow Rule** (if already in use) | Simpler for basic use cases |
+| Requirement                             | Better Alternative                     | Why                                               |
+| --------------------------------------- | -------------------------------------- | ------------------------------------------------- |
+| Same-record field calculation           | **Formula Field**                      | No runtime cost, always current, no maintenance   |
+| Data validation with error message      | **Validation Rule**                    | Built-in UI, simpler to debug, better performance |
+| Parent aggregate from children          | **Roll-Up Summary Field**              | Automatic, real-time, zero maintenance            |
+| Field defaulting on create              | **Field Default Value**                | Native platform feature, cleaner                  |
+| Simple required field logic             | **Page Layout / Field-Level Security** | Declarative, no code                              |
+| Conditional field visibility            | **Dynamic Forms**                      | UI-native, better UX                              |
+| Simple field updates on related records | **Workflow Rule** (if already in use)  | Simpler for basic use cases                       |
 
 ### When Flow IS the Right Choice
 
-| Scenario | Why Flow |
-|----------|----------|
-| Complex multi-object updates | Orchestrate related changes in transaction |
-| Conditional branching (3+ paths) | Decision logic beyond validation rules |
-| User interaction required | Screen Flows for guided processes |
-| Scheduled automation | Time-based execution |
-| Platform Event handling | Real-time event processing |
-| Integration callouts | HTTP callouts with error handling |
-| Complex approval routing | Dynamic approval matrix |
+| Scenario                         | Why Flow                                   |
+| -------------------------------- | ------------------------------------------ |
+| Complex multi-object updates     | Orchestrate related changes in transaction |
+| Conditional branching (3+ paths) | Decision logic beyond validation rules     |
+| User interaction required        | Screen Flows for guided processes          |
+| Scheduled automation             | Time-based execution                       |
+| Platform Event handling          | Real-time event processing                 |
+| Integration callouts             | HTTP callouts with error handling          |
+| Complex approval routing         | Dynamic approval matrix                    |
 
 ### Decision Checklist
 
@@ -91,34 +76,34 @@ Define business requirements and map logic **before** opening Flow Builder. Plan
 
 Before building, answer these questions:
 
-| Question | Purpose |
-|----------|---------|
-| What triggers this automation? | Defines Flow type (Record-Triggered, Scheduled, Screen) |
-| What are ALL outcomes? | Identifies branches (happy path + edge cases) |
-| Who are the affected users? | Determines User vs System Mode |
-| What objects/fields are involved? | Identifies dependencies |
-| Are there existing automations? | Prevents conflicts/duplicates |
+| Question                          | Purpose                                                 |
+| --------------------------------- | ------------------------------------------------------- |
+| What triggers this automation?    | Defines Flow type (Record-Triggered, Scheduled, Screen) |
+| What are ALL outcomes?            | Identifies branches (happy path + edge cases)           |
+| Who are the affected users?       | Determines User vs System Mode                          |
+| What objects/fields are involved? | Identifies dependencies                                 |
+| Are there existing automations?   | Prevents conflicts/duplicates                           |
 
 ### Step 2: Visual Mapping
 
 Sketch your Flow logic before building. Recommended tools:
 
-| Tool | Cost | Best For |
-|------|------|----------|
-| **draw.io / diagrams.net** | Free | Quick flowcharts, team sharing |
-| **Lucidchart** | Paid | Professional diagrams, Salesforce shapes |
-| **Miro / FigJam** | Freemium | Collaborative whiteboarding |
-| **Paper/Whiteboard** | Free | Initial brainstorming |
+| Tool                       | Cost     | Best For                                 |
+| -------------------------- | -------- | ---------------------------------------- |
+| **draw.io / diagrams.net** | Free     | Quick flowcharts, team sharing           |
+| **Lucidchart**             | Paid     | Professional diagrams, Salesforce shapes |
+| **Miro / FigJam**          | Freemium | Collaborative whiteboarding              |
+| **Paper/Whiteboard**       | Free     | Initial brainstorming                    |
 
 ### Step 3: Identify Dependencies
 
-| Dependency Type | Check Before Building |
-|-----------------|----------------------|
-| Custom Objects/Fields | Do they exist? Create with sf-metadata first |
-| Custom Metadata Types | Bypass settings, thresholds, config values |
-| Permission Sets | Required for System Mode considerations |
-| External Systems | Callout endpoints, credentials |
-| Other Automations | Triggers, Process Builders, other Flows on same object |
+| Dependency Type       | Check Before Building                                  |
+| --------------------- | ------------------------------------------------------ |
+| Custom Objects/Fields | Do they exist? Create with sf-metadata first           |
+| Custom Metadata Types | Bypass settings, thresholds, config values             |
+| Permission Sets       | Required for System Mode considerations                |
+| External Systems      | Callout endpoints, credentials                         |
+| Other Automations     | Triggers, Process Builders, other Flows on same object |
 
 ### Step 4: Define Test Scenarios
 
@@ -175,16 +160,16 @@ Flow is powerful, but Apex is sometimes the better tool. Know when to escalate t
 
 ### Escalation Decision Matrix
 
-| Scenario | Why Apex is Better |
-|----------|-------------------|
-| **>5 nested decision branches** | Flow becomes unreadable; Apex switch/if is cleaner |
-| **Complex math/string manipulation** | Apex is more expressive (regex, math libraries) |
-| **External HTTP callouts** | Better error handling, retry logic, timeout control |
-| **Database transactions with partial commit** | Apex Savepoints for precise rollback control |
-| **Complex data transformations** | Apex collections (Maps, Sets) are more powerful |
-| **Performance-critical bulk operations** | Apex is faster for large datasets (10K+ records) |
-| **Unit testing requirements** | Apex test classes provide better coverage metrics |
-| **Governor limit gymnastics** | Apex gives finer control over limits |
+| Scenario                                      | Why Apex is Better                                  |
+| --------------------------------------------- | --------------------------------------------------- |
+| **>5 nested decision branches**               | Flow becomes unreadable; Apex switch/if is cleaner  |
+| **Complex math/string manipulation**          | Apex is more expressive (regex, math libraries)     |
+| **External HTTP callouts**                    | Better error handling, retry logic, timeout control |
+| **Database transactions with partial commit** | Apex Savepoints for precise rollback control        |
+| **Complex data transformations**              | Apex collections (Maps, Sets) are more powerful     |
+| **Performance-critical bulk operations**      | Apex is faster for large datasets (10K+ records)    |
+| **Unit testing requirements**                 | Apex test classes provide better coverage metrics   |
+| **Governor limit gymnastics**                 | Apex gives finer control over limits                |
 
 ### Red Flags: When Flow is Fighting You
 
@@ -295,18 +280,18 @@ public class OrderProcessor {
 
 Structure your flow elements in this sequence for maintainability:
 
-| Order | Element Type | Purpose |
-|-------|--------------|---------|
-| 1 | Variables & Constants | Define all data containers first |
-| 2 | Start Element | Entry conditions, triggers, schedules |
-| 3 | Initial Record Lookups | Retrieve needed data early |
-| 4 | Formula Definitions | Define calculations before use |
-| 5 | Decision Elements | Branching logic |
-| 6 | Assignment Elements | Data preparation/manipulation |
-| 7 | Screens (if Screen Flow) | User interaction |
-| 8 | DML Operations | Create/Update/Delete records |
-| 9 | Error Handling | Fault paths and rollback |
-| 10 | Ending Elements | Complete flow, return outputs |
+| Order | Element Type             | Purpose                               |
+| ----- | ------------------------ | ------------------------------------- |
+| 1     | Variables & Constants    | Define all data containers first      |
+| 2     | Start Element            | Entry conditions, triggers, schedules |
+| 3     | Initial Record Lookups   | Retrieve needed data early            |
+| 4     | Formula Definitions      | Define calculations before use        |
+| 5     | Decision Elements        | Branching logic                       |
+| 6     | Assignment Elements      | Data preparation/manipulation         |
+| 7     | Screens (if Screen Flow) | User interaction                      |
+| 8     | DML Operations           | Create/Update/Delete records          |
+| 9     | Error Handling           | Fault paths and rollback              |
+| 10    | Ending Elements          | Complete flow, return outputs         |
 
 ### Why This Order Matters
 
@@ -320,21 +305,23 @@ Structure your flow elements in this sequence for maintainability:
 
 When your flow is triggered by a record change, use `$Record` to access field values instead of querying the same object again.
 
-### ⚠️ CRITICAL: $Record vs $Record__c
+### ⚠️ CRITICAL: $Record vs $Record\_\_c
 
 **Do NOT confuse Flow's `$Record` with Process Builder's `$Record__c`.**
 
-| Variable | Platform | Meaning |
-|----------|----------|---------|
-| `$Record` | **Flow** | Single record that triggered the flow |
+| Variable     | Platform                 | Meaning                                |
+| ------------ | ------------------------ | -------------------------------------- |
+| `$Record`    | **Flow**                 | Single record that triggered the flow  |
 | `$Record__c` | Process Builder (legacy) | Collection of records in trigger batch |
 
 **Common Mistake**: Developers migrating from Process Builder try to loop over `$Record__c` in Flows. This doesn't work because:
+
 - `$Record__c` does not exist in Flows
 - `$Record` in Flows is a single record, not a collection
 - The platform handles bulk batching automatically - you don't need to loop
 
 **Correct Approach**: Use `$Record` directly without loops:
+
 ```
 Decision: {!$Record.StageName} equals "Closed Won"
 Assignment: Set rec_Task.WhatId = {!$Record.Id}
@@ -350,6 +337,7 @@ Step 2: Use queried Account fields
 ```
 
 **Problems**:
+
 - Wastes a SOQL query (you already have the record!)
 - Adds unnecessary complexity
 - Can cause timing issues with stale data
@@ -362,6 +350,7 @@ Step 1: Use {!$Record.Name}, {!$Record.Industry} directly
 ```
 
 **Benefits**:
+
 - Zero additional SOQL queries
 - Always has current field values
 - Simpler, more readable flow
@@ -369,6 +358,7 @@ Step 1: Use {!$Record.Name}, {!$Record.Industry} directly
 ### When You DO Need to Query
 
 Query the trigger object only when you need:
+
 - Related records (e.g., Account's Contacts)
 - Fields not included in the trigger context
 - Historical comparison (`$Record__Prior`)
@@ -409,12 +399,12 @@ Step 3: Use {!rec_Manager.Name} in your flow
 
 #### Common Relationship Queries That Need This Pattern
 
-| Child Object | Parent Field | Two-Step Approach |
-|--------------|--------------|-------------------|
-| Contact | Account.Name | Get Contact → Get Account by AccountId |
-| Case | Account.Owner.Email | Get Case → Get Account → Get User |
-| Opportunity | Account.Industry | Get Opportunity → Get Account by AccountId |
-| User | Manager.Name | Get User → Get User by ManagerId |
+| Child Object | Parent Field        | Two-Step Approach                          |
+| ------------ | ------------------- | ------------------------------------------ |
+| Contact      | Account.Name        | Get Contact → Get Account by AccountId     |
+| Case         | Account.Owner.Email | Get Case → Get Account → Get User          |
+| Opportunity  | Account.Industry    | Get Opportunity → Get Account by AccountId |
+| User         | Manager.Name        | Get User → Get User by ManagerId           |
 
 #### Why This Matters
 
@@ -431,11 +421,13 @@ Step 3: Use {!rec_Manager.Name} in your flow
 When filtering against a collection of values, use `In` or `Not In` operators instead of multiple OR conditions.
 
 **Best Practice**:
+
 ```
 Get Records where Status IN {!col_StatusValues}
 ```
 
 **Avoid**:
+
 ```
 Get Records where Status = 'Open' OR Status = 'Pending' OR Status = 'Review'
 ```
@@ -443,6 +435,7 @@ Get Records where Status = 'Open' OR Status = 'Pending' OR Status = 'Review'
 ### Always Add Filter Conditions
 
 Every Get Records element should have filter conditions to:
+
 - Limit the result set
 - Improve query performance
 - Avoid hitting governor limits
@@ -453,23 +446,23 @@ For orgs with **100K+ records** on an object, filter on indexed fields to ensure
 
 #### Always Indexed Fields
 
-| Field Type | Examples | Notes |
-|------------|----------|-------|
-| **Id** | Record ID | Primary key, fastest |
-| **Name** | Account Name, Contact Name | Standard name field |
-| **CreatedDate** | - | Useful for recent records |
-| **SystemModstamp** | - | Last modified timestamp |
-| **RecordTypeId** | - | If using Record Types |
-| **OwnerId** | - | User lookup |
+| Field Type         | Examples                   | Notes                     |
+| ------------------ | -------------------------- | ------------------------- |
+| **Id**             | Record ID                  | Primary key, fastest      |
+| **Name**           | Account Name, Contact Name | Standard name field       |
+| **CreatedDate**    | -                          | Useful for recent records |
+| **SystemModstamp** | -                          | Last modified timestamp   |
+| **RecordTypeId**   | -                          | If using Record Types     |
+| **OwnerId**        | -                          | User lookup               |
 
 #### Custom Indexed Fields
 
-| Field Type | Notes |
-|------------|-------|
-| **External ID fields** | Automatically indexed |
+| Field Type                      | Notes                           |
+| ------------------------------- | ------------------------------- |
+| **External ID fields**          | Automatically indexed           |
 | **Lookup/Master-Detail fields** | Relationship fields are indexed |
-| **Custom fields with indexing** | Request via Salesforce Support |
-| **Unique fields** | Automatically indexed |
+| **Custom fields with indexing** | Request via Salesforce Support  |
+| **Unique fields**               | Automatically indexed           |
 
 #### Performance Impact
 
@@ -492,6 +485,7 @@ For orgs with **100K+ records** on an object, filter on indexed fields to ensure
 #### When to Request Custom Indexing
 
 Contact Salesforce Support to request indexing when:
+
 - Object has 100K+ records
 - Query frequently filters on a specific field
 - Flow timeouts occur with non-indexed filters
@@ -501,6 +495,7 @@ Contact Salesforce Support to request indexing when:
 ### Use getFirstRecordOnly
 
 When you expect a single record (e.g., looking up by unique ID), enable `getFirstRecordOnly`:
+
 - Improves performance
 - Clearer intent
 - Simpler variable handling
@@ -510,6 +505,7 @@ When you expect a single record (e.g., looking up by unique ID), enable `getFirs
 When `storeOutputAutomatically="true"`, ALL fields are retrieved and stored:
 
 **Risks**:
+
 - Exposes sensitive data unintentionally
 - Impacts performance with large objects
 - Security issue in screen flows (external users see all data)
@@ -531,23 +527,23 @@ When processing collections, choosing between **Transform** and **Loop** element
 
 Transform is the right choice for:
 
-| Use Case | Example |
-|----------|---------|
-| **Mapping collections** | Contact[] → OpportunityContactRole[] |
-| **Bulk field assignments** | Set Status = "Processed" for all records |
-| **Simple formulas** | Calculate FullName from FirstName + LastName |
-| **Preparing records for DML** | Build collection for Create Records |
+| Use Case                      | Example                                      |
+| ----------------------------- | -------------------------------------------- |
+| **Mapping collections**       | Contact[] → OpportunityContactRole[]         |
+| **Bulk field assignments**    | Set Status = "Processed" for all records     |
+| **Simple formulas**           | Calculate FullName from FirstName + LastName |
+| **Preparing records for DML** | Build collection for Create Records          |
 
 ### When to Use Loop
 
 Loop is required when:
 
-| Use Case | Example |
-|----------|---------|
-| **Per-record IF/ELSE** | Different processing based on Amount threshold |
-| **Counters/flags** | Count records meeting criteria |
-| **State tracking** | Running totals, comma-separated lists |
-| **Varying business rules** | Different logic paths per record type |
+| Use Case                   | Example                                        |
+| -------------------------- | ---------------------------------------------- |
+| **Per-record IF/ELSE**     | Different processing based on Amount threshold |
+| **Counters/flags**         | Count records meeting criteria                 |
+| **State tracking**         | Running totals, comma-separated lists          |
+| **Varying business rules** | Different logic paths per record type          |
 
 ### Visual Comparison
 
@@ -607,12 +603,12 @@ Problem: N SOQL queries (one per Account) = Governor limit risk!
 
 ### Benefits
 
-| Metric | Multiple Queries | Query Once + Filter |
-|--------|------------------|---------------------|
-| SOQL Queries | N (one per parent) | 1 |
-| Performance | Slow | Fast |
-| Governor Risk | High | Low |
-| Scalability | Poor | Excellent |
+| Metric        | Multiple Queries   | Query Once + Filter |
+| ------------- | ------------------ | ------------------- |
+| SOQL Queries  | N (one per parent) | 1                   |
+| Performance   | Slow               | Fast                |
+| Governor Risk | High               | Low                 |
+| Scalability   | Poor               | Excellent           |
 
 ### Implementation Steps
 
@@ -638,25 +634,33 @@ With Collection Filter, you can process thousands of related records with a **si
 Use subflows for:
 
 ### 1. Reusability
+
 Same logic needed in multiple flows? Extract it to a subflow.
+
 - Error logging
 - Email notifications
 - Common validations
 
 ### 2. Complex Orchestration
+
 Break large flows into manageable pieces:
+
 - Main flow orchestrates
 - Subflows handle specific responsibilities
 - Easier to test individually
 
 ### 3. Permission Elevation
+
 When a flow running in user context needs elevated permissions:
+
 - Main flow runs in user context
 - Subflow runs in system context for specific operations
 - Maintains security while enabling functionality
 
 ### 4. Organizational Clarity
+
 If your flow diagram is unwieldy:
+
 - Extract logical sections into subflows
 - Name subflows descriptively
 - Document the orchestration pattern
@@ -664,6 +668,7 @@ If your flow diagram is unwieldy:
 ### Subflow Naming Convention
 
 Use the `Sub_` prefix:
+
 - `Sub_LogError`
 - `Sub_SendEmailAlert`
 - `Sub_ValidateRecord`
@@ -677,20 +682,20 @@ Store frequently changing business logic values in **Custom Metadata Types (CMDT
 
 ### Why Use CMDT for Business Logic
 
-| Benefit | Description |
-|---------|-------------|
+| Benefit                  | Description                                  |
+| ------------------------ | -------------------------------------------- |
 | **No deployment needed** | Change values in Setup, no Flow modification |
-| **Environment-specific** | Different values per sandbox/production |
-| **Audit trail** | Changes tracked in Setup Audit Trail |
-| **Admin-friendly** | Non-developers can update business rules |
-| **Testable** | CMDT records are accessible in test context |
+| **Environment-specific** | Different values per sandbox/production      |
+| **Audit trail**          | Changes tracked in Setup Audit Trail         |
+| **Admin-friendly**       | Non-developers can update business rules     |
+| **Testable**             | CMDT records are accessible in test context  |
 
 ### Two Access Patterns
 
-| Pattern | Syntax | SOQL Count | Use When |
-|---------|--------|------------|----------|
-| **Formula Reference** | `$CustomMetadata.Type__mdt.Record.Field__c` | 0 | Single known record, simple value |
-| **Get Records Query** | Get Records → CMDT object | 1 | Multiple records, dynamic filtering |
+| Pattern               | Syntax                                      | SOQL Count | Use When                            |
+| --------------------- | ------------------------------------------- | ---------- | ----------------------------------- |
+| **Formula Reference** | `$CustomMetadata.Type__mdt.Record.Field__c` | 0          | Single known record, simple value   |
+| **Get Records Query** | Get Records → CMDT object                   | 1          | Multiple records, dynamic filtering |
 
 #### Formula Pattern (Preferred for Single Values)
 
@@ -722,15 +727,15 @@ Get Records: Flow_Settings__mdt
 
 ### What to Store in CMDT
 
-| Value Type | Example CMDT Field | ⚠️ Key Guidance |
-|------------|-------------------|-----------------|
+| Value Type              | Example CMDT Field                                | ⚠️ Key Guidance                                |
+| ----------------------- | ------------------------------------------------- | ---------------------------------------------- |
 | **Business Thresholds** | `Discount_Threshold__c`, `Max_Approval_Amount__c` | Ideal for values that change quarterly or less |
-| **Feature Toggles** | `Enable_Auto_Assignment__c` | Boolean flags for gradual rollouts |
-| **Record Type Names** | `RecordType_DeveloperName__c` | Store DeveloperName, NOT 15/18-char IDs |
-| **Queue/User Names** | `Assignment_Queue_Name__c` | Store DeveloperName, resolve ID at runtime |
-| **Email Recipients** | `Notification_Email__c`, `Template_Name__c` | Store template API names, not IDs |
-| **URLs/Endpoints** | `External_API_Endpoint__c` | Enables sandbox vs production differences |
-| **Picklist Mappings** | `Source_Value__c` → `Target_Value__c` | Great for value translations |
+| **Feature Toggles**     | `Enable_Auto_Assignment__c`                       | Boolean flags for gradual rollouts             |
+| **Record Type Names**   | `RecordType_DeveloperName__c`                     | Store DeveloperName, NOT 15/18-char IDs        |
+| **Queue/User Names**    | `Assignment_Queue_Name__c`                        | Store DeveloperName, resolve ID at runtime     |
+| **Email Recipients**    | `Notification_Email__c`, `Template_Name__c`       | Store template API names, not IDs              |
+| **URLs/Endpoints**      | `External_API_Endpoint__c`                        | Enables sandbox vs production differences      |
+| **Picklist Mappings**   | `Source_Value__c` → `Target_Value__c`             | Great for value translations                   |
 
 > ⚠️ **CRITICAL: Never Store Salesforce IDs in CMDT**
 >
@@ -759,14 +764,14 @@ When you need to route to a Queue, User, or RecordType stored in CMDT:
 
 ### Common Use Cases
 
-| Use Case | CMDT Field Example | Flow Usage |
-|----------|-------------------|------------|
-| Discount thresholds | `Discount_Threshold__c = 10000` | Decision: Amount > {!$CustomMetadata...} |
-| Feature toggles | `Enable_Auto_Assignment__c = true` | Decision: Feature enabled? |
-| Approval limits | `Max_Approval_Amount__c = 50000` | Route based on amount threshold |
-| Email recipients | `Notification_Email__c` | Send email to CMDT value |
-| SLA thresholds | `SLA_Warning_Hours__c = 24` | Decision: Hours > threshold |
-| API endpoints | `External_API_Endpoint__c` | HTTP Callout URL |
+| Use Case            | CMDT Field Example                 | Flow Usage                               |
+| ------------------- | ---------------------------------- | ---------------------------------------- |
+| Discount thresholds | `Discount_Threshold__c = 10000`    | Decision: Amount > {!$CustomMetadata...} |
+| Feature toggles     | `Enable_Auto_Assignment__c = true` | Decision: Feature enabled?               |
+| Approval limits     | `Max_Approval_Amount__c = 50000`   | Route based on amount threshold          |
+| Email recipients    | `Notification_Email__c`            | Send email to CMDT value                 |
+| SLA thresholds      | `SLA_Warning_Hours__c = 24`        | Decision: Hours > threshold              |
+| API endpoints       | `External_API_Endpoint__c`         | HTTP Callout URL                         |
 
 ### Implementation Pattern
 
@@ -804,13 +809,13 @@ Decision Element: Check_Discount_Eligibility
 
 ### Best Practices
 
-| Practice | Reason |
-|----------|--------|
-| **Use descriptive DeveloperNames** | `Discount_Threshold` not `Setting_1` |
-| **Document in Description field** | Future maintainers understand purpose |
-| **Group related settings** | One CMDT type per domain (Sales, Service, etc.) |
-| **Include in deployment packages** | CMDT records are metadata, deploy with code |
-| **Test with realistic values** | Verify Flow behavior with production thresholds |
+| Practice                           | Reason                                          |
+| ---------------------------------- | ----------------------------------------------- |
+| **Use descriptive DeveloperNames** | `Discount_Threshold` not `Setting_1`            |
+| **Document in Description field**  | Future maintainers understand purpose           |
+| **Group related settings**         | One CMDT type per domain (Sales, Service, etc.) |
+| **Include in deployment packages** | CMDT records are metadata, deploy with code     |
+| **Test with realistic values**     | Verify Flow behavior with production thresholds |
 
 ### Identifying Hard-Coded Candidates (Migration Checklist)
 
@@ -855,12 +860,12 @@ HARD-CODED PATTERN AUDIT
 
 ### When NOT to Use CMDT
 
-| Scenario | Better Alternative |
-|----------|-------------------|
-| User-specific preferences | Custom Settings (Hierarchy) |
-| Frequently changing data | Custom Object with query |
-| Large datasets (1000+ records) | Custom Object |
-| Binary file storage | Static Resource or Files |
+| Scenario                       | Better Alternative          |
+| ------------------------------ | --------------------------- |
+| User-specific preferences      | Custom Settings (Hierarchy) |
+| Frequently changing data       | Custom Object with query    |
+| Large datasets (1000+ records) | Custom Object               |
+| Binary file storage            | Static Resource or Files    |
 
 > **Tip**: CMDT is ideal for business rules that change quarterly or less. For daily-changing values, use Custom Objects or Custom Settings.
 
@@ -868,12 +873,12 @@ HARD-CODED PATTERN AUDIT
 
 CMDT records are **metadata**, not data. This has important implications:
 
-| Aspect | Custom Metadata Type | Custom Object / Custom Setting |
-|--------|---------------------|-------------------------------|
-| **Move between orgs** | Change Sets, Metadata API, sf deploy | Data Loader, sf data import |
-| **Update in production** | Setup → Custom Metadata Types | Data operations (update records) |
-| **Included in packages** | ✅ Yes (managed/unmanaged) | ❌ No (data must be seeded separately) |
-| **Test context access** | ✅ Accessible without `@TestSetup` | Requires test data creation |
+| Aspect                   | Custom Metadata Type                 | Custom Object / Custom Setting         |
+| ------------------------ | ------------------------------------ | -------------------------------------- |
+| **Move between orgs**    | Change Sets, Metadata API, sf deploy | Data Loader, sf data import            |
+| **Update in production** | Setup → Custom Metadata Types        | Data operations (update records)       |
+| **Included in packages** | ✅ Yes (managed/unmanaged)           | ❌ No (data must be seeded separately) |
+| **Test context access**  | ✅ Accessible without `@TestSetup`   | Requires test data creation            |
 
 > **Common Mistake**: Trying to use Data Loader to update CMDT values. CMDT records are deployed as metadata—use Change Sets, Metadata API (`sf project deploy`), or Setup UI to modify values between environments.
 
@@ -887,6 +892,7 @@ Implement comprehensive error handling at three levels:
 
 **When**: Before any DML operations
 **What to Check**:
+
 - Null/empty required values
 - Business rule prerequisites
 - Data format validation
@@ -897,6 +903,7 @@ Implement comprehensive error handling at three levels:
 
 **When**: On every DML element (Create, Update, Delete)
 **What to Do**:
+
 - Add fault paths to ALL DML elements
 - Capture `{!$Flow.FaultMessage}` for context
 - Include record IDs and operation type in error messages
@@ -907,6 +914,7 @@ Implement comprehensive error handling at three levels:
 
 **When**: After a DML failure when prior operations succeeded
 **What to Do**:
+
 - Delete records created earlier in the transaction
 - Restore original values if updates failed
 - Log the failure for debugging
@@ -916,6 +924,7 @@ Implement comprehensive error handling at three levels:
 ### Error Message Best Practice
 
 Include context in every error message:
+
 ```
 "Failed to create Contact for Account {!rec_Account.Id}: {!$Flow.FaultMessage}"
 "Update failed on Opportunity {!rec_Opportunity.Id} during {!var_CurrentOperation}"
@@ -930,14 +939,17 @@ When a flow performs multiple DML operations, implement rollback paths.
 ### Pattern: Primary → Dependent → Rollback Chain
 
 #### Step 1: Create Primary Record (e.g., Account)
+
 - On success → Continue to step 2
 - On failure → Show error, stop flow
 
 #### Step 2: Create Dependent Records (e.g., Contacts, Opportunities)
+
 - On success → Continue to step 3
 - On failure → **DELETE primary record**, show error
 
 #### Step 3: Update Related Records
+
 - On success → Complete flow
 - On failure → **DELETE dependents, DELETE primary**, show error
 
@@ -953,6 +965,7 @@ When a flow performs multiple DML operations, implement rollback paths.
 ### Error Message Pattern
 
 Use `errorMessage` output variable to surface failures:
+
 ```
 "Failed to create Account: {!$Flow.FaultMessage}"
 "Failed to create Contact: {!$Flow.FaultMessage}. Account rolled back."
@@ -979,16 +992,17 @@ For complex multi-step flows where you need manual rollback control:
 
 ### Transaction Limits to Consider
 
-| Limit | Value |
-|-------|-------|
-| DML statements per transaction | 150 |
-| SOQL queries per transaction | 100 |
-| Records retrieved by SOQL | 50,000 |
-| DML rows per transaction | 10,000 |
+| Limit                          | Value  |
+| ------------------------------ | ------ |
+| DML statements per transaction | 150    |
+| SOQL queries per transaction   | 100    |
+| Records retrieved by SOQL      | 50,000 |
+| DML rows per transaction       | 10,000 |
 
 ### Document Transaction Boundaries
 
 Add comments in flow description:
+
 ```
 TRANSACTION: Creates Account → Creates Contact → Updates related Opportunities
 ```
@@ -1000,6 +1014,7 @@ TRANSACTION: Creates Account → Creates Contact → Updates related Opportuniti
 ### Progress Indicators
 
 For multi-step flows (3+ screens):
+
 - Use Screen component headers to show "Step X of Y"
 - Consider visual progress bars for long wizards
 - Update progress on each screen transition
@@ -1037,12 +1052,12 @@ Each screen shows visual indicator: ● ○ ○ ○ → ● ● ○ ○ → ● 
 
 #### Benefits
 
-| Feature | Benefit |
-|---------|---------|
-| Visual progress | Users know how far along they are |
+| Feature             | Benefit                              |
+| ------------------- | ------------------------------------ |
+| Visual progress     | Users know how far along they are    |
 | Reduced abandonment | Clear expectation of remaining steps |
-| Better UX | Professional wizard-like experience |
-| Navigation context | Users understand their position |
+| Better UX           | Professional wizard-like experience  |
+| Navigation context  | Users understand their position      |
 
 #### Implementation Tips
 
@@ -1053,12 +1068,15 @@ Each screen shows visual indicator: ● ○ ○ ○ → ● ● ○ ○ → ● 
 ### Button Design
 
 #### Naming Pattern
+
 Use: `Action_[Verb]_[Object]`
+
 - `Action_Save_Contact`
 - `Action_Submit_Application`
 - `Action_Cancel_Request`
 
 #### Button Ordering
+
 1. **Primary action** first (Submit, Save, Confirm)
 2. **Secondary actions** next (Save Draft, Back)
 3. **Tertiary/Cancel** last (Cancel, Exit)
@@ -1067,16 +1085,17 @@ Use: `Action_[Verb]_[Object]`
 
 #### Standard Navigation Pattern
 
-| Button | Position | When to Show |
-|--------|----------|--------------|
-| Previous | Left | After first screen (if safe) |
-| Cancel | Left | Always |
-| Next | Right | Before final screen |
-| Finish/Submit | Right | Final screen only |
+| Button        | Position | When to Show                 |
+| ------------- | -------- | ---------------------------- |
+| Previous      | Left     | After first screen (if safe) |
+| Cancel        | Left     | Always                       |
+| Next          | Right    | Before final screen          |
+| Finish/Submit | Right    | Final screen only            |
 
 #### When to Disable Back Button
 
 Disable "Previous" when returning would:
+
 - Cause duplicate record creation
 - Lose unsaved complex data
 - Break transaction integrity
@@ -1085,11 +1104,12 @@ Disable "Previous" when returning would:
 ### Screen Instructions
 
 For complex screens, add instruction text at the top:
+
 - Use Display Text component
 - Keep instructions concise (1-2 sentences)
 - Highlight required fields or important notes
 
-Example: "Complete all required fields (*) before proceeding."
+Example: "Complete all required fields (\*) before proceeding."
 
 ### Performance Tips
 
@@ -1109,6 +1129,7 @@ When loading large amounts of data, flows can cause performance issues. Implemen
 #### Step 1: Create Custom Metadata Type
 
 Create `Flow_Bypass_Settings__mdt` with fields:
+
 - `Bypass_Flows__c` (Checkbox)
 - `Flow_API_Name__c` (Text) - optional, for granular control
 
@@ -1117,6 +1138,7 @@ Create `Flow_Bypass_Settings__mdt` with fields:
 Add a Decision element as the first step after Start:
 
 **Condition**: `{!$CustomMetadata.Flow_Bypass_Settings__mdt.Default.Bypass_Flows__c} = true`
+
 - **If true** → End flow early (no processing)
 - **If false** → Continue normal processing
 
@@ -1154,6 +1176,7 @@ Add a Decision element as the first step after Start:
 ### Scheduled Flow Considerations
 
 Scheduled flows run automatically without user interaction:
+
 - Test thoroughly before activation
 - Verify schedule frequency is correct
 - Ensure error notifications are configured
@@ -1165,13 +1188,13 @@ Scheduled flows run automatically without user interaction:
 
 Use consistent prefixes for all variables:
 
-| Prefix | Purpose | Example |
-|--------|---------|---------|
+| Prefix | Purpose           | Example           |
+| ------ | ----------------- | ----------------- |
 | `var_` | Regular variables | `var_AccountName` |
-| `col_` | Collections | `col_ContactIds` |
-| `rec_` | Record variables | `rec_Account` |
-| `inp_` | Input variables | `inp_RecordId` |
-| `out_` | Output variables | `out_IsSuccess` |
+| `col_` | Collections       | `col_ContactIds`  |
+| `rec_` | Record variables  | `rec_Account`     |
+| `inp_` | Input variables   | `inp_RecordId`    |
+| `out_` | Output variables  | `out_IsSuccess`   |
 
 ### Why Prefixes Matter
 
@@ -1183,6 +1206,7 @@ Use consistent prefixes for all variables:
 ### Element Naming
 
 For flow elements (decisions, assignments, etc.):
+
 - Use `PascalCase_With_Underscores`
 - Be descriptive: `Check_Account_Type` not `Decision_1`
 - Include context: `Get_Related_Contacts` not `Get_Records`
@@ -1197,13 +1221,13 @@ Clear descriptions are essential for maintenance, collaboration, and **Agentforc
 
 #### Why This Matters
 
-| Consumer | How They Use Descriptions |
-|----------|--------------------------|
+| Consumer              | How They Use Descriptions                                                     |
+| --------------------- | ----------------------------------------------------------------------------- |
 | **Agentforce Agents** | AI uses descriptions to understand what automation does and when to invoke it |
-| **Future Developers** | Quick understanding without reading the entire flow |
-| **Flow Orchestrator** | Discovery of available subflows |
-| **Governance Tools** | Auditing and documentation generation |
-| **Setup Search** | Finding flows by purpose |
+| **Future Developers** | Quick understanding without reading the entire flow                           |
+| **Flow Orchestrator** | Discovery of available subflows                                               |
+| **Governance Tools**  | Auditing and documentation generation                                         |
+| **Setup Search**      | Finding flows by purpose                                                      |
 
 #### What to Include in Flow Description
 
@@ -1242,7 +1266,8 @@ Requires Territory__c field and Lead_Assignment_Queue__c queue."
 ```
 
 Examples using template:
-- "Creates Task and sends email when Opportunity Stage changes to Closed Won. Updates Account Last_Deal_Date__c. Runs after Opportunity update."
+
+- "Creates Task and sends email when Opportunity Stage changes to Closed Won. Updates Account Last_Deal_Date\_\_c. Runs after Opportunity update."
 - "Validates Contact email format and enriches with external data. Blocks save if validation fails. Runs before Contact insert/update."
 
 ### Element Descriptions
@@ -1251,13 +1276,13 @@ Add descriptions to complex elements (Decisions, Assignments, Get Records, Loops
 
 #### When to Add Element Descriptions
 
-| Element Type | Add Description When... |
-|--------------|------------------------|
-| **Decision** | Logic has business meaning beyond obvious field comparison |
-| **Get Records** | Query has specific filter reasoning |
-| **Assignment** | Calculation or transformation isn't self-evident |
-| **Loop** | Processing order or exit conditions matter |
-| **Subflow** | Purpose of delegation isn't obvious |
+| Element Type    | Add Description When...                                    |
+| --------------- | ---------------------------------------------------------- |
+| **Decision**    | Logic has business meaning beyond obvious field comparison |
+| **Get Records** | Query has specific filter reasoning                        |
+| **Assignment**  | Calculation or transformation isn't self-evident           |
+| **Loop**        | Processing order or exit conditions matter                 |
+| **Subflow**     | Purpose of delegation isn't obvious                        |
 
 #### Element Description Format
 
@@ -1288,13 +1313,13 @@ original end date is null (new contracts)."
 
 ### Benefits of Good Descriptions
 
-| Benefit | Impact |
-|---------|--------|
-| **6-month test** | Can you understand the flow in 6 months? |
-| **Handoff ready** | New team member can maintain without meetings |
-| **Agentforce-ready** | AI can discover and use your flows correctly |
-| **Audit-friendly** | Compliance reviews understand business logic |
-| **Debug faster** | Element descriptions explain expected behavior |
+| Benefit              | Impact                                         |
+| -------------------- | ---------------------------------------------- |
+| **6-month test**     | Can you understand the flow in 6 months?       |
+| **Handoff ready**    | New team member can maintain without meetings  |
+| **Agentforce-ready** | AI can discover and use your flows correctly   |
+| **Audit-friendly**   | Compliance reviews understand business logic   |
+| **Debug faster**     | Element descriptions explain expected behavior |
 
 > **Rule of Thumb**: If you had to explain this Flow or element to a colleague, put that explanation in the description.
 
@@ -1303,11 +1328,13 @@ original end date is null (new contracts)."
 ## Quick Reference Checklist
 
 ### Record-Triggered Flow Essentials
+
 - [ ] Use `$Record` directly - do NOT create loops over triggered records
 - [ ] Never use `$Record__c` (Process Builder pattern, doesn't exist in Flows)
 - [ ] Platform handles bulk batching - you don't need manual loops
 
 ### Get Records Best Practices
+
 - [ ] Use `$Record` instead of querying trigger object
 - [ ] Add filters to all Get Records elements
 - [ ] Enable `getFirstRecordOnly` when expecting single record
@@ -1316,15 +1343,18 @@ original end date is null (new contracts)."
 - [ ] Never query `Parent.Field` in queriedFields (not supported)
 
 ### Error Handling & DML
+
 - [ ] Add fault paths to all DML operations
 - [ ] Implement rollback for multi-step DML
 - [ ] Capture `$Flow.FaultMessage` in error handlers
 
 ### Naming & Organization
+
 - [ ] Use variable naming prefixes (`var_`, `col_`, `rec_`, etc.)
 - [ ] Add progress indicators to multi-screen flows
 
 ### Testing & Deployment
+
 - [ ] Test with bulk data (200+ records)
 - [ ] Keep flows in Draft until fully tested
 - [ ] **Always use sf-deploy skill** - never direct CLI commands

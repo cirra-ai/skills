@@ -6,9 +6,9 @@ description: >
   or querying org metadata structures.
 license: MIT
 metadata:
-  version: "1.0.0"
-  author: "Cirra AI (refactored from sf-skills by Jag Valaiyapathy)"
-  scoring: "120 points across 6 categories"
+  version: '1.0.0'
+  author: 'Cirra AI (refactored from sf-skills by Jag Valaiyapathy)'
+  scoring: '120 points across 6 categories'
 ---
 
 # sf-metadata-cirra-ai: Salesforce Metadata Generation and Org Querying
@@ -54,6 +54,7 @@ Call: cirra_ai_init(cirra_ai_team="[user's team]", scope="metadata")
 ```
 
 Then use **AskUserQuestion** to gather:
+
 - Operation type: **Generate** metadata OR **Query** org metadata
 - If generating:
   - Metadata type (Object, Field, Profile, Permission Set, Validation Rule, Record Type, Layout)
@@ -64,6 +65,7 @@ Then use **AskUserQuestion** to gather:
   - Object name or metadata type to query
 
 **Then**:
+
 1. Call cirra_ai_init if not already done
 2. Query existing metadata using appropriate tools
 3. Create TodoWrite tasks for multi-step operations
@@ -72,16 +74,17 @@ Then use **AskUserQuestion** to gather:
 
 #### For Querying (Cirra AI MCP Tools)
 
-| Query Type | Tool | Parameters |
-|------------|------|------------|
-| Describe object | `sobject_describe` | sObject, sf_user |
-| List custom objects | `sobjects_list` | customObjectsOnly=true, sf_user |
-| List all metadata types | `metadata_describe` | sf_user |
-| List metadata elements | `metadata_list` | type, sf_user |
-| Query records with SOQL | `soql_query` | sObject, fields, whereClause, limit, sf_user |
-| Query tooling API | `tooling_api_query` | sObject, fields, whereClause, limit, sf_user |
+| Query Type              | Tool                | Parameters                                   |
+| ----------------------- | ------------------- | -------------------------------------------- |
+| Describe object         | `sobject_describe`  | sObject, sf_user                             |
+| List custom objects     | `sobjects_list`     | customObjectsOnly=true, sf_user              |
+| List all metadata types | `metadata_describe` | sf_user                                      |
+| List metadata elements  | `metadata_list`     | type, sf_user                                |
+| Query records with SOQL | `soql_query`        | sObject, fields, whereClause, limit, sf_user |
+| Query tooling API       | `tooling_api_query` | sObject, fields, whereClause, limit, sf_user |
 
 **Example Query Execution**:
+
 ```
 sobject_describe(sObject="Account", sf_user="admin@org.com")
 metadata_list(type="CustomObject", sf_user="admin@org.com")
@@ -89,6 +92,7 @@ soql_query(sObject="Account", fields=["Id","Name","Type"], limit=10, sf_user="ad
 ```
 
 **Present query results** in structured format:
+
 ```
 📊 Object: Account
 ════════════════════════════════════════
@@ -144,6 +148,7 @@ sobject_field_create(
 ```
 
 For picklist fields, use:
+
 ```
 sobject_field_create(
   sf_user="admin@org.com",
@@ -349,14 +354,14 @@ AskUserQuestion:
 
 **Permission Set Generation Rules:**
 
-| Field Type | Include in Permission Set? | Notes |
-|------------|---------------------------|-------|
-| Required fields | ❌ NO | Auto-visible, Salesforce rejects in Permission Set |
-| Optional fields | ✅ YES | Include with readable=true, editable=true |
-| Formula fields | ✅ YES | Include with readable=true, editable=false |
-| Roll-Up Summary | ✅ YES | Include with readable=true, editable=false |
-| Master-Detail | ❌ NO | Controlled by parent object permissions |
-| Name field | ❌ NO | Always visible, cannot be in Permission Set |
+| Field Type      | Include in Permission Set? | Notes                                              |
+| --------------- | -------------------------- | -------------------------------------------------- |
+| Required fields | ❌ NO                      | Auto-visible, Salesforce rejects in Permission Set |
+| Optional fields | ✅ YES                     | Include with readable=true, editable=true          |
+| Formula fields  | ✅ YES                     | Include with readable=true, editable=false         |
+| Roll-Up Summary | ✅ YES                     | Include with readable=true, editable=false         |
+| Master-Detail   | ❌ NO                      | Controlled by parent object permissions            |
+| Name field      | ❌ NO                      | Always visible, cannot be in Permission Set        |
 
 ---
 
@@ -373,6 +378,7 @@ Unlike the file-based approach, this workflow deploys directly:
 ### Phase 5: Verification
 
 **For Created Metadata**:
+
 ```
 ✓ Metadata Complete: [MetadataName]
   Type: [CustomObject/CustomField/Profile/etc.]
@@ -387,6 +393,7 @@ Next Steps:
 ```
 
 **For Queries**:
+
 - Present results in structured format
 - Highlight relevant information
 - Offer follow-up actions (create field, modify permissions, etc.)
@@ -398,18 +405,21 @@ Next Steps:
 ### Critical Requirements
 
 **Structure & Format** (20 points):
+
 - Valid metadata structure following Salesforce API patterns (-10 if invalid)
 - Correct object/field naming conventions (-5 if missing)
 - API version current (using latest Cirra AI tools) (-5 if outdated)
 - Proper categorization and organization (-5 if wrong)
 
 **Naming Conventions** (20 points):
+
 - Custom objects/fields end with `__c` (-3 each violation)
 - Use PascalCase for API names: `Account_Status__c` not `account_status__c` (-2 each)
 - Meaningful labels (no abbreviations like `Acct`, `Sts`) (-2 each)
 - Relationship names follow pattern: `[ParentObject]_[ChildObjects]` (-3)
 
 **Data Integrity** (20 points):
+
 - Required fields have sensible defaults or validation (-5)
 - Number fields have appropriate precision/scale (-3)
 - Picklist values properly defined with labels (-3)
@@ -418,18 +428,21 @@ Next Steps:
 - Roll-up summaries reference correct fields (-3)
 
 **Security & FLS** (20 points):
+
 - Field-Level Security considerations documented (-5 if sensitive field exposed)
 - Sensitive field types flagged (SSN patterns, Credit Card patterns) (-10)
 - Object sharing model appropriate for data sensitivity (-5)
 - Permission Sets preferred over Profile modifications (advisory)
 
 **Documentation** (20 points):
+
 - Description present and meaningful on objects/fields (-5 if missing)
 - Help text for user-facing fields (-3 each)
 - Clear error messages for validation rules (-3)
 - Inline comments in complex formulas (-3)
 
 **Best Practices** (20 points):
+
 - Use Permission Sets over Profiles when possible (-3 if Profile-first)
 - Avoid hardcoded Record IDs in formulas (-5 if found)
 - Use Global Value Sets for reusable picklists (advisory)
@@ -444,50 +457,52 @@ Next Steps:
 
 ## Field Type Selection Guide
 
-| Type | Salesforce | Notes |
-|------|------------|-------|
-| Text | Text / Text Area (Long/Rich) | ≤255 chars / multi-line / HTML |
-| Numbers | Number / Currency | Decimals or money (org currency) |
-| Boolean | Checkbox | True/False |
-| Choice | Picklist / Multi-Select | Single/multiple predefined options |
-| Date | Date / DateTime | With or without time |
-| Contact | Email / Phone / URL | Validated formats |
-| Relationship | Lookup / Master-Detail | Optional / required parent |
-| Calculated | Formula / Roll-Up | Derived from fields / children |
+| Type         | Salesforce                   | Notes                              |
+| ------------ | ---------------------------- | ---------------------------------- |
+| Text         | Text / Text Area (Long/Rich) | ≤255 chars / multi-line / HTML     |
+| Numbers      | Number / Currency            | Decimals or money (org currency)   |
+| Boolean      | Checkbox                     | True/False                         |
+| Choice       | Picklist / Multi-Select      | Single/multiple predefined options |
+| Date         | Date / DateTime              | With or without time               |
+| Contact      | Email / Phone / URL          | Validated formats                  |
+| Relationship | Lookup / Master-Detail       | Optional / required parent         |
+| Calculated   | Formula / Roll-Up            | Derived from fields / children     |
 
 ---
 
 ## Relationship Decision Matrix
 
-| Scenario | Use | Reason |
-|----------|-----|--------|
-| Parent optional | Lookup | Child can exist without parent |
-| Parent required | Master-Detail | Cascade delete, roll-up summaries |
-| Many-to-Many | Junction Object | Two Master-Detail relationships |
-| Self-referential | Hierarchical Lookup | Same object (e.g., Account hierarchy) |
-| Cross-object formula | Master-Detail or Formula | Access parent fields |
+| Scenario             | Use                      | Reason                                |
+| -------------------- | ------------------------ | ------------------------------------- |
+| Parent optional      | Lookup                   | Child can exist without parent        |
+| Parent required      | Master-Detail            | Cascade delete, roll-up summaries     |
+| Many-to-Many         | Junction Object          | Two Master-Detail relationships       |
+| Self-referential     | Hierarchical Lookup      | Same object (e.g., Account hierarchy) |
+| Cross-object formula | Master-Detail or Formula | Access parent fields                  |
 
 ---
 
 ## Common Validation Rule Patterns
 
-| Pattern | Formula | Use |
-|---------|---------|-----|
+| Pattern              | Formula                                                   | Use                               |
+| -------------------- | --------------------------------------------------------- | --------------------------------- |
 | Conditional Required | `AND(ISPICKVAL(Status,'Closed'), ISBLANK(Close_Date__c))` | Field required when condition met |
-| Email Regex | `NOT(REGEX(Email__c, "^[a-zA-Z0-9._-]+@..."))` | Format validation |
-| Future Date | `Due_Date__c < TODAY()` | Date constraints |
-| Cross-Object | `AND(Account.Type != 'Customer', Amount__c > 100000)` | Related field checks |
+| Email Regex          | `NOT(REGEX(Email__c, "^[a-zA-Z0-9._-]+@..."))`            | Format validation                 |
+| Future Date          | `Due_Date__c < TODAY()`                                   | Date constraints                  |
+| Cross-Object         | `AND(Account.Type != 'Customer', Amount__c > 100000)`     | Related field checks              |
 
 ---
 
 ## Cirra AI Tool Reference
 
 ### Initialization
+
 ```
 cirra_ai_init(cirra_ai_team="your-team", scope="metadata", sf_user="admin@org.com")
 ```
 
 ### Query Tools
+
 ```
 sobject_describe(sObject="Account", sf_user="admin@org.com")
 sobjects_list(customObjectsOnly=false, sf_user="admin@org.com")
@@ -498,6 +513,7 @@ tooling_api_query(sObject="CustomObject", fields=["Id","DeveloperName"], sf_user
 ```
 
 ### Creation Tools
+
 ```
 sobject_create(sObject="Custom__c", label="Custom", sf_user="admin@org.com")
 sobject_field_create(sObject="Account", fieldName="Field__c", fieldType="Text", sf_user="admin@org.com")
@@ -509,6 +525,7 @@ value_set_create(name="Values", masterLabel="Values", values=[...], sf_user="adm
 ```
 
 ### Update Tools
+
 ```
 sobject_update(sObject="Custom__c", properties={...}, sf_user="admin@org.com")
 sobject_field_update(sObject="Account", fieldName="Field__c", properties={...}, sf_user="admin@org.com")
@@ -521,6 +538,7 @@ value_set_update(name="Values", type="GlobalValueSet", values=[...], sf_user="ad
 ```
 
 ### Assignment Tools
+
 ```
 permission_set_assignments_add(users=["user@org.com"], permissionSets=["AccessSet"], sf_user="admin@org.com")
 permission_set_assignments_remove(users=["user@org.com"], permissionSets=["AccessSet"], sf_user="admin@org.com")
@@ -529,6 +547,7 @@ group_members_remove(users=["user@org.com"], groups=["GroupName"], sf_user="admi
 ```
 
 ### Deletion Tools
+
 ```
 metadata_delete(type="CustomField", fullNames=["Account.Custom__c"], sf_user="admin@org.com")
 sobject_field_delete(sObject="Account", fieldName="Field__c", sf_user="admin@org.com")
@@ -538,38 +557,38 @@ sobject_field_delete(sObject="Account", fieldName="Field__c", sf_user="admin@org
 
 ## Metadata Anti-Patterns
 
-| Anti-Pattern | Fix |
-|--------------|-----|
-| Profile-based FLS | Use Permission Sets for granular access |
-| Hardcoded IDs in formulas | Use Custom Settings or Custom Metadata |
-| Validation rule without bypass | Add `$Permission.Bypass_Validation__c` check |
-| Too many picklist values (>200) | Consider Custom Object instead |
-| Auto-number without prefix | Add meaningful prefix: `INV-{0000}` |
-| Roll-up on non-M-D | Use trigger-based calculation or DLRS |
-| Field label = API name | Use user-friendly labels |
-| No description on custom objects | Always document purpose |
+| Anti-Pattern                     | Fix                                          |
+| -------------------------------- | -------------------------------------------- |
+| Profile-based FLS                | Use Permission Sets for granular access      |
+| Hardcoded IDs in formulas        | Use Custom Settings or Custom Metadata       |
+| Validation rule without bypass   | Add `$Permission.Bypass_Validation__c` check |
+| Too many picklist values (>200)  | Consider Custom Object instead               |
+| Auto-number without prefix       | Add meaningful prefix: `INV-{0000}`          |
+| Roll-up on non-M-D               | Use trigger-based calculation or DLRS        |
+| Field label = API name           | Use user-friendly labels                     |
+| No description on custom objects | Always document purpose                      |
 
 ---
 
 ## Key Insights
 
-| Insight | Issue | Fix |
-|---------|-------|-----|
-| FLS is the Silent Killer | Created fields invisible without FLS | Always prompt for Permission Set generation |
-| Required Fields ≠ Permission Sets | Salesforce rejects required fields in PS | Filter out required fields from field permissions |
-| Direct API Speed | Metadata creation is immediate | No deployment time needed like file-based approach |
-| Org Connection Required | All operations need active sf_user | Always initialize with cirra_ai_init first |
-| Metadata Consistency | Direct creation avoids local file issues | Always verify creation with query tools |
+| Insight                           | Issue                                    | Fix                                                |
+| --------------------------------- | ---------------------------------------- | -------------------------------------------------- |
+| FLS is the Silent Killer          | Created fields invisible without FLS     | Always prompt for Permission Set generation        |
+| Required Fields ≠ Permission Sets | Salesforce rejects required fields in PS | Filter out required fields from field permissions  |
+| Direct API Speed                  | Metadata creation is immediate           | No deployment time needed like file-based approach |
+| Org Connection Required           | All operations need active sf_user       | Always initialize with cirra_ai_init first         |
+| Metadata Consistency              | Direct creation avoids local file issues | Always verify creation with query tools            |
 
 ## Common Errors
 
-| Error | Fix |
-|-------|-----|
-| `Cannot deploy to required field` | Remove from fieldPermissions (auto-visible) |
-| `Field does not exist` | Create Permission Set with field access |
-| `SObject type 'X' not supported` | Use sobjects_list to verify object exists |
-| `Invalid metadata structure` | Check API field names match Salesforce specs |
-| `cirra_ai_init not called` | Call cirra_ai_init before any metadata operations |
+| Error                             | Fix                                               |
+| --------------------------------- | ------------------------------------------------- |
+| `Cannot deploy to required field` | Remove from fieldPermissions (auto-visible)       |
+| `Field does not exist`            | Create Permission Set with field access           |
+| `SObject type 'X' not supported`  | Use sobjects_list to verify object exists         |
+| `Invalid metadata structure`      | Check API field names match Salesforce specs      |
+| `cirra_ai_init not called`        | Call cirra_ai_init before any metadata operations |
 
 ---
 

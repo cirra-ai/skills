@@ -17,13 +17,13 @@ Installation:
 import subprocess
 import json
 import os
-from typing import Dict, List, Any, Optional
+from typing import Any
 
 
 class SLDSLinterWrapper:
     """Wrapper for npm-based SLDS Linter."""
 
-    def __init__(self, project_root: Optional[str] = None):
+    def __init__(self, project_root: str | None = None):
         """
         Initialize the SLDS Linter wrapper.
 
@@ -31,7 +31,7 @@ class SLDSLinterWrapper:
             project_root: Root directory for linting context (optional)
         """
         self.project_root = project_root or os.getcwd()
-        self._available: Optional[bool] = None
+        self._available: bool | None = None
 
     def is_available(self) -> bool:
         """
@@ -45,10 +45,10 @@ class SLDSLinterWrapper:
 
         try:
             result = subprocess.run(
-                ['npx', '@salesforce-ux/slds-linter', '--version'],
+                ["npx", "@salesforce-ux/slds-linter", "--version"],
                 capture_output=True,
                 text=True,
-                timeout=10
+                timeout=10,
             )
             self._available = result.returncode == 0
         except (subprocess.TimeoutExpired, FileNotFoundError, Exception):
@@ -56,7 +56,7 @@ class SLDSLinterWrapper:
 
         return self._available
 
-    def lint_file(self, file_path: str) -> Dict[str, Any]:
+    def lint_file(self, file_path: str) -> dict[str, Any]:
         """
         Lint a single file using SLDS Linter.
 
@@ -68,53 +68,41 @@ class SLDSLinterWrapper:
         """
         if not self.is_available():
             return {
-                'success': False,
-                'error': 'slds-linter not installed. Install with: npm i -g @salesforce-ux/slds-linter',
-                'violations': []
+                "success": False,
+                "error": "slds-linter not installed. Install with: npm i -g @salesforce-ux/slds-linter",
+                "violations": [],
             }
 
         try:
             # Run SLDS Linter with JSON output
             result = subprocess.run(
-                [
-                    'npx', '@salesforce-ux/slds-linter', 'lint',
-                    file_path,
-                    '--format', 'json'
-                ],
+                ["npx", "@salesforce-ux/slds-linter", "lint", file_path, "--format", "json"],
                 capture_output=True,
                 text=True,
                 timeout=30,
-                cwd=self.project_root
+                cwd=self.project_root,
             )
 
             violations = self._parse_output(result.stdout, result.stderr)
 
-            return {
-                'success': True,
-                'violations': violations,
-                'exit_code': result.returncode
-            }
+            return {"success": True, "violations": violations, "exit_code": result.returncode}
 
         except subprocess.TimeoutExpired:
             return {
-                'success': False,
-                'error': 'slds-linter timed out after 30 seconds',
-                'violations': []
+                "success": False,
+                "error": "slds-linter timed out after 30 seconds",
+                "violations": [],
             }
         except FileNotFoundError:
             return {
-                'success': False,
-                'error': 'npx not found - ensure Node.js is installed',
-                'violations': []
+                "success": False,
+                "error": "npx not found - ensure Node.js is installed",
+                "violations": [],
             }
         except Exception as e:
-            return {
-                'success': False,
-                'error': str(e),
-                'violations': []
-            }
+            return {"success": False, "error": str(e), "violations": []}
 
-    def lint_directory(self, dir_path: str, extensions: List[str] = None) -> Dict[str, Any]:
+    def lint_directory(self, dir_path: str, extensions: list[str] = None) -> dict[str, Any]:
         """
         Lint all matching files in a directory.
 
@@ -126,34 +114,30 @@ class SLDSLinterWrapper:
             dict with success status, file_results, and total violations
         """
         if extensions is None:
-            extensions = ['.html', '.css']
+            extensions = [".html", ".css"]
 
         if not self.is_available():
             return {
-                'success': False,
-                'error': 'slds-linter not installed',
-                'file_results': {},
-                'total_violations': 0
+                "success": False,
+                "error": "slds-linter not installed",
+                "file_results": {},
+                "total_violations": 0,
             }
 
         file_results = {}
         total_violations = 0
 
-        for root, dirs, files in os.walk(dir_path):
+        for root, _dirs, files in os.walk(dir_path):
             for file in files:
                 if any(file.endswith(ext) for ext in extensions):
                     file_path = os.path.join(root, file)
                     result = self.lint_file(file_path)
                     file_results[file_path] = result
-                    total_violations += len(result.get('violations', []))
+                    total_violations += len(result.get("violations", []))
 
-        return {
-            'success': True,
-            'file_results': file_results,
-            'total_violations': total_violations
-        }
+        return {"success": True, "file_results": file_results, "total_violations": total_violations}
 
-    def _parse_output(self, stdout: str, stderr: str) -> List[Dict]:
+    def _parse_output(self, stdout: str, stderr: str) -> list[dict]:
         """
         Parse SLDS Linter JSON output into structured violations.
 
@@ -174,28 +158,32 @@ class SLDSLinterWrapper:
                 # Handle ESLint-style JSON output
                 if isinstance(data, list):
                     for file_result in data:
-                        for message in file_result.get('messages', []):
-                            violations.append({
-                                'rule': message.get('ruleId', 'unknown'),
-                                'message': message.get('message', ''),
-                                'line': message.get('line', 0),
-                                'column': message.get('column', 0),
-                                'severity': self._map_severity(message.get('severity', 1)),
-                                'source': 'slds-linter',
-                                'file': file_result.get('filePath', '')
-                            })
+                        for message in file_result.get("messages", []):
+                            violations.append(
+                                {
+                                    "rule": message.get("ruleId", "unknown"),
+                                    "message": message.get("message", ""),
+                                    "line": message.get("line", 0),
+                                    "column": message.get("column", 0),
+                                    "severity": self._map_severity(message.get("severity", 1)),
+                                    "source": "slds-linter",
+                                    "file": file_result.get("filePath", ""),
+                                }
+                            )
 
                 # Handle single object output
                 elif isinstance(data, dict):
-                    for message in data.get('messages', []):
-                        violations.append({
-                            'rule': message.get('ruleId', 'unknown'),
-                            'message': message.get('message', ''),
-                            'line': message.get('line', 0),
-                            'column': message.get('column', 0),
-                            'severity': self._map_severity(message.get('severity', 1)),
-                            'source': 'slds-linter'
-                        })
+                    for message in data.get("messages", []):
+                        violations.append(
+                            {
+                                "rule": message.get("ruleId", "unknown"),
+                                "message": message.get("message", ""),
+                                "line": message.get("line", 0),
+                                "column": message.get("column", 0),
+                                "severity": self._map_severity(message.get("severity", 1)),
+                                "source": "slds-linter",
+                            }
+                        )
 
         except json.JSONDecodeError:
             # If not valid JSON, try to extract violations from text output
@@ -204,7 +192,7 @@ class SLDSLinterWrapper:
 
         return violations
 
-    def _parse_text_output(self, output: str) -> List[Dict]:
+    def _parse_text_output(self, output: str) -> list[dict]:
         """
         Parse plain text linter output for violations.
 
@@ -222,20 +210,23 @@ class SLDSLinterWrapper:
         # Common patterns for linter output
         # Example: "filename.html:10:5: error - message"
         import re
-        pattern = r'(\S+):(\d+):(\d+):\s*(error|warning|info)\s*[-:]\s*(.+)'
+
+        pattern = r"(\S+):(\d+):(\d+):\s*(error|warning|info)\s*[-:]\s*(.+)"
 
         for line in output.splitlines():
             match = re.match(pattern, line, re.IGNORECASE)
             if match:
-                violations.append({
-                    'file': match.group(1),
-                    'line': int(match.group(2)),
-                    'column': int(match.group(3)),
-                    'severity': match.group(4).upper(),
-                    'message': match.group(5).strip(),
-                    'rule': 'slds',
-                    'source': 'slds-linter'
-                })
+                violations.append(
+                    {
+                        "file": match.group(1),
+                        "line": int(match.group(2)),
+                        "column": int(match.group(3)),
+                        "severity": match.group(4).upper(),
+                        "message": match.group(5).strip(),
+                        "rule": "slds",
+                        "source": "slds-linter",
+                    }
+                )
 
         return violations
 
@@ -249,11 +240,7 @@ class SLDSLinterWrapper:
         Returns:
             Severity label string
         """
-        return {
-            0: 'INFO',
-            1: 'WARNING',
-            2: 'HIGH'
-        }.get(level, 'INFO')
+        return {0: "INFO", 1: "WARNING", 2: "HIGH"}.get(level, "INFO")
 
 
 def is_slds_linter_available() -> bool:
@@ -267,7 +254,7 @@ def is_slds_linter_available() -> bool:
     return wrapper.is_available()
 
 
-def lint_lwc_file(file_path: str) -> Dict[str, Any]:
+def lint_lwc_file(file_path: str) -> dict[str, Any]:
     """
     Convenience function to lint a single LWC file.
 

@@ -8,17 +8,14 @@
     Choose based on your requirements.
 -->
 <template>
-    <lightning-card title={cardTitle} icon-name="standard:account">
-        <!-- Loading Overlay -->
-        <template if:true={isLoading}>
-            <lightning-spinner
-                alternative-text="Loading"
-                size="medium"
-                class="slds-is-absolute">
-            </lightning-spinner>
-        </template>
+  <lightning-card title="{cardTitle}" icon-name="standard:account">
+    <!-- Loading Overlay -->
+    <template if:true="{isLoading}">
+      <lightning-spinner alternative-text="Loading" size="medium" class="slds-is-absolute">
+      </lightning-spinner>
+    </template>
 
-        <!--
+    <!--
         ═══════════════════════════════════════════════════════════════════════
         OPTION 1: LIGHTNING-RECORD-EDIT-FORM (Recommended)
 
@@ -33,67 +30,79 @@
         - Limited custom validation
         ═══════════════════════════════════════════════════════════════════════
         -->
-        <lightning-record-edit-form
-            object-api-name={objectApiName}
-            record-id={recordId}
-            record-type-id={recordTypeId}
-            onload={handleLoad}
-            onsubmit={handleSubmit}
-            onsuccess={handleSuccess}
-            onerror={handleError}>
+    <lightning-record-edit-form
+      object-api-name="{objectApiName}"
+      record-id="{recordId}"
+      record-type-id="{recordTypeId}"
+      onload="
+        {
+          handleLoad;
+        }
+      "
+      onsubmit="
+        {
+          handleSubmit;
+        }
+      "
+      onsuccess="{handleSuccess}"
+      onerror="
+        {
+          handleError;
+        }
+      "
+    >
+      <!-- Error Messages Display -->
+      <lightning-messages></lightning-messages>
 
-            <!-- Error Messages Display -->
-            <lightning-messages></lightning-messages>
+      <div class="slds-p-around_medium">
+        <!-- Form Fields -->
+        <div class="slds-grid slds-wrap slds-gutters">
+          <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+            <lightning-input-field field-name="{nameField}" required> </lightning-input-field>
+          </div>
 
-            <div class="slds-p-around_medium">
-                <!-- Form Fields -->
-                <div class="slds-grid slds-wrap slds-gutters">
-                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
-                        <lightning-input-field
-                            field-name={nameField}
-                            required>
-                        </lightning-input-field>
-                    </div>
+          <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+            <lightning-input-field field-name="{industryField}"> </lightning-input-field>
+          </div>
 
-                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
-                        <lightning-input-field
-                            field-name={industryField}>
-                        </lightning-input-field>
-                    </div>
+          <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+            <lightning-input-field field-name="{phoneField}"> </lightning-input-field>
+          </div>
+        </div>
 
-                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
-                        <lightning-input-field
-                            field-name={phoneField}>
-                        </lightning-input-field>
-                    </div>
-                </div>
+        <!-- Form Buttons -->
+        <div class="slds-m-top_medium">
+          <lightning-button
+            variant="neutral"
+            label="Cancel"
+            onclick="
+              {
+                handleCancel;
+              }
+            "
+            class="slds-m-right_x-small"
+          >
+          </lightning-button>
 
-                <!-- Form Buttons -->
-                <div class="slds-m-top_medium">
-                    <lightning-button
-                        variant="neutral"
-                        label="Cancel"
-                        onclick={handleCancel}
-                        class="slds-m-right_x-small">
-                    </lightning-button>
+          <lightning-button
+            variant="neutral"
+            label="Reset"
+            onclick="
+              {
+                handleReset;
+              }
+            "
+            class="slds-m-right_x-small"
+          >
+          </lightning-button>
 
-                    <lightning-button
-                        variant="neutral"
-                        label="Reset"
-                        onclick={handleReset}
-                        class="slds-m-right_x-small">
-                    </lightning-button>
+          <lightning-button variant="brand" type="submit" label="{submitButtonLabel}">
+          </lightning-button>
+        </div>
+      </div>
+    </lightning-record-edit-form>
 
-                    <lightning-button
-                        variant="brand"
-                        type="submit"
-                        label={submitButtonLabel}>
-                    </lightning-button>
-                </div>
-            </div>
-        </lightning-record-edit-form>
-
-        <!--
+    <!--
         ═══════════════════════════════════════════════════════════════════════
         OPTION 2: CUSTOM FORM (Alternative - uncomment to use)
 
@@ -107,7 +116,7 @@
         - More code to maintain
         ═══════════════════════════════════════════════════════════════════════
         -->
-        <!--
+    <!--
         <div class="slds-p-around_medium custom-form">
             <div class="slds-grid slds-wrap slds-gutters">
                 <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
@@ -161,5 +170,5 @@
             </div>
         </div>
         -->
-    </lightning-card>
+  </lightning-card>
 </template>

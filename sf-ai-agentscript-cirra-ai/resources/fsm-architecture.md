@@ -8,31 +8,31 @@
 
 ### The Problem with Prompt-Only Agents
 
-| Anti-Pattern | Description |
-|--------------|-------------|
-| **ReAct Pattern** | Agents get stuck in reasoning loops without guardrails |
-| **Doom-Prompting** | Prompts grow exponentially to handle edge cases |
-| **Goal Drift** | Agents forget original intent after several turns |
+| Anti-Pattern       | Description                                            |
+| ------------------ | ------------------------------------------------------ |
+| **ReAct Pattern**  | Agents get stuck in reasoning loops without guardrails |
+| **Doom-Prompting** | Prompts grow exponentially to handle edge cases        |
+| **Goal Drift**     | Agents forget original intent after several turns      |
 
 > **KEY INSIGHT**: "LLMs are non-deterministic by design. Without structured control flow, enterprise agents become unpredictable, expensive, and impossible to debug."
 
 ### The FSM Solution
 
-| FSM Concept | Traffic Light Example | Agent Benefit |
-|-------------|----------------------|---------------|
-| **States** | Red, Green, Yellow | Agent always knows exactly what it's doing |
-| **Transitions** | Timer expires | No ambiguity about what happens next |
-| **Determinism** | Red → Green (guaranteed) | Auditable, testable, trustworthy |
+| FSM Concept     | Traffic Light Example    | Agent Benefit                              |
+| --------------- | ------------------------ | ------------------------------------------ |
+| **States**      | Red, Green, Yellow       | Agent always knows exactly what it's doing |
+| **Transitions** | Timer expires            | No ambiguity about what happens next       |
+| **Determinism** | Red → Green (guaranteed) | Auditable, testable, trustworthy           |
 
 ---
 
 ## The Three FSM Pillars
 
-| Pillar | Definition | Agent Benefit |
-|--------|------------|---------------|
-| **States** | Distinct "modes" the system can be in | Clear context at any moment |
+| Pillar          | Definition                               | Agent Benefit               |
+| --------------- | ---------------------------------------- | --------------------------- |
+| **States**      | Distinct "modes" the system can be in    | Clear context at any moment |
 | **Transitions** | Explicit rules for moving between states | Defined paths, no surprises |
-| **Determinism** | Same input → same output | Auditable and testable |
+| **Determinism** | Same input → same output                 | Auditable and testable      |
 
 ---
 
@@ -40,13 +40,13 @@
 
 ### Pattern Overview
 
-| Pattern | Color | Purpose |
-|---------|-------|---------|
-| 🔵 **ROUTING** | Blue | Routes based on intent |
-| 🔵 **VERIFICATION** | Light Blue | Security checks |
-| 🟡 **DATA-LOOKUP** | Yellow | External data fetch |
-| 🟢 **PROCESSING** | Green | Business logic |
-| 🔴 **HANDOFF** | Red | Human escalation |
+| Pattern             | Color      | Purpose                |
+| ------------------- | ---------- | ---------------------- |
+| 🔵 **ROUTING**      | Blue       | Routes based on intent |
+| 🔵 **VERIFICATION** | Light Blue | Security checks        |
+| 🟡 **DATA-LOOKUP**  | Yellow     | External data fetch    |
+| 🟢 **PROCESSING**   | Green      | Business logic         |
+| 🔴 **HANDOFF**      | Red        | Human escalation       |
 
 ---
 
@@ -268,23 +268,23 @@ Security gate before protected topics.
 ### Classification Framework
 
 | Put in Deterministic Nodes if... | Put in Subjective Reasoning if... |
-|----------------------------------|-----------------------------------|
-| Security/safety requirement | Conversational/greeting |
-| Financial threshold | Context understanding needed |
-| Data fetch required | Natural language generation |
-| Counter/state management | Flexible interpretation needed |
-| Hard cutoff rule | Response explanation |
+| -------------------------------- | --------------------------------- |
+| Security/safety requirement      | Conversational/greeting           |
+| Financial threshold              | Context understanding needed      |
+| Data fetch required              | Natural language generation       |
+| Counter/state management         | Flexible interpretation needed    |
+| Hard cutoff rule                 | Response explanation              |
 
 ### Examples
 
-| Requirement | Classification | Reasoning |
-|-------------|----------------|-----------|
-| "ALWAYS verify identity before refund" | **Deterministic** | Security - must be code-enforced |
-| "Start with a friendly greeting" | **Subjective** | Conversational - LLM flexibility |
-| "IF churn > 80, full refund" | **Deterministic** | Financial threshold - no exceptions |
-| "Explain the refund status" | **Subjective** | Natural language generation |
-| "Count failed verification attempts" | **Deterministic** | Counter logic - must be accurate |
-| "Redirect off-topic questions" | **Subjective** | Context understanding required |
+| Requirement                            | Classification    | Reasoning                           |
+| -------------------------------------- | ----------------- | ----------------------------------- |
+| "ALWAYS verify identity before refund" | **Deterministic** | Security - must be code-enforced    |
+| "Start with a friendly greeting"       | **Subjective**    | Conversational - LLM flexibility    |
+| "IF churn > 80, full refund"           | **Deterministic** | Financial threshold - no exceptions |
+| "Explain the refund status"            | **Subjective**    | Natural language generation         |
+| "Count failed verification attempts"   | **Deterministic** | Counter logic - must be accurate    |
+| "Redirect off-topic questions"         | **Subjective**    | Context understanding required      |
 
 ---
 
@@ -310,25 +310,28 @@ Security gate before protected topics.
 
 ### State Definitions
 
-| State | Type | Entry Condition | Exit Conditions |
-|-------|------|-----------------|-----------------|
-| Topic Selector | ROUTING | Conversation start | Intent detected |
-| Identity Verification | VERIFICATION | Refund intent | Verified OR 3 failures |
-| Risk Assessment | DATA-LOOKUP | Identity verified | Score loaded |
-| Refund Processor | PROCESSING | Score loaded | Refund complete |
-| Escalation | HANDOFF | 3 failures | Human takeover |
+| State                 | Type         | Entry Condition    | Exit Conditions        |
+| --------------------- | ------------ | ------------------ | ---------------------- |
+| Topic Selector        | ROUTING      | Conversation start | Intent detected        |
+| Identity Verification | VERIFICATION | Refund intent      | Verified OR 3 failures |
+| Risk Assessment       | DATA-LOOKUP  | Identity verified  | Score loaded           |
+| Refund Processor      | PROCESSING   | Score loaded       | Refund complete        |
+| Escalation            | HANDOFF      | 3 failures         | Human takeover         |
 
 ---
 
 ## Best Practices
 
 ### 1. Single Responsibility per Topic
+
 Each topic should handle ONE concern. If a topic does verification AND processing, split it.
 
 ### 2. Explicit Transitions
+
 Always define how to enter AND exit each state. No dead ends.
 
 ### 3. Guard Sensitive Transitions
+
 Use `available when` to make actions invisible when conditions aren't met.
 
 ```yaml
@@ -339,7 +342,9 @@ actions:
 ```
 
 ### 4. Design for the Happy Path First
+
 Map the success flow, then add failure states.
 
 ### 5. Use Escalation as a Safety Net
+
 When in doubt, escalate to human. It's better than a bad automated decision.

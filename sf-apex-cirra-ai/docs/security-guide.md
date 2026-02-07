@@ -259,13 +259,13 @@ public static Boolean canModifyAllData() {
 
 ## Security Review Checklist
 
-| Check | Status |
-|-------|--------|
-| Uses `with sharing` by default | ☐ |
-| `without sharing` justified and documented | ☐ |
-| SOQL uses USER_MODE or manual CRUD/FLS checks | ☐ |
-| No SOQL injection vulnerabilities | ☐ |
-| No hardcoded credentials | ☐ |
-| Sensitive data not exposed in debug logs | ☐ |
-| AuraEnabled methods have proper error handling | ☐ |
-| Custom permissions used for sensitive operations | ☐ |
+| Check                                            | Status |
+| ------------------------------------------------ | ------ |
+| Uses `with sharing` by default                   | ☐      |
+| `without sharing` justified and documented       | ☐      |
+| SOQL uses USER_MODE or manual CRUD/FLS checks    | ☐      |
+| No SOQL injection vulnerabilities                | ☐      |
+| No hardcoded credentials                         | ☐      |
+| Sensitive data not exposed in debug logs         | ☐      |
+| AuraEnabled methods have proper error handling   | ☐      |
+| Custom permissions used for sensitive operations | ☐      |

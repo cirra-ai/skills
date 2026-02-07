@@ -42,9 +42,7 @@ class TestApiRequest:
 
     def test_successful_request(self, mock_urlopen):
         """Successful 200 response returns parsed JSON dict."""
-        mock_urlopen.return_value = make_mock_response(
-            200, {"sessionId": "sess-001"}
-        )
+        mock_urlopen.return_value = make_mock_response(200, {"sessionId": "sess-001"})
         client = _make_authed_client()
 
         result = client._api_request("POST", "https://api.salesforce.com/test")
@@ -84,8 +82,8 @@ class TestApiRequest:
         # Sequence: 1) original call -> 401, 2) re-auth call -> token, 3) retry -> success
         mock_urlopen.side_effect = [
             make_http_error(401, {"error": "INVALID_SESSION_ID"}),
-            make_mock_response(200, {"access_token": "new-tok"}),   # re-auth
-            make_mock_response(200, {"data": "finally"}),            # retry
+            make_mock_response(200, {"access_token": "new-tok"}),  # re-auth
+            make_mock_response(200, {"data": "finally"}),  # retry
         ]
         client = _make_authed_client(retry_count=1)
 
@@ -98,9 +96,7 @@ class TestApiRequest:
 
     def test_no_retry_on_400(self, mock_urlopen):
         """400 (bad request) raises immediately without retry."""
-        mock_urlopen.side_effect = make_http_error(
-            400, {"error": "bad_request"}
-        )
+        mock_urlopen.side_effect = make_http_error(400, {"error": "bad_request"})
         client = _make_authed_client(retry_count=1)
 
         with pytest.raises(AgentAPIError) as exc_info:

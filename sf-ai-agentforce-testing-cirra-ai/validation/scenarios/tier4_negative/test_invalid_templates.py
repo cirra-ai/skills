@@ -20,6 +20,7 @@ from multi_turn_test_runner import load_scenarios
 # Tests
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.tier4
 @pytest.mark.offline
 def test_invalid_yaml_syntax(tmp_path):

@@ -5,8 +5,9 @@ This example demonstrates creating a Record-Triggered Flow with proper bulkifica
 ## Scenario
 
 When an Opportunity is marked as "Closed Won":
+
 - Find all related Contacts
-- Update their Status__c field to "Customer"
+- Update their Status\_\_c field to "Customer"
 - Send notification to account owner
 - **Handle bulk updates** (200+ opportunities at once)
 
@@ -42,6 +43,7 @@ The skill asks:
 ### Phase 2: Flow Design
 
 The skill designs a **bulkified** flow:
+
 - **Trigger**: Opportunity, After Save, Create and Update
 - **bulkSupport**: true (CRITICAL for bulk processing)
 - **Decision**: Check if Stage = 'Closed Won'
@@ -223,14 +225,16 @@ AND CreatedDate=TODAY ORDER BY CreatedDate DESC LIMIT 50"
 ## Testing Results
 
 ### Single Record Test
+
 ✓ Flow triggered correctly
 ✓ Stage change detected
 ✓ Related contacts retrieved (3 contacts)
-✓ All 3 contacts updated to Status__c = 'Customer'
+✓ All 3 contacts updated to Status\_\_c = 'Customer'
 ✓ Execution time: 142ms
 ✓ No errors
 
 ### Bulk Test (200 Opportunities, ~800 Contacts)
+
 ✓ Data Loader bulk update completed
 ✓ Flow executed for all 200 opportunities
 ✓ All ~800 contacts updated correctly
@@ -240,6 +244,7 @@ AND CreatedDate=TODAY ORDER BY CreatedDate DESC LIMIT 50"
 ✓ SOQL queries: Within limits (100 max)
 
 **Why it worked:**
+
 - `<bulkSupport>true</bulkSupport>` enabled collection processing
 - DML operation on collection (not individual records in a loop)
 - Single SOQL query per opportunity
@@ -248,6 +253,7 @@ AND CreatedDate=TODAY ORDER BY CreatedDate DESC LIMIT 50"
 ## Common Mistakes (Avoided by This Flow)
 
 ### ❌ WRONG: DML in Loop
+
 ```xml
 <!-- THIS WOULD FAIL WITH BULK DATA -->
 <loops>
@@ -266,11 +272,13 @@ AND CreatedDate=TODAY ORDER BY CreatedDate DESC LIMIT 50"
 ```
 
 **Why it fails:**
+
 - DML inside loop = one DML per record
 - Governor limit: 150 DML statements per transaction
 - 200 contacts = 200 DML statements = FAILURE
 
 ### ✓ CORRECT: Bulk DML
+
 ```xml
 <!-- Our flow does this correctly -->
 <recordLookups>
@@ -286,6 +294,7 @@ AND CreatedDate=TODAY ORDER BY CreatedDate DESC LIMIT 50"
 ```
 
 **Why it works:**
+
 - One DML operation for entire collection
 - Handles 200, 2000, or 20,000 records equally well
 - Stays within governor limits
@@ -295,6 +304,7 @@ AND CreatedDate=TODAY ORDER BY CreatedDate DESC LIMIT 50"
 After successful bulk testing in sandbox:
 
 1. **Deploy to production:**
+
    ```
    "Deploy Opportunity_Closed_Won_Update_Contacts to production"
    ```
@@ -322,11 +332,13 @@ After successful bulk testing in sandbox:
 ## Performance Metrics
 
 **Single Execution:**
+
 - SOQL Queries: 1 (Get Contacts)
 - DML Statements: 1 (Update Contacts)
 - Execution Time: ~150ms
 
 **Bulk Execution (200 Opportunities):**
+
 - SOQL Queries: 200 (1 per opportunity)
 - DML Statements: 200 (1 per opportunity)
 - Total Time: ~58 seconds

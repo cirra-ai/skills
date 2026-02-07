@@ -7,6 +7,7 @@ The **Sequential pattern** chains multiple flows together where each flow's outp
 ## When to Use This Pattern
 
 ✅ **Use Sequential when:**
+
 - Each step depends on the previous step's output
 - You need a multi-stage validation/approval process
 - Data flows through a transformation pipeline
@@ -14,6 +15,7 @@ The **Sequential pattern** chains multiple flows together where each flow's outp
 - Each stage can be developed and tested independently
 
 ❌ **Don't use when:**
+
 - Steps are independent and can run in parallel
 - Order doesn't matter
 - You need conditional branching (use Conditional pattern instead)
@@ -23,6 +25,7 @@ The **Sequential pattern** chains multiple flows together where each flow's outp
 ### Business Requirement
 
 Process customer orders through multiple stages:
+
 1. **Validate Order**: Check inventory, pricing, customer credit
 2. **Calculate Tax**: Determine tax based on shipping address and products
 3. **Process Payment**: Charge payment method
@@ -556,46 +559,57 @@ Screen Flow: Order_Confirmation (displays final results)
 ## Key Characteristics
 
 ### 1. **Linear Flow**
+
 Each step executes only after the previous step completes:
+
 ```
 Step 1 → Output → Step 2 → Output → Step 3 → Output → Step 4
 ```
 
 ### 2. **Data Propagation**
+
 Outputs from earlier steps are passed as inputs to later steps:
+
 ```
 Calculate_Tax.varTotalAmount → Process_Payment.varTotalAmount
 Process_Payment.varPaymentId → Generate_Invoice.varPaymentId
 ```
 
 ### 3. **Fail-Fast Behavior**
+
 If any step fails, the pipeline stops:
+
 ```
 Validation Failed → Show Error → End (no further processing)
 Payment Failed → Show Error → End (inventory not reserved)
 ```
 
 ### 4. **Clear Exit Points**
+
 Each validation point can terminate the flow early, preventing unnecessary work.
 
 ## Benefits of Sequential Pattern
 
 ### ✅ Staged Processing
+
 - Break complex workflows into digestible stages
 - Each stage has clear inputs and outputs
 - Easy to understand flow of data
 
 ### ✅ Error Isolation
+
 - Know exactly which stage failed
 - Can retry individual stages
 - Log shows precise failure point
 
 ### ✅ Flexibility
+
 - Add new stages easily
 - Remove stages without affecting others
 - Reorder stages if dependencies allow
 
 ### ✅ Testing
+
 - Test each stage independently
 - Mock outputs for downstream testing
 - Verify data transformation at each step
@@ -641,6 +655,7 @@ Step A (1s) → Step B (1s) → Step C (1s) → Complete
 ```
 
 **Trade-off**: Sequential is slower but provides:
+
 - Better error handling
 - Clear data flow
 - Easier debugging
@@ -649,9 +664,11 @@ Step A (1s) → Step B (1s) → Step C (1s) → Complete
 ## Error Handling in Pipelines
 
 ### Strategy 1: Fail Fast
+
 Stop on first error (shown in example above)
 
 ### Strategy 2: Collect and Report
+
 Continue through all steps, collect all errors, report at end:
 
 ```xml
@@ -672,6 +689,7 @@ Continue through all steps, collect all errors, report at end:
 ```
 
 ### Strategy 3: Retry Logic
+
 Attempt failed step again before failing:
 
 ```xml

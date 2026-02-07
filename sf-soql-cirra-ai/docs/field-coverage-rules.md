@@ -27,6 +27,7 @@ System.SObjectException: SObject row was retrieved via SOQL without querying the
 ```
 
 This error is particularly common in LLM-generated code because the LLM may:
+
 1. Query some fields but access others in subsequent code
 2. Forget to include relationship fields (e.g., `Account.Name` on Contact)
 3. Access fields in conditional logic that weren't anticipated in the query
@@ -76,15 +77,15 @@ for (Account acc : accounts) {
 
 Fields can be accessed in many places—ensure coverage for all:
 
-| Access Location | Example | Must Query |
-|-----------------|---------|------------|
-| Conditional (`if`) | `if (acc.Industry == 'Tech')` | `Industry` |
-| Assignment | `acc.Description = 'Text'` | `Description` |
-| Variable assignment | `String name = acc.Name` | `Name` |
-| Method argument | `sendEmail(acc.Email__c)` | `Email__c` |
-| Collection key | `map.put(acc.Name, acc)` | `Name` |
-| String interpolation | `'Hello ' + acc.Name` | `Name` |
-| SOQL bind | `[SELECT Id FROM Contact WHERE AccountId = :acc.Id]` | `Id` (usually included) |
+| Access Location      | Example                                              | Must Query              |
+| -------------------- | ---------------------------------------------------- | ----------------------- |
+| Conditional (`if`)   | `if (acc.Industry == 'Tech')`                        | `Industry`              |
+| Assignment           | `acc.Description = 'Text'`                           | `Description`           |
+| Variable assignment  | `String name = acc.Name`                             | `Name`                  |
+| Method argument      | `sendEmail(acc.Email__c)`                            | `Email__c`              |
+| Collection key       | `map.put(acc.Name, acc)`                             | `Name`                  |
+| String interpolation | `'Hello ' + acc.Name`                                | `Name`                  |
+| SOQL bind            | `[SELECT Id FROM Contact WHERE AccountId = :acc.Id]` | `Id` (usually included) |
 
 ---
 
@@ -132,10 +133,10 @@ for (Contact c : contacts) {
 
 ### Relationship Traversal Limits
 
-| Direction | Limit | Example |
-|-----------|-------|---------|
-| Parent (lookup/master-detail) | 5 levels | `Contact.Account.Owner.Manager.Name` |
-| Child (subquery) | 1 level | `Account -> Contacts` (cannot nest subqueries) |
+| Direction                     | Limit    | Example                                        |
+| ----------------------------- | -------- | ---------------------------------------------- |
+| Parent (lookup/master-detail) | 5 levels | `Contact.Account.Owner.Manager.Name`           |
+| Child (subquery)              | 1 level  | `Account -> Contacts` (cannot nest subqueries) |
 
 ### ❌ BAD: Assuming Relationship is Populated
 
@@ -277,14 +278,14 @@ for (AggregateResult ar : results) {
 
 ### Aggregate Field Aliases
 
-| Function | Default Alias | Example |
-|----------|---------------|---------|
-| `COUNT(Field)` | `expr0`, `expr1`, etc. | Use explicit alias: `COUNT(Id) cnt` |
-| `SUM(Field)` | `expr0`, `expr1`, etc. | Use explicit alias: `SUM(Amount) total` |
-| `AVG(Field)` | `expr0`, `expr1`, etc. | Use explicit alias: `AVG(Age) avgAge` |
-| `MIN(Field)` | `expr0`, `expr1`, etc. | Use explicit alias: `MIN(CreatedDate) earliest` |
-| `MAX(Field)` | `expr0`, `expr1`, etc. | Use explicit alias: `MAX(Amount) largest` |
-| `GROUP BY Field` | Field API name | Access with field name: `ar.get('Industry')` |
+| Function         | Default Alias          | Example                                         |
+| ---------------- | ---------------------- | ----------------------------------------------- |
+| `COUNT(Field)`   | `expr0`, `expr1`, etc. | Use explicit alias: `COUNT(Id) cnt`             |
+| `SUM(Field)`     | `expr0`, `expr1`, etc. | Use explicit alias: `SUM(Amount) total`         |
+| `AVG(Field)`     | `expr0`, `expr1`, etc. | Use explicit alias: `AVG(Age) avgAge`           |
+| `MIN(Field)`     | `expr0`, `expr1`, etc. | Use explicit alias: `MIN(CreatedDate) earliest` |
+| `MAX(Field)`     | `expr0`, `expr1`, etc. | Use explicit alias: `MAX(Amount) largest`       |
+| `GROUP BY Field` | Field API name         | Access with field name: `ar.get('Industry')`    |
 
 ---
 
@@ -476,22 +477,26 @@ public class SObjectFieldValidator {
 Before running code that processes SOQL results:
 
 ### Direct Fields
+
 - [ ] All fields in `if` conditions are queried
 - [ ] All fields on left side of assignments are queried
 - [ ] All fields passed to methods are queried
 - [ ] All fields used in map keys/values are queried
 
 ### Relationship Fields
+
 - [ ] Parent fields use dot notation (e.g., `Account.Name`)
 - [ ] Parent object null checks before field access
 - [ ] Relationship traversal doesn't exceed 5 levels
 
 ### Subqueries
+
 - [ ] Child records accessed as List, not single record
 - [ ] Subquery SELECT includes all accessed child fields
 - [ ] Null check before iterating subquery results
 
 ### Dynamic Access
+
 - [ ] Fields accessed via `get(fieldName)` are queried
 - [ ] Dynamic queries include all needed fields
 
@@ -499,13 +504,13 @@ Before running code that processes SOQL results:
 
 ## Common LLM Mistakes Summary
 
-| Mistake | Example | Fix |
-|---------|---------|-----|
-| Query subset, use superset | Query `Id, Name`, use `Industry` | Add `Industry` to SELECT |
-| Forget relationship field | Use `c.Account.Name` without querying | Add `Account.Name` to SELECT |
-| Assume AccountId = Account | Query `AccountId`, access `Account.Name` | Query `Account.Name` explicitly |
-| Wrong subquery access | `acc.Contacts.Email` | `for (Contact c : acc.Contacts) { c.Email }` |
-| Missing subquery field | Subquery `SELECT Id`, use `Email` | Add `Email` to subquery SELECT |
+| Mistake                    | Example                                  | Fix                                          |
+| -------------------------- | ---------------------------------------- | -------------------------------------------- |
+| Query subset, use superset | Query `Id, Name`, use `Industry`         | Add `Industry` to SELECT                     |
+| Forget relationship field  | Use `c.Account.Name` without querying    | Add `Account.Name` to SELECT                 |
+| Assume AccountId = Account | Query `AccountId`, access `Account.Name` | Query `Account.Name` explicitly              |
+| Wrong subquery access      | `acc.Contacts.Email`                     | `for (Contact c : acc.Contacts) { c.Email }` |
+| Missing subquery field     | Subquery `SELECT Id`, use `Email`        | Add `Email` to subquery SELECT               |
 
 ---
 

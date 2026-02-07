@@ -3,6 +3,7 @@
 Tests real multi-turn interactions against the Agentforce Runtime API.
 These tests are slow (multiple round-trips per test) and marked accordingly.
 """
+
 import pytest
 
 
@@ -28,18 +29,12 @@ def test_three_turn_conversation(live_client, live_agent_id):
 
         # All three turns should have responses
         for i, turn in enumerate(turns, start=1):
-            assert turn.has_response, (
-                f"Turn {i} ({messages[i-1]!r}) did not produce a response"
-            )
-            assert turn.agent_text, (
-                f"Turn {i} agent_text is empty"
-            )
+            assert turn.has_response, f"Turn {i} ({messages[i - 1]!r}) did not produce a response"
+            assert turn.agent_text, f"Turn {i} agent_text is empty"
 
         # Sequence IDs should be 1, 2, 3
         seq_ids = [t.sequence_id for t in turns]
-        assert seq_ids == [1, 2, 3], (
-            f"Expected sequence_ids [1, 2, 3], got {seq_ids}"
-        )
+        assert seq_ids == [1, 2, 3], f"Expected sequence_ids [1, 2, 3], got {seq_ids}"
     finally:
         session.end()
 
@@ -58,8 +53,7 @@ def test_sequence_id_increments(live_client, live_agent_id):
         session.send("What can you help me with?")
 
         assert session._sequence_id == 2, (
-            f"Expected _sequence_id == 2 after 2 sends, "
-            f"got {session._sequence_id}"
+            f"Expected _sequence_id == 2 after 2 sends, got {session._sequence_id}"
         )
     finally:
         session.end()
@@ -80,6 +74,4 @@ def test_context_manager_cleanup(live_client, live_agent_id):
         assert turn.has_response, "Expected a response inside context manager"
 
     # After exiting the context manager, session should be ended
-    assert session_ref._ended is True, (
-        "session._ended should be True after exiting context manager"
-    )
+    assert session_ref._ended is True, "session._ended should be True after exiting context manager"

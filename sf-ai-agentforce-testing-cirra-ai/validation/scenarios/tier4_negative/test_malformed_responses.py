@@ -14,7 +14,6 @@ Tests:
 
 import json
 import sys
-import time
 from pathlib import Path
 
 import pytest
@@ -23,19 +22,17 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from agent_api_client import (
-    AgentAPIClient,
     AgentAPIError,
-    AgentSession,
-    AgentMessage,
     TurnResult,
     _parse_messages,
 )
-from conftest import make_mock_response, make_http_error
+from conftest import make_mock_response
 
 
 # ---------------------------------------------------------------------------
 # Tests
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.tier4
 @pytest.mark.offline

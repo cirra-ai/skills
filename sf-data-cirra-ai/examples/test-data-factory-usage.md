@@ -5,6 +5,7 @@ How to use and customize the test data factory templates.
 ## Basic Factory Pattern
 
 ### Account Factory
+
 ```apex
 public class TestDataFactory_Account {
 
@@ -46,6 +47,7 @@ insert accounts;
 ## Factory with Variations
 
 ### Industry Variations
+
 ```apex
 public static List<Account> createWithVariedIndustries(Integer count) {
     List<Account> records = new List<Account>();
@@ -65,6 +67,7 @@ public static List<Account> createWithVariedIndustries(Integer count) {
 ```
 
 ### Revenue Tiers
+
 ```apex
 public static List<Account> createWithRevenueTiers(Integer count) {
     List<Account> records = new List<Account>();
@@ -86,6 +89,7 @@ public static List<Account> createWithRevenueTiers(Integer count) {
 ## Factory with Relationships
 
 ### Contact Factory with Account
+
 ```apex
 public class TestDataFactory_Contact {
 
@@ -112,6 +116,7 @@ public class TestDataFactory_Contact {
 ```
 
 ### Usage
+
 ```apex
 // Create 10 accounts with 3 contacts each
 List<Account> accounts = TestDataFactory_Account.create(10);
@@ -123,6 +128,7 @@ List<Contact> contacts = TestDataFactory_Contact.createForAccounts(accountIds, 3
 ## Hierarchy Factory
 
 ### Complete Hierarchy in One Call
+
 ```apex
 public class TestDataFactory_Hierarchy {
 
@@ -159,6 +165,7 @@ public class TestDataFactory_Hierarchy {
 ```
 
 ### Usage
+
 ```apex
 // Create complete test hierarchy
 HierarchyResult data = TestDataFactory_Hierarchy.create(
@@ -176,6 +183,7 @@ System.debug('Opportunities: ' + data.opportunities.size());
 ## Edge Case Factories
 
 ### Boundary Values
+
 ```apex
 public static Account createWithMinValues() {
     return new Account(
@@ -192,6 +200,7 @@ public static Account createWithMaxValues() {
 ```
 
 ### Special Characters
+
 ```apex
 public static Account createWithSpecialCharacters() {
     return new Account(
@@ -201,6 +210,7 @@ public static Account createWithSpecialCharacters() {
 ```
 
 ### Null/Empty Values
+
 ```apex
 public static List<Account> createWithNullableFields(Integer count) {
     List<Account> records = new List<Account>();
@@ -219,6 +229,7 @@ public static List<Account> createWithNullableFields(Integer count) {
 ## Using Factories for Testing
 
 ### Trigger Test Example
+
 ```apex
 @isTest
 public class AccountTriggerTest {
@@ -259,6 +270,7 @@ public class AccountTriggerTest {
 ```
 
 ### Flow Test Example
+
 ```apex
 @isTest
 static void testRecordTriggeredFlow() {

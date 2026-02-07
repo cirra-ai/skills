@@ -3,6 +3,7 @@
 ## Factory Pattern
 
 ### Purpose
+
 Centralize object creation, enable dependency injection, simplify testing.
 
 ### Implementation
@@ -99,6 +100,7 @@ private class OrderProcessorTest {
 ## Repository Pattern
 
 ### Purpose
+
 Abstract data access, provide strongly-typed queries, enable DML mocking.
 
 ### Implementation
@@ -204,6 +206,7 @@ private class AccountServiceTest {
 ## Selector Pattern
 
 ### Purpose
+
 Centralize SOQL queries per object, enforce security, enable reuse.
 
 ### Implementation
@@ -269,6 +272,7 @@ public class AccountService {
 ## Builder Pattern
 
 ### Purpose
+
 Construct complex objects step-by-step, improve readability.
 
 ### Implementation
@@ -341,6 +345,7 @@ Account testAccount = new AccountBuilder()
 ## Singleton Pattern
 
 ### Purpose
+
 Ensure single instance, cache expensive operations.
 
 ### Implementation
@@ -393,6 +398,7 @@ String timeout = ConfigurationService.getInstance().getSetting('TIMEOUT', '30000
 ## Strategy Pattern
 
 ### Purpose
+
 Define family of algorithms, make them interchangeable.
 
 ### Implementation
@@ -478,6 +484,7 @@ public class PricingService {
 ## Unit of Work Pattern
 
 ### Purpose
+
 Manage DML as single transaction, track changes, enable rollback.
 
 ### Basic Implementation
@@ -544,6 +551,7 @@ public class OrderService {
 ## Decorator Pattern
 
 ### Purpose
+
 Add functionality dynamically without modifying original class. Stack behaviors flexibly.
 
 ### Implementation
@@ -627,6 +635,7 @@ service.send('Your order shipped!', userId);
 ```
 
 ### When to Use
+
 - Adding cross-cutting concerns (logging, caching, validation)
 - When inheritance leads to class explosion
 - Stacking behaviors that can be combined independently
@@ -636,6 +645,7 @@ service.send('Your order shipped!', userId);
 ## Observer Pattern
 
 ### Purpose
+
 Define one-to-many dependency where observers are notified of state changes automatically.
 
 ### Implementation
@@ -709,6 +719,7 @@ public class AccountTriggerHandler {
 ```
 
 ### Platform Events Alternative
+
 For decoupled, async observers, use Platform Events:
 
 ```apex
@@ -726,6 +737,7 @@ trigger AccountUpdatedSubscriber on Account_Updated__e (after insert) {
 ## Command Pattern
 
 ### Purpose
+
 Encapsulate requests as objects, enabling queuing, logging, undo, and parameterized execution.
 
 ### Implementation
@@ -821,6 +833,7 @@ invoker.undoLast();
 ```
 
 ### Use Cases
+
 - Wizard/multi-step processes with undo
 - Audit trail with replayable operations
 - Batch processing with deferred execution
@@ -831,6 +844,7 @@ invoker.undoLast();
 ## Facade Pattern
 
 ### Purpose
+
 Provide simplified interface to complex subsystems. Reduce coupling between client and implementation details.
 
 ### Implementation
@@ -946,6 +960,7 @@ if (result.success) {
 ```
 
 ### When to Use
+
 - Simplifying access to complex subsystems
 - Creating API layers for external integrations
 - Reducing dependencies on multiple services
@@ -955,8 +970,8 @@ if (result.success) {
 
 ## Domain Class Pattern
 
-> 💡 *Principles inspired by "Clean Apex Code" by Pablo Gonzalez.
-> [Purchase the book](https://link.springer.com/book/10.1007/979-8-8688-1411-2) for complete coverage.*
+> 💡 _Principles inspired by "Clean Apex Code" by Pablo Gonzalez.
+> [Purchase the book](https://link.springer.com/book/10.1007/979-8-8688-1411-2) for complete coverage._
 
 ### Purpose
 
@@ -1039,19 +1054,19 @@ public void processOpportunity(Opportunity opp, Account account) {
 
 ### Relationship to Other Patterns
 
-| Pattern | Relationship |
-|---------|--------------|
-| Selector | Domain class uses Selector for data access |
-| Service | Service orchestrates, Domain validates |
-| Repository | Domain class is data-agnostic |
-| Strategy | Domain rules can use Strategy for variations |
+| Pattern    | Relationship                                 |
+| ---------- | -------------------------------------------- |
+| Selector   | Domain class uses Selector for data access   |
+| Service    | Service orchestrates, Domain validates       |
+| Repository | Domain class is data-agnostic                |
+| Strategy   | Domain rules can use Strategy for variations |
 
 ---
 
 ## Abstraction Level Management
 
-> 💡 *Principles inspired by "Clean Apex Code" by Pablo Gonzalez.
-> [Purchase the book](https://link.springer.com/book/10.1007/979-8-8688-1411-2) for complete coverage.*
+> 💡 _Principles inspired by "Clean Apex Code" by Pablo Gonzalez.
+> [Purchase the book](https://link.springer.com/book/10.1007/979-8-8688-1411-2) for complete coverage._
 
 ### Purpose
 
@@ -1153,11 +1168,11 @@ private void syncToExternalCRM(Account account) {
 
 ### Guidelines
 
-| Level | Should Contain | Should NOT Contain |
-|-------|---------------|-------------------|
-| High (Orchestration) | Method calls, flow control | SOQL, DML, string parsing |
-| Mid (Domain) | Business rules, validation | HTTP calls, database queries |
-| Low (Data Access) | SOQL, DML, HTTP | Business decisions |
+| Level                | Should Contain             | Should NOT Contain           |
+| -------------------- | -------------------------- | ---------------------------- |
+| High (Orchestration) | Method calls, flow control | SOQL, DML, string parsing    |
+| Mid (Domain)         | Business rules, validation | HTTP calls, database queries |
+| Low (Data Access)    | SOQL, DML, HTTP            | Business decisions           |
 
 ### Signs of Mixed Abstraction
 
@@ -1177,17 +1192,17 @@ private void syncToExternalCRM(Account account) {
 
 ## Pattern Selection Guide
 
-| Need | Pattern |
-|------|---------|
-| Centralize object creation | Factory |
-| Abstract data access | Repository / Selector |
-| Build complex objects | Builder |
-| Single cached instance | Singleton |
-| Interchangeable algorithms | Strategy |
-| Transactional DML | Unit of Work |
-| Add behavior without modification | Decorator |
-| React to state changes | Observer |
-| Queue/undo operations | Command |
-| Simplify complex systems | Facade |
-| Encapsulate business rules | Domain Class |
-| Consistent method structure | Abstraction Levels |
+| Need                              | Pattern               |
+| --------------------------------- | --------------------- |
+| Centralize object creation        | Factory               |
+| Abstract data access              | Repository / Selector |
+| Build complex objects             | Builder               |
+| Single cached instance            | Singleton             |
+| Interchangeable algorithms        | Strategy              |
+| Transactional DML                 | Unit of Work          |
+| Add behavior without modification | Decorator             |
+| React to state changes            | Observer              |
+| Queue/undo operations             | Command               |
+| Simplify complex systems          | Facade                |
+| Encapsulate business rules        | Domain Class          |
+| Consistent method structure       | Abstraction Levels    |

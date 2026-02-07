@@ -41,8 +41,6 @@ def validate_flow_with_ca(file_path: str) -> dict:
         dict with validation results and output message
     """
     output_parts = []
-    file_name = os.path.basename(file_path)
-
     try:
         # ═══════════════════════════════════════════════════════════════════
         # PHASE 1: Custom 110-point validation
@@ -52,27 +50,28 @@ def validate_flow_with_ca(file_path: str) -> dict:
         validator = EnhancedFlowValidator(file_path)
         custom_results = validator.validate()
 
-        flow_name = custom_results.get('flow_name', 'Unknown')
-        custom_score = custom_results.get('overall_score', 0)
+        flow_name = custom_results.get("flow_name", "Unknown")
+        custom_score = custom_results.get("overall_score", 0)
         custom_max = 110
-        custom_rating = custom_results.get('rating', '')
 
         # Collect issues from all categories
         custom_issues = []
         category_scores = {}
 
-        for cat_name, cat_data in custom_results.get('categories', {}).items():
-            score = cat_data.get('score', 0)
-            max_score = cat_data.get('max_score', 0)
+        for cat_name, cat_data in custom_results.get("categories", {}).items():
+            score = cat_data.get("score", 0)
+            max_score = cat_data.get("max_score", 0)
             category_scores[cat_name] = (score, max_score)
 
-            for issue in cat_data.get('issues', []):
-                custom_issues.append({
-                    'severity': issue.get('severity', 'INFO'),
-                    'message': issue.get('message', ''),
-                    'category': cat_name,
-                    'fix': issue.get('fix', ''),
-                })
+            for issue in cat_data.get("issues", []):
+                custom_issues.append(
+                    {
+                        "severity": issue.get("severity", "INFO"),
+                        "message": issue.get("message", ""),
+                        "category": cat_name,
+                        "fix": issue.get("fix", ""),
+                    }
+                )
 
         # ═══════════════════════════════════════════════════════════════════
         # PHASE 2: Code Analyzer V5 Flow Scanner (if available)
@@ -114,7 +113,7 @@ def validate_flow_with_ca(file_path: str) -> dict:
         ca_deductions = 0
         for v in ca_violations:
             if isinstance(v, dict):
-                severity = v.get('severity', 5)
+                severity = v.get("severity", 5)
                 if severity == 1:  # Critical
                     ca_deductions += 5
                 elif severity == 2:  # High
@@ -190,43 +189,63 @@ def validate_flow_with_ca(file_path: str) -> dict:
 
         # Add custom issues
         for issue in custom_issues:
-            all_issues.append({
-                'severity': issue.get('severity', 'INFO'),
-                'source': 'sf-skills',
-                'message': issue.get('message', ''),
-                'fix': issue.get('fix', ''),
-            })
+            all_issues.append(
+                {
+                    "severity": issue.get("severity", "INFO"),
+                    "source": "sf-skills",
+                    "message": issue.get("message", ""),
+                    "fix": issue.get("fix", ""),
+                }
+            )
 
         # Add CA violations
         for v in ca_violations:
             if isinstance(v, dict):
-                all_issues.append({
-                    'severity': v.get('severity_label', 'INFO'),
-                    'source': f"CA:{v.get('engine', '')}",
-                    'message': v.get('message', '')[:80],
-                    'rule': v.get('rule', ''),
-                })
+                all_issues.append(
+                    {
+                        "severity": v.get("severity_label", "INFO"),
+                        "source": f"CA:{v.get('engine', '')}",
+                        "message": v.get("message", "")[:80],
+                        "rule": v.get("rule", ""),
+                    }
+                )
 
         if all_issues:
             output_parts.append("")
             output_parts.append(f" Issues Found ({len(all_issues)}):")
 
             # Sort by severity
-            severity_order = {'CRITICAL': 0, 'HIGH': 1, 'MODERATE': 2, 'WARNING': 3, 'LOW': 4, 'INFO': 5}
-            all_issues.sort(key=lambda x: severity_order.get(x['severity'], 5))
+            severity_order = {
+                "CRITICAL": 0,
+                "HIGH": 1,
+                "MODERATE": 2,
+                "WARNING": 3,
+                "LOW": 4,
+                "INFO": 5,
+            }
+            all_issues.sort(key=lambda x: severity_order.get(x["severity"], 5))
 
             # Display up to 12 issues
             for issue in all_issues[:12]:
-                icon = {'CRITICAL': '', 'HIGH': '', 'MODERATE': '', 'WARNING': '', 'LOW': '', 'INFO': ''}.get(
-                    issue['severity'], ''
+                icon = {
+                    "CRITICAL": "",
+                    "HIGH": "",
+                    "MODERATE": "",
+                    "WARNING": "",
+                    "LOW": "",
+                    "INFO": "",
+                }.get(issue["severity"], "")
+                source = f"[{issue['source']}]" if issue.get("source") else ""
+                message = (
+                    issue["message"][:65] + "..."
+                    if len(issue["message"]) > 65
+                    else issue["message"]
                 )
-                source = f"[{issue['source']}]" if issue.get('source') else ""
-                message = issue['message'][:65] + "..." if len(issue['message']) > 65 else issue['message']
 
                 output_parts.append(f"   {icon} {issue['severity']} {source}: {message}")
 
-                if issue.get('fix'):
-                    fix = issue['fix'][:55] + "..." if len(issue['fix']) > 55 else issue['fix']
+                if issue.get("fix"):
+                    fix = issue["fix"][:55] + "..." if len(issue["fix"]) > 55 else issue["fix"]
                     output_parts.append(f"      Fix: {fix}")
 
             if len(all_issues) > 12:
@@ -237,21 +256,12 @@ def validate_flow_with_ca(file_path: str) -> dict:
 
         output_parts.append("" * 60)
 
-        return {
-            "continue": True,
-            "output": "\n".join(output_parts)
-        }
+        return {"continue": True, "output": "\n".join(output_parts)}
 
     except ImportError as e:
-        return {
-            "continue": True,
-            "output": f" Flow validator not available: {e}"
-        }
+        return {"continue": True, "output": f" Flow validator not available: {e}"}
     except Exception as e:
-        return {
-            "continue": True,
-            "output": f" Flow validation error: {e}"
-        }
+        return {"continue": True, "output": f" Flow validation error: {e}"}
 
 
 def main():
@@ -291,10 +301,7 @@ def main():
         return 0
     except Exception as e:
         # Unexpected error, log but don't block
-        print(json.dumps({
-            "continue": True,
-            "output": f" Hook error: {e}"
-        }))
+        print(json.dumps({"continue": True, "output": f" Hook error: {e}"}))
         return 0
 
 

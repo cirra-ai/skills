@@ -19,13 +19,13 @@ Usage:
 import sys
 import xml.etree.ElementTree as ET
 import argparse
-import json
-from typing import Dict, List, Tuple
 from dataclasses import dataclass
+
 
 @dataclass
 class GovernorLimits:
     """Salesforce governor limits per transaction"""
+
     SOQL_QUERIES = 100
     SOQL_RECORDS = 50000
     DML_STATEMENTS = 150
@@ -33,9 +33,11 @@ class GovernorLimits:
     CPU_TIME_MS = 10000
     HEAP_SIZE_MB = 6
 
+
 @dataclass
 class SimulationMetrics:
     """Metrics tracked during simulation"""
+
     soql_queries: int = 0
     soql_records: int = 0
     dml_statements: int = 0
@@ -45,20 +47,21 @@ class SimulationMetrics:
     loops_executed: int = 0
     decisions_evaluated: int = 0
 
+
 class FlowSimulator:
     def __init__(self, xml_path: str, num_records: int = 200):
         self.xml_path = xml_path
         self.num_records = num_records
         self.tree = None
         self.root = None
-        self.namespace = {'ns': 'http://soap.sforce.com/2006/04/metadata'}
+        self.namespace = {"ns": "http://soap.sforce.com/2006/04/metadata"}
         self.metrics = SimulationMetrics()
         self.limits = GovernorLimits()
         self.warnings = []
         self.errors = []
         self.flow_type = "Unknown"
 
-    def simulate(self) -> Dict:
+    def simulate(self) -> dict:
         """Main simulation entry point"""
         print(f"\n🔬 Simulating Flow Execution with {self.num_records} records...\n")
 
@@ -91,22 +94,22 @@ class FlowSimulator:
 
     def _get_flow_type(self) -> str:
         """Determine flow type"""
-        process_type = self.root.find('ns:processType', self.namespace)
+        process_type = self.root.find("ns:processType", self.namespace)
         if process_type is not None:
-            if process_type.text == 'Flow':
+            if process_type.text == "Flow":
                 return "Screen Flow"
-            elif process_type.text == 'AutoLaunchedFlow':
-                start = self.root.find('ns:start', self.namespace)
+            elif process_type.text == "AutoLaunchedFlow":
+                start = self.root.find("ns:start", self.namespace)
                 if start is not None:
-                    trigger_type = start.find('ns:triggerType', self.namespace)
+                    trigger_type = start.find("ns:triggerType", self.namespace)
                     if trigger_type is not None:
-                        if 'RecordAfterSave' in trigger_type.text:
+                        if "RecordAfterSave" in trigger_type.text:
                             return "Record-Triggered Flow (After Save)"
-                        elif 'RecordBeforeSave' in trigger_type.text:
+                        elif "RecordBeforeSave" in trigger_type.text:
                             return "Record-Triggered Flow (Before Save)"
-                        elif 'RecordBeforeDelete' in trigger_type.text:
+                        elif "RecordBeforeDelete" in trigger_type.text:
                             return "Record-Triggered Flow (Before Delete)"
-                    schedule = start.find('ns:schedule', self.namespace)
+                    schedule = start.find("ns:schedule", self.namespace)
                     if schedule is not None:
                         return "Scheduled Flow"
                 return "Autolaunched Flow"
@@ -182,15 +185,15 @@ class FlowSimulator:
 
     def _count_dml_operations(self) -> int:
         """Count DML operations in flow"""
-        dml_types = ['recordCreates', 'recordUpdates', 'recordDeletes']
+        dml_types = ["recordCreates", "recordUpdates", "recordDeletes"]
         count = 0
         for dml_type in dml_types:
-            count += len(self.root.findall(f'ns:{dml_type}', self.namespace))
+            count += len(self.root.findall(f"ns:{dml_type}", self.namespace))
         return count
 
     def _count_soql_queries(self) -> int:
         """Count SOQL queries in flow"""
-        return len(self.root.findall('ns:recordLookups', self.namespace))
+        return len(self.root.findall("ns:recordLookups", self.namespace))
 
     def _analyze_loops_for_record_triggered(self):
         """
@@ -200,11 +203,11 @@ class FlowSimulator:
         We should only flag DML that is actually INSIDE the loop body (nextValueConnector path),
         NOT DML that's on the exit path (noMoreValuesConnector).
         """
-        loops = self.root.findall('.//ns:loops', self.namespace)
+        loops = self.root.findall(".//ns:loops", self.namespace)
 
         for loop in loops:
-            loop_name_elem = loop.find('ns:name', self.namespace)
-            loop_name = loop_name_elem.text if loop_name_elem is not None else 'Unknown'
+            loop_name_elem = loop.find("ns:name", self.namespace)
+            loop_name = loop_name_elem.text if loop_name_elem is not None else "Unknown"
             self.metrics.loops_executed += 1
 
             # Check if DML is INSIDE the loop (via nextValueConnector path)
@@ -230,11 +233,11 @@ class FlowSimulator:
 
     def _analyze_loops(self):
         """Analyze loops for potential issues (standard flows)"""
-        loops = self.root.findall('.//ns:loops', self.namespace)
+        loops = self.root.findall(".//ns:loops", self.namespace)
 
         for loop in loops:
-            loop_name_elem = loop.find('ns:name', self.namespace)
-            loop_name = loop_name_elem.text if loop_name_elem is not None else 'Unknown'
+            loop_name_elem = loop.find("ns:name", self.namespace)
+            loop_name = loop_name_elem.text if loop_name_elem is not None else "Unknown"
             self.metrics.loops_executed += 1
 
             if self._has_dml_in_loop_body(loop):
@@ -263,16 +266,18 @@ class FlowSimulator:
         Only flag DML that is reachable via nextValueConnector before returning to loop.
         """
         # Get loop name to detect loop-back
-        loop_name_elem = loop_elem.find('ns:name', self.namespace)
-        loop_name = loop_name_elem.text if loop_name_elem is not None else ''
+        loop_name_elem = loop_elem.find("ns:name", self.namespace)
+        loop_name = loop_name_elem.text if loop_name_elem is not None else ""
 
         # Get the nextValueConnector (loop body entry point)
-        next_connector = loop_elem.find('ns:nextValueConnector/ns:targetReference', self.namespace)
+        next_connector = loop_elem.find("ns:nextValueConnector/ns:targetReference", self.namespace)
         if next_connector is None:
             return False
 
         # Get the noMoreValuesConnector (exit path - DML here is OK)
-        exit_connector = loop_elem.find('ns:noMoreValuesConnector/ns:targetReference', self.namespace)
+        exit_connector = loop_elem.find(
+            "ns:noMoreValuesConnector/ns:targetReference", self.namespace
+        )
         exit_target = exit_connector.text if exit_connector is not None else None
 
         # Build element map for efficient lookup
@@ -284,22 +289,30 @@ class FlowSimulator:
             next_connector.text, loop_name, exit_target, visited, element_map
         )
 
-    def _build_element_map(self) -> Dict:
+    def _build_element_map(self) -> dict:
         """Build a map of element names to (type, element) for fast lookup"""
         element_map = {}
         element_types = [
-            'assignments', 'decisions', 'recordCreates', 'recordUpdates',
-            'recordDeletes', 'recordLookups', 'loops', 'subflows', 'screens'
+            "assignments",
+            "decisions",
+            "recordCreates",
+            "recordUpdates",
+            "recordDeletes",
+            "recordLookups",
+            "loops",
+            "subflows",
+            "screens",
         ]
         for elem_type in element_types:
-            for elem in self.root.findall(f'.//ns:{elem_type}', self.namespace):
-                name_elem = elem.find('ns:name', self.namespace)
+            for elem in self.root.findall(f".//ns:{elem_type}", self.namespace):
+                name_elem = elem.find("ns:name", self.namespace)
                 if name_elem is not None:
                     element_map[name_elem.text] = (elem_type, elem)
         return element_map
 
-    def _check_path_for_dml_in_loop(self, current: str, loop_name: str, exit_target: str,
-                                     visited: set, element_map: Dict) -> bool:
+    def _check_path_for_dml_in_loop(
+        self, current: str, loop_name: str, exit_target: str, visited: set, element_map: dict
+    ) -> bool:
         """
         Recursively check if path contains DML before exiting loop.
 
@@ -322,49 +335,56 @@ class FlowSimulator:
         elem_type, elem = element_map[current]
 
         # Check if this is a DML operation
-        if elem_type in ['recordCreates', 'recordUpdates', 'recordDeletes']:
+        if elem_type in ["recordCreates", "recordUpdates", "recordDeletes"]:
             return True
 
         # Follow connectors
         connectors = []
 
-        connector = elem.find('ns:connector/ns:targetReference', self.namespace)
+        connector = elem.find("ns:connector/ns:targetReference", self.namespace)
         if connector is not None:
             connectors.append(connector.text)
 
-        for rule in elem.findall('.//ns:rules', self.namespace):
-            rule_connector = rule.find('ns:connector/ns:targetReference', self.namespace)
+        for rule in elem.findall(".//ns:rules", self.namespace):
+            rule_connector = rule.find("ns:connector/ns:targetReference", self.namespace)
             if rule_connector is not None:
                 connectors.append(rule_connector.text)
 
-        default_connector = elem.find('ns:defaultConnector/ns:targetReference', self.namespace)
+        default_connector = elem.find("ns:defaultConnector/ns:targetReference", self.namespace)
         if default_connector is not None:
             connectors.append(default_connector.text)
 
         for next_target in connectors:
-            if self._check_path_for_dml_in_loop(next_target, loop_name, exit_target, visited.copy(), element_map):
+            if self._check_path_for_dml_in_loop(
+                next_target, loop_name, exit_target, visited.copy(), element_map
+            ):
                 return True
 
         return False
 
     def _count_dml_in_loop_body(self, loop_elem) -> int:
         """Count DML operations in loop body"""
-        loop_name_elem = loop_elem.find('ns:name', self.namespace)
-        loop_name = loop_name_elem.text if loop_name_elem is not None else ''
+        loop_name_elem = loop_elem.find("ns:name", self.namespace)
+        loop_name = loop_name_elem.text if loop_name_elem is not None else ""
 
-        next_connector = loop_elem.find('ns:nextValueConnector/ns:targetReference', self.namespace)
+        next_connector = loop_elem.find("ns:nextValueConnector/ns:targetReference", self.namespace)
         if next_connector is None:
             return 0
 
-        exit_connector = loop_elem.find('ns:noMoreValuesConnector/ns:targetReference', self.namespace)
+        exit_connector = loop_elem.find(
+            "ns:noMoreValuesConnector/ns:targetReference", self.namespace
+        )
         exit_target = exit_connector.text if exit_connector is not None else None
 
         element_map = self._build_element_map()
         visited = set()
-        return self._count_dml_in_path(next_connector.text, loop_name, exit_target, visited, element_map)
+        return self._count_dml_in_path(
+            next_connector.text, loop_name, exit_target, visited, element_map
+        )
 
-    def _count_dml_in_path(self, current: str, loop_name: str, exit_target: str,
-                           visited: set, element_map: Dict) -> int:
+    def _count_dml_in_path(
+        self, current: str, loop_name: str, exit_target: str, visited: set, element_map: dict
+    ) -> int:
         """Count DML operations in path"""
         if current in visited or current == loop_name or current == exit_target:
             return 0
@@ -373,18 +393,20 @@ class FlowSimulator:
 
         visited.add(current)
         elem_type, elem = element_map[current]
-        count = 1 if elem_type in ['recordCreates', 'recordUpdates', 'recordDeletes'] else 0
+        count = 1 if elem_type in ["recordCreates", "recordUpdates", "recordDeletes"] else 0
 
-        connector = elem.find('ns:connector/ns:targetReference', self.namespace)
+        connector = elem.find("ns:connector/ns:targetReference", self.namespace)
         if connector is not None:
-            count += self._count_dml_in_path(connector.text, loop_name, exit_target, visited.copy(), element_map)
+            count += self._count_dml_in_path(
+                connector.text, loop_name, exit_target, visited.copy(), element_map
+            )
 
         return count
 
     def _find_element_by_name(self, name: str, elem_type: str):
         """Find element by name and type"""
-        for elem in self.root.findall(f'ns:{elem_type}', self.namespace):
-            name_elem = elem.find('ns:name', self.namespace)
+        for elem in self.root.findall(f"ns:{elem_type}", self.namespace):
+            name_elem = elem.find("ns:name", self.namespace)
             if name_elem is not None and name_elem.text == name:
                 return elem
         return None
@@ -431,32 +453,42 @@ class FlowSimulator:
                 f"(80% of {self.limits.CPU_TIME_MS}ms)"
             )
 
-    def _generate_report(self) -> Dict:
+    def _generate_report(self) -> dict:
         """Generate simulation report"""
         print("\n" + "━" * 70)
         print("Flow Simulation Report")
         print("━" * 70)
-        print(f"\nTest Configuration:")
+        print("\nTest Configuration:")
         print(f"  Records Processed: {self.num_records}")
         print(f"  Flow: {self.xml_path.split('/')[-1]}")
         print(f"  Flow Type: {self.flow_type}")
 
         if self._is_record_triggered():
-            print(f"\n📋 Note: Record-triggered flows use $Record context.")
-            print(f"   Platform handles bulk batching automatically (API 60.0+).")
-            print(f"   Limits below are PER TRANSACTION, not per record.")
+            print("\n📋 Note: Record-triggered flows use $Record context.")
+            print("   Platform handles bulk batching automatically (API 60.0+).")
+            print("   Limits below are PER TRANSACTION, not per record.")
 
-        print(f"\n📊 Resource Usage (per transaction):")
-        print(f"  SOQL Queries:    {self.metrics.soql_queries:4d} / {self.limits.SOQL_QUERIES} "
-              f"({self._percentage(self.metrics.soql_queries, self.limits.SOQL_QUERIES)}%)")
-        print(f"  SOQL Records:    {self.metrics.soql_records:4d} / {self.limits.SOQL_RECORDS} "
-              f"({self._percentage(self.metrics.soql_records, self.limits.SOQL_RECORDS)}%)")
-        print(f"  DML Statements:  {self.metrics.dml_statements:4d} / {self.limits.DML_STATEMENTS} "
-              f"({self._percentage(self.metrics.dml_statements, self.limits.DML_STATEMENTS)}%)")
-        print(f"  DML Rows:        {self.metrics.dml_rows:4d} / {self.limits.DML_ROWS} "
-              f"({self._percentage(self.metrics.dml_rows, self.limits.DML_ROWS)}%)")
-        print(f"  CPU Time:        {self.metrics.cpu_time_ms:4d}ms / {self.limits.CPU_TIME_MS}ms "
-              f"({self._percentage(self.metrics.cpu_time_ms, self.limits.CPU_TIME_MS)}%)")
+        print("\n📊 Resource Usage (per transaction):")
+        print(
+            f"  SOQL Queries:    {self.metrics.soql_queries:4d} / {self.limits.SOQL_QUERIES} "
+            f"({self._percentage(self.metrics.soql_queries, self.limits.SOQL_QUERIES)}%)"
+        )
+        print(
+            f"  SOQL Records:    {self.metrics.soql_records:4d} / {self.limits.SOQL_RECORDS} "
+            f"({self._percentage(self.metrics.soql_records, self.limits.SOQL_RECORDS)}%)"
+        )
+        print(
+            f"  DML Statements:  {self.metrics.dml_statements:4d} / {self.limits.DML_STATEMENTS} "
+            f"({self._percentage(self.metrics.dml_statements, self.limits.DML_STATEMENTS)}%)"
+        )
+        print(
+            f"  DML Rows:        {self.metrics.dml_rows:4d} / {self.limits.DML_ROWS} "
+            f"({self._percentage(self.metrics.dml_rows, self.limits.DML_ROWS)}%)"
+        )
+        print(
+            f"  CPU Time:        {self.metrics.cpu_time_ms:4d}ms / {self.limits.CPU_TIME_MS}ms "
+            f"({self._percentage(self.metrics.cpu_time_ms, self.limits.CPU_TIME_MS)}%)"
+        )
 
         # Errors
         if self.errors:
@@ -464,7 +496,7 @@ class FlowSimulator:
             for error in self.errors:
                 print(f"  {error}")
         else:
-            print(f"\n✓ No governor limit errors detected")
+            print("\n✓ No governor limit errors detected")
 
         # Warnings
         if self.warnings:
@@ -495,11 +527,11 @@ class FlowSimulator:
         print("━" * 70 + "\n")
 
         return {
-            'status': status,
-            'flow_type': self.flow_type,
-            'metrics': self.metrics.__dict__,
-            'errors': self.errors,
-            'warnings': self.warnings
+            "status": status,
+            "flow_type": self.flow_type,
+            "metrics": self.metrics.__dict__,
+            "errors": self.errors,
+            "warnings": self.warnings,
         }
 
     def _percentage(self, value: int, limit: int) -> int:
@@ -508,17 +540,19 @@ class FlowSimulator:
             return 0
         return int((value / limit) * 100)
 
+
 def main():
     parser = argparse.ArgumentParser(
-        description='Simulate Salesforce Flow execution with bulk data'
+        description="Simulate Salesforce Flow execution with bulk data"
     )
-    parser.add_argument('flow_xml', help='Path to flow metadata XML file')
-    parser.add_argument('--test-records', type=int, default=200,
-                       help='Number of records to simulate (default: 200)')
-    parser.add_argument('--mock-data', action='store_true',
-                       help='Generate mock data for testing')
-    parser.add_argument('--analyze-only', action='store_true',
-                       help='Analyze flow structure without simulation')
+    parser.add_argument("flow_xml", help="Path to flow metadata XML file")
+    parser.add_argument(
+        "--test-records", type=int, default=200, help="Number of records to simulate (default: 200)"
+    )
+    parser.add_argument("--mock-data", action="store_true", help="Generate mock data for testing")
+    parser.add_argument(
+        "--analyze-only", action="store_true", help="Analyze flow structure without simulation"
+    )
 
     args = parser.parse_args()
 
@@ -526,12 +560,13 @@ def main():
     result = simulator.simulate()
 
     # Exit with error code if simulation failed
-    if result['status'] == 'FAILED':
+    if result["status"] == "FAILED":
         sys.exit(1)
-    elif result['status'] == 'WARNING':
+    elif result["status"] == "WARNING":
         sys.exit(0)  # Warnings don't fail the build
     else:
         sys.exit(0)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

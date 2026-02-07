@@ -28,40 +28,36 @@ import { getRecord } from 'lightning/uiRecordApi';
 // ═══════════════════════════════════════════════════════════════════════════
 
 // Mock Apex methods
-jest.mock(
-    '@salesforce/apex/ComponentController.getRecords',
-    () => ({ default: jest.fn() }),
-    { virtual: true }
-);
+jest.mock('@salesforce/apex/ComponentController.getRecords', () => ({ default: jest.fn() }), {
+  virtual: true,
+});
 
-jest.mock(
-    '@salesforce/apex/ComponentController.saveRecord',
-    () => ({ default: jest.fn() }),
-    { virtual: true }
-);
+jest.mock('@salesforce/apex/ComponentController.saveRecord', () => ({ default: jest.fn() }), {
+  virtual: true,
+});
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TEST DATA
 // ═══════════════════════════════════════════════════════════════════════════
 
 const MOCK_RECORDS = [
-    { Id: '001xx000003DGFAAA4', Name: 'Test Account 1', Industry: 'Technology' },
-    { Id: '001xx000003DGFBBB4', Name: 'Test Account 2', Industry: 'Finance' },
-    { Id: '001xx000003DGFCCC4', Name: 'Test Account 3', Industry: 'Healthcare' }
+  { Id: '001xx000003DGFAAA4', Name: 'Test Account 1', Industry: 'Technology' },
+  { Id: '001xx000003DGFBBB4', Name: 'Test Account 2', Industry: 'Finance' },
+  { Id: '001xx000003DGFCCC4', Name: 'Test Account 3', Industry: 'Healthcare' },
 ];
 
 const MOCK_RECORD = {
-    Id: '001xx000003DGFAAA4',
-    Name: { value: 'Test Account' },
-    Industry: { value: 'Technology' },
-    Phone: { value: '555-1234' }
+  Id: '001xx000003DGFAAA4',
+  Name: { value: 'Test Account' },
+  Industry: { value: 'Technology' },
+  Phone: { value: '555-1234' },
 };
 
 const MOCK_ERROR = {
-    body: { message: 'An error occurred' },
-    ok: false,
-    status: 500,
-    statusText: 'Internal Server Error'
+  body: { message: 'An error occurred' },
+  ok: false,
+  status: 500,
+  statusText: 'Internal Server Error',
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -71,21 +67,21 @@ const MOCK_ERROR = {
 /**
  * Flush all pending promises in the event queue
  */
-const flushPromises = () => new Promise(resolve => setTimeout(resolve, 0));
+const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 /**
  * Create component with optional public properties
  */
 function createComponent(props = {}) {
-    const element = createElement('c-component-name', { is: ComponentName });
+  const element = createElement('c-component-name', { is: ComponentName });
 
-    // Set public properties
-    Object.keys(props).forEach(key => {
-        element[key] = props[key];
-    });
+  // Set public properties
+  Object.keys(props).forEach((key) => {
+    element[key] = props[key];
+  });
 
-    document.body.appendChild(element);
-    return element;
+  document.body.appendChild(element);
+  return element;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -93,275 +89,277 @@ function createComponent(props = {}) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 describe('c-component-name', () => {
-    // Reset DOM and mocks after each test
-    afterEach(() => {
-        // Remove all created elements
-        while (document.body.firstChild) {
-            document.body.removeChild(document.body.firstChild);
-        }
-        // Reset all mocks
-        jest.clearAllMocks();
+  // Reset DOM and mocks after each test
+  afterEach(() => {
+    // Remove all created elements
+    while (document.body.firstChild) {
+      document.body.removeChild(document.body.firstChild);
+    }
+    // Reset all mocks
+    jest.clearAllMocks();
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // RENDERING TESTS
+  // ═══════════════════════════════════════════════════════════════════════
+
+  describe('rendering', () => {
+    it('renders component with default state', () => {
+      const element = createComponent();
+
+      // Check component is rendered
+      const card = element.shadowRoot.querySelector('lightning-card');
+      expect(card).not.toBeNull();
     });
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // RENDERING TESTS
-    // ═══════════════════════════════════════════════════════════════════════
+    it('renders with custom title property', () => {
+      const element = createComponent({ title: 'Custom Title' });
 
-    describe('rendering', () => {
-        it('renders component with default state', () => {
-            const element = createComponent();
-
-            // Check component is rendered
-            const card = element.shadowRoot.querySelector('lightning-card');
-            expect(card).not.toBeNull();
-        });
-
-        it('renders with custom title property', () => {
-            const element = createComponent({ title: 'Custom Title' });
-
-            const card = element.shadowRoot.querySelector('lightning-card');
-            expect(card.title).toBe('Custom Title');
-        });
-
-        it('displays loading spinner initially', () => {
-            const element = createComponent();
-
-            const spinner = element.shadowRoot.querySelector('lightning-spinner');
-            expect(spinner).not.toBeNull();
-        });
+      const card = element.shadowRoot.querySelector('lightning-card');
+      expect(card.title).toBe('Custom Title');
     });
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // DATA FETCHING TESTS
-    // ═══════════════════════════════════════════════════════════════════════
+    it('displays loading spinner initially', () => {
+      const element = createComponent();
 
-    describe('data fetching', () => {
-        it('displays records when data is returned', async () => {
-            // Setup mock response
-            getRecords.mockResolvedValue(MOCK_RECORDS);
+      const spinner = element.shadowRoot.querySelector('lightning-spinner');
+      expect(spinner).not.toBeNull();
+    });
+  });
 
-            const element = createComponent({ recordId: '001xx000000000' });
+  // ═══════════════════════════════════════════════════════════════════════
+  // DATA FETCHING TESTS
+  // ═══════════════════════════════════════════════════════════════════════
 
-            // Wait for async operations
-            await flushPromises();
+  describe('data fetching', () => {
+    it('displays records when data is returned', async () => {
+      // Setup mock response
+      getRecords.mockResolvedValue(MOCK_RECORDS);
 
-            // Check records are displayed
-            const items = element.shadowRoot.querySelectorAll('.record-item');
-            expect(items.length).toBe(3);
-        });
+      const element = createComponent({ recordId: '001xx000000000' });
 
-        it('displays error message when fetch fails', async () => {
-            // Setup mock error
-            getRecords.mockRejectedValue(MOCK_ERROR);
+      // Wait for async operations
+      await flushPromises();
 
-            const element = createComponent({ recordId: '001xx000000000' });
-
-            await flushPromises();
-
-            // Check error is displayed
-            const error = element.shadowRoot.querySelector('.error-message');
-            expect(error).not.toBeNull();
-            expect(error.textContent).toContain('An error occurred');
-        });
-
-        it('displays empty state when no records returned', async () => {
-            getRecords.mockResolvedValue([]);
-
-            const element = createComponent({ recordId: '001xx000000000' });
-
-            await flushPromises();
-
-            const emptyState = element.shadowRoot.querySelector('.empty-state');
-            expect(emptyState).not.toBeNull();
-        });
+      // Check records are displayed
+      const items = element.shadowRoot.querySelectorAll('.record-item');
+      expect(items.length).toBe(3);
     });
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // WIRE SERVICE TESTS
-    // ═══════════════════════════════════════════════════════════════════════
+    it('displays error message when fetch fails', async () => {
+      // Setup mock error
+      getRecords.mockRejectedValue(MOCK_ERROR);
 
-    describe('wire service', () => {
-        it('fetches record data via wire adapter', async () => {
-            const element = createComponent({ recordId: '001xx000000000' });
+      const element = createComponent({ recordId: '001xx000000000' });
 
-            // Emit wire data
-            getRecord.emit(MOCK_RECORD);
+      await flushPromises();
 
-            await flushPromises();
-
-            // Verify data is displayed
-            const nameField = element.shadowRoot.querySelector('.account-name');
-            expect(nameField.textContent).toBe('Test Account');
-        });
-
-        it('handles wire adapter error', async () => {
-            const element = createComponent({ recordId: '001xx000000000' });
-
-            // Emit error
-            getRecord.error(MOCK_ERROR);
-
-            await flushPromises();
-
-            const error = element.shadowRoot.querySelector('.error-message');
-            expect(error).not.toBeNull();
-        });
+      // Check error is displayed
+      const error = element.shadowRoot.querySelector('.error-message');
+      expect(error).not.toBeNull();
+      expect(error.textContent).toContain('An error occurred');
     });
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // EVENT HANDLING TESTS
-    // ═══════════════════════════════════════════════════════════════════════
+    it('displays empty state when no records returned', async () => {
+      getRecords.mockResolvedValue([]);
 
-    describe('event handling', () => {
-        it('dispatches recordselected event on row click', async () => {
-            getRecords.mockResolvedValue(MOCK_RECORDS);
+      const element = createComponent({ recordId: '001xx000000000' });
 
-            const element = createComponent({ recordId: '001xx000000000' });
-            await flushPromises();
+      await flushPromises();
 
-            // Create event handler mock
-            const handler = jest.fn();
-            element.addEventListener('recordselected', handler);
+      const emptyState = element.shadowRoot.querySelector('.empty-state');
+      expect(emptyState).not.toBeNull();
+    });
+  });
 
-            // Click on first record
-            const firstRow = element.shadowRoot.querySelector('.record-item');
-            firstRow.click();
+  // ═══════════════════════════════════════════════════════════════════════
+  // WIRE SERVICE TESTS
+  // ═══════════════════════════════════════════════════════════════════════
 
-            // Verify event was dispatched
-            expect(handler).toHaveBeenCalled();
-            expect(handler.mock.calls[0][0].detail).toEqual({
-                recordId: '001xx000003DGFAAA4',
-                recordName: 'Test Account 1'
-            });
-        });
+  describe('wire service', () => {
+    it('fetches record data via wire adapter', async () => {
+      const element = createComponent({ recordId: '001xx000000000' });
 
-        it('handles refresh button click', async () => {
-            getRecords.mockResolvedValue(MOCK_RECORDS);
+      // Emit wire data
+      getRecord.emit(MOCK_RECORD);
 
-            const element = createComponent({ recordId: '001xx000000000' });
-            await flushPromises();
+      await flushPromises();
 
-            // Clear mock to track new calls
-            getRecords.mockClear();
-
-            // Click refresh
-            const refreshButton = element.shadowRoot.querySelector('lightning-button-icon[icon-name="utility:refresh"]');
-            refreshButton.click();
-
-            await flushPromises();
-
-            // Verify data was re-fetched
-            expect(getRecords).toHaveBeenCalled();
-        });
+      // Verify data is displayed
+      const nameField = element.shadowRoot.querySelector('.account-name');
+      expect(nameField.textContent).toBe('Test Account');
     });
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // FORM SUBMISSION TESTS
-    // ═══════════════════════════════════════════════════════════════════════
+    it('handles wire adapter error', async () => {
+      const element = createComponent({ recordId: '001xx000000000' });
 
-    describe('form submission', () => {
-        it('saves record successfully', async () => {
-            saveRecord.mockResolvedValue({ Id: '001xx000000NEW', Name: 'New Account' });
+      // Emit error
+      getRecord.error(MOCK_ERROR);
 
-            const element = createComponent();
-            await flushPromises();
+      await flushPromises();
 
-            // Fill form fields
-            const nameInput = element.shadowRoot.querySelector('lightning-input[name="Name"]');
-            nameInput.value = 'New Account';
-            nameInput.dispatchEvent(new CustomEvent('change'));
+      const error = element.shadowRoot.querySelector('.error-message');
+      expect(error).not.toBeNull();
+    });
+  });
 
-            // Submit form
-            const submitButton = element.shadowRoot.querySelector('lightning-button[type="submit"]');
-            submitButton.click();
+  // ═══════════════════════════════════════════════════════════════════════
+  // EVENT HANDLING TESTS
+  // ═══════════════════════════════════════════════════════════════════════
 
-            await flushPromises();
+  describe('event handling', () => {
+    it('dispatches recordselected event on row click', async () => {
+      getRecords.mockResolvedValue(MOCK_RECORDS);
 
-            // Verify save was called
-            expect(saveRecord).toHaveBeenCalledWith({
-                record: expect.objectContaining({ Name: 'New Account' })
-            });
-        });
+      const element = createComponent({ recordId: '001xx000000000' });
+      await flushPromises();
 
-        it('displays validation error for required fields', async () => {
-            const element = createComponent();
-            await flushPromises();
+      // Create event handler mock
+      const handler = jest.fn();
+      element.addEventListener('recordselected', handler);
 
-            // Submit without filling required fields
-            const submitButton = element.shadowRoot.querySelector('lightning-button[type="submit"]');
-            submitButton.click();
+      // Click on first record
+      const firstRow = element.shadowRoot.querySelector('.record-item');
+      firstRow.click();
 
-            await flushPromises();
-
-            // Check validation message
-            const input = element.shadowRoot.querySelector('lightning-input[required]');
-            expect(input.reportValidity).toHaveBeenCalled;
-        });
+      // Verify event was dispatched
+      expect(handler).toHaveBeenCalled();
+      expect(handler.mock.calls[0][0].detail).toEqual({
+        recordId: '001xx000003DGFAAA4',
+        recordName: 'Test Account 1',
+      });
     });
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // ACCESSIBILITY TESTS
-    // ═══════════════════════════════════════════════════════════════════════
+    it('handles refresh button click', async () => {
+      getRecords.mockResolvedValue(MOCK_RECORDS);
 
-    describe('accessibility', () => {
-        it('has accessible button labels', async () => {
-            const element = createComponent();
-            await flushPromises();
+      const element = createComponent({ recordId: '001xx000000000' });
+      await flushPromises();
 
-            const buttons = element.shadowRoot.querySelectorAll('lightning-button, lightning-button-icon');
-            buttons.forEach(button => {
-                // Each button should have label or alternative-text
-                const hasLabel = button.label || button.alternativeText;
-                expect(hasLabel).toBeTruthy();
-            });
-        });
+      // Clear mock to track new calls
+      getRecords.mockClear();
 
-        it('announces loading state to screen readers', async () => {
-            const element = createComponent();
+      // Click refresh
+      const refreshButton = element.shadowRoot.querySelector(
+        'lightning-button-icon[icon-name="utility:refresh"]'
+      );
+      refreshButton.click();
 
-            const spinner = element.shadowRoot.querySelector('lightning-spinner');
-            expect(spinner.alternativeText).toBe('Loading');
-        });
+      await flushPromises();
+
+      // Verify data was re-fetched
+      expect(getRecords).toHaveBeenCalled();
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // FORM SUBMISSION TESTS
+  // ═══════════════════════════════════════════════════════════════════════
+
+  describe('form submission', () => {
+    it('saves record successfully', async () => {
+      saveRecord.mockResolvedValue({ Id: '001xx000000NEW', Name: 'New Account' });
+
+      const element = createComponent();
+      await flushPromises();
+
+      // Fill form fields
+      const nameInput = element.shadowRoot.querySelector('lightning-input[name="Name"]');
+      nameInput.value = 'New Account';
+      nameInput.dispatchEvent(new CustomEvent('change'));
+
+      // Submit form
+      const submitButton = element.shadowRoot.querySelector('lightning-button[type="submit"]');
+      submitButton.click();
+
+      await flushPromises();
+
+      // Verify save was called
+      expect(saveRecord).toHaveBeenCalledWith({
+        record: expect.objectContaining({ Name: 'New Account' }),
+      });
     });
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // EDGE CASES
-    // ═══════════════════════════════════════════════════════════════════════
+    it('displays validation error for required fields', async () => {
+      const element = createComponent();
+      await flushPromises();
 
-    describe('edge cases', () => {
-        it('handles null recordId gracefully', async () => {
-            const element = createComponent({ recordId: null });
-            await flushPromises();
+      // Submit without filling required fields
+      const submitButton = element.shadowRoot.querySelector('lightning-button[type="submit"]');
+      submitButton.click();
 
-            // Should not crash
-            expect(element).toBeTruthy();
-        });
+      await flushPromises();
 
-        it('handles special characters in data', async () => {
-            const specialRecords = [
-                { Id: '001xx000000001', Name: "Test's <Account> & \"Quotes\"" }
-            ];
-            getRecords.mockResolvedValue(specialRecords);
-
-            const element = createComponent({ recordId: '001xx000000000' });
-            await flushPromises();
-
-            const name = element.shadowRoot.querySelector('.record-name');
-            expect(name.textContent).toContain("Test's <Account>");
-        });
-
-        it('handles rapid successive updates', async () => {
-            const element = createComponent();
-            await flushPromises();
-
-            // Simulate rapid changes
-            for (let i = 0; i < 10; i++) {
-                element.recordId = `001xx00000000${i}`;
-            }
-
-            await flushPromises();
-
-            // Component should still be stable
-            expect(element.shadowRoot.querySelector('lightning-card')).not.toBeNull();
-        });
+      // Check validation message
+      const input = element.shadowRoot.querySelector('lightning-input[required]');
+      expect(input.reportValidity).toHaveBeenCalled;
     });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // ACCESSIBILITY TESTS
+  // ═══════════════════════════════════════════════════════════════════════
+
+  describe('accessibility', () => {
+    it('has accessible button labels', async () => {
+      const element = createComponent();
+      await flushPromises();
+
+      const buttons = element.shadowRoot.querySelectorAll(
+        'lightning-button, lightning-button-icon'
+      );
+      buttons.forEach((button) => {
+        // Each button should have label or alternative-text
+        const hasLabel = button.label || button.alternativeText;
+        expect(hasLabel).toBeTruthy();
+      });
+    });
+
+    it('announces loading state to screen readers', async () => {
+      const element = createComponent();
+
+      const spinner = element.shadowRoot.querySelector('lightning-spinner');
+      expect(spinner.alternativeText).toBe('Loading');
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // EDGE CASES
+  // ═══════════════════════════════════════════════════════════════════════
+
+  describe('edge cases', () => {
+    it('handles null recordId gracefully', async () => {
+      const element = createComponent({ recordId: null });
+      await flushPromises();
+
+      // Should not crash
+      expect(element).toBeTruthy();
+    });
+
+    it('handles special characters in data', async () => {
+      const specialRecords = [{ Id: '001xx000000001', Name: 'Test\'s <Account> & "Quotes"' }];
+      getRecords.mockResolvedValue(specialRecords);
+
+      const element = createComponent({ recordId: '001xx000000000' });
+      await flushPromises();
+
+      const name = element.shadowRoot.querySelector('.record-name');
+      expect(name.textContent).toContain("Test's <Account>");
+    });
+
+    it('handles rapid successive updates', async () => {
+      const element = createComponent();
+      await flushPromises();
+
+      // Simulate rapid changes
+      for (let i = 0; i < 10; i++) {
+        element.recordId = `001xx00000000${i}`;
+      }
+
+      await flushPromises();
+
+      // Component should still be stable
+      expect(element.shadowRoot.querySelector('lightning-card')).not.toBeNull();
+    });
+  });
 });

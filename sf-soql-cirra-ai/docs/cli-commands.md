@@ -2,13 +2,13 @@
 
 ## Quick Reference
 
-| Task | Command |
-|------|---------|
-| Run query | `sf data query --query "SELECT..."` |
-| JSON output | `sf data query --query "..." --json` |
-| CSV output | `sf data query --query "..." --result-format csv` |
-| Bulk query | `sf data query --query "..." --bulk` |
-| Query plan | `sf data query --query "..." --use-tooling-api --plan` |
+| Task        | Command                                                |
+| ----------- | ------------------------------------------------------ |
+| Run query   | `sf data query --query "SELECT..."`                    |
+| JSON output | `sf data query --query "..." --json`                   |
+| CSV output  | `sf data query --query "..." --result-format csv`      |
+| Bulk query  | `sf data query --query "..." --bulk`                   |
+| Query plan  | `sf data query --query "..." --use-tooling-api --plan` |
 
 ---
 
@@ -115,18 +115,21 @@ sf data query \
 
 ```json
 {
-  "plans": [{
-    "cardinality": 50,           // Estimated rows returned
-    "fields": ["Name"],          // Fields used for filtering
-    "leadingOperationType": "Index",  // Index = good, TableScan = bad
-    "relativeCost": 0.1,         // Lower is better
-    "sobjectCardinality": 10000, // Total records in object
-    "sobjectType": "Account"
-  }]
+  "plans": [
+    {
+      "cardinality": 50, // Estimated rows returned
+      "fields": ["Name"], // Fields used for filtering
+      "leadingOperationType": "Index", // Index = good, TableScan = bad
+      "relativeCost": 0.1, // Lower is better
+      "sobjectCardinality": 10000, // Total records in object
+      "sobjectType": "Account"
+    }
+  ]
 }
 ```
 
 **Key Indicators:**
+
 - `leadingOperationType: "Index"` = Query uses index (good)
 - `leadingOperationType: "TableScan"` = Full table scan (bad for large tables)
 - `relativeCost < 1` = Efficient query

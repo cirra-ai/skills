@@ -18,6 +18,7 @@ Salesforce data operations skill for Claude Code. Provides SOQL expertise, test 
 ```
 
 Or install the complete sf-skills suite:
+
 ```bash
 /plugin install github:Jaganpro/sf-skills
 ```
@@ -25,6 +26,7 @@ Or install the complete sf-skills suite:
 ## Usage
 
 Invoke the skill:
+
 ```
 Skill(skill="sf-data")
 Request: "Create 251 test Account records with varying Industries for trigger testing in org dev"
@@ -32,37 +34,40 @@ Request: "Create 251 test Account records with varying Industries for trigger te
 
 ### Common Operations
 
-| Operation | Example Request |
-|-----------|-----------------|
-| Query | "Query all Accounts with related Contacts in org dev" |
-| Create | "Create 10 test Opportunities at various stages" |
-| Bulk Insert | "Insert 500 accounts from accounts.csv" |
-| Update | "Update Account 001xxx with new Industry" |
-| Delete | "Delete all test records with Name LIKE 'Test%'" |
-| Cleanup | "Generate cleanup script for all records created today" |
+| Operation   | Example Request                                         |
+| ----------- | ------------------------------------------------------- |
+| Query       | "Query all Accounts with related Contacts in org dev"   |
+| Create      | "Create 10 test Opportunities at various stages"        |
+| Bulk Insert | "Insert 500 accounts from accounts.csv"                 |
+| Update      | "Update Account 001xxx with new Industry"               |
+| Delete      | "Delete all test records with Name LIKE 'Test%'"        |
+| Cleanup     | "Generate cleanup script for all records created today" |
 
 ## Validation Scoring (130 Points)
 
-| Category | Points | Focus |
-|----------|--------|-------|
-| Query Efficiency | 25 | SOQL selectivity, indexed fields, no N+1 |
-| Bulk Safety | 25 | Governor limits, batch sizing |
-| Data Integrity | 20 | Required fields, relationships |
-| Security & FLS | 20 | Field-level security, no PII |
-| Test Patterns | 15 | 200+ records, edge cases |
-| Cleanup & Isolation | 15 | Rollback, cleanup scripts |
-| Documentation | 10 | Purpose, expected outcomes |
+| Category            | Points | Focus                                    |
+| ------------------- | ------ | ---------------------------------------- |
+| Query Efficiency    | 25     | SOQL selectivity, indexed fields, no N+1 |
+| Bulk Safety         | 25     | Governor limits, batch sizing            |
+| Data Integrity      | 20     | Required fields, relationships           |
+| Security & FLS      | 20     | Field-level security, no PII             |
+| Test Patterns       | 15     | 200+ records, edge cases                 |
+| Cleanup & Isolation | 15     | Rollback, cleanup scripts                |
+| Documentation       | 10     | Purpose, expected outcomes               |
 
 ## Cross-Skill Integration
 
 ### With sf-metadata
+
 ```
 Skill(skill="sf-metadata")
 Request: "Describe Invoice__c in org dev - show all fields"
 ```
+
 Then use sf-data with accurate field names.
 
 ### From sf-apex / sf-flow
+
 ```
 Skill(skill="sf-data")
 Request: "Create 251 test Accounts to trigger AccountTrigger bulk testing"
@@ -87,17 +92,17 @@ sf-data/
 
 ## sf CLI Commands Wrapped
 
-| Operation | Command |
-|-----------|---------|
-| Query | `sf data query --query "..." --target-org [alias]` |
-| Create | `sf data create record --sobject [Object] --values "..."` |
-| Update | `sf data update record --sobject [Object] --record-id [Id] --values "..."` |
-| Delete | `sf data delete record --sobject [Object] --record-id [Id]` |
-| Bulk Import | `sf data import bulk --file [csv] --sobject [Object]` |
-| Bulk Delete | `sf data delete bulk --file [csv] --sobject [Object]` |
-| Tree Export | `sf data export tree --query "..." --output-dir [dir]` |
-| Tree Import | `sf data import tree --files [json]` |
-| Apex Run | `sf apex run --file [script.apex]` |
+| Operation   | Command                                                                    |
+| ----------- | -------------------------------------------------------------------------- |
+| Query       | `sf data query --query "..." --target-org [alias]`                         |
+| Create      | `sf data create record --sobject [Object] --values "..."`                  |
+| Update      | `sf data update record --sobject [Object] --record-id [Id] --values "..."` |
+| Delete      | `sf data delete record --sobject [Object] --record-id [Id]`                |
+| Bulk Import | `sf data import bulk --file [csv] --sobject [Object]`                      |
+| Bulk Delete | `sf data delete bulk --file [csv] --sobject [Object]`                      |
+| Tree Export | `sf data export tree --query "..." --output-dir [dir]`                     |
+| Tree Import | `sf data import tree --files [json]`                                       |
+| Apex Run    | `sf apex run --file [script.apex]`                                         |
 
 ## Requirements
 

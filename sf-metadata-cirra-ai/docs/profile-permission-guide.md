@@ -8,13 +8,13 @@ Salesforce provides two primary mechanisms for controlling user access: Profiles
 
 ## Quick Comparison
 
-| Aspect | Profile | Permission Set |
-|--------|---------|----------------|
-| Assignment | One per user (required) | Multiple per user |
-| Access model | Defines base access | Adds to profile |
-| Modification | All-or-nothing | Granular additions |
-| Standard items | Yes (System Admin, etc.) | No standard sets |
-| Best for | Base access, login settings | Feature-based access |
+| Aspect         | Profile                     | Permission Set       |
+| -------------- | --------------------------- | -------------------- |
+| Assignment     | One per user (required)     | Multiple per user    |
+| Access model   | Defines base access         | Adds to profile      |
+| Modification   | All-or-nothing              | Granular additions   |
+| Standard items | Yes (System Admin, etc.)    | No standard sets     |
+| Best for       | Base access, login settings | Feature-based access |
 
 ---
 
@@ -110,6 +110,7 @@ Permission Sets (assigned as needed):
 ```
 
 **Benefits:**
+
 - Flexible
 - Easy to audit
 - Scalable
@@ -138,6 +139,7 @@ Permission Set Groups:
 ```
 
 **Benefits:**
+
 - Role-aligned
 - Inheritance via groups
 - Single assignment point
@@ -172,9 +174,11 @@ Admin Layer (Permission Sets):
 ## Permission Set Groups
 
 ### What Are They?
+
 Permission Set Groups bundle multiple Permission Sets into a single assignable unit.
 
 ### Structure
+
 ```xml
 <PermissionSetGroup>
     <label>Sales Team Access</label>
@@ -187,13 +191,16 @@ Permission Set Groups bundle multiple Permission Sets into a single assignable u
 ```
 
 ### Benefits
+
 - Single assignment = multiple permissions
 - Easier onboarding
 - Consistent access across role
 - Simpler audit trail
 
 ### Muting Permission Sets
+
 Temporarily remove specific permissions from a group:
+
 ```xml
 <MutingPermissionSet>
     <label>Remove_Delete_Access</label>
@@ -211,6 +218,7 @@ Temporarily remove specific permissions from a group:
 ### Moving from Profiles to Permission Sets
 
 1. **Audit Current State**
+
    ```
    - List all profiles and their permissions
    - Identify unique permission combinations
@@ -218,6 +226,7 @@ Temporarily remove specific permissions from a group:
    ```
 
 2. **Design Permission Sets**
+
    ```
    - Group permissions by feature/function
    - Create atomic permission sets
@@ -225,6 +234,7 @@ Temporarily remove specific permissions from a group:
    ```
 
 3. **Create Minimal Profiles**
+
    ```
    - Clone existing profiles
    - Remove feature-specific permissions
@@ -232,6 +242,7 @@ Temporarily remove specific permissions from a group:
    ```
 
 4. **Create Permission Sets**
+
    ```
    - Build feature-based sets
    - Test with pilot users
@@ -239,6 +250,7 @@ Temporarily remove specific permissions from a group:
    ```
 
 5. **Migrate Users**
+
    ```
    - Assign new minimal profile
    - Assign relevant permission sets
@@ -261,6 +273,7 @@ Temporarily remove specific permissions from a group:
 **Situation:** Rolling out new invoice approval feature
 
 **Solution:**
+
 ```
 Create: Invoice_Approval_Permission_Set
 ├── Object: Invoice__c (Read, Edit)
@@ -278,6 +291,7 @@ Assign to: Users who approve invoices
 **Situation:** Contractors need limited access for 3 months
 
 **Solution:**
+
 ```
 Profile: Contractor_Base (minimal)
 Permission Set: Project_XYZ_Access (time-limited)
@@ -296,6 +310,7 @@ Process:
 **Situation:** External system needs API access
 
 **Solution:**
+
 ```
 Profile: Integration_User (minimal, API-only)
 Permission Sets:
@@ -312,6 +327,7 @@ Yes: API, specific objects/fields only
 ## Anti-Patterns to Avoid
 
 ### 1. Profile Proliferation
+
 ```
 ❌ John_Smith_Profile
 ❌ Marketing_Temp_Profile
@@ -321,6 +337,7 @@ Yes: API, specific objects/fields only
 ```
 
 ### 2. Cloning System Administrator
+
 ```
 ❌ Clone System Admin for power users
 ❌ Modify cloned admin for "limited admin"
@@ -329,6 +346,7 @@ Yes: API, specific objects/fields only
 ```
 
 ### 3. Permission Set Sprawl
+
 ```
 ❌ One permission set per user request
 ❌ Overlapping permission sets
@@ -339,6 +357,7 @@ Yes: API, specific objects/fields only
 ```
 
 ### 4. Mixing Concerns
+
 ```
 ❌ Profile with feature permissions
 ❌ Permission set with login settings
@@ -352,6 +371,7 @@ Yes: API, specific objects/fields only
 ## Audit Checklist
 
 ### Profiles
+
 - [ ] Each profile has clear purpose
 - [ ] No user-specific profiles
 - [ ] Minimal permissions (least privilege)
@@ -359,6 +379,7 @@ Yes: API, specific objects/fields only
 - [ ] Documented and reviewed
 
 ### Permission Sets
+
 - [ ] Named by feature/function
 - [ ] No overlapping permissions
 - [ ] Documented purpose
@@ -366,6 +387,7 @@ Yes: API, specific objects/fields only
 - [ ] Assignment tracked
 
 ### Permission Set Groups
+
 - [ ] Role-aligned groupings
 - [ ] No redundant inclusions
 - [ ] Muting sets used appropriately
@@ -376,6 +398,7 @@ Yes: API, specific objects/fields only
 ## Quick Reference
 
 ### Profile Contains
+
 - User license
 - Login hours/IP ranges
 - Password policies
@@ -386,6 +409,7 @@ Yes: API, specific objects/fields only
 - Tab visibility
 
 ### Permission Set Contains
+
 - Object permissions (additive)
 - Field permissions (additive)
 - Apex class access
@@ -395,6 +419,7 @@ Yes: API, specific objects/fields only
 - External data source access
 
 ### Permission Set Group Contains
+
 - Multiple permission sets
 - Muting permission sets (optional)
 - Calculated permissions (union)

@@ -55,11 +55,13 @@ class TestParseVariables:
 
     def test_multiple_variables(self):
         """A list of 3 variable strings produces 3 dicts."""
-        result = parse_variables([
-            "alpha=1",
-            "beta:Number=2",
-            "$Context.Gamma=3",
-        ])
+        result = parse_variables(
+            [
+                "alpha=1",
+                "beta:Number=2",
+                "$Context.Gamma=3",
+            ]
+        )
 
         assert len(result) == 3
         assert result[0]["name"] == "alpha"

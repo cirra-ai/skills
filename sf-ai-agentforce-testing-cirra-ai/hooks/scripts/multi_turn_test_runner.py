@@ -60,12 +60,15 @@ import sys
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import Any
 
 # Import sibling module
 sys.path.insert(0, str(Path(__file__).parent))
 from agent_api_client import (
-    AgentAPIClient, AgentSession, TurnResult, AgentAPIError, parse_variables,
+    AgentAPIClient,
+    TurnResult,
+    AgentAPIError,
+    parse_variables,
 )
 
 # YAML import with helpful error
@@ -73,8 +76,7 @@ try:
     import yaml
 except ImportError:
     print(
-        "ERROR: pyyaml is required for YAML template parsing.\n"
-        "Install with: pip3 install pyyaml",
+        "ERROR: pyyaml is required for YAML template parsing.\nInstall with: pip3 install pyyaml",
         file=sys.stderr,
     )
     sys.exit(2)
@@ -104,9 +106,9 @@ ESCALATION_PATTERNS = [
 
 def evaluate_turn(
     turn: TurnResult,
-    expectations: Dict[str, Any],
-    prior_turns: List[TurnResult],
-) -> Dict[str, Any]:
+    expectations: dict[str, Any],
+    prior_turns: list[TurnResult],
+) -> dict[str, Any]:
     """
     Evaluate a single turn's response against its expectations.
 
@@ -137,8 +139,8 @@ def evaluate_turn(
 
 
 def _run_check(
-    name: str, expected: Any, turn: TurnResult, prior_turns: List[TurnResult]
-) -> Dict[str, Any]:
+    name: str, expected: Any, turn: TurnResult, prior_turns: list[TurnResult]
+) -> dict[str, Any]:
     """Run a single expectation check against a turn."""
     check = {
         "name": name,
@@ -201,17 +203,14 @@ def _run_check(
             is_declined = _matches_patterns(turn.agent_text, GUARDRAIL_PATTERNS)
             check["actual"] = is_declined
             check["passed"] = is_declined == expected
-            check["detail"] = (
-                f"Guardrail {'triggered' if is_declined else 'not triggered'}"
-            )
+            check["detail"] = f"Guardrail {'triggered' if is_declined else 'not triggered'}"
 
         elif name == "action_invoked":
             has_action = turn.has_action_result
             check["actual"] = has_action
             check["passed"] = has_action
             check["detail"] = (
-                f"Action result {'present' if has_action else 'absent'}"
-                f" (expected: {expected})"
+                f"Action result {'present' if has_action else 'absent'} (expected: {expected})"
             )
 
         elif name == "has_action_result":
@@ -227,7 +226,11 @@ def _run_check(
             acknowledged = _matches_patterns(turn.agent_text, ack_patterns)
             check["actual"] = acknowledged
             check["passed"] = acknowledged
-            check["detail"] = "Response acknowledges intent change" if acknowledged else "No acknowledgment detected"
+            check["detail"] = (
+                "Response acknowledges intent change"
+                if acknowledged
+                else "No acknowledgment detected"
+            )
 
         elif name == "response_offers_help":
             help_patterns = [
@@ -258,10 +261,14 @@ def _run_check(
 
         elif name == "resumes_normal":
             # Check that the response is non-empty and doesn't contain guardrail language
-            is_normal = turn.has_response and not _matches_patterns(turn.agent_text, GUARDRAIL_PATTERNS)
+            is_normal = turn.has_response and not _matches_patterns(
+                turn.agent_text, GUARDRAIL_PATTERNS
+            )
             check["actual"] = is_normal
             check["passed"] = is_normal
-            check["detail"] = "Normal conversation resumed" if is_normal else "Did not resume normally"
+            check["detail"] = (
+                "Normal conversation resumed" if is_normal else "Did not resume normally"
+            )
 
         elif name == "no_re_ask_for":
             # Check that the agent doesn't re-ask for information already provided
@@ -290,7 +297,7 @@ def _run_check(
             missing = [str(v) for v in expected if str(v).lower() not in text]
             check["actual"] = found_all
             check["passed"] = found_all
-            check["detail"] = f"All references found" if found_all else f"Missing: {missing}"
+            check["detail"] = "All references found" if found_all else f"Missing: {missing}"
 
         elif name == "context_retained":
             # Soft check: the response is non-empty and doesn't indicate confusion
@@ -299,7 +306,9 @@ def _run_check(
                 r"(?i)(?:could|can)\s+you\s+(?:please\s+)?(?:remind|tell)\s+me\s+again",
                 r"(?i)I'?m\s+not\s+(?:sure|aware)\s+(?:what|which)",
             ]
-            no_confusion = turn.has_response and not _matches_patterns(turn.agent_text, confusion_patterns)
+            no_confusion = turn.has_response and not _matches_patterns(
+                turn.agent_text, confusion_patterns
+            )
             check["actual"] = no_confusion
             check["passed"] = no_confusion
             check["detail"] = "Context appears retained" if no_confusion else "Context may be lost"
@@ -315,15 +324,20 @@ def _run_check(
             # Cannot directly verify from sync response; mark as informational
             check["actual"] = "cannot_verify"
             check["passed"] = True  # Soft pass — requires manual/STDM verification
-            check["detail"] = f"Variable {expected} usage cannot be verified from response alone (check STDM)"
+            check["detail"] = (
+                f"Variable {expected} usage cannot be verified from response alone (check STDM)"
+            )
 
         elif name == "action_uses_prior_output":
             # Heuristic: check that agent doesn't re-ask for data from prior action
             if prior_turns:
-                re_ask = _matches_patterns(turn.agent_text, [
-                    r"(?i)which\s+(?:account|record|order|contact|case)",
-                    r"(?i)(?:could|can)\s+you\s+(?:provide|specify|tell\s+me)",
-                ])
+                re_ask = _matches_patterns(
+                    turn.agent_text,
+                    [
+                        r"(?i)which\s+(?:account|record|order|contact|case)",
+                        r"(?i)(?:could|can)\s+you\s+(?:provide|specify|tell\s+me)",
+                    ],
+                )
                 check["actual"] = not re_ask
                 check["passed"] = not re_ask
                 check["detail"] = (
@@ -345,7 +359,9 @@ def _run_check(
             resolved = _matches_patterns(turn.agent_text, resolve_patterns)
             check["actual"] = resolved
             check["passed"] = resolved
-            check["detail"] = "Conversation appears resolved" if resolved else "Resolution not detected"
+            check["detail"] = (
+                "Conversation appears resolved" if resolved else "Resolution not detected"
+            )
 
         elif name == "response_declines_gracefully":
             decline_patterns = [
@@ -353,8 +369,9 @@ def _run_check(
                 r"(?i)(?:outside|beyond)\s+(?:my|the)\s+(?:scope|area|capabilities)",
                 r"(?i)(?:focus|specialize)\s+(?:on|in)\s+(?:other|different)",
             ]
-            declined = _matches_patterns(turn.agent_text, decline_patterns) or \
-                       _matches_patterns(turn.agent_text, GUARDRAIL_PATTERNS)
+            declined = _matches_patterns(turn.agent_text, decline_patterns) or _matches_patterns(
+                turn.agent_text, GUARDRAIL_PATTERNS
+            )
             check["actual"] = declined
             check["passed"] = declined
             check["detail"] = "Gracefully declined" if declined else "Did not decline"
@@ -370,7 +387,7 @@ def _run_check(
     return check
 
 
-def _matches_patterns(text: str, patterns: List[str]) -> bool:
+def _matches_patterns(text: str, patterns: list[str]) -> bool:
     """Check if text matches any of the given regex patterns."""
     return any(re.search(p, text) for p in patterns)
 
@@ -379,19 +396,20 @@ def _matches_patterns(text: str, patterns: List[str]) -> bool:
 # Scenario Execution
 # ═══════════════════════════════════════════════════════════════════════════
 
-def load_scenarios(path: str) -> Dict[str, Any]:
+
+def load_scenarios(path: str) -> dict[str, Any]:
     """Load YAML scenario file."""
-    with open(path, "r") as f:
+    with open(path) as f:
         return yaml.safe_load(f)
 
 
 def execute_scenario(
     client: AgentAPIClient,
     agent_id: str,
-    scenario: Dict[str, Any],
-    global_variables: List[Dict] = None,
+    scenario: dict[str, Any],
+    global_variables: list[dict] = None,
     verbose: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Execute a single multi-turn test scenario.
 
@@ -436,7 +454,7 @@ def execute_scenario(
     }
 
     start_time = time.time()
-    prior_turn_results: List[TurnResult] = []
+    prior_turn_results: list[TurnResult] = []
 
     try:
         with client.session(
@@ -449,7 +467,10 @@ def execute_scenario(
                 turn_variables = turn_spec.get("variables", None)
 
                 if verbose:
-                    print(f"    Turn {i}: \"{user_message[:50]}{'...' if len(user_message) > 50 else ''}\"", file=sys.stderr)
+                    print(
+                        f'    Turn {i}: "{user_message[:50]}{"..." if len(user_message) > 50 else ""}"',
+                        file=sys.stderr,
+                    )
 
                 # Send message
                 turn_result = session.send(user_message, variables=turn_variables)
@@ -475,7 +496,10 @@ def execute_scenario(
                 if evaluation["passed"]:
                     result["pass_count"] += 1
                     if verbose:
-                        print(f"      ✅ {evaluation['pass_count']}/{evaluation['total_checks']} checks passed", file=sys.stderr)
+                        print(
+                            f"      ✅ {evaluation['pass_count']}/{evaluation['total_checks']} checks passed",
+                            file=sys.stderr,
+                        )
                 else:
                     result["fail_count"] += 1
                     if verbose:
@@ -506,7 +530,8 @@ def execute_scenario(
 # Results Formatting
 # ═══════════════════════════════════════════════════════════════════════════
 
-def format_results(results: Dict[str, Any]) -> str:
+
+def format_results(results: dict[str, Any]) -> str:
     """Format test results as terminal-friendly report."""
     lines = []
     scenarios = results.get("scenarios", [])
@@ -537,7 +562,9 @@ def format_results(results: Dict[str, Any]) -> str:
                 if not t["evaluation"]["passed"]:
                     failed_checks = [c for c in t["evaluation"]["checks"] if not c["passed"]]
                     for fc in failed_checks:
-                        lines.append(f"   └─ Turn {t['turn_number']}: {fc['name']} — {fc['detail']}")
+                        lines.append(
+                            f"   └─ Turn {t['turn_number']}: {fc['name']} — {fc['detail']}"
+                        )
 
         if s["status"] == "error":
             lines.append(f"   └─ Error: {s.get('error', 'Unknown')}")
@@ -547,13 +574,17 @@ def format_results(results: Dict[str, Any]) -> str:
     # Aggregate summary
     lines.append("SUMMARY")
     lines.append("-" * 64)
-    lines.append(f"Scenarios:        {summary.get('total_scenarios', 0)} total | "
-                 f"{summary.get('passed_scenarios', 0)} passed | "
-                 f"{summary.get('failed_scenarios', 0)} failed | "
-                 f"{summary.get('error_scenarios', 0)} errors")
-    lines.append(f"Turns:            {summary.get('total_turns', 0)} total | "
-                 f"{summary.get('passed_turns', 0)} passed | "
-                 f"{summary.get('failed_turns', 0)} failed")
+    lines.append(
+        f"Scenarios:        {summary.get('total_scenarios', 0)} total | "
+        f"{summary.get('passed_scenarios', 0)} passed | "
+        f"{summary.get('failed_scenarios', 0)} failed | "
+        f"{summary.get('error_scenarios', 0)} errors"
+    )
+    lines.append(
+        f"Turns:            {summary.get('total_turns', 0)} total | "
+        f"{summary.get('passed_turns', 0)} passed | "
+        f"{summary.get('failed_turns', 0)} failed"
+    )
 
     total_turns = summary.get("total_turns", 0)
     if total_turns > 0:
@@ -574,11 +605,13 @@ def format_results(results: Dict[str, Any]) -> str:
 
         for scenario_name, t in failed_turns:
             failed_checks = [c for c in t["evaluation"]["checks"] if not c["passed"]]
-            lines.append(f"")
+            lines.append("")
             lines.append(f"❌ {scenario_name} → Turn {t['turn_number']}")
-            lines.append(f"   Input:    \"{t['user_message'][:70]}\"")
+            lines.append(f'   Input:    "{t["user_message"][:70]}"')
             if t.get("agent_text"):
-                lines.append(f"   Response: \"{t['agent_text'][:70]}{'...' if len(t.get('agent_text', '')) > 70 else ''}\"")
+                lines.append(
+                    f'   Response: "{t["agent_text"][:70]}{"..." if len(t.get("agent_text", "")) > 70 else ""}"'
+                )
             for fc in failed_checks:
                 lines.append(f"   Check:    {fc['name']}")
                 lines.append(f"   Expected: {fc['expected']}")
@@ -601,7 +634,7 @@ def format_results(results: Dict[str, Any]) -> str:
         lines.append("")
 
         categories_seen = set()
-        for scenario_name, t in failed_turns:
+        for _scenario_name, t in failed_turns:
             for fc in t["evaluation"]["checks"]:
                 if not fc["passed"]:
                     cat = _infer_failure_category(fc["name"], t)
@@ -618,7 +651,7 @@ def format_results(results: Dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def _infer_failure_category(check_name: str, turn: Dict) -> Optional[str]:
+def _infer_failure_category(check_name: str, turn: dict) -> str | None:
     """Infer failure category from check name and turn data."""
     mapping = {
         "topic_contains": "TOPIC_RE_MATCHING_FAILURE",
@@ -658,6 +691,7 @@ def _suggest_fix(category: str) -> str:
 # Main
 # ═══════════════════════════════════════════════════════════════════════════
 
+
 def main():
     parser = argparse.ArgumentParser(
         description="Multi-Turn Agent Test Runner — execute YAML test scenarios via Agent Runtime API",
@@ -687,30 +721,45 @@ Environment Variables:
     )
 
     # Credentials (CLI args or env vars)
-    parser.add_argument("--my-domain", default=os.environ.get("SF_MY_DOMAIN", ""),
-                        help="Salesforce My Domain URL (or SF_MY_DOMAIN env)")
-    parser.add_argument("--consumer-key", default=os.environ.get("SF_CONSUMER_KEY", ""),
-                        help="ECA Consumer Key (or SF_CONSUMER_KEY env)")
-    parser.add_argument("--consumer-secret", default=os.environ.get("SF_CONSUMER_SECRET", ""),
-                        help="ECA Consumer Secret (or SF_CONSUMER_SECRET env)")
-    parser.add_argument("--agent-id", default=os.environ.get("SF_AGENT_ID", ""),
-                        help="BotDefinition ID (or SF_AGENT_ID env)")
+    parser.add_argument(
+        "--my-domain",
+        default=os.environ.get("SF_MY_DOMAIN", ""),
+        help="Salesforce My Domain URL (or SF_MY_DOMAIN env)",
+    )
+    parser.add_argument(
+        "--consumer-key",
+        default=os.environ.get("SF_CONSUMER_KEY", ""),
+        help="ECA Consumer Key (or SF_CONSUMER_KEY env)",
+    )
+    parser.add_argument(
+        "--consumer-secret",
+        default=os.environ.get("SF_CONSUMER_SECRET", ""),
+        help="ECA Consumer Secret (or SF_CONSUMER_SECRET env)",
+    )
+    parser.add_argument(
+        "--agent-id",
+        default=os.environ.get("SF_AGENT_ID", ""),
+        help="BotDefinition ID (or SF_AGENT_ID env)",
+    )
 
     # Scenario configuration
-    parser.add_argument("--scenarios", required=True,
-                        help="Path to YAML scenario file")
-    parser.add_argument("--scenario-filter", default=None,
-                        help="Only run scenarios matching this name pattern")
-    parser.add_argument("--var", action="append", default=[],
-                        help="Global variable: 'name=value' or '$Context.Field=value' (repeatable)")
+    parser.add_argument("--scenarios", required=True, help="Path to YAML scenario file")
+    parser.add_argument(
+        "--scenario-filter", default=None, help="Only run scenarios matching this name pattern"
+    )
+    parser.add_argument(
+        "--var",
+        action="append",
+        default=[],
+        help="Global variable: 'name=value' or '$Context.Field=value' (repeatable)",
+    )
 
     # Output
-    parser.add_argument("--output", default=None,
-                        help="Write JSON results to this file path")
-    parser.add_argument("--verbose", action="store_true",
-                        help="Print progress to stderr")
-    parser.add_argument("--json-only", action="store_true",
-                        help="Only output JSON (no terminal report)")
+    parser.add_argument("--output", default=None, help="Write JSON results to this file path")
+    parser.add_argument("--verbose", action="store_true", help="Print progress to stderr")
+    parser.add_argument(
+        "--json-only", action="store_true", help="Only output JSON (no terminal report)"
+    )
 
     args = parser.parse_args()
 
@@ -825,7 +874,7 @@ Environment Variables:
     # Machine-readable output for fix loop integration
     if failed_scenarios > 0 or error_scenarios > 0:
         print("---BEGIN_MACHINE_READABLE---")
-        print(f"FIX_NEEDED: true")
+        print("FIX_NEEDED: true")
         print(f"SCENARIOS_TOTAL: {len(scenario_results)}")
         print(f"SCENARIOS_PASSED: {passed_scenarios}")
         print(f"SCENARIOS_FAILED: {failed_scenarios}")

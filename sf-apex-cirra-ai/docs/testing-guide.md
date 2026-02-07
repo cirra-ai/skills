@@ -3,6 +3,7 @@
 ## Testing Fundamentals
 
 ### Coverage Requirements
+
 - **Minimum**: 75% for deployment
 - **Recommended**: 90%+ for quality
 - **Best Practice**: Maintain buffer above 75%
@@ -219,6 +220,7 @@ Account acc = new AccountBuilder()
 ## @TestSetup
 
 ### Benefits
+
 - Runs once per test class
 - Data available to all test methods
 - Rolled back after each test method
@@ -451,14 +453,14 @@ static void testPrivateMethod() {
 
 ## Test Checklist
 
-| Scenario | Required |
-|----------|----------|
-| Positive test (happy path) | ✓ |
-| Negative test (error handling) | ✓ |
-| Bulk test (251+ records) | ✓ |
-| Single record test | ✓ |
-| Null/empty input | ✓ |
-| Boundary conditions | ✓ |
-| Different user profiles | ✓ |
-| Assert statements in every test | ✓ |
-| Test.startTest()/stopTest() for async | ✓ |
+| Scenario                              | Required |
+| ------------------------------------- | -------- |
+| Positive test (happy path)            | ✓        |
+| Negative test (error handling)        | ✓        |
+| Bulk test (251+ records)              | ✓        |
+| Single record test                    | ✓        |
+| Null/empty input                      | ✓        |
+| Boundary conditions                   | ✓        |
+| Different user profiles               | ✓        |
+| Assert statements in every test       | ✓        |
+| Test.startTest()/stopTest() for async | ✓        |

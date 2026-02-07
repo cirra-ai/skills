@@ -56,12 +56,13 @@ sf agent generate test-spec [--output-file <path>]
 
 **Flags:**
 
-| Flag | Description |
-|------|-------------|
+| Flag            | Description                                                   |
+| --------------- | ------------------------------------------------------------- |
 | `--output-file` | Path for generated YAML (default: `specs/agentTestSpec.yaml`) |
-| `--api-version` | Override API version |
+| `--api-version` | Override API version                                          |
 
 **⛔ Non-existent flags (DO NOT USE):**
+
 - `--api-name` - Does NOT exist (common misconception)
 - `--agent-name` - Does NOT exist
 - `--from-agent` - Does NOT exist
@@ -69,6 +70,7 @@ sf agent generate test-spec [--output-file <path>]
 **Interactive Prompts:**
 
 The command interactively prompts for:
+
 1. **Utterance** - Test input (user message)
 2. **Expected topic** - Which topic should be selected
 3. **Expected actions** - Which actions should be invoked
@@ -103,18 +105,18 @@ sf agent test create --spec <file> --target-org <alias> [--api-name <name>] [--f
 
 **Required Flags:**
 
-| Flag | Description |
-|------|-------------|
-| `-s, --spec` | Path to test spec YAML file |
+| Flag               | Description                  |
+| ------------------ | ---------------------------- |
+| `-s, --spec`       | Path to test spec YAML file  |
 | `-o, --target-org` | Target org alias or username |
 
 **Optional Flags:**
 
-| Flag | Description |
-|------|-------------|
-| `-n, --api-name` | API name for the test (auto-generated if omitted) |
-| `--force-overwrite` | Skip confirmation if test exists |
-| `--preview` | Dry-run - view metadata without deploying |
+| Flag                | Description                                       |
+| ------------------- | ------------------------------------------------- |
+| `-n, --api-name`    | API name for the test (auto-generated if omitted) |
+| `--force-overwrite` | Skip confirmation if test exists                  |
+| `--preview`         | Dry-run - view metadata without deploying         |
 
 **Example:**
 
@@ -132,6 +134,7 @@ sf agent test create --spec ./tests/spec.yaml --preview --target-org dev
 **Output:**
 
 Creates `AiEvaluationDefinition` metadata in the org at:
+
 ```
 force-app/main/default/aiEvaluationDefinitions/[TestName].aiEvaluationDefinition-meta.xml
 ```
@@ -150,19 +153,19 @@ sf agent test run --api-name <name> --target-org <alias> [--wait <minutes>]
 
 **Required Flags:**
 
-| Flag | Description |
-|------|-------------|
-| `-n, --api-name` | Test API name (created via `test create`) |
-| `-o, --target-org` | Target org alias or username |
+| Flag               | Description                               |
+| ------------------ | ----------------------------------------- |
+| `-n, --api-name`   | Test API name (created via `test create`) |
+| `-o, --target-org` | Target org alias or username              |
 
 **Optional Flags:**
 
-| Flag | Description |
-|------|-------------|
-| `-w, --wait` | Minutes to wait for completion (default: async) |
+| Flag                  | Description                                              |
+| --------------------- | -------------------------------------------------------- |
+| `-w, --wait`          | Minutes to wait for completion (default: async)          |
 | `-r, --result-format` | Output format: `human` (default), `json`, `junit`, `tap` |
-| `-d, --output-dir` | Directory to save results |
-| `--verbose` | Include detailed action data |
+| `-d, --output-dir`    | Directory to save results                                |
+| `--verbose`           | Include detailed action data                             |
 
 **Example:**
 
@@ -183,6 +186,7 @@ sf agent test run --api-name MyAgentTest --wait 10 --verbose --target-org dev
 **Async Behavior:**
 
 Without `--wait`, the command:
+
 1. Starts the test
 2. Returns a job ID
 3. Exits immediately
@@ -205,15 +209,16 @@ sf agent test results --job-id <id> --target-org <alias> [--result-format <forma
 
 **Flags:**
 
-| Flag | Description |
-|------|-------------|
-| `-i, --job-id` | **(REQUIRED)** Job ID from `test run` command |
-| `-o, --target-org` | Target org alias or username |
-| `-r, --result-format` | Output format: `human`, `json`, `junit`, `tap` |
-| `-d, --output-dir` | Directory to save results |
-| `--verbose` | Include generated data (actions, objects touched) |
+| Flag                  | Description                                       |
+| --------------------- | ------------------------------------------------- |
+| `-i, --job-id`        | **(REQUIRED)** Job ID from `test run` command     |
+| `-o, --target-org`    | Target org alias or username                      |
+| `-r, --result-format` | Output format: `human`, `json`, `junit`, `tap`    |
+| `-d, --output-dir`    | Directory to save results                         |
+| `--verbose`           | Include generated data (actions, objects touched) |
 
 **⛔ Non-working flags (DO NOT USE):**
+
 - `--use-most-recent` - Documented but NOT implemented as of Jan 2026
 
 **Example:**
@@ -231,9 +236,11 @@ sf agent test results --job-id 4KBak0000001btZGAQ --verbose --target-org dev
 
 **Getting the Job ID:**
 The `sf agent test run` command outputs the job ID when it starts:
+
 ```
 Job ID: 4KBak0000001btZGAQ
 ```
+
 Save this ID to retrieve results later.
 
 ---
@@ -251,14 +258,14 @@ sf agent test resume --use-most-recent --target-org <alias>
 
 **Flags:**
 
-| Flag | Description |
-|------|-------------|
-| `-i, --job-id` | Job ID to resume |
-| `-r, --use-most-recent` | Resume most recent test run |
-| `-o, --target-org` | Target org alias or username |
-| `-w, --wait` | Minutes to wait for completion |
-| `--result-format` | Output format |
-| `--output-dir` | Directory to save results |
+| Flag                    | Description                    |
+| ----------------------- | ------------------------------ |
+| `-i, --job-id`          | Job ID to resume               |
+| `-r, --use-most-recent` | Resume most recent test run    |
+| `-o, --target-org`      | Target org alias or username   |
+| `-w, --wait`            | Minutes to wait for completion |
+| `--result-format`       | Output format                  |
+| `--output-dir`          | Directory to save results      |
 
 **Example:**
 
@@ -312,27 +319,27 @@ sf agent preview --api-name <name> --target-org <alias> [options]
 
 **Required Flags:**
 
-| Flag | Description |
-|------|-------------|
-| `-n, --api-name` | Agent API name |
+| Flag               | Description                  |
+| ------------------ | ---------------------------- |
+| `-n, --api-name`   | Agent API name               |
 | `-o, --target-org` | Target org alias or username |
 
 **Optional Flags:**
 
-| Flag | Description |
-|------|-------------|
-| `--use-live-actions` | Execute real Flows/Apex (vs simulated) |
-| `-c, --client-app` | Connected app name (required for live mode) |
-| `--authoring-bundle` | Specific authoring bundle to preview |
-| `-d, --output-dir` | Directory to save transcripts |
-| `-x, --apex-debug` | Capture Apex debug logs |
+| Flag                 | Description                                 |
+| -------------------- | ------------------------------------------- |
+| `--use-live-actions` | Execute real Flows/Apex (vs simulated)      |
+| `-c, --client-app`   | Connected app name (required for live mode) |
+| `--authoring-bundle` | Specific authoring bundle to preview        |
+| `-d, --output-dir`   | Directory to save transcripts               |
+| `-x, --apex-debug`   | Capture Apex debug logs                     |
 
 **Modes:**
 
-| Mode | Command | Description |
-|------|---------|-------------|
-| **Simulated** | `sf agent preview --api-name Agent` | LLM simulates action results |
-| **Live** | `sf agent preview --api-name Agent --use-live-actions --client-app App` | Real Flows/Apex execute |
+| Mode          | Command                                                                 | Description                  |
+| ------------- | ----------------------------------------------------------------------- | ---------------------------- |
+| **Simulated** | `sf agent preview --api-name Agent`                                     | LLM simulates action results |
+| **Live**      | `sf agent preview --api-name Agent --use-live-actions --client-app App` | Real Flows/Apex execute      |
 
 **Example:**
 
@@ -370,6 +377,7 @@ Saved to: ./logs/transcript.json
 **Output Files:**
 
 When using `--output-dir`:
+
 - `transcript.json` - Conversation record
 - `responses.json` - Full API messages with internal details
 - `apex-debug.log` - Debug logs (if `--apex-debug`)
@@ -513,17 +521,17 @@ cat ./debug/apex-debug.log | grep ERROR
 
 ## Error Troubleshooting
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| "Agent not found" | Agent not published | Run `sf agent publish authoring-bundle` |
-| "Test not found" | Test not created | Run `sf agent test create` first |
-| "401 Unauthorized" | Connected app issue | Check OAuth setup via sf-connected-apps |
-| "Job ID not found" | Test timed out | Use `sf agent test resume` |
-| "No results" | Test still running | Wait longer or use `--wait` |
-| **"Nonexistent flag: --use-most-recent"** | CLI bug | Use `--job-id` explicitly instead |
-| **Topic assertion fails** | Expected topic doesn't match actual | Standard copilots use `MigrationDefaultTopic` - update test expectations |
-| **"No matching records"** | Test data doesn't exist | Verify utterances reference actual org data |
-| **Test exists confirmation hangs** | Interactive prompt in script | Use `echo "y" \| sf agent test create...` |
+| Error                                     | Cause                               | Solution                                                                 |
+| ----------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------ |
+| "Agent not found"                         | Agent not published                 | Run `sf agent publish authoring-bundle`                                  |
+| "Test not found"                          | Test not created                    | Run `sf agent test create` first                                         |
+| "401 Unauthorized"                        | Connected app issue                 | Check OAuth setup via sf-connected-apps                                  |
+| "Job ID not found"                        | Test timed out                      | Use `sf agent test resume`                                               |
+| "No results"                              | Test still running                  | Wait longer or use `--wait`                                              |
+| **"Nonexistent flag: --use-most-recent"** | CLI bug                             | Use `--job-id` explicitly instead                                        |
+| **Topic assertion fails**                 | Expected topic doesn't match actual | Standard copilots use `MigrationDefaultTopic` - update test expectations |
+| **"No matching records"**                 | Test data doesn't exist             | Verify utterances reference actual org data                              |
+| **Test exists confirmation hangs**        | Interactive prompt in script        | Use `echo "y" \| sf agent test create...`                                |
 
 ---
 
@@ -532,47 +540,50 @@ cat ./debug/apex-debug.log | grep ERROR
 ### 1. Action Matching Uses Superset Logic
 
 Action assertions use **flexible superset matching**:
+
 - Expected: `[IdentifyRecordByName]`
 - Actual: `[IdentifyRecordByName, SummarizeRecord]`
 - Result: ✅ **PASS** (actual contains expected)
 
-This means tests pass if the agent invokes *at least* the expected actions, even if it invokes additional ones.
+This means tests pass if the agent invokes _at least_ the expected actions, even if it invokes additional ones.
 
 ### 2. Topic Names Vary by Agent Type
 
-| Agent Type | Typical Topic Names |
-|------------|---------------------|
-| Standard Salesforce Copilot | `MigrationDefaultTopic` |
-| Custom Agent | Custom names you define |
-| Agentforce for Service | `GeneralCRM`, `OOTBSingleRecordSummary` |
+| Agent Type                  | Typical Topic Names                     |
+| --------------------------- | --------------------------------------- |
+| Standard Salesforce Copilot | `MigrationDefaultTopic`                 |
+| Custom Agent                | Custom names you define                 |
+| Agentforce for Service      | `GeneralCRM`, `OOTBSingleRecordSummary` |
 
 **Best Practice:** Run one test first, check actual topic names in results, then update expectations.
 
 ### 3. Test Data Must Exist
 
 Tests referencing specific records will fail if:
+
 - The record doesn't exist (e.g., "Acme" account)
 - The record name doesn't match exactly (case-sensitive)
 
 **Best Practice:** Query org for actual data before writing tests:
+
 ```bash
 sf data query --query "SELECT Name FROM Account LIMIT 5" --target-org dev
 ```
 
 ### 4. Two Fix Strategies Exist
 
-| Agent Type | Fix Strategy |
-|------------|--------------|
+| Agent Type                 | Fix Strategy                   |
+| -------------------------- | ------------------------------ |
 | Custom Agent (you control) | Fix agent via sf-ai-agentforce |
-| Managed/Standard Agent | Fix test expectations in YAML |
+| Managed/Standard Agent     | Fix test expectations in YAML  |
 
 ---
 
 ## Related Commands
 
-| Command | Skill | Purpose |
-|---------|-------|---------|
-| `sf agent publish authoring-bundle` | sf-ai-agentscript | Publish agent before testing |
-| `sf agent validate authoring-bundle` | sf-ai-agentscript | Validate agent syntax |
-| `sf agent activate` | sf-ai-agentscript | Activate for preview |
-| `sf org login web` | - | OAuth for live preview |
+| Command                              | Skill             | Purpose                      |
+| ------------------------------------ | ----------------- | ---------------------------- |
+| `sf agent publish authoring-bundle`  | sf-ai-agentscript | Publish agent before testing |
+| `sf agent validate authoring-bundle` | sf-ai-agentscript | Validate agent syntax        |
+| `sf agent activate`                  | sf-ai-agentscript | Activate for preview         |
+| `sf org login web`                   | -                 | OAuth for live preview       |

@@ -1,5 +1,5 @@
 {
-  "name": "sf-skills",
+  "name": "cirra-ai",
   "owner": {
     "name": "Cirra AI, Inc.",
     "url": "https://github.com/cirra-ai"
@@ -267,7 +267,16 @@
       },
       "category": "ai",
       "tags": ["salesforce", "agentforce", "observability", "data-cloud", "analytics", "genai"],
-      "keywords": ["session-tracing", "data-cloud", "polars", "parquet", "genai-quality", "trust-layer", "toxicity", "pii-detection"]
+      "keywords": [
+        "session-tracing",
+        "data-cloud",
+        "polars",
+        "parquet",
+        "genai-quality",
+        "trust-layer",
+        "toxicity",
+        "pii-detection"
+      ]
     }
   ]
 }

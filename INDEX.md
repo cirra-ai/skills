@@ -32,10 +32,12 @@ sf-skills-cirra-ai/
 ## Detailed File Guide
 
 ### 1. **README.md** (Start Here)
+
 **Location**: `/sessions/lucid-loving-albattani/mnt/outputs/sf-skills-cirra-ai/README.md`
 
 **Purpose**: Quick start and overview
 **Contains**:
+
 - What changed (CLI → MCP)
 - File locations for both layouts
 - Directory structure
@@ -53,10 +55,12 @@ sf-skills-cirra-ai/
 ---
 
 ### 2. **REFACTORING_SUMMARY.md**
+
 **Location**: `/sessions/lucid-loving-albattani/mnt/outputs/sf-skills-cirra-ai/REFACTORING_SUMMARY.md`
 
 **Purpose**: Detailed migration and transformation documentation
 **Contains**:
+
 - Complete transformation mappings (CLI → MCP)
 - Before/after code examples for all operations:
   - Deployment (`sf project deploy` → `metadata_create`)
@@ -78,10 +82,12 @@ sf-skills-cirra-ai/
 ---
 
 ### 3. **plugin.json** (MCP Configuration)
+
 **Location**: `/sessions/lucid-loving-albattani/mnt/outputs/sf-skills-cirra-ai/sf-apex/exploded/.claude-plugin/plugin.json`
 
 **Purpose**: Declares MCP tool requirements for the skill
 **Contains**:
+
 - Plugin name: `sf-apex-cirra-ai`
 - Version: `2.0.0`
 - Description
@@ -112,9 +118,11 @@ sf-skills-cirra-ai/
 ### 4. **SKILL.md** (Main Documentation - Two Identical Copies)
 
 #### Copy 1: Exploded Layout
+
 **Location**: `/sessions/lucid-loving-albattani/mnt/outputs/sf-skills-cirra-ai/sf-apex/exploded/skills/sf-apex/SKILL.md`
 
 #### Copy 2: Flat Layout
+
 **Location**: `/sessions/lucid-loving-albattani/mnt/outputs/sf-skills-cirra-ai/sf-apex/skill/sf-apex/SKILL.md`
 
 **Purpose**: Complete skill documentation and usage guide
@@ -223,6 +231,7 @@ sf-skills-cirra-ai/
     - Refactoring attribution
 
 **Both SKILL.md files are IDENTICAL** - use whichever layout matches your installation:
+
 - **Exploded**: If skill installed as separate directory structure
 - **Flat**: If skill installed in consolidated location
 
@@ -231,22 +240,27 @@ sf-skills-cirra-ai/
 ## Usage Guide by File
 
 ### For Quick Understanding
+
 1. Start: `README.md` (5 min read)
 2. Deep dive: `REFACTORING_SUMMARY.md` (10 min read)
 
 ### For Deployment Operations
+
 1. Reference: `SKILL.md` → "Phase 4: Metadata Deployment" (lines 363-408)
 2. Tool examples: `SKILL.md` → "MCP Tools Mapping" table (lines 415-432)
 
 ### For Code Generation
+
 1. Guardrails: `SKILL.md` → "Generation Guardrails" (lines 122-145)
 2. Patterns: `SKILL.md` → "TAF", "Testing", "Flow Integration" sections
 
 ### For Testing
+
 1. Workflow: `README.md` → "Testing the Refactored Skill"
 2. Detailed: `REFACTORING_SUMMARY.md` → "Testing the Refactored Skill"
 
 ### For Troubleshooting
+
 1. Limitations: `SKILL.md` → "Limitations & Workarounds" (lines 508-520)
 2. MCP setup: `plugin.json` → Required tools declaration
 
@@ -257,6 +271,7 @@ sf-skills-cirra-ai/
 ### Choose Layout (Both Work Identically)
 
 **Option A: Exploded Layout**
+
 ```
 Copy entire directory:
 /sessions/lucid-loving-albattani/mnt/outputs/sf-skills-cirra-ai/sf-apex/exploded/
@@ -271,6 +286,7 @@ Structure becomes:
 ```
 
 **Option B: Flat Layout**
+
 ```
 Copy entire directory:
 /sessions/lucid-loving-albattani/mnt/outputs/sf-skills-cirra-ai/sf-apex/skill/
@@ -283,12 +299,15 @@ Structure becomes:
 ```
 
 ### Prerequisites
+
 - Cirra AI MCP Server access (configured)
 - Claude Code with skill support
 - Salesforce org with Apex API 65.0+
 
 ### Activation
+
 Once installed, invoke with:
+
 ```
 User: @sf-apex-cirra-ai Generate a service class for Account
 ```
@@ -298,6 +317,7 @@ User: @sf-apex-cirra-ai Generate a service class for Account
 ## MCP Tool Requirements
 
 ### Must Have (7 Required)
+
 1. **cirra_ai_init** - Initialize connection
 2. **metadata_create** - Deploy new code
 3. **metadata_update** - Update existing code
@@ -307,6 +327,7 @@ User: @sf-apex-cirra-ai Generate a service class for Account
 7. **sobject_describe** - Get schema
 
 ### Should Have (3 Optional)
+
 1. **metadata_delete** - Delete code
 2. **tooling_api_dml** - Metadata DML
 3. **sobjects_list** - List objects
@@ -316,6 +337,7 @@ User: @sf-apex-cirra-ai Generate a service class for Account
 ## Version History
 
 ### v2.0.0 (Current - MCP-Based)
+
 - **Released**: 2025-02-06
 - **Base**: Original sf-apex v1.1.0
 - **Changes**: Replaced CLI with Cirra AI MCP Server
@@ -323,6 +345,7 @@ User: @sf-apex-cirra-ai Generate a service class for Account
 - **Location**: `/sessions/lucid-loving-albattani/mnt/outputs/sf-skills-cirra-ai/`
 
 ### v1.1.0 (Original - CLI-Based)
+
 - **Location**: `/sessions/lucid-loving-albattani/mnt/.local-plugins/marketplaces/sf-skills/sf-apex/`
 - **Status**: Still available, can coexist with v2.0.0
 - **Note**: Uses `sf project deploy`, `sf project retrieve`, etc.
@@ -331,39 +354,43 @@ User: @sf-apex-cirra-ai Generate a service class for Account
 
 ## Key Differences Summary
 
-| Aspect | v1.1.0 (CLI) | v2.0.0 (MCP) |
-|--------|-----------|-----------|
-| Deployment | `sf project deploy` | `metadata_create()` |
-| Retrieval | `sf project retrieve` | `metadata_read()` |
-| Schema discovery | `sf sobject describe` | `sobject_describe()` |
-| Metadata query | `sf data query --use-tooling-api` | `tooling_api_query()` |
-| File system | Uses force-app/ | No file I/O |
-| Anonymous Apex | `sf apex run` | Not supported |
-| Initialization | CLI auth | `cirra_ai_init()` |
-| Code generation | Identical | Identical |
-| Scoring | Identical | Identical |
-| Best practices | Identical | Identical |
+| Aspect           | v1.1.0 (CLI)                      | v2.0.0 (MCP)          |
+| ---------------- | --------------------------------- | --------------------- |
+| Deployment       | `sf project deploy`               | `metadata_create()`   |
+| Retrieval        | `sf project retrieve`             | `metadata_read()`     |
+| Schema discovery | `sf sobject describe`             | `sobject_describe()`  |
+| Metadata query   | `sf data query --use-tooling-api` | `tooling_api_query()` |
+| File system      | Uses force-app/                   | No file I/O           |
+| Anonymous Apex   | `sf apex run`                     | Not supported         |
+| Initialization   | CLI auth                          | `cirra_ai_init()`     |
+| Code generation  | Identical                         | Identical             |
+| Scoring          | Identical                         | Identical             |
+| Best practices   | Identical                         | Identical             |
 
 ---
 
 ## Document Cross-References
 
 ### README.md references:
+
 - REFACTORING_SUMMARY.md (for detailed changes)
 - SKILL.md sections (for specific operations)
 - plugin.json (MCP tools)
 
 ### REFACTORING_SUMMARY.md references:
+
 - Original SKILL.md (CLI version)
 - MCP tool examples (in this document)
 - Testing scenarios
 
 ### SKILL.md references:
+
 - Best practices documentation (inline)
 - Resource guides (references only, not included)
 - Cross-skill integration (optional)
 
 ### plugin.json references:
+
 - MCP tool registry
 - Cirra AI team configuration
 
@@ -372,14 +399,17 @@ User: @sf-apex-cirra-ai Generate a service class for Account
 ## Support and Questions
 
 ### For Quick Help
+
 - README.md: Overview and common questions
 - MCP tool examples in SKILL.md sections
 
 ### For Technical Details
+
 - REFACTORING_SUMMARY.md: Transformation details
 - SKILL.md: Complete reference
 
 ### For Specific Operations
+
 - Deployment: SKILL.md Phase 4
 - Code retrieval: SKILL.md MCP Tools Mapping
 - Testing: README.md or REFACTORING_SUMMARY.md
@@ -398,6 +428,7 @@ Copyright (c) 2024-2025 Jag Valaiyapathy
 ## Final Checklist
 
 When using this refactored skill, verify:
+
 - [ ] Cirra AI MCP Server is configured
 - [ ] All 7 required tools are available
 - [ ] SKILL.md is readable (choice of exploded or flat layout)

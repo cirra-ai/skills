@@ -5,6 +5,7 @@ Complete reference for Salesforce CLI v2 data commands.
 ## Query Commands
 
 ### SOQL Query
+
 ```bash
 sf data query \
   --query "SELECT Id, Name FROM Account LIMIT 10" \
@@ -13,6 +14,7 @@ sf data query \
 ```
 
 ### SOSL Search
+
 ```bash
 sf data search \
   --query "FIND {Acme}" \
@@ -20,6 +22,7 @@ sf data search \
 ```
 
 ### Bulk Export
+
 ```bash
 sf data export bulk \
   --query "SELECT Id, Name FROM Account" \
@@ -31,6 +34,7 @@ sf data export bulk \
 ## Record Operations
 
 ### Create Record
+
 ```bash
 sf data create record \
   --sobject Account \
@@ -39,6 +43,7 @@ sf data create record \
 ```
 
 ### Update Record
+
 ```bash
 sf data update record \
   --sobject Account \
@@ -48,6 +53,7 @@ sf data update record \
 ```
 
 ### Delete Record
+
 ```bash
 sf data delete record \
   --sobject Account \
@@ -56,6 +62,7 @@ sf data delete record \
 ```
 
 ### Get Record
+
 ```bash
 sf data get record \
   --sobject Account \
@@ -66,6 +73,7 @@ sf data get record \
 ## Bulk Operations
 
 ### Bulk Import
+
 ```bash
 sf data import bulk \
   --file data.csv \
@@ -75,6 +83,7 @@ sf data import bulk \
 ```
 
 ### Bulk Update
+
 ```bash
 sf data update bulk \
   --file updates.csv \
@@ -84,6 +93,7 @@ sf data update bulk \
 ```
 
 ### Bulk Upsert
+
 ```bash
 sf data upsert bulk \
   --file data.csv \
@@ -94,6 +104,7 @@ sf data upsert bulk \
 ```
 
 ### Bulk Delete
+
 ```bash
 sf data delete bulk \
   --file ids.csv \
@@ -105,6 +116,7 @@ sf data delete bulk \
 ## Tree Operations
 
 ### Export Tree
+
 ```bash
 sf data export tree \
   --query "SELECT Id, Name, (SELECT Id, Name FROM Contacts) FROM Account" \
@@ -113,6 +125,7 @@ sf data export tree \
 ```
 
 ### Import Tree
+
 ```bash
 sf data import tree \
   --files data.json \
@@ -121,13 +134,13 @@ sf data import tree \
 
 ## Common Flags
 
-| Flag | Description |
-|------|-------------|
-| `--target-org`, `-o` | Target org alias |
-| `--json` | JSON output format |
-| `--result-format` | human, csv, json |
-| `--wait` | Minutes to wait for bulk jobs |
-| `--use-tooling-api` | Query Tooling API |
+| Flag                 | Description                   |
+| -------------------- | ----------------------------- |
+| `--target-org`, `-o` | Target org alias              |
+| `--json`             | JSON output format            |
+| `--result-format`    | human, csv, json              |
+| `--wait`             | Minutes to wait for bulk jobs |
+| `--use-tooling-api`  | Query Tooling API             |
 
 ## Apex Execution
 

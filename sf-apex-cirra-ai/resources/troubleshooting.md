@@ -34,12 +34,13 @@ The sf-apex skill includes Language Server Protocol (LSP) integration for real-t
 
 For LSP validation to work, users must have:
 
-| Requirement | How to Install |
-|-------------|----------------|
+| Requirement                           | How to Install                                     |
+| ------------------------------------- | -------------------------------------------------- |
 | **VS Code Salesforce Extension Pack** | VS Code → Extensions → "Salesforce Extension Pack" |
-| **Java 11+ (Adoptium recommended)** | https://adoptium.net/temurin/releases/ |
+| **Java 11+ (Adoptium recommended)**   | https://adoptium.net/temurin/releases/             |
 
 **Verify Installation:**
+
 ```bash
 # Check VS Code extensions
 code --list-extensions | grep salesforce
@@ -96,17 +97,18 @@ Please fix the Apex syntax errors above and try again.
 
 ### Common LSP Errors
 
-| Error | Cause | Fix |
-|-------|-------|-----|
-| Missing ';' at ... | Statement not terminated | Add semicolon at end of line |
-| Unexpected token ... | Syntax error | Check brackets, quotes, keywords |
-| Unknown type ... | Class/type not found | Ensure class exists, check spelling |
-| Method does not exist ... | Method call on wrong type | Verify method name and signature |
-| Variable not found ... | Undeclared variable | Declare variable before use |
+| Error                     | Cause                     | Fix                                 |
+| ------------------------- | ------------------------- | ----------------------------------- |
+| Missing ';' at ...        | Statement not terminated  | Add semicolon at end of line        |
+| Unexpected token ...      | Syntax error              | Check brackets, quotes, keywords    |
+| Unknown type ...          | Class/type not found      | Ensure class exists, check spelling |
+| Method does not exist ... | Method call on wrong type | Verify method name and signature    |
+| Variable not found ...    | Undeclared variable       | Declare variable before use         |
 
 **Example Auto-Fix Loop:**
 
 **Attempt 1 (ERROR):**
+
 ```apex
 public class MyClass {
     public void doSomething() {
@@ -116,11 +118,13 @@ public class MyClass {
 ```
 
 **LSP Output:**
+
 ```
 ❌ [ERROR] line 3: Missing ';' at '}'
 ```
 
 **Attempt 2 (SUCCESS):**
+
 ```apex
 public class MyClass {
     public void doSomething() {
@@ -130,6 +134,7 @@ public class MyClass {
 ```
 
 **LSP Output:**
+
 ```
 ✅ VALIDATION PASSED
 ```
@@ -141,6 +146,7 @@ public class MyClass {
 If LSP is unavailable (no VS Code extension or Java), validation silently skips - the skill continues to work with only 150-point semantic validation.
 
 **Detection Logic:**
+
 ```python
 # hooks/scripts/post-tool-validate.py
 try:
@@ -163,6 +169,7 @@ except LSPNotAvailableException:
 3. See syntax errors highlighted in real-time
 
 **Run from CLI (if available):**
+
 ```bash
 # This requires Salesforce CLI with Apex Language Server
 sf apex compile --file force-app/main/default/classes/MyClass.cls
@@ -174,14 +181,14 @@ sf apex compile --file force-app/main/default/classes/MyClass.cls
 
 **Before deploying Apex code, verify these prerequisites:**
 
-| Prerequisite | Check Command | Required For |
-|--------------|---------------|--------------|
-| **TAF Package** | `sf package installed list --target-org alias` | TAF trigger pattern |
-| **Custom Fields** | `sf sobject describe --sobject Lead --target-org alias` | Field references in code |
-| **Permission Sets** | `sf org list metadata --metadata-type PermissionSet` | FLS for custom fields |
-| **Trigger_Action__mdt** | Check Setup → Custom Metadata Types | TAF trigger execution |
-| **Named Credentials** | Check Setup → Named Credentials | External callouts |
-| **Custom Settings** | Check Setup → Custom Settings | Bypass flags, configuration |
+| Prerequisite              | Check Command                                           | Required For                |
+| ------------------------- | ------------------------------------------------------- | --------------------------- |
+| **TAF Package**           | `sf package installed list --target-org alias`          | TAF trigger pattern         |
+| **Custom Fields**         | `sf sobject describe --sobject Lead --target-org alias` | Field references in code    |
+| **Permission Sets**       | `sf org list metadata --metadata-type PermissionSet`    | FLS for custom fields       |
+| **Trigger_Action\_\_mdt** | Check Setup → Custom Metadata Types                     | TAF trigger execution       |
+| **Named Credentials**     | Check Setup → Named Credentials                         | External callouts           |
+| **Custom Settings**       | Check Setup → Custom Settings                           | Bypass flags, configuration |
 
 ---
 
@@ -209,11 +216,13 @@ sf apex compile --file force-app/main/default/classes/MyClass.cls
 ### Verifying Prerequisites
 
 **Check TAF Package:**
+
 ```bash
 sf package installed list --target-org myorg --json
 ```
 
 **Output:**
+
 ```json
 {
   "result": [
@@ -227,6 +236,7 @@ sf package installed list --target-org myorg --json
 ```
 
 **If not installed:**
+
 ```bash
 sf package install --package 04tKZ000000gUEFYA2 --target-org myorg --wait 10
 ```
@@ -234,11 +244,13 @@ sf package install --package 04tKZ000000gUEFYA2 --target-org myorg --wait 10
 ---
 
 **Check Custom Metadata Records:**
+
 ```bash
 sf data query --query "SELECT DeveloperName, Object__c, Apex_Class_Name__c FROM Trigger_Action__mdt" --target-org myorg
 ```
 
 **Expected Output:**
+
 ```
 DeveloperName          Object__c  Apex_Class_Name__c
 ─────────────────────────────────────────────────────
@@ -257,17 +269,21 @@ TA_Lead_CalculateScore  Lead       TA_Lead_CalculateScore
 **Cause**: Apex references a custom field that doesn't exist in target org.
 
 **Example:**
+
 ```
 Error: Field Account.Custom_Field__c does not exist
 ```
 
 **Fix:**
+
 1. Verify field exists:
+
    ```bash
    sf sobject describe --sobject Account --target-org myorg | grep Custom_Field__c
    ```
 
 2. Deploy field first:
+
    ```bash
    sf project deploy start --metadata CustomField:Account.Custom_Field__c --target-org myorg
    ```
@@ -281,11 +297,13 @@ Error: Field Account.Custom_Field__c does not exist
 **Cause**: TAF package not installed in target org.
 
 **Example:**
+
 ```
 Error: Invalid type: TriggerAction.BeforeInsert
 ```
 
 **Fix:**
+
 ```bash
 # Install TAF package
 sf package install --package 04tKZ000000gUEFYA2 --target-org myorg --wait 10
@@ -301,11 +319,13 @@ sf package installed list --target-org myorg
 **Cause**: Deploy user lacks permissions.
 
 **Example:**
+
 ```
 Error: Insufficient access rights on object id
 ```
 
 **Fix:**
+
 1. Verify user has "Modify All Data" or is System Administrator
 2. Or add specific permissions to user's profile:
    ```bash
@@ -319,12 +339,15 @@ Error: Insufficient access rights on object id
 **Cause**: Production deployment requires 75% test coverage.
 
 **Example:**
+
 ```
 Error: Average test coverage across all Apex Classes and Triggers is 68%, at least 75% required
 ```
 
 **Fix:**
+
 1. Identify uncovered classes:
+
    ```bash
    sf apex run test --code-coverage --result-format human --target-org myorg
    ```
@@ -343,12 +366,15 @@ Error: Average test coverage across all Apex Classes and Triggers is 68%, at lea
 **Cause**: Apex code violates validation rule.
 
 **Example:**
+
 ```
 Error: FIELD_CUSTOM_VALIDATION_EXCEPTION: Annual Revenue must be greater than 0
 ```
 
 **Fix:**
+
 1. Check validation rules:
+
    ```bash
    sf data query --query "SELECT ValidationName, ErrorDisplayField, ErrorMessage FROM ValidationRule WHERE EntityDefinition.QualifiedApiName = 'Account'" --target-org myorg
    ```
@@ -365,6 +391,7 @@ Error: FIELD_CUSTOM_VALIDATION_EXCEPTION: Annual Revenue must be greater than 0
 ### Enable Debug Logs
 
 **Via Setup:**
+
 1. Setup → Debug Logs
 2. Click "New"
 3. Select User
@@ -375,6 +402,7 @@ Error: FIELD_CUSTOM_VALIDATION_EXCEPTION: Annual Revenue must be greater than 0
    - Workflow: `INFO`
 
 **Via CLI:**
+
 ```bash
 # Create trace flag
 sf data create record --sobject TraceFlag --values "StartDate=2025-01-01T00:00:00Z EndDate=2025-01-02T00:00:00Z LogType=USER_DEBUG TracedEntityId=<USER_ID> DebugLevelId=<DEBUG_LEVEL_ID>" --target-org myorg
@@ -388,6 +416,7 @@ sf apex tail log --target-org myorg
 ### Reading Debug Logs
 
 **Structure:**
+
 ```
 HH:MM:SS.SSS|EXECUTION_STARTED
 HH:MM:SS.SSS|CODE_UNIT_STARTED|AccountService
@@ -401,6 +430,7 @@ HH:MM:SS.SSS|EXECUTION_FINISHED
 ```
 
 **Key Events:**
+
 - `USER_DEBUG`: Your `System.debug()` statements
 - `SOQL_EXECUTE_*`: SOQL queries
 - `DML_BEGIN/END`: DML operations
@@ -432,13 +462,13 @@ public static void processAccounts(List<Account> accounts) {
 
 ### Log Levels
 
-| Level | When to Use | Example |
-|-------|-------------|---------|
-| `ERROR` | Critical failures | `System.debug(LoggingLevel.ERROR, 'DML failed: ' + e.getMessage())` |
-| `WARN` | Potential issues | `System.debug(LoggingLevel.WARN, 'No contacts found for account')` |
-| `INFO` | Key milestones | `System.debug(LoggingLevel.INFO, 'Processing 251 accounts')` |
-| `DEBUG` | Detailed traces | `System.debug(LoggingLevel.DEBUG, 'Variable value: ' + var)` |
-| `FINE`/`FINER`/`FINEST` | Very detailed | Rarely used |
+| Level                   | When to Use       | Example                                                             |
+| ----------------------- | ----------------- | ------------------------------------------------------------------- |
+| `ERROR`                 | Critical failures | `System.debug(LoggingLevel.ERROR, 'DML failed: ' + e.getMessage())` |
+| `WARN`                  | Potential issues  | `System.debug(LoggingLevel.WARN, 'No contacts found for account')`  |
+| `INFO`                  | Key milestones    | `System.debug(LoggingLevel.INFO, 'Processing 251 accounts')`        |
+| `DEBUG`                 | Detailed traces   | `System.debug(LoggingLevel.DEBUG, 'Variable value: ' + var)`        |
+| `FINE`/`FINER`/`FINEST` | Very detailed     | Rarely used                                                         |
 
 ---
 
@@ -462,6 +492,7 @@ public static void expensiveOperation() {
 ### Common Limit Exceptions
 
 **SOQL Limit (100 queries):**
+
 ```
 System.LimitException: Too many SOQL queries: 101
 ```
@@ -469,6 +500,7 @@ System.LimitException: Too many SOQL queries: 101
 **Fix**: Query BEFORE loops, use Maps for lookups.
 
 **DML Limit (150 statements):**
+
 ```
 System.LimitException: Too many DML statements: 151
 ```
@@ -476,6 +508,7 @@ System.LimitException: Too many DML statements: 151
 **Fix**: Collect records in List, DML AFTER loop.
 
 **CPU Time Limit (10 seconds):**
+
 ```
 System.LimitException: Maximum CPU time exceeded
 ```
@@ -483,6 +516,7 @@ System.LimitException: Maximum CPU time exceeded
 **Fix**: Optimize loops, move expensive operations to async, reduce complexity.
 
 **Heap Size Limit (6 MB):**
+
 ```
 System.LimitException: Apex heap size too large
 ```
@@ -515,6 +549,7 @@ public static void monitoredOperation() {
 ### Common Test Failure Patterns
 
 **Pattern 1: No assertions**
+
 ```apex
 @IsTest
 static void testCreateAccount() {
@@ -525,6 +560,7 @@ static void testCreateAccount() {
 ```
 
 **Fix**: Add assertions
+
 ```apex
 @IsTest
 static void testCreateAccount() {
@@ -539,6 +575,7 @@ static void testCreateAccount() {
 ---
 
 **Pattern 2: Order dependency**
+
 ```apex
 @IsTest
 static void test1() {
@@ -553,6 +590,7 @@ static void test2() {
 ```
 
 **Fix**: Use @TestSetup or create data in each test
+
 ```apex
 @TestSetup
 static void setup() {
@@ -568,6 +606,7 @@ static void test2() {
 ---
 
 **Pattern 3: Insufficient permissions**
+
 ```apex
 @IsTest
 static void testRestrictedUser() {
@@ -581,6 +620,7 @@ static void testRestrictedUser() {
 ```
 
 **Fix**: Grant necessary permissions
+
 ```apex
 @TestSetup
 static void setup() {
@@ -597,11 +637,13 @@ static void setup() {
 ### Running Tests
 
 **VS Code:**
+
 1. Open test class
 2. Click "Run Test" above `@IsTest` method
 3. View results in Output panel
 
 **CLI:**
+
 ```bash
 # Run specific test class
 sf apex run test --tests AccountServiceTest --result-format human --code-coverage --target-org myorg
@@ -614,6 +656,7 @@ sf apex run test --test-level RunLocalTests --code-coverage --result-format json
 ```
 
 **Output:**
+
 ```
 Test Summary
 ════════════
@@ -668,6 +711,7 @@ Run and check logs to see which checkpoint fails.
 ### 2. Isolate in Anonymous Apex
 
 **Execute in Developer Console:**
+
 ```apex
 Account acc = new Account(Name = 'Debug Test', Industry = 'Tech');
 insert acc;
@@ -683,6 +727,7 @@ Open Execute Anonymous Window (`Ctrl+E`), paste code, check logs.
 ### 3. Unit Test in Isolation
 
 **Create minimal test case:**
+
 ```apex
 @IsTest
 static void debugIssue() {
@@ -703,6 +748,7 @@ Easier to debug than full integration test.
 ## Reference
 
 **Full Documentation**: See `docs/` folder for comprehensive guides:
+
 - `best-practices.md` - Debugging best practices
 - `testing-guide.md` - Test troubleshooting
 - `code-review-checklist.md` - Quality checklist

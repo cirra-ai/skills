@@ -29,6 +29,7 @@ This checklist ensures that Salesforce Flows meet enterprise governance standard
 ### 💻 Technical Implementation
 
 #### Naming & Organization
+
 - [ ] **Flow name follows convention**: `{Type}_{Object}_{Purpose}` (e.g., `RTF_Account_UpdateIndustry`)
 - [ ] **Description is clear and complete** (one-sentence summary of what flow does)
 - [ ] **Elements have meaningful names** (no "Decision_0162847" default names)
@@ -36,6 +37,7 @@ This checklist ensures that Salesforce Flows meet enterprise governance standard
 - [ ] **API version is current** (65.0 for Summer '26)
 
 #### Performance & Bulkification
+
 - [ ] **No DML inside loops** (CRITICAL - causes bulk failures)
 - [ ] **Bulkified operations** (handles collections, not single records)
 - [ ] **Transform element used** where applicable (faster than loops for field mapping)
@@ -47,6 +49,7 @@ This checklist ensures that Salesforce Flows meet enterprise governance standard
 - [ ] **Record lookups have appropriate filters** (don't query unnecessary records)
 
 #### Error Handling
+
 - [ ] **All DML operations have fault paths** connected
 - [ ] **Fault paths connect to error logging** (Sub_LogError or custom)
 - [ ] **Error messages are descriptive** (help with troubleshooting)
@@ -54,6 +57,7 @@ This checklist ensures that Salesforce Flows meet enterprise governance standard
 - [ ] **Non-critical failures logged but don't block** (fire-and-forget for notifications)
 
 #### Security & Permissions
+
 - [ ] **Running mode documented** (System vs User mode - why?)
 - [ ] **Sensitive fields identified** (SSN, credit card, passwords, etc.)
 - [ ] **Object access documented** (which objects CREATE/READ/UPDATE/DELETE)
@@ -61,6 +65,7 @@ This checklist ensures that Salesforce Flows meet enterprise governance standard
 - [ ] **No hardcoded credentials** or sensitive data in flow
 
 #### Reusability & Maintainability
+
 - [ ] **Complex logic extracted to subflows** (>200 lines suggests need for subflow)
 - [ ] **Subflows are single-purpose** (do one thing well)
 - [ ] **Input/output variables clearly defined** (documented with descriptions)
@@ -146,7 +151,7 @@ This checklist ensures that Salesforce Flows meet enterprise governance standard
 ### 🔦 Monitoring
 
 - [ ] **Activate flow** after initial verification
-- [ ] **Monitor error logs** (Flow_Error_Log__c or debug logs)
+- [ ] **Monitor error logs** (Flow_Error_Log\_\_c or debug logs)
 - [ ] **Monitor performance** (Setup → Apex Jobs, flow interview records)
 - [ ] **Monitor user feedback** (support tickets, user questions)
 - [ ] **Review after 24 hours** (any unexpected behavior?)
@@ -186,6 +191,7 @@ This checklist ensures that Salesforce Flows meet enterprise governance standard
 ### Calculate Your Governance Score
 
 Assign points for completed items:
+
 - **Pre-Development**: 10 items × 2 points = 20 points
 - **Development**: 25 items × 2 points = 50 points
 - **Testing**: 15 items × 3 points = 45 points
@@ -197,13 +203,13 @@ Assign points for completed items:
 
 ### Governance Rating
 
-| Score | Rating | Description |
-|-------|--------|-------------|
-| 180-200 | ⭐⭐⭐⭐⭐ Excellent | Enterprise-grade governance |
-| 160-179 | ⭐⭐⭐⭐ Very Good | Strong governance with minor gaps |
-| 140-159 | ⭐⭐⭐ Good | Acceptable governance, some improvements needed |
-| 120-139 | ⭐⭐ Fair | Significant gaps, address before production |
-| < 120 | ⭐ Poor | Not ready for production deployment |
+| Score   | Rating               | Description                                     |
+| ------- | -------------------- | ----------------------------------------------- |
+| 180-200 | ⭐⭐⭐⭐⭐ Excellent | Enterprise-grade governance                     |
+| 160-179 | ⭐⭐⭐⭐ Very Good   | Strong governance with minor gaps               |
+| 140-159 | ⭐⭐⭐ Good          | Acceptable governance, some improvements needed |
+| 120-139 | ⭐⭐ Fair            | Significant gaps, address before production     |
+| < 120   | ⭐ Poor              | Not ready for production deployment             |
 
 **Minimum for Production**: 140+ (Good rating)
 
@@ -214,6 +220,7 @@ Assign points for completed items:
 ### When to Request Exception
 
 Sometimes strict governance isn't feasible. Request exception for:
+
 - **Proof-of-concept flows** (not production-critical)
 - **Emergency hotfixes** (security issues, critical bugs)
 - **Temporary workarounds** (permanent solution in progress)
@@ -237,6 +244,7 @@ Approver: [Who approved this exception?]
 ### Priority Checks (Must-Do)
 
 ✅ **Top 5 Critical Items**:
+
 1. No DML inside loops
 2. All DML operations have fault paths
 3. Tested with 200+ records (bulk testing)
@@ -246,6 +254,7 @@ Approver: [Who approved this exception?]
 ### Common Pitfalls
 
 ❌ **Top 5 Common Mistakes**:
+
 1. Deploying directly to production (skip sandbox testing)
 2. Activating immediately after deployment (skip verification)
 3. No error logging (can't debug production issues)
@@ -257,16 +266,19 @@ Approver: [Who approved this exception?]
 ## Resources
 
 ### Tools
+
 - **enhanced_validator.py**: Comprehensive 6-category validation (includes naming, security, performance, architecture)
 - **flow_simulator.py**: Bulk testing simulation
 
 ### Documentation
+
 - [Subflow Library](subflow-library.md): Reusable components
 - [Orchestration Guide](orchestration-guide.md): Architecture patterns
 - [Flow Best Practices](flow-best-practices.md): Security guidelines
 - [Architecture Review Template](../templates/architecture-review-template.md): Formal review process
 
 ### Salesforce Resources
+
 - [Flow Best Practices](https://help.salesforce.com/s/articleView?id=sf.flow_prep_bestpractices.htm)
 - [Flow Limits](https://developer.salesforce.com/docs/atlas.en-us.salesforce_app_limits_cheatsheet.meta/salesforce_app_limits_cheatsheet/salesforce_app_limits_platform_flows.htm)
 - [Security Guide](https://help.salesforce.com/s/articleView?id=sf.security_overview.htm)
@@ -275,15 +287,16 @@ Approver: [Who approved this exception?]
 
 ## Version History
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0 | 2024-11-30 | Initial governance checklist |
+| Version | Date       | Changes                      |
+| ------- | ---------- | ---------------------------- |
+| 1.0     | 2024-11-30 | Initial governance checklist |
 
 ---
 
 ## Support
 
 Questions about this checklist?
+
 1. Review related documentation above
 2. Consult with Salesforce architect or admin
 3. Request architecture review for complex flows

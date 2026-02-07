@@ -29,6 +29,7 @@ Critical XML metadata constraints and known issues when deploying flows via Meta
 ```
 
 **Avoid:**
+
 ```xml
 <recordLookups>
     <name>Get_Account</name>
@@ -66,12 +67,12 @@ Critical XML metadata constraints and known issues when deploying flows via Meta
 
 ### Fields That WON'T Work
 
-| Object | Invalid Field | Error |
-|--------|---------------|-------|
-| User | `Manager.Name` | Manager.Name doesn't exist |
-| Contact | `Account.Name` | Account.Name doesn't exist |
-| Case | `Account.Owner.Email` | Account.Owner.Email doesn't exist |
-| Opportunity | `Account.Industry` | Account.Industry doesn't exist |
+| Object      | Invalid Field         | Error                             |
+| ----------- | --------------------- | --------------------------------- |
+| User        | `Manager.Name`        | Manager.Name doesn't exist        |
+| Contact     | `Account.Name`        | Account.Name doesn't exist        |
+| Case        | `Account.Owner.Email` | Account.Owner.Email doesn't exist |
+| Opportunity | `Account.Industry`    | Account.Industry doesn't exist    |
 
 ### Correct Solution: Two-Step Query
 
@@ -106,6 +107,7 @@ Critical XML metadata constraints and known issues when deploying flows via Meta
 ### Flow Routing
 
 Ensure your flow checks for null before using the parent record:
+
 ```xml
 <decisions>
     <name>Check_Manager_Exists</name>
@@ -121,16 +123,16 @@ Ensure your flow checks for null before using the parent record:
 
 ---
 
-## $Record vs $Record__c Confusion (Record-Triggered Flows)
+## $Record vs $Record\_\_c Confusion (Record-Triggered Flows)
 
 **⚠️ COMMON MISTAKE**: Confusing Flow's `$Record` with Process Builder's `$Record__c`.
 
 ### What's the Difference?
 
-| Variable | Context | Usage |
-|----------|---------|-------|
-| `$Record` | Flow (Record-Triggered) | Single record that triggered the flow |
-| `$Record__c` | Process Builder | Collection of records in trigger batch |
+| Variable     | Context                 | Usage                                  |
+| ------------ | ----------------------- | -------------------------------------- |
+| `$Record`    | Flow (Record-Triggered) | Single record that triggered the flow  |
+| `$Record__c` | Process Builder         | Collection of records in trigger batch |
 
 ### The Mistake
 
@@ -199,6 +201,7 @@ Only when processing **related records**, not the triggered record:
 **NEVER use both** `<storeOutputAutomatically>` AND `<outputReference>` together.
 
 **Choose ONE approach:**
+
 ```xml
 <!-- Option 1: Auto-store (creates variable automatically) - NOT RECOMMENDED -->
 <storeOutputAutomatically>true</storeOutputAutomatically>
@@ -210,6 +213,7 @@ Only when processing **related records**, not the triggered record:
 ## Element Ordering in recordLookups
 
 Elements must follow this order:
+
 1. `<name>` 2. `<label>` 3. `<locationX>` 4. `<locationY>` 5. `<assignNullValuesIfNoRecordsFound>` 6. `<connector>` 7. `<filterLogic>` 8. `<filters>` 9. `<getFirstRecordOnly>` 10. `<object>` 11. `<outputReference>` OR `<storeOutputAutomatically>` 12. `<queriedFields>`
 
 ## Transform Element
@@ -217,6 +221,7 @@ Elements must follow this order:
 **Recommendation**: Create Transform elements in Flow Builder UI, then deploy - do NOT hand-write.
 
 Issues with hand-written Transform:
+
 - Complex nested XML structure with strict ordering
 - `inputReference` placement varies by context
 - Multiple conflicting rules in Metadata API
@@ -279,6 +284,7 @@ Use **inline orchestration** instead of subflows:
 ### Correct Fault Handling Patterns
 
 **Option 1: Route to dedicated error handler:**
+
 ```xml
 <recordUpdates>
     <name>Update_Account</name>
@@ -294,6 +300,7 @@ Use **inline orchestration** instead of subflows:
 ```
 
 **Option 2: Route to error logging assignment:**
+
 ```xml
 <recordUpdates>
     <name>Update_Account</name>
@@ -304,6 +311,7 @@ Use **inline orchestration** instead of subflows:
 ```
 
 **Option 3: Omit fault connector (flow will terminate on error):**
+
 ```xml
 <recordUpdates>
     <name>Update_Account</name>
@@ -360,6 +368,7 @@ All elements of the same type MUST be grouped together. You CANNOT have elements
 ### The Grouping Rule (CRITICAL)
 
 **Wrong** - Assignment after loops section:
+
 ```xml
 <assignments>
     <name>Set_Initial_Values</name>
@@ -378,6 +387,7 @@ All elements of the same type MUST be grouped together. You CANNOT have elements
 **Error**: `Element assignments is duplicated at this location in type Flow`
 
 **Correct** - All assignments together:
+
 ```xml
 <assignments>  <!-- ✅ All assignments grouped -->
     <name>Increment_Counter</name>
@@ -396,6 +406,7 @@ All elements of the same type MUST be grouped together. You CANNOT have elements
 ### Why This Happens
 
 When generating flows programmatically or manually editing XML:
+
 - Easy to add a new element near related logic
 - Salesforce requires ALL elements of same type to appear consecutively
 - The "duplicate" error is misleading - it means elements aren't grouped
@@ -404,15 +415,15 @@ When generating flows programmatically or manually editing XML:
 
 ## Common Deployment Errors
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| "Element X is duplicated" | Elements not alphabetically ordered | Reorder elements |
-| "Element bulkSupport invalid" | Using deprecated element (API 60.0+) | Remove `<bulkSupport>` |
-| "Error parsing file" | Malformed XML | Validate XML syntax |
-| "field 'X.Y' doesn't exist" | Relationship field in queriedFields | Use two-step query pattern |
-| "$Record__Prior can only be used..." | Using $Record__Prior with Create trigger | Change to Update or CreateAndUpdate |
-| "You can't use the Flows action type..." | Subflow in AutoLaunchedFlow | Use inline logic instead |
-| "nothing is connected to the Start element" | Empty flow with no elements | Add at least one assignment connected to start |
+| Error                                       | Cause                                      | Solution                                       |
+| ------------------------------------------- | ------------------------------------------ | ---------------------------------------------- |
+| "Element X is duplicated"                   | Elements not alphabetically ordered        | Reorder elements                               |
+| "Element bulkSupport invalid"               | Using deprecated element (API 60.0+)       | Remove `<bulkSupport>`                         |
+| "Error parsing file"                        | Malformed XML                              | Validate XML syntax                            |
+| "field 'X.Y' doesn't exist"                 | Relationship field in queriedFields        | Use two-step query pattern                     |
+| "$Record\_\_Prior can only be used..."      | Using $Record\_\_Prior with Create trigger | Change to Update or CreateAndUpdate            |
+| "You can't use the Flows action type..."    | Subflow in AutoLaunchedFlow                | Use inline logic instead                       |
+| "nothing is connected to the Start element" | Empty flow with no elements                | Add at least one assignment connected to start |
 
 ---
 
@@ -516,31 +527,38 @@ Even for simple pass-through flows, add at least one assignment:
 ## Summary: Lessons Learned
 
 ### Fault Connector Self-Reference
+
 - **Problem**: Fault connector pointing to the same element
 - **Error**: "The element cannot be connected to itself"
 - **Solution**: Route fault connectors to a dedicated error handler element
 
 ### XML Element Grouping
+
 - **Problem**: Elements of same type scattered across the file
 - **Error**: "Element X is duplicated at this location"
 - **Solution**: Group ALL elements of same type together, in alphabetical order by type
 
 ### Relationship Fields
+
 - **Problem**: Querying `Parent.Field` in Get Records
 - **Solution**: Two separate queries - child first, then parent by ID
 
 ### Record-Triggered Flow Architecture
+
 - **Problem**: Creating loops over triggered records
 - **Solution**: Use `$Record` directly - platform handles batching
 
 ### Deployment
+
 - **Problem**: Using direct CLI commands
 - **Solution**: Always use sf-deploy skill
 
 ### $Record Context
+
 - **Problem**: Confusing Flow's `$Record` with Process Builder's `$Record__c`
 - **Solution**: `$Record` is single record, use without loops
 
 ### Standard Objects for Testing
+
 - **Problem**: Custom objects may not exist in target org
 - **Solution**: When testing flow generation/deployment, prefer standard objects (Account, Contact, Opportunity, Task) for guaranteed deployability

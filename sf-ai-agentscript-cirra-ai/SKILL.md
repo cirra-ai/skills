@@ -6,19 +6,19 @@ description: >
   FSM architecture, instruction resolution, and hybrid reasoning.
   Uses Cirra AI MCP Server for org operations instead of Salesforce CLI.
 license: MIT
-compatibility: "Requires Agentforce license, API v65.0+, Einstein Agent User, Cirra AI MCP Server"
+compatibility: 'Requires Agentforce license, API v65.0+, Einstein Agent User, Cirra AI MCP Server'
 metadata:
-  version: "1.4.0"
-  author: "Jag Valaiyapathy"
-  scoring: "100 points across 6 categories"
-  validated: "0-shot generation tested (Pet_Adoption_Advisor, TechCorp_IT_Agent, Quiz_Master, Expense_Calculator, Order_Processor)"
+  version: '1.4.0'
+  author: 'Jag Valaiyapathy'
+  scoring: '100 points across 6 categories'
+  validated: '0-shot generation tested (Pet_Adoption_Advisor, TechCorp_IT_Agent, Quiz_Master, Expense_Calculator, Order_Processor)'
   # Validation Framework
-  last_validated: "2026-01-20"
-  validation_status: "PASS"
+  last_validated: '2026-01-20'
+  validation_status: 'PASS'
   validation_agents: 13
-  validate_by: "2026-02-19"  # 30 days from last validation
-  validation_org: "R6-Agentforce-SandboxFull"
-  deployment_method: "Cirra AI MCP Server (metadata_create/metadata_update)"
+  validate_by: '2026-02-19' # 30 days from last validation
+  validation_org: 'R6-Agentforce-SandboxFull'
+  deployment_method: 'Cirra AI MCP Server (metadata_create/metadata_update)'
 ---
 
 # SF-AI-AgentScript Skill (Cirra AI MCP Edition)
@@ -34,15 +34,17 @@ This refactored version replaces Salesforce CLI commands with Cirra AI MCP Serve
 ## ⚠️ CRITICAL WARNINGS
 
 ### API & Version Requirements
-| Requirement | Value | Notes |
-|-------------|-------|-------|
-| **API Version** | 65.0+ | Required for Agent Script support |
-| **License** | Agentforce | Required for agent authoring |
-| **Einstein Agent User** | Required | Must exist in org for `default_agent_user` |
-| **File Extension** | `.agent` | Single file contains entire agent definition |
-| **MCP Server** | Cirra AI | Required for org operations (replaces sf-cli) |
+
+| Requirement             | Value      | Notes                                         |
+| ----------------------- | ---------- | --------------------------------------------- |
+| **API Version**         | 65.0+      | Required for Agent Script support             |
+| **License**             | Agentforce | Required for agent authoring                  |
+| **Einstein Agent User** | Required   | Must exist in org for `default_agent_user`    |
+| **File Extension**      | `.agent`   | Single file contains entire agent definition  |
+| **MCP Server**          | Cirra AI   | Required for org operations (replaces sf-cli) |
 
 ### MANDATORY Pre-Deployment Checks
+
 1. **`default_agent_user` MUST be valid** - Query: `SELECT Username FROM User WHERE Profile.Name = 'Einstein Agent User' AND IsActive = true` (via `soql_query` tool)
 2. **No mixed tabs/spaces** - Use consistent indentation (2-space, 3-space, or tabs - never mix)
 3. **Booleans are capitalized** - Use `True`/`False`, not `true`/`false`
@@ -50,23 +52,24 @@ This refactored version replaces Salesforce CLI commands with Cirra AI MCP Serve
 
 ### ⛔ SYNTAX CONSTRAINTS (Validated via Testing + Official Spec)
 
-| Constraint | ❌ WRONG | ✅ CORRECT |
-|------------|----------|-----------|
-| **No nested if statements** | `if x:` then `if y:` (nested) | `if x and y:` (compound) OR flatten to sequential ifs |
-| **No top-level `actions:` block** | `actions:` at root level | Actions only inside `topic.reasoning.actions:` |
-| **No `inputs:`/`outputs:` in actions** | `inputs:` block inside action | Use `with` for inputs, `set` for outputs |
-| **One `available when` per action** | Two `available when` clauses | `available when A and B` |
-| **Avoid reserved action names** | `escalate: @utils.escalate` | `escalate_now: @utils.escalate` |
-| **`...` is slot-filling only** | `my_var: mutable string = ...` | `my_var: mutable string = ""` |
-| **No defaults on linked vars** | `id: linked string = ""` | `id: linked string` + `source:` |
-| **Linked vars: no object/list** | `data: linked object` | Use `linked string` or parse in Flow |
-| **Post-action only on @actions** | `@utils.X` with `set`/`run` | Only `@actions.X` supports post-action |
-| **agent_name must match folder** | Folder: `MyAgent`, config: `my_agent` | Both must be identical (case-sensitive) |
-| **Reserved field names** | `description: string`, `label: string` | Use `descriptions`, `label_text`, or suffix with `_field` |
+| Constraint                             | ❌ WRONG                               | ✅ CORRECT                                                |
+| -------------------------------------- | -------------------------------------- | --------------------------------------------------------- |
+| **No nested if statements**            | `if x:` then `if y:` (nested)          | `if x and y:` (compound) OR flatten to sequential ifs     |
+| **No top-level `actions:` block**      | `actions:` at root level               | Actions only inside `topic.reasoning.actions:`            |
+| **No `inputs:`/`outputs:` in actions** | `inputs:` block inside action          | Use `with` for inputs, `set` for outputs                  |
+| **One `available when` per action**    | Two `available when` clauses           | `available when A and B`                                  |
+| **Avoid reserved action names**        | `escalate: @utils.escalate`            | `escalate_now: @utils.escalate`                           |
+| **`...` is slot-filling only**         | `my_var: mutable string = ...`         | `my_var: mutable string = ""`                             |
+| **No defaults on linked vars**         | `id: linked string = ""`               | `id: linked string` + `source:`                           |
+| **Linked vars: no object/list**        | `data: linked object`                  | Use `linked string` or parse in Flow                      |
+| **Post-action only on @actions**       | `@utils.X` with `set`/`run`            | Only `@actions.X` supports post-action                    |
+| **agent_name must match folder**       | Folder: `MyAgent`, config: `my_agent`  | Both must be identical (case-sensitive)                   |
+| **Reserved field names**               | `description: string`, `label: string` | Use `descriptions`, `label_text`, or suffix with `_field` |
 
 ### 🔴 Reserved Field Names (Breaking in Recent Releases)
 
 Common field names that cause parse errors:
+
 ```
 ❌ RESERVED (cannot use as variable/field names):
 description, label, is_required, is_displayable, is_used_by_planner
@@ -80,17 +83,18 @@ label        → label_text, display_label, label_field
 
 > **These features appear in documentation or recipes but do NOT compile in Winter '26.**
 
-| Feature | Where Mentioned | Error | Status |
-|---------|-----------------|-------|--------|
-| `label:` on topics | agentforce.guide | `Unexpected 'label'` | ❌ NOT valid anywhere |
-| `label:` on actions | agentforce.guide | `Unexpected 'label'` | ❌ NOT valid anywhere |
-| `always_expect_input:` | Some docs | `Unexpected 'always_expect_input'` | ❌ NOT implemented |
-| `require_user_confirmation:` on transitions | Recipes | `Unexpected 'require_user_confirmation'` | ❌ NOT valid on `@utils.transition` |
-| `include_in_progress_indicator:` on transitions | Recipes | `Unexpected 'include_in_progress_indicator'` | ❌ NOT valid on `@utils.transition` |
-| `output_instructions:` on transitions | Recipes | `Unexpected 'output_instructions'` | ❌ NOT valid on `@utils.transition` |
-| `progress_indicator_message:` on transitions | Recipes | `Unexpected 'progress_indicator_message'` | ❌ May only work on `flow://` targets |
+| Feature                                         | Where Mentioned  | Error                                        | Status                                |
+| ----------------------------------------------- | ---------------- | -------------------------------------------- | ------------------------------------- |
+| `label:` on topics                              | agentforce.guide | `Unexpected 'label'`                         | ❌ NOT valid anywhere                 |
+| `label:` on actions                             | agentforce.guide | `Unexpected 'label'`                         | ❌ NOT valid anywhere                 |
+| `always_expect_input:`                          | Some docs        | `Unexpected 'always_expect_input'`           | ❌ NOT implemented                    |
+| `require_user_confirmation:` on transitions     | Recipes          | `Unexpected 'require_user_confirmation'`     | ❌ NOT valid on `@utils.transition`   |
+| `include_in_progress_indicator:` on transitions | Recipes          | `Unexpected 'include_in_progress_indicator'` | ❌ NOT valid on `@utils.transition`   |
+| `output_instructions:` on transitions           | Recipes          | `Unexpected 'output_instructions'`           | ❌ NOT valid on `@utils.transition`   |
+| `progress_indicator_message:` on transitions    | Recipes          | `Unexpected 'progress_indicator_message'`    | ❌ May only work on `flow://` targets |
 
 **What DOES work on `@utils.transition` actions:**
+
 ```yaml
 actions:
    go_next: @utils.transition to @topic.next
@@ -103,17 +107,17 @@ actions:
 
 > **"#1 source of compile errors"** - Use this table when defining action inputs/outputs in Agentforce Assets.
 
-| Data Type | `complex_data_type_name` Value | Notes |
-|-----------|-------------------------------|-------|
-| `string` | *(none needed)* | Primitive type |
-| `number` | *(none needed)* | Primitive type |
-| `boolean` | *(none needed)* | Primitive type |
-| `object` (SObject) | `lightning__recordInfoType` | Use for Account, Contact, etc. |
-| `list[string]` | `lightning__textType` | Collection of text values |
-| `list[object]` | `lightning__textType` | Serialized as JSON text |
-| Apex Inner Class | `@apexClassType/NamespacedClass__InnerClass` | Namespace required |
-| Custom LWC Type | `lightning__c__CustomTypeName` | Custom component types |
-| Currency field | `lightning__currencyType` | For monetary values |
+| Data Type          | `complex_data_type_name` Value               | Notes                          |
+| ------------------ | -------------------------------------------- | ------------------------------ |
+| `string`           | _(none needed)_                              | Primitive type                 |
+| `number`           | _(none needed)_                              | Primitive type                 |
+| `boolean`          | _(none needed)_                              | Primitive type                 |
+| `object` (SObject) | `lightning__recordInfoType`                  | Use for Account, Contact, etc. |
+| `list[string]`     | `lightning__textType`                        | Collection of text values      |
+| `list[object]`     | `lightning__textType`                        | Serialized as JSON text        |
+| Apex Inner Class   | `@apexClassType/NamespacedClass__InnerClass` | Namespace required             |
+| Custom LWC Type    | `lightning__c__CustomTypeName`               | Custom component types         |
+| Currency field     | `lightning__currencyType`                    | For monetary values            |
 
 **Pro Tip**: Don't manually edit `complex_data_type_name` - use the UI dropdown in **Agentforce Assets > Action Definition**, then export/import the action definition.
 
@@ -121,16 +125,17 @@ actions:
 
 > **CRITICAL**: Canvas view can silently corrupt Agent Script syntax. Make complex edits in **Script view**.
 
-| Original Syntax | Canvas Corrupts To | Impact |
-|-----------------|-------------------|--------|
-| `==` | `{! OPERATOR.EQUAL }` | Breaks conditionals |
-| `if condition:` | `if condition` (missing colon) | Parse error |
-| `with email =` | `with @inputs.email =` | Invalid syntax |
-| 4-space indent | De-indented (breaks nesting) | Structure lost |
-| `@topic.X` (supervision) | `@utils.transition to @topic.X` (handoff) | Changes return behavior |
-| `A and B` | `A {! and } B` | Breaks compound conditions |
+| Original Syntax          | Canvas Corrupts To                        | Impact                     |
+| ------------------------ | ----------------------------------------- | -------------------------- |
+| `==`                     | `{! OPERATOR.EQUAL }`                     | Breaks conditionals        |
+| `if condition:`          | `if condition` (missing colon)            | Parse error                |
+| `with email =`           | `with @inputs.email =`                    | Invalid syntax             |
+| 4-space indent           | De-indented (breaks nesting)              | Structure lost             |
+| `@topic.X` (supervision) | `@utils.transition to @topic.X` (handoff) | Changes return behavior    |
+| `A and B`                | `A {! and } B`                            | Breaks compound conditions |
 
 **Safe Workflow**:
+
 1. Use **Script view** for all structural edits (conditionals, actions, transitions)
 2. Use Canvas only for visual validation and simple text changes
 3. **Always review in Script view** after any Canvas edit
@@ -139,13 +144,14 @@ actions:
 
 > **CRITICAL REFRESH BUG**: Browser refresh required after **every** Agent Script save before preview works properly.
 
-| Issue | Error Message | Workaround |
-|-------|---------------|------------|
-| Linked vars in context, not state | `"Cannot access 'X': Not a declared field in dict"` | Convert to mutable + hardcode for testing |
-| Output property access fails | Silent failure, no error | Assign to variable first, then use in conditional |
-| Simulate vs Live behavior differs | Works in Simulate, fails in Live | Test in **BOTH** modes before committing |
+| Issue                             | Error Message                                       | Workaround                                        |
+| --------------------------------- | --------------------------------------------------- | ------------------------------------------------- |
+| Linked vars in context, not state | `"Cannot access 'X': Not a declared field in dict"` | Convert to mutable + hardcode for testing         |
+| Output property access fails      | Silent failure, no error                            | Assign to variable first, then use in conditional |
+| Simulate vs Live behavior differs | Works in Simulate, fails in Live                    | Test in **BOTH** modes before committing          |
 
 **Pattern for Testing Linked Variables:**
+
 ```yaml
 # ❌ DOESN'T WORK IN PREVIEW (linked var from session):
 RoutableId: linked string
@@ -159,6 +165,7 @@ RoutableId: mutable string = "test-session-123"
 ```
 
 **Output Property Access Pattern:**
+
 ```yaml
 # ❌ DOESN'T WORK IN PREVIEW (direct output access):
 if @actions.check_status.result == "approved":
@@ -171,6 +178,7 @@ if @variables.status == "approved":
 ```
 
 #### No Nested `if` - Two Valid Approaches
+
 ```yaml
 # ❌ WRONG - Nested if (causes SyntaxError)
 if @variables.software_cost > 0:
@@ -192,9 +200,11 @@ if @variables.order_verified == False:
 if @variables.payment_confirmed == False:
    | - Payment confirmation pending
 ```
+
 > **When to use each**: Use compound conditions when logic permits (single condition block). Use flattening when you need separate conditional outputs that can't be combined.
 
 #### `...` is Slot-Filling Syntax (LLM Extracts from Conversation)
+
 ```yaml
 # ❌ WRONG - Using ... as default value
 order_id: mutable string = ...
@@ -209,6 +219,7 @@ reasoning:
 ```
 
 #### Post-Action Directives: Only on `@actions.*`
+
 ```yaml
 # ❌ WRONG - @utils does NOT support set/run/if
 go_next: @utils.transition to @topic.main
@@ -224,7 +235,9 @@ process: @actions.process_order
 ```
 
 #### Helper Topic Pattern (For Demo Agents Without Flows/Apex)
+
 When you need to set variables without backend actions, use dedicated "helper topics":
+
 ```yaml
 # Main topic offers LLM-selectable action
 topic verify_employee:
@@ -244,6 +257,7 @@ topic verification_success:
          | ✓ Identity verified!
          transition to @topic.verify_employee  # Return to parent
 ```
+
 > **Why this works**: `set` statements ARE valid inside `instructions: ->` blocks. The topic loop pattern lets you change state without Flows/Apex.
 
 ---
@@ -254,19 +268,19 @@ topic verification_success:
 
 > **Key insight**: Framework operations are FREE. Only actions that invoke external services consume credits.
 
-| Operation | Credits | Notes |
-|-----------|---------|-------|
-| `@utils.transition` | FREE | Framework navigation |
-| `@utils.setVariables` | FREE | Framework state management |
-| `@utils.escalate` | FREE | Framework escalation |
-| `if`/`else` control flow | FREE | Deterministic resolution |
-| `before_reasoning` | FREE | Deterministic pre-processing (see note below) |
-| `after_reasoning` | FREE | Deterministic post-processing (see note below) |
-| `reasoning` (LLM turn) | FREE | LLM reasoning itself is not billed |
-| Prompt Templates | 2-16 | Per invocation (varies by complexity) |
-| Flow actions | 20 | Per action execution |
-| Apex actions | 20 | Per action execution |
-| Any other action | 20 | Per action execution |
+| Operation                | Credits | Notes                                          |
+| ------------------------ | ------- | ---------------------------------------------- |
+| `@utils.transition`      | FREE    | Framework navigation                           |
+| `@utils.setVariables`    | FREE    | Framework state management                     |
+| `@utils.escalate`        | FREE    | Framework escalation                           |
+| `if`/`else` control flow | FREE    | Deterministic resolution                       |
+| `before_reasoning`       | FREE    | Deterministic pre-processing (see note below)  |
+| `after_reasoning`        | FREE    | Deterministic post-processing (see note below) |
+| `reasoning` (LLM turn)   | FREE    | LLM reasoning itself is not billed             |
+| Prompt Templates         | 2-16    | Per invocation (varies by complexity)          |
+| Flow actions             | 20      | Per action execution                           |
+| Apex actions             | 20      | Per action execution                           |
+| Any other action         | 20      | Per action execution                           |
 
 > **✅ Lifecycle Hooks Validated (v1.3.0)**: The `before_reasoning:` and `after_reasoning:` lifecycle hooks are now TDD-validated. Content goes **directly** under the block (no `instructions:` wrapper). See "Lifecycle Hooks" section below for correct syntax.
 
@@ -301,12 +315,14 @@ topic main:
 ```
 
 **Key Points:**
+
 - Content goes **directly** under `before_reasoning:` / `after_reasoning:` (NO `instructions:` wrapper)
 - Supports `set`, `if`, `run` statements (same as procedural `instructions: ->`)
 - `before_reasoning:` is FREE (no credit cost) - use for data prep
 - `after_reasoning:` is FREE (no credit cost) - use for logging, cleanup
 
 **❌ WRONG Syntax (causes compile error):**
+
 ```yaml
 before_reasoning:
    instructions: ->      # ❌ NO! Don't wrap with instructions:
@@ -314,17 +330,17 @@ before_reasoning:
 ```
 
 **✅ CORRECT Syntax:**
+
 ```yaml
-before_reasoning:
-   set @variables.x = True   # ✅ Direct content under the block
+before_reasoning: set @variables.x = True # ✅ Direct content under the block
 ```
 
 ### Supervision vs Handoff (Clarified Terminology)
 
-| Term | Syntax | Behavior | Use When |
-|------|--------|----------|----------|
-| **Handoff** | `@utils.transition to @topic.X` | Control transfers completely, child generates final response | Checkout, escalation, terminal states |
-| **Supervision** | `@topic.X` (as action reference) | Parent orchestrates, child returns, parent synthesizes | Expert consultation, sub-tasks |
+| Term            | Syntax                           | Behavior                                                     | Use When                              |
+| --------------- | -------------------------------- | ------------------------------------------------------------ | ------------------------------------- |
+| **Handoff**     | `@utils.transition to @topic.X`  | Control transfers completely, child generates final response | Checkout, escalation, terminal states |
+| **Supervision** | `@topic.X` (as action reference) | Parent orchestrates, child returns, parent synthesizes       | Expert consultation, sub-tasks        |
 
 ```yaml
 # HANDOFF - child topic takes over completely:
@@ -346,12 +362,13 @@ get_advice: @topic.product_expert
 
 When defining actions in Agentforce Assets, use these output flags:
 
-| Flag | Effect | Use When |
-|------|--------|----------|
-| `is_displayable: False` | LLM **cannot** show this value to user | Preventing hallucinated responses |
-| `is_used_by_planner: True` | LLM **can** reason about this value | Decision-making, routing |
+| Flag                       | Effect                                 | Use When                          |
+| -------------------------- | -------------------------------------- | --------------------------------- |
+| `is_displayable: False`    | LLM **cannot** show this value to user | Preventing hallucinated responses |
+| `is_used_by_planner: True` | LLM **can** reason about this value    | Decision-making, routing          |
 
 **Zero-Hallucination Intent Classification Pattern:**
+
 ```yaml
 # In Agentforce Assets - Action Definition outputs:
 outputs:
@@ -385,6 +402,7 @@ process_order: @actions.create_order
 ```
 
 **KNOWN BUG**: Chained actions with Prompt Templates don't properly map inputs using `Input:Query` format:
+
 ```yaml
 # ❌ MAY NOT WORK with Prompt Templates:
 run @actions.transform_recommendation
@@ -439,12 +457,12 @@ topic verification:
 
 ### Token & Size Limits
 
-| Limit Type | Value | Notes |
-|------------|-------|-------|
-| Max response size | 1,048,576 bytes (1MB) | Per agent response |
-| Plan trace limit (Frontend) | 1M characters | For debugging UI |
-| Transformed plan trace (Backend) | 32k tokens | Internal processing |
-| Active/Committed Agents per org | 100 max | Org limit |
+| Limit Type                       | Value                 | Notes               |
+| -------------------------------- | --------------------- | ------------------- |
+| Max response size                | 1,048,576 bytes (1MB) | Per agent response  |
+| Plan trace limit (Frontend)      | 1M characters         | For debugging UI    |
+| Transformed plan trace (Backend) | 32k tokens            | Internal processing |
+| Active/Committed Agents per org  | 100 max               | Org limit           |
 
 ### Progress Indicators
 
@@ -466,8 +484,8 @@ actions:
 
 ```yaml
 language:
-   locale: en_US
-   adaptive_response_allowed: True  # Allow language adaptation
+  locale: en_US
+  adaptive_response_allowed: True # Allow language adaptation
 ```
 
 ---
@@ -475,6 +493,7 @@ language:
 ## 🔄 WORKFLOW: Agent Development Lifecycle with Cirra AI MCP
 
 ### Phase 1: Requirements & Design
+
 1. **Identify deterministic vs. subjective logic**
    - Deterministic: Security checks, financial thresholds, data lookups, counters
    - Subjective: Greetings, context understanding, natural language generation
@@ -482,6 +501,7 @@ language:
 3. **Define variables** - Mutable for state tracking, linked for session context
 
 ### Phase 2: Agent Script Authoring
+
 1. **Create `.agent` file** with required blocks
 2. **Write topics** with instruction resolution pattern:
    - Post-action checks at TOP (triggers on loop)
@@ -495,6 +515,7 @@ language:
 > **AUTOMATIC**: LSP validation runs on every Write/Edit to `.agent` files. Errors are reported with line numbers and autofix suggestions.
 
 #### LSP Validation Loop (Find Error → Autofix)
+
 ```
 ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
 │ Write/Edit  │ ──▶ │ LSP Analyze │ ──▶ │ Report      │
@@ -510,22 +531,25 @@ language:
 ```
 
 #### LSP Checks (Automatic)
-| Check | Severity | Autofix |
-|-------|----------|---------|
-| Mixed tabs/spaces | ❌ Error | Convert to consistent spacing |
-| Lowercase booleans (`true`/`false`) | ❌ Error | Capitalize to `True`/`False` |
-| Missing required blocks | ❌ Error | Add missing block template |
-| Missing `default_agent_user` | ❌ Error | Add placeholder with comment |
-| Mutable + linked conflict | ❌ Error | Remove conflicting modifier |
-| Undefined topic references | ⚠️ Warning | Create topic stub |
-| Post-action check position | ⚠️ Warning | Move to top of instructions |
+
+| Check                               | Severity   | Autofix                       |
+| ----------------------------------- | ---------- | ----------------------------- |
+| Mixed tabs/spaces                   | ❌ Error   | Convert to consistent spacing |
+| Lowercase booleans (`true`/`false`) | ❌ Error   | Capitalize to `True`/`False`  |
+| Missing required blocks             | ❌ Error   | Add missing block template    |
+| Missing `default_agent_user`        | ❌ Error   | Add placeholder with comment  |
+| Mutable + linked conflict           | ❌ Error   | Remove conflicting modifier   |
+| Undefined topic references          | ⚠️ Warning | Create topic stub             |
+| Post-action check position          | ⚠️ Warning | Move to top of instructions   |
 
 #### Manual Checks
+
 - `default_agent_user` exists and is active Einstein Agent User (use `soql_query` tool)
 - All topic references resolve to existing topics
 - Action targets (`flow://`, `apex://`, etc.) exist in org
 
 ### Phase 4: Testing (Delegate to `/sf-ai-agentforce-testing`)
+
 1. **Batch testing** - Run up to 100 test cases simultaneously
 2. **Quality metrics** - Completeness, Coherence, Topic/Action Assertions
 3. **LLM-as-Judge** - Automated scoring against golden responses
@@ -535,6 +559,7 @@ language:
 > **UPDATED FOR MCP**: Use `metadata_create` / `metadata_update` tools via Cirra AI MCP Server instead of `sf agent publish authoring-bundle`
 
 #### Step 1: Initialize Cirra AI Connection
+
 ```
 Call: cirra_ai_init
 - sf_user: Your Salesforce username or email
@@ -543,6 +568,7 @@ Call: cirra_ai_init
 ```
 
 #### Step 2: Query Target Org Configuration
+
 ```
 Call: soql_query
 - sObject: User
@@ -551,6 +577,7 @@ Call: soql_query
 ```
 
 #### Step 3: Create/Update AiAuthoringBundle Metadata
+
 ```
 Call: metadata_create (for new agents)
 - type: AiAuthoringBundle
@@ -562,6 +589,7 @@ Call: metadata_update (for existing agents)
 ```
 
 #### Step 4: Retrieve Existing Agents (if needed)
+
 ```
 Call: metadata_read
 - type: AiAuthoringBundle | GenAiPlannerBundle
@@ -570,11 +598,13 @@ Call: metadata_read
 ```
 
 #### Step 5: Monitor Deployment Status
+
 - Use tracing/logging from MCP tool results
 - Verify metadata was accepted
 - Check org for new/updated agent
 
 ### Phase 6: MCP Operations Reference
+
 ```
 # Query Einstein Agent User (REQUIRED before deployment)
 Tool: soql_query
@@ -605,82 +635,89 @@ Pattern: Query GenAiFunction or similar to verify actions exist
 
 ### Categories
 
-| Category | Points | Key Criteria |
-|----------|--------|--------------|
-| **Structure & Syntax** | 20 | Block ordering, indentation consistency, required fields present |
-| **Deterministic Logic** | 25 | Security via `available when`, post-action checks, proper conditionals |
-| **Instruction Resolution** | 20 | Correct use of `->` vs `\|`, template injection, action execution |
-| **FSM Architecture** | 15 | Clear topic separation, explicit transitions, state management |
-| **Action Configuration** | 10 | Correct protocols, input/output mapping, error handling |
-| **Deployment Readiness** | 10 | Valid `default_agent_user`, no compilation errors, metadata complete |
+| Category                   | Points | Key Criteria                                                           |
+| -------------------------- | ------ | ---------------------------------------------------------------------- |
+| **Structure & Syntax**     | 20     | Block ordering, indentation consistency, required fields present       |
+| **Deterministic Logic**    | 25     | Security via `available when`, post-action checks, proper conditionals |
+| **Instruction Resolution** | 20     | Correct use of `->` vs `\|`, template injection, action execution      |
+| **FSM Architecture**       | 15     | Clear topic separation, explicit transitions, state management         |
+| **Action Configuration**   | 10     | Correct protocols, input/output mapping, error handling                |
+| **Deployment Readiness**   | 10     | Valid `default_agent_user`, no compilation errors, metadata complete   |
 
 ### Scoring Rubric Details
 
 #### Structure & Syntax (20 points)
-| Points | Criteria |
-|--------|----------|
-| 20 | All required blocks present, consistent indentation, valid identifiers |
-| 15 | Minor issues (e.g., inconsistent spacing within tolerance) |
-| 10 | Missing optional blocks that would improve clarity |
-| 5 | Block ordering issues or mixed indentation |
-| 0 | Missing required blocks or compilation failures |
+
+| Points | Criteria                                                               |
+| ------ | ---------------------------------------------------------------------- |
+| 20     | All required blocks present, consistent indentation, valid identifiers |
+| 15     | Minor issues (e.g., inconsistent spacing within tolerance)             |
+| 10     | Missing optional blocks that would improve clarity                     |
+| 5      | Block ordering issues or mixed indentation                             |
+| 0      | Missing required blocks or compilation failures                        |
 
 #### Deterministic Logic (25 points)
-| Points | Criteria |
-|--------|----------|
-| 25 | All security actions guarded with `available when`, post-action patterns used |
-| 20 | Most guards present, minor gaps in deterministic enforcement |
-| 15 | Some security logic relies on prompts instead of guards |
-| 10 | Critical actions lack `available when` guards |
-| 0 | Security logic entirely prompt-based (LLM can bypass) |
+
+| Points | Criteria                                                                      |
+| ------ | ----------------------------------------------------------------------------- |
+| 25     | All security actions guarded with `available when`, post-action patterns used |
+| 20     | Most guards present, minor gaps in deterministic enforcement                  |
+| 15     | Some security logic relies on prompts instead of guards                       |
+| 10     | Critical actions lack `available when` guards                                 |
+| 0      | Security logic entirely prompt-based (LLM can bypass)                         |
 
 #### Instruction Resolution (20 points)
-| Points | Criteria |
-|--------|----------|
-| 20 | Arrow syntax for complex logic, proper template injection, correct action execution |
-| 15 | Mostly correct, minor syntax issues |
-| 10 | Uses pipe syntax where arrow needed, template injection errors |
-| 5 | Incorrect phase ordering (data loads after LLM sees instructions) |
-| 0 | Fundamental misunderstanding of resolution order |
+
+| Points | Criteria                                                                            |
+| ------ | ----------------------------------------------------------------------------------- |
+| 20     | Arrow syntax for complex logic, proper template injection, correct action execution |
+| 15     | Mostly correct, minor syntax issues                                                 |
+| 10     | Uses pipe syntax where arrow needed, template injection errors                      |
+| 5      | Incorrect phase ordering (data loads after LLM sees instructions)                   |
+| 0      | Fundamental misunderstanding of resolution order                                    |
 
 #### FSM Architecture (15 points)
-| Points | Criteria |
-|--------|----------|
-| 15 | Clear topic boundaries, explicit transitions, appropriate escalation paths |
-| 12 | Good structure with minor redundancy |
-| 9 | Topics too broad or transitions unclear |
-| 5 | Monolithic topic handling multiple concerns |
-| 0 | No topic separation, all logic in start_agent |
+
+| Points | Criteria                                                                   |
+| ------ | -------------------------------------------------------------------------- |
+| 15     | Clear topic boundaries, explicit transitions, appropriate escalation paths |
+| 12     | Good structure with minor redundancy                                       |
+| 9      | Topics too broad or transitions unclear                                    |
+| 5      | Monolithic topic handling multiple concerns                                |
+| 0      | No topic separation, all logic in start_agent                              |
 
 #### Action Configuration (10 points)
-| Points | Criteria |
-|--------|----------|
-| 10 | Correct protocols, proper I/O mapping, descriptions present |
-| 8 | Minor issues (missing descriptions) |
-| 5 | Wrong protocol for use case |
-| 2 | Input/output mapping errors |
-| 0 | Actions don't compile |
+
+| Points | Criteria                                                    |
+| ------ | ----------------------------------------------------------- |
+| 10     | Correct protocols, proper I/O mapping, descriptions present |
+| 8      | Minor issues (missing descriptions)                         |
+| 5      | Wrong protocol for use case                                 |
+| 2      | Input/output mapping errors                                 |
+| 0      | Actions don't compile                                       |
 
 #### Deployment Readiness (10 points)
-| Points | Criteria |
-|--------|----------|
-| 10 | Valid user, clean validation, metadata complete |
-| 8 | Minor warnings |
-| 5 | Validation errors that need fixing |
-| 2 | Missing metadata files |
-| 0 | Cannot deploy |
+
+| Points | Criteria                                        |
+| ------ | ----------------------------------------------- |
+| 10     | Valid user, clean validation, metadata complete |
+| 8      | Minor warnings                                  |
+| 5      | Validation errors that need fixing              |
+| 2      | Missing metadata files                          |
+| 0      | Cannot deploy                                   |
 
 ### Score Thresholds
 
-| Score | Rating | Action |
-|-------|--------|--------|
-| 90-100 | ⭐⭐⭐⭐⭐ Excellent | Deploy with confidence |
-| 80-89 | ⭐⭐⭐⭐ Very Good | Minor improvements recommended |
-| 70-79 | ⭐⭐⭐ Good | Review flagged issues before deploy |
-| 60-69 | ⭐⭐ Needs Work | Address issues before deploy |
-| <60 | ⭐ Critical | **BLOCK** - Fix critical issues |
+| Score  | Rating               | Action                              |
+| ------ | -------------------- | ----------------------------------- |
+| 90-100 | ⭐⭐⭐⭐⭐ Excellent | Deploy with confidence              |
+| 80-89  | ⭐⭐⭐⭐ Very Good   | Minor improvements recommended      |
+| 70-79  | ⭐⭐⭐ Good          | Review flagged issues before deploy |
+| 60-69  | ⭐⭐ Needs Work      | Address issues before deploy        |
+| <60    | ⭐ Critical          | **BLOCK** - Fix critical issues     |
 
 ### Score Report Format
+
 ```
 📊 AGENT SCRIPT SCORE REPORT
 ════════════════════════════════════════
@@ -706,21 +743,23 @@ Issues:
 
 These execute as **code**, not suggestions. The LLM cannot override them.
 
-| # | Block | Description | Example |
-|---|-------|-------------|---------|
-| 1 | **Conditionals** | if/else resolves before LLM | `if @variables.attempts >= 3:` |
-| 2 | **Topic Filters** | Control action visibility | `available when @variables.verified == True` |
-| 3 | **Variable Checks** | Numeric/boolean comparisons | `if @variables.churn_risk >= 80:` |
-| 4 | **Inline Actions** | Immediate execution | `run @actions.load_customer` |
-| 5 | **Utility Actions** | Built-in helpers | `@utils.transition`, `@utils.escalate` |
-| 6 | **Variable Injection** | Template values | `{!@variables.customer_name}` |
+| #   | Block                  | Description                 | Example                                      |
+| --- | ---------------------- | --------------------------- | -------------------------------------------- |
+| 1   | **Conditionals**       | if/else resolves before LLM | `if @variables.attempts >= 3:`               |
+| 2   | **Topic Filters**      | Control action visibility   | `available when @variables.verified == True` |
+| 3   | **Variable Checks**    | Numeric/boolean comparisons | `if @variables.churn_risk >= 80:`            |
+| 4   | **Inline Actions**     | Immediate execution         | `run @actions.load_customer`                 |
+| 5   | **Utility Actions**    | Built-in helpers            | `@utils.transition`, `@utils.escalate`       |
+| 6   | **Variable Injection** | Template values             | `{!@variables.customer_name}`                |
 
 ---
 
 ## 📐 ARCHITECTURE PATTERNS
 
 ### Pattern 1: Hub and Spoke
+
 Central router (hub) to specialized topics (spokes). Use for multi-purpose agents.
+
 ```
        ┌─────────────┐
        │ topic_sel   │
@@ -734,7 +773,9 @@ Central router (hub) to specialized topics (spokes). Use for multi-purpose agent
 ```
 
 ### Pattern 2: Verification Gate
+
 Security gate before protected topics. Mandatory for sensitive data.
+
 ```
 ┌─────────┐     ┌──────────┐     ┌───────────┐
 │  entry  │ ──▶ │ VERIFY   │ ──▶ │ protected │
@@ -748,7 +789,9 @@ Security gate before protected topics. Mandatory for sensitive data.
 ```
 
 ### Pattern 3: Post-Action Loop
+
 Topic re-resolves after action completes - put checks at TOP.
+
 ```yaml
 topic refund:
   reasoning:
@@ -774,72 +817,77 @@ topic refund:
 ## 🐛 DEBUGGING: Trace Analysis
 
 ### The 6 Span Types
-| Span | Description |
-|------|-------------|
-| ➡️ `topic_enter` | Execution enters a topic |
-| ▶ `before_reasoning` | Deterministic pre-processing |
-| 🧠 `reasoning` | LLM processes instructions |
-| ⚡ `action_call` | Action invoked |
-| → `transition` | Topic navigation |
-| ✓ `after_reasoning` | Deterministic post-processing |
+
+| Span                 | Description                   |
+| -------------------- | ----------------------------- |
+| ➡️ `topic_enter`     | Execution enters a topic      |
+| ▶ `before_reasoning` | Deterministic pre-processing  |
+| 🧠 `reasoning`       | LLM processes instructions    |
+| ⚡ `action_call`     | Action invoked                |
+| → `transition`       | Topic navigation              |
+| ✓ `after_reasoning`  | Deterministic post-processing |
 
 ### Debugging Workflow
+
 1. **Interaction Details** - Quick understanding of what happened
 2. **Trace Waterfall** - Technical view with exact prompts, latencies
 3. **Variable State** - Entry vs Exit values reveal when state was ignored
 4. **Script View** - Red squiggles show syntax errors
 
 ### Common Debug Patterns
-| Symptom | Check | Fix |
-|---------|-------|-----|
-| Wrong policy applied | Variable Entry values | Change `mutable` to `linked` with `source:` |
-| Action executed without auth | `available when` presence | Add guard clause |
-| LLM ignores variable | Instruction resolution order | Move data load before LLM text |
-| Infinite loop | Transition conditions | Add exit condition |
+
+| Symptom                      | Check                        | Fix                                         |
+| ---------------------------- | ---------------------------- | ------------------------------------------- |
+| Wrong policy applied         | Variable Entry values        | Change `mutable` to `linked` with `source:` |
+| Action executed without auth | `available when` presence    | Add guard clause                            |
+| LLM ignores variable         | Instruction resolution order | Move data load before LLM text              |
+| Infinite loop                | Transition conditions        | Add exit condition                          |
 
 ---
 
 ## ⚠️ COMMON ISSUES & FIXES
 
-| Issue | Symptom | Fix |
-|-------|---------|-----|
-| `Internal Error, try again later` | Invalid `default_agent_user` | Query: `soql_query` for User with Profile.Name = 'Einstein Agent User' |
-| `Default agent user X could not be found` | User doesn't exist in target org | Query the **specific target org** using Cirra AI `soql_query` tool |
-| `No .agent file found in directory` | `agent_name` doesn't match folder | Make `agent_name` identical to folder name (case-sensitive) |
-| `SyntaxError: cannot mix spaces and tabs` | Mixed indentation | Use consistent spacing throughout |
-| `SyntaxError: Unexpected 'if'` | Nested if statements | Use compound condition: `if A and B:` or flatten to sequential ifs |
-| `SyntaxError: Unexpected 'actions'` | Top-level actions block | Move actions inside `topic.reasoning.actions:` |
-| `SyntaxError: Unexpected 'inputs'` | `inputs:` block in action | Use `with param=value` syntax instead |
-| `SyntaxError: Unexpected 'outputs'` | `outputs:` block in action | Use `set @variables.x = @outputs.y` instead |
-| `SyntaxError: Unexpected 'set'` | `set` after `@utils.setVariables` | Use Helper Topic Pattern (set in `instructions: ->`) |
-| `Duplicate 'available when' clause` | Multiple guards on action | Combine: `available when A and B` |
-| `Unexpected 'escalate'` | Reserved action name | Rename to `escalate_now` or `escalate_to_human` |
-| `Transition to undefined topic` | Typo in topic reference | Check spelling, ensure topic exists |
-| `Variables cannot be both mutable AND linked` | Conflicting modifiers | Choose one: mutable for state, linked for external |
-| `Metadata deployment failed` | MCP tool error | Verify agent script compiles locally, check metadata format |
-| `ValidationError: Tool target 'X' is not an action definition` | Action references non-existent Flow/Apex | Create the action definition first, or use Helper Topic Pattern |
-| LLM bypasses security check | Using prompts for security | Use `available when` guards instead |
-| Post-action logic doesn't run | Check not at TOP | Move post-action check to first lines |
-| Wrong data retrieved | Missing filter | Wrap retriever in Flow with filter inputs |
-| Variables don't change | Using `@utils.setVariables` with `set` | Post-action `set` only works on `@actions.*`, use Helper Topics |
+| Issue                                                          | Symptom                                  | Fix                                                                    |
+| -------------------------------------------------------------- | ---------------------------------------- | ---------------------------------------------------------------------- |
+| `Internal Error, try again later`                              | Invalid `default_agent_user`             | Query: `soql_query` for User with Profile.Name = 'Einstein Agent User' |
+| `Default agent user X could not be found`                      | User doesn't exist in target org         | Query the **specific target org** using Cirra AI `soql_query` tool     |
+| `No .agent file found in directory`                            | `agent_name` doesn't match folder        | Make `agent_name` identical to folder name (case-sensitive)            |
+| `SyntaxError: cannot mix spaces and tabs`                      | Mixed indentation                        | Use consistent spacing throughout                                      |
+| `SyntaxError: Unexpected 'if'`                                 | Nested if statements                     | Use compound condition: `if A and B:` or flatten to sequential ifs     |
+| `SyntaxError: Unexpected 'actions'`                            | Top-level actions block                  | Move actions inside `topic.reasoning.actions:`                         |
+| `SyntaxError: Unexpected 'inputs'`                             | `inputs:` block in action                | Use `with param=value` syntax instead                                  |
+| `SyntaxError: Unexpected 'outputs'`                            | `outputs:` block in action               | Use `set @variables.x = @outputs.y` instead                            |
+| `SyntaxError: Unexpected 'set'`                                | `set` after `@utils.setVariables`        | Use Helper Topic Pattern (set in `instructions: ->`)                   |
+| `Duplicate 'available when' clause`                            | Multiple guards on action                | Combine: `available when A and B`                                      |
+| `Unexpected 'escalate'`                                        | Reserved action name                     | Rename to `escalate_now` or `escalate_to_human`                        |
+| `Transition to undefined topic`                                | Typo in topic reference                  | Check spelling, ensure topic exists                                    |
+| `Variables cannot be both mutable AND linked`                  | Conflicting modifiers                    | Choose one: mutable for state, linked for external                     |
+| `Metadata deployment failed`                                   | MCP tool error                           | Verify agent script compiles locally, check metadata format            |
+| `ValidationError: Tool target 'X' is not an action definition` | Action references non-existent Flow/Apex | Create the action definition first, or use Helper Topic Pattern        |
+| LLM bypasses security check                                    | Using prompts for security               | Use `available when` guards instead                                    |
+| Post-action logic doesn't run                                  | Check not at TOP                         | Move post-action check to first lines                                  |
+| Wrong data retrieved                                           | Missing filter                           | Wrap retriever in Flow with filter inputs                              |
+| Variables don't change                                         | Using `@utils.setVariables` with `set`   | Post-action `set` only works on `@actions.*`, use Helper Topics        |
 
 ### Deployment Gotchas (Validated by Testing)
 
-| ❌ Wrong | ✅ Correct |
-|----------|-----------|
-| `sf project deploy start` | Use `metadata_create` / `metadata_update` via Cirra AI MCP |
-| `sf agent validate --source-dir` | Manual validation or via IDE LSP (CLI no longer used) |
-| Query user from wrong org | Query **target org** specifically via Cirra AI `soql_query` tool |
+| ❌ Wrong                         | ✅ Correct                                                       |
+| -------------------------------- | ---------------------------------------------------------------- |
+| `sf project deploy start`        | Use `metadata_create` / `metadata_update` via Cirra AI MCP       |
+| `sf agent validate --source-dir` | Manual validation or via IDE LSP (CLI no longer used)            |
+| Query user from wrong org        | Query **target org** specifically via Cirra AI `soql_query` tool |
 
 ### Einstein Agent User Format (Org-Specific)
 
 Einstein Agent User formats vary between orgs:
+
 - **Production/Partner orgs**: Often use `username@orgid.ext` format (e.g., `resort_manager@00dak00000gdgwu480119933.ext`)
 - **Dev orgs**: May use `username.suffix@orgfarm.salesforce.com` format
 
 **MANDATORY: Ask user to confirm which Einstein Agent User to use when creating a new agent.**
 
 **Always query the specific target org:**
+
 ```
 Tool: soql_query
 Select: Username
@@ -856,37 +904,41 @@ Present the results to the user and ask them to select which user to use for `de
 ## 📚 DOCUMENT MAP (Progressive Disclosure)
 
 ### Tier 2: Resource Guides (Comprehensive)
-| Need | Document | Description |
-|------|----------|-------------|
-| Syntax reference | [resources/syntax-reference.md](resources/syntax-reference.md) | Complete block & expression syntax |
-| FSM design | [resources/fsm-architecture.md](resources/fsm-architecture.md) | State machine patterns & examples |
-| Instruction resolution | [resources/instruction-resolution.md](resources/instruction-resolution.md) | Three-phase execution model |
-| Data & multi-agent | [resources/grounding-multiagent.md](resources/grounding-multiagent.md) | Retriever actions & SOMA patterns |
-| Debugging | [resources/debugging-guide.md](resources/debugging-guide.md) | Trace analysis & forensics |
-| Testing | [resources/testing-guide.md](resources/testing-guide.md) | Batch testing & quality metrics |
+
+| Need                   | Document                                                                   | Description                        |
+| ---------------------- | -------------------------------------------------------------------------- | ---------------------------------- |
+| Syntax reference       | [resources/syntax-reference.md](resources/syntax-reference.md)             | Complete block & expression syntax |
+| FSM design             | [resources/fsm-architecture.md](resources/fsm-architecture.md)             | State machine patterns & examples  |
+| Instruction resolution | [resources/instruction-resolution.md](resources/instruction-resolution.md) | Three-phase execution model        |
+| Data & multi-agent     | [resources/grounding-multiagent.md](resources/grounding-multiagent.md)     | Retriever actions & SOMA patterns  |
+| Debugging              | [resources/debugging-guide.md](resources/debugging-guide.md)               | Trace analysis & forensics         |
+| Testing                | [resources/testing-guide.md](resources/testing-guide.md)                   | Batch testing & quality metrics    |
 
 ### Tier 3: Quick References (Docs)
-| Need | Document | Description |
-|------|----------|-------------|
-| MCP operations | [docs/cirra-mcp-guide.md](docs/cirra-mcp-guide.md) | Cirra AI MCP tool reference |
-| Patterns | [docs/patterns-quick-ref.md](docs/patterns-quick-ref.md) | Decision tree for pattern selection |
+
+| Need           | Document                                                 | Description                         |
+| -------------- | -------------------------------------------------------- | ----------------------------------- |
+| MCP operations | [docs/cirra-mcp-guide.md](docs/cirra-mcp-guide.md)       | Cirra AI MCP tool reference         |
+| Patterns       | [docs/patterns-quick-ref.md](docs/patterns-quick-ref.md) | Decision tree for pattern selection |
 
 ---
 
 ## 🔗 CROSS-SKILL INTEGRATION
 
 ### MANDATORY Delegations
-| Task | Delegate To | Reason |
-|------|-------------|--------|
-| Create Flows for `flow://` targets | `/sf-flow` | Flows must exist before agent uses them |
-| Test agent routing & actions | `/sf-ai-agentforce-testing` | Specialized testing patterns |
-| Deploy agent to org | Cirra AI MCP (built-in) | Use `metadata_create` / `metadata_update` tools |
+
+| Task                               | Delegate To                 | Reason                                          |
+| ---------------------------------- | --------------------------- | ----------------------------------------------- |
+| Create Flows for `flow://` targets | `/sf-flow`                  | Flows must exist before agent uses them         |
+| Test agent routing & actions       | `/sf-ai-agentforce-testing` | Specialized testing patterns                    |
+| Deploy agent to org                | Cirra AI MCP (built-in)     | Use `metadata_create` / `metadata_update` tools |
 
 ### Integration Patterns
-| From | To | Pattern |
-|------|-----|---------|
-| `/sf-ai-agentscript` | `/sf-flow` | Create Flow, then reference in agent |
-| `/sf-ai-agentscript` | `/sf-apex` | Create Apex class, then use `apex://` protocol |
+
+| From                 | To                | Pattern                                           |
+| -------------------- | ----------------- | ------------------------------------------------- |
+| `/sf-ai-agentscript` | `/sf-flow`        | Create Flow, then reference in agent              |
+| `/sf-ai-agentscript` | `/sf-apex`        | Create Apex class, then use `apex://` protocol    |
 | `/sf-ai-agentscript` | `/sf-integration` | Set up Named Credentials for `externalService://` |
 
 ---
@@ -894,24 +946,29 @@ Present the results to the user and ask them to select which user to use for `de
 ## ✅ DEPLOYMENT CHECKLIST
 
 ### Configuration
+
 - [ ] `default_agent_user` is valid Einstein Agent User (verified via `soql_query`)
 - [ ] `agent_name` uses snake_case (no spaces)
 
 ### Syntax
+
 - [ ] No mixed tabs/spaces
 - [ ] Booleans use `True`/`False`
 - [ ] Variable names use snake_case
 
 ### Structure
+
 - [ ] Exactly one `start_agent` block
 - [ ] At least one `topic` block
 - [ ] All transitions reference existing topics
 
 ### Security
+
 - [ ] Critical actions have `available when` guards
 - [ ] Session data uses `linked` variables (not `mutable`)
 
 ### MCP Deployment
+
 - [ ] Called `cirra_ai_init` successfully
 - [ ] Verified target org via `soql_query`
 - [ ] Prepared metadata via `metadata_create` or `metadata_update`
@@ -930,14 +987,14 @@ Present the results to the user and ask them to select which user to use for `de
 
 This skill draws from multiple authoritative sources:
 
-| Source | Contribution |
-|--------|--------------|
+| Source                                                                                      | Contribution                                                                                                       |
+| ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | [trailheadapps/agent-script-recipes](https://github.com/trailheadapps/agent-script-recipes) | 20 reference recipes across 4 categories, AGENT_SCRIPT.md rules document, variable patterns, action target catalog |
-| Salesforce Official Documentation | Core syntax, API references, deployment guides |
-| TDD Validation (this skill) | 13 validation agents confirming current-release syntax compatibility |
-| Tribal knowledge interviews | Canvas View bugs, VS Code limitations, credit consumption patterns |
-| [agentforce.guide](https://agentforce.guide/) | Unofficial but useful examples (note: some patterns don't compile in current release) |
-| Cirra AI MCP Server Docs | Tool mappings and best practices for metadata operations |
+| Salesforce Official Documentation                                                           | Core syntax, API references, deployment guides                                                                     |
+| TDD Validation (this skill)                                                                 | 13 validation agents confirming current-release syntax compatibility                                               |
+| Tribal knowledge interviews                                                                 | Canvas View bugs, VS Code limitations, credit consumption patterns                                                 |
+| [agentforce.guide](https://agentforce.guide/)                                               | Unofficial but useful examples (note: some patterns don't compile in current release)                              |
+| Cirra AI MCP Server Docs                                                                    | Tool mappings and best practices for metadata operations                                                           |
 
 > **⚠️ Note on Feature Validation**: Some patterns from external sources (e.g., `always_expect_input:`, `label:` property, certain action properties on transitions) do NOT compile in Winter '26. The `before_reasoning:`/`after_reasoning:` lifecycle hooks ARE valid but require **direct content** (no `instructions:` wrapper) - see the Lifecycle Hooks section for correct syntax. This skill documents only patterns that pass TDD validation.
 
@@ -945,14 +1002,14 @@ This skill draws from multiple authoritative sources:
 
 ## 🏷️ VERSION HISTORY
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.4.0 | 2026-02-06 | **Refactored for Cirra AI MCP Server**: Replaced all Salesforce CLI commands (`sf agent`, `sf data query`, `sf project deploy`) with Cirra AI MCP equivalents (`soql_query`, `metadata_read`, `metadata_create`, `metadata_update`, `cirra_ai_init`). Updated deployment workflow Phase 5 with MCP-specific instructions. Updated common issues section with MCP deployment error handling. Removed hooks section (not applicable to MCP-based workflow). Preserved all Agent Script syntax, FSM patterns, scoring system, critical warnings, and lifecycle hooks documentation. |
-| 1.3.0 | 2026-01-20 | **Lifecycle hooks validated**: Added full documentation for `before_reasoning:` and `after_reasoning:` with CORRECT syntax (content directly under block, NO `instructions:` wrapper). Added "Features NOT Valid in Current Release" section documenting 7 features that appear in docs/recipes but don't compile (label on topics/actions, always_expect_input, action properties on transitions). Updated validation_agents count to 13. Confirmed `@utils.transition` only supports `description:` property. |
-| 1.2.0 | 2026-01-20 | **Gap analysis vs agent-script-recipes**: Expanded Action Target Protocols from 7 to 16 (with validation status indicators), added Variable vs Action I/O Type Matrix, added lifecycle hooks note with TDD validation caveat, added Sources & Acknowledgments section, documented future/planned features notice. TDD validation confirmed `label:` IS reserved (SKILL.md was correct), `before_reasoning:`/`after_reasoning:` syntax from recipes does NOT compile in current release |
-| 1.1.0 | 2026-01-20 | **"Ultimate Guide" tribal knowledge integration**: Added `complex_data_type_name` mapping table, Canvas View corruption bugs, Reserved field names, Preview mode workarounds, Credit consumption table, Supervision vs Handoff clarification, Action output flags for zero-hallucination routing, Latch variable pattern, Loop protection guardrails, Token/size limits, Progress indicators, Connection block escalation patterns, VS Code limitations, Language block quirks. Added 4 new templates: flow-action-lookup, prompt-rag-search, deterministic-routing, escalation-pattern |
-| 1.0.4 | 2026-01-19 | **Progressive testing validation** (Quiz_Master, Expense_Calculator, Order_Processor): Added constraints for no top-level `actions:` block, no `inputs:`/`outputs:` in reasoning.actions, expanded nested-if guidance with flattening approach, added new SyntaxError entries to common issues |
-| 1.0.3 | 2026-01-19 | Added Einstein Agent User interview requirement - mandatory user confirmation when creating new agents |
-| 1.0.2 | 2026-01-19 | **Major corrections from GitHub reference**: Fixed block order (config→system), added Helper Topic Pattern, transition vs delegation, expression operators (+/- only), naming rules (80 char max), slot-filling `...` syntax, post-action directives (@actions.* only) |
-| 1.0.1 | 2026-01-19 | Added syntax constraints from 0-shot testing: no nested if, one available when per action, reserved action names |
-| 1.0.0 | 2026-01 | Initial release with 8-module coverage |
+| Version | Date       | Changes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| ------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1.4.0   | 2026-02-06 | **Refactored for Cirra AI MCP Server**: Replaced all Salesforce CLI commands (`sf agent`, `sf data query`, `sf project deploy`) with Cirra AI MCP equivalents (`soql_query`, `metadata_read`, `metadata_create`, `metadata_update`, `cirra_ai_init`). Updated deployment workflow Phase 5 with MCP-specific instructions. Updated common issues section with MCP deployment error handling. Removed hooks section (not applicable to MCP-based workflow). Preserved all Agent Script syntax, FSM patterns, scoring system, critical warnings, and lifecycle hooks documentation.        |
+| 1.3.0   | 2026-01-20 | **Lifecycle hooks validated**: Added full documentation for `before_reasoning:` and `after_reasoning:` with CORRECT syntax (content directly under block, NO `instructions:` wrapper). Added "Features NOT Valid in Current Release" section documenting 7 features that appear in docs/recipes but don't compile (label on topics/actions, always_expect_input, action properties on transitions). Updated validation_agents count to 13. Confirmed `@utils.transition` only supports `description:` property.                                                                         |
+| 1.2.0   | 2026-01-20 | **Gap analysis vs agent-script-recipes**: Expanded Action Target Protocols from 7 to 16 (with validation status indicators), added Variable vs Action I/O Type Matrix, added lifecycle hooks note with TDD validation caveat, added Sources & Acknowledgments section, documented future/planned features notice. TDD validation confirmed `label:` IS reserved (SKILL.md was correct), `before_reasoning:`/`after_reasoning:` syntax from recipes does NOT compile in current release                                                                                                  |
+| 1.1.0   | 2026-01-20 | **"Ultimate Guide" tribal knowledge integration**: Added `complex_data_type_name` mapping table, Canvas View corruption bugs, Reserved field names, Preview mode workarounds, Credit consumption table, Supervision vs Handoff clarification, Action output flags for zero-hallucination routing, Latch variable pattern, Loop protection guardrails, Token/size limits, Progress indicators, Connection block escalation patterns, VS Code limitations, Language block quirks. Added 4 new templates: flow-action-lookup, prompt-rag-search, deterministic-routing, escalation-pattern |
+| 1.0.4   | 2026-01-19 | **Progressive testing validation** (Quiz_Master, Expense_Calculator, Order_Processor): Added constraints for no top-level `actions:` block, no `inputs:`/`outputs:` in reasoning.actions, expanded nested-if guidance with flattening approach, added new SyntaxError entries to common issues                                                                                                                                                                                                                                                                                          |
+| 1.0.3   | 2026-01-19 | Added Einstein Agent User interview requirement - mandatory user confirmation when creating new agents                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| 1.0.2   | 2026-01-19 | **Major corrections from GitHub reference**: Fixed block order (config→system), added Helper Topic Pattern, transition vs delegation, expression operators (+/- only), naming rules (80 char max), slot-filling `...` syntax, post-action directives (@actions.\* only)                                                                                                                                                                                                                                                                                                                 |
+| 1.0.1   | 2026-01-19 | Added syntax constraints from 0-shot testing: no nested if, one available when per action, reserved action names                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| 1.0.0   | 2026-01    | Initial release with 8-module coverage                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |

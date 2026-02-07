@@ -78,14 +78,15 @@ private class AccountServiceTest {
 
 ### @TestSetup vs Test Methods
 
-| Feature | @TestSetup | Test Methods |
-|---------|------------|--------------|
-| **Runs** | Once before all tests | Once per test |
-| **Data Isolation** | Shared across tests (read-only view) | Isolated per test |
-| **Performance** | Faster (reuses data) | Slower (recreates each time) |
-| **When to Use** | Common baseline data | Test-specific scenarios |
+| Feature            | @TestSetup                           | Test Methods                 |
+| ------------------ | ------------------------------------ | ---------------------------- |
+| **Runs**           | Once before all tests                | Once per test                |
+| **Data Isolation** | Shared across tests (read-only view) | Isolated per test            |
+| **Performance**    | Faster (reuses data)                 | Slower (recreates each time) |
+| **When to Use**    | Common baseline data                 | Test-specific scenarios      |
 
 **Example**:
+
 ```apex
 @TestSetup
 static void setup() {
@@ -137,6 +138,7 @@ static void testAsyncOperation() {
 ```
 
 **Key Points**:
+
 - Governor limits reset at `Test.startTest()`
 - Async code (@future, Queueable, Batch) executes at `Test.stopTest()`
 - Only one `startTest/stopTest` block per test method
@@ -149,18 +151,18 @@ When writing test classes, use these specific exception types to validate error 
 
 ### Exception Type Reference
 
-| Exception Type | When to Use | Example |
-|----------------|-------------|---------|
-| `DmlException` | Insert/update/delete failures | `Assert.isTrue(e.getMessage().contains('FIELD_CUSTOM_VALIDATION'))` |
-| `QueryException` | SOQL query failures | Malformed query, no rows for assignment |
-| `NullPointerException` | Null reference access | Accessing field on null object |
-| `ListException` | List operation failures | Index out of bounds |
-| `MathException` | Mathematical errors | Division by zero |
-| `TypeException` | Type conversion failures | Invalid type casting |
-| `LimitException` | Governor limit exceeded | Too many SOQL queries, DML statements |
-| `CalloutException` | HTTP callout failures | Timeout, invalid endpoint |
-| `JSONException` | JSON parsing failures | Malformed JSON |
-| `InvalidParameterValueException` | Invalid method parameters | Bad input values |
+| Exception Type                   | When to Use                   | Example                                                             |
+| -------------------------------- | ----------------------------- | ------------------------------------------------------------------- |
+| `DmlException`                   | Insert/update/delete failures | `Assert.isTrue(e.getMessage().contains('FIELD_CUSTOM_VALIDATION'))` |
+| `QueryException`                 | SOQL query failures           | Malformed query, no rows for assignment                             |
+| `NullPointerException`           | Null reference access         | Accessing field on null object                                      |
+| `ListException`                  | List operation failures       | Index out of bounds                                                 |
+| `MathException`                  | Mathematical errors           | Division by zero                                                    |
+| `TypeException`                  | Type conversion failures      | Invalid type casting                                                |
+| `LimitException`                 | Governor limit exceeded       | Too many SOQL queries, DML statements                               |
+| `CalloutException`               | HTTP callout failures         | Timeout, invalid endpoint                                           |
+| `JSONException`                  | JSON parsing failures         | Malformed JSON                                                      |
+| `InvalidParameterValueException` | Invalid method parameters     | Bad input values                                                    |
 
 ---
 
@@ -433,6 +435,7 @@ static void testPartialInsertSuccess() {
 ### Pattern 4: Testing Async Code
 
 **Testing @future:**
+
 ```apex
 @IsTest
 static void testFutureMethod() {
@@ -449,6 +452,7 @@ static void testFutureMethod() {
 ```
 
 **Testing Queueable:**
+
 ```apex
 @IsTest
 static void testQueueable() {
@@ -465,6 +469,7 @@ static void testQueueable() {
 ```
 
 **Testing Batch:**
+
 ```apex
 @IsTest
 static void testBatch() {
@@ -480,6 +485,7 @@ static void testBatch() {
 ```
 
 **Testing Schedulable:**
+
 ```apex
 @IsTest
 static void testSchedulable() {
@@ -573,6 +579,7 @@ public class TestDataFactory {
 ```
 
 **Usage:**
+
 ```apex
 @TestSetup
 static void setup() {
@@ -629,6 +636,7 @@ public class AccountBuilder {
 ```
 
 **Usage:**
+
 ```apex
 @IsTest
 static void testWithBuilder() {
@@ -669,6 +677,7 @@ public class ExternalServiceMock implements HttpCalloutMock {
 ```
 
 **Test:**
+
 ```apex
 @IsTest
 static void testExternalCallout() {
@@ -732,6 +741,7 @@ public class AccountSelectorStub implements IAccountSelector {
 ```
 
 **Test with stub:**
+
 ```apex
 @IsTest
 static void testWithStub() {
@@ -817,6 +827,7 @@ static void testDoesNotHitSoqlLimit() {
 ### Achieving 90%+ Coverage
 
 **1. Test all branches (if/else):**
+
 ```apex
 // Code
 public static String getStatus(Account acc) {
@@ -842,6 +853,7 @@ static void testSmbStatus() {
 ```
 
 **2. Test all catch blocks:**
+
 ```apex
 // Code
 try {
@@ -865,6 +877,7 @@ static void testCatchBlock() {
 ```
 
 **3. Test all methods:**
+
 ```apex
 // Every public/global method needs at least one test
 @IsTest
@@ -881,16 +894,19 @@ static void testEveryMethod() {
 ### Identifying Uncovered Code
 
 **Developer Console:**
+
 1. Open class
 2. Click Tests → New Run
 3. Select test class
 4. View coverage % and red highlights
 
 **VS Code:**
+
 1. Run tests: `Ctrl+Shift+P` → "SFDX: Run Apex Tests"
 2. View coverage in Problems panel
 
 **CLI:**
+
 ```bash
 sf apex run test --code-coverage --result-format human --test-level RunLocalTests
 ```
@@ -900,6 +916,7 @@ sf apex run test --code-coverage --result-format human --test-level RunLocalTest
 ## Reference
 
 **Full Documentation**: See `docs/` folder for comprehensive guides:
+
 - `testing-guide.md` - Complete testing reference
 - `best-practices.md` - Test best practices
 - `code-review-checklist.md` - Testing scoring criteria

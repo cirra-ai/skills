@@ -2,12 +2,12 @@
 
 ## Quick Reference
 
-| Task | Command |
-|------|---------|
-| Create component | `sf lightning generate component --name myComp --type lwc` |
-| Run all tests | `sf lightning lwc test run` |
-| Deploy component | `sf project deploy start --source-dir force-app/.../lwc/myComp` |
-| Create message channel | `sf lightning generate messageChannel --name MyChannel` |
+| Task                   | Command                                                         |
+| ---------------------- | --------------------------------------------------------------- |
+| Create component       | `sf lightning generate component --name myComp --type lwc`      |
+| Run all tests          | `sf lightning lwc test run`                                     |
+| Deploy component       | `sf project deploy start --source-dir force-app/.../lwc/myComp` |
+| Create message channel | `sf lightning generate messageChannel --name MyChannel`         |
 
 ---
 
@@ -277,9 +277,9 @@ npm install @salesforce/sfdx-lwc-jest --save-dev
 const { jestConfig } = require('@salesforce/sfdx-lwc-jest/config');
 
 module.exports = {
-    ...jestConfig,
-    modulePathIgnorePatterns: ['<rootDir>/.localdevserver'],
-    testTimeout: 10000
+  ...jestConfig,
+  modulePathIgnorePatterns: ['<rootDir>/.localdevserver'],
+  testTimeout: 10000,
 };
 ```
 
@@ -461,12 +461,12 @@ EOF
 
 ### GraphQL Troubleshooting
 
-| Issue | Possible Cause | Solution |
-|-------|---------------|----------|
-| "Field not found" | FLS restriction | Check user has read access |
-| "Object not supported" | GraphQL scope | Not all objects support GraphQL |
-| Cursor pagination fails | Invalid cursor | Use exact cursor from `pageInfo.endCursor` |
-| Null data | Query error | Check `errors` array in wire result |
+| Issue                   | Possible Cause  | Solution                                   |
+| ----------------------- | --------------- | ------------------------------------------ |
+| "Field not found"       | FLS restriction | Check user has read access                 |
+| "Object not supported"  | GraphQL scope   | Not all objects support GraphQL            |
+| Cursor pagination fails | Invalid cursor  | Use exact cursor from `pageInfo.endCursor` |
+| Null data               | Query error     | Check `errors` array in wire result        |
 
 ### Monitor GraphQL Performance
 

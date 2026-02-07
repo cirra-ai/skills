@@ -12,7 +12,6 @@ Each test is parametrized over all 4 multi-turn templates.
 
 import yaml
 import pytest
-from pathlib import Path
 
 MULTI_TURN_TEMPLATES = [
     "multi-turn-comprehensive.yaml",
@@ -67,24 +66,16 @@ class TestTemplateSchema:
         """Template must have: apiVersion, kind, metadata, scenarios."""
         data = self._load(templates_dir, template_name)
         missing = REQUIRED_TOP_LEVEL_FIELDS - set(data.keys())
-        assert not missing, (
-            f"Template {template_name} missing top-level fields: {missing}"
-        )
+        assert not missing, f"Template {template_name} missing top-level fields: {missing}"
 
     def test_metadata_structure(self, templates_dir, template_name):
         """metadata must have: name, testMode, description."""
         data = self._load(templates_dir, template_name)
-        assert "metadata" in data, (
-            f"Template {template_name} missing 'metadata' key"
-        )
+        assert "metadata" in data, f"Template {template_name} missing 'metadata' key"
         metadata = data["metadata"]
-        assert isinstance(metadata, dict), (
-            f"Template {template_name}: 'metadata' is not a dict"
-        )
+        assert isinstance(metadata, dict), f"Template {template_name}: 'metadata' is not a dict"
         missing = REQUIRED_METADATA_FIELDS - set(metadata.keys())
-        assert not missing, (
-            f"Template {template_name} metadata missing fields: {missing}"
-        )
+        assert not missing, f"Template {template_name} metadata missing fields: {missing}"
 
     def test_turn_structure(self, templates_dir, template_name):
         """Each turn must have: user (str), expect (dict)."""
@@ -92,15 +83,11 @@ class TestTemplateSchema:
         for scenario in data["scenarios"]:
             sname = scenario.get("name", "?")
             for i, turn in enumerate(scenario["turns"]):
-                assert "user" in turn, (
-                    f"{template_name} > '{sname}' > turn {i}: missing 'user'"
-                )
+                assert "user" in turn, f"{template_name} > '{sname}' > turn {i}: missing 'user'"
                 assert isinstance(turn["user"], str), (
                     f"{template_name} > '{sname}' > turn {i}: 'user' must be a string"
                 )
-                assert "expect" in turn, (
-                    f"{template_name} > '{sname}' > turn {i}: missing 'expect'"
-                )
+                assert "expect" in turn, f"{template_name} > '{sname}' > turn {i}: missing 'expect'"
                 assert isinstance(turn["expect"], dict), (
                     f"{template_name} > '{sname}' > turn {i}: 'expect' must be a dict"
                 )

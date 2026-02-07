@@ -34,13 +34,13 @@ This guide covers embedding custom Lightning Web Components in Flow Screens.
 
 ## Quick Reference
 
-| Flow Element | LWC Requirement | Purpose |
-|--------------|-----------------|---------|
-| `extensionName` | `target="lightning__FlowScreen"` | Identify LWC component |
-| `inputParameters` | `@api` with `role="inputOnly"` | Flow → LWC data |
-| `outputParameters` | `@api` with `role="outputOnly"` | LWC → Flow data |
-| N/A | `FlowAttributeChangeEvent` | LWC updates outputs |
-| N/A | `FlowNavigationFinishEvent` | LWC controls navigation |
+| Flow Element       | LWC Requirement                  | Purpose                 |
+| ------------------ | -------------------------------- | ----------------------- |
+| `extensionName`    | `target="lightning__FlowScreen"` | Identify LWC component  |
+| `inputParameters`  | `@api` with `role="inputOnly"`   | Flow → LWC data         |
+| `outputParameters` | `@api` with `role="outputOnly"`  | LWC → Flow data         |
+| N/A                | `FlowAttributeChangeEvent`       | LWC updates outputs     |
+| N/A                | `FlowNavigationFinishEvent`      | LWC controls navigation |
 
 ---
 
@@ -203,16 +203,16 @@ handleSelection(event) {
 
 ## Variable Types Mapping
 
-| Flow Type | LWC Type | XML Declaration |
-|-----------|----------|-----------------|
-| `String` | `String` | `<dataType>String</dataType>` |
-| `Number` | `Number` | `<dataType>Number</dataType>` |
-| `Currency` | `Number` | `<dataType>Currency</dataType>` |
-| `Boolean` | `Boolean` | `<dataType>Boolean</dataType>` |
-| `Date` | `String` | `<dataType>Date</dataType>` |
-| `DateTime` | `String` | `<dataType>DateTime</dataType>` |
-| `Record` | `Object` | `<objectType>Account</objectType>` |
-| `Collection` | `Array` | `<isCollection>true</isCollection>` |
+| Flow Type    | LWC Type  | XML Declaration                     |
+| ------------ | --------- | ----------------------------------- |
+| `String`     | `String`  | `<dataType>String</dataType>`       |
+| `Number`     | `Number`  | `<dataType>Number</dataType>`       |
+| `Currency`   | `Number`  | `<dataType>Currency</dataType>`     |
+| `Boolean`    | `Boolean` | `<dataType>Boolean</dataType>`      |
+| `Date`       | `String`  | `<dataType>Date</dataType>`         |
+| `DateTime`   | `String`  | `<dataType>DateTime</dataType>`     |
+| `Record`     | `Object`  | `<objectType>Account</objectType>`  |
+| `Collection` | `Array`   | `<isCollection>true</isCollection>` |
 
 ### Variable Declaration Examples
 
@@ -343,6 +343,7 @@ When LWC handles its own navigation:
 ```
 
 LWC then uses:
+
 ```javascript
 import { FlowNavigationFinishEvent } from 'lightning/flowSupport';
 
@@ -462,30 +463,30 @@ Pass Flow context to LWC using record context:
 
 ## Templates
 
-| Template | Use Case |
-|----------|----------|
+| Template                             | Use Case                        |
+| ------------------------------------ | ------------------------------- |
 | `templates/screen-flow-with-lwc.xml` | Complete LWC screen integration |
-| `templates/apex-action-template.xml` | Calling Apex from Flow |
+| `templates/apex-action-template.xml` | Calling Apex from Flow          |
 
 ---
 
 ## Cross-Skill Integration
 
-| Integration | See Also |
-|-------------|----------|
-| LWC Component Setup | [sf-lwc/docs/flow-integration-guide.md](../../sf-lwc/docs/flow-integration-guide.md) |
-| Full Triangle Architecture | [triangle-pattern.md](triangle-pattern.md) |
+| Integration                  | See Also                                                                                 |
+| ---------------------------- | ---------------------------------------------------------------------------------------- |
+| LWC Component Setup          | [sf-lwc/docs/flow-integration-guide.md](../../sf-lwc/docs/flow-integration-guide.md)     |
+| Full Triangle Architecture   | [triangle-pattern.md](triangle-pattern.md)                                               |
 | LWC FlowAttributeChangeEvent | [sf-lwc/templates/flow-screen-component/](../../sf-lwc/templates/flow-screen-component/) |
 
 ---
 
 ## Troubleshooting
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| LWC not appearing in Flow Builder | Missing `isExposed` or target | Add `isExposed=true` and `target="lightning__FlowScreen"` |
-| Properties not showing in builder | Missing `targetConfigs` | Add `targetConfig` with property definitions |
-| Outputs not updating | Missing FlowAttributeChangeEvent | Dispatch event when value changes |
-| Type mismatch error | Wrong dataType | Match Flow variable type to LWC property type |
-| LWC not receiving inputs | Property name mismatch | Ensure `name` matches `@api` property exactly |
-| Navigation not working | Wrong event type | Use `FlowNavigationFinishEvent` with action string |
+| Issue                             | Cause                            | Solution                                                  |
+| --------------------------------- | -------------------------------- | --------------------------------------------------------- |
+| LWC not appearing in Flow Builder | Missing `isExposed` or target    | Add `isExposed=true` and `target="lightning__FlowScreen"` |
+| Properties not showing in builder | Missing `targetConfigs`          | Add `targetConfig` with property definitions              |
+| Outputs not updating              | Missing FlowAttributeChangeEvent | Dispatch event when value changes                         |
+| Type mismatch error               | Wrong dataType                   | Match Flow variable type to LWC property type             |
+| LWC not receiving inputs          | Property name mismatch           | Ensure `name` matches `@api` property exactly             |
+| Navigation not working            | Wrong event type                 | Use `FlowNavigationFinishEvent` with action string        |

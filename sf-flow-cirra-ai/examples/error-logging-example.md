@@ -7,7 +7,7 @@ This example demonstrates how to use the **Sub_LogError** reusable subflow to im
 ## Prerequisites
 
 1. **Deploy the Sub_LogError subflow** from `templates/subflows/subflow-error-logger.xml`
-2. **Create the Flow_Error_Log__c custom object** with these fields:
+2. **Create the Flow_Error_Log\_\_c custom object** with these fields:
    - `Flow_Name__c` (Text, 255)
    - `Record_Id__c` (Text, 18)
    - `Error_Message__c` (Long Text Area, 32,768)
@@ -18,7 +18,7 @@ You have a Record-Triggered Flow on Account that updates related Contacts. If th
 
 ## Implementation Pattern
 
-###  1. Main Flow with Fault Path
+### 1. Main Flow with Fault Path
 
 ```xml
 <recordUpdates>
@@ -80,13 +80,16 @@ You have a Record-Triggered Flow on Account that updates related Contacts. If th
 ## Benefits
 
 ### ✅ Structured Data Capture
+
 - **Flow Name**: Identifies which flow failed
 - **Record ID**: Links error to specific record for investigation
 - **Error Message**: Captures the system fault message
-- **Timestamp**: Auto-captured by Flow_Error_Log__c created date
+- **Timestamp**: Auto-captured by Flow_Error_Log\_\_c created date
 
 ### ✅ Centralized Error Tracking
+
 Query all flow errors in one place:
+
 ```sql
 SELECT Flow_Name__c, Record_Id__c, Error_Message__c, CreatedDate
 FROM Flow_Error_Log__c
@@ -95,13 +98,16 @@ ORDER BY CreatedDate DESC
 ```
 
 ### ✅ Debugging Efficiency
+
 1. User reports: "Account update failed"
-2. Query Flow_Error_Log__c for that Account ID
+2. Query Flow_Error_Log\_\_c for that Account ID
 3. See exact error message and flow name
 4. Debug with full context—no need to enable debug logs first
 
 ### ✅ Production Monitoring
+
 Create a dashboard showing:
+
 - Error count by flow name
 - Error trends over time
 - Most common error messages
@@ -164,14 +170,17 @@ For real-time error monitoring, publish a Platform Event instead of creating a r
 ## Testing Your Error Logger
 
 ### 1. Deploy Sub_LogError
+
 ```bash
 sf project deploy start --source-dir templates/subflows/ --target-org myorg
 ```
 
 ### 2. Create Test Flow with Intentional Error
-Create a flow that attempts to update a field that doesn't exist, then check Flow_Error_Log__c.
+
+Create a flow that attempts to update a field that doesn't exist, then check Flow_Error_Log\_\_c.
 
 ### 3. Verify Error Capture
+
 ```bash
 sf data query --query "SELECT Flow_Name__c, Error_Message__c FROM Flow_Error_Log__c ORDER BY CreatedDate DESC LIMIT 1" --target-org myorg
 ```
@@ -179,12 +188,14 @@ sf data query --query "SELECT Flow_Name__c, Error_Message__c FROM Flow_Error_Log
 ## Best Practices
 
 ✅ **DO**:
+
 - Use Sub_LogError in all fault paths
-- Pass meaningful flow names (use naming conventions like RTF_, Auto_, etc.)
+- Pass meaningful flow names (use naming conventions like RTF*, Auto*, etc.)
 - Include record ID whenever available for context
 - Review error logs regularly to identify patterns
 
 ❌ **DON'T**:
+
 - Skip fault paths on DML operations
 - Hardcode error messages (use $Flow.FaultMessage)
 - Ignore error logs—they're your production monitoring
@@ -198,6 +209,7 @@ sf data query --query "SELECT Flow_Name__c, Error_Message__c FROM Flow_Error_Log
 ## Questions?
 
 For issues or questions:
+
 1. Check the troubleshooting section in README.md
 2. Review the skill.md for detailed workflow
 3. Test with the Sub_LogError template first before customizing

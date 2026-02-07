@@ -15,7 +15,6 @@ import json
 import subprocess
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional
 
 # Try Rich for pretty output, fall back to plain text
 try:
@@ -23,6 +22,7 @@ try:
     from rich.table import Table
     from rich.panel import Panel
     from rich.text import Text
+
     HAS_RICH = True
 except ImportError:
     HAS_RICH = False
@@ -44,8 +44,8 @@ def run_tier(
     tier_config: dict,
     offline: bool = False,
     verbose: bool = False,
-    extra_args: List[str] = None,
-) -> Dict:
+    extra_args: list[str] = None,
+) -> dict:
     """
     Run pytest for a single tier and collect results.
 
@@ -84,9 +84,12 @@ def run_tier(
         }
 
     cmd = [
-        sys.executable, "-m", "pytest",
+        sys.executable,
+        "-m",
+        "pytest",
         str(tier_path),
-        "-m", marker,
+        "-m",
+        marker,
         "--tb=short",
         "-q",
         "--no-header",
@@ -144,9 +147,9 @@ def run_tier(
         "errors": errors,
         "total": total,
         "score": round(score, 1),
-        "status": "passed" if failed == 0 and errors == 0 and total > 0 else (
-            "failed" if failed > 0 or errors > 0 else "empty"
-        ),
+        "status": "passed"
+        if failed == 0 and errors == 0 and total > 0
+        else ("failed" if failed > 0 or errors > 0 else "empty"),
     }
 
 
@@ -177,7 +180,7 @@ def _parse_pytest_output(output: str) -> tuple:
     return passed, failed, skipped, errors
 
 
-def render_rich(results: List[Dict], total_score: float, thresholds: dict):
+def render_rich(results: list[dict], total_score: float, thresholds: dict):
     """Render results using Rich tables."""
     console = Console()
 
@@ -234,7 +237,7 @@ def render_rich(results: List[Dict], total_score: float, thresholds: dict):
     console.print()
 
 
-def render_plain(results: List[Dict], total_score: float, thresholds: dict):
+def render_plain(results: list[dict], total_score: float, thresholds: dict):
     """Render results as plain text (fallback when Rich not available)."""
     print()
     print("=" * 68)
@@ -248,7 +251,9 @@ def render_plain(results: List[Dict], total_score: float, thresholds: dict):
         status = r["status"].upper()[:6]
         tests_str = f"{r['passed']}/{r['total']}" if r["total"] > 0 else "--"
         score_str = f"{r['score']:.1f}" if r["total"] > 0 else "--"
-        print(f"{r['tier']:<6} {r['name']:<28} {status:<10} {tests_str:>8} {r['weight']:>8} {score_str:>8}")
+        print(
+            f"{r['tier']:<6} {r['name']:<28} {status:<10} {tests_str:>8} {r['weight']:>8} {score_str:>8}"
+        )
 
     print("-" * 68)
 
@@ -311,9 +316,9 @@ def main():
             "total_score": round(total_score, 1),
             "pass_threshold": thresholds["pass_threshold"],
             "warn_threshold": thresholds["warn_threshold"],
-            "status": "pass" if total_score >= thresholds["pass_threshold"] else (
-                "warn" if total_score >= thresholds["warn_threshold"] else "fail"
-            ),
+            "status": "pass"
+            if total_score >= thresholds["pass_threshold"]
+            else ("warn" if total_score >= thresholds["warn_threshold"] else "fail"),
             "tiers": results,
         }
         print(json.dumps(output, indent=2))

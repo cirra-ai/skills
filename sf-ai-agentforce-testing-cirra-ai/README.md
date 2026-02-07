@@ -32,14 +32,14 @@ Request: "Run agent tests for Customer_Support_Agent in org dev"
 
 ### 2. Common operations
 
-| Operation | Example Request |
-|-----------|-----------------|
-| Run tests | "Run agent tests for MyAgent in org dev" |
-| Generate spec | "Generate test spec for Customer_Support_Agent" |
-| Preview agent | "Preview MyAgent with simulated actions" |
-| Live preview | "Test MyAgent with live actions" |
-| Coverage report | "Show topic coverage for MyAgent" |
-| Fix loop | "Run agent tests and fix failures automatically" |
+| Operation       | Example Request                                  |
+| --------------- | ------------------------------------------------ |
+| Run tests       | "Run agent tests for MyAgent in org dev"         |
+| Generate spec   | "Generate test spec for Customer_Support_Agent"  |
+| Preview agent   | "Preview MyAgent with simulated actions"         |
+| Live preview    | "Test MyAgent with live actions"                 |
+| Coverage report | "Show topic coverage for MyAgent"                |
+| Fix loop        | "Run agent tests and fix failures automatically" |
 
 ## Key Commands
 
@@ -71,37 +71,38 @@ sf agent preview --api-name AgentName --use-live-actions --client-app AppName --
 
 ## Scoring System (100 Points)
 
-| Category | Points | Focus |
-|----------|--------|-------|
-| Topic Selection | 25 | All topics have test cases |
-| Action Invocation | 25 | All actions tested with I/O |
-| Edge Case Coverage | 20 | Negative tests, boundaries |
-| Test Spec Quality | 15 | Proper YAML, descriptions |
-| Agentic Fix Success | 15 | Auto-fixes resolve issues |
+| Category            | Points | Focus                       |
+| ------------------- | ------ | --------------------------- |
+| Topic Selection     | 25     | All topics have test cases  |
+| Action Invocation   | 25     | All actions tested with I/O |
+| Edge Case Coverage  | 20     | Negative tests, boundaries  |
+| Test Spec Quality   | 15     | Proper YAML, descriptions   |
+| Agentic Fix Success | 15     | Auto-fixes resolve issues   |
 
 ## Test Thresholds
 
-| Level | Score | Meaning |
-|-------|-------|---------|
-| Production Ready | 90+ | Deploy with confidence |
-| Good | 80-89 | Minor improvements needed |
-| Acceptable | 70-79 | Needs work before production |
-| Blocked | <70 | Major issues to resolve |
+| Level            | Score | Meaning                      |
+| ---------------- | ----- | ---------------------------- |
+| Production Ready | 90+   | Deploy with confidence       |
+| Good             | 80-89 | Minor improvements needed    |
+| Acceptable       | 70-79 | Needs work before production |
+| Blocked          | <70   | Major issues to resolve      |
 
 ## Cross-Skill Integration
 
-| Related Skill | When to Use |
-|---------------|-------------|
-| sf-ai-agentscript | Create/fix agent scripts (recommended) |
-| sf-ai-agentforce-legacy | Maintain existing legacy agents |
-| sf-connected-apps | OAuth setup for live preview |
-| sf-data | Generate test data for actions |
-| sf-flow | Fix failing Flow actions |
-| sf-debug | Analyze agent error logs |
+| Related Skill           | When to Use                            |
+| ----------------------- | -------------------------------------- |
+| sf-ai-agentscript       | Create/fix agent scripts (recommended) |
+| sf-ai-agentforce-legacy | Maintain existing legacy agents        |
+| sf-connected-apps       | OAuth setup for live preview           |
+| sf-data                 | Generate test data for actions         |
+| sf-flow                 | Fix failing Flow actions               |
+| sf-debug                | Analyze agent error logs               |
 
 ## Agentic Test-Fix Loop
 
 When enabled, the skill will:
+
 1. Run agent tests and capture failures
 2. Analyze failure types (topic routing, action invocation, guardrails)
 3. Call sf-ai-agentscript to generate fixes

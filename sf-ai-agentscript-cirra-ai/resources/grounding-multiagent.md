@@ -6,10 +6,10 @@
 
 ## Two Pillars
 
-| Pillar | Icon | Description |
-|--------|------|-------------|
+| Pillar                   | Icon   | Description                                             |
+| ------------------------ | ------ | ------------------------------------------------------- |
 | 🔽 **Retriever Actions** | Filter | Dynamic filtering ensures agents only see relevant data |
-| 🔀 **Multi-Agent SOMA** | Branch | Primary agents delegate to expert agents |
+| 🔀 **Multi-Agent SOMA**  | Branch | Primary agents delegate to expert agents                |
 
 ---
 
@@ -20,6 +20,7 @@
 Retriever Actions connect your agent to Data Cloud Search Indexes, enabling context-aware knowledge retrieval.
 
 **Capabilities:**
+
 - ✅ Search Index wraps unstructured data (PDFs, docs, web pages)
 - ✅ Chunking parses text, tables, and images into searchable segments
 - ✅ Returns relevant chunks based on semantic similarity
@@ -30,8 +31,8 @@ Retriever Actions connect your agent to Data Cloud Search Indexes, enabling cont
 ```yaml
 actions:
   fetch_refund_policy:
-    description: "Retrieve refund policy from knowledge base"
-    target: "retriever://RefundSOP_Retriever"
+    description: 'Retrieve refund policy from knowledge base'
+    target: 'retriever://RefundSOP_Retriever'
     inputs:
       query: string
     outputs:
@@ -93,6 +94,7 @@ Agent Script uses a safe subset of Python for expressions:
 | **String** | `contains`, `startswith`, `endswith` |
 
 **Security Constraints:**
+
 - ❌ No `import` statements
 - ❌ No file access
 - ❌ No arbitrary code execution
@@ -116,14 +118,14 @@ open(...)     # NOT ALLOWED
 
 Every action uses a `target:` field to specify where to send the request.
 
-| Protocol | Use When | Example |
-|----------|----------|---------|
-| `flow://` | Data operations, business logic | `target: "flow://GetOrderStatus"` |
-| `apex://` | Custom calculations, validation | `target: "apex://RefundCalculator"` |
-| `generatePromptResponse://` | Grounded LLM responses | `target: "generatePromptResponse://Summary"` |
-| `retriever://` | RAG knowledge search | `target: "retriever://Policy_Index"` |
-| `externalService://` | Third-party APIs | `target: "externalService://AddressAPI"` |
-| `standardInvocableAction://` | Built-in SF actions | `target: "standardInvocableAction://email"` |
+| Protocol                     | Use When                        | Example                                      |
+| ---------------------------- | ------------------------------- | -------------------------------------------- |
+| `flow://`                    | Data operations, business logic | `target: "flow://GetOrderStatus"`            |
+| `apex://`                    | Custom calculations, validation | `target: "apex://RefundCalculator"`          |
+| `generatePromptResponse://`  | Grounded LLM responses          | `target: "generatePromptResponse://Summary"` |
+| `retriever://`               | RAG knowledge search            | `target: "retriever://Policy_Index"`         |
+| `externalService://`         | Third-party APIs                | `target: "externalService://AddressAPI"`     |
+| `standardInvocableAction://` | Built-in SF actions             | `target: "standardInvocableAction://email"`  |
 
 ---
 
@@ -153,14 +155,14 @@ actions:
 ```yaml
 actions:
   calculate_refund:
-    description: "Calculate refund amount based on policy rules"
+    description: 'Calculate refund amount based on policy rules'
     inputs:
       order_id: string
       refund_reason: string
     outputs:
       refund_amount: currency
       requires_approval: boolean
-    target: "apex://RefundCalculatorService"
+    target: 'apex://RefundCalculatorService'
 ```
 
 ---
@@ -193,13 +195,13 @@ actions:
 ```yaml
 actions:
   search_knowledge:
-    description: "Search the knowledge base for relevant info"
+    description: 'Search the knowledge base for relevant info'
     inputs:
       query: string
     outputs:
       chunks: list[object]
       relevance_scores: list[number]
-    target: "retriever://RefundPolicy_Retriever"
+    target: 'retriever://RefundPolicy_Retriever'
 ```
 
 ---
@@ -211,7 +213,7 @@ actions:
 ```yaml
 actions:
   verify_address:
-    description: "Validate shipping address via external API"
+    description: 'Validate shipping address via external API'
     inputs:
       street: string
       city: string
@@ -219,7 +221,7 @@ actions:
     outputs:
       is_valid: boolean
       normalized_address: object
-    target: "externalService://AddressValidation"
+    target: 'externalService://AddressValidation'
 ```
 
 ---
@@ -231,27 +233,27 @@ actions:
 ```yaml
 actions:
   send_email:
-    description: "Send confirmation email to customer"
+    description: 'Send confirmation email to customer'
     inputs:
       recipient_email: string
       template_id: id
     outputs:
       success: boolean
-    target: "standardInvocableAction://emailSimple"
+    target: 'standardInvocableAction://emailSimple'
 ```
 
 ---
 
 ### Protocol Selection Guide
 
-| If you need... | Use this protocol |
-|----------------|-------------------|
-| Complex data queries, record updates | `flow://` |
-| Custom calculations, validation | `apex://` |
-| LLM-generated summaries | `generatePromptResponse://` |
-| Knowledge search, RAG | `retriever://` |
-| External REST APIs | `externalService://` |
-| Standard SF actions | `standardInvocableAction://` |
+| If you need...                       | Use this protocol            |
+| ------------------------------------ | ---------------------------- |
+| Complex data queries, record updates | `flow://`                    |
+| Custom calculations, validation      | `apex://`                    |
+| LLM-generated summaries              | `generatePromptResponse://`  |
+| Knowledge search, RAG                | `retriever://`               |
+| External REST APIs                   | `externalService://`         |
+| Standard SF actions                  | `standardInvocableAction://` |
 
 ---
 
@@ -261,16 +263,17 @@ When a primary agent encounters specialized needs, it can coordinate with expert
 
 ### Two Coordination Patterns
 
-| Pattern | Description | Return Behavior |
-|---------|-------------|-----------------|
+| Pattern           | Description           | Return Behavior                      |
+| ----------------- | --------------------- | ------------------------------------ |
 | 🔀 **Delegation** | Farm out, then return | ✅ Control returns to original agent |
-| ➡️ **Handoff** | Transfer permanently | ❌ No return - original agent exits |
+| ➡️ **Handoff**    | Transfer permanently  | ❌ No return - original agent exits  |
 
 ---
 
 ### Pattern 1: Delegation
 
 **Flow:**
+
 ```
 ┌─────────┐    DELEGATE    ┌────────────┐    RETURN    ┌─────────┐
 │ Primary │ ─────────────▶ │ Specialist │ ───────────▶ │ Primary │
@@ -278,11 +281,13 @@ When a primary agent encounters specialized needs, it can coordinate with expert
 ```
 
 **Use Cases:**
+
 - Tax questions → Compliance Agent
 - Technical issues → Support Specialist
 - Order changes → Fulfillment Agent
 
 **Implementation:**
+
 ```yaml
 # Delegation uses transition to a specialist topic
 # Control returns after specialist completes
@@ -302,6 +307,7 @@ reasoning:
 ### Pattern 2: Handoff
 
 **Flow:**
+
 ```
 ┌─────────┐    HANDOFF    ┌────────┐    NO RETURN
 │ Primary │ ────────────▶ │ Target │ ────────────▶ ✗
@@ -309,11 +315,13 @@ reasoning:
 ```
 
 **Use Cases:**
+
 - Escalation to human agent
 - Domain boundary (Sales → Support)
 - Fraud detection requiring specialized handling
 
 **Implementation:**
+
 ```yaml
 # Permanent handoff - conversation leaves this agent
 reasoning:
@@ -327,11 +335,11 @@ reasoning:
 
 ### Delegation vs Handoff Decision
 
-| Use This | When You Need |
-|----------|---------------|
+| Use This                        | When You Need                          |
+| ------------------------------- | -------------------------------------- |
 | `@utils.transition to @topic.X` | Temporary delegation - control returns |
-| `@utils.escalate` | Permanent handoff to human |
-| `@agent.X` (Connections) | Permanent handoff to another agent |
+| `@utils.escalate`               | Permanent handoff to human             |
+| `@agent.X` (Connections)        | Permanent handoff to another agent     |
 
 > **KEY INSIGHT**: The difference is whether the original agent continues after the specialist finishes.
 
@@ -352,6 +360,7 @@ variables:
 ```
 
 **Why This Matters:**
+
 - `mutable string = ""` starts empty - filter won't work
 - `linked string` pulls from session - filter gets real value
 
@@ -363,12 +372,12 @@ variables:
 
 **Root Cause Trace:**
 
-| Step | Wrong Implementation | Correct Implementation |
-|------|---------------------|------------------------|
-| 1. Session Start | `CustomerCountry: ""` | `CustomerCountry: "Germany"` |
-| 2. Filter | `Region == ""` | `Region == "Germany"` |
-| 3. Knowledge Fetch | US_Refund_Policy | EU_Refund_Policy_GDPR |
-| 4. Refund | $10 credit | Full refund (€45.99) |
+| Step               | Wrong Implementation  | Correct Implementation       |
+| ------------------ | --------------------- | ---------------------------- |
+| 1. Session Start   | `CustomerCountry: ""` | `CustomerCountry: "Germany"` |
+| 2. Filter          | `Region == ""`        | `Region == "Germany"`        |
+| 3. Knowledge Fetch | US_Refund_Policy      | EU_Refund_Policy_GDPR        |
+| 4. Refund          | $10 credit            | Full refund (€45.99)         |
 
 **Fix**: Change `mutable string = ""` to `linked string` with `source: @session.Country`
 
@@ -377,18 +386,23 @@ variables:
 ## Best Practices
 
 ### 1. Always Filter Regional Data
+
 Never return unfiltered results for region-specific policies.
 
 ### 2. Use Flows for Complex Filtering
+
 Agent Script can't filter inline - wrap retrievers in Flows.
 
 ### 3. Validate Session Variables
+
 Ensure linked variables have sources - empty values cause wrong retrievals.
 
 ### 4. Choose Delegation vs Handoff Carefully
+
 Delegation returns control; handoff is permanent.
 
 ### 5. Use `available when` for Sensitive Protocols
+
 Guard external service calls with verification checks.
 
 ```yaml

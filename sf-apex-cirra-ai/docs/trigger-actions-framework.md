@@ -3,6 +3,7 @@
 ## Overview
 
 The Trigger Actions Framework provides a metadata-driven approach to trigger management, enabling:
+
 - One trigger per object
 - Ordered execution of actions
 - Bypass mechanisms (global, transaction, permission-based)
@@ -32,6 +33,7 @@ trigger AccountTrigger on Account (
 ### 2. Enable the Object
 
 Create an `sObject_Trigger_Setting__mdt` record:
+
 - Label: Account Trigger Setting
 - Object API Name: Account
 - Bypass Execution: unchecked
@@ -55,6 +57,7 @@ public class TA_Account_SetDefaults implements TriggerAction.BeforeInsert {
 ### 4. Register the Action
 
 Create a `Trigger_Action__mdt` record:
+
 - Object: Account
 - Apex Class Name: TA_Account_SetDefaults
 - Order: 1
@@ -211,6 +214,7 @@ public class TA_Account_ProcessAsync implements TriggerAction.AfterInsert {
 ### Global Bypass (Metadata)
 
 In `sObject_Trigger_Setting__mdt`:
+
 - Set `Bypass_Execution__c = true` to disable all triggers for object
 
 ### Transaction Bypass (Apex)
@@ -230,6 +234,7 @@ MetadataTriggerHandler.clearAllBypasses();
 ### Permission-Based Bypass
 
 In `Trigger_Action__mdt`:
+
 - `Bypass_Permission__c`: Users with this permission skip the action
 - `Required_Permission__c`: Only users with this permission run the action
 
@@ -278,6 +283,7 @@ public class TA_Account_PreventRecursion implements TriggerAction.AfterUpdate {
 ### Entry Criteria
 
 Define formula criteria to control when the flow executes:
+
 ```
 {!record.Status__c} = 'Submitted' && {!recordPrior.Status__c} != 'Submitted'
 ```
@@ -363,6 +369,7 @@ Examples:
 Actions execute in the order defined by the `Order__c` field in `Trigger_Action__mdt`.
 
 Recommended ordering:
+
 1. Validation (10-20)
 2. Default values (30-40)
 3. Field calculations (50-60)

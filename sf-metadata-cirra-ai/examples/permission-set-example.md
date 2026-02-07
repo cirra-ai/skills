@@ -7,6 +7,7 @@ This example demonstrates creating a comprehensive permission set with object pe
 ## Scenario
 
 Create a Permission Set for users who manage invoices:
+
 - Full CRUD on Invoice object
 - Edit access to specific fields
 - Read access to Account (parent)

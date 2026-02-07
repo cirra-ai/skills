@@ -7,25 +7,25 @@ description: >
   and SOLID principles.
 license: MIT
 metadata:
-  version: "2.0.0"
-  author: "Jag Valaiyapathy"
-  refactorNote: "Migrated from Salesforce CLI (sf project deploy/retrieve) to Cirra AI MCP Server (metadata_create/metadata_update/metadata_read)"
-  scoring: "150 points across 8 categories"
+  version: '2.0.0'
+  author: 'Jag Valaiyapathy'
+  refactorNote: 'Migrated from Salesforce CLI (sf project deploy/retrieve) to Cirra AI MCP Server (metadata_create/metadata_update/metadata_read)'
+  scoring: '150 points across 8 categories'
 hooks:
   SessionStart:
     - type: command
-      command: "cirra_ai_init"
+      command: 'cirra_ai_init'
       timeout: 5000
   PreToolUse:
-    - matcher: "Bash"
+    - matcher: 'Bash'
       hooks:
         - type: notification
-          message: "Cirra AI MCP Server initialized"
+          message: 'Cirra AI MCP Server initialized'
   PostToolUse:
-    - matcher: "Write|Edit"
+    - matcher: 'Write|Edit'
       hooks:
         - type: validation
-          rule: "Validate Apex syntax before metadata operations"
+          rule: 'Validate Apex syntax before metadata operations'
           timeout: 15000
 ---
 
@@ -45,6 +45,7 @@ Expert Apex developer specializing in clean code, SOLID principles, and 2025 bes
 ## Key Changes from CLI Version
 
 ### Removed (CLI-dependent)
+
 - `sf project deploy` → Replaced with `metadata_create` / `metadata_update` (Cirra AI MCP)
 - `sf project retrieve` → Replaced with `metadata_read` (Cirra AI MCP)
 - `sf apex run` → Removed (anonymous Apex not supported in MCP)
@@ -52,6 +53,7 @@ Expert Apex developer specializing in clean code, SOLID principles, and 2025 bes
 - `sf sobject describe` → Replaced with `sobject_describe` (Cirra AI MCP)
 
 ### Added (Cirra AI MCP)
+
 - **cirra_ai_init**: Initialize MCP server connection (MUST call first)
 - **metadata_create**: Deploy new Apex classes/triggers
 - **metadata_update**: Update existing Apex classes/triggers
@@ -67,17 +69,20 @@ Expert Apex developer specializing in clean code, SOLID principles, and 2025 bes
 ### Phase 1: Requirements Gathering & MCP Initialization
 
 **FIRST**: Call `cirra_ai_init` with your Salesforce org context:
+
 ```
 Use: cirra_ai_init(cirra_ai_team="your-team-id", sf_user="your-org-alias")
 ```
 
 **Then** use **AskUserQuestion** to gather:
+
 - Class type (Trigger, Service, Selector, Batch, Queueable, Test, Controller)
 - Primary purpose (one sentence)
 - Target object(s)
 - Test requirements
 
 **Then**:
+
 1. Check existing code: `tooling_api_query(sObject="ApexClass", whereClause="Name LIKE '%Account%'")`
 2. Check for existing Trigger Actions Framework: `tooling_api_query(sObject="ApexClass", whereClause="Name LIKE 'TA_%'")`
 3. Create TodoWrite tasks
@@ -106,6 +111,7 @@ Use: cirra_ai_init(cirra_ai_team="your-team-id", sf_user="your-org-alias")
 ### Phase 3: Code Generation/Review
 
 **For Generation**:
+
 1. Generate Apex code as a STRING (not saved to file system)
 2. Apply naming conventions (see best practices section)
 3. Include ApexDoc comments
@@ -113,11 +119,13 @@ Use: cirra_ai_init(cirra_ai_team="your-team-id", sf_user="your-org-alias")
 5. Validate code against guardrails (see below)
 
 **For Review**:
+
 1. Query existing code: `metadata_read(type="ApexClass", fullNames=["AccountService"])`
 2. Analyze against best practices
 3. Generate improvement report with specific fixes
 
 **Run Validation**:
+
 ```
 Score: XX/150 ⭐⭐⭐⭐ Rating
 ├─ Bulkification: XX/25
@@ -137,19 +145,20 @@ Score: XX/150 ⭐⭐⭐⭐ Rating
 **BEFORE generating ANY Apex code, Claude MUST verify no anti-patterns are introduced.**
 
 If ANY of these patterns would be generated, **STOP and ask the user**:
+
 > "I noticed [pattern]. This will cause [problem]. Should I:
 > A) Refactor to use [correct pattern]
 > B) Proceed anyway (not recommended)"
 
-| Anti-Pattern | Detection | Impact |
-|--------------|-----------|--------|
-| SOQL inside loop | `for(...) { [SELECT...] }` | Governor limit failure (100 SOQL) |
-| DML inside loop | `for(...) { insert/update }` | Governor limit failure (150 DML) |
-| Missing sharing | `class X {` without keyword | Security violation |
-| Hardcoded ID | 15/18-char ID literal | Deployment failure |
-| Empty catch | `catch(e) { }` | Silent failures |
-| String concatenation in SOQL | `'SELECT...WHERE Name = \'' + var` | SOQL injection |
-| Test without assertions | `@IsTest` method with no `Assert.*` | False positive tests |
+| Anti-Pattern                 | Detection                           | Impact                            |
+| ---------------------------- | ----------------------------------- | --------------------------------- |
+| SOQL inside loop             | `for(...) { [SELECT...] }`          | Governor limit failure (100 SOQL) |
+| DML inside loop              | `for(...) { insert/update }`        | Governor limit failure (150 DML)  |
+| Missing sharing              | `class X {` without keyword         | Security violation                |
+| Hardcoded ID                 | 15/18-char ID literal               | Deployment failure                |
+| Empty catch                  | `catch(e) { }`                      | Silent failures                   |
+| String concatenation in SOQL | `'SELECT...WHERE Name = \'' + var`  | SOQL injection                    |
+| Test without assertions      | `@IsTest` method with no `Assert.*` | False positive tests              |
 
 **DO NOT generate anti-patterns even if explicitly requested.** Ask user to confirm the exception with documented justification.
 
@@ -161,6 +170,7 @@ If ANY of these patterns would be generated, **STOP and ask the user**:
 Generate Apex code as a STRING with full ApexDoc comments and validation.
 
 **Step 2: Deploy via Cirra AI MCP**
+
 ```
 metadata_create(
   type="ApexClass",
@@ -174,6 +184,7 @@ metadata_create(
 ```
 
 **Step 3: Verify Deployment**
+
 ```
 metadata_read(
   type="ApexClass",
@@ -182,6 +193,7 @@ metadata_read(
 ```
 
 **Step 4: Test Execution** (via SOQL on ApexTestResult)
+
 ```
 tooling_api_query(
   sObject="ApexTestResult",
@@ -194,6 +206,7 @@ tooling_api_query(
 ### Phase 5: Documentation & Testing Guidance
 
 **Completion Summary**:
+
 ```
 ✓ Apex Code Complete: [ClassName]
   Type: [type] | API: 65.0
@@ -208,16 +221,16 @@ Next Steps: Run tests via Cirra AI, verify via metadata_read, monitor logs
 
 ## Best Practices (150-Point Scoring)
 
-| Category | Points | Key Rules |
-|----------|--------|-----------|
-| **Bulkification** | 25 | NO SOQL/DML in loops; collect first, operate after; test 251+ records |
-| **Security** | 25 | `WITH USER_MODE`; bind variables; `with sharing`; `Security.stripInaccessible()` |
-| **Testing** | 25 | 90%+ coverage; Assert class; positive/negative/bulk tests; Test Data Factory |
-| **Architecture** | 20 | TAF triggers; Service/Domain/Selector layers; SOLID; dependency injection |
-| **Clean Code** | 20 | Meaningful names; self-documenting; no `!= false`; single responsibility |
-| **Error Handling** | 15 | Specific before generic catch; no empty catch; custom business exceptions |
-| **Performance** | 10 | Monitor with `Limits`; cache expensive ops; scope variables; async for heavy |
-| **Documentation** | 10 | ApexDoc on classes/methods; meaningful params |
+| Category           | Points | Key Rules                                                                        |
+| ------------------ | ------ | -------------------------------------------------------------------------------- |
+| **Bulkification**  | 25     | NO SOQL/DML in loops; collect first, operate after; test 251+ records            |
+| **Security**       | 25     | `WITH USER_MODE`; bind variables; `with sharing`; `Security.stripInaccessible()` |
+| **Testing**        | 25     | 90%+ coverage; Assert class; positive/negative/bulk tests; Test Data Factory     |
+| **Architecture**   | 20     | TAF triggers; Service/Domain/Selector layers; SOLID; dependency injection        |
+| **Clean Code**     | 20     | Meaningful names; self-documenting; no `!= false`; single responsibility         |
+| **Error Handling** | 15     | Specific before generic catch; no empty catch; custom business exceptions        |
+| **Performance**    | 10     | Monitor with `Limits`; cache expensive ops; scope variables; async for heavy     |
+| **Documentation**  | 10     | ApexDoc on classes/methods; meaningful params                                    |
 
 **Thresholds**: ✅ 90+ (Deploy) | ⚠️ 67-89 (Review) | ❌ <67 (Block - fix required)
 
@@ -230,6 +243,7 @@ Next Steps: Run tests via Cirra AI, verify via metadata_read, monitor logs
 **When to Use**: If TAF package is installed in target org
 
 **Check Installation**:
+
 ```
 tooling_api_query(
   sObject="InstalledSubscriberPackage",
@@ -238,6 +252,7 @@ tooling_api_query(
 ```
 
 **Trigger Pattern** (one per object):
+
 ```apex
 trigger AccountTrigger on Account (before insert, after insert, before update, after update, before delete, after delete, after undelete) {
     new MetadataTriggerHandler().run();
@@ -245,6 +260,7 @@ trigger AccountTrigger on Account (before insert, after insert, before update, a
 ```
 
 **Action Class** (one per behavior):
+
 ```apex
 public class TA_Account_SetDefaults implements TriggerAction.BeforeInsert {
     public void beforeInsert(List<Account> newList) {
@@ -258,6 +274,7 @@ public class TA_Account_SetDefaults implements TriggerAction.BeforeInsert {
 ```
 
 **Deploy Action Class**:
+
 ```
 metadata_create(
   type="ApexClass",
@@ -278,13 +295,13 @@ metadata_create(
 
 ## Async Decision Matrix
 
-| Scenario | Use |
-|----------|-----|
+| Scenario                        | Use                     |
+| ------------------------------- | ----------------------- |
 | Simple callout, fire-and-forget | `@future(callout=true)` |
-| Complex logic, needs chaining | `Queueable` |
-| Process millions of records | `Batch Apex` |
-| Scheduled/recurring job | `Schedulable` |
-| Post-queueable cleanup | `Queueable Finalizer` |
+| Complex logic, needs chaining   | `Queueable`             |
+| Process millions of records     | `Batch Apex`            |
+| Scheduled/recurring job         | `Schedulable`           |
+| Post-queueable cleanup          | `Queueable Finalizer`   |
 
 ---
 
@@ -335,6 +352,7 @@ public with sharing class RecordProcessor {
 ```
 
 **Deploy via Cirra AI**:
+
 ```
 metadata_create(
   type="ApexClass",
@@ -354,11 +372,13 @@ metadata_create(
 ### The 3 Test Types (PNB Pattern)
 
 Every feature needs:
+
 1. **Positive**: Happy path test
 2. **Negative**: Error handling test
 3. **Bulk**: 251+ records test
 
 **Example**:
+
 ```apex
 @IsTest
 static void testPositive() {
@@ -389,6 +409,7 @@ static void testBulk() {
 ```
 
 **Deploy Test Class**:
+
 ```
 metadata_create(
   type="ApexClass",
@@ -407,14 +428,14 @@ metadata_create(
 
 When writing test classes, use these specific exception types:
 
-| Exception Type | When to Use |
-|----------------|-------------|
-| `DmlException` | Insert/update/delete failures |
-| `QueryException` | SOQL query failures |
-| `NullPointerException` | Null reference access |
-| `ListException` | List operation failures |
-| `LimitException` | Governor limit exceeded |
-| `CalloutException` | HTTP callout failures |
+| Exception Type         | When to Use                   |
+| ---------------------- | ----------------------------- |
+| `DmlException`         | Insert/update/delete failures |
+| `QueryException`       | SOQL query failures           |
+| `NullPointerException` | Null reference access         |
+| `ListException`        | List operation failures       |
+| `LimitException`       | Governor limit exceeded       |
+| `CalloutException`     | HTTP callout failures         |
 
 ---
 
@@ -423,6 +444,7 @@ When writing test classes, use these specific exception types:
 ### Required Initialization
 
 **ALWAYS start with**:
+
 ```
 cirra_ai_init(cirra_ai_team="[YOUR_TEAM_ID]", sf_user="[YOUR_ORG_ALIAS]")
 ```
@@ -431,16 +453,16 @@ This initializes the connection to Cirra AI MCP Server and provides access to al
 
 ### MCP Tools Mapping
 
-| Operation | CLI Command | MCP Tool | Example |
-|-----------|-------------|----------|---------|
-| Query Apex code | `sf data query` | `soql_query` | `soql_query(sObject="ApexClass", whereClause="Name = 'AccountService'")` |
-| Query metadata | `sf data query --use-tooling-api` | `tooling_api_query` | `tooling_api_query(sObject="ApexClass")` |
-| Deploy class | `sf project deploy` | `metadata_create` | `metadata_create(type="ApexClass", metadata=[...])` |
-| Update class | `sf project deploy` (existing) | `metadata_update` | `metadata_update(type="ApexClass", metadata=[...])` |
-| Retrieve class | `sf project retrieve` | `metadata_read` | `metadata_read(type="ApexClass", fullNames=["AccountService"])` |
-| Describe object | `sf sobject describe` | `sobject_describe` | `sobject_describe(sObject="Account")` |
-| Delete class | `sf project delete` | `metadata_delete` | `metadata_delete(type="ApexClass", fullNames=["AccountService"])` |
-| Test results | `sf apex test run` (query) | `tooling_api_query` | `tooling_api_query(sObject="ApexTestResult")` |
+| Operation       | CLI Command                       | MCP Tool            | Example                                                                  |
+| --------------- | --------------------------------- | ------------------- | ------------------------------------------------------------------------ |
+| Query Apex code | `sf data query`                   | `soql_query`        | `soql_query(sObject="ApexClass", whereClause="Name = 'AccountService'")` |
+| Query metadata  | `sf data query --use-tooling-api` | `tooling_api_query` | `tooling_api_query(sObject="ApexClass")`                                 |
+| Deploy class    | `sf project deploy`               | `metadata_create`   | `metadata_create(type="ApexClass", metadata=[...])`                      |
+| Update class    | `sf project deploy` (existing)    | `metadata_update`   | `metadata_update(type="ApexClass", metadata=[...])`                      |
+| Retrieve class  | `sf project retrieve`             | `metadata_read`     | `metadata_read(type="ApexClass", fullNames=["AccountService"])`          |
+| Describe object | `sf sobject describe`             | `sobject_describe`  | `sobject_describe(sObject="Account")`                                    |
+| Delete class    | `sf project delete`               | `metadata_delete`   | `metadata_delete(type="ApexClass", fullNames=["AccountService"])`        |
+| Test results    | `sf apex test run` (query)        | `tooling_api_query` | `tooling_api_query(sObject="ApexTestResult")`                            |
 
 ### Metadata API Format
 
@@ -476,6 +498,7 @@ metadata_create(
 ### Query Examples
 
 **Find all Apex classes**:
+
 ```
 tooling_api_query(
   sObject="ApexClass",
@@ -484,6 +507,7 @@ tooling_api_query(
 ```
 
 **Find test results for a class**:
+
 ```
 tooling_api_query(
   sObject="ApexTestResult",
@@ -492,6 +516,7 @@ tooling_api_query(
 ```
 
 **Find triggers on Account**:
+
 ```
 tooling_api_query(
   sObject="ApexTrigger",
@@ -500,6 +525,7 @@ tooling_api_query(
 ```
 
 **Query with SOQL (not metadata)**:
+
 ```
 soql_query(
   sObject="Account",
@@ -512,15 +538,15 @@ soql_query(
 
 ## Cross-MCP Tool Integration
 
-| MCP Tool | Use Case | Example |
-|----------|----------|---------|
-| `sobject_describe` | Discover object/fields before coding | `sobject_describe(sObject="Invoice__c")` → get field names, types, CRUD |
-| `soql_query` | Test code behavior after deploy | `soql_query(sObject="Account", whereClause="Id IN :accountIds")` |
-| `tooling_api_query` | Check existing Apex classes | `tooling_api_query(sObject="ApexClass", whereClause="Name LIKE 'Account%'")` |
-| `metadata_read` | Retrieve existing code for review | `metadata_read(type="ApexClass", fullNames=["AccountService"])` |
-| `metadata_create` | Deploy new Apex classes/triggers | `metadata_create(type="ApexClass", metadata=[...])` |
-| `metadata_update` | Update existing Apex code | `metadata_update(type="ApexClass", metadata=[...])` |
-| `tooling_api_dml` | Perform DML on metadata objects | `tooling_api_dml(operation="update", sObject="ApexClass", record={...})` |
+| MCP Tool            | Use Case                             | Example                                                                      |
+| ------------------- | ------------------------------------ | ---------------------------------------------------------------------------- |
+| `sobject_describe`  | Discover object/fields before coding | `sobject_describe(sObject="Invoice__c")` → get field names, types, CRUD      |
+| `soql_query`        | Test code behavior after deploy      | `soql_query(sObject="Account", whereClause="Id IN :accountIds")`             |
+| `tooling_api_query` | Check existing Apex classes          | `tooling_api_query(sObject="ApexClass", whereClause="Name LIKE 'Account%'")` |
+| `metadata_read`     | Retrieve existing code for review    | `metadata_read(type="ApexClass", fullNames=["AccountService"])`              |
+| `metadata_create`   | Deploy new Apex classes/triggers     | `metadata_create(type="ApexClass", metadata=[...])`                          |
+| `metadata_update`   | Update existing Apex code            | `metadata_update(type="ApexClass", metadata=[...])`                          |
+| `tooling_api_dml`   | Perform DML on metadata objects      | `tooling_api_dml(operation="update", sObject="ApexClass", record={...})`     |
 
 ---
 
@@ -534,6 +560,7 @@ sobject_describe(sObject="Account")
 ```
 
 In generated code, use:
+
 ```apex
 // For CRUD/FLS checking
 List<String> fieldsToRead = new List<String>{ 'Name', 'Industry' };
@@ -547,6 +574,7 @@ for (String field : fieldsToRead) {
 ```
 
 Or use `Security.stripInaccessible()`:
+
 ```apex
 List<Account> accounts = [SELECT Id, Name, Industry FROM Account LIMIT 100];
 accounts = (List<Account>) Security.stripInaccessible(AccessType.READABLE, accounts);
@@ -556,14 +584,14 @@ accounts = (List<Account>) Security.stripInaccessible(AccessType.READABLE, accou
 
 ## Limitations & Workarounds
 
-| Feature | CLI Support | MCP Support | Workaround |
-|---------|-------------|-------------|-----------|
-| Anonymous Apex execution | `sf apex run` | ❌ Not available | Generate test class and deploy via metadata_create |
-| Automatic file sync | `force-app/main/default/` | ❌ Not available | Generate strings, deploy via metadata API |
-| Local templates | Template file system | ✅ Reference only (no file access) | Generate code from patterns in this doc |
-| Metadata deployment | `sf project deploy` | ✅ `metadata_create` / `metadata_update` | Full support via MCP |
-| Code retrieval | `sf project retrieve` | ✅ `metadata_read` | Full support via MCP |
-| Test execution | `sf apex test run` | Partial - query via `tooling_api_query` | Query ApexTestResult after deployment |
+| Feature                  | CLI Support               | MCP Support                              | Workaround                                         |
+| ------------------------ | ------------------------- | ---------------------------------------- | -------------------------------------------------- |
+| Anonymous Apex execution | `sf apex run`             | ❌ Not available                         | Generate test class and deploy via metadata_create |
+| Automatic file sync      | `force-app/main/default/` | ❌ Not available                         | Generate strings, deploy via metadata API          |
+| Local templates          | Template file system      | ✅ Reference only (no file access)       | Generate code from patterns in this doc            |
+| Metadata deployment      | `sf project deploy`       | ✅ `metadata_create` / `metadata_update` | Full support via MCP                               |
+| Code retrieval           | `sf project retrieve`     | ✅ `metadata_read`                       | Full support via MCP                               |
+| Test execution           | `sf apex test run`        | Partial - query via `tooling_api_query`  | Query ApexTestResult after deployment              |
 
 ---
 
@@ -582,6 +610,7 @@ accounts = (List<Account>) Security.stripInaccessible(AccessType.READABLE, accou
 ## Dependencies
 
 **Optional**: Additional Cirra AI MCP tools for enhanced workflow:
+
 - `sobject_describe` - Discover fields before coding
 - `soql_query` - Test code context
 - `tooling_api_dml` - Advanced metadata manipulation

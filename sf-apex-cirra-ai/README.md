@@ -32,6 +32,7 @@ Request: "Create an AccountService class with CRUD methods"
 ### 2. Answer requirements questions
 
 The skill will ask about:
+
 - Class type (Service, Selector, Trigger, Batch, etc.)
 - Primary purpose
 - Target object(s)
@@ -40,45 +41,46 @@ The skill will ask about:
 ### 3. Review generated code
 
 The skill generates:
+
 - Main class with ApexDoc comments
 - Corresponding test class with 90%+ coverage patterns
 - Proper naming following conventions
 
 ## Scoring System (150 Points)
 
-| Category | Points | Focus |
-|----------|--------|-------|
-| Bulkification | 25 | No SOQL/DML in loops, collection patterns |
-| Security | 25 | CRUD/FLS checks, no injection, SOQL injection prevention |
-| Testing | 25 | Test coverage, assertions, negative tests |
-| Architecture | 20 | SOLID principles, separation of concerns |
-| Error Handling | 15 | Try-catch, custom exceptions, logging |
-| Naming | 15 | Consistent naming, ApexDoc comments |
-| Performance | 15 | Async patterns, efficient queries |
-| Code Quality | 10 | Clean code, no hardcoding |
+| Category       | Points | Focus                                                    |
+| -------------- | ------ | -------------------------------------------------------- |
+| Bulkification  | 25     | No SOQL/DML in loops, collection patterns                |
+| Security       | 25     | CRUD/FLS checks, no injection, SOQL injection prevention |
+| Testing        | 25     | Test coverage, assertions, negative tests                |
+| Architecture   | 20     | SOLID principles, separation of concerns                 |
+| Error Handling | 15     | Try-catch, custom exceptions, logging                    |
+| Naming         | 15     | Consistent naming, ApexDoc comments                      |
+| Performance    | 15     | Async patterns, efficient queries                        |
+| Code Quality   | 10     | Clean code, no hardcoding                                |
 
 **Thresholds**: 90+ | 80-89 | 70-79 | Block: <60
 
 ## Templates
 
-| Template | Use Case |
-|----------|----------|
-| `trigger.trigger` | Trigger with TAF pattern |
+| Template             | Use Case                          |
+| -------------------- | --------------------------------- |
+| `trigger.trigger`    | Trigger with TAF pattern          |
 | `trigger-action.cls` | Trigger Actions Framework handler |
-| `service.cls` | Business logic service class |
-| `selector.cls` | SOQL selector pattern |
-| `batch.cls` | Batch Apex job |
-| `queueable.cls` | Queueable async job |
-| `test-class.cls` | Test class with data factory |
+| `service.cls`        | Business logic service class      |
+| `selector.cls`       | SOQL selector pattern             |
+| `batch.cls`          | Batch Apex job                    |
+| `queueable.cls`      | Queueable async job               |
+| `test-class.cls`     | Test class with data factory      |
 
 ## Cross-Skill Integration
 
-| Related Skill | When to Use |
-|---------------|-------------|
-| sf-flow | Create Flow to call @InvocableMethod |
-| sf-lwc | Create LWC to call @AuraEnabled controllers |
-| sf-testing | Run tests and analyze coverage |
-| sf-deploy | Deploy Apex to org |
+| Related Skill | When to Use                                 |
+| ------------- | ------------------------------------------- |
+| sf-flow       | Create Flow to call @InvocableMethod        |
+| sf-lwc        | Create LWC to call @AuraEnabled controllers |
+| sf-testing    | Run tests and analyze coverage              |
+| sf-deploy     | Deploy Apex to org                          |
 
 ## Documentation
 

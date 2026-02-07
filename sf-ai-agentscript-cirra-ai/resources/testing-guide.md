@@ -11,6 +11,7 @@
 A centralized hub for batch-testing utterances without deactivating your agent.
 
 **Capabilities:**
+
 - ✅ Run tests against draft or committed versions
 - ✅ No need to deactivate the live agent
 - ✅ Execute up to 100 test cases simultaneously
@@ -23,13 +24,13 @@ A centralized hub for batch-testing utterances without deactivating your agent.
 
 ## The 5 Quality Metrics
 
-| Metric | Description | Scale |
-|--------|-------------|-------|
-| **Completeness** | Did the response include ALL necessary information? | 0-5 |
-| **Coherence** | Did the agent sound natural vs raw JSON output? | 0-5 |
-| **Topic Assertion** | Did the agent route to the correct topic? | Pass/Fail |
-| **Action Assertion** | Did the agent invoke the expected actions? | Pass/Fail |
-| **Combined Score** | Determines production readiness | Composite |
+| Metric               | Description                                         | Scale     |
+| -------------------- | --------------------------------------------------- | --------- |
+| **Completeness**     | Did the response include ALL necessary information? | 0-5       |
+| **Coherence**        | Did the agent sound natural vs raw JSON output?     | 0-5       |
+| **Topic Assertion**  | Did the agent route to the correct topic?           | Pass/Fail |
+| **Action Assertion** | Did the agent invoke the expected actions?          | Pass/Fail |
+| **Combined Score**   | Determines production readiness                     | Composite |
 
 > ⚠️ 100% assertions with 0% coherence = correct but robotic. Both matter.
 
@@ -37,11 +38,11 @@ A centralized hub for batch-testing utterances without deactivating your agent.
 
 ## Coherence: The Difference
 
-| Coherence: 0/5 ❌ | Coherence: 5/5 ✅ |
-|-------------------|-------------------|
-| **USER:** "I want a refund for order #123" | **USER:** "I want a refund for order #123" |
+| Coherence: 0/5 ❌                                                                | Coherence: 5/5 ✅                                                                                                                                                       |
+| -------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **USER:** "I want a refund for order #123"                                       | **USER:** "I want a refund for order #123"                                                                                                                              |
 | **AGENT:** `{"status": "success", "case_id": "5008000123", "refund_auth": true}` | **AGENT:** Great news! Your refund has been approved. For your records, your case number is 5008000123. The refund should appear on your card within 3-5 business days. |
-| *Raw JSON dump - not conversational* | *Complete information in natural language* |
+| _Raw JSON dump - not conversational_                                             | _Complete information in natural language_                                                                                                                              |
 
 ---
 
@@ -50,6 +51,7 @@ A centralized hub for batch-testing utterances without deactivating your agent.
 A "Judge LLM" evaluates the "Agent LLM" using criteria that match your use case.
 
 **Benefits:**
+
 - ✅ **Scalable**: Evaluate thousands of responses automatically
 - ✅ **Customizable**: Criteria match your specific use case
 - ✅ **Consistent**: Removes human reviewer variability
@@ -65,6 +67,7 @@ A "Judge LLM" evaluates the "Agent LLM" using criteria that match your use case.
 ### Step 1: Prepare Test Cases
 
 Create a set of test utterances covering:
+
 - Happy path scenarios
 - Edge cases
 - Error conditions
@@ -73,6 +76,7 @@ Create a set of test utterances covering:
 ### Step 2: Define Assertions
 
 For each test case, specify:
+
 - **Expected Topic**: Which topic should be activated
 - **Expected Actions**: Which actions should be invoked
 - **Golden Response**: Ideal response pattern
@@ -89,12 +93,12 @@ sf agent test run --name MyAgent --version v1.0
 
 ### Step 4: Analyze Results
 
-| Metric | Score | Status |
-|--------|-------|--------|
-| **TOPIC ASSERTION** | 100% | ✅ PASS |
-| **ACTION ASSERTION** | 100% | ✅ PASS |
-| **COMPLETENESS** | 100% | ✅ PASS |
-| **COHERENCE** | 0% | ❌ FAIL |
+| Metric               | Score | Status  |
+| -------------------- | ----- | ------- |
+| **TOPIC ASSERTION**  | 100%  | ✅ PASS |
+| **ACTION ASSERTION** | 100%  | ✅ PASS |
+| **COMPLETENESS**     | 100%  | ✅ PASS |
+| **COHERENCE**        | 0%    | ❌ FAIL |
 
 ---
 
@@ -103,6 +107,7 @@ sf agent test run --name MyAgent --version v1.0
 ### Symptom
 
 Batch test shows:
+
 - Topic assertions: 100% ✅
 - Action assertions: 100% ✅
 - Completeness: 100% ✅
@@ -159,6 +164,7 @@ instructions: ->
 Your working copy. Edit freely, run tests, iterate rapidly.
 
 **Capabilities:**
+
 - ✅ Edit script content
 - ✅ Preview changes
 - ✅ Run batch tests
@@ -171,6 +177,7 @@ Your working copy. Edit freely, run tests, iterate rapidly.
 Freeze the script. Generates version number and Authoring Bundle.
 
 **Capabilities:**
+
 - ✅ Script becomes immutable
 - ✅ Authoring Bundle compiled
 - ✅ Version number assigned (v1.0)
@@ -183,6 +190,7 @@ Freeze the script. Generates version number and Authoring Bundle.
 Deploy to production. Assign to Connections and go live.
 
 **Capabilities:**
+
 - ✅ Assign to Connections (Slack, Chat)
 - ✅ Monitor in real-time
 - ✅ Agent goes live
@@ -194,27 +202,27 @@ Deploy to production. Assign to Connections and go live.
 
 ### Coverage Categories
 
-| Category | Examples |
-|----------|----------|
-| **Happy Path** | Standard refund request, order lookup |
-| **Edge Cases** | Empty cart, expired offers, boundary values |
-| **Error Handling** | Invalid input, service failures |
-| **Security** | Unauthorized access attempts |
-| **Multi-Turn** | Conversation continuity, context preservation |
+| Category           | Examples                                      |
+| ------------------ | --------------------------------------------- |
+| **Happy Path**     | Standard refund request, order lookup         |
+| **Edge Cases**     | Empty cart, expired offers, boundary values   |
+| **Error Handling** | Invalid input, service failures               |
+| **Security**       | Unauthorized access attempts                  |
+| **Multi-Turn**     | Conversation continuity, context preservation |
 
 ### Test Case Template
 
 ```yaml
 test_case:
-  name: "High-risk customer full refund"
-  utterance: "I want a refund for order #12345"
+  name: 'High-risk customer full refund'
+  utterance: 'I want a refund for order #12345'
   context:
-    customer_id: "CUST_001"
+    customer_id: 'CUST_001'
     churn_risk: 85
   expected:
-    topic: "refund_processor"
-    actions: ["get_churn_score", "process_refund"]
-    response_contains: ["approved", "full refund"]
+    topic: 'refund_processor'
+    actions: ['get_churn_score', 'process_refund']
+    response_contains: ['approved', 'full refund']
   assertions:
     topic_match: true
     action_sequence: true
@@ -240,12 +248,12 @@ sf agent test run --name MyAgent --version v1.0 --test-suite Regression
 
 ### Common Validation Errors
 
-| Error | Cause | Fix |
-|-------|-------|-----|
+| Error                        | Cause              | Fix                        |
+| ---------------------------- | ------------------ | -------------------------- |
 | `Invalid default_agent_user` | User doesn't exist | Create Einstein Agent User |
-| `Topic not found` | Typo in transition | Check topic name spelling |
-| `Mixed indentation` | Tabs + spaces | Use consistent formatting |
-| `Action not callable` | Wrong protocol | Check target protocol |
+| `Topic not found`            | Typo in transition | Check topic name spelling  |
+| `Mixed indentation`          | Tabs + spaces      | Use consistent formatting  |
+| `Action not callable`        | Wrong protocol     | Check target protocol      |
 
 ---
 
@@ -280,11 +288,11 @@ jobs:
 
 ## Key Takeaways
 
-| # | Concept |
-|---|---------|
-| 1 | **Testing Center** - Run up to 100 tests simultaneously |
-| 2 | **5 Quality Metrics** - Completeness, Coherence, Topic/Action Assertions, Combined |
-| 3 | **LLM-as-Judge** - Automated scoring against golden responses |
-| 4 | **Coherence Matters** - 100% assertions with 0% coherence = technically correct but unusable |
-| 5 | **Three-Phase Lifecycle** - Draft (edit) → Commit (freeze) → Activate (live) |
-| 6 | **CI/CD Integration** - Automate validation and testing in deployment pipeline |
+| #   | Concept                                                                                      |
+| --- | -------------------------------------------------------------------------------------------- |
+| 1   | **Testing Center** - Run up to 100 tests simultaneously                                      |
+| 2   | **5 Quality Metrics** - Completeness, Coherence, Topic/Action Assertions, Combined           |
+| 3   | **LLM-as-Judge** - Automated scoring against golden responses                                |
+| 4   | **Coherence Matters** - 100% assertions with 0% coherence = technically correct but unusable |
+| 5   | **Three-Phase Lifecycle** - Draft (edit) → Commit (freeze) → Activate (live)                 |
+| 6   | **CI/CD Integration** - Automate validation and testing in deployment pipeline               |

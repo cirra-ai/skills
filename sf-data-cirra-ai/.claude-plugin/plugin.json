@@ -4,19 +4,12 @@
   "version": "1.0.0",
   "description": "Salesforce data operations expert with 130-point scoring using Cirra AI MCP Server. Execute SOQL queries, create test data, perform bulk data operations directly in Salesforce orgs without CLI dependency.",
   "author": {
-    "name": "Refactored by Claude Code",
-    "original": "Jag Valaiyapathy"
+    "name": "Cirra AI",
+    "url": "https://github.com/cirra-ai"
   },
   "license": "Apache-2.0",
   "category": "salesforce-data",
-  "tags": [
-    "soql",
-    "dml",
-    "test-data",
-    "bulk-operations",
-    "salesforce",
-    "cirra-ai"
-  ],
+  "tags": ["soql", "dml", "test-data", "bulk-operations", "salesforce", "cirra-ai"],
   "requiredTools": [
     "mcp__caab1d08-75da-4dcc-9b4b-6b0d572282f8__soql_query",
     "mcp__caab1d08-75da-4dcc-9b4b-6b0d572282f8__sobject_dml",
@@ -62,14 +55,8 @@
     "supportedObjects": "All Salesforce standard and custom objects"
   },
   "integrations": {
-    "skills": [
-      "sf-metadata",
-      "sf-apex",
-      "sf-flow"
-    ],
-    "tools": [
-      "Cirra AI MCP Server (soql_query, sobject_dml, sobject_describe, tooling_api_query)"
-    ]
+    "skills": ["sf-metadata", "sf-apex", "sf-flow"],
+    "tools": ["Cirra AI MCP Server (soql_query, sobject_dml, sobject_describe, tooling_api_query)"]
   },
   "scoring": {
     "categories": [

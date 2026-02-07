@@ -41,14 +41,14 @@ def validate_metadata(file_path: str) -> dict:
         results = validator.validate()
 
         # Format output
-        score = results.get('overall_score', 0)
-        max_score = results.get('max_score', 120)
-        rating = results.get('rating', 'Unknown')
-        metadata_type = results.get('metadata_type', 'Unknown')
+        score = results.get("overall_score", 0)
+        max_score = results.get("max_score", 120)
+        rating = results.get("rating", "Unknown")
+        metadata_type = results.get("metadata_type", "Unknown")
         issues = []
 
-        for category, data in results.get('categories', {}).items():
-            for issue in data.get('issues', []):
+        for _category, data in results.get("categories", {}).items():
+            for issue in data.get("issues", []):
                 issues.append(f"[{issue.get('severity', 'INFO')}] {issue.get('message', '')}")
 
         output = f"\n🔍 Metadata Validation: {metadata_type}\n"
@@ -56,12 +56,12 @@ def validate_metadata(file_path: str) -> dict:
         output += f"Score: {score}/{max_score} {rating}\n"
 
         # Show category breakdown
-        categories = results.get('categories', {})
+        categories = results.get("categories", {})
         if categories:
             output += "\nCategory Scores:\n"
             for cat_name, cat_data in categories.items():
-                cat_score = cat_data.get('score', 0)
-                cat_max = cat_data.get('max_score', 20)
+                cat_score = cat_data.get("score", 0)
+                cat_max = cat_data.get("max_score", 20)
                 output += f"  ├─ {cat_name}: {cat_score}/{cat_max}\n"
 
         if issues:
@@ -73,21 +73,12 @@ def validate_metadata(file_path: str) -> dict:
         else:
             output += "✅ No issues found!\n"
 
-        return {
-            "continue": True,
-            "output": output
-        }
+        return {"continue": True, "output": output}
 
     except ImportError as e:
-        return {
-            "continue": True,
-            "output": f"⚠️ Metadata validator not available: {e}"
-        }
+        return {"continue": True, "output": f"⚠️ Metadata validator not available: {e}"}
     except Exception as e:
-        return {
-            "continue": True,
-            "output": f"⚠️ Metadata validation error: {e}"
-        }
+        return {"continue": True, "output": f"⚠️ Metadata validation error: {e}"}
 
 
 # Metadata file patterns to validate
@@ -98,7 +89,7 @@ METADATA_PATTERNS = [
     ".permissionset-meta.xml",
     ".validationRule-meta.xml",
     ".recordType-meta.xml",
-    ".layout-meta.xml"
+    ".layout-meta.xml",
 ]
 
 
@@ -144,10 +135,7 @@ def main():
         return 0
     except Exception as e:
         # Unexpected error, log but don't block
-        print(json.dumps({
-            "continue": True,
-            "output": f"⚠️ Hook error: {e}"
-        }))
+        print(json.dumps({"continue": True, "output": f"⚠️ Hook error: {e}"}))
         return 0
 
 

@@ -7,8 +7,17 @@
     "url": "https://github.com/cirra-ai"
   },
   "license": "Apache-2.0",
-  "repository": "https://github.com/cirra-ai/skills"
-  "keywords": ["salesforce", "soql", "query", "optimization", "database", "agentic", "cirra-ai", "mcp-server"],
+  "repository": "https://github.com/cirra-ai/skills",
+  "keywords": [
+    "salesforce",
+    "soql",
+    "query",
+    "optimization",
+    "database",
+    "agentic",
+    "cirra-ai",
+    "mcp-server"
+  ],
   "cirra_ai_integration": {
     "version": "1.0.0",
     "migration_date": "2025-02",

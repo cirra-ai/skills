@@ -97,15 +97,6 @@
     "--slds-g-font-line-height-body",
     "--slds-g-font-line-height-label"
   ],
-  "shadow": [
-    "--slds-g-shadow-1",
-    "--slds-g-shadow-2",
-    "--slds-g-shadow-3",
-    "--slds-g-shadow-4"
-  ],
-  "sizing": [
-    "--slds-g-sizing-border-1",
-    "--slds-g-sizing-border-2",
-    "--slds-g-sizing-border-3"
-  ]
+  "shadow": ["--slds-g-shadow-1", "--slds-g-shadow-2", "--slds-g-shadow-3", "--slds-g-shadow-4"],
+  "sizing": ["--slds-g-sizing-border-1", "--slds-g-sizing-border-2", "--slds-g-sizing-border-3"]
 }

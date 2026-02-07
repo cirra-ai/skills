@@ -5,6 +5,7 @@ Complete reference for querying related records in Salesforce.
 ## Relationship Types
 
 ### 1. Parent-to-Child (Subquery)
+
 Returns parent records with nested child records.
 
 ```sql
@@ -15,11 +16,13 @@ WHERE Industry = 'Technology'
 ```
 
 **Key Points:**
+
 - Maximum 20 subqueries per query
 - Use relationship name (plural): `Contacts`, `Opportunities`, `Cases`
 - For custom objects: `Child_Object__r`
 
 ### 2. Child-to-Parent (Dot Notation)
+
 Access parent fields from child record.
 
 ```sql
@@ -32,11 +35,13 @@ WHERE Account.Type = 'Customer'
 ```
 
 **Key Points:**
+
 - Maximum 5 levels deep
 - Standard: `Account.Name`
 - Custom: `Parent__r.Name`
 
 ### 3. Polymorphic (TYPEOF)
+
 Handle fields that reference multiple object types.
 
 ```sql
@@ -53,27 +58,28 @@ FROM Task
 ```
 
 **Common Polymorphic Fields:**
+
 - `WhoId` → Contact, Lead
 - `WhatId` → Account, Opportunity, Case, etc.
 - `OwnerId` → User, Queue
 
 ## Relationship Names
 
-| Child Object | Parent Field | Relationship Name |
-|--------------|--------------|-------------------|
-| Contact | AccountId | Account.Contacts |
-| Opportunity | AccountId | Account.Opportunities |
-| Case | AccountId | Account.Cases |
-| Task | WhatId | Account.Tasks |
-| Contact | ReportsToId | Contact.ReportsTo |
+| Child Object | Parent Field | Relationship Name     |
+| ------------ | ------------ | --------------------- |
+| Contact      | AccountId    | Account.Contacts      |
+| Opportunity  | AccountId    | Account.Opportunities |
+| Case         | AccountId    | Account.Cases         |
+| Task         | WhatId       | Account.Tasks         |
+| Contact      | ReportsToId  | Contact.ReportsTo     |
 
 ## Limits
 
-| Limit | Value |
-|-------|-------|
-| Child-to-Parent depth | 5 levels |
-| Subqueries per query | 20 |
-| Rows per subquery | 200 (without LIMIT) |
+| Limit                 | Value               |
+| --------------------- | ------------------- |
+| Child-to-Parent depth | 5 levels            |
+| Subqueries per query  | 20                  |
+| Rows per subquery     | 200 (without LIMIT) |
 
 ## Best Practices
 

@@ -19,6 +19,7 @@ RUNNER_SCRIPT = SCRIPTS_DIR / "multi_turn_test_runner.py"
 def _run_cli(*args, env_override=None):
     """Run multi_turn_test_runner.py with the given args via subprocess."""
     import os
+
     env = os.environ.copy()
     # Clear env vars that could supply defaults and mask missing args
     env.pop("SF_AGENT_ID", None)
@@ -42,7 +43,9 @@ def test_missing_agent_id_exits_2(tmp_path):
     """Running without --agent-id (and no env var) should exit with code 2."""
     # Create a minimal valid scenario file so --scenarios doesn't fail first
     scenario_file = tmp_path / "dummy.yaml"
-    scenario_file.write_text("scenarios:\n  - name: test\n    turns:\n      - user: hi\n        expect:\n          response_not_empty: true\n")
+    scenario_file.write_text(
+        "scenarios:\n  - name: test\n    turns:\n      - user: hi\n        expect:\n          response_not_empty: true\n"
+    )
     result = _run_cli("--scenarios", str(scenario_file))
     assert result.returncode == 2
 
@@ -60,8 +63,10 @@ def test_missing_scenarios_exits_2():
 def test_nonexistent_scenario_file_exits_2():
     """Running with a non-existent scenario file should exit with code 2."""
     result = _run_cli(
-        "--agent-id", "0XxRM0000004ABC",
-        "--scenarios", "/tmp/nonexistent_scenario_12345.yaml",
+        "--agent-id",
+        "0XxRM0000004ABC",
+        "--scenarios",
+        "/tmp/nonexistent_scenario_12345.yaml",
     )
     assert result.returncode == 2
 

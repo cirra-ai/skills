@@ -6,13 +6,13 @@
 
 ## The sf agent Commands
 
-| Command | Purpose | Example |
-|---------|---------|---------|
-| `sf agent retrieve` | Pull agent from org | `sf agent retrieve --name MyAgent --target-org sandbox` |
+| Command                              | Purpose                    | Example                                                               |
+| ------------------------------------ | -------------------------- | --------------------------------------------------------------------- |
+| `sf agent retrieve`                  | Pull agent from org        | `sf agent retrieve --name MyAgent --target-org sandbox`               |
 | `sf agent validate authoring-bundle` | Check syntax before deploy | `sf agent validate authoring-bundle --api-name MyAgent -o TARGET_ORG` |
-| `sf agent publish authoring-bundle` | Publish agent to org | `sf agent publish authoring-bundle --api-name MyAgent -o TARGET_ORG` |
-| `sf agent deploy` | Push to target org | `sf agent deploy --source-dir ./my-agent --target-org prod` |
-| `sf agent test run` | Run batch tests | `sf agent test run --name MyAgent --test-suite AllTests` |
+| `sf agent publish authoring-bundle`  | Publish agent to org       | `sf agent publish authoring-bundle --api-name MyAgent -o TARGET_ORG`  |
+| `sf agent deploy`                    | Push to target org         | `sf agent deploy --source-dir ./my-agent --target-org prod`           |
+| `sf agent test run`                  | Run batch tests            | `sf agent test run --name MyAgent --test-suite AllTests`              |
 
 > ⚠️ **CRITICAL**: Use `sf agent publish authoring-bundle` for Agent Script deployment, NOT `sf project deploy start`. The metadata API deploy will fail with "Required fields are missing: [BundleType]".
 
@@ -42,11 +42,11 @@ force-app/main/default/aiAuthoringBundles/
 
 ### Bundle Naming Rules
 
-| Component | Convention | Example |
-|-----------|------------|---------|
-| Folder name | PascalCase or snake_case | `ProntoRefund/` or `Pronto_Refund/` |
-| Agent script | Same as folder + `.agent` | `ProntoRefund.agent` |
-| Metadata XML | Same as folder + `.bundle-meta.xml` | `ProntoRefund.bundle-meta.xml` |
+| Component    | Convention                          | Example                             |
+| ------------ | ----------------------------------- | ----------------------------------- |
+| Folder name  | PascalCase or snake_case            | `ProntoRefund/` or `Pronto_Refund/` |
+| Agent script | Same as folder + `.agent`           | `ProntoRefund.agent`                |
+| Metadata XML | Same as folder + `.bundle-meta.xml` | `ProntoRefund.bundle-meta.xml`      |
 
 ### Deployment Command (NOT sf project deploy!)
 
@@ -135,12 +135,12 @@ sf agent test run --name MyAgent --version v1.0 --test-suite Regression
 
 ### Common Validation Errors
 
-| Error | Cause | Fix |
-|-------|-------|-----|
-| `Internal Error, try again later` | Invalid `default_agent_user` | Query for Einstein Agent Users |
-| `SyntaxError: You cannot mix spaces and tabs` | Mixed indentation | Use consistent spacing |
-| `Transition to undefined topic "@topic.X"` | Typo in topic name | Check spelling |
-| `Variables cannot be both mutable AND linked` | Conflicting modifiers | Choose one modifier |
+| Error                                         | Cause                        | Fix                            |
+| --------------------------------------------- | ---------------------------- | ------------------------------ |
+| `Internal Error, try again later`             | Invalid `default_agent_user` | Query for Einstein Agent Users |
+| `SyntaxError: You cannot mix spaces and tabs` | Mixed indentation            | Use consistent spacing         |
+| `Transition to undefined topic "@topic.X"`    | Typo in topic name           | Check spelling                 |
+| `Variables cannot be both mutable AND linked` | Conflicting modifiers        | Choose one modifier            |
 
 ---
 
@@ -217,10 +217,10 @@ jobs:
 └─────────────┘      └─────────────┘      └─────────────┘
 ```
 
-| Phase | Capabilities |
-|-------|--------------|
-| **Draft** | Edit freely, preview, run batch tests |
-| **Commit** | Script frozen, version assigned, bundle compiled |
-| **Activate** | Assign to Connections, go live, monitor |
+| Phase        | Capabilities                                     |
+| ------------ | ------------------------------------------------ |
+| **Draft**    | Edit freely, preview, run batch tests            |
+| **Commit**   | Script frozen, version assigned, bundle compiled |
+| **Activate** | Assign to Connections, go live, monitor          |
 
 > **Key Insight**: Commit doesn't deploy - it freezes. Activate makes it live.

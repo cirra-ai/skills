@@ -5,6 +5,7 @@ Testing Apex triggers and flows with bulk data operations.
 ## Scenario
 
 Test an Account trigger that:
+
 - Fires on insert with 200+ records
 - Updates a custom field based on Industry
 - Creates a related Task for high-value accounts
@@ -12,6 +13,7 @@ Test an Account trigger that:
 ## Why 201 Records?
 
 Salesforce processes triggers in batches of 200. Testing with 201+ records ensures:
+
 - Trigger handles batch boundaries
 - No governor limit violations in loops
 - SOQL/DML operations are bulkified
@@ -19,6 +21,7 @@ Salesforce processes triggers in batches of 200. Testing with 201+ records ensur
 ## Method 1: Anonymous Apex Factory
 
 ### Create Test Data
+
 ```apex
 // Create 251 Accounts to test trigger bulkification
 List<Account> accounts = new List<Account>();
@@ -44,6 +47,7 @@ System.debug('DML Statements: ' + Limits.getDmlStatements() + '/' + Limits.getLi
 ```
 
 Save as `bulk-test-accounts.apex` and run:
+
 ```bash
 sf apex run --file bulk-test-accounts.apex --target-org dev
 ```
@@ -51,6 +55,7 @@ sf apex run --file bulk-test-accounts.apex --target-org dev
 ## Method 2: CSV Bulk Import
 
 ### Create CSV File
+
 ```csv
 Name,Industry,AnnualRevenue
 BulkTest Account 1,Technology,1000000
@@ -60,6 +65,7 @@ BulkTest Account 3,Finance,5000000
 ```
 
 ### Import via sf CLI
+
 ```bash
 sf data import bulk \
   --file accounts-bulk.csv \
@@ -76,13 +82,13 @@ For hierarchical test data with relationships:
 {
   "records": [
     {
-      "attributes": {"type": "Account", "referenceId": "AccountRef1"},
+      "attributes": { "type": "Account", "referenceId": "AccountRef1" },
       "Name": "BulkTest Parent 1",
       "Industry": "Technology",
       "Contacts": {
         "records": [
           {
-            "attributes": {"type": "Contact"},
+            "attributes": { "type": "Contact" },
             "FirstName": "Test",
             "LastName": "Contact 1"
           }
@@ -102,6 +108,7 @@ sf data import tree \
 ## Verify Trigger Executed Correctly
 
 ### Check Trigger Results
+
 ```bash
 sf data query \
   --query "SELECT Id, Name, Industry, Custom_Field__c FROM Account WHERE Name LIKE 'BulkTest%' LIMIT 10" \
@@ -110,6 +117,7 @@ sf data query \
 ```
 
 ### Check Related Tasks Created
+
 ```bash
 sf data query \
   --query "SELECT Id, Subject, WhatId, What.Name FROM Task WHERE What.Name LIKE 'BulkTest%'" \
@@ -117,6 +125,7 @@ sf data query \
 ```
 
 ### Count Records
+
 ```bash
 sf data query \
   --query "SELECT COUNT(Id) total FROM Account WHERE Name LIKE 'BulkTest%'" \
@@ -185,9 +194,9 @@ Score: 128/130 ⭐⭐⭐⭐⭐ Excellent
 
 ## Common Issues
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| `SOQL 101` | Query in loop | Use Map or Set for bulk queries |
-| `DML 151` | DML in loop | Collect records, single DML |
-| `CPU timeout` | Complex logic | Optimize loops, async processing |
-| `Too many records` | >10,000 DML rows | Use Bulk API or Batch Apex |
+| Issue              | Cause            | Solution                         |
+| ------------------ | ---------------- | -------------------------------- |
+| `SOQL 101`         | Query in loop    | Use Map or Set for bulk queries  |
+| `DML 151`          | DML in loop      | Collect records, single DML      |
+| `CPU timeout`      | Complex logic    | Optimize loops, async processing |
+| `Too many records` | >10,000 DML rows | Use Bulk API or Batch Apex       |

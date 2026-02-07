@@ -27,16 +27,16 @@ LLMs often hallucinate methods that don't exist in Apex, borrowing syntax from J
 
 ### Common Hallucinated Methods
 
-| Hallucinated Method | What LLM Expected | Correct Apex Alternative |
-|---------------------|-------------------|--------------------------|
-| `Datetime.addMilliseconds()` | Add milliseconds | `Datetime.addSeconds(ms/1000)` |
-| `String.isEmpty(str)` | Static empty check | `String.isBlank(str)` |
-| `List.stream()` | Java streams | Use `for` loops |
-| `Map.getOrDefault()` | Default value | `map.get(key) ?? defaultValue` |
-| `String.format()` | String formatting | `String.format()` exists but with different syntax |
-| `Object.equals()` | Equality check | Use `==` or custom method |
-| `List.sort(comparator)` | Custom sorting | Implement `Comparable` interface |
-| `String.join(list)` | Join with delimiter | `String.join(list, delimiter)` |
+| Hallucinated Method          | What LLM Expected   | Correct Apex Alternative                           |
+| ---------------------------- | ------------------- | -------------------------------------------------- |
+| `Datetime.addMilliseconds()` | Add milliseconds    | `Datetime.addSeconds(ms/1000)`                     |
+| `String.isEmpty(str)`        | Static empty check  | `String.isBlank(str)`                              |
+| `List.stream()`              | Java streams        | Use `for` loops                                    |
+| `Map.getOrDefault()`         | Default value       | `map.get(key) ?? defaultValue`                     |
+| `String.format()`            | String formatting   | `String.format()` exists but with different syntax |
+| `Object.equals()`            | Equality check      | Use `==` or custom method                          |
+| `List.sort(comparator)`      | Custom sorting      | Implement `Comparable` interface                   |
+| `String.join(list)`          | Join with delimiter | `String.join(list, delimiter)`                     |
 
 ### ❌ BAD: Hallucinated Datetime Method
 
@@ -84,17 +84,17 @@ LLMs trained on Java code often use Java collection types that don't exist in Ap
 
 ### Java Types to Avoid
 
-| Java Type | Apex Equivalent |
-|-----------|-----------------|
-| `ArrayList<T>` | `List<T>` |
-| `HashMap<K,V>` | `Map<K,V>` |
-| `HashSet<T>` | `Set<T>` |
-| `StringBuffer` | `String` (immutable) or `List<String>` + `String.join()` |
-| `StringBuilder` | `String` (immutable) or `List<String>` + `String.join()` |
-| `LinkedList<T>` | `List<T>` |
-| `TreeMap<K,V>` | `Map<K,V>` (no ordering guarantee) |
-| `Vector<T>` | `List<T>` |
-| `Hashtable<K,V>` | `Map<K,V>` |
+| Java Type        | Apex Equivalent                                          |
+| ---------------- | -------------------------------------------------------- |
+| `ArrayList<T>`   | `List<T>`                                                |
+| `HashMap<K,V>`   | `Map<K,V>`                                               |
+| `HashSet<T>`     | `Set<T>`                                                 |
+| `StringBuffer`   | `String` (immutable) or `List<String>` + `String.join()` |
+| `StringBuilder`  | `String` (immutable) or `List<String>` + `String.join()` |
+| `LinkedList<T>`  | `List<T>`                                                |
+| `TreeMap<K,V>`   | `Map<K,V>` (no ordering guarantee)                       |
+| `Vector<T>`      | `List<T>`                                                |
+| `Hashtable<K,V>` | `Map<K,V>`                                               |
 
 ### ❌ BAD: Java Collection Types
 
@@ -259,6 +259,7 @@ for (Contact c : contacts) {
 ### Validation Checklist
 
 Before running code, verify:
+
 1. All fields accessed in `if` statements are queried
 2. All fields accessed in assignments are queried
 3. All relationship fields (e.g., `Account.Name`) are in SELECT
@@ -364,22 +365,22 @@ LLMs often use unsupported types in `@InvocableVariable` annotations for Flow/Pr
 
 ### Supported InvocableVariable Types
 
-| Category | Supported Types |
-|----------|----------------|
-| **Primitives** | `Boolean`, `Date`, `DateTime`, `Decimal`, `Double`, `Id`, `Integer`, `Long`, `String`, `Time` |
-| **Collections** | `List<T>` where T is a supported type |
-| **sObjects** | Any standard or custom sObject |
-| **Apex-Defined** | Classes with `@InvocableVariable` on fields |
+| Category         | Supported Types                                                                               |
+| ---------------- | --------------------------------------------------------------------------------------------- |
+| **Primitives**   | `Boolean`, `Date`, `DateTime`, `Decimal`, `Double`, `Id`, `Integer`, `Long`, `String`, `Time` |
+| **Collections**  | `List<T>` where T is a supported type                                                         |
+| **sObjects**     | Any standard or custom sObject                                                                |
+| **Apex-Defined** | Classes with `@InvocableVariable` on fields                                                   |
 
 ### Unsupported Types
 
-| Type | Why Unsupported | Alternative |
-|------|----------------|-------------|
-| `Map<K,V>` | Not serializable to Flow | Use List of wrapper class |
-| `Set<T>` | Not serializable to Flow | Use `List<T>` |
-| `Object` | Too generic | Use specific type |
-| `Blob` | Not serializable | Use `String` (Base64) |
-| Custom classes without `@InvocableVariable` | Not marked for Flow | Add annotations |
+| Type                                        | Why Unsupported          | Alternative               |
+| ------------------------------------------- | ------------------------ | ------------------------- |
+| `Map<K,V>`                                  | Not serializable to Flow | Use List of wrapper class |
+| `Set<T>`                                    | Not serializable to Flow | Use `List<T>`             |
+| `Object`                                    | Too generic              | Use specific type         |
+| `Blob`                                      | Not serializable         | Use `String` (Base64)     |
+| Custom classes without `@InvocableVariable` | Not marked for Flow      | Add annotations           |
 
 ### ❌ BAD: Unsupported InvocableVariable Types
 
@@ -467,13 +468,13 @@ public class AccountService {
 
 ### When @JsonAccess is Required
 
-| Class Type | Needs @JsonAccess? |
-|------------|-------------------|
-| Public top-level class | No |
-| Private inner class | **Yes** |
-| Protected inner class | **Yes** |
-| Public inner class | No (but recommended for clarity) |
-| Class used only internally | No (unless serialized) |
+| Class Type                 | Needs @JsonAccess?               |
+| -------------------------- | -------------------------------- |
+| Public top-level class     | No                               |
+| Private inner class        | **Yes**                          |
+| Protected inner class      | **Yes**                          |
+| Public inner class         | No (but recommended for clarity) |
+| Class used only internally | No (unless serialized)           |
 
 ---
 
@@ -521,21 +522,21 @@ LLMs confuse Date and DateTime methods, which have different APIs.
 
 ### Date vs DateTime Method Confusion
 
-| Operation | Date Method | DateTime Method |
-|-----------|-------------|-----------------|
-| Add days | `addDays(n)` | `addDays(n)` |
-| Add months | `addMonths(n)` | `addMonths(n)` |
-| Add years | `addYears(n)` | N/A (use `addMonths(n*12)`) |
-| Add hours | N/A | `addHours(n)` |
-| Add minutes | N/A | `addMinutes(n)` |
-| Add seconds | N/A | `addSeconds(n)` |
-| Get day | `day()` | `day()` |
-| Get month | `month()` | `month()` |
-| Get year | `year()` | `year()` |
-| Get hour | N/A | `hour()` |
-| Get minute | N/A | `minute()` |
-| Today | `Date.today()` | N/A |
-| Now | N/A | `DateTime.now()` |
+| Operation   | Date Method    | DateTime Method             |
+| ----------- | -------------- | --------------------------- |
+| Add days    | `addDays(n)`   | `addDays(n)`                |
+| Add months  | `addMonths(n)` | `addMonths(n)`              |
+| Add years   | `addYears(n)`  | N/A (use `addMonths(n*12)`) |
+| Add hours   | N/A            | `addHours(n)`               |
+| Add minutes | N/A            | `addMinutes(n)`             |
+| Add seconds | N/A            | `addSeconds(n)`             |
+| Get day     | `day()`        | `day()`                     |
+| Get month   | `month()`      | `month()`                   |
+| Get year    | `year()`       | `year()`                    |
+| Get hour    | N/A            | `hour()`                    |
+| Get minute  | N/A            | `minute()`                  |
+| Today       | `Date.today()` | N/A                         |
+| Now         | N/A            | `DateTime.now()`            |
 
 ### ❌ BAD: Mixing Date/DateTime Methods
 
@@ -631,26 +632,31 @@ List<Account> accounts = accountMap.values();
 Before accepting LLM-generated Apex code, verify:
 
 ### Methods & Types
+
 - [ ] No Java collection types (ArrayList, HashMap, etc.)
 - [ ] No hallucinated methods (addMilliseconds, stream(), etc.)
 - [ ] Correct Date vs DateTime methods
 
 ### Null Safety
+
 - [ ] Map.get() has null check or uses containsKey()
 - [ ] Chained method calls use safe navigation (?.)
 - [ ] SOQL results checked before accessing
 
 ### SOQL
+
 - [ ] All accessed fields are in SELECT clause
 - [ ] Relationship fields use dot notation in query
 - [ ] Parent records accessed safely
 
 ### Flow Integration
+
 - [ ] InvocableVariable uses supported types
 - [ ] No Map/Set in @InvocableVariable
 - [ ] @JsonAccess on inner classes if serialized
 
 ### Triggers
+
 - [ ] Recursion prevention mechanism in place
 - [ ] Static flag or processed ID tracking
 

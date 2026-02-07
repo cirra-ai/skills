@@ -34,12 +34,12 @@ def validate_flow(file_path: str) -> dict:
         results = validator.validate()
 
         # Format output
-        score = results.get('overall_score', 0)
-        rating = results.get('rating', 'Unknown')
+        score = results.get("overall_score", 0)
+        rating = results.get("rating", "Unknown")
         issues = []
 
-        for category, data in results.get('categories', {}).items():
-            for issue in data.get('issues', []):
+        for _category, data in results.get("categories", {}).items():
+            for issue in data.get("issues", []):
                 issues.append(f"[{issue.get('severity', 'INFO')}] {issue.get('message', '')}")
 
         output = f"\n🔍 Flow Validation: {results.get('flow_name', 'Unknown')}\n"
@@ -54,21 +54,12 @@ def validate_flow(file_path: str) -> dict:
         else:
             output += "✅ No issues found!\n"
 
-        return {
-            "continue": True,
-            "output": output
-        }
+        return {"continue": True, "output": output}
 
     except ImportError as e:
-        return {
-            "continue": True,
-            "output": f"⚠️ Flow validator not available: {e}"
-        }
+        return {"continue": True, "output": f"⚠️ Flow validator not available: {e}"}
     except Exception as e:
-        return {
-            "continue": True,
-            "output": f"⚠️ Flow validation error: {e}"
-        }
+        return {"continue": True, "output": f"⚠️ Flow validation error: {e}"}
 
 
 def main():
@@ -108,10 +99,7 @@ def main():
         return 0
     except Exception as e:
         # Unexpected error, log but don't block
-        print(json.dumps({
-            "continue": True,
-            "output": f"⚠️ Hook error: {e}"
-        }))
+        print(json.dumps({"continue": True, "output": f"⚠️ Hook error: {e}"}))
         return 0
 
 

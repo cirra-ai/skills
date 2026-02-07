@@ -30,9 +30,9 @@ This guide documents systematic errors in Lightning Web Component templates, wit
 ```html
 <!-- LLM generates this - DOES NOT WORK -->
 <template>
-    <p>Total: {price * quantity}</p>
-    <p>Tax: {price * 0.1}</p>
-    <p>Discount: {price - discount}</p>
+  <p>Total: {price * quantity}</p>
+  <p>Tax: {price * 0.1}</p>
+  <p>Discount: {price - discount}</p>
 </template>
 ```
 
@@ -41,30 +41,30 @@ This guide documents systematic errors in Lightning Web Component templates, wit
 ```javascript
 // component.js
 export default class PriceCalculator extends LightningElement {
-    price = 100;
-    quantity = 2;
-    discount = 10;
+  price = 100;
+  quantity = 2;
+  discount = 10;
 
-    get total() {
-        return this.price * this.quantity;
-    }
+  get total() {
+    return this.price * this.quantity;
+  }
 
-    get tax() {
-        return this.price * 0.1;
-    }
+  get tax() {
+    return this.price * 0.1;
+  }
 
-    get discountedPrice() {
-        return this.price - this.discount;
-    }
+  get discountedPrice() {
+    return this.price - this.discount;
+  }
 }
 ```
 
 ```html
 <!-- component.html -->
 <template>
-    <p>Total: {total}</p>
-    <p>Tax: {tax}</p>
-    <p>Discount: {discountedPrice}</p>
+  <p>Total: {total}</p>
+  <p>Tax: {tax}</p>
+  <p>Discount: {discountedPrice}</p>
 </template>
 ```
 
@@ -83,25 +83,25 @@ export default class PriceCalculator extends LightningElement {
 ```javascript
 // component.js
 export default class Greeting extends LightningElement {
-    firstName = 'John';
-    lastName = 'Doe';
-    accountId = '001xx000003DGbY';
+  firstName = 'John';
+  lastName = 'Doe';
+  accountId = '001xx000003DGbY';
 
-    get fullName() {
-        return `${this.firstName} ${this.lastName}`;
-    }
+  get fullName() {
+    return `${this.firstName} ${this.lastName}`;
+  }
 
-    get accountUrl() {
-        return `/account/${this.accountId}`;
-    }
+  get accountUrl() {
+    return `/account/${this.accountId}`;
+  }
 }
 ```
 
 ```html
 <!-- component.html -->
 <template>
-    <p>Hello, {fullName}!</p>
-    <a href={accountUrl}>View Account</a>
+  <p>Hello, {fullName}!</p>
+  <a href="{accountUrl}">View Account</a>
 </template>
 ```
 
@@ -127,30 +127,30 @@ export default class Greeting extends LightningElement {
 ```javascript
 // component.js
 export default class StatusDisplay extends LightningElement {
-    isActive = true;
-    count = 0;
-    isLoading = false;
+  isActive = true;
+  count = 0;
+  isLoading = false;
 
-    get statusClass() {
-        return this.isActive ? 'active' : 'inactive';
-    }
+  get statusClass() {
+    return this.isActive ? 'active' : 'inactive';
+  }
 
-    get displayCount() {
-        return this.count > 0 ? this.count : 'None';
-    }
+  get displayCount() {
+    return this.count > 0 ? this.count : 'None';
+  }
 
-    get isButtonDisabled() {
-        return this.isLoading;
-    }
+  get isButtonDisabled() {
+    return this.isLoading;
+  }
 }
 ```
 
 ```html
 <!-- component.html -->
 <template>
-    <p class={statusClass}>Status</p>
-    <span>{displayCount}</span>
-    <button disabled={isButtonDisabled}>Submit</button>
+  <p class="{statusClass}">Status</p>
+  <span>{displayCount}</span>
+  <button disabled="{isButtonDisabled}">Submit</button>
 </template>
 ```
 
@@ -159,19 +159,19 @@ export default class StatusDisplay extends LightningElement {
 ```html
 <!-- component.html -->
 <template>
-    <template if:true={isActive}>
-        <p class="active">Active</p>
-    </template>
-    <template if:false={isActive}>
-        <p class="inactive">Inactive</p>
-    </template>
+  <template if:true="{isActive}">
+    <p class="active">Active</p>
+  </template>
+  <template if:false="{isActive}">
+    <p class="inactive">Inactive</p>
+  </template>
 
-    <template if:true={hasCount}>
-        <span>{count}</span>
-    </template>
-    <template if:false={hasCount}>
-        <span>None</span>
-    </template>
+  <template if:true="{hasCount}">
+    <span>{count}</span>
+  </template>
+  <template if:false="{hasCount}">
+    <span>None</span>
+  </template>
 </template>
 ```
 
@@ -210,29 +210,26 @@ get hasCount() {
 ```javascript
 // component.js
 export default class ParentComponent extends LightningElement {
-    config = {
-        showHeader: true,
-        theme: 'dark'
-    };
+  config = {
+    showHeader: true,
+    theme: 'dark',
+  };
 
-    columns = [
-        { label: 'Name', fieldName: 'name' },
-        { label: 'Email', fieldName: 'email' }
-    ];
+  columns = [
+    { label: 'Name', fieldName: 'name' },
+    { label: 'Email', fieldName: 'email' },
+  ];
 
-    records = [];
+  records = [];
 }
 ```
 
 ```html
 <!-- component.html -->
 <template>
-    <c-child-component config={config}></c-child-component>
+  <c-child-component config="{config}"></c-child-component>
 
-    <lightning-datatable
-        columns={columns}
-        data={records}>
-    </lightning-datatable>
+  <lightning-datatable columns="{columns}" data="{records}"> </lightning-datatable>
 </template>
 ```
 
@@ -250,18 +247,18 @@ export default class ParentComponent extends LightningElement {
 ```javascript
 // component.js
 export default class ColorPicker extends LightningElement {
-    colorOptions = [
-        { label: 'Red', value: 'red' },
-        { label: 'Green', value: 'green' },
-        { label: 'Blue', value: 'blue' }
-    ];
+  colorOptions = [
+    { label: 'Red', value: 'red' },
+    { label: 'Green', value: 'green' },
+    { label: 'Blue', value: 'blue' },
+  ];
 }
 ```
 
 ```html
 <!-- component.html -->
 <template>
-    <c-multi-select options={colorOptions}></c-multi-select>
+  <c-multi-select options="{colorOptions}"></c-multi-select>
 </template>
 ```
 
@@ -276,10 +273,10 @@ export default class ColorPicker extends LightningElement {
 ```html
 <!-- LLM generates this - DOES NOT WORK -->
 <template>
-    <p>{name.toUpperCase()}</p>
-    <p>{items.length}</p>
-    <p>{formatDate(createdDate)}</p>
-    <p>{JSON.stringify(data)}</p>
+  <p>{name.toUpperCase()}</p>
+  <p>{items.length}</p>
+  <p>{formatDate(createdDate)}</p>
+  <p>{JSON.stringify(data)}</p>
 </template>
 ```
 
@@ -288,36 +285,36 @@ export default class ColorPicker extends LightningElement {
 ```javascript
 // component.js
 export default class DataDisplay extends LightningElement {
-    name = 'john doe';
-    items = ['a', 'b', 'c'];
-    createdDate = new Date();
-    data = { key: 'value' };
+  name = 'john doe';
+  items = ['a', 'b', 'c'];
+  createdDate = new Date();
+  data = { key: 'value' };
 
-    get upperName() {
-        return this.name.toUpperCase();
-    }
+  get upperName() {
+    return this.name.toUpperCase();
+  }
 
-    get itemCount() {
-        return this.items.length;
-    }
+  get itemCount() {
+    return this.items.length;
+  }
 
-    get formattedDate() {
-        return new Intl.DateTimeFormat('en-US').format(this.createdDate);
-    }
+  get formattedDate() {
+    return new Intl.DateTimeFormat('en-US').format(this.createdDate);
+  }
 
-    get dataJson() {
-        return JSON.stringify(this.data);
-    }
+  get dataJson() {
+    return JSON.stringify(this.data);
+  }
 }
 ```
 
 ```html
 <!-- component.html -->
 <template>
-    <p>{upperName}</p>
-    <p>{itemCount}</p>
-    <p>{formattedDate}</p>
-    <p>{dataJson}</p>
+  <p>{upperName}</p>
+  <p>{itemCount}</p>
+  <p>{formattedDate}</p>
+  <p>{dataJson}</p>
 </template>
 ```
 
@@ -326,13 +323,14 @@ export default class DataDisplay extends LightningElement {
 ```html
 <!-- DOES NOT WORK -->
 <template>
-    <template if:true={count > 5}>
-        <p>Many items</p>
-    </template>
+  <template if:true="{count">
+    5}>
+    <p>Many items</p>
+  </template>
 
-    <template if:true={status === 'active'}>
-        <p>Active</p>
-    </template>
+  <template if:true="{status" ="" ="" ="active" }>
+    <p>Active</p>
+  </template>
 </template>
 ```
 
@@ -352,13 +350,13 @@ get isActive() {
 ```html
 <!-- component.html -->
 <template>
-    <template if:true={hasManyItems}>
-        <p>Many items</p>
-    </template>
+  <template if:true="{hasManyItems}">
+    <p>Many items</p>
+  </template>
 
-    <template if:true={isActive}>
-        <p>Active</p>
-    </template>
+  <template if:true="{isActive}">
+    <p>Active</p>
+  </template>
 </template>
 ```
 
@@ -367,13 +365,13 @@ get isActive() {
 ```html
 <!-- DOES NOT WORK -->
 <template>
-    <template if:true={isAdmin && hasPermission}>
-        <button>Delete</button>
-    </template>
+  <template if:true="{isAdmin" && hasPermission}>
+    <button>Delete</button>
+  </template>
 
-    <template if:true={!isLoading}>
-        <p>Content</p>
-    </template>
+  <template if:true="{!isLoading}">
+    <p>Content</p>
+  </template>
 </template>
 ```
 
@@ -393,13 +391,13 @@ get isNotLoading() {
 ```html
 <!-- component.html -->
 <template>
-    <template if:true={canDelete}>
-        <button>Delete</button>
-    </template>
+  <template if:true="{canDelete}">
+    <button>Delete</button>
+  </template>
 
-    <template if:true={isNotLoading}>
-        <p>Content</p>
-    </template>
+  <template if:true="{isNotLoading}">
+    <p>Content</p>
+  </template>
 </template>
 ```
 
@@ -412,9 +410,9 @@ get isNotLoading() {
 ```html
 <!-- LLM generates this - DOES NOT WORK -->
 <template>
-    <button onclick={handleClick(item.id)}>Click</button>
-    <button onclick={() => this.handleDelete(record)}>Delete</button>
-    <input onchange={e => this.handleChange(e.target.value)}>
+  <button onclick="{handleClick(item.id)}">Click</button>
+  <button onclick="{()" ="">this.handleDelete(record)}>Delete</button>
+  <input onchange="{e" ="" /> this.handleChange(e.target.value)}>
 </template>
 ```
 
@@ -423,14 +421,9 @@ get isNotLoading() {
 ```html
 <!-- component.html -->
 <template>
-    <template for:each={items} for:item="item">
-        <button
-            key={item.id}
-            data-id={item.id}
-            onclick={handleClick}>
-            Click {item.name}
-        </button>
-    </template>
+  <template for:each="{items}" for:item="item">
+    <button key="{item.id}" data-id="{item.id}" onclick="{handleClick}">Click {item.name}</button>
+  </template>
 </template>
 ```
 
@@ -453,7 +446,7 @@ handleChange(event) {
 ```html
 <!-- DOES NOT WORK -->
 <template>
-    <button onclick={handleClick.bind(this, item)}>Click</button>
+  <button onclick="{handleClick.bind(this," item)}>Click</button>
 </template>
 ```
 
@@ -462,16 +455,17 @@ handleChange(event) {
 ```html
 <!-- component.html -->
 <template>
-    <template for:each={items} for:item="item">
-        <button
-            key={item.id}
-            data-id={item.id}
-            data-name={item.name}
-            data-index={item.index}
-            onclick={handleItemClick}>
-            {item.name}
-        </button>
-    </template>
+  <template for:each="{items}" for:item="item">
+    <button
+      key="{item.id}"
+      data-id="{item.id}"
+      data-name="{item.name}"
+      data-index="{item.index}"
+      onclick="{handleItemClick}"
+    >
+      {item.name}
+    </button>
+  </template>
 </template>
 ```
 
@@ -493,9 +487,10 @@ handleItemClick(event) {
 ```html
 <!-- LLM forgets key - causes rendering issues -->
 <template>
-    <template for:each={items} for:item="item">
-        <div>{item.name}</div>  <!-- Missing key! -->
-    </template>
+  <template for:each="{items}" for:item="item">
+    <div>{item.name}</div>
+    <!-- Missing key! -->
+  </template>
 </template>
 ```
 
@@ -504,9 +499,9 @@ handleItemClick(event) {
 ```html
 <!-- component.html -->
 <template>
-    <template for:each={items} for:item="item">
-        <div key={item.id}>{item.name}</div>
-    </template>
+  <template for:each="{items}" for:item="item">
+    <div key="{item.id}">{item.name}</div>
+  </template>
 </template>
 ```
 
@@ -515,9 +510,9 @@ handleItemClick(event) {
 ```html
 <!-- Anti-pattern: index can cause issues with reordering -->
 <template>
-    <template for:each={items} for:item="item" for:index="index">
-        <div key={index}>{item.name}</div>
-    </template>
+  <template for:each="{items}" for:item="item" for:index="index">
+    <div key="{index}">{item.name}</div>
+  </template>
 </template>
 ```
 
@@ -536,9 +531,9 @@ connectedCallback() {
 ```html
 <!-- component.html -->
 <template>
-    <template for:each={items} for:item="item">
-        <div key={item.uniqueKey}>{item.name}</div>
-    </template>
+  <template for:each="{items}" for:item="item">
+    <div key="{item.uniqueKey}">{item.name}</div>
+  </template>
 </template>
 ```
 
@@ -547,15 +542,15 @@ connectedCallback() {
 ```html
 <!-- PROBLEMATIC -->
 <template>
-    <template for:each={categories} for:item="category">
-        <div key={category.id}>
-            <h3>{category.name}</h3>
-            <template for:each={category.items} for:item="item">
-                <!-- Key might conflict with other categories -->
-                <p key={item.id}>{item.name}</p>
-            </template>
-        </div>
-    </template>
+  <template for:each="{categories}" for:item="category">
+    <div key="{category.id}">
+      <h3>{category.name}</h3>
+      <template for:each="{category.items}" for:item="item">
+        <!-- Key might conflict with other categories -->
+        <p key="{item.id}">{item.name}</p>
+      </template>
+    </div>
+  </template>
 </template>
 ```
 
@@ -577,14 +572,14 @@ get processedCategories() {
 ```html
 <!-- component.html -->
 <template>
-    <template for:each={processedCategories} for:item="category">
-        <div key={category.id}>
-            <h3>{category.name}</h3>
-            <template for:each={category.items} for:item="item">
-                <p key={item.compositeKey}>{item.name}</p>
-            </template>
-        </div>
-    </template>
+  <template for:each="{processedCategories}" for:item="category">
+    <div key="{category.id}">
+      <h3>{category.name}</h3>
+      <template for:each="{category.items}" for:item="item">
+        <p key="{item.compositeKey}">{item.name}</p>
+      </template>
+    </div>
+  </template>
 </template>
 ```
 
@@ -597,15 +592,15 @@ get processedCategories() {
 ```html
 <!-- LLM assumes truthy/falsy works like JS - it doesn't always -->
 <template>
-    <!-- String 'false' is truthy! -->
-    <template if:true={stringValue}>
-        <p>Shown even for 'false' string!</p>
-    </template>
+  <!-- String 'false' is truthy! -->
+  <template if:true="{stringValue}">
+    <p>Shown even for 'false' string!</p>
+  </template>
 
-    <!-- 0 might not behave as expected -->
-    <template if:true={count}>
-        <p>Count: {count}</p>
-    </template>
+  <!-- 0 might not behave as expected -->
+  <template if:true="{count}">
+    <p>Count: {count}</p>
+  </template>
 </template>
 ```
 
@@ -625,13 +620,13 @@ get hasCount() {
 ```html
 <!-- component.html -->
 <template>
-    <template if:true={hasStringValue}>
-        <p>Has value</p>
-    </template>
+  <template if:true="{hasStringValue}">
+    <p>Has value</p>
+  </template>
 
-    <template if:true={hasCount}>
-        <p>Count: {count}</p>
-    </template>
+  <template if:true="{hasCount}">
+    <p>Count: {count}</p>
+  </template>
 </template>
 ```
 
@@ -640,15 +635,15 @@ get hasCount() {
 ```html
 <!-- Verbose and error-prone -->
 <template>
-    <template if:true={isLoading}>
-        <lightning-spinner></lightning-spinner>
-    </template>
-    <template if:true={hasError}>
-        <p>Error occurred</p>
-    </template>
-    <template if:true={hasData}>
-        <p>Data loaded</p>
-    </template>
+  <template if:true="{isLoading}">
+    <lightning-spinner></lightning-spinner>
+  </template>
+  <template if:true="{hasError}">
+    <p>Error occurred</p>
+  </template>
+  <template if:true="{hasData}">
+    <p>Data loaded</p>
+  </template>
 </template>
 ```
 
@@ -672,18 +667,18 @@ get isEmptyState() { return this.viewState === 'empty'; }
 ```html
 <!-- component.html -->
 <template>
-    <template if:true={isLoadingState}>
-        <lightning-spinner></lightning-spinner>
-    </template>
-    <template if:true={isErrorState}>
-        <c-error-display error={error}></c-error-display>
-    </template>
-    <template if:true={isSuccessState}>
-        <c-data-display data={data}></c-data-display>
-    </template>
-    <template if:true={isEmptyState}>
-        <c-empty-state></c-empty-state>
-    </template>
+  <template if:true="{isLoadingState}">
+    <lightning-spinner></lightning-spinner>
+  </template>
+  <template if:true="{isErrorState}">
+    <c-error-display error="{error}"></c-error-display>
+  </template>
+  <template if:true="{isSuccessState}">
+    <c-data-display data="{data}"></c-data-display>
+  </template>
+  <template if:true="{isEmptyState}">
+    <c-empty-state></c-empty-state>
+  </template>
 </template>
 ```
 
@@ -696,15 +691,13 @@ get isEmptyState() { return this.viewState === 'empty'; }
 ```html
 <!-- LLM uses Vue/React slot syntax -->
 <template>
-    <!-- Wrong: Vue syntax -->
-    <c-card>
-        <template v-slot:header>Header</template>
-    </c-card>
+  <!-- Wrong: Vue syntax -->
+  <c-card>
+    <template v-slot:header>Header</template>
+  </c-card>
 
-    <!-- Wrong: React children syntax -->
-    <c-card header="Header Content">
-        Body Content
-    </c-card>
+  <!-- Wrong: React children syntax -->
+  <c-card header="Header Content"> Body Content </c-card>
 </template>
 ```
 
@@ -713,29 +706,30 @@ get isEmptyState() { return this.viewState === 'empty'; }
 ```html
 <!-- Parent component using slots -->
 <template>
-    <c-card>
-        <span slot="header">Card Header</span>
-        <p slot="body">Card body content</p>
-        <button slot="footer">Action</button>
-    </c-card>
+  <c-card>
+    <span slot="header">Card Header</span>
+    <p slot="body">Card body content</p>
+    <button slot="footer">Action</button>
+  </c-card>
 </template>
 ```
 
 ```html
 <!-- c-card component template -->
 <template>
-    <article class="slds-card">
-        <header class="slds-card__header">
-            <slot name="header"></slot>
-        </header>
-        <div class="slds-card__body">
-            <slot name="body"></slot>
-            <slot></slot> <!-- Default slot -->
-        </div>
-        <footer class="slds-card__footer">
-            <slot name="footer"></slot>
-        </footer>
-    </article>
+  <article class="slds-card">
+    <header class="slds-card__header">
+      <slot name="header"></slot>
+    </header>
+    <div class="slds-card__body">
+      <slot name="body"></slot>
+      <slot></slot>
+      <!-- Default slot -->
+    </div>
+    <footer class="slds-card__footer">
+      <slot name="footer"></slot>
+    </footer>
+  </article>
 </template>
 ```
 
@@ -748,9 +742,12 @@ get isEmptyState() { return this.viewState === 'empty'; }
 ```html
 <!-- LLM uses Angular/Vue two-way binding - doesn't exist in LWC -->
 <template>
-    <input [(ngModel)]="name">  <!-- Angular -->
-    <input v-model="name">       <!-- Vue -->
-    <input bind:value={name}>    <!-- Svelte-ish -->
+  <input [(ngModel)]="name" />
+  <!-- Angular -->
+  <input v-model="name" />
+  <!-- Vue -->
+  <input bind:value="{name}" />
+  <!-- Svelte-ish -->
 </template>
 ```
 
@@ -759,18 +756,10 @@ get isEmptyState() { return this.viewState === 'empty'; }
 ```html
 <!-- component.html -->
 <template>
-    <lightning-input
-        label="Name"
-        value={name}
-        onchange={handleNameChange}>
-    </lightning-input>
+  <lightning-input label="Name" value="{name}" onchange="{handleNameChange}"> </lightning-input>
 
-    <!-- Or standard HTML input -->
-    <input
-        type="text"
-        value={name}
-        onchange={handleInputChange}
-        oninput={handleInputChange}>
+  <!-- Or standard HTML input -->
+  <input type="text" value="{name}" onchange="{handleInputChange}" oninput="{handleInputChange}" />
 </template>
 ```
 
@@ -792,7 +781,7 @@ handleInputChange(event) {
 ```html
 <!-- Cannot mutate in template -->
 <template>
-    <button onclick={count++}>Increment</button>
+  <button onclick="{count++}">Increment</button>
 </template>
 ```
 
@@ -810,7 +799,7 @@ handleIncrement() {
 ```html
 <!-- component.html -->
 <template>
-    <button onclick={handleIncrement}>Increment ({count})</button>
+  <button onclick="{handleIncrement}">Increment ({count})</button>
 </template>
 ```
 
@@ -849,15 +838,15 @@ renderedCallback() {
 ```css
 /* component.css */
 .dynamic-text {
-    color: var(--text-color, black);
-    font-size: var(--font-size, 14px);
+  color: var(--text-color, black);
+  font-size: var(--font-size, 14px);
 }
 ```
 
 ```html
 <!-- component.html -->
 <template>
-    <div class="dynamic-text">Content</div>
+  <div class="dynamic-text">Content</div>
 </template>
 ```
 
@@ -873,7 +862,7 @@ get dynamicStyle() {
 ```html
 <!-- component.html -->
 <template>
-    <div style={dynamicStyle}>Content</div>
+  <div style="{dynamicStyle}">Content</div>
 </template>
 ```
 
@@ -899,7 +888,7 @@ get containerClass() {
 ```html
 <!-- component.html -->
 <template>
-    <div class={containerClass}>Content</div>
+  <div class="{containerClass}">Content</div>
 </template>
 ```
 
@@ -907,18 +896,18 @@ get containerClass() {
 
 ## Quick Reference: Template Rules
 
-| What You Want | Wrong (Other Frameworks) | Right (LWC) |
-|---------------|-------------------------|-------------|
-| Arithmetic | `{a + b}` | Getter: `get sum() { return a + b; }` |
-| String concat | `{a + ' ' + b}` | Getter with template literal |
-| Ternary | `{x ? a : b}` | Getter or if:true/if:false |
-| Method call | `{items.length}` | Getter: `get count() { return items.length; }` |
-| Comparison | `if:true={x > 5}` | Getter: `get isBig() { return x > 5; }` |
-| Logical AND | `if:true={a && b}` | Getter: `get both() { return a && b; }` |
-| Negation | `if:true={!x}` | `if:false={x}` or getter |
-| Object literal | `config={{ key: val }}` | Class property |
-| Event args | `onclick={fn(x)}` | Use data attributes |
-| Two-way bind | `value={name}` auto-update | `value={name}` + `onchange` |
+| What You Want  | Wrong (Other Frameworks)   | Right (LWC)                                    |
+| -------------- | -------------------------- | ---------------------------------------------- |
+| Arithmetic     | `{a + b}`                  | Getter: `get sum() { return a + b; }`          |
+| String concat  | `{a + ' ' + b}`            | Getter with template literal                   |
+| Ternary        | `{x ? a : b}`              | Getter or if:true/if:false                     |
+| Method call    | `{items.length}`           | Getter: `get count() { return items.length; }` |
+| Comparison     | `if:true={x > 5}`          | Getter: `get isBig() { return x > 5; }`        |
+| Logical AND    | `if:true={a && b}`         | Getter: `get both() { return a && b; }`        |
+| Negation       | `if:true={!x}`             | `if:false={x}` or getter                       |
+| Object literal | `config={{ key: val }}`    | Class property                                 |
+| Event args     | `onclick={fn(x)}`          | Use data attributes                            |
+| Two-way bind   | `value={name}` auto-update | `value={name}` + `onchange`                    |
 
 ---
 

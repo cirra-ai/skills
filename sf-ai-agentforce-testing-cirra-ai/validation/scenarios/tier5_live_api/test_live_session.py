@@ -3,6 +3,7 @@
 Tests real session create / send / end against the Agentforce Runtime API.
 Every test creates its own session and cleans up via try/finally.
 """
+
 import pytest
 
 
@@ -17,9 +18,7 @@ def test_session_create_returns_id(live_client, live_agent_id):
     try:
         assert session.session_id, "session_id should be non-empty"
         assert isinstance(session.session_id, str)
-        assert len(session.session_id) > 5, (
-            f"session_id too short: {session.session_id!r}"
-        )
+        assert len(session.session_id) > 5, f"session_id too short: {session.session_id!r}"
     finally:
         session.end()
 
@@ -34,13 +33,8 @@ def test_send_returns_response(live_client, live_agent_id):
     session = live_client.start_session(agent_id=live_agent_id)
     try:
         turn = session.send("Hello")
-        assert turn.has_response, (
-            f"Expected has_response=True, got False. "
-            f"Raw: {turn.raw_response}"
-        )
-        assert turn.agent_text, (
-            "agent_text should be a non-empty string"
-        )
+        assert turn.has_response, f"Expected has_response=True, got False. Raw: {turn.raw_response}"
+        assert turn.agent_text, "agent_text should be a non-empty string"
     finally:
         session.end()
 
@@ -55,9 +49,7 @@ def test_end_session_clean(live_client, live_agent_id):
     session = live_client.start_session(agent_id=live_agent_id)
     try:
         session.end()
-        assert session._ended is True, (
-            "session._ended should be True after end()"
-        )
+        assert session._ended is True, "session._ended should be True after end()"
     finally:
         # end() is idempotent — safe to call again if already ended
         if not session._ended:
@@ -84,11 +76,7 @@ def test_session_with_variables(live_client, live_agent_id):
     )
     try:
         turn = session.send("Hello")
-        assert turn.has_response, (
-            "Expected a response when session has variables"
-        )
-        assert turn.agent_text, (
-            "agent_text should be non-empty with session variables"
-        )
+        assert turn.has_response, "Expected a response when session has variables"
+        assert turn.agent_text, "agent_text should be non-empty with session variables"
     finally:
         session.end()

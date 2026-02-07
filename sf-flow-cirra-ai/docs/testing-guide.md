@@ -29,6 +29,7 @@ Before testing, map every possible route through your flow.
 ### Identify All Paths
 
 Document these for every flow:
+
 - **Decision element outcomes** (all branches, including default)
 - **Loop iterations** (0 items, 1 item, many items)
 - **Fault paths** (every DML element's error path)
@@ -38,23 +39,25 @@ Document these for every flow:
 
 Create a test matrix for each flow:
 
-| Test Case ID | Path Description | Input Data | Expected Output | Actual Result | Pass/Fail |
-|--------------|------------------|------------|-----------------|---------------|-----------|
-| TC-001 | Happy path - all valid | Valid Account data | Record created | | |
-| TC-002 | Null input - missing required | AccountId = null | Error message shown | | |
-| TC-003 | Empty collection | 0 records from query | Loop skips, no DML | | |
-| TC-004 | Fault path - DML fails | Invalid record data | Error logged, user notified | | |
-| TC-005 | Decision branch A | Type = 'Customer' | Customer logic runs | | |
-| TC-006 | Decision branch B | Type = 'Partner' | Partner logic runs | | |
+| Test Case ID | Path Description              | Input Data           | Expected Output             | Actual Result | Pass/Fail |
+| ------------ | ----------------------------- | -------------------- | --------------------------- | ------------- | --------- |
+| TC-001       | Happy path - all valid        | Valid Account data   | Record created              |               |           |
+| TC-002       | Null input - missing required | AccountId = null     | Error message shown         |               |           |
+| TC-003       | Empty collection              | 0 records from query | Loop skips, no DML          |               |           |
+| TC-004       | Fault path - DML fails        | Invalid record data  | Error logged, user notified |               |           |
+| TC-005       | Decision branch A             | Type = 'Customer'    | Customer logic runs         |               |           |
+| TC-006       | Decision branch B             | Type = 'Partner'     | Partner logic runs          |               |           |
 
 ### Positive vs Negative Testing
 
 **Positive Testing**: Valid inputs → Expected successful outcomes
+
 - Correct data formats
 - Required fields populated
 - Valid record IDs
 
 **Negative Testing**: Invalid inputs → Graceful failure/error handling
+
 - Missing required values
 - Invalid formats
 - Non-existent record IDs
@@ -66,13 +69,13 @@ Create a test matrix for each flow:
 
 Test in this progression to isolate issues:
 
-| Stage | Record Count | Purpose | What to Check |
-|-------|--------------|---------|---------------|
-| 1 | Single (1) | Logic correctness | Flow completes, correct output |
-| 2 | Small batch (10-20) | Basic bulkification | No obvious errors |
-| 3 | Medium batch (50-100) | Performance baseline | Execution time acceptable |
-| 4 | Large batch (200+) | Governor limit validation | No limit exceeded errors |
-| 5 | Stress test (10,000+) | Edge case (optional) | System stability |
+| Stage | Record Count          | Purpose                   | What to Check                  |
+| ----- | --------------------- | ------------------------- | ------------------------------ |
+| 1     | Single (1)            | Logic correctness         | Flow completes, correct output |
+| 2     | Small batch (10-20)   | Basic bulkification       | No obvious errors              |
+| 3     | Medium batch (50-100) | Performance baseline      | Execution time acceptable      |
+| 4     | Large batch (200+)    | Governor limit validation | No limit exceeded errors       |
+| 5     | Stress test (10,000+) | Edge case (optional)      | System stability               |
 
 ### Why 200+ Records?
 
@@ -83,11 +86,13 @@ Test in this progression to isolate issues:
 ### How to Bulk Test
 
 **Via Data Loader**:
+
 1. Create CSV with test data (200+ rows)
 2. Load via Data Loader or Workbench
 3. Monitor Debug Logs during execution
 
 **Via Apex**:
+
 ```apex
 @isTest
 static void testBulkTrigger() {
@@ -106,6 +111,7 @@ static void testBulkTrigger() {
 ```
 
 **Via Flow Simulator**:
+
 ```bash
 python3 validators/flow_simulator.py \
   force-app/main/default/flows/[FlowName].flow-meta.xml \
@@ -118,18 +124,18 @@ python3 validators/flow_simulator.py \
 
 Always test these scenarios:
 
-| Edge Case | Test Scenario | What to Verify |
-|-----------|---------------|----------------|
-| **Null values** | Required field is null | Error handling activates, no crash |
-| **Empty collections** | Get Records returns 0 | Loop skips gracefully, no null errors |
-| **Max field lengths** | 255-char text, max picklist | No truncation errors |
-| **Special characters** | `<>&"'` in text fields | No XML/formula breaks |
-| **Unicode/Emoji** | International characters, emojis | Proper encoding maintained |
-| **Date boundaries** | Year 2000, 2038, leap years | Date calculations work correctly |
-| **Negative numbers** | -1, MIN_INT values | Math operations handle correctly |
-| **Large numbers** | MAX_INT, currency limits | No overflow errors |
-| **Blank strings** | Empty string vs null | Handled differently if expected |
-| **Whitespace** | Leading/trailing spaces | Trimmed or preserved as designed |
+| Edge Case              | Test Scenario                    | What to Verify                        |
+| ---------------------- | -------------------------------- | ------------------------------------- |
+| **Null values**        | Required field is null           | Error handling activates, no crash    |
+| **Empty collections**  | Get Records returns 0            | Loop skips gracefully, no null errors |
+| **Max field lengths**  | 255-char text, max picklist      | No truncation errors                  |
+| **Special characters** | `<>&"'` in text fields           | No XML/formula breaks                 |
+| **Unicode/Emoji**      | International characters, emojis | Proper encoding maintained            |
+| **Date boundaries**    | Year 2000, 2038, leap years      | Date calculations work correctly      |
+| **Negative numbers**   | -1, MIN_INT values               | Math operations handle correctly      |
+| **Large numbers**      | MAX_INT, currency limits         | No overflow errors                    |
+| **Blank strings**      | Empty string vs null             | Handled differently if expected       |
+| **Whitespace**         | Leading/trailing spaces          | Trimmed or preserved as designed      |
 
 ### Creating Edge Case Test Data
 
@@ -150,12 +156,12 @@ Test with multiple user profiles to verify security.
 
 ### Minimum Test Profiles
 
-| Profile | Purpose | What to Verify |
-|---------|---------|----------------|
-| **System Administrator** | Full access baseline | All features work |
-| **Standard User** | Limited permissions | FLS/CRUD enforced |
-| **Custom Profile** | Business-specific restrictions | Custom permissions work |
-| **Community User** (if applicable) | External access | Portal restrictions apply |
+| Profile                            | Purpose                        | What to Verify            |
+| ---------------------------------- | ------------------------------ | ------------------------- |
+| **System Administrator**           | Full access baseline           | All features work         |
+| **Standard User**                  | Limited permissions            | FLS/CRUD enforced         |
+| **Custom Profile**                 | Business-specific restrictions | Custom permissions work   |
+| **Community User** (if applicable) | External access                | Portal restrictions apply |
 
 ### What to Verify
 
@@ -167,6 +173,7 @@ Test with multiple user profiles to verify security.
 ### Testing with Different Users
 
 **CLI Approach**:
+
 ```bash
 # Login as different user
 sf org login user --username standard.user@company.com --target-org myOrg
@@ -175,6 +182,7 @@ sf org login user --username standard.user@company.com --target-org myOrg
 ```
 
 **Apex Test Approach**:
+
 ```apex
 @isTest
 static void testAsStandardUser() {
@@ -190,6 +198,7 @@ static void testAsStandardUser() {
 ### User Mode Flow Testing
 
 For flows running in User Mode, verify:
+
 - Users cannot access records they don't have permission to
 - Field-level security is enforced
 - Sharing rules are respected
@@ -197,6 +206,7 @@ For flows running in User Mode, verify:
 ### System Mode Flow Testing
 
 For flows running in System Mode:
+
 - Document justification for bypassing security
 - Verify flow doesn't expose sensitive data inappropriately
 - Test that security-sensitive operations are logged
@@ -208,11 +218,13 @@ For flows running in System Mode:
 ### Screen Flows
 
 **Launch Methods**:
+
 - Setup → Flows → Run
 - Direct URL: `https://[org].lightning.force.com/flow/[FlowApiName]`
 - Embedded in Lightning page
 
 **Test Checklist**:
+
 - [ ] All navigation paths (Next/Previous/Finish)
 - [ ] Input validation on each screen
 - [ ] Conditional field visibility
@@ -226,6 +238,7 @@ For flows running in System Mode:
 **CRITICAL**: Always bulk test with 200+ records.
 
 **Test Checklist**:
+
 - [ ] Create single test record - verify trigger fires
 - [ ] Bulk test via Data Loader (200+ records)
 - [ ] Entry conditions work correctly
@@ -234,6 +247,7 @@ For flows running in System Mode:
 - [ ] Re-entry prevention working (if applicable)
 
 **Query Recent Executions**:
+
 ```bash
 sf data query --query "SELECT Id, Status, CreatedDate FROM FlowInterview WHERE FlowDeveloperName='[FlowName]' ORDER BY CreatedDate DESC LIMIT 10" --target-org [org]
 ```
@@ -241,6 +255,7 @@ sf data query --query "SELECT Id, Status, CreatedDate FROM FlowInterview WHERE F
 ### Autolaunched Flows
 
 **Test via Apex**:
+
 ```apex
 Map<String, Object> inputs = new Map<String, Object>{
     'inputRecordId' => testRecord.Id,
@@ -256,6 +271,7 @@ System.assertEquals('Success', result);
 ```
 
 **Test Checklist**:
+
 - [ ] Input variable mapping correct
 - [ ] Output variable values correct
 - [ ] Edge cases: nulls, empty collections, max values
@@ -265,6 +281,7 @@ System.assertEquals('Success', result);
 ### Scheduled Flows
 
 **Test Checklist**:
+
 - [ ] Verify schedule configuration in Setup → Scheduled Jobs
 - [ ] Manual "Run" test first (before enabling schedule)
 - [ ] Monitor Debug Logs during execution
@@ -274,6 +291,7 @@ System.assertEquals('Success', result);
 - [ ] Cleanup/completion logic works
 
 **Verify Schedule**:
+
 ```bash
 sf data query --query "SELECT Id, CronJobDetail.Name, State, NextFireTime FROM CronTrigger WHERE CronJobDetail.Name LIKE '%[FlowName]%'" --target-org [org]
 ```
@@ -281,6 +299,7 @@ sf data query --query "SELECT Id, CronJobDetail.Name, State, NextFireTime FROM C
 ### Platform Event-Triggered Flows
 
 **Publish Test Event**:
+
 ```apex
 // Publish event
 My_Event__e event = new My_Event__e(
@@ -292,6 +311,7 @@ System.assert(sr.isSuccess());
 ```
 
 **Test Checklist**:
+
 - [ ] Flow triggers on event publication
 - [ ] Event data accessible via `$Record`
 - [ ] High-volume scenarios work (multiple events)
@@ -304,13 +324,13 @@ System.assert(sr.isSuccess());
 
 Follow this 5-step deployment validation:
 
-| Step | Action | Tool/Method | Success Criteria |
-|------|--------|-------------|------------------|
-| 1 | Validate XML structure | Flow validator scripts | No errors |
-| 2 | Deploy with checkOnly=true | `sf project deploy start --dry-run` | Deployment succeeds |
-| 3 | Verify package.xml | Manual review | API version matches flow |
-| 4 | Test with minimal data | 1-5 records in sandbox | Basic functionality works |
-| 5 | Test with bulk data | 200+ records in sandbox | Governor limits OK |
+| Step | Action                     | Tool/Method                         | Success Criteria          |
+| ---- | -------------------------- | ----------------------------------- | ------------------------- |
+| 1    | Validate XML structure     | Flow validator scripts              | No errors                 |
+| 2    | Deploy with checkOnly=true | `sf project deploy start --dry-run` | Deployment succeeds       |
+| 3    | Verify package.xml         | Manual review                       | API version matches flow  |
+| 4    | Test with minimal data     | 1-5 records in sandbox              | Basic functionality works |
+| 5    | Test with bulk data        | 200+ records in sandbox             | Governor limits OK        |
 
 ### Dry-Run Deployment
 
@@ -325,6 +345,7 @@ sf project deploy report --target-org sandbox
 ### Package.xml Verification
 
 Ensure API version matches:
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <Package xmlns="http://soap.sforce.com/2006/04/metadata">
@@ -344,18 +365,19 @@ Ensure API version matches:
 
 Maintain a test case document for each flow:
 
-| Field | Description |
-|-------|-------------|
-| Test Case ID | Unique identifier (TC-001) |
-| Description | What this test verifies |
-| Pre-conditions | Required setup before test |
-| Steps | Numbered steps to execute |
-| Expected Result | What should happen |
-| Last Tested | Date and version |
+| Field           | Description                |
+| --------------- | -------------------------- |
+| Test Case ID    | Unique identifier (TC-001) |
+| Description     | What this test verifies    |
+| Pre-conditions  | Required setup before test |
+| Steps           | Numbered steps to execute  |
+| Expected Result | What should happen         |
+| Last Tested     | Date and version           |
 
 ### After Every Change
 
 Re-run **ALL** test cases, not just changed paths:
+
 - Logic changes can have cascading effects
 - Decision criteria changes affect multiple branches
 - Variable changes impact downstream elements
@@ -363,6 +385,7 @@ Re-run **ALL** test cases, not just changed paths:
 ### Integration Testing
 
 Test interactions with:
+
 - **Other flows** on the same object (trigger order)
 - **Process Builders** (legacy - if still active)
 - **Apex triggers** (execution order matters)
@@ -373,6 +396,7 @@ Test interactions with:
 ### Automated Regression Testing
 
 Consider creating Apex test classes that:
+
 - Invoke flows programmatically
 - Assert expected outcomes
 - Run as part of CI/CD pipeline
@@ -403,23 +427,25 @@ static void testFlowRegressionSuite() {
 
 ### Limit Thresholds
 
-| Limit | Value | Warning Threshold |
-|-------|-------|-------------------|
-| SOQL Queries | 100 | 80 |
-| DML Statements | 150 | 120 |
-| Records Retrieved | 50,000 | 40,000 |
-| DML Rows | 10,000 | 8,000 |
-| CPU Time | 10,000 ms | 8,000 ms |
-| Heap Size | 6 MB | 5 MB |
+| Limit             | Value     | Warning Threshold |
+| ----------------- | --------- | ----------------- |
+| SOQL Queries      | 100       | 80                |
+| DML Statements    | 150       | 120               |
+| Records Retrieved | 50,000    | 40,000            |
+| DML Rows          | 10,000    | 8,000             |
+| CPU Time          | 10,000 ms | 8,000 ms          |
+| Heap Size         | 6 MB      | 5 MB              |
 
 ### Monitoring During Tests
 
 **Debug Log Analysis**:
+
 1. Enable debug logs for running user
 2. Execute flow
 3. Review logs for `LIMIT_USAGE_FOR_NS`
 
 **Key Log Entries**:
+
 ```
 LIMIT_USAGE_FOR_NS|namespace||SOQL queries|15/100
 LIMIT_USAGE_FOR_NS|namespace||DML statements|5/150
@@ -429,6 +455,7 @@ LIMIT_USAGE_FOR_NS|namespace||CPU time|1234/10000
 ### Governor Limit Prevention
 
 If approaching limits:
+
 - **SOQL**: Consolidate queries, add filters
 - **DML**: Batch operations, reduce elements
 - **CPU**: Simplify formulas, reduce loops

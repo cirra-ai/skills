@@ -26,7 +26,6 @@ import os
 import re
 import sys
 from pathlib import Path
-from typing import List, Tuple
 
 
 class AgentScriptValidator:
@@ -35,9 +34,9 @@ class AgentScriptValidator:
     def __init__(self, content: str, file_path: str):
         self.content = content
         self.file_path = file_path
-        self.lines = content.split('\n')
-        self.errors: List[Tuple[int, str, str]] = []  # (line_num, severity, message)
-        self.warnings: List[Tuple[int, str, str]] = []
+        self.lines = content.split("\n")
+        self.errors: list[tuple[int, str, str]] = []  # (line_num, severity, message)
+        self.warnings: list[tuple[int, str, str]] = []
 
     def validate(self) -> dict:
         """Run all validations and return results."""
@@ -68,120 +67,134 @@ class AgentScriptValidator:
             leading = len(line) - len(line.lstrip())
             if leading > 0:
                 leading_chars = line[:leading]
-                if '\t' in leading_chars:
+                if "\t" in leading_chars:
                     has_tabs = True
                     if tab_line is None:
                         tab_line = i
-                if ' ' in leading_chars:
+                if " " in leading_chars:
                     has_spaces = True
                     if space_line is None:
                         space_line = i
 
         if has_tabs and has_spaces:
-            self.errors.append((
-                tab_line or 1,
-                "error",
-                f"Mixed tabs and spaces detected. Tabs first seen on line {tab_line}, "
-                f"spaces first seen on line {space_line}. Use consistent indentation "
-                "(all tabs OR all spaces)."
-            ))
+            self.errors.append(
+                (
+                    tab_line or 1,
+                    "error",
+                    f"Mixed tabs and spaces detected. Tabs first seen on line {tab_line}, "
+                    f"spaces first seen on line {space_line}. Use consistent indentation "
+                    "(all tabs OR all spaces).",
+                )
+            )
 
     def _check_boolean_case(self):
         """Check for lowercase boolean values."""
         # Pattern to match boolean assignments
-        bool_pattern = re.compile(r'=\s*(true|false)\s*(?:#|$)', re.IGNORECASE)
+        bool_pattern = re.compile(r"=\s*(true|false)\s*(?:#|$)", re.IGNORECASE)
 
         for i, line in enumerate(self.lines, 1):
             match = bool_pattern.search(line)
             if match:
                 value = match.group(1)
-                if value.lower() == 'true' and value != 'True':
-                    self.errors.append((
-                        i,
-                        "error",
-                        f"Boolean must be capitalized: use 'True' instead of '{value}'"
-                    ))
-                elif value.lower() == 'false' and value != 'False':
-                    self.errors.append((
-                        i,
-                        "error",
-                        f"Boolean must be capitalized: use 'False' instead of '{value}'"
-                    ))
+                if value.lower() == "true" and value != "True":
+                    self.errors.append(
+                        (
+                            i,
+                            "error",
+                            f"Boolean must be capitalized: use 'True' instead of '{value}'",
+                        )
+                    )
+                elif value.lower() == "false" and value != "False":
+                    self.errors.append(
+                        (
+                            i,
+                            "error",
+                            f"Boolean must be capitalized: use 'False' instead of '{value}'",
+                        )
+                    )
 
     def _check_required_blocks(self):
         """Check for required blocks: system, config, topic, start_agent."""
         required = {
-            'system:': False,
-            'config:': False,
-            'topic ': False,  # topic followed by name
-            'start_agent ': False,  # start_agent followed by name
+            "system:": False,
+            "config:": False,
+            "topic ": False,  # topic followed by name
+            "start_agent ": False,  # start_agent followed by name
         }
 
         for line in self.lines:
             stripped = line.strip()
-            if stripped.startswith('system:'):
-                required['system:'] = True
-            elif stripped.startswith('config:'):
-                required['config:'] = True
-            elif stripped.startswith('topic '):
-                required['topic '] = True
-            elif stripped.startswith('start_agent '):
-                required['start_agent '] = True
+            if stripped.startswith("system:"):
+                required["system:"] = True
+            elif stripped.startswith("config:"):
+                required["config:"] = True
+            elif stripped.startswith("topic "):
+                required["topic "] = True
+            elif stripped.startswith("start_agent "):
+                required["start_agent "] = True
 
-        missing = [k.strip(':').strip() for k, v in required.items() if not v]
+        missing = [k.strip(":").strip() for k, v in required.items() if not v]
         if missing:
-            self.errors.append((
-                1,
-                "error",
-                f"Missing required blocks: {', '.join(missing)}. "
-                "Every agent needs system, config, at least one topic, and start_agent."
-            ))
+            self.errors.append(
+                (
+                    1,
+                    "error",
+                    f"Missing required blocks: {', '.join(missing)}. "
+                    "Every agent needs system, config, at least one topic, and start_agent.",
+                )
+            )
 
     def _check_default_agent_user(self):
         """Check if default_agent_user is present in config."""
         in_config = False
         has_default_agent_user = False
 
-        for i, line in enumerate(self.lines, 1):
+        for _i, line in enumerate(self.lines, 1):
             stripped = line.strip()
 
-            if stripped.startswith('config:'):
+            if stripped.startswith("config:"):
                 in_config = True
                 continue
 
             # Check if we've left config block (another top-level block)
-            if in_config and stripped and not stripped.startswith('#'):
-                if re.match(r'^(system|variables|language|connections|topic|start_agent)\s*:', stripped):
+            if in_config and stripped and not stripped.startswith("#"):
+                if re.match(
+                    r"^(system|variables|language|connections|topic|start_agent)\s*:", stripped
+                ):
                     in_config = False
 
-            if in_config and 'default_agent_user' in stripped:
+            if in_config and "default_agent_user" in stripped:
                 has_default_agent_user = True
 
         if not has_default_agent_user:
-            self.errors.append((
-                1,
-                "error",
-                "Missing 'default_agent_user' in config block. This is REQUIRED. "
-                "Set it to a valid Einstein Agent User, e.g., default_agent_user: \"agent@yourorg.com\""
-            ))
+            self.errors.append(
+                (
+                    1,
+                    "error",
+                    "Missing 'default_agent_user' in config block. This is REQUIRED. "
+                    'Set it to a valid Einstein Agent User, e.g., default_agent_user: "agent@yourorg.com"',
+                )
+            )
 
     def _check_mutable_linked_conflict(self):
         """Check for variables declared as both mutable AND linked."""
-        pattern = re.compile(r'mutable\s+linked|linked\s+mutable', re.IGNORECASE)
+        pattern = re.compile(r"mutable\s+linked|linked\s+mutable", re.IGNORECASE)
 
         for i, line in enumerate(self.lines, 1):
             if pattern.search(line):
-                self.errors.append((
-                    i,
-                    "error",
-                    "Variable cannot be both 'mutable' AND 'linked'. "
-                    "Use 'mutable' for changeable state, 'linked' for external read-only data."
-                ))
+                self.errors.append(
+                    (
+                        i,
+                        "error",
+                        "Variable cannot be both 'mutable' AND 'linked'. "
+                        "Use 'mutable' for changeable state, 'linked' for external read-only data.",
+                    )
+                )
 
     def _check_undefined_topics(self):
         """Check for transitions to undefined topics."""
         # Collect all defined topics
-        topic_pattern = re.compile(r'^(topic|start_agent)\s+(\w+):')
+        topic_pattern = re.compile(r"^(topic|start_agent)\s+(\w+):")
         defined_topics = set()
 
         for line in self.lines:
@@ -190,18 +203,20 @@ class AgentScriptValidator:
                 defined_topics.add(match.group(2))
 
         # Find all topic references
-        ref_pattern = re.compile(r'@topic\.(\w+)')
+        ref_pattern = re.compile(r"@topic\.(\w+)")
 
         for i, line in enumerate(self.lines, 1):
             for match in ref_pattern.finditer(line):
                 topic_name = match.group(1)
                 if topic_name not in defined_topics:
-                    self.warnings.append((
-                        i,
-                        "warning",
-                        f"Reference to undefined topic '@topic.{topic_name}'. "
-                        "Ensure this topic is defined in the agent script."
-                    ))
+                    self.warnings.append(
+                        (
+                            i,
+                            "warning",
+                            f"Reference to undefined topic '@topic.{topic_name}'. "
+                            "Ensure this topic is defined in the agent script.",
+                        )
+                    )
 
     def _check_post_action_position(self):
         """Warn if post-action checks appear after LLM instructions."""
@@ -209,38 +224,42 @@ class AgentScriptValidator:
         # post-action checks are at the bottom instead of the top
         in_instructions = False
         seen_pipe_text = False
-        instruction_start_line = None
 
         for i, line in enumerate(self.lines, 1):
             stripped = line.strip()
 
-            if 'instructions:' in stripped:
+            if "instructions:" in stripped:
                 in_instructions = True
-                instruction_start_line = i
                 seen_pipe_text = False
                 continue
 
             if in_instructions:
                 # Check if we've left instructions block
-                if stripped.startswith('actions:') or stripped.startswith('topic ') or stripped.startswith('start_agent '):
+                if (
+                    stripped.startswith("actions:")
+                    or stripped.startswith("topic ")
+                    or stripped.startswith("start_agent ")
+                ):
                     in_instructions = False
                     continue
 
                 # Look for pipe text (LLM instructions)
-                if stripped.startswith('|'):
+                if stripped.startswith("|"):
                     seen_pipe_text = True
 
                 # If we've seen pipe text and now see a post-action check pattern
-                if seen_pipe_text and '@variables.' in stripped:
-                    if any(x in stripped for x in ['_status', '_done', '_complete', '_processed']):
-                        if stripped.startswith('if '):
-                            self.warnings.append((
-                                i,
-                                "warning",
-                                "Post-action check appears AFTER LLM instructions. "
-                                "Consider moving this check to the TOP of instructions "
-                                "so it triggers on the topic loop after action completion."
-                            ))
+                if seen_pipe_text and "@variables." in stripped:
+                    if any(x in stripped for x in ["_status", "_done", "_complete", "_processed"]):
+                        if stripped.startswith("if "):
+                            self.warnings.append(
+                                (
+                                    i,
+                                    "warning",
+                                    "Post-action check appears AFTER LLM instructions. "
+                                    "Consider moving this check to the TOP of instructions "
+                                    "so it triggers on the topic loop after action completion.",
+                                )
+                            )
 
 
 def format_output(result: dict) -> str:
@@ -259,7 +278,7 @@ def format_output(result: dict) -> str:
     if result["errors"]:
         lines.append(f"❌ Agent Script validation errors in {file_name}:")
         lines.append("")
-        for line_num, severity, message in result["errors"]:
+        for line_num, _severity, message in result["errors"]:
             lines.append(f"  Line {line_num}: {message}")
         lines.append("")
         lines.append("Fix these errors before deployment.")
@@ -269,7 +288,7 @@ def format_output(result: dict) -> str:
             lines.append("")
         lines.append(f"⚠️ Agent Script warnings in {file_name}:")
         lines.append("")
-        for line_num, severity, message in result["warnings"]:
+        for line_num, _severity, message in result["warnings"]:
             lines.append(f"  Line {line_num}: {message}")
 
     return "\n".join(lines)
@@ -297,7 +316,7 @@ def main():
 
     # Read file content
     try:
-        with open(file_path, 'r') as f:
+        with open(file_path) as f:
             content = f.read()
     except Exception as e:
         print(f"⚠️ Could not read {file_path}: {e}")

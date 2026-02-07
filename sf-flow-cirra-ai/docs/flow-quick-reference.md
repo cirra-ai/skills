@@ -52,15 +52,15 @@ Need to gather user input?
 
 ## Flow Type Quick Reference
 
-| Flow Type | Trigger | Use Case | Execution |
-|-----------|---------|----------|-----------|
-| **Screen Flow** | User clicks button/link | Forms, wizards, guided processes | Foreground |
+| Flow Type                     | Trigger                    | Use Case                               | Execution  |
+| ----------------------------- | -------------------------- | -------------------------------------- | ---------- |
+| **Screen Flow**               | User clicks button/link    | Forms, wizards, guided processes       | Foreground |
 | **Record-Triggered (Before)** | Record DML (before commit) | Same-record validation, field defaults | Background |
-| **Record-Triggered (After)** | Record DML (after commit) | Related records, callouts, emails | Background |
-| **Schedule-Triggered** | Time-based (cron) | Batch updates, cleanup, notifications | Background |
-| **Platform Event-Triggered** | Platform Event published | Event-driven processing, async work | Background |
-| **Autolaunched** | Code/Flow invocation | Subflows, Apex-called, REST API | Background |
-| **Flow Orchestration** | Multi-step workflow | Approvals, multi-user processes | Background |
+| **Record-Triggered (After)**  | Record DML (after commit)  | Related records, callouts, emails      | Background |
+| **Schedule-Triggered**        | Time-based (cron)          | Batch updates, cleanup, notifications  | Background |
+| **Platform Event-Triggered**  | Platform Event published   | Event-driven processing, async work    | Background |
+| **Autolaunched**              | Code/Flow invocation       | Subflows, Apex-called, REST API        | Background |
+| **Flow Orchestration**        | Multi-step workflow        | Approvals, multi-user processes        | Background |
 
 ---
 
@@ -195,15 +195,15 @@ Need to gather user input?
 
 ### Variable Naming Conventions
 
-| Prefix | Type | Example |
-|--------|------|---------|
-| `var_` | Single variable | `var_AccountName` |
-| `col_` | Collection | `col_Contacts` |
-| `rec_` | Record variable | `rec_CurrentLead` |
-| `inp_` | Input variable | `inp_RecordId` |
-| `out_` | Output variable | `out_ResultMessage` |
-| `con_` | Constant | `con_MaxRetries` |
-| `frm_` | Formula | `frm_DiscountedPrice` |
+| Prefix | Type            | Example               |
+| ------ | --------------- | --------------------- |
+| `var_` | Single variable | `var_AccountName`     |
+| `col_` | Collection      | `col_Contacts`        |
+| `rec_` | Record variable | `rec_CurrentLead`     |
+| `inp_` | Input variable  | `inp_RecordId`        |
+| `out_` | Output variable | `out_ResultMessage`   |
+| `con_` | Constant        | `con_MaxRetries`      |
+| `frm_` | Formula         | `frm_DiscountedPrice` |
 
 ---
 
@@ -304,29 +304,29 @@ See: docs/transform-vs-loop-guide.md for detailed decision criteria
 
 ## Common Anti-Patterns to Avoid
 
-| Anti-Pattern | Problem | Solution |
-|--------------|---------|----------|
-| DML in Loop | Governor limit failure | Collect records, single DML after loop |
-| SOQL in Loop | Query limit exceeded | Query all data upfront, filter in memory |
-| No fault paths | Silent failures | Add fault connector to all DML elements |
-| No entry criteria | Runs on every update | Use ISCHANGED() or field conditions |
-| After-Save same object | Infinite recursion | Add recursion check or use Before-Save |
-| Hardcoded IDs | Fails in different orgs | Use Custom Metadata or Custom Labels |
-| Unfiltered Get Records | Too many records | Always add filter conditions |
-| Loop for field mapping | Slower processing | Use Transform element instead |
+| Anti-Pattern           | Problem                 | Solution                                 |
+| ---------------------- | ----------------------- | ---------------------------------------- |
+| DML in Loop            | Governor limit failure  | Collect records, single DML after loop   |
+| SOQL in Loop           | Query limit exceeded    | Query all data upfront, filter in memory |
+| No fault paths         | Silent failures         | Add fault connector to all DML elements  |
+| No entry criteria      | Runs on every update    | Use ISCHANGED() or field conditions      |
+| After-Save same object | Infinite recursion      | Add recursion check or use Before-Save   |
+| Hardcoded IDs          | Fails in different orgs | Use Custom Metadata or Custom Labels     |
+| Unfiltered Get Records | Too many records        | Always add filter conditions             |
+| Loop for field mapping | Slower processing       | Use Transform element instead            |
 
 ---
 
 ## Quick Reference: Element Connectors
 
-| Element | Connector Types |
-|---------|-----------------|
-| Decision | One per outcome + Default |
-| Loop | `nextValueConnector` (each item) + `noMoreValuesConnector` (after last) |
-| Get Records | `connector` (records found) + `faultConnector` (error) |
-| Create/Update/Delete | `connector` (success) + `faultConnector` (error) |
-| Screen | `connector` (next) |
-| Wait | `waitEvents` with `connector` per condition |
+| Element              | Connector Types                                                         |
+| -------------------- | ----------------------------------------------------------------------- |
+| Decision             | One per outcome + Default                                               |
+| Loop                 | `nextValueConnector` (each item) + `noMoreValuesConnector` (after last) |
+| Get Records          | `connector` (records found) + `faultConnector` (error)                  |
+| Create/Update/Delete | `connector` (success) + `faultConnector` (error)                        |
+| Screen               | `connector` (next)                                                      |
+| Wait                 | `waitEvents` with `connector` per condition                             |
 
 ---
 
@@ -359,21 +359,22 @@ See: docs/transform-vs-loop-guide.md for detailed decision criteria
 
 ## Related Documentation
 
-| Topic | Document |
-|-------|----------|
+| Topic             | Document                                                   |
+| ----------------- | ---------------------------------------------------------- |
 | Transform vs Loop | [transform-vs-loop-guide.md](./transform-vs-loop-guide.md) |
-| Best Practices | [flow-best-practices.md](./flow-best-practices.md) |
-| Testing Guide | [testing-guide.md](./testing-guide.md) |
-| Governance | [governance-checklist.md](./governance-checklist.md) |
-| Subflow Library | [subflow-library.md](./subflow-library.md) |
-| Wait Patterns | [wait-patterns.md](./wait-patterns.md) |
-| LWC Integration | [lwc-integration-guide.md](./lwc-integration-guide.md) |
+| Best Practices    | [flow-best-practices.md](./flow-best-practices.md)         |
+| Testing Guide     | [testing-guide.md](./testing-guide.md)                     |
+| Governance        | [governance-checklist.md](./governance-checklist.md)       |
+| Subflow Library   | [subflow-library.md](./subflow-library.md)                 |
+| Wait Patterns     | [wait-patterns.md](./wait-patterns.md)                     |
+| LWC Integration   | [lwc-integration-guide.md](./lwc-integration-guide.md)     |
 
 ---
 
 ## Attribution
 
 Content adapted from:
+
 - **Salesforce Ben** - [Flow Cheat Sheet](https://www.salesforceben.com/salesforce-flow-cheat-sheet-examples-infographic/)
 - **Official Salesforce Documentation** - Flow Builder Guide
 

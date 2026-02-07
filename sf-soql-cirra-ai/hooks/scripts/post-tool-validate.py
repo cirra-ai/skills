@@ -47,7 +47,7 @@ def validate_soql_file(file_path: str) -> dict:
 
     try:
         # Read file content
-        with open(file_path, 'r') as f:
+        with open(file_path) as f:
             content = f.read()
 
         if not content.strip():
@@ -57,8 +57,8 @@ def validate_soql_file(file_path: str) -> dict:
         # PHASE 1: Static SOQL Validation
         # ═══════════════════════════════════════════════════════════════════
         static_result = validate_soql_static(content)
-        issues.extend(static_result.get('issues', []))
-        recommendations.extend(static_result.get('recommendations', []))
+        issues.extend(static_result.get("issues", []))
+        recommendations.extend(static_result.get("recommendations", []))
 
         # ═══════════════════════════════════════════════════════════════════
         # PHASE 2: Live Query Plan Analysis (if org connected)
@@ -77,11 +77,13 @@ def validate_soql_file(file_path: str) -> dict:
                 if live_result.success:
                     # Add live plan insights as issues/recommendations
                     if not live_result.is_selective:
-                        issues.append({
-                            'severity': 'WARNING',
-                            'message': f'Non-selective query (cost: {live_result.relative_cost:.1f})',
-                            'source': 'LivePlan'
-                        })
+                        issues.append(
+                            {
+                                "severity": "WARNING",
+                                "message": f"Non-selective query (cost: {live_result.relative_cost:.1f})",
+                                "source": "LivePlan",
+                            }
+                        )
 
                     # Add notes as recommendations
                     for note in live_result.notes:
@@ -93,7 +95,7 @@ def validate_soql_file(file_path: str) -> dict:
 
         except ImportError:
             pass  # Live analysis not available
-        except Exception as e:
+        except Exception:
             pass  # Don't fail on live analysis errors
 
         # ═══════════════════════════════════════════════════════════════════
@@ -104,30 +106,34 @@ def validate_soql_file(file_path: str) -> dict:
         output_parts.append("═" * 55)
 
         # Static analysis summary
-        if static_result.get('has_where_clause'):
+        if static_result.get("has_where_clause"):
             output_parts.append("✅ Has WHERE clause")
         else:
             output_parts.append("⚠️ Missing WHERE clause")
 
-        if static_result.get('has_limit'):
+        if static_result.get("has_limit"):
             output_parts.append("✅ Has LIMIT clause")
         else:
             output_parts.append("⚠️ Missing LIMIT clause")
 
-        if static_result.get('has_hardcoded_ids'):
+        if static_result.get("has_hardcoded_ids"):
             output_parts.append("⚠️ Contains hardcoded IDs")
 
         # Live Query Plan section
         output_parts.append("")
         if live_result and live_result.success:
-            output_parts.append(f"🌐 Live Query Plan Analysis")
+            output_parts.append("🌐 Live Query Plan Analysis")
             output_parts.append(f"   Org: {org_name}")
             output_parts.append(f"   {live_result.icon} Selective: {live_result.is_selective}")
-            output_parts.append(f"   📊 Relative Cost: {live_result.relative_cost:.2f} ({live_result.selectivity_rating})")
+            output_parts.append(
+                f"   📊 Relative Cost: {live_result.relative_cost:.2f} ({live_result.selectivity_rating})"
+            )
             output_parts.append(f"   📈 Operation: {live_result.leading_operation}")
 
             if live_result.cardinality > 0:
-                output_parts.append(f"   📋 Cardinality: {live_result.cardinality:,} / {live_result.sobject_cardinality:,}")
+                output_parts.append(
+                    f"   📋 Cardinality: {live_result.cardinality:,} / {live_result.sobject_cardinality:,}"
+                )
 
             if live_result.notes:
                 output_parts.append("")
@@ -138,7 +144,7 @@ def validate_soql_file(file_path: str) -> dict:
             output_parts.append("🌐 Live Query Plan: No org connected")
             output_parts.append("   Run 'sf org login web' to enable live analysis")
         elif live_result and not live_result.success:
-            output_parts.append(f"🌐 Live Query Plan: Error")
+            output_parts.append("🌐 Live Query Plan: Error")
             output_parts.append(f"   {live_result.error[:60]}")
 
         # Issues
@@ -146,12 +152,16 @@ def validate_soql_file(file_path: str) -> dict:
             output_parts.append("")
             output_parts.append(f"⚠️ Issues ({len(issues)}):")
             severity_icons = {
-                'CRITICAL': '🔴', 'HIGH': '🟠', 'MODERATE': '🟡',
-                'WARNING': '⚠️', 'LOW': '🔵', 'INFO': 'ℹ️'
+                "CRITICAL": "🔴",
+                "HIGH": "🟠",
+                "MODERATE": "🟡",
+                "WARNING": "⚠️",
+                "LOW": "🔵",
+                "INFO": "ℹ️",
             }
             for issue in issues[:5]:
-                icon = severity_icons.get(issue.get('severity', 'INFO'), 'ℹ️')
-                source = f"[{issue.get('source', '')}]" if issue.get('source') else ""
+                icon = severity_icons.get(issue.get("severity", "INFO"), "ℹ️")
+                source = f"[{issue.get('source', '')}]" if issue.get("source") else ""
                 output_parts.append(f"   {icon} {source} {issue.get('message', '')[:60]}")
 
         # Recommendations
@@ -164,16 +174,10 @@ def validate_soql_file(file_path: str) -> dict:
 
         output_parts.append("═" * 55)
 
-        return {
-            "continue": True,
-            "output": "\n".join(output_parts)
-        }
+        return {"continue": True, "output": "\n".join(output_parts)}
 
     except Exception as e:
-        return {
-            "continue": True,
-            "output": f"⚠️ SOQL validation error: {e}"
-        }
+        return {"continue": True, "output": f"⚠️ SOQL validation error: {e}"}
 
 
 def validate_soql_static(content: str) -> dict:
@@ -189,90 +193,87 @@ def validate_soql_static(content: str) -> dict:
     import re
 
     result = {
-        'is_valid': True,
-        'has_where_clause': False,
-        'has_limit': False,
-        'has_order_by': False,
-        'has_hardcoded_ids': False,
-        'uses_indexed_fields': False,
-        'issues': [],
-        'recommendations': []
+        "is_valid": True,
+        "has_where_clause": False,
+        "has_limit": False,
+        "has_order_by": False,
+        "has_hardcoded_ids": False,
+        "uses_indexed_fields": False,
+        "issues": [],
+        "recommendations": [],
     }
 
     # Remove comments
-    clean = re.sub(r'--.*$', '', content, flags=re.MULTILINE)
-    clean = re.sub(r'//.*$', '', clean, flags=re.MULTILINE)
-    clean = re.sub(r'/\*[\s\S]*?\*/', '', clean)
+    clean = re.sub(r"--.*$", "", content, flags=re.MULTILINE)
+    clean = re.sub(r"//.*$", "", clean, flags=re.MULTILINE)
+    clean = re.sub(r"/\*[\s\S]*?\*/", "", clean)
 
     # Check for WHERE clause
-    result['has_where_clause'] = bool(re.search(r'\bWHERE\b', clean, re.IGNORECASE))
+    result["has_where_clause"] = bool(re.search(r"\bWHERE\b", clean, re.IGNORECASE))
 
     # Check for LIMIT
-    result['has_limit'] = bool(re.search(r'\bLIMIT\s+\d+', clean, re.IGNORECASE))
+    result["has_limit"] = bool(re.search(r"\bLIMIT\s+\d+", clean, re.IGNORECASE))
 
     # Check for ORDER BY
-    result['has_order_by'] = bool(re.search(r'\bORDER\s+BY\b', clean, re.IGNORECASE))
+    result["has_order_by"] = bool(re.search(r"\bORDER\s+BY\b", clean, re.IGNORECASE))
 
     # Check for hardcoded IDs (15 or 18 char alphanumeric in quotes)
-    result['has_hardcoded_ids'] = bool(
-        re.search(r"'[a-zA-Z0-9]{15}'", clean) or
-        re.search(r"'[a-zA-Z0-9]{18}'", clean)
+    result["has_hardcoded_ids"] = bool(
+        re.search(r"'[a-zA-Z0-9]{15}'", clean) or re.search(r"'[a-zA-Z0-9]{18}'", clean)
     )
 
     # Check for indexed fields in WHERE
-    indexed_fields = ['Id', 'Name', 'OwnerId', 'CreatedDate', 'LastModifiedDate', 'RecordTypeId']
-    where_match = re.search(r'\bWHERE\b(.*?)(?:\bORDER\b|\bGROUP\b|\bLIMIT\b|$)', clean, re.IGNORECASE | re.DOTALL)
+    indexed_fields = ["Id", "Name", "OwnerId", "CreatedDate", "LastModifiedDate", "RecordTypeId"]
+    where_match = re.search(
+        r"\bWHERE\b(.*?)(?:\bORDER\b|\bGROUP\b|\bLIMIT\b|$)", clean, re.IGNORECASE | re.DOTALL
+    )
     if where_match:
         where_clause = where_match.group(1)
         for field in indexed_fields:
-            if re.search(rf'\b{field}\b', where_clause, re.IGNORECASE):
-                result['uses_indexed_fields'] = True
+            if re.search(rf"\b{field}\b", where_clause, re.IGNORECASE):
+                result["uses_indexed_fields"] = True
                 break
 
     # Syntax validation
     # Check for SELECT without FROM
-    if re.search(r'\bSELECT\b', clean, re.IGNORECASE):
-        if not re.search(r'\bFROM\b', clean, re.IGNORECASE):
-            result['issues'].append({
-                'severity': 'HIGH',
-                'message': 'SELECT statement missing FROM clause'
-            })
-            result['is_valid'] = False
+    if re.search(r"\bSELECT\b", clean, re.IGNORECASE):
+        if not re.search(r"\bFROM\b", clean, re.IGNORECASE):
+            result["issues"].append(
+                {"severity": "HIGH", "message": "SELECT statement missing FROM clause"}
+            )
+            result["is_valid"] = False
 
     # Check for SELECT *
-    if re.search(r'\bSELECT\s+\*', clean, re.IGNORECASE):
-        result['issues'].append({
-            'severity': 'HIGH',
-            'message': 'SELECT * is not valid in SOQL - specify field names'
-        })
-        result['is_valid'] = False
+    if re.search(r"\bSELECT\s+\*", clean, re.IGNORECASE):
+        result["issues"].append(
+            {"severity": "HIGH", "message": "SELECT * is not valid in SOQL - specify field names"}
+        )
+        result["is_valid"] = False
 
     # Check for == instead of =
-    if re.search(r'==', clean):
-        result['issues'].append({
-            'severity': 'HIGH',
-            'message': 'Invalid operator "==" - use "=" in SOQL'
-        })
+    if re.search(r"==", clean):
+        result["issues"].append(
+            {"severity": "HIGH", "message": 'Invalid operator "==" - use "=" in SOQL'}
+        )
 
     # Check for unbalanced parentheses
-    if clean.count('(') != clean.count(')'):
-        result['issues'].append({
-            'severity': 'HIGH',
-            'message': 'Unbalanced parentheses'
-        })
+    if clean.count("(") != clean.count(")"):
+        result["issues"].append({"severity": "HIGH", "message": "Unbalanced parentheses"})
 
     # Add recommendations
-    if not result['has_where_clause']:
-        result['recommendations'].append('Add WHERE clause for better query selectivity')
+    if not result["has_where_clause"]:
+        result["recommendations"].append("Add WHERE clause for better query selectivity")
 
-    if not result['has_limit']:
-        result['recommendations'].append('Add LIMIT clause to prevent large result sets')
+    if not result["has_limit"]:
+        result["recommendations"].append("Add LIMIT clause to prevent large result sets")
 
-    if result['has_hardcoded_ids']:
-        result['recommendations'].append('Avoid hardcoded IDs - use bind variables instead')
+    if result["has_hardcoded_ids"]:
+        result["recommendations"].append("Avoid hardcoded IDs - use bind variables instead")
 
-    if result['has_where_clause'] and not result['uses_indexed_fields']:
-        result['recommendations'].append('Add an indexed field (Id, Name, CreatedDate) to WHERE for better performance')
+    if result["has_where_clause"] and not result["uses_indexed_fields"]:
+        result["recommendations"].append(
+            "Add an indexed field (Id, Name, CreatedDate) to WHERE for better performance"
+        )
 
     return result
 
@@ -311,10 +312,7 @@ def main():
         print(json.dumps({"continue": True}))
         return 0
     except Exception as e:
-        print(json.dumps({
-            "continue": True,
-            "output": f"⚠️ Hook error: {e}"
-        }))
+        print(json.dumps({"continue": True, "output": f"⚠️ Hook error: {e}"}))
         return 0
 
 

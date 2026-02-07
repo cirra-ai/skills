@@ -4,39 +4,40 @@ Essential limits for Salesforce data operations.
 
 ## SOQL Limits
 
-| Limit | Synchronous | Asynchronous |
-|-------|-------------|--------------|
-| Total queries | 100 | 200 |
-| Rows retrieved | 50,000 | 50,000 |
-| QueryLocator rows | N/A | 50,000,000 |
-| Query timeout | 120 seconds | 120 seconds |
+| Limit             | Synchronous | Asynchronous |
+| ----------------- | ----------- | ------------ |
+| Total queries     | 100         | 200          |
+| Rows retrieved    | 50,000      | 50,000       |
+| QueryLocator rows | N/A         | 50,000,000   |
+| Query timeout     | 120 seconds | 120 seconds  |
 
 ## DML Limits
 
-| Limit | Synchronous | Asynchronous |
-|-------|-------------|--------------|
-| DML statements | 150 | 150 |
-| Rows processed | 10,000 | 10,000 |
+| Limit          | Synchronous | Asynchronous |
+| -------------- | ----------- | ------------ |
+| DML statements | 150         | 150          |
+| Rows processed | 10,000      | 10,000       |
 
 ## CPU and Memory
 
-| Limit | Synchronous | Asynchronous |
-|-------|-------------|--------------|
-| CPU time | 10,000 ms | 60,000 ms |
-| Heap size | 6 MB | 12 MB |
+| Limit     | Synchronous | Asynchronous |
+| --------- | ----------- | ------------ |
+| CPU time  | 10,000 ms   | 60,000 ms    |
+| Heap size | 6 MB        | 12 MB        |
 
 ## Bulk API Limits
 
-| Limit | Value |
-|-------|-------|
-| Batches per 24 hours | 10,000 |
+| Limit                | Value      |
+| -------------------- | ---------- |
+| Batches per 24 hours | 10,000     |
 | Records per 24 hours | 10,000,000 |
-| Max file size | 100 MB |
-| Concurrent jobs | 100 |
+| Max file size        | 100 MB     |
+| Concurrent jobs      | 100        |
 
 ## Staying Within Limits
 
 ### SOQL Best Practices
+
 ```apex
 // BAD: Query in loop
 for (Account acc : accounts) {
@@ -52,6 +53,7 @@ List<Account> accs = [
 ```
 
 ### DML Best Practices
+
 ```apex
 // BAD: DML in loop
 for (Account acc : accounts) {

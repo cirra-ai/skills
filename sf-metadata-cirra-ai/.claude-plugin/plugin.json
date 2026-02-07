@@ -7,5 +7,15 @@
     "url": "https://cirra.ai"
   },
   "license": "Apache-2.0",
-  "keywords": ["salesforce", "metadata", "cirra-ai", "objects", "fields", "permissions", "profiles", "validation", "deployment"]
+  "keywords": [
+    "salesforce",
+    "metadata",
+    "cirra-ai",
+    "objects",
+    "fields",
+    "permissions",
+    "profiles",
+    "validation",
+    "deployment"
+  ]
 }

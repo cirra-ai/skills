@@ -29,6 +29,7 @@ This document details how sf-data fits into the multi-skill workflow for Salesfo
 ## ⚠️ Why sf-data Goes LAST
 
 **sf-data operates on REMOTE org data.** Objects/fields must be deployed before sf-data can:
+
 - Insert records
 - Query existing data
 - Run test factories
@@ -44,12 +45,12 @@ FIX:   Run sf-deploy BEFORE sf-data
 
 ## Common Errors from Wrong Order
 
-| Error | Cause | Fix |
-|-------|-------|-----|
-| `SObject type 'X' not supported` | Object not deployed | Deploy via sf-deploy first |
-| `INVALID_FIELD: No such column 'Field__c'` | Field not deployed OR FLS | Deploy field + Permission Set |
-| `REQUIRED_FIELD_MISSING` | Validation rule requires field | Include all required fields |
-| `FIELD_CUSTOM_VALIDATION_EXCEPTION` | Validation rule triggered | Use valid test data values |
+| Error                                      | Cause                          | Fix                           |
+| ------------------------------------------ | ------------------------------ | ----------------------------- |
+| `SObject type 'X' not supported`           | Object not deployed            | Deploy via sf-deploy first    |
+| `INVALID_FIELD: No such column 'Field__c'` | Field not deployed OR FLS      | Deploy field + Permission Set |
+| `REQUIRED_FIELD_MISSING`                   | Validation rule requires field | Include all required fields   |
+| `FIELD_CUSTOM_VALIDATION_EXCEPTION`        | Validation rule triggered      | Use valid test data values    |
 
 ---
 
@@ -85,6 +86,7 @@ Always test with **251 records** to cross the 200-record batch boundary:
 ```
 
 **Command:**
+
 ```bash
 sf apex run --file test-factory.apex --target-org alias
 # test-factory.apex creates 251 records
@@ -94,16 +96,16 @@ sf apex run --file test-factory.apex --target-org alias
 
 ## Cross-Skill Integration Table
 
-| From Skill | To sf-data | When |
-|------------|------------|------|
-| sf-apex | → sf-data | "Create 251 Accounts for bulk testing" |
-| sf-flow | → sf-data | "Create Opportunities with StageName='Closed Won'" |
-| sf-testing | → sf-data | "Generate test records for test class" |
+| From Skill | To sf-data | When                                               |
+| ---------- | ---------- | -------------------------------------------------- |
+| sf-apex    | → sf-data  | "Create 251 Accounts for bulk testing"             |
+| sf-flow    | → sf-data  | "Create Opportunities with StageName='Closed Won'" |
+| sf-testing | → sf-data  | "Generate test records for test class"             |
 
-| From sf-data | To Skill | When |
-|--------------|----------|------|
-| sf-data | → sf-metadata | "Describe Invoice__c" (discover object structure) |
-| sf-data | → sf-deploy | "Redeploy field after adding validation rule" |
+| From sf-data | To Skill      | When                                                |
+| ------------ | ------------- | --------------------------------------------------- |
+| sf-data      | → sf-metadata | "Describe Invoice\_\_c" (discover object structure) |
+| sf-data      | → sf-deploy   | "Redeploy field after adding validation rule"       |
 
 ---
 
@@ -139,6 +141,7 @@ sf-data:  Calls factory via Anonymous Apex
 ```
 
 **Anonymous Apex:**
+
 ```apex
 List<Account> accounts = TestDataFactory_Account.create(251);
 System.debug('Created ' + accounts.size() + ' accounts');
@@ -157,6 +160,7 @@ After testing, clean up in reverse order:
 ```
 
 **Cleanup command:**
+
 ```bash
 sf apex run --file cleanup.apex --target-org alias
 # cleanup.apex: DELETE [SELECT Id FROM Account WHERE Name LIKE 'Test%']
@@ -166,8 +170,8 @@ sf apex run --file cleanup.apex --target-org alias
 
 ## Related Documentation
 
-| Topic | Location |
-|-------|----------|
-| Test data patterns | `sf-data/docs/test-data-patterns.md` |
-| Cleanup guide | `sf-data/docs/cleanup-rollback-guide.md` |
-| Factory templates | `sf-data/templates/factories/` |
+| Topic              | Location                                 |
+| ------------------ | ---------------------------------------- |
+| Test data patterns | `sf-data/docs/test-data-patterns.md`     |
+| Cleanup guide      | `sf-data/docs/cleanup-rollback-guide.md` |
+| Factory templates  | `sf-data/templates/factories/`           |

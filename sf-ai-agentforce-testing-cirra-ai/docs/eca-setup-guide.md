@@ -10,10 +10,10 @@ The Agent Runtime API requires **OAuth 2.0 Client Credentials flow**, which is d
 
 ### OAuth Flow Comparison
 
-| Flow | Used By | App Type | User Interaction |
-|------|---------|----------|-----------------|
-| **Web Server (Authorization Code)** | `sf agent preview --use-live-actions` | Connected App | Browser login required |
-| **Client Credentials** | Agent Runtime API (multi-turn testing) | External Client App (ECA) | None (machine-to-machine) |
+| Flow                                | Used By                                | App Type                  | User Interaction          |
+| ----------------------------------- | -------------------------------------- | ------------------------- | ------------------------- |
+| **Web Server (Authorization Code)** | `sf agent preview --use-live-actions`  | Connected App             | Browser login required    |
+| **Client Credentials**              | Agent Runtime API (multi-turn testing) | External Client App (ECA) | None (machine-to-machine) |
 
 > **Key Difference:** Client Credentials flow is machine-to-machine — no browser login needed. Perfect for automated testing.
 
@@ -21,12 +21,12 @@ The Agent Runtime API requires **OAuth 2.0 Client Credentials flow**, which is d
 
 ## Prerequisites
 
-| Requirement | Details |
-|-------------|---------|
+| Requirement                    | Details                               |
+| ------------------------------ | ------------------------------------- |
 | Salesforce org with Agentforce | Agent must be published and activated |
-| System Administrator profile | Required to create ECAs |
-| My Domain enabled | Required for OAuth endpoints |
-| Agent Runtime API access | Included with Agentforce license |
+| System Administrator profile   | Required to create ECAs               |
+| My Domain enabled              | Required for OAuth endpoints          |
+| Agent Runtime API access       | Included with Agentforce license      |
 
 ---
 
@@ -54,12 +54,12 @@ Follow the steps below.
 
 ### Step 2: Basic Information
 
-| Field | Value |
-|-------|-------|
-| **Name** | Agent API Testing |
-| **API Name** | Agent_API_Testing |
-| **Contact Email** | Your admin email |
-| **Description** | ECA for Agent Runtime API multi-turn testing |
+| Field             | Value                                        |
+| ----------------- | -------------------------------------------- |
+| **Name**          | Agent API Testing                            |
+| **API Name**      | Agent_API_Testing                            |
+| **Contact Email** | Your admin email                             |
+| **Description**   | ECA for Agent Runtime API multi-turn testing |
 
 ### Step 3: Configure Client Credentials
 
@@ -70,24 +70,24 @@ Follow the steps below.
 
 ### Step 4: OAuth Scopes
 
-| Scope | Purpose | Required |
-|-------|---------|----------|
-| `api` | Manage user data via APIs | ✅ Yes |
-| `chatbot_api` | Access chatbot/agent services | ✅ Yes |
-| `sfap_api` | Access the Salesforce API Platform | ✅ Yes |
-| `refresh_token, offline_access` | Perform requests at any time | Recommended |
+| Scope                           | Purpose                            | Required    |
+| ------------------------------- | ---------------------------------- | ----------- |
+| `api`                           | Manage user data via APIs          | ✅ Yes      |
+| `chatbot_api`                   | Access chatbot/agent services      | ✅ Yes      |
+| `sfap_api`                      | Access the Salesforce API Platform | ✅ Yes      |
+| `refresh_token, offline_access` | Perform requests at any time       | Recommended |
 
 > **Minimum Required:** `api`, `chatbot_api`, and `sfap_api` together enable Agent Runtime API access.
 
 ### Additional OAuth Settings
 
-| Setting | Value |
-|---------|-------|
-| **Enable Client Credentials Flow** | ✅ Checked |
-| **Issue JWT-based access tokens for named users** | ✅ Checked |
-| Require secret for Web Server Flow | ❌ Deselected |
-| Require secret for Refresh Token Flow | ❌ Deselected |
-| Require PKCE for Supported Authorization Flows | ❌ Deselected |
+| Setting                                           | Value         |
+| ------------------------------------------------- | ------------- |
+| **Enable Client Credentials Flow**                | ✅ Checked    |
+| **Issue JWT-based access tokens for named users** | ✅ Checked    |
+| Require secret for Web Server Flow                | ❌ Deselected |
+| Require secret for Refresh Token Flow             | ❌ Deselected |
+| Require PKCE for Supported Authorization Flows    | ❌ Deselected |
 
 ### Step 5: Execution User (Run As)
 
@@ -101,6 +101,7 @@ For Client Credentials flow, you must assign an **execution user**:
 4. Save the changes
 
 The execution user's permissions determine what the API can access:
+
 - Must have at least API access
 - Must have access to the agents being tested
 - System Administrator profile works but use least-privilege when possible
@@ -153,37 +154,37 @@ curl -s -X POST "https://${SF_MY_DOMAIN}/services/oauth2/token" \
 
 ### Common Errors
 
-| Error | Cause | Fix |
-|-------|-------|-----|
-| `invalid_client_id` | Wrong Consumer Key | Re-copy from ECA settings |
-| `invalid_client` | Client Credentials not enabled | Enable in ECA OAuth settings |
-| `invalid_grant` | No execution user assigned | Assign Run As user in ECA |
+| Error                    | Cause                               | Fix                                              |
+| ------------------------ | ----------------------------------- | ------------------------------------------------ |
+| `invalid_client_id`      | Wrong Consumer Key                  | Re-copy from ECA settings                        |
+| `invalid_client`         | Client Credentials not enabled      | Enable in ECA OAuth settings                     |
+| `invalid_grant`          | No execution user assigned          | Assign Run As user in ECA                        |
 | `unsupported_grant_type` | Not an ECA (standard Connected App) | Create an External Client App, not Connected App |
-| `INVALID_SESSION_ID` | Token expired or revoked | Re-authenticate |
+| `INVALID_SESSION_ID`     | Token expired or revoked            | Re-authenticate                                  |
 
 ---
 
 ## ECA vs Connected App: When to Use Which
 
-| Scenario | Use | Why |
-|----------|-----|-----|
-| `sf agent preview --use-live-actions` | Connected App (Web OAuth) | CLI needs browser-based user login |
-| Multi-turn API testing | External Client App (Client Credentials) | Machine-to-machine, no browser needed |
-| CI/CD automated testing | External Client App (Client Credentials) | Non-interactive, scriptable |
-| Manual ad-hoc testing | Either | Depends on test approach |
+| Scenario                              | Use                                      | Why                                   |
+| ------------------------------------- | ---------------------------------------- | ------------------------------------- |
+| `sf agent preview --use-live-actions` | Connected App (Web OAuth)                | CLI needs browser-based user login    |
+| Multi-turn API testing                | External Client App (Client Credentials) | Machine-to-machine, no browser needed |
+| CI/CD automated testing               | External Client App (Client Credentials) | Non-interactive, scriptable           |
+| Manual ad-hoc testing                 | Either                                   | Depends on test approach              |
 
 ---
 
 ## Security Best Practices
 
-| Practice | Description |
-|----------|-------------|
-| **Never write secrets to files** | Keep Consumer Key/Secret in shell variables only |
-| **Use least-privilege execution user** | Don't use full admin if not needed |
-| **Rotate secrets periodically** | Regenerate Consumer Secret quarterly |
-| **Limit OAuth scopes** | Only include scopes needed for testing |
-| **Monitor usage** | Review ECA login history in Setup |
-| **Separate test and production ECAs** | Never reuse production credentials for testing |
+| Practice                               | Description                                      |
+| -------------------------------------- | ------------------------------------------------ |
+| **Never write secrets to files**       | Keep Consumer Key/Secret in shell variables only |
+| **Use least-privilege execution user** | Don't use full admin if not needed               |
+| **Rotate secrets periodically**        | Regenerate Consumer Secret quarterly             |
+| **Limit OAuth scopes**                 | Only include scopes needed for testing           |
+| **Monitor usage**                      | Review ECA login history in Setup                |
+| **Separate test and production ECAs**  | Never reuse production credentials for testing   |
 
 ---
 
@@ -212,8 +213,8 @@ Once ECA is configured, the testing skill uses it as follows:
 
 ## Related Documentation
 
-| Resource | Link |
-|----------|------|
-| Agent Runtime API | [agent-api-reference.md](agent-api-reference.md) |
-| Connected App Setup (Web OAuth) | [connected-app-setup.md](connected-app-setup.md) |
-| Multi-Turn Testing Guide | [multi-turn-testing-guide.md](multi-turn-testing-guide.md) |
+| Resource                        | Link                                                       |
+| ------------------------------- | ---------------------------------------------------------- |
+| Agent Runtime API               | [agent-api-reference.md](agent-api-reference.md)           |
+| Connected App Setup (Web OAuth) | [connected-app-setup.md](connected-app-setup.md)           |
+| Multi-Turn Testing Guide        | [multi-turn-testing-guide.md](multi-turn-testing-guide.md) |

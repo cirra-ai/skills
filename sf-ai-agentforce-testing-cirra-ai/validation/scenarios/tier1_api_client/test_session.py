@@ -8,9 +8,9 @@ Points: 7
 """
 
 import pytest
-from unittest.mock import patch, MagicMock, call
+from unittest.mock import patch
 
-from agent_api_client import AgentSession, AgentAPIError, AgentMessage
+from agent_api_client import AgentAPIError
 
 
 @pytest.mark.tier1
@@ -43,7 +43,9 @@ class TestSession:
 
     def test_send_returns_turn_result(self, mock_client, mock_session):
         """send() returns a TurnResult with the correct user_message."""
-        with patch.object(mock_client, "_api_request", return_value=self._mock_api_response("Hi there")):
+        with patch.object(
+            mock_client, "_api_request", return_value=self._mock_api_response("Hi there")
+        ):
             result = mock_session.send("Hello agent")
 
         assert result.user_message == "Hello agent"

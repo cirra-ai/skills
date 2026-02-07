@@ -26,66 +26,66 @@ Dark mode is exclusive to SLDS 2 themes. Components must use global styling hook
 
 #### Surface Colors
 
-| Token | Light Mode | Dark Mode | Purpose |
-|-------|------------|-----------|---------|
-| `--slds-g-color-surface-1` | `#FFFFFF` | `#0B0B0B` | Primary surface (body background) |
-| `--slds-g-color-surface-2` | `#F3F3F3` | `#181818` | Secondary surface |
-| `--slds-g-color-surface-3` | `#E5E5E5` | `#2B2B2B` | Tertiary surface |
-| `--slds-g-color-surface-4` | `#C9C9C9` | `#3E3E3E` | Quaternary surface |
+| Token                      | Light Mode | Dark Mode | Purpose                           |
+| -------------------------- | ---------- | --------- | --------------------------------- |
+| `--slds-g-color-surface-1` | `#FFFFFF`  | `#0B0B0B` | Primary surface (body background) |
+| `--slds-g-color-surface-2` | `#F3F3F3`  | `#181818` | Secondary surface                 |
+| `--slds-g-color-surface-3` | `#E5E5E5`  | `#2B2B2B` | Tertiary surface                  |
+| `--slds-g-color-surface-4` | `#C9C9C9`  | `#3E3E3E` | Quaternary surface                |
 
 #### Container Colors
 
-| Token | Light Mode | Dark Mode | Purpose |
-|-------|------------|-----------|---------|
-| `--slds-g-color-surface-container-1` | `#FAFAFA` | `#1A1A1A` | Card backgrounds, panels |
-| `--slds-g-color-surface-container-2` | `#F7F7F7` | `#232323` | Nested containers |
-| `--slds-g-color-surface-container-3` | `#F3F3F3` | `#2E2E2E` | Deep nesting |
+| Token                                | Light Mode | Dark Mode | Purpose                  |
+| ------------------------------------ | ---------- | --------- | ------------------------ |
+| `--slds-g-color-surface-container-1` | `#FAFAFA`  | `#1A1A1A` | Card backgrounds, panels |
+| `--slds-g-color-surface-container-2` | `#F7F7F7`  | `#232323` | Nested containers        |
+| `--slds-g-color-surface-container-3` | `#F3F3F3`  | `#2E2E2E` | Deep nesting             |
 
 #### Text Colors
 
-| Token | Light Mode | Dark Mode | Purpose |
-|-------|------------|-----------|---------|
-| `--slds-g-color-on-surface` | `#181818` | `#FAFAFA` | Primary text |
-| `--slds-g-color-on-surface-1` | `#444444` | `#C9C9C9` | Secondary text |
-| `--slds-g-color-on-surface-2` | `#706E6B` | `#A0A0A0` | Muted/disabled text |
-| `--slds-g-color-on-surface-inverse` | `#FFFFFF` | `#181818` | Inverse text (buttons, badges) |
+| Token                               | Light Mode | Dark Mode | Purpose                        |
+| ----------------------------------- | ---------- | --------- | ------------------------------ |
+| `--slds-g-color-on-surface`         | `#181818`  | `#FAFAFA` | Primary text                   |
+| `--slds-g-color-on-surface-1`       | `#444444`  | `#C9C9C9` | Secondary text                 |
+| `--slds-g-color-on-surface-2`       | `#706E6B`  | `#A0A0A0` | Muted/disabled text            |
+| `--slds-g-color-on-surface-inverse` | `#FFFFFF`  | `#181818` | Inverse text (buttons, badges) |
 
 #### Border Colors
 
-| Token | Light Mode | Dark Mode | Purpose |
-|-------|------------|-----------|---------|
-| `--slds-g-color-border-1` | `#C9C9C9` | `#444444` | Primary borders |
-| `--slds-g-color-border-2` | `#E5E5E5` | `#3E3E3E` | Secondary borders (dividers) |
+| Token                     | Light Mode | Dark Mode | Purpose                      |
+| ------------------------- | ---------- | --------- | ---------------------------- |
+| `--slds-g-color-border-1` | `#C9C9C9`  | `#444444` | Primary borders              |
+| `--slds-g-color-border-2` | `#E5E5E5`  | `#3E3E3E` | Secondary borders (dividers) |
 
 #### Brand Colors
 
-| Token | Light Mode | Dark Mode | Purpose |
-|-------|------------|-----------|---------|
-| `--slds-g-color-brand-1` | `#0176D3` | `#1B96FF` | Primary brand (buttons, links) |
-| `--slds-g-color-brand-2` | `#014486` | `#0B5CAB` | Brand hover/active states |
+| Token                    | Light Mode | Dark Mode | Purpose                        |
+| ------------------------ | ---------- | --------- | ------------------------------ |
+| `--slds-g-color-brand-1` | `#0176D3`  | `#1B96FF` | Primary brand (buttons, links) |
+| `--slds-g-color-brand-2` | `#014486`  | `#0B5CAB` | Brand hover/active states      |
 
 #### Status Colors
 
-| Token | Light Mode | Dark Mode | Purpose |
-|-------|------------|-----------|---------|
-| `--slds-g-color-success-1` | `#2E844A` | `#45C65A` | Success states |
-| `--slds-g-color-error-1` | `#EA001E` | `#FE5C4C` | Error states |
-| `--slds-g-color-warning-1` | `#FFB75D` | `#FFB75D` | Warning states |
-| `--slds-g-color-info-1` | `#0176D3` | `#1B96FF` | Info states |
+| Token                      | Light Mode | Dark Mode | Purpose        |
+| -------------------------- | ---------- | --------- | -------------- |
+| `--slds-g-color-success-1` | `#2E844A`  | `#45C65A` | Success states |
+| `--slds-g-color-error-1`   | `#EA001E`  | `#FE5C4C` | Error states   |
+| `--slds-g-color-warning-1` | `#FFB75D`  | `#FFB75D` | Warning states |
+| `--slds-g-color-info-1`    | `#0176D3`  | `#1B96FF` | Info states    |
 
 #### Spacing Tokens
 
-| Token | Value (rem) | Value (px) |
-|-------|-------------|------------|
-| `--slds-g-spacing-0` | 0 | 0 |
-| `--slds-g-spacing-1` | 0.125 | 2 |
-| `--slds-g-spacing-2` | 0.25 | 4 |
-| `--slds-g-spacing-3` | 0.5 | 8 |
-| `--slds-g-spacing-4` | 0.75 | 12 |
-| `--slds-g-spacing-5` | 1 | 16 |
-| `--slds-g-spacing-6` | 1.5 | 24 |
-| `--slds-g-spacing-7` | 2 | 32 |
-| `--slds-g-spacing-8` | 3 | 48 |
+| Token                | Value (rem) | Value (px) |
+| -------------------- | ----------- | ---------- |
+| `--slds-g-spacing-0` | 0           | 0          |
+| `--slds-g-spacing-1` | 0.125       | 2          |
+| `--slds-g-spacing-2` | 0.25        | 4          |
+| `--slds-g-spacing-3` | 0.5         | 8          |
+| `--slds-g-spacing-4` | 0.75        | 12         |
+| `--slds-g-spacing-5` | 1           | 16         |
+| `--slds-g-spacing-6` | 1.5         | 24         |
+| `--slds-g-spacing-7` | 2           | 32         |
+| `--slds-g-spacing-8` | 3           | 48         |
 
 ### Migration Examples
 
@@ -94,33 +94,33 @@ Dark mode is exclusive to SLDS 2 themes. Components must use global styling hook
 ```css
 /* accountCard.css - SLDS 1 (Deprecated) */
 .card {
-    background-color: #ffffff;
-    color: #333333;
-    border: 1px solid #dddddd;
-    border-radius: 4px;
-    padding: 16px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  color: #333333;
+  border: 1px solid #dddddd;
+  border-radius: 4px;
+  padding: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .card-header {
-    color: #000000;
-    font-size: 16px;
-    font-weight: 700;
-    margin-bottom: 8px;
+  color: #000000;
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 8px;
 }
 
 .card-text {
-    color: #666666;
-    font-size: 14px;
+  color: #666666;
+  font-size: 14px;
 }
 
 .card-link {
-    color: #0176d3;
+  color: #0176d3;
 }
 
 .card-link:hover {
-    color: #014486;
-    text-decoration: underline;
+  color: #014486;
+  text-decoration: underline;
 }
 ```
 
@@ -129,33 +129,33 @@ Dark mode is exclusive to SLDS 2 themes. Components must use global styling hook
 ```css
 /* accountCard.css - SLDS 2 */
 .card {
-    background-color: var(--slds-g-color-surface-container-1, #ffffff);
-    color: var(--slds-g-color-on-surface, #181818);
-    border: 1px solid var(--slds-g-color-border-2, #e5e5e5);
-    border-radius: var(--slds-g-radius-border-2, 0.25rem);
-    padding: var(--slds-g-spacing-5, 1rem);
-    box-shadow: 0 2px 4px var(--slds-g-color-border-1, rgba(0, 0, 0, 0.1));
+  background-color: var(--slds-g-color-surface-container-1, #ffffff);
+  color: var(--slds-g-color-on-surface, #181818);
+  border: 1px solid var(--slds-g-color-border-2, #e5e5e5);
+  border-radius: var(--slds-g-radius-border-2, 0.25rem);
+  padding: var(--slds-g-spacing-5, 1rem);
+  box-shadow: 0 2px 4px var(--slds-g-color-border-1, rgba(0, 0, 0, 0.1));
 }
 
 .card-header {
-    color: var(--slds-g-color-on-surface, #181818);
-    font-size: var(--slds-g-font-size-5, 1rem);
-    font-weight: var(--slds-g-font-weight-bold, 700);
-    margin-bottom: var(--slds-g-spacing-3, 0.5rem);
+  color: var(--slds-g-color-on-surface, #181818);
+  font-size: var(--slds-g-font-size-5, 1rem);
+  font-weight: var(--slds-g-font-weight-bold, 700);
+  margin-bottom: var(--slds-g-spacing-3, 0.5rem);
 }
 
 .card-text {
-    color: var(--slds-g-color-on-surface-1, #444444);
-    font-size: var(--slds-g-font-size-3, 0.875rem);
+  color: var(--slds-g-color-on-surface-1, #444444);
+  font-size: var(--slds-g-font-size-3, 0.875rem);
 }
 
 .card-link {
-    color: var(--slds-g-color-brand-1, #0176d3);
+  color: var(--slds-g-color-brand-1, #0176d3);
 }
 
 .card-link:hover {
-    color: var(--slds-g-color-brand-2, #014486);
-    text-decoration: underline;
+  color: var(--slds-g-color-brand-2, #014486);
+  text-decoration: underline;
 }
 ```
 
@@ -166,64 +166,64 @@ Dark mode is exclusive to SLDS 2 themes. Components must use global styling hook
 import { LightningElement } from 'lwc';
 
 export default class DarkModeCard extends LightningElement {
-    // No JavaScript changes needed for dark mode!
-    // All theming is handled via CSS variables
+  // No JavaScript changes needed for dark mode!
+  // All theming is handled via CSS variables
 }
 ```
 
 ```html
 <!-- darkModeCard.html -->
 <template>
-    <div class="card">
-        <div class="card-header">
-            <h2 class="card-title">Account Details</h2>
-        </div>
-        <div class="card-body">
-            <p class="card-text">This card automatically adapts to light/dark mode</p>
-            <a href="#" class="card-link">Learn more</a>
-        </div>
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Account Details</h2>
     </div>
+    <div class="card-body">
+      <p class="card-text">This card automatically adapts to light/dark mode</p>
+      <a href="#" class="card-link">Learn more</a>
+    </div>
+  </div>
 </template>
 ```
 
 ```css
 /* darkModeCard.css */
 .card {
-    background-color: var(--slds-g-color-surface-container-1, #ffffff);
-    border: 1px solid var(--slds-g-color-border-2, #e5e5e5);
-    border-radius: var(--slds-g-radius-border-2, 0.25rem);
-    padding: var(--slds-g-spacing-5, 1rem);
+  background-color: var(--slds-g-color-surface-container-1, #ffffff);
+  border: 1px solid var(--slds-g-color-border-2, #e5e5e5);
+  border-radius: var(--slds-g-radius-border-2, 0.25rem);
+  padding: var(--slds-g-spacing-5, 1rem);
 }
 
 .card-header {
-    border-bottom: 1px solid var(--slds-g-color-border-2, #e5e5e5);
-    margin-bottom: var(--slds-g-spacing-4, 0.75rem);
-    padding-bottom: var(--slds-g-spacing-3, 0.5rem);
+  border-bottom: 1px solid var(--slds-g-color-border-2, #e5e5e5);
+  margin-bottom: var(--slds-g-spacing-4, 0.75rem);
+  padding-bottom: var(--slds-g-spacing-3, 0.5rem);
 }
 
 .card-title {
-    color: var(--slds-g-color-on-surface, #181818);
-    font-size: var(--slds-g-font-size-5, 1rem);
-    font-weight: var(--slds-g-font-weight-bold, 700);
-    margin: 0;
+  color: var(--slds-g-color-on-surface, #181818);
+  font-size: var(--slds-g-font-size-5, 1rem);
+  font-weight: var(--slds-g-font-weight-bold, 700);
+  margin: 0;
 }
 
 .card-body {
-    color: var(--slds-g-color-on-surface-1, #444444);
+  color: var(--slds-g-color-on-surface-1, #444444);
 }
 
 .card-text {
-    margin-bottom: var(--slds-g-spacing-4, 0.75rem);
+  margin-bottom: var(--slds-g-spacing-4, 0.75rem);
 }
 
 .card-link {
-    color: var(--slds-g-color-brand-1, #0176d3);
-    text-decoration: none;
+  color: var(--slds-g-color-brand-1, #0176d3);
+  text-decoration: none;
 }
 
 .card-link:hover {
-    color: var(--slds-g-color-brand-2, #014486);
-    text-decoration: underline;
+  color: var(--slds-g-color-brand-2, #014486);
+  text-decoration: underline;
 }
 ```
 
@@ -271,24 +271,23 @@ get visibleItems() {
 
 ```html
 <!-- lwc:if removes from DOM (better for large blocks) -->
-<template lwc:if={showDashboard}>
-    <c-dashboard data={dashboardData}></c-dashboard>
+<template lwc:if="{showDashboard}">
+  <c-dashboard data="{dashboardData}"></c-dashboard>
 </template>
 
 <!-- if:true hides with CSS (better for frequent toggling) -->
-<div if:true={showMessage} class="message">
-    {message}
-</div>
+<div if:true="{showMessage}" class="message">{message}</div>
 ```
 
 ### Key Directive for Lists
 
 ```html
 <!-- CRITICAL: Use unique, stable keys -->
-<template for:each={accounts} for:item="account">
-    <div key={account.Id}>  <!-- Use record ID, not index -->
-        {account.Name}
-    </div>
+<template for:each="{accounts}" for:item="account">
+  <div key="{account.Id}">
+    <!-- Use record ID, not index -->
+    {account.Name}
+  </div>
 </template>
 ```
 
@@ -340,16 +339,16 @@ renderedCallback() {
 ```javascript
 // accountManager.js
 export default class AccountManager extends LightningElement {
-    @track showCharts = false;
-    chartModule;
+  @track showCharts = false;
+  chartModule;
 
-    async handleShowCharts() {
-        if (!this.chartModule) {
-            // Lazy load chart component
-            this.chartModule = await import('c/accountChart');
-        }
-        this.showCharts = true;
+  async handleShowCharts() {
+    if (!this.chartModule) {
+      // Lazy load chart component
+      this.chartModule = await import('c/accountChart');
     }
+    this.showCharts = true;
+  }
 }
 ```
 
@@ -358,46 +357,51 @@ export default class AccountManager extends LightningElement {
 ```javascript
 // lazyImageLoader.js
 export default class LazyImageLoader extends LightningElement {
-    @api src;
-    @api alt;
+  @api src;
+  @api alt;
 
-    isVisible = false;
-    observer;
+  isVisible = false;
+  observer;
 
-    renderedCallback() {
-        if (!this.observer) {
-            this.observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        this.isVisible = true;
-                        this.observer.disconnect();
-                    }
-                });
-            }, { rootMargin: '50px' });
-
-            const img = this.template.querySelector('img');
-            if (img) {
-                this.observer.observe(img);
+  renderedCallback() {
+    if (!this.observer) {
+      this.observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              this.isVisible = true;
+              this.observer.disconnect();
             }
-        }
-    }
+          });
+        },
+        { rootMargin: '50px' }
+      );
 
-    get imageSrc() {
-        return this.isVisible ? this.src : 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+      const img = this.template.querySelector('img');
+      if (img) {
+        this.observer.observe(img);
+      }
     }
+  }
 
-    disconnectedCallback() {
-        if (this.observer) {
-            this.observer.disconnect();
-        }
+  get imageSrc() {
+    return this.isVisible
+      ? this.src
+      : 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+  }
+
+  disconnectedCallback() {
+    if (this.observer) {
+      this.observer.disconnect();
     }
+  }
 }
 ```
 
 ```html
 <!-- lazyImageLoader.html -->
 <template>
-    <img src={imageSrc} alt={alt} loading="lazy">
+  <img src="{imageSrc}" alt="{alt}" loading="lazy" />
 </template>
 ```
 
@@ -406,68 +410,58 @@ export default class LazyImageLoader extends LightningElement {
 ```javascript
 // virtualList.js
 export default class VirtualList extends LightningElement {
-    @api items = [];
-    @track visibleItems = [];
+  @api items = [];
+  @track visibleItems = [];
 
-    itemHeight = 50;
-    containerHeight = 500;
-    scrollTop = 0;
+  itemHeight = 50;
+  containerHeight = 500;
+  scrollTop = 0;
 
-    get visibleCount() {
-        return Math.ceil(this.containerHeight / this.itemHeight);
-    }
+  get visibleCount() {
+    return Math.ceil(this.containerHeight / this.itemHeight);
+  }
 
-    get startIndex() {
-        return Math.floor(this.scrollTop / this.itemHeight);
-    }
+  get startIndex() {
+    return Math.floor(this.scrollTop / this.itemHeight);
+  }
 
-    get endIndex() {
-        return Math.min(
-            this.startIndex + this.visibleCount + 1,
-            this.items.length
-        );
-    }
+  get endIndex() {
+    return Math.min(this.startIndex + this.visibleCount + 1, this.items.length);
+  }
 
-    get paddingTop() {
-        return this.startIndex * this.itemHeight;
-    }
+  get paddingTop() {
+    return this.startIndex * this.itemHeight;
+  }
 
-    get paddingBottom() {
-        return (this.items.length - this.endIndex) * this.itemHeight;
-    }
+  get paddingBottom() {
+    return (this.items.length - this.endIndex) * this.itemHeight;
+  }
 
-    connectedCallback() {
-        this.updateVisibleItems();
-    }
+  connectedCallback() {
+    this.updateVisibleItems();
+  }
 
-    handleScroll(event) {
-        this.scrollTop = event.target.scrollTop;
-        this.updateVisibleItems();
-    }
+  handleScroll(event) {
+    this.scrollTop = event.target.scrollTop;
+    this.updateVisibleItems();
+  }
 
-    updateVisibleItems() {
-        this.visibleItems = this.items.slice(
-            this.startIndex,
-            this.endIndex
-        );
-    }
+  updateVisibleItems() {
+    this.visibleItems = this.items.slice(this.startIndex, this.endIndex);
+  }
 }
 ```
 
 ```html
 <!-- virtualList.html -->
 <template>
-    <div class="container"
-         style={containerStyle}
-         onscroll={handleScroll}>
-        <div style={paddingTopStyle}></div>
-        <template for:each={visibleItems} for:item="item">
-            <div key={item.id} class="item">
-                {item.name}
-            </div>
-        </template>
-        <div style={paddingBottomStyle}></div>
-    </div>
+  <div class="container" style="{containerStyle}" onscroll="{handleScroll}">
+    <div style="{paddingTopStyle}"></div>
+    <template for:each="{visibleItems}" for:item="item">
+      <div key="{item.id}" class="item">{item.name}</div>
+    </template>
+    <div style="{paddingBottomStyle}"></div>
+  </div>
 </template>
 ```
 
@@ -480,33 +474,33 @@ export default class VirtualList extends LightningElement {
 ```javascript
 // searchComponent.js
 export default class SearchComponent extends LightningElement {
-    searchTerm = '';
-    delayTimeout;
+  searchTerm = '';
+  delayTimeout;
 
-    handleSearchChange(event) {
-        const searchTerm = event.target.value;
+  handleSearchChange(event) {
+    const searchTerm = event.target.value;
 
-        // Clear previous timeout
-        clearTimeout(this.delayTimeout);
+    // Clear previous timeout
+    clearTimeout(this.delayTimeout);
 
-        // Set new timeout (300ms debounce)
-        this.delayTimeout = setTimeout(() => {
-            this.performSearch(searchTerm);
-        }, 300);
+    // Set new timeout (300ms debounce)
+    this.delayTimeout = setTimeout(() => {
+      this.performSearch(searchTerm);
+    }, 300);
+  }
+
+  async performSearch(term) {
+    try {
+      const results = await searchAccounts({ searchTerm: term });
+      this.results = results;
+    } catch (error) {
+      this.handleError(error);
     }
+  }
 
-    async performSearch(term) {
-        try {
-            const results = await searchAccounts({ searchTerm: term });
-            this.results = results;
-        } catch (error) {
-            this.handleError(error);
-        }
-    }
-
-    disconnectedCallback() {
-        clearTimeout(this.delayTimeout);
-    }
+  disconnectedCallback() {
+    clearTimeout(this.delayTimeout);
+  }
 }
 ```
 
@@ -515,22 +509,22 @@ export default class SearchComponent extends LightningElement {
 ```javascript
 // scrollTracker.js
 export default class ScrollTracker extends LightningElement {
-    lastScrollTime = 0;
-    throttleDelay = 100;
+  lastScrollTime = 0;
+  throttleDelay = 100;
 
-    handleScroll(event) {
-        const now = Date.now();
+  handleScroll(event) {
+    const now = Date.now();
 
-        if (now - this.lastScrollTime >= this.throttleDelay) {
-            this.lastScrollTime = now;
-            this.processScroll(event);
-        }
+    if (now - this.lastScrollTime >= this.throttleDelay) {
+      this.lastScrollTime = now;
+      this.processScroll(event);
     }
+  }
 
-    processScroll(event) {
-        // Handle scroll logic
-        console.log('Scroll position:', event.target.scrollTop);
-    }
+  processScroll(event) {
+    // Handle scroll logic
+    console.log('Scroll position:', event.target.scrollTop);
+  }
 }
 ```
 
@@ -539,23 +533,23 @@ export default class ScrollTracker extends LightningElement {
 ```javascript
 // accountList.js
 export default class AccountList extends LightningElement {
-    @api recordId;
-    wiredAccountsResult;
+  @api recordId;
+  wiredAccountsResult;
 
-    @wire(getAccounts, { accountId: '$recordId' })
-    wiredAccounts(result) {
-        this.wiredAccountsResult = result; // Cache for refreshApex
-        if (result.data) {
-            this.accounts = result.data;
-        } else if (result.error) {
-            this.error = result.error;
-        }
+  @wire(getAccounts, { accountId: '$recordId' })
+  wiredAccounts(result) {
+    this.wiredAccountsResult = result; // Cache for refreshApex
+    if (result.data) {
+      this.accounts = result.data;
+    } else if (result.error) {
+      this.error = result.error;
     }
+  }
 
-    async handleRefresh() {
-        // Refresh cached wire result
-        await refreshApex(this.wiredAccountsResult);
-    }
+  async handleRefresh() {
+    // Refresh cached wire result
+    await refreshApex(this.wiredAccountsResult);
+  }
 }
 ```
 
@@ -609,46 +603,40 @@ handleClick(event) {
 
 ```javascript
 export default class ResourceManager extends LightningElement {
-    subscription;
-    intervalId;
-    observer;
+  subscription;
+  intervalId;
+  observer;
 
-    connectedCallback() {
-        // Subscribe to events
-        this.subscription = subscribe(
-            this.messageContext,
-            CHANNEL,
-            this.handleMessage
-        );
+  connectedCallback() {
+    // Subscribe to events
+    this.subscription = subscribe(this.messageContext, CHANNEL, this.handleMessage);
 
-        // Set interval
-        this.intervalId = setInterval(() => {
-            this.updateData();
-        }, 5000);
+    // Set interval
+    this.intervalId = setInterval(() => {
+      this.updateData();
+    }, 5000);
 
-        // Create observer
-        this.observer = new IntersectionObserver(
-            this.handleIntersection
-        );
+    // Create observer
+    this.observer = new IntersectionObserver(this.handleIntersection);
+  }
+
+  disconnectedCallback() {
+    // CRITICAL: Clean up all resources
+    if (this.subscription) {
+      unsubscribe(this.subscription);
+      this.subscription = null;
     }
 
-    disconnectedCallback() {
-        // CRITICAL: Clean up all resources
-        if (this.subscription) {
-            unsubscribe(this.subscription);
-            this.subscription = null;
-        }
-
-        if (this.intervalId) {
-            clearInterval(this.intervalId);
-            this.intervalId = null;
-        }
-
-        if (this.observer) {
-            this.observer.disconnect();
-            this.observer = null;
-        }
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+      this.intervalId = null;
     }
+
+    if (this.observer) {
+      this.observer.disconnect();
+      this.observer = null;
+    }
+  }
 }
 ```
 
@@ -656,20 +644,20 @@ export default class ResourceManager extends LightningElement {
 
 ```javascript
 export default class EventManager extends LightningElement {
-    boundHandler;
+  boundHandler;
 
-    connectedCallback() {
-        this.boundHandler = this.handleResize.bind(this);
-        window.addEventListener('resize', this.boundHandler);
-    }
+  connectedCallback() {
+    this.boundHandler = this.handleResize.bind(this);
+    window.addEventListener('resize', this.boundHandler);
+  }
 
-    disconnectedCallback() {
-        window.removeEventListener('resize', this.boundHandler);
-    }
+  disconnectedCallback() {
+    window.removeEventListener('resize', this.boundHandler);
+  }
 
-    handleResize() {
-        // Handle resize
-    }
+  handleResize() {
+    // Handle resize
+  }
 }
 ```
 
@@ -713,19 +701,15 @@ get formattedDate() {
 ```javascript
 // Add performance marks
 export default class PerformanceTracked extends LightningElement {
-    connectedCallback() {
-        performance.mark('component-start');
-        this.initializeComponent();
-        performance.mark('component-end');
-        performance.measure(
-            'component-initialization',
-            'component-start',
-            'component-end'
-        );
+  connectedCallback() {
+    performance.mark('component-start');
+    this.initializeComponent();
+    performance.mark('component-end');
+    performance.measure('component-initialization', 'component-start', 'component-end');
 
-        const measure = performance.getEntriesByName('component-initialization')[0];
-        console.log('Initialization took:', measure.duration, 'ms');
-    }
+    const measure = performance.getEntriesByName('component-initialization')[0];
+    console.log('Initialization took:', measure.duration, 'ms');
+  }
 }
 ```
 
@@ -739,15 +723,15 @@ lighthouse https://your-org.lightning.force.com --only-categories=performance
 
 ```javascript
 export default class MetricsTracker extends LightningElement {
-    connectedCallback() {
-        // Track time to interactive
-        const startTime = performance.now();
+  connectedCallback() {
+    // Track time to interactive
+    const startTime = performance.now();
 
-        this.loadData().then(() => {
-            const endTime = performance.now();
-            console.log('Time to interactive:', endTime - startTime, 'ms');
-        });
-    }
+    this.loadData().then(() => {
+      const endTime = performance.now();
+      console.log('Time to interactive:', endTime - startTime, 'ms');
+    });
+  }
 }
 ```
 

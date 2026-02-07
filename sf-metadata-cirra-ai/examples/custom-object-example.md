@@ -5,6 +5,7 @@ This example demonstrates creating a complete custom object with fields, validat
 ## Scenario
 
 Create an Invoice object for tracking customer invoices with:
+
 - Auto-numbered invoice number
 - Customer (Account) relationship
 - Line items (child object)
@@ -64,6 +65,7 @@ Create an Invoice object for tracking customer invoices with:
 ## Step 2: Create Custom Fields
 
 ### Account Lookup
+
 **File:** `force-app/main/default/objects/Invoice__c/fields/Account__c.field-meta.xml`
 
 ```xml
@@ -85,6 +87,7 @@ Create an Invoice object for tracking customer invoices with:
 ```
 
 ### Status Picklist
+
 **File:** `force-app/main/default/objects/Invoice__c/fields/Status__c.field-meta.xml`
 
 ```xml
@@ -133,6 +136,7 @@ Create an Invoice object for tracking customer invoices with:
 ```
 
 ### Invoice Date
+
 **File:** `force-app/main/default/objects/Invoice__c/fields/Invoice_Date__c.field-meta.xml`
 
 ```xml
@@ -151,6 +155,7 @@ Create an Invoice object for tracking customer invoices with:
 ```
 
 ### Due Date
+
 **File:** `force-app/main/default/objects/Invoice__c/fields/Due_Date__c.field-meta.xml`
 
 ```xml
@@ -169,6 +174,7 @@ Create an Invoice object for tracking customer invoices with:
 ```
 
 ### Total Amount
+
 **File:** `force-app/main/default/objects/Invoice__c/fields/Total_Amount__c.field-meta.xml`
 
 ```xml
@@ -189,6 +195,7 @@ Create an Invoice object for tracking customer invoices with:
 ```
 
 ### Payment Date
+
 **File:** `force-app/main/default/objects/Invoice__c/fields/Payment_Date__c.field-meta.xml`
 
 ```xml
@@ -206,6 +213,7 @@ Create an Invoice object for tracking customer invoices with:
 ```
 
 ### Days Overdue (Formula)
+
 **File:** `force-app/main/default/objects/Invoice__c/fields/Days_Overdue__c.field-meta.xml`
 
 ```xml
@@ -238,6 +246,7 @@ Create an Invoice object for tracking customer invoices with:
 ## Step 3: Create Validation Rules
 
 ### Require Payment Date When Paid
+
 **File:** `force-app/main/default/objects/Invoice__c/validationRules/Require_Payment_Date_When_Paid.validationRule-meta.xml`
 
 ```xml
@@ -257,6 +266,7 @@ Create an Invoice object for tracking customer invoices with:
 ```
 
 ### Due Date After Invoice Date
+
 **File:** `force-app/main/default/objects/Invoice__c/validationRules/Due_Date_After_Invoice_Date.validationRule-meta.xml`
 
 ```xml

@@ -38,12 +38,12 @@ LWC state management has evolved beyond simple reactive properties. This guide c
 
 ## When to Use Each Pattern
 
-| Pattern | Complexity | Scope | Use Case |
-|---------|------------|-------|----------|
-| **@track / reactive properties** | Low | Component | Form inputs, toggles, local UI state |
-| **Singleton Store** | Medium | Cross-component | Shopping cart, filters, user preferences |
-| **@lwc/state** | Medium-High | Cross-component | Complex forms, async state, computed values |
-| **Platform State Managers** | High | Page/Record | Record pages, layout-aware components |
+| Pattern                          | Complexity  | Scope           | Use Case                                    |
+| -------------------------------- | ----------- | --------------- | ------------------------------------------- |
+| **@track / reactive properties** | Low         | Component       | Form inputs, toggles, local UI state        |
+| **Singleton Store**              | Medium      | Cross-component | Shopping cart, filters, user preferences    |
+| **@lwc/state**                   | Medium-High | Cross-component | Complex forms, async state, computed values |
+| **Platform State Managers**      | High        | Page/Record     | Record pages, layout-aware components       |
 
 ---
 
@@ -55,23 +55,23 @@ LWC state management has evolved beyond simple reactive properties. This guide c
 import { LightningElement } from 'lwc';
 
 export default class SimpleState extends LightningElement {
-    // Reactive by default (primitive types and objects)
-    counter = 0;
-    isActive = false;
-    user = { name: 'John', email: 'john@example.com' };
+  // Reactive by default (primitive types and objects)
+  counter = 0;
+  isActive = false;
+  user = { name: 'John', email: 'john@example.com' };
 
-    // Object reassignment triggers reactivity
-    updateUser() {
-        // ✅ Works - new object reference
-        this.user = { ...this.user, name: 'Jane' };
+  // Object reassignment triggers reactivity
+  updateUser() {
+    // ✅ Works - new object reference
+    this.user = { ...this.user, name: 'Jane' };
 
-        // ❌ Won't trigger rerender - same reference
-        // this.user.name = 'Jane';
-    }
+    // ❌ Won't trigger rerender - same reference
+    // this.user.name = 'Jane';
+  }
 
-    increment() {
-        this.counter++; // ✅ Primitive assignment is reactive
-    }
+  increment() {
+    this.counter++; // ✅ Primitive assignment is reactive
+  }
 }
 ```
 
@@ -79,29 +79,29 @@ export default class SimpleState extends LightningElement {
 
 ```javascript
 export default class ComputedExample extends LightningElement {
-    firstName = '';
-    lastName = '';
-    items = [];
+  firstName = '';
+  lastName = '';
+  items = [];
 
-    // Computed property - recalculates when dependencies change
-    get fullName() {
-        return `${this.firstName} ${this.lastName}`.trim();
-    }
+  // Computed property - recalculates when dependencies change
+  get fullName() {
+    return `${this.firstName} ${this.lastName}`.trim();
+  }
 
-    get hasItems() {
-        return this.items.length > 0;
-    }
+  get hasItems() {
+    return this.items.length > 0;
+  }
 
-    get totalPrice() {
-        return this.items.reduce((sum, item) => sum + item.price, 0);
-    }
+  get totalPrice() {
+    return this.items.reduce((sum, item) => sum + item.price, 0);
+  }
 
-    get formattedPrice() {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD'
-        }).format(this.totalPrice);
-    }
+  get formattedPrice() {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    }).format(this.totalPrice);
+  }
 }
 ```
 
@@ -138,62 +138,62 @@ const subscribers = new Map();
 
 // Get current state for a key
 function getState(key) {
-    return state.get(key);
+  return state.get(key);
 }
 
 // Set state and notify subscribers
 function setState(key, value) {
-    const oldValue = state.get(key);
-    state.set(key, value);
+  const oldValue = state.get(key);
+  state.set(key, value);
 
-    // Notify all subscribers for this key
-    const keySubscribers = subscribers.get(key) || [];
-    keySubscribers.forEach(callback => {
-        try {
-            callback(value, oldValue);
-        } catch (e) {
-            console.error('Store subscriber error:', e);
-        }
-    });
+  // Notify all subscribers for this key
+  const keySubscribers = subscribers.get(key) || [];
+  keySubscribers.forEach((callback) => {
+    try {
+      callback(value, oldValue);
+    } catch (e) {
+      console.error('Store subscriber error:', e);
+    }
+  });
 }
 
 // Subscribe to state changes
 function subscribe(key, callback) {
-    if (!subscribers.has(key)) {
-        subscribers.set(key, []);
-    }
-    subscribers.get(key).push(callback);
+  if (!subscribers.has(key)) {
+    subscribers.set(key, []);
+  }
+  subscribers.get(key).push(callback);
 
-    // Return unsubscribe function
-    return () => {
-        const keySubscribers = subscribers.get(key) || [];
-        const index = keySubscribers.indexOf(callback);
-        if (index > -1) {
-            keySubscribers.splice(index, 1);
-        }
-    };
+  // Return unsubscribe function
+  return () => {
+    const keySubscribers = subscribers.get(key) || [];
+    const index = keySubscribers.indexOf(callback);
+    if (index > -1) {
+      keySubscribers.splice(index, 1);
+    }
+  };
 }
 
 // Initialize state with default values
 function initState(key, defaultValue) {
-    if (!state.has(key)) {
-        state.set(key, defaultValue);
-    }
-    return state.get(key);
+  if (!state.has(key)) {
+    state.set(key, defaultValue);
+  }
+  return state.get(key);
 }
 
 // Clear state (useful for testing)
 function clearState() {
-    state.clear();
-    subscribers.clear();
+  state.clear();
+  subscribers.clear();
 }
 
 export default {
-    getState,
-    setState,
-    subscribe,
-    initState,
-    clearState
+  getState,
+  setState,
+  subscribe,
+  initState,
+  clearState,
 };
 ```
 
@@ -205,37 +205,37 @@ import { LightningElement } from 'lwc';
 import store from 'c/store';
 
 export default class CartManager extends LightningElement {
-    cart = { items: [], total: 0 };
-    unsubscribe;
+  cart = { items: [], total: 0 };
+  unsubscribe;
 
-    connectedCallback() {
-        // Initialize cart state
-        this.cart = store.initState('cart', { items: [], total: 0 });
+  connectedCallback() {
+    // Initialize cart state
+    this.cart = store.initState('cart', { items: [], total: 0 });
 
-        // Subscribe to cart changes from other components
-        this.unsubscribe = store.subscribe('cart', (newCart) => {
-            this.cart = newCart;
-        });
+    // Subscribe to cart changes from other components
+    this.unsubscribe = store.subscribe('cart', (newCart) => {
+      this.cart = newCart;
+    });
+  }
+
+  disconnectedCallback() {
+    // Clean up subscription
+    if (this.unsubscribe) {
+      this.unsubscribe();
     }
+  }
 
-    disconnectedCallback() {
-        // Clean up subscription
-        if (this.unsubscribe) {
-            this.unsubscribe();
-        }
-    }
+  addItem(event) {
+    const item = event.detail;
+    const currentCart = store.getState('cart');
 
-    addItem(event) {
-        const item = event.detail;
-        const currentCart = store.getState('cart');
+    const newCart = {
+      items: [...currentCart.items, item],
+      total: currentCart.total + item.price,
+    };
 
-        const newCart = {
-            items: [...currentCart.items, item],
-            total: currentCart.total + item.price
-        };
-
-        store.setState('cart', newCart);
-    }
+    store.setState('cart', newCart);
+  }
 }
 ```
 
@@ -304,24 +304,24 @@ const cartAtom = atom({ items: [], total: 0 });
 
 // Actions encapsulate state mutations
 const addToCart = action((item) => {
-    const cart = cartAtom.value;
-    cartAtom.value = {
-        items: [...cart.items, item],
-        total: cart.total + item.price
-    };
+  const cart = cartAtom.value;
+  cartAtom.value = {
+    items: [...cart.items, item],
+    total: cart.total + item.price,
+  };
 });
 
 const removeFromCart = action((itemId) => {
-    const cart = cartAtom.value;
-    const item = cart.items.find(i => i.id === itemId);
-    cartAtom.value = {
-        items: cart.items.filter(i => i.id !== itemId),
-        total: cart.total - (item?.price || 0)
-    };
+  const cart = cartAtom.value;
+  const item = cart.items.find((i) => i.id === itemId);
+  cartAtom.value = {
+    items: cart.items.filter((i) => i.id !== itemId),
+    total: cart.total - (item?.price || 0),
+  };
 });
 
 const clearCart = action(() => {
-    cartAtom.reset();
+  cartAtom.reset();
 });
 ```
 
@@ -341,42 +341,42 @@ const hasResults = computed(() => resultsAtom.value.length > 0);
 const resultCount = computed(() => resultsAtom.value.length);
 
 export default class SearchComponent extends LightningElement {
-    // Bind atoms to component for reactivity
-    get searchTerm() {
-        return searchTermAtom.value;
+  // Bind atoms to component for reactivity
+  get searchTerm() {
+    return searchTermAtom.value;
+  }
+
+  get results() {
+    return resultsAtom.value;
+  }
+
+  get isLoading() {
+    return isLoadingAtom.value;
+  }
+
+  get hasResults() {
+    return hasResults.value;
+  }
+
+  handleSearchChange(event) {
+    searchTermAtom.value = event.target.value;
+    this.performSearch();
+  }
+
+  async performSearch() {
+    if (searchTermAtom.value.length < 2) {
+      resultsAtom.value = [];
+      return;
     }
 
-    get results() {
-        return resultsAtom.value;
+    isLoadingAtom.value = true;
+    try {
+      const results = await searchRecords({ term: searchTermAtom.value });
+      resultsAtom.value = results;
+    } finally {
+      isLoadingAtom.value = false;
     }
-
-    get isLoading() {
-        return isLoadingAtom.value;
-    }
-
-    get hasResults() {
-        return hasResults.value;
-    }
-
-    handleSearchChange(event) {
-        searchTermAtom.value = event.target.value;
-        this.performSearch();
-    }
-
-    async performSearch() {
-        if (searchTermAtom.value.length < 2) {
-            resultsAtom.value = [];
-            return;
-        }
-
-        isLoadingAtom.value = true;
-        try {
-            const results = await searchRecords({ term: searchTermAtom.value });
-            resultsAtom.value = results;
-        } finally {
-            isLoadingAtom.value = false;
-        }
-    }
+  }
 }
 ```
 
@@ -396,31 +396,31 @@ import { stateManagerRecord } from 'lightning/stateManagerRecord';
 import { getRecord } from 'lightning/uiRecordApi';
 
 export default class RecordStateExample extends LightningElement {
-    @api recordId;
+  @api recordId;
 
-    // Wire with state manager for enhanced caching
-    @wire(stateManagerRecord, {
-        recordId: '$recordId',
-        fields: ['Account.Name', 'Account.Industry']
-    })
-    recordState;
+  // Wire with state manager for enhanced caching
+  @wire(stateManagerRecord, {
+    recordId: '$recordId',
+    fields: ['Account.Name', 'Account.Industry'],
+  })
+  recordState;
 
-    get accountName() {
-        return this.recordState?.data?.fields?.Name?.value;
-    }
+  get accountName() {
+    return this.recordState?.data?.fields?.Name?.value;
+  }
 
-    get industry() {
-        return this.recordState?.data?.fields?.Industry?.value;
-    }
+  get industry() {
+    return this.recordState?.data?.fields?.Industry?.value;
+  }
 
-    // State manager provides loading/error states
-    get isLoading() {
-        return this.recordState?.loading;
-    }
+  // State manager provides loading/error states
+  get isLoading() {
+    return this.recordState?.loading;
+  }
 
-    get hasError() {
-        return !!this.recordState?.error;
-    }
+  get hasError() {
+    return !!this.recordState?.error;
+  }
 }
 ```
 
@@ -433,23 +433,23 @@ import { LightningElement, wire } from 'lwc';
 import { stateManagerLayout } from 'lightning/stateManagerLayout';
 
 export default class LayoutAwareComponent extends LightningElement {
-    @api recordId;
-    @api objectApiName;
+  @api recordId;
+  @api objectApiName;
 
-    // Wire layout state manager
-    @wire(stateManagerLayout, {
-        recordId: '$recordId',
-        objectApiName: '$objectApiName'
-    })
-    layoutState;
+  // Wire layout state manager
+  @wire(stateManagerLayout, {
+    recordId: '$recordId',
+    objectApiName: '$objectApiName',
+  })
+  layoutState;
 
-    get isCompact() {
-        return this.layoutState?.density === 'compact';
-    }
+  get isCompact() {
+    return this.layoutState?.density === 'compact';
+  }
 
-    get visibleFields() {
-        return this.layoutState?.fields || [];
-    }
+  get visibleFields() {
+    return this.layoutState?.fields || [];
+  }
 }
 ```
 
@@ -465,44 +465,44 @@ const selectedTabAtom = atom('details');
 const expandedSectionsAtom = atom(new Set(['overview']));
 
 export default class ComposedStateComponent extends LightningElement {
-    @api recordId;
+  @api recordId;
 
-    // Platform state for record data
-    @wire(stateManagerRecord, {
-        recordId: '$recordId',
-        fields: ['Account.Name', 'Account.Type', 'Account.Industry']
-    })
-    recordState;
+  // Platform state for record data
+  @wire(stateManagerRecord, {
+    recordId: '$recordId',
+    fields: ['Account.Name', 'Account.Type', 'Account.Industry'],
+  })
+  recordState;
 
-    // Custom state for UI
-    get selectedTab() {
-        return selectedTabAtom.value;
+  // Custom state for UI
+  get selectedTab() {
+    return selectedTabAtom.value;
+  }
+
+  get expandedSections() {
+    return expandedSectionsAtom.value;
+  }
+
+  isSectionExpanded(sectionId) {
+    return expandedSectionsAtom.value.has(sectionId);
+  }
+
+  handleTabChange(event) {
+    selectedTabAtom.value = event.detail.value;
+  }
+
+  handleSectionToggle(event) {
+    const sectionId = event.target.dataset.section;
+    const sections = new Set(expandedSectionsAtom.value);
+
+    if (sections.has(sectionId)) {
+      sections.delete(sectionId);
+    } else {
+      sections.add(sectionId);
     }
 
-    get expandedSections() {
-        return expandedSectionsAtom.value;
-    }
-
-    isSectionExpanded(sectionId) {
-        return expandedSectionsAtom.value.has(sectionId);
-    }
-
-    handleTabChange(event) {
-        selectedTabAtom.value = event.detail.value;
-    }
-
-    handleSectionToggle(event) {
-        const sectionId = event.target.dataset.section;
-        const sections = new Set(expandedSectionsAtom.value);
-
-        if (sections.has(sectionId)) {
-            sections.delete(sectionId);
-        } else {
-            sections.add(sectionId);
-        }
-
-        expandedSectionsAtom.value = sections;
-    }
+    expandedSectionsAtom.value = sections;
+  }
 }
 ```
 
@@ -637,5 +637,6 @@ disconnectedCallback() {
 ## Source
 
 > **References**:
+>
 > - [Mastering State Management in LWC using @lwc/state](https://salesforcediaries.com/2025/11/26/mastering-state-management-in-lwc-using-lwc-state/) - Salesforce Diaries
 > - [Platform State Managers in LWC](https://salesforcediaries.com/2025/11/26/platform-state-managers-in-lwc/) - Salesforce Diaries

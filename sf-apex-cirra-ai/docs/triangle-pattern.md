@@ -38,12 +38,12 @@ The **Triangle Architecture** is a foundational Salesforce pattern where Flow, L
 
 ## Apex's Role in the Triangle
 
-| Communication Path | Apex Annotation | Direction |
-|-------------------|-----------------|-----------|
-| Flow → Apex | `@InvocableMethod` | Request/Response |
-| Apex → Flow | `@InvocableVariable` | Return values |
-| LWC → Apex | `@AuraEnabled` | Async call |
-| Apex → LWC | Return value | Response |
+| Communication Path | Apex Annotation      | Direction        |
+| ------------------ | -------------------- | ---------------- |
+| Flow → Apex        | `@InvocableMethod`   | Request/Response |
+| Apex → Flow        | `@InvocableVariable` | Return values    |
+| LWC → Apex         | `@AuraEnabled`       | Async call       |
+| Apex → LWC         | Return value         | Response         |
 
 ---
 
@@ -164,10 +164,10 @@ public with sharing class RecordController {
 
 ### Key Differences
 
-| Annotation | Cacheable | Use For |
-|------------|-----------|---------|
-| `@AuraEnabled(cacheable=true)` | Yes | Read-only queries (SOQL) |
-| `@AuraEnabled` | No | DML operations, mutations |
+| Annotation                     | Cacheable | Use For                   |
+| ------------------------------ | --------- | ------------------------- |
+| `@AuraEnabled(cacheable=true)` | Yes       | Read-only queries (SOQL)  |
+| `@AuraEnabled`                 | No        | DML operations, mutations |
 
 ---
 
@@ -241,33 +241,33 @@ When deploying integrated triangle solutions:
 
 ## Common Anti-Patterns
 
-| Anti-Pattern | Problem | Solution |
-|--------------|---------|----------|
-| Non-bulkified Invocable | Fails for multi-record Flows | Use `List<Request>` → `List<Response>` |
-| Missing faultConnector handling | Exceptions crash Flow | Return error in Response, add fault path |
-| Cacheable method with DML | Runtime error | Remove `cacheable=true` for mutations |
-| Mixing concerns | Hard to test | Separate controller (LWC) from service (Flow) classes |
+| Anti-Pattern                    | Problem                      | Solution                                              |
+| ------------------------------- | ---------------------------- | ----------------------------------------------------- |
+| Non-bulkified Invocable         | Fails for multi-record Flows | Use `List<Request>` → `List<Response>`                |
+| Missing faultConnector handling | Exceptions crash Flow        | Return error in Response, add fault path              |
+| Cacheable method with DML       | Runtime error                | Remove `cacheable=true` for mutations                 |
+| Mixing concerns                 | Hard to test                 | Separate controller (LWC) from service (Flow) classes |
 
 ---
 
 ## Decision Matrix
 
-| Scenario | Use @InvocableMethod | Use @AuraEnabled |
-|----------|---------------------|------------------|
-| Called from Flow | ✅ | ❌ |
-| Called from LWC | ❌ | ✅ |
-| Needs bulkification | ✅ (always bulk) | Optional |
-| Read-only query | Either | ✅ (cacheable) |
-| DML operations | ✅ | ✅ |
-| External callout | ✅ | ✅ |
+| Scenario            | Use @InvocableMethod | Use @AuraEnabled |
+| ------------------- | -------------------- | ---------------- |
+| Called from Flow    | ✅                   | ❌               |
+| Called from LWC     | ❌                   | ✅               |
+| Needs bulkification | ✅ (always bulk)     | Optional         |
+| Read-only query     | Either               | ✅ (cacheable)   |
+| DML operations      | ✅                   | ✅               |
+| External callout    | ✅                   | ✅               |
 
 ---
 
 ## Related Documentation
 
-| Topic | Location |
-|-------|----------|
+| Topic                      | Location                                 |
+| -------------------------- | ---------------------------------------- |
 | @InvocableMethod templates | `sf-apex/templates/invocable-method.cls` |
-| Flow integration guide | `sf-apex/docs/flow-integration.md` |
-| LWC triangle perspective | `sf-lwc/docs/triangle-pattern.md` |
-| Flow triangle perspective | `sf-flow/docs/triangle-pattern.md` |
+| Flow integration guide     | `sf-apex/docs/flow-integration.md`       |
+| LWC triangle perspective   | `sf-lwc/docs/triangle-pattern.md`        |
+| Flow triangle perspective  | `sf-flow/docs/triangle-pattern.md`       |

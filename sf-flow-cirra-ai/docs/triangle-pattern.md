@@ -39,12 +39,12 @@ The **Triangle Architecture** is a foundational Salesforce pattern where Flow, L
 
 ## Flow's Role in the Triangle
 
-| Communication Path | Flow XML Element | Direction |
-|-------------------|------------------|-----------|
-| Flow → LWC | `inputParameters` in `<screens>` | Push data to component |
-| LWC → Flow | `outputParameters` in `<screens>` | Receive from component |
-| Flow → Apex | `actionCalls` with `actionType="apex"` | Call Invocable |
-| Apex → Flow | `outputParameters` in `<actionCalls>` | Receive results |
+| Communication Path | Flow XML Element                       | Direction              |
+| ------------------ | -------------------------------------- | ---------------------- |
+| Flow → LWC         | `inputParameters` in `<screens>`       | Push data to component |
+| LWC → Flow         | `outputParameters` in `<screens>`      | Receive from component |
+| Flow → Apex        | `actionCalls` with `actionType="apex"` | Call Invocable         |
+| Apex → Flow        | `outputParameters` in `<actionCalls>`  | Receive results        |
 
 ---
 
@@ -373,36 +373,36 @@ When deploying integrated triangle solutions:
 
 ## Decision Matrix: When to Use Each Approach
 
-| Scenario | Primary | Supporting | Why |
-|----------|---------|------------|-----|
-| Simple record selection | LWC | - | Rich UI, immediate feedback |
-| Complex multi-step process | **Flow** | Apex, LWC | Orchestration strength |
-| Bulk data processing | Apex | - | Governor limit handling |
-| Custom UI in guided process | **Flow** | LWC | Best of both |
-| External API integration | Apex | Flow wrapper | Authentication, callouts |
-| Admin-maintainable logic | **Flow** | Apex for complex ops | Low-code primary |
-| User-facing wizard | **Flow** + LWC | Apex | Complete solution |
+| Scenario                    | Primary        | Supporting           | Why                         |
+| --------------------------- | -------------- | -------------------- | --------------------------- |
+| Simple record selection     | LWC            | -                    | Rich UI, immediate feedback |
+| Complex multi-step process  | **Flow**       | Apex, LWC            | Orchestration strength      |
+| Bulk data processing        | Apex           | -                    | Governor limit handling     |
+| Custom UI in guided process | **Flow**       | LWC                  | Best of both                |
+| External API integration    | Apex           | Flow wrapper         | Authentication, callouts    |
+| Admin-maintainable logic    | **Flow**       | Apex for complex ops | Low-code primary            |
+| User-facing wizard          | **Flow** + LWC | Apex                 | Complete solution           |
 
 ---
 
 ## Common Anti-Patterns
 
-| Anti-Pattern | Problem | Solution |
-|--------------|---------|----------|
-| No faultConnector on Apex actions | Unhandled exceptions crash Flow | Always add fault path |
-| Hardcoded IDs in Flow | Environment-specific failures | Use Custom Metadata or variables |
-| Missing outputParameters | Apex results not available | Map all needed outputs |
-| LWC without outputParameters | Component outputs ignored | Add outputParameters mapping |
-| Skipping validation before Apex | Invalid data causes errors | Add decision elements |
+| Anti-Pattern                      | Problem                         | Solution                         |
+| --------------------------------- | ------------------------------- | -------------------------------- |
+| No faultConnector on Apex actions | Unhandled exceptions crash Flow | Always add fault path            |
+| Hardcoded IDs in Flow             | Environment-specific failures   | Use Custom Metadata or variables |
+| Missing outputParameters          | Apex results not available      | Map all needed outputs           |
+| LWC without outputParameters      | Component outputs ignored       | Add outputParameters mapping     |
+| Skipping validation before Apex   | Invalid data causes errors      | Add decision elements            |
 
 ---
 
 ## Related Documentation
 
-| Topic | Location |
-|-------|----------|
-| Apex action template | `sf-flow/templates/apex-action-template.xml` |
-| Screen Flow with LWC | `sf-flow/templates/screen-flow-with-lwc.xml` |
-| LWC integration guide | `sf-flow/docs/lwc-integration-guide.md` |
-| Apex triangle perspective | `sf-apex/docs/triangle-pattern.md` |
-| LWC triangle perspective | `sf-lwc/docs/triangle-pattern.md` |
+| Topic                     | Location                                     |
+| ------------------------- | -------------------------------------------- |
+| Apex action template      | `sf-flow/templates/apex-action-template.xml` |
+| Screen Flow with LWC      | `sf-flow/templates/screen-flow-with-lwc.xml` |
+| LWC integration guide     | `sf-flow/docs/lwc-integration-guide.md`      |
+| Apex triangle perspective | `sf-apex/docs/triangle-pattern.md`           |
+| LWC triangle perspective  | `sf-lwc/docs/triangle-pattern.md`            |

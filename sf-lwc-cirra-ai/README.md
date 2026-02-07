@@ -33,6 +33,7 @@ Request: "Create a data table component for Account records"
 ### 2. Answer requirements questions
 
 The skill will ask about:
+
 - Component purpose
 - Data source (LDS, Apex, GraphQL)
 - Target (App Page, Record Page, Flow Screen)
@@ -41,6 +42,7 @@ The skill will ask about:
 ### 3. Review generated component
 
 The skill generates:
+
 - JavaScript controller with decorators
 - HTML template with SLDS styling
 - CSS with styling hooks (dark mode ready)
@@ -61,34 +63,34 @@ S → Security     │ Enforce permissions, FLS, and data protection
 
 ## Scoring System (165 Points)
 
-| Category | Points | Focus |
-|----------|--------|-------|
-| Component Structure | 25 | File organization, naming |
-| Data Layer | 25 | Wire service, error handling |
-| UI/UX | 25 | SLDS 2, responsiveness, dark mode |
-| Accessibility | 20 | WCAG, ARIA, keyboard navigation |
-| Testing | 20 | Jest coverage, async patterns |
-| Performance | 20 | Lazy loading, debouncing |
-| Events | 15 | Component communication |
-| Security | 15 | FLS, permissions |
+| Category            | Points | Focus                             |
+| ------------------- | ------ | --------------------------------- |
+| Component Structure | 25     | File organization, naming         |
+| Data Layer          | 25     | Wire service, error handling      |
+| UI/UX               | 25     | SLDS 2, responsiveness, dark mode |
+| Accessibility       | 20     | WCAG, ARIA, keyboard navigation   |
+| Testing             | 20     | Jest coverage, async patterns     |
+| Performance         | 20     | Lazy loading, debouncing          |
+| Events              | 15     | Component communication           |
+| Security            | 15     | FLS, permissions                  |
 
 ## Templates
 
-| Template | Use Case |
-|----------|----------|
-| `basic-component/` | Simple component starter |
-| `graphql-component/` | GraphQL data binding |
-| `flow-screen-component/` | Flow screen integration |
-| `typescript-component/` | TypeScript support (Spring '26) |
+| Template                 | Use Case                        |
+| ------------------------ | ------------------------------- |
+| `basic-component/`       | Simple component starter        |
+| `graphql-component/`     | GraphQL data binding            |
+| `flow-screen-component/` | Flow screen integration         |
+| `typescript-component/`  | TypeScript support (Spring '26) |
 
 ## Cross-Skill Integration
 
-| Related Skill | When to Use |
-|---------------|-------------|
-| sf-apex | Create @AuraEnabled controllers |
-| sf-flow | Embed in Flow screens |
-| sf-metadata | Create Lightning Message Channels |
-| sf-deploy | Deploy component to org |
+| Related Skill | When to Use                       |
+| ------------- | --------------------------------- |
+| sf-apex       | Create @AuraEnabled controllers   |
+| sf-flow       | Embed in Flow screens             |
+| sf-metadata   | Create Lightning Message Channels |
+| sf-deploy     | Deploy component to org           |
 
 ## Spring '26 Features (API 66.0)
 
@@ -96,7 +98,7 @@ S → Security     │ Enforce permissions, FLS, and data protection
 - **GraphQL Mutations**: executeMutation for create/update/delete
 - **Complex Expressions**: JS expressions in templates (Beta)
 - **TypeScript Support**: @salesforce/lightning-types package
-- **Agentforce Discovery**: lightning__agentforce capability
+- **Agentforce Discovery**: lightning\_\_agentforce capability
 
 ## Documentation
 

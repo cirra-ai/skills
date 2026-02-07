@@ -21,19 +21,20 @@ Comprehensive guide to Apex security including CRUD/FLS enforcement, sharing rul
 **BEFORE generating ANY Apex code, Claude MUST verify no anti-patterns are introduced.**
 
 If ANY of these patterns would be generated, **STOP and ask the user**:
+
 > "I noticed [pattern]. This will cause [problem]. Should I:
 > A) Refactor to use [correct pattern]
 > B) Proceed anyway (not recommended)"
 
-| Anti-Pattern | Detection | Impact | Correct Pattern |
-|--------------|-----------|--------|-----------------|
-| SOQL inside loop | `for(...) { [SELECT...] }` | Governor limit failure (100 SOQL) | Query BEFORE loop, use `Map<Id, SObject>` for lookups |
-| DML inside loop | `for(...) { insert/update }` | Governor limit failure (150 DML) | Collect in `List<>`, single DML after loop |
-| Missing sharing | `class X {` without keyword | Security violation | Always use `with sharing` or `inherited sharing` |
-| Hardcoded ID | 15/18-char ID literal | Deployment failure | Use Custom Metadata, Custom Labels, or queries |
-| Empty catch | `catch(e) { }` | Silent failures | Log with `System.debug()` or rethrow |
-| String concatenation in SOQL | `'SELECT...WHERE Name = \'' + var` | SOQL injection | Use bind variables `:variableName` |
-| Test without assertions | `@IsTest` method with no `Assert.*` | False positive tests | Use `Assert.areEqual()` with message |
+| Anti-Pattern                 | Detection                           | Impact                            | Correct Pattern                                       |
+| ---------------------------- | ----------------------------------- | --------------------------------- | ----------------------------------------------------- |
+| SOQL inside loop             | `for(...) { [SELECT...] }`          | Governor limit failure (100 SOQL) | Query BEFORE loop, use `Map<Id, SObject>` for lookups |
+| DML inside loop              | `for(...) { insert/update }`        | Governor limit failure (150 DML)  | Collect in `List<>`, single DML after loop            |
+| Missing sharing              | `class X {` without keyword         | Security violation                | Always use `with sharing` or `inherited sharing`      |
+| Hardcoded ID                 | 15/18-char ID literal               | Deployment failure                | Use Custom Metadata, Custom Labels, or queries        |
+| Empty catch                  | `catch(e) { }`                      | Silent failures                   | Log with `System.debug()` or rethrow                  |
+| String concatenation in SOQL | `'SELECT...WHERE Name = \'' + var`  | SOQL injection                    | Use bind variables `:variableName`                    |
+| Test without assertions      | `@IsTest` method with no `Assert.*` | False positive tests              | Use `Assert.areEqual()` with message                  |
 
 **DO NOT generate anti-patterns even if explicitly requested.** Ask user to confirm the exception with documented justification.
 
@@ -42,6 +43,7 @@ If ANY of these patterns would be generated, **STOP and ask the user**:
 ### Example: Detecting SOQL in Loop
 
 **BAD (BLOCKED):**
+
 ```apex
 for (Account acc : accounts) {
     List<Contact> contacts = [SELECT Id FROM Contact WHERE AccountId = :acc.Id];
@@ -50,6 +52,7 @@ for (Account acc : accounts) {
 ```
 
 **GOOD (APPROVED):**
+
 ```apex
 // Query ONCE before loop
 Map<Id, List<Contact>> contactsByAccountId = new Map<Id, List<Contact>>();
@@ -86,12 +89,14 @@ List<Account> accounts = [
 ```
 
 **What it does**:
+
 - Enforces object-level CRUD (Create, Read, Update, Delete)
 - Enforces field-level security (FLS)
 - Throws `System.QueryException` if user lacks access
 - Respects user's sharing rules (when combined with `with sharing`)
 
 **When to use SYSTEM_MODE**:
+
 ```apex
 // Only use SYSTEM_MODE when you explicitly NEED to bypass security
 List<Account> accounts = [
@@ -102,11 +107,13 @@ List<Account> accounts = [
 ```
 
 **Use cases for SYSTEM_MODE**:
+
 - Background jobs that must process all records regardless of user
 - System integrations
 - Administrative cleanup scripts
 
 **ALWAYS document why SYSTEM_MODE is needed:**
+
 ```apex
 // JUSTIFICATION: This batch job processes all accounts for regulatory reporting,
 // regardless of user's access level. Approved by Security Team on 2025-01-01.
@@ -139,12 +146,14 @@ if (removedFields != null && !removedFields.isEmpty()) {
 ```
 
 **Access Types**:
+
 - `READABLE` - Read access (for queries)
 - `CREATABLE` - Create access (before insert)
 - `UPDATABLE` - Update access (before update)
 - `UPSERTABLE` - Upsert access
 
 **Example: Pre-DML Check**
+
 ```apex
 public static void createAccounts(List<Account> accounts) {
     // Check if user can create these fields
@@ -193,11 +202,11 @@ if (!Schema.sObjectType.Account.fields.Industry.isUpdateable()) {
 
 ### Sharing Keywords
 
-| Keyword | Behavior | When to Use |
-|---------|----------|-------------|
-| `with sharing` | Enforces record-level sharing | Default for user-facing code |
-| `without sharing` | Bypasses record-level sharing | System operations, integrations |
-| `inherited sharing` | Inherits from calling class | Utility classes, shared libraries |
+| Keyword             | Behavior                      | When to Use                       |
+| ------------------- | ----------------------------- | --------------------------------- |
+| `with sharing`      | Enforces record-level sharing | Default for user-facing code      |
+| `without sharing`   | Bypasses record-level sharing | System operations, integrations   |
+| `inherited sharing` | Inherits from calling class   | Utility classes, shared libraries |
 
 **Default Rule**: If no keyword specified, class runs in `without sharing` mode (pre-API 40 behavior).
 
@@ -223,6 +232,7 @@ public with sharing class AccountService {
 ```
 
 **Use cases**:
+
 - User-facing controllers (LWC, Aura, Visualforce)
 - Service classes handling user requests
 - Trigger actions that respect user context
@@ -244,11 +254,13 @@ public without sharing class AdminService {
 ```
 
 **Use cases**:
+
 - Background jobs
 - System integrations
 - Administrative operations
 
 **Security Note**: Always add access control checks when using `without sharing`:
+
 ```apex
 public without sharing class AdminService {
 
@@ -281,6 +293,7 @@ public inherited sharing class StringUtils {
 ```
 
 **Use cases**:
+
 - Utility classes
 - Helper methods
 - Shared libraries that don't directly query records
@@ -393,6 +406,7 @@ public static List<Account> sortedAccounts(String sortField) {
 ### Dynamic SOQL Best Practices
 
 **Pattern: Safe Dynamic Query Builder**
+
 ```apex
 public class SafeQueryBuilder {
 
@@ -512,6 +526,7 @@ public with sharing class AccountController {
 ```
 
 **Security Notes**:
+
 - Always use `with sharing` for `@AuraEnabled` methods
 - Use `WITH USER_MODE` in SOQL
 - Validate DML permissions before operations
@@ -543,14 +558,14 @@ public with sharing class EventPublisher {
 
 ## Common Security Vulnerabilities
 
-| Vulnerability | Example | Fix |
-|---------------|---------|-----|
-| **SOQL Injection** | `'WHERE Name = \'' + input + '\''` | Use bind variable `:input` |
-| **XSS (Cross-Site Scripting)** | Returning unsanitized HTML | Use `HTMLENCODE()` in VF or LWC escaping |
+| Vulnerability                        | Example                                               | Fix                                                   |
+| ------------------------------------ | ----------------------------------------------------- | ----------------------------------------------------- |
+| **SOQL Injection**                   | `'WHERE Name = \'' + input + '\''`                    | Use bind variable `:input`                            |
+| **XSS (Cross-Site Scripting)**       | Returning unsanitized HTML                            | Use `HTMLENCODE()` in VF or LWC escaping              |
 | **Insecure Direct Object Reference** | Accepting record ID from user without checking access | Query with `WITH USER_MODE`, verify in `with sharing` |
-| **Hardcoded Credentials** | `String apiKey = 'abc123';` | Use Named Credentials |
-| **Missing FLS** | Directly querying fields without checking | Use `WITH USER_MODE` |
-| **Overly Permissive Sharing** | `without sharing` everywhere | Use `with sharing` by default |
+| **Hardcoded Credentials**            | `String apiKey = 'abc123';`                           | Use Named Credentials                                 |
+| **Missing FLS**                      | Directly querying fields without checking             | Use `WITH USER_MODE`                                  |
+| **Overly Permissive Sharing**        | `without sharing` everywhere                          | Use `with sharing` by default                         |
 
 ---
 
@@ -599,6 +614,7 @@ static void testSharingEnforcement() {
 ## Reference
 
 **Full Documentation**: See `docs/` folder for comprehensive guides:
+
 - `security-guide.md` - Complete security reference (this is an extract)
 - `best-practices.md` - Includes security best practices
 - `code-review-checklist.md` - Security scoring criteria

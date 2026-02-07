@@ -23,24 +23,24 @@ done
 
 ## What Each Agent Tests
 
-| Agent Name | Tests Pattern | SKILL.md Section |
-|------------|---------------|------------------|
-| `Val_Minimal_Syntax` | Basic config, system, start_agent, topic blocks | Core Syntax |
-| `Val_Arithmetic_Ops` | Addition (+) and subtraction (-) operators | Expression Operators |
-| `Val_Comparison_Ops` | Comparison operators (>, <, >=, <=, ==, not-equal) | Expression Operators |
-| `Val_Variable_Scopes` | @state.*, @context.*, @variables.* | Variable Namespaces |
-| `Val_Topic_Transitions` | @utils.transition (permanent handoff) | Topic Transitions |
-| `Val_Latch_Pattern` | Boolean flag for topic re-entry | Production Gotchas |
-| `Val_Loop_Guard` | Max 3-4 iteration protection | Production Gotchas |
-| `Val_Interpolation` | Variable injection in strings | Interpolation |
+| Agent Name              | Tests Pattern                                      | SKILL.md Section     |
+| ----------------------- | -------------------------------------------------- | -------------------- |
+| `Val_Minimal_Syntax`    | Basic config, system, start_agent, topic blocks    | Core Syntax          |
+| `Val_Arithmetic_Ops`    | Addition (+) and subtraction (-) operators         | Expression Operators |
+| `Val_Comparison_Ops`    | Comparison operators (>, <, >=, <=, ==, not-equal) | Expression Operators |
+| `Val_Variable_Scopes`   | @state._, @context._, @variables.\*                | Variable Namespaces  |
+| `Val_Topic_Transitions` | @utils.transition (permanent handoff)              | Topic Transitions    |
+| `Val_Latch_Pattern`     | Boolean flag for topic re-entry                    | Production Gotchas   |
+| `Val_Loop_Guard`        | Max 3-4 iteration protection                       | Production Gotchas   |
+| `Val_Interpolation`     | Variable injection in strings                      | Interpolation        |
 
 ## Validation Tiers
 
-| Tier | Check | Method | Pass Criteria |
-|------|-------|--------|---------------|
-| 1 | Syntax | `sf agent validate authoring-bundle` | Exit code 0 |
-| 2 | Deployment | `sf agent publish authoring-bundle` | Published successfully |
-| 3 | URL Health | HTTP HEAD requests | Salesforce doc URLs return 200 |
+| Tier | Check      | Method                               | Pass Criteria                  |
+| ---- | ---------- | ------------------------------------ | ------------------------------ |
+| 1    | Syntax     | `sf agent validate authoring-bundle` | Exit code 0                    |
+| 2    | Deployment | `sf agent publish authoring-bundle`  | Published successfully         |
+| 3    | URL Health | HTTP HEAD requests                   | Salesforce doc URLs return 200 |
 
 ## Test Org Configuration
 

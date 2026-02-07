@@ -21,8 +21,6 @@ import os
 import sys
 import argparse
 import xml.etree.ElementTree as ET
-from pathlib import Path
-from typing import List, Dict, Tuple
 
 
 # XML Namespace for Salesforce metadata
@@ -33,19 +31,19 @@ NS = {"sf": SF_NAMESPACE}
 def find_element(root, tag_name: str, ns: dict) -> ET.Element:
     """Find element with or without namespace prefix."""
     # Try with namespace first
-    elem = root.find(f'.//sf:{tag_name}', ns)
+    elem = root.find(f".//sf:{tag_name}", ns)
     if elem is not None:
         return elem
     # Try without namespace (default namespace)
-    elem = root.find(f'.//{{{SF_NAMESPACE}}}{tag_name}')
+    elem = root.find(f".//{{{SF_NAMESPACE}}}{tag_name}")
     if elem is not None:
         return elem
     # Try plain tag
-    elem = root.find(f'.//{tag_name}')
+    elem = root.find(f".//{tag_name}")
     return elem
 
 
-def parse_field_metadata(field_path: str) -> Dict:
+def parse_field_metadata(field_path: str) -> dict:
     """
     Parse a field metadata XML file and extract relevant information.
 
@@ -66,34 +64,40 @@ def parse_field_metadata(field_path: str) -> Dict:
 
         # Extract field name from filename
         filename = os.path.basename(field_path)
-        api_name = filename.replace('.field-meta.xml', '')
+        api_name = filename.replace(".field-meta.xml", "")
 
         # Get field type
-        field_type_elem = find_element(root, 'type', ns)
-        field_type = field_type_elem.text if field_type_elem is not None else 'Unknown'
+        field_type_elem = find_element(root, "type", ns)
+        field_type = field_type_elem.text if field_type_elem is not None else "Unknown"
 
         # Check if required
-        required_elem = find_element(root, 'required', ns)
-        is_required = required_elem is not None and required_elem.text and required_elem.text.lower() == 'true'
+        required_elem = find_element(root, "required", ns)
+        is_required = (
+            required_elem is not None
+            and required_elem.text
+            and required_elem.text.lower() == "true"
+        )
 
         # Check for formula
-        formula_elem = find_element(root, 'formula', ns)
-        is_formula = formula_elem is not None and formula_elem.text and len(formula_elem.text.strip()) > 0
+        formula_elem = find_element(root, "formula", ns)
+        is_formula = (
+            formula_elem is not None and formula_elem.text and len(formula_elem.text.strip()) > 0
+        )
 
         # Check for roll-up summary
-        is_rollup = field_type == 'Summary'
+        is_rollup = field_type == "Summary"
 
         # Check for master-detail
-        is_master_detail = field_type == 'MasterDetail'
+        is_master_detail = field_type == "MasterDetail"
 
         return {
-            'api_name': api_name,
-            'required': is_required,
-            'type': field_type,
-            'is_formula': is_formula,
-            'is_rollup': is_rollup,
-            'is_master_detail': is_master_detail,
-            'path': field_path
+            "api_name": api_name,
+            "required": is_required,
+            "type": field_type,
+            "is_formula": is_formula,
+            "is_rollup": is_rollup,
+            "is_master_detail": is_master_detail,
+            "path": field_path,
         }
 
     except ET.ParseError as e:
@@ -106,12 +110,12 @@ def parse_field_metadata(field_path: str) -> Dict:
 
 def get_object_name(object_dir: str) -> str:
     """Extract object API name from directory path."""
-    return os.path.basename(object_dir.rstrip('/'))
+    return os.path.basename(object_dir.rstrip("/"))
 
 
-def scan_fields(object_dir: str) -> List[Dict]:
+def scan_fields(object_dir: str) -> list[dict]:
     """Scan all field metadata files in an object directory."""
-    fields_dir = os.path.join(object_dir, 'fields')
+    fields_dir = os.path.join(object_dir, "fields")
     fields = []
 
     if not os.path.exists(fields_dir):
@@ -119,7 +123,7 @@ def scan_fields(object_dir: str) -> List[Dict]:
         return fields
 
     for filename in os.listdir(fields_dir):
-        if filename.endswith('.field-meta.xml'):
+        if filename.endswith(".field-meta.xml"):
             field_path = os.path.join(fields_dir, filename)
             field_info = parse_field_metadata(field_path)
             if field_info:
@@ -128,7 +132,9 @@ def scan_fields(object_dir: str) -> List[Dict]:
     return fields
 
 
-def filter_fields_for_permission_set(fields: List[Dict], object_name: str) -> Tuple[List[Dict], List[Dict]]:
+def filter_fields_for_permission_set(
+    fields: list[dict], object_name: str
+) -> tuple[list[dict], list[dict]]:
     """
     Filter fields to determine which should be included in Permission Set.
 
@@ -142,19 +148,19 @@ def filter_fields_for_permission_set(fields: List[Dict], object_name: str) -> Tu
         exclude_reason = None
 
         # Rule 1: Required fields are auto-visible
-        if field['required']:
+        if field["required"]:
             exclude_reason = "Required field (auto-visible)"
 
         # Rule 2: Master-Detail fields controlled by parent
-        elif field['is_master_detail']:
+        elif field["is_master_detail"]:
             exclude_reason = "Master-Detail (controlled by parent)"
 
         # Rule 3: Name field is always visible
-        elif field['api_name'].lower() == 'name':
+        elif field["api_name"].lower() == "name":
             exclude_reason = "Name field (always visible)"
 
         if exclude_reason:
-            field['exclude_reason'] = exclude_reason
+            field["exclude_reason"] = exclude_reason
             excluded.append(field)
         else:
             included.append(field)
@@ -162,14 +168,13 @@ def filter_fields_for_permission_set(fields: List[Dict], object_name: str) -> Tu
     return included, excluded
 
 
-def generate_permission_set_xml(object_name: str, included_fields: List[Dict]) -> str:
+def generate_permission_set_xml(object_name: str, included_fields: list[dict]) -> str:
     """Generate Permission Set XML content."""
 
     # Create label from object name (remove __c, add spaces)
-    label_name = object_name.replace('__c', '').replace('_', ' ')
-    perm_set_name = object_name.replace('__c', '') + '_Access'
+    label_name = object_name.replace("__c", "").replace("_", " ")
 
-    xml_content = f'''<?xml version="1.0" encoding="UTF-8"?>
+    xml_content = f"""<?xml version="1.0" encoding="UTF-8"?>
 <PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
     <description>Auto-generated: Grants full access to {label_name} object and its non-required fields</description>
     <hasActivationRequired>false</hasActivationRequired>
@@ -185,54 +190,53 @@ def generate_permission_set_xml(object_name: str, included_fields: List[Dict]) -
         <object>{object_name}</object>
         <viewAllRecords>true</viewAllRecords>
     </objectPermissions>
-'''
+"""
 
     # Add field permissions
     if included_fields:
-        xml_content += '''
+        xml_content += """
     <!-- Field Permissions -->
     <!-- NOTE: Required fields are EXCLUDED (auto-visible in Salesforce) -->
     <!-- NOTE: Formula/Roll-Up fields have editable=false -->
-'''
-        for field in sorted(included_fields, key=lambda x: x['api_name']):
+"""
+        for field in sorted(included_fields, key=lambda x: x["api_name"]):
             # Formula and Roll-Up fields can only be readable
-            editable = "false" if (field['is_formula'] or field['is_rollup']) else "true"
+            editable = "false" if (field["is_formula"] or field["is_rollup"]) else "true"
 
-            xml_content += f'''    <fieldPermissions>
+            xml_content += f"""    <fieldPermissions>
         <editable>{editable}</editable>
-        <field>{object_name}.{field['api_name']}</field>
+        <field>{object_name}.{field["api_name"]}</field>
         <readable>true</readable>
     </fieldPermissions>
-'''
+"""
 
-    xml_content += '''</PermissionSet>
-'''
+    xml_content += """</PermissionSet>
+"""
 
     return xml_content
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Generate Permission Set for a custom object with required field filtering'
+        description="Generate Permission Set for a custom object with required field filtering"
     )
     parser.add_argument(
-        'object_dir',
-        help='Path to object directory (e.g., force-app/main/default/objects/MyObject__c)'
+        "object_dir",
+        help="Path to object directory (e.g., force-app/main/default/objects/MyObject__c)",
     )
     parser.add_argument(
-        '--output', '-o',
-        help='Output path for Permission Set file (default: auto-generated in permissionsets/)',
-        default=None
+        "--output",
+        "-o",
+        help="Output path for Permission Set file (default: auto-generated in permissionsets/)",
+        default=None,
     )
     parser.add_argument(
-        '--dry-run',
-        action='store_true',
-        help='Print XML to stdout instead of writing to file'
+        "--dry-run", action="store_true", help="Print XML to stdout instead of writing to file"
     )
 
     args = parser.parse_args()
 
-    object_dir = args.object_dir.rstrip('/')
+    object_dir = args.object_dir.rstrip("/")
 
     # Validate object directory exists
     if not os.path.exists(object_dir):
@@ -262,7 +266,9 @@ def main():
     if included:
         print(f"\n✅ Included fields ({len(included)}):")
         for field in included:
-            field_type = "read-only" if (field['is_formula'] or field['is_rollup']) else "read/write"
+            field_type = (
+                "read-only" if (field["is_formula"] or field["is_rollup"]) else "read/write"
+            )
             print(f"   ✓ {field['api_name']} ({field_type})")
     else:
         print("\n⚠️ No fields to include in Permission Set")
@@ -282,22 +288,26 @@ def main():
     else:
         # Default: create in permissionsets directory at same level as objects
         base_dir = os.path.dirname(os.path.dirname(object_dir))  # Go up from objects/
-        perm_sets_dir = os.path.join(base_dir, 'permissionsets')
-        perm_set_name = object_name.replace('__c', '') + '_Access'
+        perm_sets_dir = os.path.join(base_dir, "permissionsets")
+        perm_set_name = object_name.replace("__c", "") + "_Access"
         output_path = os.path.join(perm_sets_dir, f"{perm_set_name}.permissionset-meta.xml")
 
     # Create directory if needed
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
     # Write file
-    with open(output_path, 'w') as f:
+    with open(output_path, "w") as f:
         f.write(xml_content)
 
-    print(f"\n✅ Permission Set generated successfully!")
+    print("\n✅ Permission Set generated successfully!")
     print(f"   📁 Location: {output_path}")
-    print(f"\n💡 Next steps:")
-    print(f"   1. Deploy: sf project deploy start --source-dir {os.path.dirname(output_path)} --target-org <alias>")
-    print(f"   2. Assign: sf org assign permset --name {object_name.replace('__c', '')}_Access --target-org <alias>")
+    print("\n💡 Next steps:")
+    print(
+        f"   1. Deploy: sf project deploy start --source-dir {os.path.dirname(output_path)} --target-org <alias>"
+    )
+    print(
+        f"   2. Assign: sf org assign permset --name {object_name.replace('__c', '')}_Access --target-org <alias>"
+    )
 
 
 if __name__ == "__main__":

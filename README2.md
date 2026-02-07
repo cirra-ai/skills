@@ -5,6 +5,7 @@ This directory contains the refactored **sf-apex** plugin that uses Cirra AI MCP
 ## Quick Start
 
 ### What Changed
+
 - Removed: Salesforce CLI dependencies (`sf project deploy`, `sf project retrieve`, etc.)
 - Added: Cirra AI MCP Server tools (`metadata_create`, `metadata_update`, `metadata_read`)
 - Result: Cloud-native, fully programmatic Apex code generation and deployment
@@ -12,12 +13,14 @@ This directory contains the refactored **sf-apex** plugin that uses Cirra AI MCP
 ### File Locations
 
 #### Plugin Configuration
+
 - **Plugin JSON**: `/exploded/.claude-plugin/plugin.json`
   - Declares MCP tool requirements
   - Version 2.0.0 (MCP-based)
   - 7 required tools + 3 optional
 
 #### Skill Documentation
+
 Two identical locations for different installation patterns:
 
 1. **Exploded Layout**
@@ -49,6 +52,7 @@ sf-skills-cirra-ai/
 ## Key Changes Overview
 
 ### Old (CLI-Based)
+
 ```bash
 # File system operations
 force-app/main/default/classes/AccountService.cls
@@ -64,6 +68,7 @@ sf sobject describe --sobject Account
 ```
 
 ### New (MCP-Based)
+
 ```apex
 // Generate as string
 String apexCode = "public class AccountService { ... }";
@@ -86,6 +91,7 @@ sobject_describe(sObject="Account")
 ## MCP Tools Used
 
 ### Required (Must Have)
+
 1. **cirra_ai_init** - Initialize Cirra AI MCP connection
 2. **metadata_create** - Deploy new Apex classes/triggers
 3. **metadata_update** - Update existing Apex code
@@ -95,48 +101,54 @@ sobject_describe(sObject="Account")
 7. **sobject_describe** - Discover object schema and fields
 
 ### Optional (Nice to Have)
+
 1. **metadata_delete** - Remove Apex classes from org
 2. **tooling_api_dml** - Create/update metadata via DML (TAF Custom Metadata)
 3. **sobjects_list** - List all objects in org
 
 ## Feature Comparison
 
-| Feature | CLI Version | MCP Version | Status |
-|---------|-----------|------------|--------|
-| Apex code generation | Yes | Yes | ✅ Identical |
-| Service/Selector layers | Yes | Yes | ✅ Identical |
-| TAF triggers | Yes | Yes | ✅ Identical |
-| Test classes (PNB) | Yes | Yes | ✅ Identical |
-| 150-point scoring | Yes | Yes | ✅ Identical |
-| Security best practices | Yes | Yes | ✅ Identical |
-| Bulkification rules | Yes | Yes | ✅ Identical |
-| Code deployment | CLI (force-app/) | MPC (metadata_create) | ✅ Refactored |
-| Code retrieval | CLI (sf retrieve) | MCP (metadata_read) | ✅ Refactored |
-| Anonymous Apex | sf apex run | Not supported | ❌ Removed |
-| Local file I/O | Yes (force-app/) | No | ✅ Improved |
+| Feature                 | CLI Version       | MCP Version           | Status        |
+| ----------------------- | ----------------- | --------------------- | ------------- |
+| Apex code generation    | Yes               | Yes                   | ✅ Identical  |
+| Service/Selector layers | Yes               | Yes                   | ✅ Identical  |
+| TAF triggers            | Yes               | Yes                   | ✅ Identical  |
+| Test classes (PNB)      | Yes               | Yes                   | ✅ Identical  |
+| 150-point scoring       | Yes               | Yes                   | ✅ Identical  |
+| Security best practices | Yes               | Yes                   | ✅ Identical  |
+| Bulkification rules     | Yes               | Yes                   | ✅ Identical  |
+| Code deployment         | CLI (force-app/)  | MPC (metadata_create) | ✅ Refactored |
+| Code retrieval          | CLI (sf retrieve) | MCP (metadata_read)   | ✅ Refactored |
+| Anonymous Apex          | sf apex run       | Not supported         | ❌ Removed    |
+| Local file I/O          | Yes (force-app/)  | No                    | ✅ Improved   |
 
 ## Workflow Phases (Unchanged Core)
 
 ### Phase 1: Requirements
+
 - Gather class type, purpose, target object
 - Initialize MCP: `cirra_ai_init(cirra_ai_team="...", sf_user="...")`
 - Query existing code: `tooling_api_query(...)`
 
 ### Phase 2: Design
+
 - Select template pattern (TAF, Service, Batch, Test, etc.)
 - Plan code structure and dependencies
 
 ### Phase 3: Generation
+
 - Generate Apex code as STRING
 - Validate against guardrails (no SOQL in loops, no hardcoded IDs, etc.)
 - Score against 150-point rubric
 
 ### Phase 4: Deployment (REFACTORED)
+
 - Deploy via `metadata_create(type="ApexClass", metadata=[...])`
 - Verify with `metadata_read(type="ApexClass", fullNames=[...])`
 - Query test results: `tooling_api_query(sObject="ApexTestResult")`
 
 ### Phase 5: Documentation
+
 - Summary with score and next steps
 - Test execution recommendations
 
@@ -154,6 +166,7 @@ All 2025 best practices are preserved:
 - **Documentation** (10 pts): ApexDoc comments, meaningful parameters
 
 Scoring thresholds remain:
+
 - ✅ 90+ points: Deploy
 - ⚠️ 67-89 points: Review required
 - ❌ <67 points: Blocked - fix required
@@ -161,16 +174,19 @@ Scoring thresholds remain:
 ## Installation
 
 ### Prerequisites
+
 - Cirra AI MCP Server access
 - Salesforce org with Apex API enabled
 - Claude Code with skill support
 
 ### Steps
+
 1. Copy the skill to your Claude plugins directory
 2. Use either `exploded` or `skill` layout (both work identically)
 3. Invoke with skill name: `sf-apex-cirra-ai`
 
 ### Invoke Examples
+
 ```
 User: Create a service class for Account processing using sf-apex-cirra-ai
 
@@ -185,6 +201,7 @@ Claude will:
 ## Testing the Refactored Skill
 
 ### Test 1: Class Generation and Deployment
+
 ```
 Request: Generate a bulkified Account service class
 
@@ -198,6 +215,7 @@ Expected:
 ```
 
 ### Test 2: Trigger with TAF
+
 ```
 Request: Create a TAF trigger for Account with SetDefaults action
 
@@ -210,6 +228,7 @@ Expected:
 ```
 
 ### Test 3: Code Review
+
 ```
 Request: Review my existing AccountService class for improvements
 
@@ -222,11 +241,11 @@ Expected:
 
 ## Known Limitations
 
-| Limitation | Reason | Workaround |
-|-----------|--------|-----------|
+| Limitation                     | Reason                             | Workaround                                      |
+| ------------------------------ | ---------------------------------- | ----------------------------------------------- |
 | Anonymous Apex (`sf apex run`) | MCP doesn't support code execution | Generate test class, deploy via metadata_create |
-| Local file templates | No file I/O in MCP | Patterns in SKILL.md guide code generation |
-| Directory watching | No file system access | Generate strings, deploy to org |
+| Local file templates           | No file I/O in MCP                 | Patterns in SKILL.md guide code generation      |
+| Directory watching             | No file system access              | Generate strings, deploy to org                 |
 
 ## Migration from CLI Version
 
@@ -238,6 +257,7 @@ If you're currently using the CLI-based sf-apex skill:
 4. **Both skills can coexist** - Choose which one to use per task
 
 Example migration:
+
 ```
 OLD: sf project deploy --source-dir force-app/main/default/classes/AccountService.cls
 NEW: metadata_create(type="ApexClass", metadata=[{ "fullName": "AccountService", "body": "[CODE]" }])
@@ -246,6 +266,7 @@ NEW: metadata_create(type="ApexClass", metadata=[{ "fullName": "AccountService",
 ## Documentation Files
 
 ### In This Directory
+
 1. **README.md** (this file)
    - Overview and quick start
 
@@ -256,7 +277,9 @@ NEW: metadata_create(type="ApexClass", metadata=[{ "fullName": "AccountService",
    - Migration guide
 
 ### In SKILL.md (Both Locations)
+
 Complete reference for:
+
 - 5-phase workflow
 - 150-point scoring rules
 - All MCP tool usage
@@ -285,6 +308,7 @@ The original sf-apex plugin (v1.1.0) is still available at:
 ## Support & Questions
 
 Refer to:
+
 1. **SKILL.md** - Complete documentation (both locations have identical content)
 2. **REFACTORING_SUMMARY.md** - Migration and transformation details
 3. **MCP Tool Mapping** section in SKILL.md - Tool usage examples

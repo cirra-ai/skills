@@ -14,6 +14,7 @@ from multi_turn_test_runner import format_results
 # Helpers
 # ─────────────────────────────────────────────────────────────────────────
 
+
 def _make_results(
     scenarios,
     total_scenarios=None,
@@ -169,6 +170,7 @@ def _make_failing_scenario(name="failing_path", check_name="response_contains"):
 # ─────────────────────────────────────────────────────────────────────────
 # Tests
 # ─────────────────────────────────────────────────────────────────────────
+
 
 @pytest.mark.tier2
 @pytest.mark.offline

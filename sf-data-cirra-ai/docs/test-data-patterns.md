@@ -42,33 +42,37 @@ public class TestDataFactory_Account {
 
 ## Record Count Recommendations
 
-| Test Scenario | Record Count | Why |
-|---------------|--------------|-----|
-| Basic unit test | 1-10 | Quick validation |
-| Trigger testing | 201 | Batch boundary |
-| Flow testing | 200 | Single transaction |
-| Batch Apex | 500+ | Multiple batches |
-| Performance | 1000+ | Stress testing |
+| Test Scenario   | Record Count | Why                |
+| --------------- | ------------ | ------------------ |
+| Basic unit test | 1-10         | Quick validation   |
+| Trigger testing | 201          | Batch boundary     |
+| Flow testing    | 200          | Single transaction |
+| Batch Apex      | 500+         | Multiple batches   |
+| Performance     | 1000+        | Stress testing     |
 
 ## Edge Cases to Test
 
 ### Null Values
+
 ```apex
 account.Industry = null;  // Test null handling
 ```
 
 ### Boundary Values
+
 ```apex
 account.Name = 'A';  // Min length
 account.Name = String.valueOf('X').repeat(255);  // Max length
 ```
 
 ### Special Characters
+
 ```apex
 account.Name = 'Test & "Special" <Characters>';
 ```
 
 ### Date Boundaries
+
 ```apex
 opp.CloseDate = Date.today();  // Today
 opp.CloseDate = Date.today().addDays(-1);  // Yesterday
@@ -78,6 +82,7 @@ opp.CloseDate = Date.newInstance(2000, 1, 1);  // Old date
 ## Relationship Testing
 
 ### Create Hierarchy
+
 ```apex
 // Create parent first
 List<Account> accounts = TestDataFactory_Account.create(10);

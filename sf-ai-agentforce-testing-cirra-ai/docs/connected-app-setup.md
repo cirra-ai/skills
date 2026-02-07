@@ -8,10 +8,10 @@ Guide for configuring OAuth to enable live preview mode with real Flow and Apex 
 
 Agent preview has two modes:
 
-| Mode | Flag | Actions | Use Case |
-|------|------|---------|----------|
-| **Simulated** | (default) | LLM simulates action results | Logic testing, early development |
-| **Live** | `--use-live-actions` | Real Flows/Apex execute | Integration testing, validation |
+| Mode          | Flag                 | Actions                      | Use Case                         |
+| ------------- | -------------------- | ---------------------------- | -------------------------------- |
+| **Simulated** | (default)            | LLM simulates action results | Logic testing, early development |
+| **Live**      | `--use-live-actions` | Real Flows/Apex execute      | Integration testing, validation  |
 
 Live mode requires a **Connected App** for OAuth authentication.
 
@@ -20,12 +20,14 @@ Live mode requires a **Connected App** for OAuth authentication.
 ## When You Need a Connected App
 
 ✅ **Required for:**
+
 - `sf agent preview --use-live-actions`
 - Testing real data queries
 - Validating Flow execution
 - Debugging Apex integration
 
 ❌ **Not required for:**
+
 - `sf agent preview` (simulated mode)
 - `sf agent test run` (automated tests)
 - Agent validation and publishing
@@ -52,25 +54,26 @@ Skill(skill="sf-connected-apps", args="Create Connected App for Agentforce live 
 
 ### Required Settings
 
-| Field | Value |
-|-------|-------|
-| **Connected App Name** | Agentforce Preview App (or your choice) |
-| **API Name** | Agentforce_Preview_App |
-| **Contact Email** | Your email |
-| **Enable OAuth Settings** | ✅ Checked |
-| **Callback URL** | `http://localhost:1717/OauthRedirect` |
-| **Selected OAuth Scopes** | See below |
+| Field                     | Value                                   |
+| ------------------------- | --------------------------------------- |
+| **Connected App Name**    | Agentforce Preview App (or your choice) |
+| **API Name**              | Agentforce_Preview_App                  |
+| **Contact Email**         | Your email                              |
+| **Enable OAuth Settings** | ✅ Checked                              |
+| **Callback URL**          | `http://localhost:1717/OauthRedirect`   |
+| **Selected OAuth Scopes** | See below                               |
 
 ### Required OAuth Scopes
 
-| Scope | Purpose |
-|-------|---------|
-| `Full access (full)` | OR use specific scopes below |
-| `Access and manage your data (api)` | Data operations |
-| `Perform requests on your behalf (refresh_token, offline_access)` | Token refresh |
-| `Access unique user identifiers (openid)` | User identification |
+| Scope                                                             | Purpose                      |
+| ----------------------------------------------------------------- | ---------------------------- |
+| `Full access (full)`                                              | OR use specific scopes below |
+| `Access and manage your data (api)`                               | Data operations              |
+| `Perform requests on your behalf (refresh_token, offline_access)` | Token refresh                |
+| `Access unique user identifiers (openid)`                         | User identification          |
 
 **Minimal Scopes (if not using `full`):**
+
 - `api`
 - `refresh_token`
 - `offline_access`
@@ -78,11 +81,11 @@ Skill(skill="sf-connected-apps", args="Create Connected App for Agentforce live 
 
 ### Security Settings (Optional)
 
-| Setting | Recommendation |
-|---------|----------------|
-| **Require Secret for Refresh Token Flow** | ✅ Enable for production |
+| Setting                                        | Recommendation                  |
+| ---------------------------------------------- | ------------------------------- |
+| **Require Secret for Refresh Token Flow**      | ✅ Enable for production        |
 | **Require Proof Key for Code Exchange (PKCE)** | ✅ Enable for enhanced security |
-| **IP Restrictions** | Configure if needed |
+| **IP Restrictions**                            | Configure if needed             |
 
 ---
 
@@ -170,8 +173,8 @@ Conversation record:
 {
   "conversationId": "0Af7X000000001",
   "messages": [
-    {"role": "user", "content": "Where is my order?", "timestamp": "..."},
-    {"role": "assistant", "content": "Let me check...", "timestamp": "..."}
+    { "role": "user", "content": "Where is my order?", "timestamp": "..." },
+    { "role": "assistant", "content": "Let me check...", "timestamp": "..." }
   ],
   "status": "completed"
 }
@@ -222,6 +225,7 @@ When using `--apex-debug`:
 **Cause:** Connected App not properly configured or not authorized.
 
 **Solution:**
+
 1. Verify Connected App callback URL matches `http://localhost:1717/OauthRedirect`
 2. Re-authenticate: `sf org login web --alias [alias]`
 3. Check Connected App is enabled for the user's profile
@@ -231,6 +235,7 @@ When using `--apex-debug`:
 **Cause:** Wrong API name in `--client-app` flag.
 
 **Solution:**
+
 1. Check the API Name (not Display Name) in Setup → App Manager
 2. Use exact API name: `--client-app Agentforce_Preview_App`
 
@@ -239,6 +244,7 @@ When using `--apex-debug`:
 **Cause:** Actions require deployed Flows/Apex.
 
 **Solution:**
+
 1. Verify Flow is active: `sf flow resume --name [FlowName]`
 2. Verify Apex is deployed: `sf project deploy start --metadata ApexClass:[ClassName]`
 3. Check agent is activated: `sf agent activate --api-name [Agent]`
@@ -248,6 +254,7 @@ When using `--apex-debug`:
 **Cause:** Flow or Apex taking too long.
 
 **Solution:**
+
 1. Add debug logs: `--apex-debug`
 2. Check Flow for long-running operations
 3. Verify external callouts are responsive
@@ -256,14 +263,14 @@ When using `--apex-debug`:
 
 ## Security Best Practices
 
-| Practice | Description |
-|----------|-------------|
+| Practice              | Description                                             |
+| --------------------- | ------------------------------------------------------- |
 | **Use dedicated app** | Create separate Connected App for preview vs production |
-| **Limit scopes** | Use minimum necessary OAuth scopes |
-| **Enable PKCE** | Require Proof Key for Code Exchange |
-| **IP restrictions** | Limit access by IP range if possible |
-| **Rotate secrets** | Periodically rotate Consumer Secret |
-| **Audit logs** | Monitor Connected App usage |
+| **Limit scopes**      | Use minimum necessary OAuth scopes                      |
+| **Enable PKCE**       | Require Proof Key for Code Exchange                     |
+| **IP restrictions**   | Limit access by IP range if possible                    |
+| **Rotate secrets**    | Periodically rotate Consumer Secret                     |
+| **Audit logs**        | Monitor Connected App usage                             |
 
 ---
 
@@ -296,6 +303,7 @@ If using metadata-based deployment:
 ```
 
 Deploy with:
+
 ```bash
 sf project deploy start --metadata ConnectedApp:Agentforce_Preview --target-org [alias]
 ```
@@ -308,14 +316,14 @@ There are **two different OAuth approaches** used in agent testing, each requiri
 
 ### Comparison
 
-| Aspect | Web OAuth (this guide) | Client Credentials (ECA) |
-|--------|----------------------|--------------------------|
-| **Used by** | `sf agent preview --use-live-actions` | Agent Runtime API (multi-turn testing) |
-| **App type** | Connected App | External Client App (ECA) |
-| **Auth flow** | Authorization Code (browser login) | Client Credentials (machine-to-machine) |
-| **User interaction** | Browser redirect required | None — fully automated |
-| **Best for** | Manual interactive testing | Automated multi-turn API testing |
-| **Setup guide** | This document | [ECA Setup Guide](eca-setup-guide.md) |
+| Aspect               | Web OAuth (this guide)                | Client Credentials (ECA)                |
+| -------------------- | ------------------------------------- | --------------------------------------- |
+| **Used by**          | `sf agent preview --use-live-actions` | Agent Runtime API (multi-turn testing)  |
+| **App type**         | Connected App                         | External Client App (ECA)               |
+| **Auth flow**        | Authorization Code (browser login)    | Client Credentials (machine-to-machine) |
+| **User interaction** | Browser redirect required             | None — fully automated                  |
+| **Best for**         | Manual interactive testing            | Automated multi-turn API testing        |
+| **Setup guide**      | This document                         | [ECA Setup Guide](eca-setup-guide.md)   |
 
 ### Decision Flow
 
@@ -332,6 +340,7 @@ What are you testing?
 ### When You Need Both
 
 If you're doing **comprehensive testing** (both CLI preview and multi-turn API), you'll need:
+
 1. A **Connected App** for `sf agent preview --use-live-actions` (this guide)
 2. An **External Client App** for Agent Runtime API testing ([ECA Setup Guide](eca-setup-guide.md))
 
@@ -341,9 +350,9 @@ These are separate app types and can coexist in the same org.
 
 ## Related Skills
 
-| Skill | Use For |
-|-------|---------|
+| Skill             | Use For                                   |
+| ----------------- | ----------------------------------------- |
 | sf-connected-apps | Create and manage Connected Apps and ECAs |
-| sf-flow | Debug failing Flow actions |
-| sf-apex | Debug failing Apex actions |
-| sf-debug | Analyze debug logs |
+| sf-flow           | Debug failing Flow actions                |
+| sf-apex           | Debug failing Apex actions                |
+| sf-debug          | Analyze debug logs                        |

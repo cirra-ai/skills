@@ -7,6 +7,7 @@ Strategies for test data isolation and proper cleanup.
 Best for synchronous operations in a single transaction.
 
 ### Basic Pattern
+
 ```apex
 // Create savepoint BEFORE any DML
 Savepoint sp = Database.setSavepoint();
@@ -39,6 +40,7 @@ try {
 ```
 
 ### In Unit Tests
+
 ```apex
 @isTest
 static void testWithRollback() {
@@ -72,6 +74,7 @@ static void testWithRollback() {
 ```
 
 ### Limitations
+
 - **Does NOT rollback async operations** (future, queueable, batch)
 - Maximum 5 savepoints per transaction
 - Cannot rollback across transaction boundaries
@@ -81,6 +84,7 @@ static void testWithRollback() {
 Best when savepoint isn't possible (async tests, multi-transaction).
 
 ### Single Object Cleanup
+
 ```apex
 // Delete all test accounts
 List<Account> toDelete = [
@@ -92,6 +96,7 @@ delete toDelete;
 ```
 
 ### Multi-Object Cleanup (Correct Order)
+
 ```apex
 // CRITICAL: Delete children before parents!
 String testPattern = 'Test%';
@@ -112,6 +117,7 @@ System.debug('Cleanup complete');
 ```
 
 ### sf CLI Cleanup
+
 ```bash
 # Query records to delete
 sf data query \
@@ -133,6 +139,7 @@ sf data delete bulk \
 Best for cleaning up after a specific test run.
 
 ### By CreatedDate
+
 ```apex
 // Clean up records created in the last hour
 DateTime startTime = DateTime.now().addHours(-1);
@@ -146,6 +153,7 @@ delete [
 ```
 
 ### With Timestamp Tracking
+
 ```apex
 // At start of test - capture timestamp
 DateTime testStartTime = DateTime.now();
@@ -165,6 +173,7 @@ delete [
 Most precise - track exactly what you created.
 
 ### Track IDs During Creation
+
 ```apex
 // Collection to track all created record IDs
 Set<Id> createdAccountIds = new Set<Id>();
@@ -186,6 +195,7 @@ delete [SELECT Id FROM Account WHERE Id IN :createdAccountIds];
 ```
 
 ### Wrapper Class for Tracking
+
 ```apex
 public class TestDataTracker {
     private Map<String, Set<Id>> trackedIds = new Map<String, Set<Id>>();
@@ -269,6 +279,7 @@ public class MyTestClass {
 ## Cleanup via sf CLI
 
 ### Generate Cleanup CSV
+
 ```bash
 # Export IDs of test records
 sf data query \
@@ -285,6 +296,7 @@ sf data query \
 ```
 
 ### Execute Bulk Delete
+
 ```bash
 # Delete children first
 sf data delete bulk \
@@ -303,14 +315,14 @@ sf data delete bulk \
 
 ## Best Practices Summary
 
-| Method | Best For | Limitations |
-|--------|----------|-------------|
-| Savepoint/Rollback | Synchronous tests | No async, max 5 savepoints |
-| Name Pattern | Ad-hoc cleanup | May delete unintended records |
-| Time Window | Post-test cleanup | Needs accurate timestamp |
-| ID Tracking | Precise cleanup | Requires tracking discipline |
-| @testSetup | Unit tests | Only in @isTest classes |
-| sf CLI Bulk | Large volumes | External tool required |
+| Method             | Best For          | Limitations                   |
+| ------------------ | ----------------- | ----------------------------- |
+| Savepoint/Rollback | Synchronous tests | No async, max 5 savepoints    |
+| Name Pattern       | Ad-hoc cleanup    | May delete unintended records |
+| Time Window        | Post-test cleanup | Needs accurate timestamp      |
+| ID Tracking        | Precise cleanup   | Requires tracking discipline  |
+| @testSetup         | Unit tests        | Only in @isTest classes       |
+| sf CLI Bulk        | Large volumes     | External tool required        |
 
 ## Golden Rules
 

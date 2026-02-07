@@ -12,11 +12,13 @@ Using anonymous Apex for complex data operations.
 ## sf CLI Execution
 
 ### From File
+
 ```bash
 sf apex run --file setup-data.apex --target-org myorg
 ```
 
 ### Interactive
+
 ```bash
 sf apex run --target-org myorg
 # Then type Apex code and press Ctrl+D
@@ -25,6 +27,7 @@ sf apex run --target-org myorg
 ## Common Patterns
 
 ### Bulk Data Creation
+
 ```apex
 List<Account> accounts = new List<Account>();
 for (Integer i = 0; i < 500; i++) {
@@ -38,6 +41,7 @@ System.debug('Created ' + accounts.size() + ' accounts');
 ```
 
 ### Data Transformation
+
 ```apex
 List<Account> accounts = [
     SELECT Id, Name, Industry
@@ -53,6 +57,7 @@ update accounts;
 ```
 
 ### Testing Trigger Logic
+
 ```apex
 // Setup test data
 Account acc = new Account(Name = 'Trigger Test');
@@ -82,12 +87,12 @@ try {
 
 ## Limits in Anonymous Apex
 
-| Limit | Value |
-|-------|-------|
-| SOQL Queries | 100 |
-| DML Rows | 10,000 |
-| CPU Time | 10,000 ms |
-| Heap Size | 6 MB |
+| Limit        | Value     |
+| ------------ | --------- |
+| SOQL Queries | 100       |
+| DML Rows     | 10,000    |
+| CPU Time     | 10,000 ms |
+| Heap Size    | 6 MB      |
 
 ## Best Practices
 

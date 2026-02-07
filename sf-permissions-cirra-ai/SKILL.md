@@ -33,18 +33,18 @@ Omitting `orderBy` or `groupBy` causes `invalid_type: expected string, received 
 
 ### Other Useful Cirra AI Tools
 
-| Tool | Purpose |
-|------|---------|
-| `soql_query` | Query PS, PSG, assignments, object/field/setup entity permissions |
-| `tooling_api_query` | Tab settings, system permissions, `UserEntityAccess`, `UserFieldAccess` |
-| `metadata_read` | Read full PS metadata (type `PermissionSet`, fullNames array) |
-| `permission_set_create` | Create a new PS |
-| `permission_set_update` | Modify object, field, system permissions on a PS |
-| `permission_set_assignments_add` | Assign PS to users |
-| `permission_set_assignments_remove` | Remove PS from users |
-| `permission_set_assignments_list` | List assignments for users and/or PS |
-| `profile_describe` | View profile-level permissions |
-| `sobject_describe` | List all fields/record types on an object |
+| Tool                                | Purpose                                                                 |
+| ----------------------------------- | ----------------------------------------------------------------------- |
+| `soql_query`                        | Query PS, PSG, assignments, object/field/setup entity permissions       |
+| `tooling_api_query`                 | Tab settings, system permissions, `UserEntityAccess`, `UserFieldAccess` |
+| `metadata_read`                     | Read full PS metadata (type `PermissionSet`, fullNames array)           |
+| `permission_set_create`             | Create a new PS                                                         |
+| `permission_set_update`             | Modify object, field, system permissions on a PS                        |
+| `permission_set_assignments_add`    | Assign PS to users                                                      |
+| `permission_set_assignments_remove` | Remove PS from users                                                    |
+| `permission_set_assignments_list`   | List assignments for users and/or PS                                    |
+| `profile_describe`                  | View profile-level permissions                                          |
+| `sobject_describe`                  | List all fields/record types on an object                               |
 
 ---
 
@@ -55,6 +55,7 @@ Omitting `orderBy` or `groupBy` causes `invalid_type: expected string, received 
 Run these four queries **in parallel** (they are independent):
 
 **Q1 — All Permission Sets + system permission flags:**
+
 ```
 sObject: "PermissionSet"
 fields: ["Id","Name","Label","Description","IsOwnedByProfile",
@@ -65,6 +66,7 @@ orderBy: "Label ASC"  |  groupBy: ""  |  limit: 200
 ```
 
 **Q2 — All Permission Set Groups:**
+
 ```
 sObject: "PermissionSetGroup"
 fields: ["Id","DeveloperName","MasterLabel","Status","Description"]
@@ -72,6 +74,7 @@ whereClause: ""  |  orderBy: "MasterLabel ASC"  |  groupBy: ""  |  limit: 200
 ```
 
 **Q3 — PSG component membership (which PS belong to which PSG):**
+
 ```
 sObject: "PermissionSetGroupComponent"
 fields: ["PermissionSetGroupId","PermissionSetGroup.DeveloperName",
@@ -80,6 +83,7 @@ whereClause: ""  |  orderBy: ""  |  groupBy: ""  |  limit: 500
 ```
 
 **Q4 — All active PS assignments (excluding profile-owned):**
+
 ```
 sObject: "PermissionSetAssignment"
 fields: ["PermissionSetId","PermissionSet.Name","PermissionSet.Label",
@@ -90,6 +94,7 @@ orderBy: "PermissionSet.Label ASC"  |  groupBy: ""  |  limit: 2000
 ```
 
 **Analysis checklist:**
+
 - Flag PS with `PermissionsModifyAllData = true` as HIGH risk
 - Flag PS with `PermissionsViewAllData = true` or `PermissionsManageUsers = true` as MEDIUM risk
 - Identify PSGs with Status != "Updated" (outdated)
@@ -100,6 +105,7 @@ orderBy: "PermissionSet.Label ASC"  |  groupBy: ""  |  limit: 2000
 ### 2. Who Has Access to X?
 
 #### Object permissions (e.g., Account delete):
+
 ```
 sObject: "ObjectPermissions"
 fields: ["Parent.Name","Parent.Label","SobjectType",
@@ -110,6 +116,7 @@ orderBy: "Parent.Label ASC"  |  groupBy: ""  |  limit: 200
 ```
 
 #### Field permissions (e.g., Account.AnnualRevenue edit):
+
 ```
 sObject: "FieldPermissions"
 fields: ["Parent.Name","Parent.Label","Field","PermissionsRead","PermissionsEdit"]
@@ -118,9 +125,11 @@ orderBy: "Parent.Label ASC"  |  groupBy: ""  |  limit: 200
 ```
 
 #### Setup entity access (Apex, VF, Flows, Custom Permissions):
+
 Query `SetupEntityAccess` filtered by `SetupEntityType` (`ApexClass`, `ApexPage`, `Flow`, `CustomPermission`). Cross-reference `SetupEntityId` with the target entity queried by Name.
 
 #### System permissions (e.g., ModifyAllData):
+
 ```
 sObject: "PermissionSet"
 fields: ["Id","Name","Label"]
@@ -131,6 +140,7 @@ orderBy: "Label ASC"  |  groupBy: ""  |  limit: 200
 ### 3. User Permission Analysis
 
 **Step 1** — Get user's PS assignments:
+
 ```
 sObject: "PermissionSetAssignment"
 fields: ["PermissionSetId","PermissionSet.Name","PermissionSet.Label",
@@ -142,6 +152,7 @@ orderBy: "PermissionSet.Label ASC"  |  groupBy: ""  |  limit: 200
 **Step 2** — For each assigned PS, query `ObjectPermissions` and `FieldPermissions` with `ParentId = '<PS_ID>'`.
 
 **Step 3** — Check effective access with `tooling_api_query`:
+
 ```
 sObject: "UserEntityAccess"
 fields: ["EntityDefinitionId","IsCreatable","IsReadable","IsUpdatable","IsDeletable"]
@@ -154,12 +165,22 @@ limit: 200
 **Create:** Use `permission_set_create` with `label`, `name`, `description`.
 
 **Update permissions:** Use `permission_set_update` with patch array:
+
 ```json
 [
-  { "op": "add", "type": "objectPermissions", "object": "Account",
-    "permissions": { "read": true, "create": true, "edit": true, "delete": false } },
-  { "op": "add", "type": "fieldPermissions", "object": "Account",
-    "field": "AnnualRevenue", "permissions": { "read": true, "edit": true } }
+  {
+    "op": "add",
+    "type": "objectPermissions",
+    "object": "Account",
+    "permissions": { "read": true, "create": true, "edit": true, "delete": false }
+  },
+  {
+    "op": "add",
+    "type": "fieldPermissions",
+    "object": "Account",
+    "field": "AnnualRevenue",
+    "permissions": { "read": true, "edit": true }
+  }
 ]
 ```
 
@@ -180,11 +201,11 @@ Employee Agents need an `agentAccesses` element in a Permission Set. Check with 
 </PermissionSet>
 ```
 
-| Symptom | Solution |
-|---------|----------|
-| No Agentforce icon | Assign `CopilotSalesforceUser` PS via `permission_set_assignments_add` |
-| Icon visible, agent missing | Add `agentAccesses` element via `metadata_update` |
-| "Agent not found" error | Ensure `agentName` matches the agent's `developer_name` exactly |
+| Symptom                     | Solution                                                               |
+| --------------------------- | ---------------------------------------------------------------------- |
+| No Agentforce icon          | Assign `CopilotSalesforceUser` PS via `permission_set_assignments_add` |
+| Icon visible, agent missing | Add `agentAccesses` element via `metadata_update`                      |
+| "Agent not found" error     | Ensure `agentName` matches the agent's `developer_name` exactly        |
 
 ---
 

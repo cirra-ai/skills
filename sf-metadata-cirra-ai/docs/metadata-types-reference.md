@@ -57,9 +57,11 @@ force-app/main/default/
 ## Object Metadata
 
 ### Custom Object
+
 **Location:** `objects/[ObjectName__c]/[ObjectName__c].object-meta.xml`
 
 **Contains:**
+
 - Label and plural label
 - Name field configuration
 - Sharing model
@@ -81,6 +83,7 @@ force-app/main/default/
 ```
 
 ### Custom Field
+
 **Location:** `objects/[ObjectName]/fields/[FieldName__c].field-meta.xml`
 
 **Common Types:**
@@ -102,9 +105,11 @@ force-app/main/default/
 ## Security Metadata
 
 ### Profile
+
 **Location:** `profiles/[ProfileName].profile-meta.xml`
 
 **Contains:**
+
 - Object permissions
 - Field permissions
 - Tab visibility
@@ -113,9 +118,11 @@ force-app/main/default/
 - User permissions
 
 ### Permission Set
+
 **Location:** `permissionsets/[PermissionSetName].permissionset-meta.xml`
 
 **Contains:**
+
 - Object permissions
 - Field permissions
 - Tab settings
@@ -124,6 +131,7 @@ force-app/main/default/
 - Custom permissions
 
 ### Permission Set Group
+
 **Location:** `permissionsetgroups/[GroupName].permissionsetgroup-meta.xml`
 
 ```xml
@@ -141,6 +149,7 @@ force-app/main/default/
 ## Validation & Business Logic
 
 ### Validation Rule
+
 **Location:** `objects/[ObjectName]/validationRules/[RuleName].validationRule-meta.xml`
 
 ```xml
@@ -159,6 +168,7 @@ force-app/main/default/
 ```
 
 ### Record Type
+
 **Location:** `objects/[ObjectName]/recordTypes/[RecordTypeName].recordType-meta.xml`
 
 ```xml
@@ -181,9 +191,11 @@ force-app/main/default/
 ## UI Metadata
 
 ### Page Layout
+
 **Location:** `layouts/[ObjectName]-[LayoutName].layout-meta.xml`
 
 **Contains:**
+
 - Section definitions
 - Field placements
 - Related lists
@@ -191,9 +203,11 @@ force-app/main/default/
 - Display options
 
 ### Lightning Page (FlexiPage)
+
 **Location:** `flexipages/[PageName].flexipage-meta.xml`
 
 ### List View
+
 **Location:** `objects/[ObjectName]/listViews/[ViewName].listView-meta.xml`
 
 ```xml
@@ -217,9 +231,11 @@ force-app/main/default/
 ## Automation Metadata
 
 ### Flow
+
 **Location:** `flows/[FlowName].flow-meta.xml`
 
 ### Apex Class
+
 **Location:** `classes/[ClassName].cls` + `classes/[ClassName].cls-meta.xml`
 
 ```xml
@@ -231,6 +247,7 @@ force-app/main/default/
 ```
 
 ### Apex Trigger
+
 **Location:** `triggers/[TriggerName].trigger` + `triggers/[TriggerName].trigger-meta.xml`
 
 ---
@@ -238,6 +255,7 @@ force-app/main/default/
 ## Component Metadata
 
 ### Lightning Web Component (LWC)
+
 **Location:** `lwc/[componentName]/`
 
 ```
@@ -249,6 +267,7 @@ lwc/myComponent/
 ```
 
 ### Aura Component
+
 **Location:** `aura/[ComponentName]/`
 
 ```
@@ -265,6 +284,7 @@ aura/MyComponent/
 ## Global Value Sets
 
 ### Global Value Set
+
 **Location:** `globalValueSets/[SetName].globalValueSet-meta.xml`
 
 ```xml
@@ -289,6 +309,7 @@ aura/MyComponent/
 ## Custom Metadata Types
 
 ### Custom Metadata Type Definition
+
 **Location:** `customMetadata/[TypeName].[RecordName].md-meta.xml`
 
 ```xml
@@ -309,20 +330,20 @@ aura/MyComponent/
 
 ## Quick Reference: File Extensions
 
-| Metadata Type | Extension |
-|---------------|-----------|
-| Custom Object | `.object-meta.xml` |
-| Custom Field | `.field-meta.xml` |
-| Profile | `.profile-meta.xml` |
-| Permission Set | `.permissionset-meta.xml` |
-| Validation Rule | `.validationRule-meta.xml` |
-| Record Type | `.recordType-meta.xml` |
-| Page Layout | `.layout-meta.xml` |
-| Flow | `.flow-meta.xml` |
-| Apex Class | `.cls` + `.cls-meta.xml` |
-| Apex Trigger | `.trigger` + `.trigger-meta.xml` |
-| LWC | `.js-meta.xml` |
-| Aura | `.cmp-meta.xml` |
+| Metadata Type   | Extension                        |
+| --------------- | -------------------------------- |
+| Custom Object   | `.object-meta.xml`               |
+| Custom Field    | `.field-meta.xml`                |
+| Profile         | `.profile-meta.xml`              |
+| Permission Set  | `.permissionset-meta.xml`        |
+| Validation Rule | `.validationRule-meta.xml`       |
+| Record Type     | `.recordType-meta.xml`           |
+| Page Layout     | `.layout-meta.xml`               |
+| Flow            | `.flow-meta.xml`                 |
+| Apex Class      | `.cls` + `.cls-meta.xml`         |
+| Apex Trigger    | `.trigger` + `.trigger-meta.xml` |
+| LWC             | `.js-meta.xml`                   |
+| Aura            | `.cmp-meta.xml`                  |
 
 ---
 

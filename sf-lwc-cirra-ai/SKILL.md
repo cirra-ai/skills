@@ -8,9 +8,9 @@ description: >
   Now powered by Cirra AI MCP Server for seamless metadata deployment.
 license: MIT
 metadata:
-  version: "2.2.0"
-  author: "Jag Valaiyapathy"
-  scoring: "165 points across 8 categories (SLDS 2 + Dark Mode compliant)"
+  version: '2.2.0'
+  author: 'Jag Valaiyapathy'
+  scoring: '165 points across 8 categories (SLDS 2 + Dark Mode compliant)'
   mcp_enabled: true
   cirra_ai_required: true
 ---
@@ -41,14 +41,14 @@ The refactored sf-lwc skill uses **Cirra AI MCP Server** for deployment and meta
 
 ### Workflow Changes
 
-| Task | Original (CLI) | New (Cirra AI) |
-|------|---|---|
-| **Generate Component** | `sf lightning generate component` | Claude generates files directly |
-| **Deploy Component** | `sf project deploy start -m LightningComponentBundle` | `metadata_create` with type "LightningComponentBundle" |
-| **Query Component Metadata** | `sf data query --use-tooling-api` | `tooling_api_query` for LightningComponentBundle |
-| **Describe sObjects** | `sf sobject describe Account` | `sobject_describe` tool |
-| **SOQL Queries** | `sf data query` | `soql_query` tool |
-| **Run Jest Tests** | `sf lightning lwc test run` | Jest runs locally; tests are code-generated |
+| Task                         | Original (CLI)                                        | New (Cirra AI)                                         |
+| ---------------------------- | ----------------------------------------------------- | ------------------------------------------------------ |
+| **Generate Component**       | `sf lightning generate component`                     | Claude generates files directly                        |
+| **Deploy Component**         | `sf project deploy start -m LightningComponentBundle` | `metadata_create` with type "LightningComponentBundle" |
+| **Query Component Metadata** | `sf data query --use-tooling-api`                     | `tooling_api_query` for LightningComponentBundle       |
+| **Describe sObjects**        | `sf sobject describe Account`                         | `sobject_describe` tool                                |
+| **SOQL Queries**             | `sf data query`                                       | `soql_query` tool                                      |
+| **Run Jest Tests**           | `sf lightning lwc test run`                           | Jest runs locally; tests are code-generated            |
 
 ### Deployment Process
 
@@ -70,14 +70,14 @@ The refactored sf-lwc skill uses **Cirra AI MCP Server** for deployment and meta
 
 ### Quick Reference: MCP Tool Mapping
 
-| Cirra AI Tool | Purpose | Parameters |
-|---|---|---|
-| `cirra_ai_init` | Authenticate with Salesforce org | `sf_user`, `cirra_ai_team`, `scope` |
-| `metadata_create` | Deploy LWC bundle | `type`, `metadata`, `sf_user` |
-| `metadata_list` | List existing components | `type`, `sf_user` |
-| `sobject_describe` | Get object metadata | `sObject`, `sf_user` |
-| `soql_query` | Execute SOQL queries | `sObject`, `fields`, `whereClause`, `sf_user` |
-| `tooling_api_query` | Query metadata objects | `sObject`, `fields`, `whereClause`, `sf_user` |
+| Cirra AI Tool       | Purpose                          | Parameters                                    |
+| ------------------- | -------------------------------- | --------------------------------------------- |
+| `cirra_ai_init`     | Authenticate with Salesforce org | `sf_user`, `cirra_ai_team`, `scope`           |
+| `metadata_create`   | Deploy LWC bundle                | `type`, `metadata`, `sf_user`                 |
+| `metadata_list`     | List existing components         | `type`, `sf_user`                             |
+| `sobject_describe`  | Get object metadata              | `sObject`, `sf_user`                          |
+| `soql_query`        | Execute SOQL queries             | `sObject`, `fields`, `whereClause`, `sf_user` |
+| `tooling_api_query` | Query metadata objects           | `sObject`, `fields`, `whereClause`, `sf_user` |
 
 ### Authentication Example
 
@@ -122,15 +122,15 @@ The **PICKLES Framework** provides a structured approach to designing robust Lig
 
 ### Quick Reference
 
-| Principle | Key Actions |
-|-----------|-------------|
-| **P - Prototype** | Wireframes, mock data, stakeholder review, separation of concerns |
-| **I - Integrate** | LDS for single records, Apex for complex queries, GraphQL for related data |
-| **C - Composition** | `@api` for parent→child, CustomEvent for child→parent, LMS for cross-DOM |
-| **K - Kinetics** | Debounce search (300ms), disable during submit, keyboard navigation |
-| **L - Libraries** | Use `lightning/*` modules, base components, avoid reinventing |
-| **E - Execution** | Lazy load with `lwc:if`, cache computed values, avoid infinite loops |
-| **S - Security** | `WITH SECURITY_ENFORCED`, input validation, FLS/CRUD checks |
+| Principle           | Key Actions                                                                |
+| ------------------- | -------------------------------------------------------------------------- |
+| **P - Prototype**   | Wireframes, mock data, stakeholder review, separation of concerns          |
+| **I - Integrate**   | LDS for single records, Apex for complex queries, GraphQL for related data |
+| **C - Composition** | `@api` for parent→child, CustomEvent for child→parent, LMS for cross-DOM   |
+| **K - Kinetics**    | Debounce search (300ms), disable during submit, keyboard navigation        |
+| **L - Libraries**   | Use `lightning/*` modules, base components, avoid reinventing              |
+| **E - Execution**   | Lazy load with `lwc:if`, cache computed values, avoid infinite loops       |
+| **S - Security**    | `WITH SECURITY_ENFORCED`, input validation, FLS/CRUD checks                |
 
 **For detailed PICKLES implementation patterns, see [resources/component-patterns.md](resources/component-patterns.md)**
 
@@ -140,13 +140,13 @@ The **PICKLES Framework** provides a structured approach to designing robust Lig
 
 ### Wire vs Imperative Apex Calls
 
-| Aspect | Wire (@wire) | Imperative Calls |
-|--------|--------------|------------------|
-| **Execution** | Automatic / Reactive | Manual / Programmatic |
-| **DML** | ❌ Read-Only | ✅ Insert/Update/Delete |
-| **Data Updates** | ✅ Auto on param change | ❌ Manual refresh |
-| **Control** | Low (framework decides) | Full (you decide) |
-| **Caching** | ✅ Built-in | ❌ None |
+| Aspect           | Wire (@wire)            | Imperative Calls        |
+| ---------------- | ----------------------- | ----------------------- |
+| **Execution**    | Automatic / Reactive    | Manual / Programmatic   |
+| **DML**          | ❌ Read-Only            | ✅ Insert/Update/Delete |
+| **Data Updates** | ✅ Auto on param change | ❌ Manual refresh       |
+| **Control**      | Low (framework decides) | Full (you decide)       |
+| **Caching**      | ✅ Built-in             | ❌ None                 |
 
 **Quick Decision**: Use `@wire` for read-only display with auto-refresh. Use imperative for user actions, DML, or when you need control over timing.
 
@@ -154,23 +154,23 @@ The **PICKLES Framework** provides a structured approach to designing robust Lig
 
 ### Data Source Decision Tree
 
-| Scenario | Recommended Approach |
-|----------|---------------------|
-| Single record by ID | Lightning Data Service (`getRecord`) |
-| Simple record CRUD | `lightning-record-form` / `lightning-record-edit-form` |
-| Complex queries | Apex with `@AuraEnabled(cacheable=true)` |
-| Related records | GraphQL wire adapter |
-| Real-time updates | Platform Events / Streaming API |
-| External data | Named Credentials + Apex callout |
+| Scenario            | Recommended Approach                                   |
+| ------------------- | ------------------------------------------------------ |
+| Single record by ID | Lightning Data Service (`getRecord`)                   |
+| Simple record CRUD  | `lightning-record-form` / `lightning-record-edit-form` |
+| Complex queries     | Apex with `@AuraEnabled(cacheable=true)`               |
+| Related records     | GraphQL wire adapter                                   |
+| Real-time updates   | Platform Events / Streaming API                        |
+| External data       | Named Credentials + Apex callout                       |
 
 ### Communication Patterns
 
-| Pattern | Direction | Use Case |
-|---------|-----------|----------|
-| `@api` properties | Parent → Child | Pass data down |
-| Custom Events | Child → Parent | Bubble actions up |
-| Lightning Message Service | Any → Any | Cross-DOM communication |
-| Pub/Sub | Sibling → Sibling | Same page, no hierarchy |
+| Pattern                   | Direction         | Use Case                |
+| ------------------------- | ----------------- | ----------------------- |
+| `@api` properties         | Parent → Child    | Pass data down          |
+| Custom Events             | Child → Parent    | Bubble actions up       |
+| Lightning Message Service | Any → Any         | Cross-DOM communication |
+| Pub/Sub                   | Sibling → Sibling | Same page, no hierarchy |
 
 ### Communication Pattern Quick Reference
 
@@ -191,6 +191,7 @@ The **PICKLES Framework** provides a structured approach to designing robust Lig
 ```
 
 **Decision Tree**:
+
 - Same parent? → Use parent as middleware (events up, `@api` down)
 - Different DOM trees? → Use Lightning Message Service
 - LWC ↔ Aura/VF? → Use Lightning Message Service
@@ -199,14 +200,15 @@ The **PICKLES Framework** provides a structured approach to designing robust Lig
 
 ### Lifecycle Hook Guidance
 
-| Hook | When to Use | Avoid |
-|------|-------------|-------|
-| `constructor()` | Initialize properties | DOM access (not ready) |
-| `connectedCallback()` | Subscribe to events, fetch data | Heavy processing |
-| `renderedCallback()` | DOM-dependent logic | Infinite loops, property changes |
-| `disconnectedCallback()` | Cleanup subscriptions/listeners | Async operations |
+| Hook                     | When to Use                     | Avoid                            |
+| ------------------------ | ------------------------------- | -------------------------------- |
+| `constructor()`          | Initialize properties           | DOM access (not ready)           |
+| `connectedCallback()`    | Subscribe to events, fetch data | Heavy processing                 |
+| `renderedCallback()`     | DOM-dependent logic             | Infinite loops, property changes |
+| `disconnectedCallback()` | Cleanup subscriptions/listeners | Async operations                 |
 
 **For complete code examples (Wire Service, GraphQL, Modal, Navigation, TypeScript), see:**
+
 - [resources/component-patterns.md](resources/component-patterns.md) - Comprehensive patterns with full source code
 - [resources/lms-guide.md](resources/lms-guide.md) - Lightning Message Service deep dive
 
@@ -216,18 +218,19 @@ The **PICKLES Framework** provides a structured approach to designing robust Lig
 
 The sf-lwc-cirra-ai skill includes automated SLDS 2 validation that ensures dark mode compatibility, accessibility, and modern styling.
 
-| Category | Points | Key Checks |
-|----------|--------|------------|
-| **SLDS Class Usage** | 25 | Valid class names, proper `slds-*` utilities |
-| **Accessibility** | 25 | ARIA labels, roles, alt-text, keyboard navigation |
-| **Dark Mode Readiness** | 25 | No hardcoded colors, CSS variables only |
-| **SLDS Migration** | 20 | No deprecated SLDS 1 patterns/tokens |
-| **Styling Hooks** | 20 | Proper `--slds-g-*` variable usage |
-| **Component Structure** | 15 | Uses `lightning-*` base components |
-| **Performance** | 10 | Efficient selectors, no `!important` |
-| **PICKLES Compliance** | 25 | Architecture methodology adherence (optional) |
+| Category                | Points | Key Checks                                        |
+| ----------------------- | ------ | ------------------------------------------------- |
+| **SLDS Class Usage**    | 25     | Valid class names, proper `slds-*` utilities      |
+| **Accessibility**       | 25     | ARIA labels, roles, alt-text, keyboard navigation |
+| **Dark Mode Readiness** | 25     | No hardcoded colors, CSS variables only           |
+| **SLDS Migration**      | 20     | No deprecated SLDS 1 patterns/tokens              |
+| **Styling Hooks**       | 20     | Proper `--slds-g-*` variable usage                |
+| **Component Structure** | 15     | Uses `lightning-*` base components                |
+| **Performance**         | 10     | Efficient selectors, no `!important`              |
+| **PICKLES Compliance**  | 25     | Architecture methodology adherence (optional)     |
 
 **Scoring Thresholds**:
+
 ```
 ⭐⭐⭐⭐⭐ 150-165 pts → Production-ready, full SLDS 2 + Dark Mode
 ⭐⭐⭐⭐   125-149 pts → Good component, minor styling issues
@@ -253,24 +256,28 @@ Dark mode is exclusive to SLDS 2 themes. Components must use global styling hook
 
 ### Global Styling Hooks (Common)
 
-| Category | SLDS 2 Variable | Purpose |
-|----------|-----------------|---------|
-| **Surface** | `--slds-g-color-surface-1` to `-4` | Background colors |
+| Category      | SLDS 2 Variable                              | Purpose                  |
+| ------------- | -------------------------------------------- | ------------------------ |
+| **Surface**   | `--slds-g-color-surface-1` to `-4`           | Background colors        |
 | **Container** | `--slds-g-color-surface-container-1` to `-3` | Card/section backgrounds |
-| **Text** | `--slds-g-color-on-surface` | Primary text |
-| **Border** | `--slds-g-color-border-1`, `-2` | Borders |
-| **Brand** | `--slds-g-color-brand-1`, `-2` | Brand accent |
-| **Spacing** | `--slds-g-spacing-0` to `-12` | Margins/padding |
+| **Text**      | `--slds-g-color-on-surface`                  | Primary text             |
+| **Border**    | `--slds-g-color-border-1`, `-2`              | Borders                  |
+| **Brand**     | `--slds-g-color-brand-1`, `-2`               | Brand accent             |
+| **Spacing**   | `--slds-g-spacing-0` to `-12`                | Margins/padding          |
 
 **Example Migration**:
+
 ```css
 /* SLDS 1 (Deprecated) */
-.my-card { background-color: #ffffff; color: #333333; }
+.my-card {
+  background-color: #ffffff;
+  color: #333333;
+}
 
 /* SLDS 2 (Dark Mode Ready) */
 .my-card {
-    background-color: var(--slds-g-color-surface-container-1, #ffffff);
-    color: var(--slds-g-color-on-surface, #181818);
+  background-color: var(--slds-g-color-surface-container-1, #ffffff);
+  color: var(--slds-g-color-on-surface, #181818);
 }
 ```
 
@@ -287,17 +294,17 @@ Advanced testing patterns ensure robust, maintainable components. Tests are gene
 ```javascript
 // Render cycle helper
 const runRenderingLifecycle = async (reasons = ['render']) => {
-    while (reasons.length > 0) {
-        await Promise.resolve(reasons.pop());
-    }
+  while (reasons.length > 0) {
+    await Promise.resolve(reasons.pop());
+  }
 };
 
 // DOM cleanup
 afterEach(() => {
-    while (document.body.firstChild) {
-        document.body.removeChild(document.body.firstChild);
-    }
-    jest.clearAllMocks();
+  while (document.body.firstChild) {
+    document.body.removeChild(document.body.firstChild);
+  }
+  jest.clearAllMocks();
 });
 
 // Proxy unboxing (LWS compatibility)
@@ -312,20 +319,26 @@ import { createElement } from 'lwc';
 import MyComponent from 'c/myComponent';
 import getData from '@salesforce/apex/MyController.getData';
 
-jest.mock('@salesforce/apex/MyController.getData', () => ({
-    default: jest.fn()
-}), { virtual: true });
+jest.mock(
+  '@salesforce/apex/MyController.getData',
+  () => ({
+    default: jest.fn(),
+  }),
+  { virtual: true }
+);
 
 describe('c-my-component', () => {
-    afterEach(() => { /* DOM cleanup */ });
+  afterEach(() => {
+    /* DOM cleanup */
+  });
 
-    it('displays data when loaded successfully', async () => {
-        getData.mockResolvedValue(MOCK_DATA);
-        const element = createElement('c-my-component', { is: MyComponent });
-        document.body.appendChild(element);
-        await runRenderingLifecycle();
-        // Assertions...
-    });
+  it('displays data when loaded successfully', async () => {
+    getData.mockResolvedValue(MOCK_DATA);
+    const element = createElement('c-my-component', { is: MyComponent });
+    document.body.appendChild(element);
+    await runRenderingLifecycle();
+    // Assertions...
+  });
 });
 ```
 
@@ -352,19 +365,17 @@ WCAG compliance is mandatory for all components.
 
 ### Quick Checklist
 
-| Requirement | Implementation |
-|-------------|----------------|
-| **Labels** | `label` on inputs, `aria-label` on icons |
-| **Keyboard** | Enter/Space triggers, Tab navigation |
-| **Focus** | Visible indicator, logical order, focus traps in modals |
-| **Live Regions** | `aria-live="polite"` for dynamic content |
-| **Contrast** | 4.5:1 minimum for text |
+| Requirement      | Implementation                                          |
+| ---------------- | ------------------------------------------------------- |
+| **Labels**       | `label` on inputs, `aria-label` on icons                |
+| **Keyboard**     | Enter/Space triggers, Tab navigation                    |
+| **Focus**        | Visible indicator, logical order, focus traps in modals |
+| **Live Regions** | `aria-live="polite"` for dynamic content                |
+| **Contrast**     | 4.5:1 minimum for text                                  |
 
 ```html
 <!-- Accessible dynamic content -->
-<div aria-live="polite" class="slds-assistive-text">
-    {statusMessage}
-</div>
+<div aria-live="polite" class="slds-assistive-text">{statusMessage}</div>
 ```
 
 **For comprehensive accessibility guide (focus management, ARIA patterns, screen reader testing), see [resources/accessibility-guide.md](resources/accessibility-guide.md)**
@@ -427,7 +438,8 @@ Claude:
 
 ```javascript
 // Claude executes:
-const metadata = [{
+const metadata = [
+  {
     fullName: 'c/accountDashboard',
     apiVersion: '66.0',
     isExposed: true,
@@ -436,13 +448,14 @@ const metadata = [{
     source: 'export default class AccountDashboard extends LightningElement { ... }',
     html: '<template><div class="slds-box">...</div></template>',
     css: ':host { --slds-g-color-surface-1: var(--slds-c-card-color-background); }',
-    meta: '<?xml version="1.0"?><LightningComponentBundle>...</LightningComponentBundle>'
-}];
+    meta: '<?xml version="1.0"?><LightningComponentBundle>...</LightningComponentBundle>',
+  },
+];
 
 await metadata_create({
-    type: 'LightningComponentBundle',
-    metadata: metadata,
-    sf_user: 'user@example.com'
+  type: 'LightningComponentBundle',
+  metadata: metadata,
+  sf_user: 'user@example.com',
 });
 ```
 
@@ -451,10 +464,10 @@ await metadata_create({
 ```javascript
 // Query deployed component via Tooling API:
 const result = await tooling_api_query({
-    sObject: 'LightningComponentBundle',
-    fields: ['Id', 'DeveloperName', 'ApiVersion'],
-    whereClause: "DeveloperName = 'accountDashboard'",
-    sf_user: 'user@example.com'
+  sObject: 'LightningComponentBundle',
+  fields: ['Id', 'DeveloperName', 'ApiVersion'],
+  whereClause: "DeveloperName = 'accountDashboard'",
+  sf_user: 'user@example.com',
 });
 ```
 
@@ -474,63 +487,59 @@ import { LightningElement, wire, api } from 'lwc';
 import getAccounts from '@salesforce/apex/AccountController.getAccounts';
 
 export default class AccountList extends LightningElement {
-    @api maxRecords = 10;
-    accounts;
-    error;
-    isLoading = true;
+  @api maxRecords = 10;
+  accounts;
+  error;
+  isLoading = true;
 
-    @wire(getAccounts, { maxRecords: '$maxRecords' })
-    wiredAccounts(result) {
-        if (result.data) {
-            this.accounts = result.data;
-            this.error = undefined;
-        } else if (result.error) {
-            this.error = result.error;
-            this.accounts = undefined;
-        }
-        this.isLoading = false;
+  @wire(getAccounts, { maxRecords: '$maxRecords' })
+  wiredAccounts(result) {
+    if (result.data) {
+      this.accounts = result.data;
+      this.error = undefined;
+    } else if (result.error) {
+      this.error = result.error;
+      this.accounts = undefined;
     }
+    this.isLoading = false;
+  }
 }
 ```
 
 ```html
 <!-- accountList.html -->
 <template>
-    <lightning-card title="Accounts" icon-name="standard:account">
-        <template lwc:if={isLoading}>
-            <lightning-spinner variant="brand"></lightning-spinner>
-        </template>
+  <lightning-card title="Accounts" icon-name="standard:account">
+    <template lwc:if="{isLoading}">
+      <lightning-spinner variant="brand"></lightning-spinner>
+    </template>
 
-        <template lwc:else-if={accounts}>
-            <div class="slds-m-around_medium">
-                <div class="slds-table slds-table_striped slds-table_bordered">
-                    <template for:each={accounts} for:item="account">
-                        <div key={account.Id} class="slds-truncate">
-                            {account.Name}
-                        </div>
-                    </template>
-                </div>
-            </div>
-        </template>
+    <template lwc:else-if="{accounts}">
+      <div class="slds-m-around_medium">
+        <div class="slds-table slds-table_striped slds-table_bordered">
+          <template for:each="{accounts}" for:item="account">
+            <div key="{account.Id}" class="slds-truncate">{account.Name}</div>
+          </template>
+        </div>
+      </div>
+    </template>
 
-        <template lwc:else-if={error}>
-            <div class="slds-notify slds-notify_alert slds-theme_alert-danger">
-                {error.body.message}
-            </div>
-        </template>
-    </lightning-card>
+    <template lwc:else-if="{error}">
+      <div class="slds-notify slds-notify_alert slds-theme_alert-danger">{error.body.message}</div>
+    </template>
+  </lightning-card>
 </template>
 ```
 
 ```css
 /* accountList.css */
 :host {
-    --slds-g-color-surface-1: var(--slds-c-card-color-background, #ffffff);
+  --slds-g-color-surface-1: var(--slds-c-card-color-background, #ffffff);
 }
 
 .slds-table {
-    background-color: var(--slds-g-color-surface-1);
-    color: var(--slds-g-color-on-surface);
+  background-color: var(--slds-g-color-surface-1);
+  color: var(--slds-g-color-on-surface);
 }
 ```
 
@@ -539,47 +548,52 @@ export default class AccountList extends LightningElement {
 **Request**: "Create a parent-child component pair with custom event communication"
 
 **Generated: parentComponent.js**
+
 ```javascript
 import { LightningElement, track } from 'lwc';
 
 export default class ParentComponent extends LightningElement {
-    @track selectedAccountId;
+  @track selectedAccountId;
 
-    handleAccountSelection(event) {
-        this.selectedAccountId = event.detail.id;
-        console.log('Selected Account:', this.selectedAccountId);
-    }
+  handleAccountSelection(event) {
+    this.selectedAccountId = event.detail.id;
+    console.log('Selected Account:', this.selectedAccountId);
+  }
 }
 ```
 
 **Generated: parentComponent.html**
+
 ```html
 <template>
-    <div class="slds-box">
-        <c-child-account-selector
-            onaccountselected={handleAccountSelection}
-        ></c-child-account-selector>
+  <div class="slds-box">
+    <c-child-account-selector
+      onaccountselected="{handleAccountSelection}"
+    ></c-child-account-selector>
 
-        <template lwc:if={selectedAccountId}>
-            <p>Selected Account ID: {selectedAccountId}</p>
-        </template>
-    </div>
+    <template lwc:if="{selectedAccountId}">
+      <p>Selected Account ID: {selectedAccountId}</p>
+    </template>
+  </div>
 </template>
 ```
 
 **Generated: childAccountSelector.js**
+
 ```javascript
 import { LightningElement, track } from 'lwc';
 
 export default class ChildAccountSelector extends LightningElement {
-    @track selectedAccount;
+  @track selectedAccount;
 
-    handleSelect(event) {
-        this.selectedAccount = event.currentTarget.dataset.id;
-        this.dispatchEvent(new CustomEvent('accountselected', {
-            detail: { id: this.selectedAccount }
-        }));
-    }
+  handleSelect(event) {
+    this.selectedAccount = event.currentTarget.dataset.id;
+    this.dispatchEvent(
+      new CustomEvent('accountselected', {
+        detail: { id: this.selectedAccount },
+      })
+    );
+  }
 }
 ```
 
@@ -591,12 +605,12 @@ LWC components can be embedded in Flow Screens for custom UI experiences within 
 
 ### Key Concepts
 
-| Mechanism | Direction | Purpose |
-|-----------|-----------|---------|
-| `@api` with `role="inputOnly"` | Flow → LWC | Pass context data |
-| `FlowAttributeChangeEvent` | LWC → Flow | Return user selections |
-| `FlowNavigationFinishEvent` | LWC → Flow | Programmatic Next/Back/Finish |
-| `availableActions` | Flow → LWC | Check available navigation |
+| Mechanism                      | Direction  | Purpose                       |
+| ------------------------------ | ---------- | ----------------------------- |
+| `@api` with `role="inputOnly"` | Flow → LWC | Pass context data             |
+| `FlowAttributeChangeEvent`     | LWC → Flow | Return user selections        |
+| `FlowNavigationFinishEvent`    | LWC → Flow | Programmatic Next/Back/Finish |
+| `availableActions`             | Flow → LWC | Check available navigation    |
 
 ### Quick Example
 
@@ -624,6 +638,7 @@ handleNext() {
 ```
 
 **For complete Flow integration patterns, see:**
+
 - [docs/flow-integration-guide.md](docs/flow-integration-guide.md)
 - [docs/triangle-pattern.md](docs/triangle-pattern.md)
 
@@ -637,19 +652,19 @@ Lightning Web Components now support TypeScript with the `@salesforce/lightning-
 
 ```typescript
 interface AccountRecord {
-    Id: string;
-    Name: string;
-    Industry?: string;
+  Id: string;
+  Name: string;
+  Industry?: string;
 }
 
 export default class AccountList extends LightningElement {
-    @api recordId: string | undefined;
-    @track private _accounts: AccountRecord[] = [];
+  @api recordId: string | undefined;
+  @track private _accounts: AccountRecord[] = [];
 
-    @wire(getAccounts, { maxRecords: '$maxRecords' })
-    wiredAccounts(result: WireResult<AccountRecord[]>): void {
-        // Typed wire handling...
-    }
+  @wire(getAccounts, { maxRecords: '$maxRecords' })
+  wiredAccounts(result: WireResult<AccountRecord[]>): void {
+    // Typed wire handling...
+  }
 }
 ```
 
@@ -684,6 +699,7 @@ Make components discoverable by Agentforce agents:
 ```
 
 **Best Practices**:
+
 - Clear `masterLabel` and `description`
 - Detailed property descriptions
 - Semantic naming conventions
@@ -694,27 +710,30 @@ Make components discoverable by Agentforce agents:
 
 ## Cross-Skill Integration
 
-| Skill | Use Case |
-|-------|----------|
-| sf-apex | Generate Apex controllers (`@AuraEnabled`, `@InvocableMethod`) |
-| sf-flow | Embed components in Flow Screens, pass data to/from Flow |
-| sf-testing | Generate Jest tests |
-| sf-deploy | Deploy components (via Cirra AI metadata_create) |
-| sf-metadata | Create message channels |
+| Skill       | Use Case                                                       |
+| ----------- | -------------------------------------------------------------- |
+| sf-apex     | Generate Apex controllers (`@AuraEnabled`, `@InvocableMethod`) |
+| sf-flow     | Embed components in Flow Screens, pass data to/from Flow       |
+| sf-testing  | Generate Jest tests                                            |
+| sf-deploy   | Deploy components (via Cirra AI metadata_create)               |
+| sf-metadata | Create message channels                                        |
 
 ---
 
 ## Dependencies
 
 **Required**:
+
 - Cirra AI MCP Server connection (via `cirra_ai_init`)
 - Target org with LWC support (API 45.0+)
 
 **For Testing**:
+
 - Node.js 18+
 - Jest (`@salesforce/sfdx-lwc-jest`)
 
 **For SLDS Validation**:
+
 - `@salesforce-ux/slds-linter` (optional)
 
 ---
@@ -723,18 +742,18 @@ Make components discoverable by Agentforce agents:
 
 ### Documentation Files
 
-| Resource | Purpose |
-|----------|---------|
-| [resources/component-patterns.md](resources/component-patterns.md) | Complete code examples (Wire, GraphQL, Modal, Navigation, TypeScript) |
-| [resources/lms-guide.md](resources/lms-guide.md) | Lightning Message Service deep dive |
-| [resources/jest-testing.md](resources/jest-testing.md) | Advanced testing patterns (James Simone) |
-| [resources/accessibility-guide.md](resources/accessibility-guide.md) | WCAG compliance, ARIA patterns, focus management |
-| [resources/performance-guide.md](resources/performance-guide.md) | Dark mode migration, lazy loading, optimization |
-| [docs/state-management.md](docs/state-management.md) | @track, Singleton Store, @lwc/state, Platform State Managers |
-| [docs/template-anti-patterns.md](docs/template-anti-patterns.md) | LLM template mistakes (inline expressions, ternary operators) |
-| [docs/async-notification-patterns.md](docs/async-notification-patterns.md) | Platform Events + empApi subscription patterns |
-| [docs/flow-integration-guide.md](docs/flow-integration-guide.md) | Flow-LWC communication, apex:// type bindings |
-| [docs/cirra-ai-deployment.md](docs/cirra-ai-deployment.md) | Cirra AI MCP Server integration guide |
+| Resource                                                                   | Purpose                                                               |
+| -------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| [resources/component-patterns.md](resources/component-patterns.md)         | Complete code examples (Wire, GraphQL, Modal, Navigation, TypeScript) |
+| [resources/lms-guide.md](resources/lms-guide.md)                           | Lightning Message Service deep dive                                   |
+| [resources/jest-testing.md](resources/jest-testing.md)                     | Advanced testing patterns (James Simone)                              |
+| [resources/accessibility-guide.md](resources/accessibility-guide.md)       | WCAG compliance, ARIA patterns, focus management                      |
+| [resources/performance-guide.md](resources/performance-guide.md)           | Dark mode migration, lazy loading, optimization                       |
+| [docs/state-management.md](docs/state-management.md)                       | @track, Singleton Store, @lwc/state, Platform State Managers          |
+| [docs/template-anti-patterns.md](docs/template-anti-patterns.md)           | LLM template mistakes (inline expressions, ternary operators)         |
+| [docs/async-notification-patterns.md](docs/async-notification-patterns.md) | Platform Events + empApi subscription patterns                        |
+| [docs/flow-integration-guide.md](docs/flow-integration-guide.md)           | Flow-LWC communication, apex:// type bindings                         |
+| [docs/cirra-ai-deployment.md](docs/cirra-ai-deployment.md)                 | Cirra AI MCP Server integration guide                                 |
 
 ### External References
 

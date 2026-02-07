@@ -11,13 +11,11 @@ Tests:
     4. test_error_description_surfaced — error_description from body appears in message
 """
 
-import io
 import json
 import sys
 from pathlib import Path
 
 import pytest
-from urllib.error import HTTPError
 
 # Allow importing helpers from the validation conftest
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
@@ -29,6 +27,7 @@ from conftest import make_mock_response, make_http_error
 # ---------------------------------------------------------------------------
 # Tests
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.tier4
 @pytest.mark.offline

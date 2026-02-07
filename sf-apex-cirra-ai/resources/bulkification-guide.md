@@ -21,27 +21,27 @@ Salesforce enforces per-transaction limits to ensure multi-tenant platform stabi
 
 ### Critical Limits (Synchronous Context)
 
-| Resource | Limit | Notes |
-|----------|-------|-------|
-| **SOQL Queries** | 100 | Includes parent-child queries |
-| **SOQL Query Rows** | 50,000 | Total rows retrieved |
-| **DML Statements** | 150 | insert, update, delete, undelete operations |
-| **DML Rows** | 10,000 | Total records per transaction |
-| **CPU Time** | 10,000ms | Actual CPU time (not wall clock) |
-| **Heap Size** | 6 MB | Memory used by variables |
-| **Callouts** | 100 | HTTP requests |
-| **Callout Time** | 120 seconds | Total time for all callouts |
+| Resource            | Limit       | Notes                                       |
+| ------------------- | ----------- | ------------------------------------------- |
+| **SOQL Queries**    | 100         | Includes parent-child queries               |
+| **SOQL Query Rows** | 50,000      | Total rows retrieved                        |
+| **DML Statements**  | 150         | insert, update, delete, undelete operations |
+| **DML Rows**        | 10,000      | Total records per transaction               |
+| **CPU Time**        | 10,000ms    | Actual CPU time (not wall clock)            |
+| **Heap Size**       | 6 MB        | Memory used by variables                    |
+| **Callouts**        | 100         | HTTP requests                               |
+| **Callout Time**    | 120 seconds | Total time for all callouts                 |
 
 ### Asynchronous Limits (Future, Batch, Queueable)
 
-| Resource | Limit | Notes |
-|----------|-------|-------|
-| **SOQL Queries** | 200 | Double synchronous |
-| **SOQL Query Rows** | 50,000 | Same as sync |
-| **DML Statements** | 150 | Same as sync |
-| **DML Rows** | 10,000 | Same as sync |
-| **CPU Time** | 60,000ms | 6x synchronous |
-| **Heap Size** | 12 MB | 2x synchronous |
+| Resource            | Limit    | Notes              |
+| ------------------- | -------- | ------------------ |
+| **SOQL Queries**    | 200      | Double synchronous |
+| **SOQL Query Rows** | 50,000   | Same as sync       |
+| **DML Statements**  | 150      | Same as sync       |
+| **DML Rows**        | 10,000   | Same as sync       |
+| **CPU Time**        | 60,000ms | 6x synchronous     |
+| **Heap Size**       | 12 MB    | 2x synchronous     |
 
 **Key Insight**: Async has more SOQL queries and CPU time, but DML limits are the same.
 
@@ -52,6 +52,7 @@ Salesforce enforces per-transaction limits to ensure multi-tenant platform stabi
 ### Rule 1: Never Query Inside a Loop
 
 **❌ BAD - Hits SOQL limit at 100 accounts:**
+
 ```apex
 for (Account acc : accounts) {
     List<Contact> contacts = [SELECT Id FROM Contact WHERE AccountId = :acc.Id];
@@ -60,6 +61,7 @@ for (Account acc : accounts) {
 ```
 
 **✅ GOOD - Single query handles unlimited accounts:**
+
 ```apex
 // Step 1: Collect all Account IDs
 Set<Id> accountIds = new Set<Id>();
@@ -92,6 +94,7 @@ for (Account acc : accounts) {
 ### Rule 2: Never DML Inside a Loop
 
 **❌ BAD - Hits DML limit at 150 accounts:**
+
 ```apex
 for (Account acc : accounts) {
     acc.Industry = 'Technology';
@@ -100,6 +103,7 @@ for (Account acc : accounts) {
 ```
 
 **✅ GOOD - Single DML handles 10,000 accounts:**
+
 ```apex
 for (Account acc : accounts) {
     acc.Industry = 'Technology';
@@ -114,6 +118,7 @@ update accounts;  // DML after loop
 ### Rule 3: Use Collections Efficiently
 
 **❌ BAD - Multiple queries for related data:**
+
 ```apex
 for (Account acc : accounts) {
     List<Contact> contacts = [SELECT Id FROM Contact WHERE AccountId = :acc.Id];
@@ -122,6 +127,7 @@ for (Account acc : accounts) {
 ```
 
 **✅ GOOD - Single query with subqueries:**
+
 ```apex
 Map<Id, Account> accountsWithRelated = new Map<Id, Account>([
     SELECT Id, Name,
@@ -206,6 +212,7 @@ public static void processContactsByAccount(List<Contact> contacts) {
 ```
 
 **Alternative using Null Coalescing (API 59+):**
+
 ```apex
 for (Contact con : contacts) {
     List<Contact> existing = contactsByAccount.get(con.AccountId);
@@ -313,13 +320,14 @@ public static void updateAccountsIfChanged(List<Account> accounts, Map<Id, Accou
 
 ### Use the Right Collection Type
 
-| Collection | When to Use | Key Features |
-|------------|-------------|--------------|
-| **List<T>** | Ordered data, duplicates allowed | Index access, iteration |
-| **Set<T>** | Unique values, fast lookups | No duplicates, O(1) contains() |
-| **Map<K,V>** | Key-value pairs, fast lookups | O(1) get(), unique keys |
+| Collection   | When to Use                      | Key Features                   |
+| ------------ | -------------------------------- | ------------------------------ |
+| **List<T>**  | Ordered data, duplicates allowed | Index access, iteration        |
+| **Set<T>**   | Unique values, fast lookups      | No duplicates, O(1) contains() |
+| **Map<K,V>** | Key-value pairs, fast lookups    | O(1) get(), unique keys        |
 
 **Example: Deduplication**
+
 ```apex
 // ❌ BAD - O(n²) complexity
 List<Id> uniqueIds = new List<Id>();
@@ -338,6 +346,7 @@ Set<Id> uniqueIdsSet = new Set<Id>(allAccountIds);  // Automatic deduplication
 ### List Operations
 
 **Creating Lists:**
+
 ```apex
 // Empty list
 List<Account> accounts = new List<Account>();
@@ -351,12 +360,14 @@ List<Id> idList = new List<Id>(idSet);
 ```
 
 **Adding Elements:**
+
 ```apex
 accounts.add(newAccount);           // Add single
 accounts.addAll(moreAccounts);      // Add list
 ```
 
 **Checking Before DML (NOT NEEDED):**
+
 ```apex
 // ❌ UNNECESSARY - Salesforce handles empty lists
 if (!accounts.isEmpty()) {
@@ -372,6 +383,7 @@ update accounts;  // No-op if empty, saves CPU cycles checking
 ### Set Operations
 
 **Union, Intersection, Difference:**
+
 ```apex
 Set<Id> set1 = new Set<Id>{id1, id2, id3};
 Set<Id> set2 = new Set<Id>{id2, id3, id4};
@@ -390,6 +402,7 @@ difference.removeAll(set2);  // {id1}
 ```
 
 **Checking Membership:**
+
 ```apex
 if (accountIds.contains(acc.Id)) {
     // Fast O(1) lookup
@@ -422,6 +435,7 @@ ids.addAll(toAdd);
 ### Map Operations
 
 **Creating Maps:**
+
 ```apex
 // Empty map
 Map<Id, Account> accountMap = new Map<Id, Account>();
@@ -436,6 +450,7 @@ scoreMap.put('Bob', 87);
 ```
 
 **Safe Access with Null Coalescing:**
+
 ```apex
 // Old way
 Integer score = scoreMap.get('Charlie');
@@ -448,6 +463,7 @@ Integer score = scoreMap.get('Charlie') ?? 0;
 ```
 
 **Iterating Maps:**
+
 ```apex
 // Iterate keys
 for (Id accountId : accountMap.keySet()) {
@@ -473,6 +489,7 @@ for (Id accountId : accountMap.keySet()) {
 ### Using Limits Class
 
 **Check current consumption:**
+
 ```apex
 System.debug('SOQL Queries: ' + Limits.getQueries() + '/' + Limits.getLimitQueries());
 System.debug('DML Statements: ' + Limits.getDmlStatements() + '/' + Limits.getLimitDmlStatements());
@@ -481,6 +498,7 @@ System.debug('Heap Size: ' + Limits.getHeapSize() + '/' + Limits.getLimitHeapSiz
 ```
 
 **Strategic placement:**
+
 ```apex
 public static void expensiveOperation() {
     System.debug('=== BEFORE OPERATION ===');
@@ -504,6 +522,7 @@ private static void logLimits() {
 ### Debug Logs Best Practices
 
 **Use log levels strategically:**
+
 ```apex
 System.debug(LoggingLevel.ERROR, 'Critical failure: ' + errorMsg);
 System.debug(LoggingLevel.WARN, 'Warning: potential issue');
@@ -513,6 +532,7 @@ System.debug(LoggingLevel.FINE, 'Detailed trace info');
 ```
 
 **Filter in Setup → Debug Logs:**
+
 - Apex Code: DEBUG
 - Database: INFO
 - Workflow: INFO
@@ -525,12 +545,14 @@ System.debug(LoggingLevel.FINE, 'Detailed trace info');
 ### Query Plan Analysis
 
 **Check query selectivity:**
+
 ```apex
 // Use EXPLAIN in Developer Console or Workbench
 // Or query plan API (requires REST call)
 ```
 
 **Indicators of bad queries:**
+
 - TableScan (full table scan)
 - Cardinality mismatch (estimated vs actual rows)
 - Missing indexes on WHERE clause fields
@@ -546,6 +568,7 @@ System.debug(LoggingLevel.FINE, 'Detailed trace info');
 **Why 251?** Trigger bulkification often breaks between 200-250 records due to chunk processing.
 
 **Test Class Pattern:**
+
 ```apex
 @IsTest
 private class AccountTriggerTest {
@@ -607,6 +630,7 @@ private class AccountTriggerTest {
 ### Test Data Factory Pattern
 
 **Centralized test data creation:**
+
 ```apex
 @IsTest
 public class TestDataFactory {
@@ -646,6 +670,7 @@ public class TestDataFactory {
 ```
 
 **Benefits**:
+
 - Centralized data creation
 - Consistent test data
 - Easy to create 251+ records
@@ -656,6 +681,7 @@ public class TestDataFactory {
 ### Performance Testing
 
 **Measure CPU time and SOQL:**
+
 ```apex
 @IsTest
 static void testPerformance() {
@@ -690,6 +716,7 @@ static void testPerformance() {
 ### Lazy Loading Pattern
 
 **Defer expensive operations until needed:**
+
 ```apex
 public class AccountProcessor {
 
@@ -722,6 +749,7 @@ public class AccountProcessor {
 ### Platform Cache for Expensive Queries
 
 **Cache frequently accessed data:**
+
 ```apex
 public class CachedMetadataService {
 
@@ -749,6 +777,7 @@ public class CachedMetadataService {
 ## Reference
 
 **Full Documentation**: See `docs/` folder for comprehensive guides:
+
 - `best-practices.md` - Bulkification patterns
 - `testing-guide.md` - Test Data Factory and bulk testing
 - `code-review-checklist.md` - Bulkification scoring criteria

@@ -8,11 +8,11 @@
 
 Agent Script instructions resolve in a predictable order. Understanding this flow gives you precise control over what the LLM sees and when actions execute.
 
-| Phase | Icon | Name | Description |
-|-------|------|------|-------------|
-| 1 | ▶ | **Pre-LLM Setup** | Instructions resolve line-by-line, deterministically |
-| 2 | ⚙ | **LLM Reasoning** | LLM sees only resolved text and available actions |
-| 3 | ↻ | **Post-Action Loop** | After action completes, topic loops with updated variables |
+| Phase | Icon | Name                 | Description                                                |
+| ----- | ---- | -------------------- | ---------------------------------------------------------- |
+| 1     | ▶    | **Pre-LLM Setup**    | Instructions resolve line-by-line, deterministically       |
+| 2     | ⚙    | **LLM Reasoning**    | LLM sees only resolved text and available actions          |
+| 3     | ↻    | **Post-Action Loop** | After action completes, topic loops with updated variables |
 
 ---
 
@@ -22,11 +22,11 @@ Agent Script instructions resolve in a predictable order. Understanding this flo
 
 ### What Happens
 
-| Step | Description |
-|------|-------------|
-| **Conditions evaluate** | `if/else` logic evaluates and prunes paths |
-| **Actions execute** | `run @actions.X` executes immediately |
-| **Templates resolve** | Template syntax resolves to actual values |
+| Step                          | Description                                    |
+| ----------------------------- | ---------------------------------------------- |
+| **Conditions evaluate**       | `if/else` logic evaluates and prunes paths     |
+| **Actions execute**           | `run @actions.X` executes immediately          |
+| **Templates resolve**         | Template syntax resolves to actual values      |
 | **Transitions short-circuit** | `transition to` can exit the topic immediately |
 
 ### Example
@@ -82,6 +82,7 @@ topic refund_request:
 The LLM **never** sees your conditionals - only the resolved result.
 
 **Your code:**
+
 ```yaml
 instructions: ->
   | Customer churn score: {!@variables.churn_score}
@@ -93,6 +94,7 @@ instructions: ->
 ```
 
 **What the LLM actually sees (if churn_score = 85):**
+
 ```
 Customer churn score: 85
 Offer a full cash refund to retain this customer.
@@ -119,12 +121,12 @@ If `is_verified` is `False`, the LLM **never sees** `process_refund` as an optio
 
 ### What Happens
 
-| Step | Description |
-|------|-------------|
-| **Outputs stored** | LLM action completes, outputs stored in variables |
-| **Re-resolve** | Topic instructions resolve again (same top-to-bottom pass) |
-| **New conditions trigger** | Conditions can trigger based on new values |
-| **Follow-up executes** | Deterministic follow-up actions run |
+| Step                       | Description                                                |
+| -------------------------- | ---------------------------------------------------------- |
+| **Outputs stored**         | LLM action completes, outputs stored in variables          |
+| **Re-resolve**             | Topic instructions resolve again (same top-to-bottom pass) |
+| **New conditions trigger** | Conditions can trigger based on new values                 |
+| **Follow-up executes**     | Deterministic follow-up actions run                        |
 
 ### The Loop Pattern
 
@@ -216,11 +218,11 @@ reasoning:
 
 ## Execution Timeline Summary
 
-| Phase | What Happens | Duration |
-|-------|--------------|----------|
-| **Pre-LLM** | Message received, instructions resolve, templates hydrate | ~60-515ms |
-| **LLM** | LLM processes resolved instructions, decides on response/action | ~1-3s |
-| **Post-Action** | Action executes, topic loops with updated variables | ~150-550ms |
+| Phase           | What Happens                                                    | Duration   |
+| --------------- | --------------------------------------------------------------- | ---------- |
+| **Pre-LLM**     | Message received, instructions resolve, templates hydrate       | ~60-515ms  |
+| **LLM**         | LLM processes resolved instructions, decides on response/action | ~1-3s      |
+| **Post-Action** | Action executes, topic loops with updated variables             | ~150-550ms |
 
 ---
 
@@ -276,15 +278,15 @@ actions:
 
 ## Syntax Patterns Reference
 
-| Pattern | Purpose |
-|---------|---------|
-| `instructions: ->` | Arrow syntax enables inline expressions |
-| `if @variables.x:` | Conditional - resolves BEFORE LLM |
-| `run @actions.x` | Execute action during resolution |
-| `set @var = @outputs.y` | Capture action output |
-| Curly-bang: {!@variables.x} | Template injection into LLM text |
-| `available when` | Control action visibility to LLM |
-| `transition to @topic.x` | Deterministic topic change |
+| Pattern                     | Purpose                                 |
+| --------------------------- | --------------------------------------- |
+| `instructions: ->`          | Arrow syntax enables inline expressions |
+| `if @variables.x:`          | Conditional - resolves BEFORE LLM       |
+| `run @actions.x`            | Execute action during resolution        |
+| `set @var = @outputs.y`     | Capture action output                   |
+| Curly-bang: {!@variables.x} | Template injection into LLM text        |
+| `available when`            | Control action visibility to LLM        |
+| `transition to @topic.x`    | Deterministic topic change              |
 
 ---
 
@@ -338,10 +340,10 @@ instructions: ->
 
 ## Key Takeaways
 
-| # | Takeaway |
-|---|----------|
-| 1 | **One Pass Resolution** - Instructions resolve top-to-bottom BEFORE the LLM sees anything |
-| 2 | **Inline Pattern** - Use `reasoning.instructions: ->` with inline conditionals |
-| 3 | **LLM Sees Clean Text** - No if/else logic visible, no action calls visible |
-| 4 | **Post-Action Loop** - Topic loops back after LLM action, instructions resolve AGAIN |
-| 5 | **Deterministic Follow-Up** - Use post-action checks to guarantee critical actions |
+| #   | Takeaway                                                                                  |
+| --- | ----------------------------------------------------------------------------------------- |
+| 1   | **One Pass Resolution** - Instructions resolve top-to-bottom BEFORE the LLM sees anything |
+| 2   | **Inline Pattern** - Use `reasoning.instructions: ->` with inline conditionals            |
+| 3   | **LLM Sees Clean Text** - No if/else logic visible, no action calls visible               |
+| 4   | **Post-Action Loop** - Topic loops back after LLM action, instructions resolve AGAIN      |
+| 5   | **Deterministic Follow-Up** - Use post-action checks to guarantee critical actions        |

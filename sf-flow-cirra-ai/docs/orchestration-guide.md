@@ -58,6 +58,7 @@ Parent (Orchestrator)
 ```
 
 **Example**: Account industry change
+
 - Parent: RTF_Account_IndustryChange_Orchestrator
 - Child 1: Update Contacts
 - Child 2: Update Opportunities
@@ -78,6 +79,7 @@ Step 1 → Output → Step 2 → Output → Step 3 → Output → Step 4
 ```
 
 **Example**: Order processing
+
 - Step 1: Validate Order → (isValid, validationMessage)
 - Step 2: Calculate Tax → (taxAmount, totalAmount)
 - Step 3: Process Payment → (paymentId, status)
@@ -102,6 +104,7 @@ Parent (Router)
 ```
 
 **Example**: Case triage
+
 - Critical → Escalate immediately
 - High + Technical → Create Jira ticket
 - High + Billing → Check payment status
@@ -131,21 +134,23 @@ Does each step depend on the previous step's output?
 
 ### Pattern Comparison
 
-| Aspect | Parent-Child | Sequential | Conditional |
-|--------|-------------|-----------|------------|
-| **Execution** | All children run (parallel possible) | Steps run in order | One path runs |
-| **Dependencies** | Children independent | Each step needs previous output | Paths independent |
-| **Use Case** | Multi-responsibility task | Multi-stage pipeline | Scenario-based routing |
-| **Performance** | Fast (parallel possible) | Slower (sequential) | Fast (only one path) |
-| **Complexity** | Medium | Low | Medium |
-| **Testability** | Excellent (test each child) | Good (test each stage) | Excellent (test each path) |
+| Aspect           | Parent-Child                         | Sequential                      | Conditional                |
+| ---------------- | ------------------------------------ | ------------------------------- | -------------------------- |
+| **Execution**    | All children run (parallel possible) | Steps run in order              | One path runs              |
+| **Dependencies** | Children independent                 | Each step needs previous output | Paths independent          |
+| **Use Case**     | Multi-responsibility task            | Multi-stage pipeline            | Scenario-based routing     |
+| **Performance**  | Fast (parallel possible)             | Slower (sequential)             | Fast (only one path)       |
+| **Complexity**   | Medium                               | Low                             | Medium                     |
+| **Testability**  | Excellent (test each child)          | Good (test each stage)          | Excellent (test each path) |
 
 ## Best Practices
 
 ### 1. Design Principles
 
 #### Single Responsibility
+
 Each flow should do ONE thing well:
+
 ```xml
 ✅ GOOD:
 Sub_UpdateContactIndustry → Only updates Contact Industry field
@@ -155,7 +160,9 @@ Sub_UpdateEverything → Updates Contacts, Opportunities, Cases, sends emails...
 ```
 
 #### Clear Interfaces
+
 Define explicit inputs and outputs:
+
 ```xml
 <!-- Good: Clear contract -->
 <variables>
@@ -173,7 +180,9 @@ Define explicit inputs and outputs:
 ```
 
 #### Fail Fast
+
 Check prerequisites early, fail immediately if not met:
+
 ```xml
 <decisions>
     <name>Check_Prerequisites</name>
@@ -196,16 +205,17 @@ Check prerequisites early, fail immediately if not met:
 
 Use consistent prefixes to identify orchestration roles:
 
-| Prefix | Purpose | Example |
-|--------|---------|---------|
-| `RTF_` | Record-Triggered orchestrator | RTF_Account_UpdateOrchestrator |
-| `Auto_` | Autolaunched orchestrator | Auto_OrderProcessingPipeline |
-| `Sub_` | Reusable child/subflow | Sub_UpdateContactIndustry |
-| `Screen_` | Screen flow (UI) | Screen_OrderEntry |
+| Prefix    | Purpose                       | Example                        |
+| --------- | ----------------------------- | ------------------------------ |
+| `RTF_`    | Record-Triggered orchestrator | RTF_Account_UpdateOrchestrator |
+| `Auto_`   | Autolaunched orchestrator     | Auto_OrderProcessingPipeline   |
+| `Sub_`    | Reusable child/subflow        | Sub_UpdateContactIndustry      |
+| `Screen_` | Screen flow (UI)              | Screen_OrderEntry              |
 
 **Pattern**: `{Type}_{Object}_{Purpose}{Role}`
 
 Examples:
+
 - `RTF_Account_IndustryChange_Orchestrator` (parent)
 - `Sub_UpdateContactIndustry` (child)
 - `Auto_ValidateOrder` (sequential step)
@@ -602,13 +612,13 @@ Result: Unpredictable behavior based on execution order
 
 Orchestrated flows share governor limits across all components:
 
-| Limit | Value | Orchestration Impact |
-|-------|-------|---------------------|
-| SOQL Queries | 100 | Each child's queries count toward total |
-| DML Statements | 150 | Each child's DML counts toward total |
-| DML Rows | 10,000 | Shared across all children |
-| CPU Time | 10,000ms | Sum of all flow execution time |
-| Subflow Depth | 50 | Parent → Child → Grandchild... |
+| Limit          | Value    | Orchestration Impact                    |
+| -------------- | -------- | --------------------------------------- |
+| SOQL Queries   | 100      | Each child's queries count toward total |
+| DML Statements | 150      | Each child's DML counts toward total    |
+| DML Rows       | 10,000   | Shared across all children              |
+| CPU Time       | 10,000ms | Sum of all flow execution time          |
+| Subflow Depth  | 50       | Parent → Child → Grandchild...          |
 
 **Tip**: Use `limits` method in debug logs to monitor consumption
 
@@ -639,14 +649,17 @@ Create README documenting dependencies:
 # Flow Dependencies
 
 ## RTF_Account_IndustryChange_Orchestrator
+
 - Calls: Sub_UpdateContactIndustry
 - Calls: Sub_UpdateOpportunityStages
 - Calls: Sub_SendEmailAlert
 
 ## Sub_UpdateContactIndustry
+
 - No dependencies
 
 ## Sub_UpdateOpportunityStages
+
 - Calls: Sub_LogError (error handling)
 ```
 
@@ -657,21 +670,27 @@ Create README documenting dependencies:
 ### From Monolith to Orchestration
 
 #### Step 1: Identify Responsibilities
+
 Break down existing monolithic flow into distinct responsibilities
 
 #### Step 2: Extract Children
+
 Create child subflows for each responsibility
 
 #### Step 3: Create Orchestrator
+
 Build parent flow that calls children
 
 #### Step 4: Test Side-by-Side
+
 Run old and new flows in parallel (different trigger conditions)
 
 #### Step 5: Cutover
+
 Deactivate old flow, activate new orchestrated flows
 
 #### Step 6: Monitor
+
 Watch error logs and performance metrics
 
 ---
@@ -704,6 +723,7 @@ Watch error logs and performance metrics
 Flow orchestration transforms complex automations from unmaintainable monoliths into modular, testable systems. By applying the three core patterns—Parent-Child, Sequential, and Conditional—you can build robust, scalable automation that's easy to understand, test, and enhance.
 
 **Key Principles**:
+
 1. **Single Responsibility**: Each flow does one thing well
 2. **Clear Interfaces**: Explicit inputs and outputs
 3. **Error Handling**: Every component handles its own failures

@@ -54,7 +54,7 @@ import urllib.parse
 import os
 import time
 import sys
-from typing import Optional, List, Dict, Any, Tuple
+from typing import Any
 from dataclasses import dataclass, field
 
 
@@ -62,9 +62,11 @@ from dataclasses import dataclass, field
 # Data Classes
 # ═══════════════════════════════════════════════════════════════════════════
 
+
 @dataclass
 class AgentMessage:
     """A single message from the agent response."""
+
     type: str
     id: str
     message: str
@@ -82,18 +84,20 @@ class AgentMessage:
 @dataclass
 class TurnResult:
     """Result of a single conversation turn (user message → agent response)."""
+
     sequence_id: int
     user_message: str
-    agent_messages: List[AgentMessage]
+    agent_messages: list[AgentMessage]
     raw_response: dict
     elapsed_ms: float
-    error: Optional[str] = None
+    error: str | None = None
 
     @property
     def agent_text(self) -> str:
         """Combined text from all Inform/Text agent messages."""
         return "\n".join(
-            m.message for m in self.agent_messages
+            m.message
+            for m in self.agent_messages
             if m.message and m.type in ("Inform", "Text", "Confirm")
         )
 
@@ -103,17 +107,14 @@ class TurnResult:
         return bool(self.agent_text.strip())
 
     @property
-    def message_types(self) -> List[str]:
+    def message_types(self) -> list[str]:
         """List of all message types in this turn's response."""
         return [m.type for m in self.agent_messages]
 
     @property
     def has_escalation(self) -> bool:
         """Whether this turn triggered an escalation or session end."""
-        return any(
-            m.type in ("Escalation", "SessionEnded")
-            for m in self.agent_messages
-        )
+        return any(m.type in ("Escalation", "SessionEnded") for m in self.agent_messages)
 
     @property
     def has_action_result(self) -> bool:
@@ -121,7 +122,7 @@ class TurnResult:
         return any(bool(m.result) for m in self.agent_messages)
 
     @property
-    def action_results(self) -> List[dict]:
+    def action_results(self) -> list[dict]:
         """Collect all action result data from this turn."""
         results = []
         for m in self.agent_messages:
@@ -155,8 +156,10 @@ class TurnResult:
 # Exceptions
 # ═══════════════════════════════════════════════════════════════════════════
 
+
 class AgentAPIError(Exception):
     """Error from Agent Runtime API."""
+
     def __init__(self, status_code: int, message: str, raw: dict = None):
         self.status_code = status_code
         self.message = message
@@ -168,6 +171,7 @@ class AgentAPIError(Exception):
 # Agent Session
 # ═══════════════════════════════════════════════════════════════════════════
 
+
 class AgentSession:
     """
     Manages a single agent conversation session.
@@ -176,17 +180,18 @@ class AgentSession:
     proper session cleanup.
     """
 
-    def __init__(self, client: 'AgentAPIClient', session_id: str,
-                 initial_messages: List[AgentMessage] = None):
+    def __init__(
+        self, client: "AgentAPIClient", session_id: str, initial_messages: list[AgentMessage] = None
+    ):
         self.client = client
         self.session_id = session_id
         self.initial_messages = initial_messages or []
         self._sequence_id = 0
-        self._turns: List[TurnResult] = []
+        self._turns: list[TurnResult] = []
         self._ended = False
 
     @property
-    def turns(self) -> List[TurnResult]:
+    def turns(self) -> list[TurnResult]:
         """All turns executed in this session."""
         return list(self._turns)
 
@@ -199,11 +204,10 @@ class AgentSession:
     def initial_greeting(self) -> str:
         """The agent's initial greeting message (from session start)."""
         return "\n".join(
-            m.message for m in self.initial_messages
-            if m.message and m.type in ("Inform", "Text")
+            m.message for m in self.initial_messages if m.message and m.type in ("Inform", "Text")
         )
 
-    def send(self, text: str, variables: List[Dict] = None) -> TurnResult:
+    def send(self, text: str, variables: list[dict] = None) -> TurnResult:
         """
         Send a user message and return the agent's response.
 
@@ -220,7 +224,7 @@ class AgentSession:
 
         self._sequence_id += 1
 
-        body: Dict[str, Any] = {
+        body: dict[str, Any] = {
             "message": {
                 "sequenceId": self._sequence_id,
                 "type": "Text",
@@ -279,8 +283,7 @@ class AgentSession:
         try:
             response = self.client._api_request(
                 "DELETE",
-                f"https://api.salesforce.com/einstein/ai-agent/v1"
-                f"/sessions/{self.session_id}",
+                f"https://api.salesforce.com/einstein/ai-agent/v1/sessions/{self.session_id}",
                 headers={"x-session-end-reason": "UserRequest"},
             )
             self._ended = True
@@ -313,6 +316,7 @@ class AgentSession:
 # ═══════════════════════════════════════════════════════════════════════════
 # Agent API Client
 # ═══════════════════════════════════════════════════════════════════════════
+
 
 class AgentAPIClient:
     """
@@ -353,7 +357,7 @@ class AgentAPIClient:
         self._timeout = min(timeout, 120)  # API max is 120s
         self._retry_count = retry_count
         self._verbose = verbose
-        self._access_token: Optional[str] = None
+        self._access_token: str | None = None
         self._token_issued_at: float = 0
 
         # Normalize domain
@@ -387,11 +391,13 @@ class AgentAPIClient:
         token_url = f"{self.my_domain}/services/oauth2/token"
         self._log(f"Authenticating to {token_url}")
 
-        data = urllib.parse.urlencode({
-            "grant_type": "client_credentials",
-            "client_id": self._consumer_key,
-            "client_secret": self._consumer_secret,
-        }).encode("utf-8")
+        data = urllib.parse.urlencode(
+            {
+                "grant_type": "client_credentials",
+                "client_id": self._consumer_key,
+                "client_secret": self._consumer_secret,
+            }
+        ).encode("utf-8")
 
         req = urllib.request.Request(
             token_url,
@@ -410,9 +416,9 @@ class AgentAPIClient:
                 msg = error_data.get("error_description", error_data.get("error", body))
             except json.JSONDecodeError:
                 msg = body
-            raise AgentAPIError(e.code, f"Authentication failed: {msg}")
+            raise AgentAPIError(e.code, f"Authentication failed: {msg}") from e
         except urllib.error.URLError as e:
-            raise AgentAPIError(0, f"Connection error during auth: {e.reason}")
+            raise AgentAPIError(0, f"Connection error during auth: {e.reason}") from e
 
         self._access_token = result.get("access_token")
         self._token_issued_at = time.time()
@@ -433,7 +439,7 @@ class AgentAPIClient:
     def start_session(
         self,
         agent_id: str,
-        variables: List[Dict] = None,
+        variables: list[dict] = None,
         bypass_user: bool = True,
     ) -> AgentSession:
         """
@@ -460,7 +466,7 @@ class AgentAPIClient:
         session_key = str(uuid.uuid4())
         self._log(f"Starting session for agent {agent_id} (key: {session_key[:8]}...)")
 
-        body: Dict[str, Any] = {
+        body: dict[str, Any] = {
             "externalSessionKey": session_key,
             "instanceConfig": {
                 "endpoint": self.my_domain,
@@ -496,7 +502,7 @@ class AgentAPIClient:
     def session(
         self,
         agent_id: str,
-        variables: List[Dict] = None,
+        variables: list[dict] = None,
         bypass_user: bool = True,
     ) -> AgentSession:
         """
@@ -539,9 +545,7 @@ class AgentAPIClient:
 
         last_error = None
         for attempt in range(self._retry_count + 1):
-            req = urllib.request.Request(
-                url, data=data, headers=req_headers, method=method
-            )
+            req = urllib.request.Request(url, data=data, headers=req_headers, method=method)
 
             try:
                 with urllib.request.urlopen(req, timeout=self._timeout) as resp:
@@ -581,7 +585,7 @@ class AgentAPIClient:
                     req_headers["Authorization"] = f"Bearer {self._access_token}"
                     continue
 
-                raise last_error
+                raise last_error from e
 
             except urllib.error.URLError as e:
                 last_error = AgentAPIError(0, f"Connection error: {e.reason}")
@@ -589,7 +593,7 @@ class AgentAPIClient:
                     self._log(f"Connection error, retrying in 1s: {e.reason}")
                     time.sleep(1)
                     continue
-                raise last_error
+                raise last_error from e
 
         raise last_error
 
@@ -598,25 +602,28 @@ class AgentAPIClient:
 # Helper Functions
 # ═══════════════════════════════════════════════════════════════════════════
 
-def _parse_messages(messages_data: list) -> List[AgentMessage]:
+
+def _parse_messages(messages_data: list) -> list[AgentMessage]:
     """Parse raw message dicts into AgentMessage objects."""
     messages = []
     for msg in messages_data:
-        messages.append(AgentMessage(
-            type=msg.get("type", "Unknown"),
-            id=msg.get("id", ""),
-            message=msg.get("message", ""),
-            feedback_id=msg.get("feedbackId", ""),
-            plan_id=msg.get("planId", ""),
-            is_content_safe=msg.get("isContentSafe", True),
-            result=msg.get("result", []),
-            cited_references=msg.get("citedReferences", []),
-            raw=msg,
-        ))
+        messages.append(
+            AgentMessage(
+                type=msg.get("type", "Unknown"),
+                id=msg.get("id", ""),
+                message=msg.get("message", ""),
+                feedback_id=msg.get("feedbackId", ""),
+                plan_id=msg.get("planId", ""),
+                is_content_safe=msg.get("isContentSafe", True),
+                result=msg.get("result", []),
+                cited_references=msg.get("citedReferences", []),
+                raw=msg,
+            )
+        )
     return messages
 
 
-def parse_variables(var_strings: List[str]) -> List[Dict[str, str]]:
+def parse_variables(var_strings: list[str]) -> list[dict[str, str]]:
     """
     Parse variable strings into API-format dicts.
 
@@ -644,11 +651,13 @@ def parse_variables(var_strings: List[str]) -> List[Dict[str, str]]:
             name = name_part
             var_type = "Text"
 
-        variables.append({
-            "name": name.strip(),
-            "type": var_type.strip(),
-            "value": value.strip(),
-        })
+        variables.append(
+            {
+                "name": name.strip(),
+                "type": var_type.strip(),
+                "value": value.strip(),
+            }
+        )
 
     return variables
 
@@ -657,27 +666,34 @@ def parse_variables(var_strings: List[str]) -> List[Dict[str, str]]:
 # CLI Quick Test
 # ═══════════════════════════════════════════════════════════════════════════
 
+
 def main():
     """Quick connectivity test — verifies token and lists the agent greeting."""
     import argparse
 
-    parser = argparse.ArgumentParser(
-        description="Agent API Client — quick connectivity test"
+    parser = argparse.ArgumentParser(description="Agent API Client — quick connectivity test")
+    parser.add_argument(
+        "--my-domain", default=os.environ.get("SF_MY_DOMAIN", ""), help="Salesforce My Domain URL"
     )
-    parser.add_argument("--my-domain", default=os.environ.get("SF_MY_DOMAIN", ""),
-                        help="Salesforce My Domain URL")
-    parser.add_argument("--consumer-key", default=os.environ.get("SF_CONSUMER_KEY", ""),
-                        help="ECA Consumer Key")
-    parser.add_argument("--consumer-secret", default=os.environ.get("SF_CONSUMER_SECRET", ""),
-                        help="ECA Consumer Secret")
-    parser.add_argument("--agent-id", default=os.environ.get("SF_AGENT_ID", ""),
-                        help="BotDefinition ID")
-    parser.add_argument("--message", default="Hello",
-                        help="Test message to send")
-    parser.add_argument("--var", action="append", default=[],
-                        help="Variable: 'name=value' or '$Context.Field=value'")
-    parser.add_argument("--verbose", action="store_true",
-                        help="Enable debug output")
+    parser.add_argument(
+        "--consumer-key", default=os.environ.get("SF_CONSUMER_KEY", ""), help="ECA Consumer Key"
+    )
+    parser.add_argument(
+        "--consumer-secret",
+        default=os.environ.get("SF_CONSUMER_SECRET", ""),
+        help="ECA Consumer Secret",
+    )
+    parser.add_argument(
+        "--agent-id", default=os.environ.get("SF_AGENT_ID", ""), help="BotDefinition ID"
+    )
+    parser.add_argument("--message", default="Hello", help="Test message to send")
+    parser.add_argument(
+        "--var",
+        action="append",
+        default=[],
+        help="Variable: 'name=value' or '$Context.Field=value'",
+    )
+    parser.add_argument("--verbose", action="store_true", help="Enable debug output")
 
     args = parser.parse_args()
 
@@ -714,17 +730,17 @@ def main():
 
             result = session.send(args.message)
             if result.has_response:
-                print(f"✅ Message sent: \"{args.message}\"")
+                print(f'✅ Message sent: "{args.message}"')
                 print(f"   Response: {result.agent_text[:120]}...")
                 print(f"   Types: {result.message_types}")
                 print(f"   Elapsed: {result.elapsed_ms:.0f}ms")
             elif result.is_error:
                 print(f"❌ Message failed: {result.error}")
             else:
-                print(f"⚠️  Message sent but no text response")
+                print("⚠️  Message sent but no text response")
                 print(f"   Types: {result.message_types}")
 
-        print(f"✅ Session ended cleanly")
+        print("✅ Session ended cleanly")
     except AgentAPIError as e:
         print(f"❌ API error: {e}")
         sys.exit(1)

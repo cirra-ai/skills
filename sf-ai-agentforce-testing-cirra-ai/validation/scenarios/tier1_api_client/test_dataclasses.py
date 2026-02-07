@@ -9,7 +9,7 @@ Points: bonus
 """
 
 import pytest
-from agent_api_client import AgentMessage, TurnResult
+from agent_api_client import AgentMessage
 
 
 @pytest.mark.tier1

@@ -6,10 +6,10 @@ description: >
   screen flows, autolaunched flows, scheduled flows, or reviewing existing flow performance.
 license: MIT
 metadata:
-  version: "2.1.0"
-  author: "Jag Valaiyapathy"
-  scoring: "110 points across 6 categories"
-  mcp_server: "cirra_ai"
+  version: '2.1.0'
+  author: 'Jag Valaiyapathy'
+  scoring: '110 points across 6 categories'
+  mcp_server: 'cirra_ai'
 ---
 
 # sf-flow: Salesforce Flow Creation and Validation (Cirra AI)
@@ -19,6 +19,7 @@ Expert Salesforce Flow Builder with deep knowledge of best practices, bulkificat
 ## 📋 Quick Reference: Validation and Deployment
 
 **Flow Creation & Deployment Workflow:**
+
 ```
 1. Call cirra_ai_init (REQUIRED - one per session)
 2. Generate Flow XML
@@ -44,12 +45,14 @@ Expert Salesforce Flow Builder with deep knowledge of best practices, bulkificat
 ## ⚠️ CRITICAL: Cirra AI MCP Server Setup
 
 **BEFORE using any Cirra AI tools:**
+
 ```python
 # Call this function FIRST in any interaction
 cirra_ai_init(sf_user="your-salesforce-username")
 ```
 
 This initializes your Salesforce org connection. It must be called once per session before using any of these Cirra AI tools:
+
 - `metadata_create` (deploy flows)
 - `metadata_read` (retrieve flows)
 - `metadata_list` (list existing flows)
@@ -88,12 +91,12 @@ See `docs/orchestration.md` for extended orchestration patterns including Agentf
 
 ## 🔑 Key Insights
 
-| Insight | Details |
-|---------|---------|
-| **Before vs After Save** | Before-Save: same-record updates (no DML), validation. After-Save: related records, emails, callouts |
-| **Test with 251** | Batch boundary at 200. Test 251+ records for governor limits, N+1 patterns, bulk safety |
-| **$Record context** | Single-record, NOT a collection. Platform handles batching. Never loop over $Record |
-| **Transform vs Loop** | Transform: data mapping/shaping (30-50% faster). Loop: per-record decisions, counters, varying logic. See `docs/transform-vs-loop-guide.md` |
+| Insight                  | Details                                                                                                                                     |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Before vs After Save** | Before-Save: same-record updates (no DML), validation. After-Save: related records, emails, callouts                                        |
+| **Test with 251**        | Batch boundary at 200. Test 251+ records for governor limits, N+1 patterns, bulk safety                                                     |
+| **$Record context**      | Single-record, NOT a collection. Platform handles batching. Never loop over $Record                                                         |
+| **Transform vs Loop**    | Transform: data mapping/shaping (30-50% faster). Loop: per-record decisions, counters, varying logic. See `docs/transform-vs-loop-guide.md` |
 
 ---
 
@@ -104,6 +107,7 @@ See `docs/orchestration.md` for extended orchestration patterns including Agentf
 **Before building, evaluate alternatives**: See `docs/flow-best-practices.md` Section 1 "When NOT to Use Flow" - sometimes a Formula Field, Validation Rule, or Roll-Up Summary Field is the better choice.
 
 Use **AskUserQuestion** to gather:
+
 - Flow type (Screen, Record-Triggered After/Before Save/Delete, Platform Event, Autolaunched, Scheduled)
 - Primary purpose (one sentence)
 - Trigger object/conditions (if record-triggered)
@@ -112,6 +116,7 @@ Use **AskUserQuestion** to gather:
 **Pre-Development Planning**: For complex flows, document requirements and sketch logic before building. See `docs/flow-best-practices.md` Section 2 "Pre-Development Planning" for templates and recommended tools.
 
 **Then**:
+
 1. **Verify Cirra AI connection**: Ensure cirra_ai_init has been called
 2. Use `sobject_describe` to verify object/field existence before referencing
 3. Use `metadata_list` to check existing flows: `metadata_list(type="Flow")`
@@ -139,6 +144,7 @@ Use **AskUserQuestion** to gather:
 | Delete Records | `record-delete-pattern.xml` | Filter-based and reference-based delete patterns |
 
 **Template Path Resolution** (try in order):
+
 1. **Marketplace folder**: `~/.claude/plugins/marketplaces/sf-skills/sf-flow/templates/[template].xml`
 2. **Project folder**: `[project-root]/sf-flow/templates/[template].xml`
 
@@ -146,14 +152,14 @@ Use **AskUserQuestion** to gather:
 
 **Naming Convention** (Recommended Prefixes):
 
-| Flow Type | Prefix | Example |
-|-----------|--------|---------|
-| Record-Triggered (After) | `Auto_` | `Auto_Lead_Assignment`, `Auto_Account_Update` |
-| Record-Triggered (Before) | `Before_` | `Before_Lead_Validate`, `Before_Contact_Default` |
-| Screen Flow | `Screen_` | `Screen_New_Customer`, `Screen_Case_Intake` |
-| Scheduled | `Sched_` | `Sched_Daily_Cleanup`, `Sched_Weekly_Report` |
-| Platform Event | `Event_` | `Event_Order_Completed` |
-| Autolaunched | `Sub_` or `Util_` | `Sub_Send_Email`, `Util_Validate_Address` |
+| Flow Type                 | Prefix            | Example                                          |
+| ------------------------- | ----------------- | ------------------------------------------------ |
+| Record-Triggered (After)  | `Auto_`           | `Auto_Lead_Assignment`, `Auto_Account_Update`    |
+| Record-Triggered (Before) | `Before_`         | `Before_Lead_Validate`, `Before_Contact_Default` |
+| Screen Flow               | `Screen_`         | `Screen_New_Customer`, `Screen_Case_Intake`      |
+| Scheduled                 | `Sched_`          | `Sched_Daily_Cleanup`, `Sched_Weekly_Report`     |
+| Platform Event            | `Event_`          | `Event_Order_Completed`                          |
+| Autolaunched              | `Sub_` or `Util_` | `Sub_Send_Email`, `Util_Validate_Address`        |
 
 **Format**: `[Prefix]_Object_Action` using PascalCase (e.g., `Auto_Lead_Priority_Assignment`)
 
@@ -167,23 +173,27 @@ Use **AskUserQuestion** to gather:
 Rule: `allowFinish="true"` required on all screens. Connector present → "Next", absent → "Finish".
 
 **Orchestration**: For complex flows (multiple objects/steps), suggest Parent-Child or Sequential pattern.
+
 - **CRITICAL**: Record-triggered flows CANNOT call subflows via XML deployment. Use inline orchestration instead. See `docs/xml-gotchas.md` (in sf-flow) and `docs/orchestration-guide.md` (in sf-flow)
 
 ### Phase 3: Flow Generation & Deployment (via Cirra AI)
 
 **Generate flow XML**:
 Generate the complete Flow XML with:
+
 - API Version: 65.0
 - Proper alphabetical element ordering
 - All required metadata fields (label, processType, status, etc.)
 
 **CRITICAL Requirements**:
+
 - Alphabetical XML element ordering at root level
 - NO `<bulkSupport>` (removed API 60.0+)
 - Auto-Layout: all locationX/Y = 0
 - Fault paths on all DML operations
 
 **Deploy via Cirra AI**:
+
 ```python
 # Initialize connection (ONCE per session)
 cirra_ai_init(sf_user="your-username")
@@ -200,18 +210,21 @@ metadata_create(
 ```
 
 **Validation (STRICT MODE)**:
+
 - **BLOCK**: XML invalid, missing required fields (apiVersion/label/processType/status), API <65.0, broken refs, DML in loops
 - **WARN**: Element ordering, deprecated elements, non-zero coords, missing fault paths, unused vars, naming violations
 
 **New v2.0.0 Validations**:
+
 - `storeOutputAutomatically` detection (data leak prevention)
 - Same-object query anti-pattern (recommends $Record usage)
 - Complex formula in loops warning
 - Missing filters on Get Records
 - Null check after Get Records recommendation
-- Variable naming prefix validation (var_, col_, rec_, inp_, out_)
+- Variable naming prefix validation (var*, col*, rec*, inp*, out\_)
 
 **Validation Report Format** (6-Category Scoring 0-110):
+
 ```
 Score: 92/110 ⭐⭐⭐⭐ Very Good
 ├─ Design & Naming: 18/20 (90%)
@@ -229,22 +242,23 @@ Score: 92/110 ⭐⭐⭐⭐ Very Good
 **BEFORE generating ANY Flow XML, Claude MUST verify no anti-patterns are introduced.**
 
 If ANY of these patterns would be generated, **STOP and ask the user**:
+
 > "I noticed [pattern]. This will cause [problem]. Should I:
 > A) Refactor to use [correct pattern]
 > B) Proceed anyway (not recommended)"
 
-| Anti-Pattern | Impact | Correct Pattern |
-|--------------|--------|-----------------|
-| After-Save updating same object without entry conditions | **Infinite loop** (critical) | MUST add entry conditions: "Only when [field] is changed" |
-| Get Records inside Loop | Governor limit failure (100 SOQL) | Query BEFORE loop, use collection variable |
-| Create/Update/Delete Records inside Loop | Governor limit failure (150 DML) | Collect in loop → single DML after loop |
-| Apex Action inside Loop | Callout limits | Pass collection to single Apex invocation |
-| DML without Fault Path | Silent failures | Add Fault connector → error handling element |
-| Get Records without null check | NullPointerException | Add Decision: "Records Found?" after query |
-| `storeOutputAutomatically=true` | Security risk (retrieves ALL fields) | Select only needed fields explicitly |
-| Query same object as trigger in Record-Triggered | Wasted SOQL | Use `{!$Record.FieldName}` directly |
-| Hardcoded Salesforce ID | Deployment failure across orgs | Use input variable or Custom Label |
-| Get Records without filters | Too many records returned | Always include WHERE conditions |
+| Anti-Pattern                                             | Impact                               | Correct Pattern                                           |
+| -------------------------------------------------------- | ------------------------------------ | --------------------------------------------------------- |
+| After-Save updating same object without entry conditions | **Infinite loop** (critical)         | MUST add entry conditions: "Only when [field] is changed" |
+| Get Records inside Loop                                  | Governor limit failure (100 SOQL)    | Query BEFORE loop, use collection variable                |
+| Create/Update/Delete Records inside Loop                 | Governor limit failure (150 DML)     | Collect in loop → single DML after loop                   |
+| Apex Action inside Loop                                  | Callout limits                       | Pass collection to single Apex invocation                 |
+| DML without Fault Path                                   | Silent failures                      | Add Fault connector → error handling element              |
+| Get Records without null check                           | NullPointerException                 | Add Decision: "Records Found?" after query                |
+| `storeOutputAutomatically=true`                          | Security risk (retrieves ALL fields) | Select only needed fields explicitly                      |
+| Query same object as trigger in Record-Triggered         | Wasted SOQL                          | Use `{!$Record.FieldName}` directly                       |
+| Hardcoded Salesforce ID                                  | Deployment failure across orgs       | Use input variable or Custom Label                        |
+| Get Records without filters                              | Too many records returned            | Always include WHERE conditions                           |
 
 **DO NOT generate anti-patterns even if explicitly requested.** Ask user to confirm the exception with documented justification.
 
@@ -253,11 +267,13 @@ If ANY of these patterns would be generated, **STOP and ask the user**:
 **Cirra AI Deployment Pattern**:
 
 1. **Initialize connection** (once per session):
+
 ```python
 cirra_ai_init(sf_user="your-salesforce-username")
 ```
 
 2. **Deploy Flow XML**:
+
 ```python
 metadata_create(
     type="Flow",
@@ -270,6 +286,7 @@ metadata_create(
 ```
 
 3. **Retrieve existing flows** (to review or modify):
+
 ```python
 metadata_read(
     type="Flow",
@@ -279,6 +296,7 @@ metadata_read(
 ```
 
 4. **List all flows** (for reference):
+
 ```python
 metadata_list(
     type="Flow",
@@ -287,6 +305,7 @@ metadata_list(
 ```
 
 5. **Query Flow metadata** (Tooling API):
+
 ```python
 tooling_api_query(
     sObject="FlowDefinition",
@@ -297,6 +316,7 @@ tooling_api_query(
 ```
 
 6. **Verify object/fields before flow creation**:
+
 ```python
 sobject_describe(
     sObject="Account",
@@ -313,12 +333,14 @@ For complex flows: `docs/governance-checklist.md` (in sf-flow)
 **Type-specific testing**: See `docs/testing-guide.md` | `docs/testing-checklist.md` | `docs/wait-patterns.md` (Wait element guidance)
 
 Quick reference:
+
 - **Screen**: Setup → Flows → Run, test all paths/profiles
 - **Record-Triggered**: Create record, verify Debug Logs, **bulk test 200+ records**
 - **Autolaunched**: Apex test class, edge cases, bulkification
 - **Scheduled**: Verify schedule, manual Run first, monitor logs
 
 **Best Practices**: See `docs/flow-best-practices.md` (in sf-flow) for:
+
 - Three-tier error handling strategy
 - Multi-step DML rollback patterns
 - Screen flow UX guidelines
@@ -327,6 +349,7 @@ Quick reference:
 **Security**: Test with multiple profiles. System mode requires security review.
 
 **Completion Summary**:
+
 ```
 ✓ Flow Creation & Deployment Complete: [FlowName]
   Type: [type] | API: 65.0 | Status: [Draft/Active]
@@ -346,11 +369,11 @@ Resources: `examples/`, `docs/subflow-library.md`, `docs/orchestration-guide.md`
 
 **NEVER loop over triggered records.** `$Record` = single record; platform handles batching.
 
-| Pattern | OK? | Notes |
-|---------|-----|-------|
-| `$Record.FieldName` | ✅ | Direct access |
-| Loop over `$Record__c` | ❌ | Process Builder pattern, not Flow |
-| Loop over `$Record` | ❌ | $Record is single, not collection |
+| Pattern                | OK? | Notes                             |
+| ---------------------- | --- | --------------------------------- |
+| `$Record.FieldName`    | ✅  | Direct access                     |
+| Loop over `$Record__c` | ❌  | Process Builder pattern, not Flow |
+| Loop over `$Record`    | ❌  | $Record is single, not collection |
 
 **Loops for RELATED records only**: Get Records → Loop collection → Assignment → DML after loop
 
@@ -360,15 +383,16 @@ Resources: `examples/`, `docs/subflow-library.md`, `docs/orchestration-guide.md`
 
 ### recordLookups Best Practices
 
-| Element | Recommendation | Why |
-|---------|----------------|-----|
-| `getFirstRecordOnly` | Set to `true` for single-record queries | Avoids collection overhead |
-| `storeOutputAutomatically` | Set to `false`, use `outputReference` | Prevents data leaks, explicit variable |
-| `assignNullValuesIfNoRecordsFound` | Set to `false` | Preserves previous variable value |
-| `faultConnector` | Always include | Handle query failures gracefully |
-| `filterLogic` | Use `and` for multiple filters | Clear filter behavior |
+| Element                            | Recommendation                          | Why                                    |
+| ---------------------------------- | --------------------------------------- | -------------------------------------- |
+| `getFirstRecordOnly`               | Set to `true` for single-record queries | Avoids collection overhead             |
+| `storeOutputAutomatically`         | Set to `false`, use `outputReference`   | Prevents data leaks, explicit variable |
+| `assignNullValuesIfNoRecordsFound` | Set to `false`                          | Preserves previous variable value      |
+| `faultConnector`                   | Always include                          | Handle query failures gracefully       |
+| `filterLogic`                      | Use `and` for multiple filters          | Clear filter behavior                  |
 
 ### Critical Requirements
+
 - **API 65.0**: Latest features
 - **No DML in Loops**: Collect in loop → DML after loop (causes bulk failures otherwise)
 - **Bulkify**: For RELATED records only - platform handles triggered record batching
@@ -384,6 +408,7 @@ Resources: `examples/`, `docs/subflow-library.md`, `docs/orchestration-guide.md`
 **All elements of the same type MUST be grouped together. Do NOT scatter elements across the file.**
 
 Complete alphabetical order:
+
 ```
 apiVersion → assignments → constants → decisions → description → environments →
 formulas → interviewLabel → label → loops → processMetadataValues → processType →
@@ -392,15 +417,18 @@ screens → start → status → subflows → textTemplates → variables → wa
 ```
 
 **Common Mistake**: Adding an assignment near related logic (e.g., after a loop) when other assignments exist earlier.
+
 - **Error**: "Element assignments is duplicated at this location"
 - **Fix**: Move ALL assignments to the assignments section
 
 ### Performance
+
 - **Batch DML**: Get Records → Assignment → Update Records pattern
 - **Filters over loops**: Use Get Records with filters instead of loops + decisions
 - **Transform element**: Powerful but complex XML - NOT recommended for hand-written flows
 
 ### Design & Security
+
 - **Variable Names (v2.0.0)**: Use prefixes for clarity:
   - `var_` Regular variables (e.g., `var_AccountName`)
   - `col_` Collections (e.g., `col_ContactIds`)
@@ -422,23 +450,23 @@ screens → start → status → subflows → textTemplates → variables → wa
 **Field Not Found**: Verify field exists, deploy field first if missing
 **Insufficient Permissions**: Check profile permissions, consider System mode
 
-| Error Pattern | Fix |
-|---------------|-----|
-| `$Record__Prior` in Create-only | Only valid for Update/CreateAndUpdate triggers |
-| "Parent.Field doesn't exist" | Use TWO Get Records (child then parent) |
-| `$Record__c` loop fails | Use `$Record` directly (single context, not collection) |
+| Error Pattern                   | Fix                                                     |
+| ------------------------------- | ------------------------------------------------------- |
+| `$Record__Prior` in Create-only | Only valid for Update/CreateAndUpdate triggers          |
+| "Parent.Field doesn't exist"    | Use TWO Get Records (child then parent)                 |
+| `$Record__c` loop fails         | Use `$Record` directly (single context, not collection) |
 
 **XML Gotchas**: See `docs/xml-gotchas.md` (in sf-flow)
 
 ## Edge Cases
 
-| Scenario | Solution |
-|----------|----------|
-| >200 records | Warn limits, suggest scheduled flow |
-| >5 branches | Use subflows |
-| Cross-object | Check circular deps, test recursion |
-| Production | Deploy Draft, activate explicitly |
-| Unknown org | Use standard objects (Account, Contact, etc.) |
+| Scenario     | Solution                                      |
+| ------------ | --------------------------------------------- |
+| >200 records | Warn limits, suggest scheduled flow           |
+| >5 branches  | Use subflows                                  |
+| Cross-object | Check circular deps, test recursion           |
+| Production   | Deploy Draft, activate explicitly             |
+| Unknown org  | Use standard objects (Account, Contact, etc.) |
 
 **Debug**: Flow not visible → deploy report + permissions | Tests fail → Debug Logs + bulk test | Sandbox→Prod fails → FLS + dependencies
 
@@ -510,17 +538,17 @@ tooling_api_query(
 
 ## Cross-Skill Integration
 
-| From Skill | To sf-flow | When |
-|------------|------------|------|
-| sf-ai-agentscript | → sf-flow | "Create Autolaunched Flow for agent action" |
-| sf-apex | → sf-flow | "Create Flow wrapper for Apex logic" |
-| sf-integration | → sf-flow | "Create HTTP Callout Flow" |
+| From Skill        | To sf-flow | When                                        |
+| ----------------- | ---------- | ------------------------------------------- |
+| sf-ai-agentscript | → sf-flow  | "Create Autolaunched Flow for agent action" |
+| sf-apex           | → sf-flow  | "Create Flow wrapper for Apex logic"        |
+| sf-integration    | → sf-flow  | "Create HTTP Callout Flow"                  |
 
-| From sf-flow | To Skill | When |
-|--------------|----------|------|
-| sf-flow | → sf-metadata | "Describe Invoice__c" (verify fields before flow) |
-| sf-flow | → sf-deploy | "Deploy flow with --dry-run" |
-| sf-flow | → sf-data | "Create 200 test Accounts" (after deploy) |
+| From sf-flow | To Skill      | When                                                |
+| ------------ | ------------- | --------------------------------------------------- |
+| sf-flow      | → sf-metadata | "Describe Invoice\_\_c" (verify fields before flow) |
+| sf-flow      | → sf-deploy   | "Deploy flow with --dry-run"                        |
+| sf-flow      | → sf-data     | "Create 200 test Accounts" (after deploy)           |
 
 **Deployment**: See Phase 4 above.
 
@@ -532,9 +560,9 @@ Embed custom Lightning Web Components in Flow Screens for rich, interactive UIs.
 
 ### Templates
 
-| Template | Purpose |
-|----------|---------|
-| `templates/screen-flow-with-lwc.xml` | Flow embedding LWC component |
+| Template                             | Purpose                            |
+| ------------------------------------ | ---------------------------------- |
+| `templates/screen-flow-with-lwc.xml` | Flow embedding LWC component       |
 | `templates/apex-action-template.xml` | Flow calling Apex @InvocableMethod |
 
 ### Flow XML Pattern
@@ -558,11 +586,11 @@ Embed custom Lightning Web Components in Flow Screens for rich, interactive UIs.
 
 ### Documentation
 
-| Resource | Location |
-|----------|----------|
-| LWC Integration Guide | [docs/lwc-integration-guide.md](docs/lwc-integration-guide.md) |
-| LWC Component Setup | [sf-lwc/docs/flow-integration-guide.md](../sf-lwc/docs/flow-integration-guide.md) |
-| Triangle Architecture | [docs/triangle-pattern.md](docs/triangle-pattern.md) |
+| Resource              | Location                                                                          |
+| --------------------- | --------------------------------------------------------------------------------- |
+| LWC Integration Guide | [docs/lwc-integration-guide.md](docs/lwc-integration-guide.md)                    |
+| LWC Component Setup   | [sf-lwc/docs/flow-integration-guide.md](../sf-lwc/docs/flow-integration-guide.md) |
+| Triangle Architecture | [docs/triangle-pattern.md](docs/triangle-pattern.md)                              |
 
 ---
 
@@ -593,15 +621,16 @@ Call Apex `@InvocableMethod` classes from Flow for complex business logic.
 
 ### Documentation
 
-| Resource | Location |
-|----------|----------|
-| Apex Action Template | `templates/apex-action-template.xml` |
+| Resource                    | Location                                                                |
+| --------------------------- | ----------------------------------------------------------------------- |
+| Apex Action Template        | `templates/apex-action-template.xml`                                    |
 | Apex @InvocableMethod Guide | [sf-apex/docs/flow-integration.md](../sf-apex/docs/flow-integration.md) |
-| Triangle Architecture | [docs/triangle-pattern.md](docs/triangle-pattern.md) |
+| Triangle Architecture       | [docs/triangle-pattern.md](docs/triangle-pattern.md)                    |
 
 ### ⚠️ Flows for sf-ai-agentscript
 
 **When sf-ai-agentscript requests a Flow:**
+
 - sf-ai-agentscript will invoke sf-flow (this skill) to create Flows
 - sf-flow creates the validated Flow XML
 - sf-flow deploys via Cirra AI metadata_create tool
@@ -609,6 +638,7 @@ Call Apex `@InvocableMethod` classes from Flow for complex business logic.
 - Only THEN can sf-ai-agentscript use `flow://FlowName` targets
 
 **Variable Name Matching**: When creating Flows for Agentforce agents:
+
 - Agent Script input/output names MUST match Flow variable API names exactly
 - Use descriptive names (e.g., `inp_AccountId`, `out_AccountName`)
 - Mismatched names cause "Internal Error" during agent publish
@@ -634,17 +664,18 @@ Use `out_` prefix for output variables to distinguish them in Action Definition 
 
 Flow formulas have more limited function support than formula fields. Avoid:
 
-| Function | Status | Alternative |
-|----------|--------|-------------|
-| `BLANKVALUE()` | ❌ Not in Flow | Use Decision element or `IF()` |
-| `CASESAFEID()` | ❌ Not in Flow | ID variables handle this automatically |
-| `ISNEW()` / `ISCHANGED()` | ❌ Not in Flow | Use `$Record__Prior` comparisons |
+| Function                  | Status         | Alternative                            |
+| ------------------------- | -------------- | -------------------------------------- |
+| `BLANKVALUE()`            | ❌ Not in Flow | Use Decision element or `IF()`         |
+| `CASESAFEID()`            | ❌ Not in Flow | ID variables handle this automatically |
+| `ISNEW()` / `ISCHANGED()` | ❌ Not in Flow | Use `$Record__Prior` comparisons       |
 
 ### Action Definition Registration (REQUIRED)
 
 > **CRITICAL**: Creating a Flow is NOT sufficient for Agentforce. The Flow must be registered as an Action Definition.
 
 **Registration Workflow:**
+
 1. **Deploy Flow** to target org via sf-flow + Cirra AI metadata_create
 2. Navigate to **Setup > Agentforce > Action Definitions**
 3. Click **"New Action"**, select **"Flow"** as target type
@@ -663,11 +694,11 @@ Flow Created  →  Deployed to Org  →  Action Definition Created  →  Agent C
 
 **Why This Matters**: The Action Definition is what exposes the Flow to the agent runtime with proper input/output schema mapping. Without it, `@actions.FlowName` will fail with `ValidationError: Tool target 'FlowName' is not an action definition`.
 
-| Direction | Pattern |
-|-----------|---------|
-| sf-flow → sf-metadata | "Describe Invoice__c" (verify fields before flow) |
-| sf-flow → Cirra AI | Deploy with validation via metadata_create |
-| sf-flow → sf-data | "Create 200 test Accounts" (test data after deploy) |
+| Direction                   | Pattern                                                                |
+| --------------------------- | ---------------------------------------------------------------------- |
+| sf-flow → sf-metadata       | "Describe Invoice\_\_c" (verify fields before flow)                    |
+| sf-flow → Cirra AI          | Deploy with validation via metadata_create                             |
+| sf-flow → sf-data           | "Create 200 test Accounts" (test data after deploy)                    |
 | sf-ai-agentscript → sf-flow | "Create Autolaunched Flow for agent action" - **sf-flow is MANDATORY** |
 
 ## Notes
@@ -675,6 +706,7 @@ Flow Created  →  Deployed to Org  →  Action Definition Created  →  Agent C
 **Dependencies** (optional): sf-metadata, sf-data | **API**: 65.0 | **Mode**: Strict (warnings block) | **MCP Server**: Cirra AI (required)
 
 **Required Setup**:
+
 - Cirra AI account connected to Salesforce org
 - `cirra_ai_init()` called once per session
 - Valid Salesforce username for `sf_user` parameter

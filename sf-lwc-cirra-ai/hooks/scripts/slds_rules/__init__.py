@@ -14,9 +14,9 @@ as optional extensions.
 
 __version__ = "1.0.0"
 __all__ = [
-    'class_validator',
-    'a11y_validator',
-    'darkmode_validator',
-    'migration_validator',
-    'styling_hooks'
+    "class_validator",
+    "a11y_validator",
+    "darkmode_validator",
+    "migration_validator",
+    "styling_hooks",
 ]

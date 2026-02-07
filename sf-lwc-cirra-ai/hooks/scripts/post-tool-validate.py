@@ -32,7 +32,7 @@ SHARED_DIR = os.path.join(SKILLS_ROOT, "shared")
 sys.path.insert(0, SHARED_DIR)
 
 # Supported LWC file extensions
-LWC_EXTENSIONS = {'.html', '.css', '.js'}
+LWC_EXTENSIONS = {".html", ".css", ".js"}
 
 
 def is_lwc_file(file_path: str) -> bool:
@@ -68,36 +68,39 @@ def validate_lwc_file(file_path: str) -> dict:
         validator = SLDSValidator(file_path)
         results = validator.validate()
 
-        score = results.get('score', 0)
-        max_score = results.get('max_score', 140)
-        issues = results.get('issues', [])
-        scores = results.get('scores', {})
-        rating = results.get('rating', '')
+        score = results.get("score", 0)
+        max_score = results.get("max_score", 140)
+        issues = results.get("issues", [])
+        scores = results.get("scores", {})
+        rating = results.get("rating", "")
 
         # ═══════════════════════════════════════════════════════════════════
         # PHASE 1.5: LWC Template Anti-Pattern Validation (for HTML files)
         # ═══════════════════════════════════════════════════════════════════
-        if ext == '.html':
+        if ext == ".html":
             try:
                 from template_validator import LWCTemplateValidator
+
                 template_validator = LWCTemplateValidator(file_path)
                 template_results = template_validator.validate()
-                template_issues = template_results.get('issues', [])
+                template_issues = template_results.get("issues", [])
 
                 # Add template issues to main issues list
                 for tpl_issue in template_issues:
-                    issues.append({
-                        'severity': tpl_issue.get('severity', 'WARNING'),
-                        'category': 'template_' + tpl_issue.get('category', 'pattern'),
-                        'message': tpl_issue.get('message', ''),
-                        'line': tpl_issue.get('line', 0),
-                        'fix': tpl_issue.get('fix', ''),
-                        'source': 'template-validator'
-                    })
+                    issues.append(
+                        {
+                            "severity": tpl_issue.get("severity", "WARNING"),
+                            "category": "template_" + tpl_issue.get("category", "pattern"),
+                            "message": tpl_issue.get("message", ""),
+                            "line": tpl_issue.get("line", 0),
+                            "fix": tpl_issue.get("fix", ""),
+                            "source": "template-validator",
+                        }
+                    )
 
                     # Deduct from score for critical template issues
-                    if tpl_issue.get('severity') == 'CRITICAL':
-                        scores['component_structure'] = max(0, scores['component_structure'] - 3)
+                    if tpl_issue.get("severity") == "CRITICAL":
+                        scores["component_structure"] = max(0, scores["component_structure"] - 3)
             except ImportError:
                 pass  # Template validator not available
             except Exception:
@@ -113,22 +116,24 @@ def validate_lwc_file(file_path: str) -> dict:
             from slds_linter_wrapper import SLDSLinterWrapper
 
             linter = SLDSLinterWrapper()
-            if linter.is_available() and ext in {'.html', '.css'}:
+            if linter.is_available() and ext in {".html", ".css"}:
                 linter_available = True
                 linter_result = linter.lint_file(file_path)
 
-                if linter_result.get('success'):
-                    linter_violations = linter_result.get('violations', [])
+                if linter_result.get("success"):
+                    linter_violations = linter_result.get("violations", [])
 
                     # Merge linter violations with issues
                     for v in linter_violations:
-                        issues.append({
-                            'severity': v.get('severity', 'WARNING'),
-                            'category': 'slds_linter',
-                            'message': f"[{v.get('rule', 'slds')}] {v.get('message', '')}",
-                            'line': v.get('line', 0),
-                            'source': 'slds-linter'
-                        })
+                        issues.append(
+                            {
+                                "severity": v.get("severity", "WARNING"),
+                                "category": "slds_linter",
+                                "message": f"[{v.get('rule', 'slds')}] {v.get('message', '')}",
+                                "line": v.get("line", 0),
+                                "source": "slds-linter",
+                            }
+                        )
         except ImportError:
             pass
         except Exception:
@@ -144,7 +149,7 @@ def validate_lwc_file(file_path: str) -> dict:
         scan_time_ms = 0
 
         # Only run CA on .js files (ESLint/retire-js don't apply to HTML/CSS)
-        if ext == '.js':
+        if ext == ".js":
             try:
                 from code_analyzer.scanner import CodeAnalyzerScanner, SkillType
 
@@ -162,15 +167,19 @@ def validate_lwc_file(file_path: str) -> dict:
 
                         # Merge CA violations with issues
                         for v in ca_violations:
-                            issues.append({
-                                'severity': v.get('severity_label', 'WARNING'),
-                                'category': 'code_analyzer',
-                                'message': f"[{v.get('engine', 'CA')}:{v.get('rule', '')}] {v.get('message', '')}",
-                                'line': v.get('line', 0),
-                                'source': f"CA:{v.get('engine', '')}"
-                            })
+                            issues.append(
+                                {
+                                    "severity": v.get("severity_label", "WARNING"),
+                                    "category": "code_analyzer",
+                                    "message": f"[{v.get('engine', 'CA')}:{v.get('rule', '')}] {v.get('message', '')}",
+                                    "line": v.get("line", 0),
+                                    "source": f"CA:{v.get('engine', '')}",
+                                }
+                            )
                     else:
-                        ca_engines_unavailable = ["Error: " + (scan_result.error_message or "Unknown")]
+                        ca_engines_unavailable = [
+                            "Error: " + (scan_result.error_message or "Unknown")
+                        ]
                 else:
                     ca_engines_unavailable = ["sf CLI with Code Analyzer not installed"]
 
@@ -216,7 +225,11 @@ def validate_lwc_file(file_path: str) -> dict:
             for cat, cat_score in scores.items():
                 max_cat = validator.max_scores.get(cat, 0)
                 if max_cat > 0:
-                    icon = "✅" if cat_score == max_cat else ("⚠️" if cat_score >= max_cat * 0.7 else "❌")
+                    icon = (
+                        "✅"
+                        if cat_score == max_cat
+                        else ("⚠️" if cat_score >= max_cat * 0.7 else "❌")
+                    )
                     diff = f" (-{max_cat - cat_score})" if cat_score < max_cat else ""
                     display_name = cat.replace("_", " ").title()
                     output_parts.append(f"   {icon} {display_name}: {cat_score}/{max_cat}{diff}")
@@ -230,7 +243,7 @@ def validate_lwc_file(file_path: str) -> dict:
             output_parts.append("   Install: npm i -g @salesforce-ux/slds-linter")
 
         # Code Analyzer status (for JS files only)
-        if ext == '.js':
+        if ext == ".js":
             output_parts.append("")
             if ca_engines_used:
                 output_parts.append(f"🔍 Code Analyzer: {', '.join(ca_engines_used)}")
@@ -250,19 +263,33 @@ def validate_lwc_file(file_path: str) -> dict:
             output_parts.append(f"⚠️ Issues Found ({len(issues)}):")
 
             # Sort by severity
-            severity_order = {'CRITICAL': 0, 'HIGH': 1, 'MODERATE': 2, 'WARNING': 3, 'LOW': 4, 'INFO': 5}
-            issues.sort(key=lambda x: severity_order.get(x.get('severity', 'INFO'), 5))
+            severity_order = {
+                "CRITICAL": 0,
+                "HIGH": 1,
+                "MODERATE": 2,
+                "WARNING": 3,
+                "LOW": 4,
+                "INFO": 5,
+            }
+            issues.sort(key=lambda x: severity_order.get(x.get("severity", "INFO"), 5))
 
             # Display up to 10 issues
             for issue in issues[:10]:
-                sev = issue.get('severity', 'INFO')
-                icon = {'CRITICAL': '🔴', 'HIGH': '🟠', 'MODERATE': '🟡', 'WARNING': '🟡', 'LOW': '🔵', 'INFO': '⚪'}.get(sev, '⚪')
-                line_info = f"L{issue.get('line', '?')}" if issue.get('line') else ""
-                message = issue.get('message', '')[:60]
+                sev = issue.get("severity", "INFO")
+                icon = {
+                    "CRITICAL": "🔴",
+                    "HIGH": "🟠",
+                    "MODERATE": "🟡",
+                    "WARNING": "🟡",
+                    "LOW": "🔵",
+                    "INFO": "⚪",
+                }.get(sev, "⚪")
+                line_info = f"L{issue.get('line', '?')}" if issue.get("line") else ""
+                message = issue.get("message", "")[:60]
                 output_parts.append(f"   {icon} {line_info} {message}")
 
-                if issue.get('fix'):
-                    fix = issue['fix'][:55] + "..." if len(issue['fix']) > 55 else issue['fix']
+                if issue.get("fix"):
+                    fix = issue["fix"][:55] + "..." if len(issue["fix"]) > 55 else issue["fix"]
                     output_parts.append(f"      💡 Fix: {fix}")
 
             if len(issues) > 10:
@@ -273,21 +300,12 @@ def validate_lwc_file(file_path: str) -> dict:
 
         output_parts.append("═" * 60)
 
-        return {
-            "continue": True,
-            "output": "\n".join(output_parts)
-        }
+        return {"continue": True, "output": "\n".join(output_parts)}
 
     except ImportError as e:
-        return {
-            "continue": True,
-            "output": f"⚠️ SLDS validator not available: {e}"
-        }
+        return {"continue": True, "output": f"⚠️ SLDS validator not available: {e}"}
     except Exception as e:
-        return {
-            "continue": True,
-            "output": f"⚠️ SLDS validation error: {e}"
-        }
+        return {"continue": True, "output": f"⚠️ SLDS validation error: {e}"}
 
 
 def main():
@@ -323,10 +341,7 @@ def main():
         print(json.dumps({"continue": True}))
         return 0
     except Exception as e:
-        print(json.dumps({
-            "continue": True,
-            "output": f"⚠️ Hook error: {e}"
-        }))
+        print(json.dumps({"continue": True, "output": f"⚠️ Hook error: {e}"}))
         return 0
 
 

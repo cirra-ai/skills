@@ -16,10 +16,8 @@ Output:
 import argparse
 import re
 import sys
-import os
 from pathlib import Path
 from dataclasses import dataclass, field
-from typing import List, Dict, Optional
 
 try:
     import yaml
@@ -31,33 +29,36 @@ except ImportError:
 @dataclass
 class AgentAction:
     """Represents an action defined in a topic."""
+
     name: str
     description: str = ""
     target: str = ""
-    inputs: List[Dict] = field(default_factory=list)
-    outputs: List[Dict] = field(default_factory=list)
+    inputs: list[dict] = field(default_factory=list)
+    outputs: list[dict] = field(default_factory=list)
 
 
 @dataclass
 class AgentTopic:
     """Represents a topic in the agent."""
+
     name: str
     label: str = ""
     description: str = ""
     is_start_agent: bool = False
-    actions: List[AgentAction] = field(default_factory=list)
-    transitions: List[str] = field(default_factory=list)
+    actions: list[AgentAction] = field(default_factory=list)
+    transitions: list[str] = field(default_factory=list)
 
 
 @dataclass
 class AgentStructure:
     """Represents the parsed agent structure."""
+
     agent_name: str = ""
     agent_label: str = ""
     description: str = ""
-    topics: List[AgentTopic] = field(default_factory=list)
+    topics: list[AgentTopic] = field(default_factory=list)
 
-    def get_topic(self, name: str) -> Optional[AgentTopic]:
+    def get_topic(self, name: str) -> AgentTopic | None:
         """Get a topic by name."""
         for topic in self.topics:
             if topic.name == name:
@@ -76,135 +77,144 @@ def parse_agent_file(file_path: str) -> AgentStructure:
     """
     structure = AgentStructure()
 
-    with open(file_path, 'r') as f:
+    with open(file_path) as f:
         content = f.read()
 
-    lines = content.split('\n')
+    lines = content.split("\n")
 
     current_block = None  # 'config', 'topic', 'actions', etc.
-    current_topic: Optional[AgentTopic] = None
-    current_action: Optional[AgentAction] = None
-    current_indent = 0
+    current_topic: AgentTopic | None = None
+    current_action: AgentAction | None = None
     block_indent = 0
 
-    for line_num, line in enumerate(lines, 1):
+    for _line_num, line in enumerate(lines, 1):
         # Skip empty lines and comments
         stripped = line.strip()
-        if not stripped or stripped.startswith('#'):
+        if not stripped or stripped.startswith("#"):
             continue
 
         # Calculate indentation (tabs = 1 level, or count spaces)
         raw_indent = len(line) - len(line.lstrip())
-        if '\t' in line[:raw_indent]:
-            indent_level = line[:raw_indent].count('\t')
+        if "\t" in line[:raw_indent]:
+            indent_level = line[:raw_indent].count("\t")
         else:
             indent_level = raw_indent // 2  # Assume 2-space indent
 
         # Parse config block
-        if stripped.startswith('config:'):
-            current_block = 'config'
+        if stripped.startswith("config:"):
+            current_block = "config"
             block_indent = indent_level
             continue
 
-        if current_block == 'config' and indent_level > block_indent:
-            if stripped.startswith('agent_name:'):
+        if current_block == "config" and indent_level > block_indent:
+            if stripped.startswith("agent_name:"):
                 structure.agent_name = extract_value(stripped)
-            elif stripped.startswith('agent_label:'):
+            elif stripped.startswith("agent_label:"):
                 structure.agent_label = extract_value(stripped)
-            elif stripped.startswith('description:'):
+            elif stripped.startswith("description:"):
                 structure.description = extract_value(stripped)
 
         # Parse start_agent topic
-        if stripped.startswith('start_agent '):
-            match = re.match(r'start_agent\s+(\w+):', stripped)
+        if stripped.startswith("start_agent "):
+            match = re.match(r"start_agent\s+(\w+):", stripped)
             if match:
                 topic_name = match.group(1)
                 current_topic = AgentTopic(name=topic_name, is_start_agent=True)
                 structure.topics.append(current_topic)
-                current_block = 'topic'
+                current_block = "topic"
                 block_indent = indent_level
                 continue
 
         # Parse regular topics
-        if stripped.startswith('topic ') and ':' in stripped:
-            match = re.match(r'topic\s+(\w+):', stripped)
+        if stripped.startswith("topic ") and ":" in stripped:
+            match = re.match(r"topic\s+(\w+):", stripped)
             if match:
                 topic_name = match.group(1)
                 current_topic = AgentTopic(name=topic_name)
                 structure.topics.append(current_topic)
-                current_block = 'topic'
+                current_block = "topic"
                 block_indent = indent_level
                 current_action = None
                 continue
 
         # Inside a topic
-        if current_block == 'topic' and current_topic:
-            if stripped.startswith('label:'):
+        if current_block == "topic" and current_topic:
+            if stripped.startswith("label:"):
                 current_topic.label = extract_value(stripped)
-            elif stripped.startswith('description:'):
+            elif stripped.startswith("description:"):
                 if current_action:
                     current_action.description = extract_value(stripped)
                 else:
                     current_topic.description = extract_value(stripped)
-            elif stripped.startswith('actions:') and indent_level == block_indent + 1:
-                current_block = 'topic_actions'
+            elif stripped.startswith("actions:") and indent_level == block_indent + 1:
+                current_block = "topic_actions"
                 continue
-            elif stripped.startswith('reasoning:'):
-                current_block = 'reasoning'
+            elif stripped.startswith("reasoning:"):
+                current_block = "reasoning"
                 continue
 
         # Inside topic actions block (where flow actions are defined)
-        if current_block == 'topic_actions' and current_topic:
+        if current_block == "topic_actions" and current_topic:
             # Check for action name definition (word followed by colon, possibly @ reference)
             # Skip keywords that are not action names
-            skip_keywords = ('description:', 'inputs:', 'outputs:', 'target:', 'inp_', 'out_',
-                           'reasoning:', 'instructions:', 'actions:', 'label:')
-            if ':' in stripped and not stripped.startswith(skip_keywords):
-                action_match = re.match(r'^(\w+):', stripped)
+            skip_keywords = (
+                "description:",
+                "inputs:",
+                "outputs:",
+                "target:",
+                "inp_",
+                "out_",
+                "reasoning:",
+                "instructions:",
+                "actions:",
+                "label:",
+            )
+            if ":" in stripped and not stripped.startswith(skip_keywords):
+                action_match = re.match(r"^(\w+):", stripped)
                 if action_match:
                     action_name = action_match.group(1)
                     # Skip if this looks like a transition action (references @utils or @topic)
-                    if '@utils' in stripped or '@topic' in stripped:
+                    if "@utils" in stripped or "@topic" in stripped:
                         continue
                     current_action = AgentAction(name=action_name)
                     current_topic.actions.append(current_action)
                     continue
 
             # Check if we've exited the actions block (hit reasoning: at same or lower indent)
-            if stripped.startswith('reasoning:'):
-                current_block = 'reasoning'
+            if stripped.startswith("reasoning:"):
+                current_block = "reasoning"
                 current_action = None
                 continue
 
             if current_action:
-                if stripped.startswith('description:'):
+                if stripped.startswith("description:"):
                     current_action.description = extract_value(stripped)
-                elif stripped.startswith('target:'):
+                elif stripped.startswith("target:"):
                     current_action.target = extract_value(stripped)
-                elif stripped.startswith('inputs:'):
+                elif stripped.startswith("inputs:"):
                     continue  # Will parse input fields
-                elif stripped.startswith('outputs:'):
+                elif stripped.startswith("outputs:"):
                     continue  # Will parse output fields
-                elif stripped.startswith('inp_') or stripped.startswith('out_'):
+                elif stripped.startswith("inp_") or stripped.startswith("out_"):
                     # Input/output field
-                    field_match = re.match(r'^(inp_\w+|out_\w+):', stripped)
+                    field_match = re.match(r"^(inp_\w+|out_\w+):", stripped)
                     if field_match:
                         field_name = field_match.group(1)
-                        if field_name.startswith('inp_'):
-                            current_action.inputs.append({'name': field_name})
+                        if field_name.startswith("inp_"):
+                            current_action.inputs.append({"name": field_name})
                         else:
-                            current_action.outputs.append({'name': field_name})
+                            current_action.outputs.append({"name": field_name})
 
         # Inside reasoning block (where transitions are)
-        if current_block == 'reasoning' and current_topic:
-            if stripped.startswith('actions:'):
-                current_block = 'reasoning_actions'
+        if current_block == "reasoning" and current_topic:
+            if stripped.startswith("actions:"):
+                current_block = "reasoning_actions"
                 continue
 
         # Parse reasoning actions (transitions)
-        if current_block == 'reasoning_actions' and current_topic:
+        if current_block == "reasoning_actions" and current_topic:
             # Look for @utils.transition to @topic.name
-            transition_match = re.search(r'@utils\.transition\s+to\s+@topic\.(\w+)', stripped)
+            transition_match = re.search(r"@utils\.transition\s+to\s+@topic\.(\w+)", stripped)
             if transition_match:
                 current_topic.transitions.append(transition_match.group(1))
 
@@ -213,21 +223,22 @@ def parse_agent_file(file_path: str) -> AgentStructure:
 
 def extract_value(line: str) -> str:
     """Extract the value from a 'key: value' line."""
-    if ':' not in line:
+    if ":" not in line:
         return ""
 
-    _, value = line.split(':', 1)
+    _, value = line.split(":", 1)
     value = value.strip()
 
     # Remove quotes if present
-    if (value.startswith('"') and value.endswith('"')) or \
-       (value.startswith("'") and value.endswith("'")):
+    if (value.startswith('"') and value.endswith('"')) or (
+        value.startswith("'") and value.endswith("'")
+    ):
         value = value[1:-1]
 
     return value
 
 
-def generate_test_cases(structure: AgentStructure) -> List[Dict]:
+def generate_test_cases(structure: AgentStructure) -> list[dict]:
     """
     Generate test cases from the parsed agent structure.
 
@@ -245,7 +256,7 @@ def generate_test_cases(structure: AgentStructure) -> List[Dict]:
             router_topic = topic
             break
 
-    router_name = router_topic.name if router_topic else 'topic_selector'
+    router_name = router_topic.name if router_topic else "topic_selector"
 
     # Generate topic routing tests
     for topic in structure.topics:
@@ -256,26 +267,20 @@ def generate_test_cases(structure: AgentStructure) -> List[Dict]:
         utterance = generate_utterance_for_topic(topic)
 
         test_case = {
-            'utterance': utterance,
-            'expectation': {
-                'topic': topic.name,
-                'actionSequence': []
-            }
+            "utterance": utterance,
+            "expectation": {"topic": topic.name, "actionSequence": []},
         }
         test_cases.append(test_case)
 
     # Generate action invocation tests
     for topic in structure.topics:
         for action in topic.actions:
-            if action.target and action.target.startswith('flow://'):
+            if action.target and action.target.startswith("flow://"):
                 utterance = generate_utterance_for_action(action, topic)
 
                 test_case = {
-                    'utterance': utterance,
-                    'expectation': {
-                        'topic': topic.name,
-                        'actionSequence': [action.name]
-                    }
+                    "utterance": utterance,
+                    "expectation": {"topic": topic.name, "actionSequence": [action.name]},
                 }
                 test_cases.append(test_case)
 
@@ -293,19 +298,19 @@ def generate_utterance_for_topic(topic: AgentTopic) -> str:
     desc = topic.description.lower() if topic.description else ""
 
     # Common patterns
-    if 'faq' in label or 'faq' in desc:
+    if "faq" in label or "faq" in desc:
         return "I have a question about your services"
-    if 'menu' in label or 'menu' in desc:
+    if "menu" in label or "menu" in desc:
         return "What's on your menu?"
-    if 'book' in label or 'book' in desc or 'search' in label:
+    if "book" in label or "book" in desc or "search" in label:
         return "I'm looking for a book"
-    if 'order' in label or 'order' in desc:
+    if "order" in label or "order" in desc:
         return "I want to check my order status"
-    if 'support' in label or 'support' in desc:
+    if "support" in label or "support" in desc:
         return "I need help with an issue"
-    if 'account' in label or 'account' in desc:
+    if "account" in label or "account" in desc:
         return "I want to update my account"
-    if 'billing' in label or 'billing' in desc or 'payment' in label:
+    if "billing" in label or "billing" in desc or "payment" in label:
         return "I have a question about my bill"
 
     # Default: use description or label
@@ -319,52 +324,46 @@ def generate_utterance_for_action(action: AgentAction, topic: AgentTopic) -> str
     desc = action.description.lower() if action.description else action.name
 
     # Extract key verbs from description
-    if 'search' in desc:
+    if "search" in desc:
         # Look for what to search for
-        if 'book' in desc:
+        if "book" in desc:
             return "Can you search for Harry Potter?"
-        if 'product' in desc:
+        if "product" in desc:
             return "Search for laptops"
         return "Can you search for something?"
 
-    if 'create' in desc or 'add' in desc:
-        if 'case' in desc or 'ticket' in desc:
+    if "create" in desc or "add" in desc:
+        if "case" in desc or "ticket" in desc:
             return "I need to create a support case"
-        if 'order' in desc:
+        if "order" in desc:
             return "I want to place an order"
         return f"I want to create a new {topic.name}"
 
-    if 'get' in desc or 'lookup' in desc or 'retriev' in desc:
-        if 'account' in desc:
+    if "get" in desc or "lookup" in desc or "retriev" in desc:
+        if "account" in desc:
             return "Can you look up my account information?"
-        if 'order' in desc:
+        if "order" in desc:
             return "What's the status of my order?"
         return f"Can you get the {action.name.replace('_', ' ')} for me?"
 
-    if 'update' in desc or 'modify' in desc:
+    if "update" in desc or "modify" in desc:
         return f"I need to update my {topic.name}"
 
     # Default based on action name
     return f"Please {action.name.replace('_', ' ')} for me"
 
 
-def generate_edge_case_tests(router_name: str) -> List[Dict]:
+def generate_edge_case_tests(router_name: str) -> list[dict]:
     """Generate edge case test cases."""
     return [
         {
-            'utterance': "What's the weather today?",
-            'expectation': {
-                'topic': router_name,
-                'actionSequence': []
-            }
+            "utterance": "What's the weather today?",
+            "expectation": {"topic": router_name, "actionSequence": []},
         },
         {
-            'utterance': "Tell me a joke",
-            'expectation': {
-                'topic': router_name,
-                'actionSequence': []
-            }
-        }
+            "utterance": "Tell me a joke",
+            "expectation": {"topic": router_name, "actionSequence": []},
+        },
     ]
 
 
@@ -376,11 +375,7 @@ def generate_test_spec(structure: AgentStructure, output_path: str) -> str:
     """
     test_cases = generate_test_cases(structure)
 
-    spec = {
-        'subjectType': 'AGENT',
-        'subjectName': structure.agent_name,
-        'testCases': test_cases
-    }
+    spec = {"subjectType": "AGENT", "subjectName": structure.agent_name, "testCases": test_cases}
 
     # Generate YAML content
     if yaml:
@@ -392,13 +387,13 @@ def generate_test_spec(structure: AgentStructure, output_path: str) -> str:
     output_file = Path(output_path)
     output_file.parent.mkdir(parents=True, exist_ok=True)
 
-    with open(output_file, 'w') as f:
+    with open(output_file, "w") as f:
         f.write(content)
 
     return content
 
 
-def manual_yaml_output(spec: Dict) -> str:
+def manual_yaml_output(spec: dict) -> str:
     """Generate YAML output without pyyaml library."""
     lines = []
 
@@ -407,11 +402,11 @@ def manual_yaml_output(spec: Dict) -> str:
     lines.append("")
     lines.append("testCases:")
 
-    for tc in spec['testCases']:
-        lines.append(f"  - utterance: \"{tc['utterance']}\"")
+    for tc in spec["testCases"]:
+        lines.append(f'  - utterance: "{tc["utterance"]}"')
         lines.append("    expectation:")
         lines.append(f"      topic: {tc['expectation']['topic']}")
-        actions = tc['expectation']['actionSequence']
+        actions = tc["expectation"]["actionSequence"]
         if actions:
             lines.append("      actionSequence:")
             for action in actions:
@@ -423,7 +418,7 @@ def manual_yaml_output(spec: Dict) -> str:
     return "\n".join(lines)
 
 
-def print_summary(structure: AgentStructure, test_cases: List[Dict]) -> None:
+def print_summary(structure: AgentStructure, test_cases: list[dict]) -> None:
     """Print a summary of the generated test spec."""
     print("=" * 65)
     print("TEST SPEC GENERATION SUMMARY")
@@ -444,7 +439,7 @@ def print_summary(structure: AgentStructure, test_cases: List[Dict]) -> None:
         print(f"           Actions: {actions_count}")
         if topic.actions:
             for action in topic.actions:
-                target_short = action.target.split('://')[-1] if action.target else 'N/A'
+                target_short = action.target.split("://")[-1] if action.target else "N/A"
                 print(f"              - {action.name} -> {target_short}")
     print("")
 
@@ -452,8 +447,8 @@ def print_summary(structure: AgentStructure, test_cases: List[Dict]) -> None:
     print("-" * 65)
 
     # Group by category
-    topic_tests = [tc for tc in test_cases if not tc['expectation']['actionSequence']]
-    action_tests = [tc for tc in test_cases if tc['expectation']['actionSequence']]
+    topic_tests = [tc for tc in test_cases if not tc["expectation"]["actionSequence"]]
+    action_tests = [tc for tc in test_cases if tc["expectation"]["actionSequence"]]
 
     print(f"  Topic Routing Tests: {len(topic_tests)}")
     print(f"  Action Invocation Tests: {len(action_tests)}")
@@ -463,11 +458,11 @@ def print_summary(structure: AgentStructure, test_cases: List[Dict]) -> None:
     print("TEST CASES")
     print("-" * 65)
     for i, tc in enumerate(test_cases, 1):
-        utterance = tc['utterance'][:50] + "..." if len(tc['utterance']) > 50 else tc['utterance']
-        topic = tc['expectation']['topic']
-        actions = tc['expectation']['actionSequence']
+        utterance = tc["utterance"][:50] + "..." if len(tc["utterance"]) > 50 else tc["utterance"]
+        topic = tc["expectation"]["topic"]
+        actions = tc["expectation"]["actionSequence"]
         action_str = f" -> {actions}" if actions else ""
-        print(f"  {i}. \"{utterance}\"")
+        print(f'  {i}. "{utterance}"')
         print(f"     Expected: {topic}{action_str}")
     print("")
     print("=" * 65)
@@ -475,22 +470,22 @@ def print_summary(structure: AgentStructure, test_cases: List[Dict]) -> None:
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Generate Agentforce test specs from Agent Script files',
+        description="Generate Agentforce test specs from Agent Script files",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
   python3 generate-test-spec.py --agent-file Agent.agent --output tests/spec.yaml
   python3 generate-test-spec.py --agent-dir ./aiAuthoringBundles/MyAgent/ --output spec.yaml
   python3 generate-test-spec.py --agent-file Agent.agent --output spec.yaml --verbose
-        """
+        """,
     )
 
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('--agent-file', type=str, help='Path to .agent file')
-    group.add_argument('--agent-dir', type=str, help='Path to aiAuthoringBundle directory')
+    group.add_argument("--agent-file", type=str, help="Path to .agent file")
+    group.add_argument("--agent-dir", type=str, help="Path to aiAuthoringBundle directory")
 
-    parser.add_argument('--output', '-o', type=str, required=True, help='Output YAML file path')
-    parser.add_argument('--verbose', '-v', action='store_true', help='Print detailed summary')
+    parser.add_argument("--output", "-o", type=str, required=True, help="Output YAML file path")
+    parser.add_argument("--verbose", "-v", action="store_true", help="Print detailed summary")
 
     args = parser.parse_args()
 
@@ -499,7 +494,7 @@ Examples:
         agent_file = Path(args.agent_file)
     else:
         agent_dir = Path(args.agent_dir)
-        agent_files = list(agent_dir.glob('*.agent'))
+        agent_files = list(agent_dir.glob("*.agent"))
         if not agent_files:
             print(f"Error: No .agent file found in {agent_dir}", file=sys.stderr)
             sys.exit(1)
@@ -518,7 +513,7 @@ Examples:
         structure.agent_name = agent_file.stem
 
     # Generate test spec
-    content = generate_test_spec(structure, args.output)
+    generate_test_spec(structure, args.output)
 
     # Print summary
     if args.verbose:
@@ -531,8 +526,12 @@ Examples:
 
     print("\nNext steps:")
     print(f"  1. Review: cat {args.output}")
-    print(f"  2. Create test: sf agent test create --spec {args.output} --api-name {structure.agent_name}_Tests --target-org [alias]")
-    print(f"  3. Run tests: sf agent test run --api-name {structure.agent_name}_Tests --wait 10 --result-format json --target-org [alias]")
+    print(
+        f"  2. Create test: sf agent test create --spec {args.output} --api-name {structure.agent_name}_Tests --target-org [alias]"
+    )
+    print(
+        f"  3. Run tests: sf agent test run --api-name {structure.agent_name}_Tests --wait 10 --result-format json --target-org [alias]"
+    )
 
 
 if __name__ == "__main__":
