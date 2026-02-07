@@ -5,6 +5,7 @@
     "fields": ["Id", "Name", "Industry", "BillingCity", "AnnualRevenue"],
     "whereClause": "Industry = 'Technology' AND CreatedDate >= LAST_N_DAYS:30",
     "orderBy": "Name ASC",
+    "groupBy": "",
     "limit": 500,
     "sf_user": "prod"
   },

@@ -1,15 +1,15 @@
 ---
 name: sf-data-cirra
 description: >
-  Salesforce data operations expert with 130-point scoring. Use when writing
-  SOQL queries, creating test data, performing bulk data operations, or
-  importing/exporting data via Cirra AI MCP Server (remote org operations only).
+  Salesforce data operations expert with two-tier validation. Use when writing
+  SOQL queries, creating test data, performing bulk data operations, deploying
+  Apex/Flow code, or importing/exporting data via Cirra AI MCP Server.
 license: MIT
 metadata:
-  version: '2.1.0'
+  version: '3.0.0'
   author: 'Refactored for Cirra AI MCP'
   original_author: 'Jag Valaiyapathy'
-  scoring: '130 points across 7 categories'
+  validation: 'Two-tier: lightweight data checks + full code deployment scoring'
   framework: 'Cirra AI MCP Server'
   executionMode: 'remote-org-only'
 ---
@@ -30,7 +30,7 @@ The sf-data-cirra skill provides comprehensive data management capabilities:
 - **Bulk Operations**: Insert/update/delete/upsert multiple records efficiently
 - **Record Tracking**: Track created records with cleanup/rollback support
 - **Metadata Discovery**: Describe objects and fields using Tooling API
-- **Pre-Flight Validation**: 130-point scoring via MCP validator script
+- **Two-Tier Validation**: Lightweight data checks (Tier 1) + full code deployment scoring (Tier 2)
 - **Integration**: Works with sf-metadata, sf-apex, sf-flow skills
 
 ---
@@ -123,42 +123,22 @@ cirra_ai_init -> sf-metadata -> sf-data (SOQL/DML) -> sf-apex/sf-flow
 
 ## Pre-Flight Validation (Cowork Mode)
 
-Before executing `sobject_dml` or `soql_query`, validate the parameters using the MCP validator.
-This catches issues like missing required fields, PII in test data, or poor query selectivity
-**before** hitting the org.
+The MCP validator uses a **two-tier model** that matches the risk profile of each operation:
+
+- **Tier 1** (data ops): Lightweight pass/fail checks for `soql_query` and `sobject_dml`. No scoring — just catches structural errors and PII before executing. Running an inefficient query interactively is fine; governor limits protect you.
+- **Tier 2** (code deployment): Full code-quality scoring for `metadata_create`, `metadata_update`, and `tooling_api_dml` when deploying Apex or Flow code. Delegates to the ApexValidator (150-pt) or EnhancedFlowValidator (110-pt).
 
 ### How to run
-
-Write a JSON file with the tool parameters, then run the validator:
 
 ```bash
 python hooks/scripts/mcp_validator_cli.py input.json
 python hooks/scripts/mcp_validator_cli.py --format report input.json
-```
-
-Or pipe JSON from stdin:
-
-```bash
 echo '{"tool":"soql_query","params":{...}}' | python hooks/scripts/mcp_validator_cli.py
 ```
 
-### Input format
+### Tier 1: Data Parameter Checks (soql_query, sobject_dml)
 
-```json
-{
-  "tool": "soql_query",
-  "params": {
-    "sObject": "Account",
-    "fields": ["Id", "Name", "Industry"],
-    "whereClause": "Industry='Technology'",
-    "limit": 500,
-    "sf_user": "prod"
-  },
-  "context": {
-    "purpose": "Query tech accounts for dashboard report"
-  }
-}
-```
+Simple pass/fail. No score — just errors and warnings.
 
 ```json
 {
@@ -171,35 +151,81 @@ echo '{"tool":"soql_query","params":{...}}' | python hooks/scripts/mcp_validator
       {"Name": "Test Account 2", "Industry": "Finance"}
     ],
     "sf_user": "prod"
-  },
-  "context": {
-    "purpose": "Bulk test Account trigger with varied industries",
-    "cleanup_planned": true
   }
 }
 ```
 
-### Scoring thresholds
+**What Tier 1 checks:**
 
-| Score | Rating     | Action                        |
-| ----- | ---------- | ----------------------------- |
-| 117+  | 5/5        | Safe to proceed               |
-| 104+  | 4/5        | Proceed, note recommendations |
-| 91+   | 3/5        | Review warnings before proceeding |
-| 78+   | 2/5        | Address warnings first        |
-| <78   | 1/5        | BLOCKED — fix critical issues |
+| Check                          | Tool        | Severity |
+| ------------------------------ | ----------- | -------- |
+| Missing `sObject`              | Both        | Error    |
+| Missing `sf_user`              | Both        | Error    |
+| Invalid DML `operation`        | sobject_dml | Error    |
+| Empty records array            | sobject_dml | Error    |
+| Update/delete missing `Id`     | sobject_dml | Error    |
+| Upsert missing externalIdField | sobject_dml | Error    |
+| PII in record values           | sobject_dml | Warning  |
+| Inconsistent fields            | sobject_dml | Warning  |
+| SOQL syntax errors (`==`, unbalanced parens, double quotes) | soql_query | Warning |
 
-### What the validator checks
+**Output:**
 
-| Category            | Points | soql_query checks                                  | sobject_dml checks                               |
-| ------------------- | ------ | -------------------------------------------------- | ------------------------------------------------ |
-| Query Efficiency    | 25     | whereClause, limit, indexed fields, hardcoded IDs  | —                                                |
-| Bulk Safety         | 25     | —                                                  | Valid operation, non-empty records, batch size    |
-| Data Integrity      | 20     | sObject, sf_user present                           | Id for update/delete, externalIdField for upsert |
-| Security & FLS      | 20     | —                                                  | PII patterns (SSN, credit card, personal email)  |
-| Test Patterns       | 15     | —                                                  | 201+ records, data variety, unique Names         |
-| Cleanup & Isolation | 15     | —                                                  | Cleanup-friendly naming, cleanup_planned context |
-| Documentation       | 10     | Purpose in context                                 | Purpose in context                               |
+```json
+{
+  "tier": "data_params",
+  "tool": "sobject_dml",
+  "status": "pass",
+  "errors": [],
+  "warnings": []
+}
+```
+
+### Tier 2: Code Deployment Scoring (metadata_create, metadata_update, tooling_api_dml)
+
+Full code quality scoring when deploying Apex or Flow code. Extracts the `body` from the metadata payload and delegates to the appropriate validator.
+
+```json
+{
+  "tool": "metadata_create",
+  "params": {
+    "type": "ApexClass",
+    "metadata": [{
+      "fullName": "AccountService",
+      "apiVersion": "65.0",
+      "status": "Active",
+      "body": "public with sharing class AccountService {\n    public static List<Account> getByIndustry(String industry) {\n        return [SELECT Id, Name FROM Account WHERE Industry = :industry LIMIT 1000];\n    }\n}"
+    }],
+    "sf_user": "prod"
+  }
+}
+```
+
+**What Tier 2 checks:**
+
+| Metadata Type    | Validator              | Max Score | Key Checks                                         |
+| ---------------- | ---------------------- | --------- | -------------------------------------------------- |
+| ApexClass        | ApexValidator          | 150       | SOQL-in-loops, DML-in-loops, sharing, naming, docs |
+| ApexTrigger      | ApexValidator          | 150       | Bulkification, error handling, security             |
+| Flow             | EnhancedFlowValidator  | 110       | DML-in-loops, fault paths, naming, governance       |
+| FlowDefinition   | EnhancedFlowValidator  | 110       | Performance, error handling, security               |
+| Other types      | — (skipped)            | —         | Non-code metadata passes through without scoring    |
+
+**Output:**
+
+```json
+{
+  "tier": "code_deployment",
+  "tool": "metadata_create",
+  "metadata_type": "ApexClass",
+  "validator": "ApexValidator",
+  "status": "scored",
+  "score": 145,
+  "max_score": 150,
+  "rating": "Excellent (5/5)",
+  "issues": [...]
+}
+```
 
 ---
 
@@ -366,19 +392,16 @@ tooling_api_query(
 
 ## Best Practices (Built-In Enforcement)
 
-### Validation Scoring (130 Points)
+### Two-Tier Validation Model
 
-| Category            | Points | Key Focus                                             |
-| ------------------- | ------ | ----------------------------------------------------- |
-| Query Efficiency    | 25     | Selective filters, LIMIT clauses, indexed fields      |
-| Bulk Safety         | 25     | Batch sizing, Cirra AI single calls with 200+ records |
-| Data Integrity      | 20     | Required fields, valid relationships                  |
-| Security & FLS      | 20     | User context awareness, no PII patterns               |
-| Test Patterns       | 15     | 201+ records, edge cases, data variety                |
-| Cleanup & Isolation | 15     | Cleanup-friendly naming, cleanup plan                 |
-| Documentation       | 10     | Purpose, outcomes documented                          |
+**Tier 1 — Data Operations** (soql_query, sobject_dml): Pass/fail safety checks. No scoring — interactive data operations are low risk. Governor limits protect the org. The validator catches structural errors (missing Id, bad params) and PII before executing.
 
-**Thresholds**: 5/5 117+ | 4/5 104-116 | 3/5 91-103 | 2/5 78-90 | 1/5 <78 (blocked)
+**Tier 2 — Code Deployment** (metadata_create, metadata_update, tooling_api_dml): Full code-quality scoring when deploying Apex or Flows. This is where anti-patterns like SOQL-in-loops actually matter — they'll run in production under load.
+
+| Validator              | Max Score | Categories                                                       |
+| ---------------------- | --------- | ---------------------------------------------------------------- |
+| ApexValidator          | 150       | Bulkification, Security, Testing, Architecture, Clean Code, Error Handling, Performance, Documentation |
+| EnhancedFlowValidator  | 110       | Design & Naming, Logic & Structure, Architecture, Performance, Error Handling, Security |
 
 ---
 
@@ -513,30 +536,39 @@ Reference [Salesforce Governor Limits](https://developer.salesforce.com/docs/atl
 
 ## Completion Format
 
-After completing data operations, run the validator and provide:
+### Data Operations (Tier 1)
 
 ```
 Data Operation Complete: [Operation Type]
   Object: [ObjectName] | Records: [Count]
   Target Org: [org identifier]
 
+  Pre-flight: [PASS/FAIL — errors/warnings count]
+
   Record Summary:
-  - Created: [count] records
-  - Updated: [count] records
-  - Deleted: [count] records
-
+  - Created/Updated/Deleted: [count] records
   Record IDs: [first 5 IDs...]
-
-  Validation: [run mcp_validator_cli.py and report score]/130
 
   Cleanup Query:
   - soql_query(sObject="[Object]", fields=["Id"], whereClause="Name LIKE 'Test%'")
   - Then: sobject_dml(operation="delete", records=[...])
+```
+
+### Code Deployment (Tier 2)
+
+```
+Code Deployment Validated: [metadata_type]
+  Full Name: [class/flow name]
+  Validator: [ApexValidator | EnhancedFlowValidator]
+  Score: [score]/[max] — [rating]
+
+  Issues: [count] ([critical count] critical)
+  [list critical issues if any]
 
   Next Steps:
-  1. Verify records in org
-  2. Run trigger/flow tests
-  3. Execute cleanup when done
+  1. Fix critical issues (if any)
+  2. Deploy via metadata_create / metadata_update
+  3. Verify in org
 ```
 
 ---
@@ -562,7 +594,7 @@ Data Operation Complete: [Operation Type]
 - **Test Isolation**: Track created record IDs for cleanup
 - **Sensitive Data**: Never include real PII in test data
 - **Remote Org Only**: No local scratch org support; all operations target remote orgs
-- **Validation**: Run `mcp_validator_cli.py` before executing operations in Cowork mode
+- **Validation**: Run `mcp_validator_cli.py` before executing operations in Cowork mode (Tier 1 for data ops, Tier 2 for code deployment)
 
 ---
 

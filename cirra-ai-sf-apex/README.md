@@ -94,7 +94,6 @@ The skill generates:
 
 - Cirra AI MCP Server
 - Target Salesforce org
-- Java 11+ (for Apex LSP validation)
 
 ## License
 

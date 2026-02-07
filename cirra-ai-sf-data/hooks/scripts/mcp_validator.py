@@ -1,525 +1,636 @@
 #!/usr/bin/env python3
 """
-MCP Operation Validator
-========================
+MCP Operation Validator — Two-Tier Model
+==========================================
 
-Validates Cirra AI MCP tool call parameters against the 130-point scoring system.
-Designed for pre-flight validation in Claude Cowork mode — run this BEFORE
-executing sobject_dml or soql_query calls.
+Validates Cirra AI MCP tool call parameters with two distinct tiers:
 
-Scoring categories (130 points total):
-- Query Efficiency (25 points)
-- Bulk Safety (25 points)
-- Data Integrity (20 points)
-- Security & FLS (20 points)
-- Test Patterns (15 points)
-- Cleanup & Isolation (15 points)
-- Documentation (10 points)
+Tier 1 — Data Parameter Checks (soql_query, sobject_dml)
+  Lightweight pass/fail validation for interactive data operations.
+  No scoring — just structural error/warning checks that catch things
+  that would fail or leak data. Running an inefficient query interactively
+  is fine; governor limits protect you.
+
+Tier 2 — Code Deployment Scoring (metadata_create, metadata_update, tooling_api_dml)
+  Full code-quality scoring when deploying Apex classes, triggers, or Flows.
+  Extracts the code body, writes to a temp file, and delegates to the existing
+  ApexValidator (150-pt) or EnhancedFlowValidator (110-pt).
 
 Input format:
 {
-  "tool": "soql_query" | "sobject_dml",
+  "tool": "soql_query" | "sobject_dml" | "metadata_create" | "metadata_update" | "tooling_api_dml",
   "params": { ... MCP tool parameters ... },
-  "context": {
-    "purpose": "optional description",
-    "cleanup_planned": true
-  }
+  "context": { "purpose": "optional description" }
 }
 """
 
+import os
 import re
-from typing import Any
+import sys
+import tempfile
+from typing import Any, Dict, List, Optional, Tuple
 
 
-class MCPOperationValidator:
-    """Validates MCP tool call parameters before execution."""
+# ═══════════════════════════════════════════════════════════════════════
+# Tier 1 — Lightweight Data Parameter Checks
+# ═══════════════════════════════════════════════════════════════════════
 
-    VALID_DML_OPERATIONS = ("insert", "update", "delete", "upsert")
-    VALID_TOOLS = ("soql_query", "sobject_dml")
+VALID_DML_OPERATIONS = ("insert", "update", "delete", "upsert")
+SOBJECT_NAME_PATTERN = re.compile(r"^[A-Za-z][A-Za-z0-9_]*(__c|__mdt|__e|__b|__x)?$")
 
-    INDEXED_FIELDS = (
-        "Id", "Name", "OwnerId", "CreatedDate",
-        "LastModifiedDate", "SystemModstamp", "RecordTypeId",
-    )
+PII_PATTERNS = {
+    "SSN": re.compile(r"\b\d{3}-\d{2}-\d{4}\b"),
+    "Credit card": re.compile(r"\b\d{4}[-\s]?\d{4}[-\s]?\d{4}[-\s]?\d{4}\b"),
+    "Personal email": re.compile(
+        r"\b[A-Za-z0-9._%+-]+@(gmail|yahoo|hotmail|outlook|aol)\.(com|net|org)\b",
+        re.IGNORECASE,
+    ),
+}
 
-    SOBJECT_NAME_PATTERN = re.compile(r"^[A-Za-z][A-Za-z0-9_]*(__c|__mdt|__e|__b|__x)?$")
 
-    PII_PATTERNS = {
-        "SSN": re.compile(r"\b\d{3}-\d{2}-\d{4}\b"),
-        "Credit card": re.compile(r"\b\d{4}[-\s]?\d{4}[-\s]?\d{4}[-\s]?\d{4}\b"),
-        "Personal email": re.compile(
-            r"\b[A-Za-z0-9._%+-]+@(gmail|yahoo|hotmail|outlook|aol)\.(com|net|org)\b",
-            re.IGNORECASE,
-        ),
-    }
+def validate_data_params(input_data: Dict[str, Any]) -> Dict[str, Any]:
+    """Tier 1: Validate soql_query or sobject_dml parameters.
 
-    CATEGORIES = {
-        "query_efficiency": {"name": "Query Efficiency", "max": 25},
-        "bulk_safety": {"name": "Bulk Safety", "max": 25},
-        "data_integrity": {"name": "Data Integrity", "max": 20},
-        "security_fls": {"name": "Security & FLS", "max": 20},
-        "test_patterns": {"name": "Test Patterns", "max": 15},
-        "cleanup_isolation": {"name": "Cleanup & Isolation", "max": 15},
-        "documentation": {"name": "Documentation", "max": 10},
-    }
+    Returns a simple pass/fail with lists of errors and warnings.
+    No scoring — just binary checks for things that would fail or leak data.
 
-    def __init__(self):
-        self.issues: list[dict[str, Any]] = []
-        self.recommendations: list[str] = []
-        self.categories: dict[str, dict[str, Any]] = {}
-        self._reset()
+    Args:
+        input_data: Dict with keys "tool", "params", and optional "context".
 
-    def _reset(self):
-        """Reset state for a fresh validation run."""
-        self.issues = []
-        self.recommendations = []
-        self.categories = {
-            key: {"name": val["name"], "max": val["max"], "score": val["max"], "issues": []}
-            for key, val in self.CATEGORIES.items()
+    Returns:
+        {
+            "tier": "data_params",
+            "tool": "soql_query" | "sobject_dml",
+            "status": "pass" | "fail",
+            "errors": [ {"message": "..."} ],
+            "warnings": [ {"message": "..."} ]
         }
+    """
+    tool = input_data.get("tool", "")
+    params = input_data.get("params", {})
 
-    def validate(self, input_data: dict[str, Any]) -> dict[str, Any]:
-        """Validate MCP tool call parameters and return a scored report.
+    errors: List[Dict[str, str]] = []
+    warnings: List[Dict[str, str]] = []
 
-        Args:
-            input_data: Dict with keys "tool", "params", and optional "context".
+    # ── Shared checks ───────────────────────────────────────────────
+    if not params.get("sObject"):
+        errors.append({"message": "Missing required 'sObject' parameter"})
+    elif isinstance(params.get("sObject"), str) and not SOBJECT_NAME_PATTERN.match(params["sObject"]):
+        warnings.append({"message": f"sObject name '{params['sObject']}' doesn't match expected pattern"})
 
-        Returns:
-            Validation report dict with score, categories, issues, recommendations.
-        """
-        self._reset()
+    if not params.get("sf_user"):
+        warnings.append({"message": "No 'sf_user' specified — will use default org connection"})
 
-        tool = input_data.get("tool", "")
-        params = input_data.get("params", {})
-        context = input_data.get("context", {})
+    # ── soql_query checks ───────────────────────────────────────────
+    if tool == "soql_query":
+        # Required string parameters per MCP schema
+        for req_param in ("orderBy", "groupBy"):
+            if req_param not in params or not isinstance(params[req_param], str):
+                errors.append({
+                    "message": f"Missing required '{req_param}' parameter "
+                               f"(pass empty string if not needed)"
+                })
 
-        if tool not in self.VALID_TOOLS:
-            self._deduct(
-                "data_integrity", 10,
-                f"Unknown tool: '{tool}'. Expected one of: {', '.join(self.VALID_TOOLS)}"
-            )
-            return self._build_report(tool)
-
-        # Shared checks
-        self._check_data_integrity_shared(params)
-        self._check_documentation(context)
-
-        # Tool-specific checks
-        if tool == "soql_query":
-            self._validate_soql_query(params)
-        elif tool == "sobject_dml":
-            self._validate_sobject_dml(params, context)
-
-        return self._build_report(tool)
-
-    # ── soql_query validation ──────────────────────────────────────────
-
-    def _validate_soql_query(self, params: dict[str, Any]):
-        """Run all checks for soql_query parameters."""
-        self._check_query_efficiency(params)
-
-    def _check_query_efficiency(self, params: dict[str, Any]):
-        """Query Efficiency (25 pts): whereClause, limit, indexed fields,
-        hardcoded IDs, field selectivity, SOQL syntax."""
         where = params.get("whereClause") or ""
-        limit_val = params.get("limit")
-        fields = params.get("fields")
+        if where.strip():
+            _check_where_syntax(where, warnings)
 
-        # WHERE clause
-        if not where.strip():
-            self._deduct("query_efficiency", 5, "No whereClause — query will scan all records")
-            self.recommendations.append(
-                "Add a whereClause to filter results and improve selectivity"
-            )
-        else:
-            # Hardcoded Salesforce IDs
-            if re.search(r"'[a-zA-Z0-9]{15}'|'[a-zA-Z0-9]{18}'", where):
-                self._deduct("query_efficiency", 5, "Hardcoded Salesforce IDs in whereClause")
-                self.recommendations.append(
-                    "Use dynamic references instead of hardcoded record IDs"
-                )
-
-            # Indexed fields
-            uses_indexed = any(
-                re.search(rf"\b{field}\b", where, re.IGNORECASE)
-                for field in self.INDEXED_FIELDS
-            )
-            if not uses_indexed:
-                self._deduct(
-                    "query_efficiency", 3,
-                    "whereClause does not reference indexed fields "
-                    "(Id, Name, CreatedDate, OwnerId, RecordTypeId, etc.)"
-                )
-                self.recommendations.append(
-                    "Filter on an indexed field for better query performance"
-                )
-
-            # SOQL syntax
-            self._check_where_syntax(where)
-
-        # LIMIT
-        if limit_val is None:
-            self._deduct(
-                "query_efficiency", 3,
-                "No limit specified — large result sets may cause issues"
-            )
-            self.recommendations.append(
-                "Add a limit to prevent unexpected large result sets"
-            )
-        elif isinstance(limit_val, (int, float)) and limit_val > 50000:
-            self._deduct(
-                "query_efficiency", 5,
-                f"Excessive limit ({limit_val}) — may exceed governor limits"
-            )
-
-        # Field selectivity
-        if fields is None or (isinstance(fields, list) and len(fields) == 0):
-            self._deduct(
-                "query_efficiency", 2,
-                "No fields specified — selecting all fields"
-            )
-            self.recommendations.append(
-                "Specify only the fields you need for better performance"
-            )
-
-    def _check_where_syntax(self, where: str):
-        """Check for common SOQL syntax mistakes in the whereClause string."""
-        if re.search(r"==", where):
-            self._deduct(
-                "query_efficiency", 5,
-                "Invalid '==' operator in whereClause — SOQL uses '='"
-            )
-
-        if re.search(r'=\s*"[^"]*"', where):
-            self._deduct(
-                "query_efficiency", 2,
-                "Double-quoted string in whereClause — SOQL uses single quotes"
-            )
-
-        if where.count("(") != where.count(")"):
-            self._deduct("query_efficiency", 5, "Unbalanced parentheses in whereClause")
-
-    # ── sobject_dml validation ─────────────────────────────────────────
-
-    def _validate_sobject_dml(self, params: dict[str, Any], context: dict[str, Any]):
-        """Run all checks for sobject_dml parameters."""
-        self._check_bulk_safety(params)
-        self._check_data_integrity_dml(params)
-        self._check_security(params)
-        self._check_test_patterns(params)
-        self._check_cleanup_isolation(params, context)
-
-    def _check_bulk_safety(self, params: dict[str, Any]):
-        """Bulk Safety (25 pts): operation validity, records array,
-        batch size, upsert requirements."""
+    # ── sobject_dml checks ──────────────────────────────────────────
+    elif tool == "sobject_dml":
         operation = params.get("operation", "")
         records = params.get("records", [])
         ext_id_field = params.get("externalIdField")
 
         # Valid operation
-        if operation not in self.VALID_DML_OPERATIONS:
-            self._deduct(
-                "bulk_safety", 10,
-                f"Invalid operation: '{operation}'. "
-                f"Expected one of: {', '.join(self.VALID_DML_OPERATIONS)}"
-            )
+        if operation not in VALID_DML_OPERATIONS:
+            errors.append({
+                "message": f"Invalid operation: '{operation}'. "
+                           f"Expected one of: {', '.join(VALID_DML_OPERATIONS)}"
+            })
 
         # Records array
         if not isinstance(records, list) or len(records) == 0:
-            self._deduct("bulk_safety", 10, "Empty or missing records array")
-        elif len(records) > 10000:
-            self._deduct(
-                "bulk_safety", 5,
-                f"Record count ({len(records)}) exceeds 10,000 — "
-                "may hit governor limits in a single transaction"
-            )
-            self.recommendations.append(
-                "Break into batches of 200 records for large operations"
-            )
+            errors.append({"message": "Empty or missing records array"})
+        else:
+            # Update/delete must have Id
+            if operation in ("update", "delete"):
+                missing_id = [
+                    i for i, r in enumerate(records)
+                    if isinstance(r, dict) and "Id" not in r
+                ]
+                if missing_id:
+                    errors.append({
+                        "message": f"{len(missing_id)} record(s) missing 'Id' field "
+                                   f"for {operation} operation"
+                    })
 
-        # Upsert requires externalIdField
-        if operation == "upsert" and not ext_id_field:
-            self._deduct(
-                "bulk_safety", 10,
-                "Upsert operation requires externalIdField parameter"
-            )
+            # Upsert requires externalIdField
+            if operation == "upsert" and not ext_id_field:
+                errors.append({
+                    "message": "Upsert operation requires externalIdField parameter"
+                })
 
-    def _check_data_integrity_dml(self, params: dict[str, Any]):
-        """Data Integrity checks specific to sobject_dml."""
-        operation = params.get("operation", "")
-        records = params.get("records", [])
-        ext_id_field = params.get("externalIdField")
+            # Upsert records must contain the external ID field
+            if operation == "upsert" and ext_id_field:
+                missing_ext = [
+                    i for i, r in enumerate(records)
+                    if isinstance(r, dict) and ext_id_field not in r
+                ]
+                if missing_ext:
+                    warnings.append({
+                        "message": f"{len(missing_ext)} record(s) missing external "
+                                   f"ID field '{ext_id_field}'"
+                    })
 
-        if not isinstance(records, list) or len(records) == 0:
-            return  # Already flagged in bulk_safety
+            # Inconsistent fields across records
+            if operation == "insert" and len(records) >= 2:
+                field_sets = [
+                    frozenset(r.keys()) for r in records if isinstance(r, dict)
+                ]
+                if field_sets and len(set(field_sets)) > 1:
+                    warnings.append({
+                        "message": "Inconsistent field names across records — "
+                                   "some records have different fields"
+                    })
 
-        # Update/delete must have Id
-        if operation in ("update", "delete"):
-            missing_id = [
-                i for i, r in enumerate(records)
-                if isinstance(r, dict) and "Id" not in r
-            ]
-            if missing_id:
-                count = len(missing_id)
-                self._deduct(
-                    "data_integrity", 10,
-                    f"{count} record(s) missing 'Id' field for {operation} operation"
-                )
+            # PII detection
+            _check_pii(records, warnings)
 
-        # Upsert records must contain the external ID field
-        if operation == "upsert" and ext_id_field:
-            missing_ext = [
-                i for i, r in enumerate(records)
-                if isinstance(r, dict) and ext_id_field not in r
-            ]
-            if missing_ext:
-                count = len(missing_ext)
-                self._deduct(
-                    "data_integrity", 5,
-                    f"{count} record(s) missing external ID field '{ext_id_field}'"
-                )
-
-        # Inconsistent fields across records (insert only)
-        if operation == "insert" and len(records) >= 2:
-            field_sets = [
-                frozenset(r.keys()) for r in records if isinstance(r, dict)
-            ]
-            if field_sets and len(set(field_sets)) > 1:
-                self._deduct(
-                    "data_integrity", 3,
-                    "Inconsistent field names across records — "
-                    "some records have different fields"
-                )
-
-    def _check_security(self, params: dict[str, Any]):
-        """Security & FLS (20 pts): PII detection in record values."""
-        records = params.get("records", [])
-        if not isinstance(records, list):
-            return
-
-        pii_found: dict[str, list[str]] = {}
-
-        for i, record in enumerate(records):
-            if not isinstance(record, dict):
-                continue
-            for field, value in record.items():
-                if not isinstance(value, str):
-                    continue
-                for pii_type, pattern in self.PII_PATTERNS.items():
-                    if pattern.search(value):
-                        if pii_type not in pii_found:
-                            pii_found[pii_type] = []
-                        pii_found[pii_type].append(f"record {i}, field '{field}'")
-                        break  # one PII match per value is enough
-
-        for pii_type, locations in pii_found.items():
-            points = 10 if pii_type != "Personal email" else 5
-            sample = locations[0]
-            extra = f" (and {len(locations) - 1} more)" if len(locations) > 1 else ""
-            self._deduct(
-                "security_fls", points,
-                f"{pii_type} pattern detected in {sample}{extra}"
-            )
-            self.recommendations.append(
-                f"Remove {pii_type} data — use synthetic test data instead"
-            )
-
-    def _check_test_patterns(self, params: dict[str, Any]):
-        """Test Patterns (15 pts): record count, data variety, realistic naming."""
-        operation = params.get("operation", "")
-        records = params.get("records", [])
-
-        if operation != "insert" or not isinstance(records, list) or len(records) == 0:
-            return  # Only applicable to inserts
-
-        # Bulk test threshold (201+ crosses batch boundary)
-        if len(records) < 201:
-            self._deduct(
-                "test_patterns", 5,
-                f"Only {len(records)} records — consider 201+ to cross "
-                "the 200-record batch boundary"
-            )
-
-        # Data variety — check if all records are identical (excluding Name with counters)
-        if len(records) >= 2:
-            value_sets = []
-            for r in records:
-                if not isinstance(r, dict):
-                    continue
-                vals = frozenset(
-                    (k, str(v)) for k, v in r.items()
-                    if k not in ("Id", "Name", "name")
-                )
-                value_sets.append(vals)
-
-            if value_sets and len(set(value_sets)) == 1:
-                self._deduct(
-                    "test_patterns", 3,
-                    "All records have identical field values — "
-                    "add variety for realistic testing"
-                )
-                self.recommendations.append(
-                    "Vary field values (e.g., mix of Industries, Types, Ratings) "
-                    "for better test coverage"
-                )
-
-        # All Names identical
-        names = [
-            r.get("Name") for r in records
-            if isinstance(r, dict) and "Name" in r
-        ]
-        if names and len(set(names)) == 1 and len(names) > 1:
-            self._deduct("test_patterns", 2, "All records have the same Name value")
-
-    def _check_cleanup_isolation(self, params: dict[str, Any], context: dict[str, Any]):
-        """Cleanup & Isolation (15 pts): queryable naming, cleanup plan."""
-        operation = params.get("operation", "")
-        records = params.get("records", [])
-
-        if operation not in ("insert", "upsert"):
-            return  # Only applies to record creation
-
-        # Cleanup-friendly naming pattern
-        if isinstance(records, list) and len(records) > 0:
-            has_cleanup_name = False
-            for r in records:
-                if not isinstance(r, dict):
-                    continue
-                name = r.get("Name", "")
-                if isinstance(name, str) and re.search(
-                    r"(?i)^test|^tmp|^seed|^demo|^sample", name
-                ):
-                    has_cleanup_name = True
-                    break
-
-            if not has_cleanup_name:
-                self._deduct(
-                    "cleanup_isolation", 5,
-                    "No records use a cleanup-friendly Name pattern "
-                    "(e.g., 'Test ...', 'Tmp ...', 'Demo ...')"
-                )
-                self.recommendations.append(
-                    "Prefix record Names with 'Test' so they can be queried "
-                    "and deleted later"
-                )
-
-        # Cleanup planned
-        if not context or not context.get("cleanup_planned"):
-            self._deduct(
-                "cleanup_isolation", 5,
-                "No cleanup plan indicated in context"
-            )
-            self.recommendations.append(
-                "Set context.cleanup_planned = true and plan a DELETE query "
-                "after testing"
-            )
-
-    # ── Shared checks ──────────────────────────────────────────────────
-
-    def _check_data_integrity_shared(self, params: dict[str, Any]):
-        """Data Integrity checks that apply to all tools."""
-        sobject = params.get("sObject")
-        if not sobject:
-            self._deduct(
-                "data_integrity", 10, "Missing required 'sObject' parameter"
-            )
-        elif isinstance(sobject, str) and not self.SOBJECT_NAME_PATTERN.match(sobject):
-            self._deduct(
-                "data_integrity", 2,
-                f"sObject name '{sobject}' doesn't match expected pattern"
-            )
-
-        if not params.get("sf_user"):
-            self._deduct(
-                "data_integrity", 5,
-                "Missing 'sf_user' parameter — required for org connection"
-            )
-
-    def _check_documentation(self, context: dict[str, Any]):
-        """Documentation (10 pts): purpose and context presence."""
-        if not context:
-            self._deduct(
-                "documentation", 5,
-                "No context provided — add purpose and cleanup plan"
-            )
-            self._deduct(
-                "documentation", 5,
-                "No operation purpose documented"
-            )
-            return
-
-        if not context.get("purpose"):
-            self._deduct(
-                "documentation", 5,
-                "No operation purpose documented in context"
-            )
-            self.recommendations.append(
-                "Add context.purpose to explain why this operation is being run"
-            )
-
-    # ── Deduction & report helpers ─────────────────────────────────────
-
-    def _deduct(self, category: str, points: int, message: str):
-        """Deduct points from a category and record the issue."""
-        if category not in self.categories:
-            return
-
-        cat = self.categories[category]
-        cat["score"] = max(0, cat["score"] - points)
-        cat["issues"].append(message)
-
-        self.issues.append({
-            "category": cat["name"],
-            "severity": "error" if points >= 10 else "warning",
-            "message": message,
-            "points": points,
+    else:
+        errors.append({
+            "message": f"Tier 1 does not handle tool '{tool}'. "
+                       f"Expected 'soql_query' or 'sobject_dml'."
         })
 
-    def _build_report(self, tool: str) -> dict[str, Any]:
-        """Build the final validation report."""
-        total_score = sum(cat["score"] for cat in self.categories.values())
-        max_score = sum(cat["max"] for cat in self.categories.values())
+    status = "fail" if errors else "pass"
 
+    return {
+        "tier": "data_params",
+        "tool": tool,
+        "status": status,
+        "errors": errors,
+        "warnings": warnings,
+    }
+
+
+def _check_where_syntax(where: str, warnings: List[Dict[str, str]]):
+    """Check for common SOQL syntax mistakes in whereClause."""
+    if re.search(r"==", where):
+        warnings.append({
+            "message": "Invalid '==' operator in whereClause — SOQL uses '='"
+        })
+    if re.search(r'=\s*"[^"]*"', where):
+        warnings.append({
+            "message": "Double-quoted string in whereClause — SOQL uses single quotes"
+        })
+    if where.count("(") != where.count(")"):
+        warnings.append({
+            "message": "Unbalanced parentheses in whereClause"
+        })
+
+
+def _check_pii(records: list, warnings: List[Dict[str, str]]):
+    """Scan record values for PII patterns."""
+    pii_found: Dict[str, List[str]] = {}
+
+    for i, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        for field, value in record.items():
+            if not isinstance(value, str):
+                continue
+            for pii_type, pattern in PII_PATTERNS.items():
+                if pattern.search(value):
+                    if pii_type not in pii_found:
+                        pii_found[pii_type] = []
+                    pii_found[pii_type].append(f"record {i}, field '{field}'")
+                    break  # one match per value is enough
+
+    for pii_type, locations in pii_found.items():
+        sample = locations[0]
+        extra = f" (and {len(locations) - 1} more)" if len(locations) > 1 else ""
+        warnings.append({
+            "message": f"{pii_type} pattern detected in {sample}{extra} "
+                       f"— use synthetic test data instead"
+        })
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# Tier 2 — Code Deployment Scoring
+# ═══════════════════════════════════════════════════════════════════════
+
+# Known validator paths — checked in order (relative to installed plugin, then absolute fallbacks)
+_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+APEX_VALIDATOR_SEARCH_PATHS = [
+    # Relative: when installed at .local-plugins/marketplaces/.../cirra-ai-sf-data/hooks/scripts
+    os.path.join(_SCRIPT_DIR, "..", "..", "..", "..",
+                 "local-desktop-app-uploads", "sf-apex-cirra-ai", "hooks", "scripts"),
+    # Absolute: Cowork session known location
+    "/sessions/eager-fervent-gauss/mnt/.local-plugins/marketplaces/local-desktop-app-uploads/sf-apex-cirra-ai/hooks/scripts",
+]
+
+FLOW_VALIDATOR_SEARCH_PATHS = [
+    os.path.join(_SCRIPT_DIR, "..", "..", "..", "..",
+                 "sf-skills", "sf-flow", "hooks", "scripts"),
+    "/sessions/eager-fervent-gauss/mnt/.local-plugins/marketplaces/sf-skills/sf-flow/hooks/scripts",
+]
+
+FLOW_SHARED_SEARCH_PATHS = [
+    os.path.join(_SCRIPT_DIR, "..", "..", "..", "..",
+                 "sf-skills", "shared", "hooks", "scripts"),
+    "/sessions/eager-fervent-gauss/mnt/.local-plugins/marketplaces/sf-skills/shared/hooks/scripts",
+]
+
+
+def _find_path(search_paths: List[str]) -> Optional[str]:
+    """Return the first existing path from the search list."""
+    for p in search_paths:
+        resolved = os.path.realpath(p)
+        if os.path.isdir(resolved):
+            return resolved
+    return None
+
+# Metadata types that contain deployable code
+APEX_METADATA_TYPES = ("ApexClass", "ApexTrigger")
+FLOW_METADATA_TYPES = ("Flow", "FlowDefinition")
+
+
+def validate_code_deployment(input_data: Dict[str, Any]) -> Dict[str, Any]:
+    """Tier 2: Validate code being deployed via metadata_create / metadata_update / tooling_api_dml.
+
+    Extracts the code body from the metadata payload, writes it to a temp file,
+    and delegates to the appropriate validator:
+      - ApexClass / ApexTrigger -> ApexValidator (150-pt)
+      - Flow / FlowDefinition  -> EnhancedFlowValidator (110-pt)
+
+    If the metadata type is not code (e.g. CustomObject, PermissionSet), the
+    operation is passed through without validation.
+
+    Args:
+        input_data: Dict with "tool", "params", and optional "context".
+
+    Returns:
+        {
+            "tier": "code_deployment",
+            "tool": "metadata_create" | "metadata_update" | "tooling_api_dml",
+            "metadata_type": "ApexClass" | "Flow" | ...,
+            "validator": "ApexValidator" | "EnhancedFlowValidator" | null,
+            "status": "scored" | "skipped" | "error",
+            ... validator result fields ...
+        }
+    """
+    tool = input_data.get("tool", "")
+    params = input_data.get("params", {})
+
+    # Determine metadata type and extract body
+    metadata_type, body, full_name = _extract_code_body(tool, params)
+
+    base = {
+        "tier": "code_deployment",
+        "tool": tool,
+        "metadata_type": metadata_type,
+        "full_name": full_name,
+    }
+
+    if not metadata_type:
         return {
-            "tool": tool,
-            "score": total_score,
-            "max_score": max_score,
-            "rating": self._get_rating(total_score),
-            "status": self._get_status(total_score),
-            "categories": {
-                cat["name"]: {
-                    "score": cat["score"],
-                    "max": cat["max"],
-                    "issues": cat["issues"],
-                }
-                for cat in self.categories.values()
-            },
-            "issues": self.issues,
-            "recommendations": self.recommendations,
+            **base,
+            "validator": None,
+            "status": "error",
+            "message": "Could not determine metadata type from params",
         }
 
-    @staticmethod
-    def _get_rating(score: int) -> str:
-        """Star rating based on score thresholds."""
-        if score >= 117:
-            return "Excellent (5/5)"
-        elif score >= 104:
-            return "Very Good (4/5)"
-        elif score >= 91:
-            return "Good (3/5)"
-        elif score >= 78:
-            return "Needs Work (2/5)"
-        else:
-            return "Critical Issues (1/5)"
+    # Non-code metadata — pass through
+    if metadata_type not in APEX_METADATA_TYPES and metadata_type not in FLOW_METADATA_TYPES:
+        return {
+            **base,
+            "validator": None,
+            "status": "skipped",
+            "message": f"No code validator for metadata type '{metadata_type}' — skipping",
+        }
 
-    @staticmethod
-    def _get_status(score: int) -> str:
-        """Pass/fail status."""
-        if score >= 117:
-            return "PASSED"
-        elif score >= 91:
-            return "PASSED — review recommended"
-        elif score >= 78:
-            return "PASSED — address warnings"
+    if not body or not body.strip():
+        return {
+            **base,
+            "validator": None,
+            "status": "error",
+            "message": "No code body found in metadata payload",
+        }
+
+    # ── Apex validation ─────────────────────────────────────────────
+    if metadata_type in APEX_METADATA_TYPES:
+        return _validate_apex_body(body, full_name, base)
+
+    # ── Flow validation ─────────────────────────────────────────────
+    if metadata_type in FLOW_METADATA_TYPES:
+        return _validate_flow_body(body, full_name, base)
+
+    # Shouldn't reach here
+    return {**base, "validator": None, "status": "skipped"}
+
+
+def _extract_code_body(tool: str, params: Dict[str, Any]) -> Tuple[str, str, str]:
+    """Extract metadata type, code body, and fullName from tool params.
+
+    Returns:
+        (metadata_type, body, full_name) — any can be empty string if not found.
+    """
+    metadata_type = ""
+    body = ""
+    full_name = ""
+
+    if tool in ("metadata_create", "metadata_update"):
+        metadata_type = params.get("type", "")
+        metadata_list = params.get("metadata", [])
+        if isinstance(metadata_list, list) and len(metadata_list) > 0:
+            first = metadata_list[0]
+            if isinstance(first, dict):
+                body = first.get("body", "")
+                full_name = first.get("fullName", "")
+
+    elif tool == "tooling_api_dml":
+        # Tooling API uses sObject for type and record for payload
+        sobject = params.get("sObject", "")
+        record = params.get("record", {})
+
+        # Map Tooling API sObject names to metadata types
+        tooling_type_map = {
+            "ApexClass": "ApexClass",
+            "ApexTrigger": "ApexTrigger",
+            "Flow": "Flow",
+            "FlowDefinition": "FlowDefinition",
+        }
+        metadata_type = tooling_type_map.get(sobject, sobject)
+
+        if isinstance(record, dict):
+            body = record.get("Body", record.get("body", ""))
+            full_name = record.get("FullName", record.get("fullName", ""))
+            # For Tooling API, Metadata may be nested
+            if not body:
+                metadata_inner = record.get("Metadata", record.get("metadata", {}))
+                if isinstance(metadata_inner, dict):
+                    body = metadata_inner.get("body", "")
+
+    return metadata_type, body, full_name
+
+
+def _validate_apex_body(body: str, full_name: str, base: dict) -> Dict[str, Any]:
+    """Validate Apex code body using ApexValidator."""
+    ext = ".cls" if "class" in body.lower()[:200] else ".trigger"
+    tmp_name = f"validate_{full_name or 'unnamed'}{ext}"
+
+    try:
+        # Write to temp file
+        tmp_path = os.path.join(tempfile.gettempdir(), tmp_name)
+        with open(tmp_path, "w", encoding="utf-8") as f:
+            f.write(body)
+
+        # Try to import ApexValidator
+        result = _run_apex_validator(tmp_path)
+        if result is not None:
+            return {
+                **base,
+                "validator": "ApexValidator",
+                "status": "scored",
+                **result,
+            }
         else:
-            return "BLOCKED — fix critical issues before executing"
+            # Fallback: basic structural checks
+            return {
+                **base,
+                "validator": "basic_apex_check",
+                "status": "scored",
+                **_basic_apex_check(body, full_name),
+            }
+    finally:
+        # Clean up temp file
+        try:
+            os.remove(tmp_path)
+        except OSError:
+            pass
+
+
+def _run_apex_validator(file_path: str) -> Optional[Dict[str, Any]]:
+    """Try to import and run ApexValidator. Returns None if import fails."""
+    try:
+        apex_dir = _find_path(APEX_VALIDATOR_SEARCH_PATHS)
+        if not apex_dir:
+            return None
+        if apex_dir not in sys.path:
+            sys.path.insert(0, apex_dir)
+        from validate_apex import ApexValidator
+        validator = ApexValidator(file_path)
+        return validator.validate()
+    except (ImportError, Exception):
+        return None
+
+
+def _basic_apex_check(body: str, full_name: str) -> Dict[str, Any]:
+    """Fallback: basic structural checks if ApexValidator is not importable."""
+    issues = []
+    score = 150  # Start from ApexValidator's max
+
+    # Check sharing keyword
+    if re.search(r"(public|global)\s+class", body, re.IGNORECASE):
+        if not re.search(r"(with sharing|without sharing|inherited sharing)", body, re.IGNORECASE):
+            issues.append({
+                "severity": "WARNING",
+                "category": "security",
+                "message": "Class missing explicit sharing declaration",
+                "line": 1,
+            })
+            score -= 5
+
+    # Check SOQL in loops
+    loop_depth = 0
+    for i, line in enumerate(body.split("\n"), 1):
+        if re.search(r"\bfor\s*\(|\bwhile\s*\(|\bdo\s*\{", line, re.IGNORECASE):
+            loop_depth += 1
+        loop_depth += line.count("{") - line.count("}")
+        loop_depth = max(0, loop_depth)
+        if loop_depth > 0 and re.search(r"\[\s*SELECT\s+", line, re.IGNORECASE):
+            issues.append({
+                "severity": "CRITICAL",
+                "category": "bulkification",
+                "message": f"SOQL query inside loop at line {i}",
+                "line": i,
+            })
+            score -= 10
+
+    # Check DML in loops (simplified)
+    loop_depth = 0
+    dml_patterns = [
+        r"\binsert\s+", r"\bupdate\s+", r"\bdelete\s+",
+        r"\bupsert\s+", r"Database\.(insert|update|delete|upsert)",
+    ]
+    for i, line in enumerate(body.split("\n"), 1):
+        if re.search(r"\bfor\s*\(|\bwhile\s*\(|\bdo\s*\{", line, re.IGNORECASE):
+            loop_depth += 1
+        loop_depth += line.count("{") - line.count("}")
+        loop_depth = max(0, loop_depth)
+        if loop_depth > 0:
+            for dp in dml_patterns:
+                if re.search(dp, line, re.IGNORECASE):
+                    issues.append({
+                        "severity": "CRITICAL",
+                        "category": "bulkification",
+                        "message": f"DML inside loop at line {i}",
+                        "line": i,
+                    })
+                    score -= 10
+
+    return {
+        "file": full_name or "unnamed",
+        "score": max(0, score),
+        "max_score": 150,
+        "rating": _basic_rating(max(0, score), 150),
+        "issues": issues,
+        "note": "Basic fallback check — ApexValidator not available for full 150-point scoring",
+    }
+
+
+def _validate_flow_body(body: str, full_name: str, base: dict) -> Dict[str, Any]:
+    """Validate Flow XML body using EnhancedFlowValidator."""
+    tmp_name = f"validate_{full_name or 'unnamed'}.flow-meta.xml"
+
+    try:
+        tmp_path = os.path.join(tempfile.gettempdir(), tmp_name)
+        with open(tmp_path, "w", encoding="utf-8") as f:
+            f.write(body)
+
+        result = _run_flow_validator(tmp_path)
+        if result is not None:
+            return {
+                **base,
+                "validator": "EnhancedFlowValidator",
+                "status": "scored",
+                **result,
+            }
+        else:
+            return {
+                **base,
+                "validator": "basic_flow_check",
+                "status": "scored",
+                **_basic_flow_check(body, full_name),
+            }
+    finally:
+        try:
+            os.remove(tmp_path)
+        except OSError:
+            pass
+
+
+def _run_flow_validator(file_path: str) -> Optional[Dict[str, Any]]:
+    """Try to import and run EnhancedFlowValidator. Returns None if import fails."""
+    try:
+        # Flow validator needs shared modules on the path first
+        shared_dir = _find_path(FLOW_SHARED_SEARCH_PATHS)
+        if shared_dir and shared_dir not in sys.path:
+            sys.path.insert(0, shared_dir)
+
+        flow_dir = _find_path(FLOW_VALIDATOR_SEARCH_PATHS)
+        if not flow_dir:
+            return None
+        if flow_dir not in sys.path:
+            sys.path.insert(0, flow_dir)
+
+        from validate_flow import EnhancedFlowValidator
+        validator = EnhancedFlowValidator(file_path)
+        return validator.validate()
+    except (ImportError, Exception):
+        return None
+
+
+def _basic_flow_check(body: str, full_name: str) -> Dict[str, Any]:
+    """Fallback: basic XML structural checks if EnhancedFlowValidator is not importable."""
+    issues = []
+    score = 110  # Start from Flow validator's max
+
+    # Check for description
+    if "<description>" not in body:
+        issues.append({
+            "severity": "INFO",
+            "category": "design_naming",
+            "message": "Flow missing description element",
+        })
+        score -= 5
+
+    # Check for DML in loops (simple string heuristic)
+    has_loops = "<loops>" in body
+    has_dml = any(tag in body for tag in ["<recordCreates>", "<recordUpdates>", "<recordDeletes>"])
+    if has_loops and has_dml:
+        issues.append({
+            "severity": "WARNING",
+            "category": "performance",
+            "message": "Flow has both loops and DML elements — verify DML is outside loops",
+        })
+        # Don't deduct — can't confirm without path tracing
+
+    return {
+        "flow_name": full_name or "unnamed",
+        "score": max(0, score),
+        "max_score": 110,
+        "rating": _basic_rating(max(0, score), 110),
+        "issues": issues,
+        "note": "Basic fallback check — EnhancedFlowValidator not available for full 110-point scoring",
+    }
+
+
+def _basic_rating(score: int, max_score: int) -> str:
+    """Simple rating string."""
+    pct = (score / max_score * 100) if max_score > 0 else 0
+    if pct >= 90:
+        return "Excellent (5/5)"
+    elif pct >= 80:
+        return "Very Good (4/5)"
+    elif pct >= 70:
+        return "Good (3/5)"
+    elif pct >= 60:
+        return "Needs Work (2/5)"
+    else:
+        return "Critical Issues (1/5)"
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# Unified entry point
+# ═══════════════════════════════════════════════════════════════════════
+
+TIER1_TOOLS = ("soql_query", "sobject_dml")
+TIER2_TOOLS = ("metadata_create", "metadata_update", "tooling_api_dml")
+
+
+class MCPOperationValidator:
+    """Unified validator that routes to the appropriate tier.
+
+    Usage:
+        validator = MCPOperationValidator()
+        result = validator.validate({"tool": "soql_query", "params": {...}})
+        result = validator.validate({"tool": "metadata_create", "params": {...}})
+    """
+
+    def validate(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Route to Tier 1 or Tier 2 based on tool type.
+
+        Args:
+            input_data: Dict with "tool", "params", optional "context".
+
+        Returns:
+            Tier 1 result (pass/fail) or Tier 2 result (scored report).
+        """
+        tool = input_data.get("tool", "")
+
+        if tool in TIER1_TOOLS:
+            return validate_data_params(input_data)
+        elif tool in TIER2_TOOLS:
+            return validate_code_deployment(input_data)
+        else:
+            return {
+                "tier": "unknown",
+                "tool": tool,
+                "status": "error",
+                "message": f"Unknown tool: '{tool}'. "
+                           f"Expected one of: {', '.join(TIER1_TOOLS + TIER2_TOOLS)}",
+                "errors": [{"message": f"Unknown tool: '{tool}'"}],
+                "warnings": [],
+            }
