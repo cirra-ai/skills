@@ -6,7 +6,7 @@ description: >
   importing/exporting data via Cirra AI MCP Server (remote org operations only).
 license: MIT
 metadata:
-  version: '2.0.0'
+  version: '2.1.0'
   author: 'Refactored for Cirra AI MCP'
   original_author: 'Jag Valaiyapathy'
   scoring: '130 points across 7 categories'
@@ -30,11 +30,12 @@ The sf-data-cirra skill provides comprehensive data management capabilities:
 - **Bulk Operations**: Insert/update/delete/upsert multiple records efficiently
 - **Record Tracking**: Track created records with cleanup/rollback support
 - **Metadata Discovery**: Describe objects and fields using Tooling API
+- **Pre-Flight Validation**: 130-point scoring via MCP validator script
 - **Integration**: Works with sf-metadata, sf-apex, sf-flow skills
 
 ---
 
-## 🔄 Execution Model
+## Execution Model
 
 **REMOTE-ONLY MODE**: Cirra AI MCP operates directly against Salesforce orgs.
 
@@ -48,7 +49,7 @@ The sf-data-cirra skill provides comprehensive data management capabilities:
 | **Describe Objects**  | `sobject_describe`     | Yes           | Object metadata        |
 | **Tooling API Query** | `tooling_api_query`    | Yes           | Metadata records       |
 
-⚠️ **CRITICAL**: Always call `cirra_ai_init()` FIRST before any Cirra AI operations!
+**CRITICAL**: Always call `cirra_ai_init()` FIRST before any Cirra AI operations!
 
 ---
 
@@ -60,18 +61,17 @@ The sf-data-cirra skill provides comprehensive data management capabilities:
 4. **Handle Bulk Operations** - Use `sobject_dml` with multiple records for large-scale data operations
 5. **Discover Metadata** - Use `sobject_describe` and `tooling_api_query` for object structure discovery
 6. **Track & Cleanup Records** - Maintain record IDs and provide cleanup queries
-7. **Integrate with Other Skills** - Query metadata for object discovery, serve sf-apex/sf-flow for testing
+7. **Validate Before Executing** - Run pre-flight validation on MCP parameters (Cowork mode)
+8. **Integrate with Other Skills** - Query metadata for object discovery, serve sf-apex/sf-flow for testing
 
 ---
 
-## ⚠️ CRITICAL: Orchestration & Prerequisites
+## CRITICAL: Orchestration & Prerequisites
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│  cirra_ai_init → sf-metadata → sf-data (SOQL/DML) → sf-apex/sf-flow        │
-│                                   ▲                                         │
-│                              YOU ARE HERE                                   │
-└─────────────────────────────────────────────────────────────────────────────┘
+cirra_ai_init -> sf-metadata -> sf-data (SOQL/DML) -> sf-apex/sf-flow
+                                   ^
+                              YOU ARE HERE
 ```
 
 **sf-data operates on REMOTE org data.** Objects/fields must exist before sf-data can create records.
@@ -88,7 +88,7 @@ The sf-data-cirra skill provides comprehensive data management capabilities:
 
 ---
 
-## 🔑 Key Insights
+## Key Insights
 
 | Insight                    | Why                                                  | Action                                                              |
 | -------------------------- | ---------------------------------------------------- | ------------------------------------------------------------------- |
@@ -100,22 +100,106 @@ The sf-data-cirra skill provides comprehensive data management capabilities:
 
 ---
 
-## Workflow (5-Phase)
+## Workflow (6-Phase)
 
-**Phase 1: Initialize** → Call `cirra_ai_init()` with team and user context
+**Phase 1: Initialize** -> Call `cirra_ai_init()` with team and user context
 
-**Phase 2: Gather** → Ask user question (operation type, object, record count, data requirements)
+**Phase 2: Gather** -> Ask user question (operation type, object, record count, data requirements)
 
-**Phase 3: Discover** → Use `sobject_describe` or `tooling_api_query` to verify object/field structure
+**Phase 3: Discover** -> Use `sobject_describe` or `tooling_api_query` to verify object/field structure
 
-**Phase 4: Execute** → Run appropriate Cirra AI MCP tool:
+**Phase 4: Validate** -> Run pre-flight validator on constructed parameters (see below)
+
+**Phase 5: Execute** -> Run appropriate Cirra AI MCP tool:
 
 - Query: `soql_query`
 - CRUD: `sobject_dml`
 - Describe: `sobject_describe`
 - Metadata: `tooling_api_query`
 
-**Phase 5: Verify & Cleanup** → Query to confirm results, provide cleanup queries
+**Phase 6: Verify & Cleanup** -> Query to confirm results, provide cleanup queries
+
+---
+
+## Pre-Flight Validation (Cowork Mode)
+
+Before executing `sobject_dml` or `soql_query`, validate the parameters using the MCP validator.
+This catches issues like missing required fields, PII in test data, or poor query selectivity
+**before** hitting the org.
+
+### How to run
+
+Write a JSON file with the tool parameters, then run the validator:
+
+```bash
+python hooks/scripts/mcp_validator_cli.py input.json
+python hooks/scripts/mcp_validator_cli.py --format report input.json
+```
+
+Or pipe JSON from stdin:
+
+```bash
+echo '{"tool":"soql_query","params":{...}}' | python hooks/scripts/mcp_validator_cli.py
+```
+
+### Input format
+
+```json
+{
+  "tool": "soql_query",
+  "params": {
+    "sObject": "Account",
+    "fields": ["Id", "Name", "Industry"],
+    "whereClause": "Industry='Technology'",
+    "limit": 500,
+    "sf_user": "prod"
+  },
+  "context": {
+    "purpose": "Query tech accounts for dashboard report"
+  }
+}
+```
+
+```json
+{
+  "tool": "sobject_dml",
+  "params": {
+    "sObject": "Account",
+    "operation": "insert",
+    "records": [
+      {"Name": "Test Account 1", "Industry": "Technology"},
+      {"Name": "Test Account 2", "Industry": "Finance"}
+    ],
+    "sf_user": "prod"
+  },
+  "context": {
+    "purpose": "Bulk test Account trigger with varied industries",
+    "cleanup_planned": true
+  }
+}
+```
+
+### Scoring thresholds
+
+| Score | Rating     | Action                        |
+| ----- | ---------- | ----------------------------- |
+| 117+  | 5/5        | Safe to proceed               |
+| 104+  | 4/5        | Proceed, note recommendations |
+| 91+   | 3/5        | Review warnings before proceeding |
+| 78+   | 2/5        | Address warnings first        |
+| <78   | 1/5        | BLOCKED — fix critical issues |
+
+### What the validator checks
+
+| Category            | Points | soql_query checks                                  | sobject_dml checks                               |
+| ------------------- | ------ | -------------------------------------------------- | ------------------------------------------------ |
+| Query Efficiency    | 25     | whereClause, limit, indexed fields, hardcoded IDs  | —                                                |
+| Bulk Safety         | 25     | —                                                  | Valid operation, non-empty records, batch size    |
+| Data Integrity      | 20     | sObject, sf_user present                           | Id for update/delete, externalIdField for upsert |
+| Security & FLS      | 20     | —                                                  | PII patterns (SSN, credit card, personal email)  |
+| Test Patterns       | 15     | —                                                  | 201+ records, data variety, unique Names         |
+| Cleanup & Isolation | 15     | —                                                  | Cleanup-friendly naming, cleanup_planned context |
+| Documentation       | 10     | Purpose in context                                 | Purpose in context                               |
 
 ---
 
@@ -286,70 +370,15 @@ tooling_api_query(
 
 | Category            | Points | Key Focus                                             |
 | ------------------- | ------ | ----------------------------------------------------- |
-| Query Efficiency    | 25     | Selective filters, no N+1, LIMIT clauses              |
+| Query Efficiency    | 25     | Selective filters, LIMIT clauses, indexed fields      |
 | Bulk Safety         | 25     | Batch sizing, Cirra AI single calls with 200+ records |
 | Data Integrity      | 20     | Required fields, valid relationships                  |
 | Security & FLS      | 20     | User context awareness, no PII patterns               |
-| Test Patterns       | 15     | 201+ records, edge cases                              |
-| Cleanup & Isolation | 15     | Rollback, cleanup queries                             |
+| Test Patterns       | 15     | 201+ records, edge cases, data variety                |
+| Cleanup & Isolation | 15     | Cleanup-friendly naming, cleanup plan                 |
 | Documentation       | 10     | Purpose, outcomes documented                          |
 
-**Thresholds**: ⭐⭐⭐⭐⭐ 117+ | ⭐⭐⭐⭐ 104-116 | ⭐⭐⭐ 91-103 | ⭐⭐ 78-90 | ⭐ <78 (blocked)
-
----
-
-## Test Data Factory Pattern
-
-### Naming Convention
-
-```
-TestDataFactory_[ObjectName]
-```
-
-### Standard Methods
-
-```apex
-public class TestDataFactory_Account {
-
-    // Create and insert records
-    public static List<Account> create(Integer count) {
-        return create(count, true);
-    }
-
-    // Create with insert option
-    public static List<Account> create(Integer count, Boolean doInsert) {
-        List<Account> records = new List<Account>();
-        for (Integer i = 0; i < count; i++) {
-            records.add(buildRecord(i));
-        }
-        if (doInsert) {
-            insert records;
-        }
-        return records;
-    }
-
-    // Create for specific parent
-    public static List<Contact> createForAccount(Integer count, Id accountId) {
-        // Child record creation with parent relationship
-    }
-
-    private static Account buildRecord(Integer index) {
-        return new Account(
-            Name = 'Test Account ' + index,
-            Industry = 'Technology',
-            Type = 'Prospect'
-        );
-    }
-}
-```
-
-### Key Principles
-
-1. **Always create in lists** - Support bulk operations
-2. **Provide doInsert parameter** - Allow caller to control insertion
-3. **Use realistic data** - Industry values, proper naming
-4. **Support relationships** - Parent ID parameters for child records
-5. **Include edge cases** - Null values, special characters, boundaries
+**Thresholds**: 5/5 117+ | 4/5 104-116 | 3/5 91-103 | 2/5 78-90 | 1/5 <78 (blocked)
 
 ---
 
@@ -397,11 +426,11 @@ sobject_dml(
 
 ### Cleanup Patterns
 
-| Method     | Code                                                      | Best For         |
-| ---------- | --------------------------------------------------------- | ---------------- |
-| By IDs     | `DELETE [SELECT Id FROM Account WHERE Id IN :ids]`        | Known records    |
-| By Pattern | `DELETE [SELECT Id FROM Account WHERE Name LIKE 'Test%']` | Test data        |
-| By Date    | `WHERE CreatedDate >= :startTime AND Name LIKE 'Test%'`   | Recent test data |
+| Method     | Tool                                                                         | Best For         |
+| ---------- | ---------------------------------------------------------------------------- | ---------------- |
+| By IDs     | `sobject_dml(operation="delete", records=[{"Id":"..."}])`                    | Known records    |
+| By Pattern | Query with `whereClause="Name LIKE 'Test%'"` then delete returned IDs       | Test data        |
+| By Date    | Query with `whereClause="CreatedDate >= TODAY AND Name LIKE 'Test%'"` first | Recent test data |
 
 ### Cleanup via SOQL (call after verifying records)
 
@@ -433,14 +462,14 @@ sobject_dml(
 
 | From Skill  | To sf-data-cirra | When                                               |
 | ----------- | ---------------- | -------------------------------------------------- |
-| sf-apex     | → sf-data-cirra  | "Create 201 Accounts for bulk testing"             |
-| sf-flow     | → sf-data-cirra  | "Create Opportunities with StageName='Closed Won'" |
-| sf-metadata | → sf-data-cirra  | After verifying fields exist                       |
+| sf-apex     | -> sf-data-cirra | "Create 201 Accounts for bulk testing"             |
+| sf-flow     | -> sf-data-cirra | "Create Opportunities with StageName='Closed Won'" |
+| sf-metadata | -> sf-data-cirra | After verifying fields exist                       |
 
 | From sf-data-cirra | To Skill      | When                                   |
 | ------------------ | ------------- | -------------------------------------- |
-| sf-data-cirra      | → sf-metadata | Use `sobject_describe` instead         |
-| sf-data-cirra      | → sf-apex     | "Generate test records for test class" |
+| sf-data-cirra      | -> sf-metadata | Use `sobject_describe` instead         |
+| sf-data-cirra      | -> sf-apex     | "Generate test records for test class" |
 
 ---
 
@@ -448,12 +477,12 @@ sobject_dml(
 
 The following sf CLI features are **NOT supported** in Cirra AI MCP version:
 
-- ❌ `sf data export bulk` (Bulk API export) - Use soql_query instead
-- ❌ `sf data import tree` (JSON tree import) - Use sobject_dml with relationships
-- ❌ `sf apex run` (Anonymous Apex) - Not available; use sobject_dml for data operations
-- ❌ Local `.apex` file generation - Replaced with direct org operations
-- ❌ Scratch org operations - Remote orgs only
-- ❌ CSV file operations - Use JSON records in sobject_dml directly
+- `sf data export bulk` (Bulk API export) - Use soql_query instead
+- `sf data import tree` (JSON tree import) - Use sobject_dml with relationships
+- `sf apex run` (Anonymous Apex) - Not available; use sobject_dml for data operations
+- Local `.apex` file generation - Replaced with direct org operations
+- Scratch org operations - Remote orgs only
+- CSV file operations - Use JSON records in sobject_dml directly
 
 ---
 
@@ -484,25 +513,25 @@ Reference [Salesforce Governor Limits](https://developer.salesforce.com/docs/atl
 
 ## Completion Format
 
-After completing data operations, provide:
+After completing data operations, run the validator and provide:
 
 ```
-✓ Data Operation Complete: [Operation Type]
+Data Operation Complete: [Operation Type]
   Object: [ObjectName] | Records: [Count]
   Target Org: [org identifier]
 
   Record Summary:
-  ├─ Created: [count] records
-  ├─ Updated: [count] records
-  └─ Deleted: [count] records
+  - Created: [count] records
+  - Updated: [count] records
+  - Deleted: [count] records
 
   Record IDs: [first 5 IDs...]
 
-  Validation: PASSED (Score: XX/130)
+  Validation: [run mcp_validator_cli.py and report score]/130
 
   Cleanup Query:
-  ├─ DELETE [SELECT Id FROM [Object] WHERE Name LIKE 'Test%']
-  └─ Or use sobject_dml with delete operation
+  - soql_query(sObject="[Object]", fields=["Id"], whereClause="Name LIKE 'Test%'")
+  - Then: sobject_dml(operation="delete", records=[...])
 
   Next Steps:
   1. Verify records in org
@@ -521,6 +550,8 @@ After completing data operations, provide:
 - **sf-metadata** (optional): Query object/field structure
   - Or use `sobject_describe` and `tooling_api_query` directly
 
+- **Python 3.8+** (for validation): Required to run mcp_validator_cli.py in Cowork mode
+
 ---
 
 ## Notes
@@ -531,6 +562,7 @@ After completing data operations, provide:
 - **Test Isolation**: Track created record IDs for cleanup
 - **Sensitive Data**: Never include real PII in test data
 - **Remote Org Only**: No local scratch org support; all operations target remote orgs
+- **Validation**: Run `mcp_validator_cli.py` before executing operations in Cowork mode
 
 ---
 
