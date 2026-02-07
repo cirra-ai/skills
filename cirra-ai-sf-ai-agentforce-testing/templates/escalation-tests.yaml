@@ -5,7 +5,8 @@
 # 1. Replace [Agent_Name] with your agent's API name
 # 2. Customize escalation triggers based on your agent's design
 # 3. Add business-specific escalation scenarios
-# 4. Run: sf agent test create --spec escalation-tests.yaml --target-org [alias]
+# 4. Create: tooling_api_dml(operation="create", sobjectType="AiEvaluationDefinition", records=[...]) via Cirra AI MCP Server
+# 5. Run: tooling_api_dml(operation="create", sobjectType="AiEvaluationRun", records=[...]) via Cirra AI MCP Server
 
 apiVersion: v1
 kind: AiEvaluationDefinition

@@ -87,9 +87,13 @@ Always test with **251 records** to cross the 200-record batch boundary:
 
 **Command:**
 
-```bash
-sf apex run --file test-factory.apex --target-org alias
-# test-factory.apex creates 251 records
+```
+# Create 251 records via MCP
+sobject_dml(
+  operation="insert",
+  sobjectType="Account",
+  records=[{"Name": "Test Account 1"}, ..., {"Name": "Test Account 251"}]
+)
 ```
 
 ---
@@ -113,15 +117,18 @@ sf apex run --file test-factory.apex --target-org alias
 
 Before using sf-data, verify:
 
-```bash
-# Check org connection
-sf org display --target-org alias
+```
+# Org info available via initialization
+cirra_ai_init()
 
 # Check objects exist
-sf sobject describe --sobject MyObject__c --target-org alias --json
+sobject_describe(sobjectType="MyObject__c")
 
 # Check field-level security (if field not visible)
-sf data query --query "SELECT Id FROM FieldPermissions WHERE SobjectType='MyObject__c'" --use-tooling-api --target-org alias
+tooling_api_query(
+  sobjectType="FieldPermissions",
+  whereClause="SobjectType='MyObject__c'"
+)
 ```
 
 ---
@@ -161,9 +168,16 @@ After testing, clean up in reverse order:
 
 **Cleanup command:**
 
-```bash
-sf apex run --file cleanup.apex --target-org alias
-# cleanup.apex: DELETE [SELECT Id FROM Account WHERE Name LIKE 'Test%']
+```
+# Query test records
+soql_query(query="SELECT Id FROM Account WHERE Name LIKE 'Test%'")
+
+# Delete them
+sobject_dml(
+  operation="delete",
+  sobjectType="Account",
+  records=[{"Id": "001xx..."}, ...]
+)
 ```
 
 ---

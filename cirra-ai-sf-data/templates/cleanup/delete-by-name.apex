@@ -210,31 +210,18 @@ if (!previewOnly && totalRecords > 0) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// SF CLI ALTERNATIVE
+// CIRRA AI MCP ALTERNATIVE
 // ═══════════════════════════════════════════════════════════════════════════════
 
 /*
-For large datasets, use sf CLI Bulk API:
+For large datasets, use Cirra AI MCP Server:
 
-# Step 1: Query and export IDs
-sf data query \
-  --query "SELECT Id FROM Account WHERE Name LIKE 'Test%'" \
-  --target-org myorg \
-  --result-format csv \
-  > delete-accounts.csv
+Step 1: Query IDs to delete
+soql_query(query="SELECT Id FROM Account WHERE Name LIKE 'Test%'")
 
-# Step 2: Bulk delete
-sf data delete bulk \
-  --file delete-accounts.csv \
-  --sobject Account \
-  --target-org myorg \
-  --wait 30
+Step 2: Delete records
+sobject_dml(operation="delete", sobjectType="Account", records=[...])
 
-# For permanent delete (hard delete):
-sf data delete bulk \
-  --file delete-accounts.csv \
-  --sobject Account \
-  --target-org myorg \
-  --hard-delete \
-  --wait 30
+For permanent delete (hard delete):
+sobject_dml(operation="hardDelete", sobjectType="Account", records=[...])
 */

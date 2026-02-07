@@ -349,18 +349,16 @@ topic order_lookup:
 
 ### Step 1: Run Initial Tests
 
-```bash
-sf agent test run --api-name MyAgentTests --wait 10 --result-format json --target-org dev
+```
+# Create an evaluation run to execute the test suite
+tooling_api_dml(operation="create", sobjectType="AiEvaluationRun", records=[{"AiEvaluationDefinitionId": "<definition_id>"}])
 ```
 
 ### Step 2: Parse Results
 
-```bash
-# Get results
-sf agent test results --use-most-recent --result-format json --target-org dev > results.json
-
-# Extract failures
-cat results.json | jq '.testResults[] | select(.status == "Failed")'
+```
+# Get results for the evaluation run
+tooling_api_query(sobjectType="AiEvaluationResult", whereClause="AiEvaluationRunId='<run_id>'")
 ```
 
 ### Step 3: Categorize Each Failure
@@ -382,15 +380,18 @@ Skill(skill="sf-ai-agentscript", args="Fix agent [AgentName] - Category: [CATEGO
 
 ### Step 5: Validate and Publish
 
-```bash
-sf agent validate authoring-bundle --api-name AgentName --target-org dev
-sf agent publish authoring-bundle --api-name AgentName --target-org dev
+```
+# Validate locally or via IDE LSP (no MCP equivalent for sf agent validate)
+
+# Publish the authoring bundle
+metadata_create(type="GenAiPlannerBundle", fullName="AgentName", metadata={...})
 ```
 
 ### Step 6: Re-Run Failing Test
 
-```bash
-sf agent test run --api-name MyAgentTests --wait 10 --target-org dev
+```
+# Re-run the evaluation
+tooling_api_dml(operation="create", sobjectType="AiEvaluationRun", records=[{"AiEvaluationDefinitionId": "<definition_id>"}])
 ```
 
 ### Step 7: Check Results
@@ -486,11 +487,11 @@ Add 'track', 'package', 'shipment' to order_lookup description
 
 EXECUTING FIX:
 > Skill(skill="sf-ai-agentscript", args="Fix topic order_lookup...")
-> sf agent validate authoring-bundle --api-name Customer_Support_Agent
-> sf agent publish authoring-bundle --api-name Customer_Support_Agent
+> Validate locally or via IDE LSP
+> metadata_create(type="GenAiPlannerBundle", fullName="Customer_Support_Agent", metadata={...})
 
 RE-RUNNING TEST:
-> sf agent test run --api-name CustomerSupportTests --wait 5
+> tooling_api_dml(operation="create", sobjectType="AiEvaluationRun", records=[...])
 
 RESULT: ✅ PASSED
 

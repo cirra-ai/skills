@@ -907,8 +907,8 @@ static void testEveryMethod() {
 
 **CLI:**
 
-```bash
-sf apex run test --code-coverage --result-format human --test-level RunLocalTests
+```
+# Test execution: use sf-testing skill or Salesforce Setup
 ```
 
 ---

@@ -4,21 +4,15 @@ This directory contains **Validation Agents** - dedicated `.agent` files that se
 
 ## Quick Start
 
-```bash
+```
 # 1. Navigate to validation directory
 cd /Users/jvalaiyapathy/Projects/claude-code-sfskills/sf-ai-agentscript/validation
 
-# 2. Validate syntax (no org needed) - Tier 1
-for dir in validation-agents/force-app/main/default/aiAuthoringBundles/*/; do
-  echo "Validating $(basename "$dir")..."
-  sf agent validate authoring-bundle --source-dir "$dir"
-done
-
-# 3. Deploy all validation agents (requires auth to test org) - Tier 2
-for dir in validation-agents/force-app/main/default/aiAuthoringBundles/*/; do
-  echo "Publishing $(basename "$dir")..."
-  sf agent publish authoring-bundle --source-dir "$dir" --target-org R6-Agentforce-SandboxFull
-done
+# 2. Deploy all validation agents via Cirra AI MCP Server - Tier 2
+# For each agent, use metadata_create:
+metadata_create(type="GenAiPlannerBundle", fullName="Val_Minimal_Syntax", metadata={...})
+metadata_create(type="GenAiPlannerBundle", fullName="Val_Arithmetic_Ops", metadata={...})
+# ... repeat for each validation agent
 ```
 
 ## What Each Agent Tests
@@ -36,11 +30,11 @@ done
 
 ## Validation Tiers
 
-| Tier | Check      | Method                               | Pass Criteria                  |
-| ---- | ---------- | ------------------------------------ | ------------------------------ |
-| 1    | Syntax     | `sf agent validate authoring-bundle` | Exit code 0                    |
-| 2    | Deployment | `sf agent publish authoring-bundle`  | Published successfully         |
-| 3    | URL Health | HTTP HEAD requests                   | Salesforce doc URLs return 200 |
+| Tier | Check      | Method                                                     | Pass Criteria                  |
+| ---- | ---------- | ---------------------------------------------------------- | ------------------------------ |
+| 1    | Syntax     | Local validation or IDE LSP                                | No errors                      |
+| 2    | Deployment | `metadata_create(type="GenAiPlannerBundle", ...)`          | Published successfully         |
+| 3    | URL Health | HTTP HEAD requests                                         | Salesforce doc URLs return 200 |
 
 ## Test Org Configuration
 

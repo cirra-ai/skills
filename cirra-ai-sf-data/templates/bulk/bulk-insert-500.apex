@@ -210,10 +210,10 @@ System.debug('Cleanup complete');
 */
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// OUTPUT FOR CLEANUP VIA SF CLI
+// CLEANUP VIA CIRRA AI MCP SERVER
 // ═══════════════════════════════════════════════════════════════════════════════
 
 System.debug('');
-System.debug('CLI Cleanup Commands:');
-System.debug('sf data query --query "SELECT Id FROM Account WHERE Name LIKE \'BatchTest%\'" --target-org [alias] --result-format csv > cleanup-accounts.csv');
-System.debug('sf data delete bulk --file cleanup-accounts.csv --sobject Account --target-org [alias] --wait 10');
+System.debug('MCP Cleanup Commands:');
+System.debug('soql_query(query="SELECT Id FROM Account WHERE Name LIKE \'BatchTest%\'") via Cirra AI MCP');
+System.debug('sobject_dml(operation="delete", sobjectType="Account", records=[...]) via Cirra AI MCP');

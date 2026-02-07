@@ -9,19 +9,18 @@ Using anonymous Apex for complex data operations.
 - One-time data migrations
 - Debugging and troubleshooting
 
-## sf CLI Execution
+## Execution
 
-### From File
+Anonymous Apex is not available via the Cirra AI MCP Server. Use Salesforce Setup > Developer Console to run anonymous Apex scripts.
 
-```bash
-sf apex run --file setup-data.apex --target-org myorg
+For data operations that don't require Apex logic, use the MCP tools directly:
+
 ```
+# Insert records
+sobject_dml(operation="insert", sobjectType="Account", records=[...])
 
-### Interactive
-
-```bash
-sf apex run --target-org myorg
-# Then type Apex code and press Ctrl+D
+# Query records
+soql_query(query="SELECT Id, Name FROM Account")
 ```
 
 ## Common Patterns

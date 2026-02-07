@@ -207,14 +207,14 @@ WITH SYSTEM_MODE
 // ═══════════════════════════════════════════════════════════════════════════
 
 /*
-Use Developer Console or CLI to analyze query plans:
+Use Developer Console or Cirra AI MCP to analyze query plans:
 
 1. Developer Console:
    - Query Editor > Check "Use Tooling API"
    - Click "Query Plan" button
 
-2. CLI:
-   sf data query --query "SELECT..." --use-tooling-api --plan
+2. Cirra AI MCP Server:
+   tooling_api_query(...) via Cirra AI MCP
 
 Plan Output:
 - Cardinality: Estimated rows returned

@@ -68,7 +68,7 @@ When building agents with external API integrations:
 │     └── Create agent with flow:// target                                    │
 │                                                                             │
 │  8. sf-deploy                                                               │
-│     └── Publish agent (sf agent publish)                                    │
+│     └── Publish agent (metadata_create GenAiPlannerBundle)                  │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -154,7 +154,7 @@ Skill(skill="sf-data", args="Create 251 Quote__c records")
 ## Best Practices
 
 1. **Always create Permission Sets** with object/field metadata
-2. **Use sf sobject describe** to verify existing structure before creating
+2. **Use `sobject_describe`** to verify existing structure before creating
 3. **Check sfdx-project.json** exists before generating metadata
 4. **Use consistent naming** across related objects (Quote**c, Quote_Line_Item**c)
 5. **Document relationships** in object descriptions

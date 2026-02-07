@@ -82,8 +82,8 @@ Lightning Message Channels are metadata files that define the message schema.
 
 ### 2. Deploy Message Channel
 
-```bash
-sf project deploy start -m LightningMessageChannel:AccountSelected__c
+```
+metadata_create(type="LightningMessageChannel", fullName="AccountSelected__c", metadata={...})
 ```
 
 ### 3. Import Message Channel in Component
@@ -604,8 +604,8 @@ handleMessage(message) {
 
 3. Is the message channel deployed?
 
-   ```bash
-   sf project deploy start -m LightningMessageChannel
+   ```
+   metadata_create(type="LightningMessageChannel", fullName="AccountSelected__c", metadata={...})
    ```
 
 4. Are publisher and subscriber using the same channel?

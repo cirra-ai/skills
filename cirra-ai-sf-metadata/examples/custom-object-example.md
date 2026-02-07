@@ -326,17 +326,23 @@ force-app/main/default/objects/Invoice__c/
 
 ## Deployment
 
-```bash
-# Validate
-sf project deploy start \
-  --source-dir force-app/main/default/objects/Invoice__c \
-  --target-org myorg \
-  --dry-run
+```
+# Validate (check-only)
+metadata_create(
+  type="CustomObject",
+  fullName="Invoice__c",
+  metadata={ ... },  // Invoice__c object metadata
+  orgAlias="myorg",
+  checkOnly=true
+) via Cirra AI MCP
 
 # Deploy
-sf project deploy start \
-  --source-dir force-app/main/default/objects/Invoice__c \
-  --target-org myorg
+metadata_create(
+  type="CustomObject",
+  fullName="Invoice__c",
+  metadata={ ... },  // Invoice__c object metadata
+  orgAlias="myorg"
+) via Cirra AI MCP
 ```
 
 ---

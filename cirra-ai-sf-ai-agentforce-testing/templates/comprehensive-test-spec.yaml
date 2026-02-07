@@ -5,7 +5,8 @@
 # 1. Replace all [placeholders] with actual values
 # 2. Add/remove test cases as needed for your agent
 # 3. Ensure every topic and action has at least one test
-# 4. Run: sf agent test create --spec comprehensive-test-spec.yaml --target-org [alias]
+# 4. Create: tooling_api_dml(operation="create", sobjectType="AiEvaluationDefinition", records=[...]) via Cirra AI MCP Server
+# 5. Run: tooling_api_dml(operation="create", sobjectType="AiEvaluationRun", records=[...]) via Cirra AI MCP Server
 
 apiVersion: v1
 kind: AiEvaluationDefinition

@@ -145,9 +145,6 @@ for (Account acc : accounts) {
 */
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- SF CLI USAGE
+-- CIRRA AI MCP USAGE
 -- ═══════════════════════════════════════════════════════════════════════════════
--- sf data query \
---   --query "SELECT Id, Name, (SELECT Id, Name FROM Contacts) FROM Account LIMIT 10" \
---   --target-org myorg \
---   --json
+-- soql_query(query="SELECT Id, Name, (SELECT Id, Name FROM Contacts) FROM Account LIMIT 10") via Cirra AI MCP

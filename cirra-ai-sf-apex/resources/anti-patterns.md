@@ -873,8 +873,9 @@ public static void sendEmail(EmailAddress address, String subject, String body) 
 
 **VS Code Command:**
 
-```bash
-sf scanner run --target "force-app/main/default/classes/**/*.cls" --format table
+```
+# Static analysis: not available via MCP (optional local tool)
+# Use Salesforce Code Analyzer extension in VS Code or PMD
 ```
 
 **Example output:**

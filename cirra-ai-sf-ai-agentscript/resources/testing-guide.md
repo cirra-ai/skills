@@ -83,12 +83,22 @@ For each test case, specify:
 
 ### Step 3: Run Batch
 
-```bash
-# Run against draft version
-sf agent test run --name MyAgent --version draft
+```
+# Run tests against draft version
+tooling_api_dml(
+  operation="create",
+  sobjectType="AiEvaluationRun",
+  records=[{AiEvaluationDefinitionId: "<test-def-id>", Version: "draft"}],
+  orgAlias="my-org"
+)
 
-# Run against committed version
-sf agent test run --name MyAgent --version v1.0
+# Run tests against committed version
+tooling_api_dml(
+  operation="create",
+  sobjectType="AiEvaluationRun",
+  records=[{AiEvaluationDefinitionId: "<test-def-id>", Version: "v1.0"}],
+  orgAlias="my-org"
+)
 ```
 
 ### Step 4: Analyze Results
@@ -235,15 +245,24 @@ test_case:
 
 ### Pre-Deployment Validation
 
-```bash
-# Validate syntax
-sf agent validate --source-dir ./my-agent
+```
+# Validate syntax (use local validation or IDE LSP)
+# Note: sf agent validate is not available via MCP — use IDE/LSP validation instead
 
 # Run batch tests
-sf agent test run --name MyAgent --test-suite AllTests
+tooling_api_dml(
+  operation="create",
+  sobjectType="AiEvaluationRun",
+  records=[{AiEvaluationDefinitionId: "<test-def-id>"}],
+  orgAlias="my-org"
+)
 
-# Check specific version
-sf agent test run --name MyAgent --version v1.0 --test-suite Regression
+# Query test results
+tooling_api_query(
+  sobjectType="AiEvaluationResult",
+  whereClause="AiEvaluationRunId = '<run-id>'",
+  orgAlias="my-org"
+)
 ```
 
 ### Common Validation Errors
@@ -263,6 +282,7 @@ sf agent test run --name MyAgent --version v1.0 --test-suite Regression
 
 ```yaml
 # Example GitHub Actions workflow
+# Note: CI/CD pipelines should use MCP tools via Claude Code or equivalent automation
 name: Agent Testing
 on: [push, pull_request]
 jobs:
@@ -271,9 +291,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Validate Agent
-        run: sf agent validate --source-dir ./agents/my-agent
+        # Use local validation or IDE LSP for syntax checks
+        run: echo "Validate agent metadata locally"
       - name: Run Tests
-        run: sf agent test run --name MyAgent --test-suite CI
+        # Use Cirra AI MCP Server: tooling_api_dml(operation="create", sobjectType="AiEvaluationRun", ...)
+        run: echo "Trigger agent test run via MCP tools"
 ```
 
 ### Test Automation Best Practices

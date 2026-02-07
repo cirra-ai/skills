@@ -368,30 +368,84 @@ force-app/main/default/
 
 ## Deployment
 
-```bash
+```
 # Deploy permission set
-sf project deploy start \
-  --source-dir force-app/main/default/permissionsets/Invoice_Manager.permissionset-meta.xml \
-  --target-org myorg
+metadata_create(
+  type="PermissionSet",
+  fullName="Invoice_Manager",
+  metadata={ ... },  // Invoice_Manager permission set metadata
+  orgAlias="myorg"
+) via Cirra AI MCP
 
 # Deploy all security metadata
-sf project deploy start \
-  --source-dir force-app/main/default/permissionsets \
-  --source-dir force-app/main/default/permissionsetgroups \
-  --source-dir force-app/main/default/customPermissions \
-  --target-org myorg
+metadata_create(
+  type="PermissionSet",
+  fullName="Invoice_Manager",
+  metadata={ ... },
+  orgAlias="myorg"
+) via Cirra AI MCP
+
+metadata_create(
+  type="PermissionSet",
+  fullName="Invoice_Viewer",
+  metadata={ ... },
+  orgAlias="myorg"
+) via Cirra AI MCP
+
+metadata_create(
+  type="PermissionSetGroup",
+  fullName="Finance_Team",
+  metadata={ ... },
+  orgAlias="myorg"
+) via Cirra AI MCP
+
+metadata_create(
+  type="CustomPermission",
+  fullName="Invoice_Approval",
+  metadata={ ... },
+  orgAlias="myorg"
+) via Cirra AI MCP
 ```
 
 ---
 
 ## Assignment
 
-```bash
+```
 # Assign permission set to user
-sf org assign permset --name Invoice_Manager --target-org myorg --on-behalf-of user@example.com
+# First, query for the PermissionSet ID and the User ID:
+soql_query(
+  query="SELECT Id FROM PermissionSet WHERE Name = 'Invoice_Manager'",
+  orgAlias="myorg"
+) via Cirra AI MCP
 
-# Assign permission set group
-sf org assign permsetgroup --name Finance_Team --target-org myorg --on-behalf-of user@example.com
+soql_query(
+  query="SELECT Id FROM User WHERE Username = 'user@example.com'",
+  orgAlias="myorg"
+) via Cirra AI MCP
+
+# Then insert the assignment:
+sobject_dml(
+  operation="insert",
+  sobjectType="PermissionSetAssignment",
+  records=[{ AssigneeId: "<UserId>", PermissionSetId: "<PermissionSetId>" }],
+  orgAlias="myorg"
+) via Cirra AI MCP
+
+# Assign permission set group to user
+# First, query for the PermissionSetGroup ID:
+soql_query(
+  query="SELECT Id FROM PermissionSetGroup WHERE DeveloperName = 'Finance_Team'",
+  orgAlias="myorg"
+) via Cirra AI MCP
+
+# Then insert the assignment:
+sobject_dml(
+  operation="insert",
+  sobjectType="PermissionSetAssignment",
+  records=[{ AssigneeId: "<UserId>", PermissionSetGroupId: "<PermissionSetGroupId>" }],
+  orgAlias="myorg"
+) via Cirra AI MCP
 ```
 
 ---

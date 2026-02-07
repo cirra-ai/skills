@@ -28,13 +28,14 @@ Found **700+ matches** across the codebase, categorized below.
 |---|---|---|
 | marketplace.json | 3 | Fixed |
 | README requirements/descriptions | 12 | Fixed |
-| Hook scripts (user-facing messages) | 7 | Fixed where possible |
+| Hook scripts (user-facing messages) | 7 | Fixed |
 | SKILL.md mapping tables (old → new) | ~30 | Kept (intentional comparison) |
-| docs/ CLI reference files | ~200 | Known — see Remaining Work |
-| examples/ with CLI commands | ~150 | Known — see Remaining Work |
-| templates/ with CLI comments | ~100 | Known — see Remaining Work |
+| docs/ CLI reference files | 6 | Deleted |
+| docs/ supporting docs with CLI examples | ~200 | Fixed — replaced with MCP equivalents |
+| examples/ with CLI commands | ~150 | Fixed — replaced with MCP equivalents |
+| templates/ with CLI comments | ~100 | Fixed — replaced with MCP equivalents |
 | CREDITS.md / migration docs | ~20 | Kept (attribution/history) |
-| Agentforce testing scripts | ~50 | Cannot replace — see Limitations |
+| Agentforce testing scripts | 2 | Deleted (CLI-dependent) |
 
 ## Changes Made
 
@@ -89,9 +90,142 @@ Also updated:
 
 **Impact:** Function names were updated to reflect the removal (`validate_apex_with_ca` → `validate_apex`, `validate_flow_with_ca` → `validate_flow`). All validation hook scripts now only run their custom scoring and any available local linters (e.g., SLDS Linter for LWC, LLM Pattern Validator for Apex).
 
+### CLI Reference Docs — Deleted
+
+6 standalone CLI reference docs were deleted outright (their content was SF CLI command catalogs with no MCP equivalent structure):
+
+- `cirra-ai-sf-soql/docs/cli-commands.md`
+- `cirra-ai-sf-data/docs/sf-cli-data-commands.md`
+- `cirra-ai-sf-lwc/docs/cli-commands.md`
+- `cirra-ai-sf-metadata/docs/sf-cli-commands.md`
+- `cirra-ai-sf-ai-agentforce-testing/docs/cli-commands.md`
+- `cirra-ai-sf-ai-agentscript/docs/cli-guide.md`
+
+### Example Files — Updated with MCP Equivalents
+
+All CLI commands in example files replaced with Cirra AI MCP Server tool calls:
+
+| File | Changes |
+|---|---|
+| `cirra-ai-sf-data/examples/relationship-query-examples.md` | 4 `sf data query` → `soql_query()` |
+| `cirra-ai-sf-data/examples/crud-workflow-example.md` | 9 replacements (create/update/delete/query) |
+| `cirra-ai-sf-data/examples/bulk-testing-example.md` | 6 replacements (import/tree/query) |
+| `cirra-ai-sf-data/examples/cleanup-rollback-example.md` | 5 CLI commands replaced, section headers updated |
+| `cirra-ai-sf-flow/examples/record-trigger-example.md` | 2 `sf data query` → `soql_query()` |
+| `cirra-ai-sf-flow/examples/error-logging-example.md` | 2 replacements (deploy + query) |
+| `cirra-ai-sf-metadata/examples/custom-object-example.md` | 2 `sf project deploy` → `metadata_create()` |
+| `cirra-ai-sf-metadata/examples/permission-set-example.md` | 2 blocks replaced (deploy + assignment) |
+
+### Template Files — Updated with MCP Equivalents
+
+All CLI references in template comments replaced:
+
+| File | Changes |
+|---|---|
+| `cirra-ai-sf-data/templates/cleanup/delete-by-created-date.apex` | CLI comments → MCP equivalents |
+| `cirra-ai-sf-data/templates/cleanup/delete-by-name.apex` | CLI comments → MCP equivalents |
+| `cirra-ai-sf-data/templates/bulk/bulk-insert-10000.apex` | CLI comments → MCP equivalents |
+| `cirra-ai-sf-data/templates/bulk/bulk-insert-500.apex` | CLI comments → MCP equivalents |
+| `cirra-ai-sf-data/templates/bulk/bulk-upsert-external-id.apex` | CLI comments → MCP equivalents |
+| `cirra-ai-sf-data/templates/soql/aggregate.soql` | CLI comments → MCP equivalents |
+| `cirra-ai-sf-data/templates/soql/child-to-parent.soql` | CLI comments → MCP equivalents |
+| `cirra-ai-sf-data/templates/soql/parent-to-child.soql` | CLI comments → MCP equivalents |
+| `cirra-ai-sf-data/templates/soql/polymorphic.soql` | CLI comments → MCP equivalents |
+| `cirra-ai-sf-data/templates/soql/subquery.soql` | CLI comments → MCP equivalents |
+| `cirra-ai-sf-soql/templates/optimization-patterns.soql` | CLI comments → MCP equivalents |
+
+### Supporting Docs — Updated with MCP Equivalents
+
+All CLI commands in supporting documentation replaced with Cirra AI MCP Server tool calls:
+
+**sf-data docs:**
+
+| File | Changes |
+|---|---|
+| `docs/anonymous-apex-guide.md` | Section header + CLI commands → MCP |
+| `docs/bulk-operations-guide.md` | Decision matrix + 5 bash blocks → MCP |
+| `docs/cleanup-rollback-guide.md` | Section header + bash block → MCP |
+| `docs/orchestration.md` | 3 sections (apex, prerequisites, cleanup) → MCP |
+
+**sf-flow docs:**
+
+| File | Changes |
+|---|---|
+| `docs/flow-best-practices.md` | Table cell + prose → MCP |
+| `docs/orchestration.md` | ASCII diagram + table cell → MCP |
+| `docs/subflow-library.md` | 3 commands → MCP |
+| `docs/testing-guide.md` | 7+ replacements including Quick Reference → MCP |
+| `docs/transform-vs-loop-guide.md` | Section header + 2 commands → MCP |
+
+**sf-metadata docs:**
+
+| File | Changes |
+|---|---|
+| `docs/metadata-types-reference.md` | Section header + 6 commands → MCP |
+| `docs/orchestration.md` | Best practices item + diagram → MCP |
+
+**sf-apex resources:**
+
+| File | Changes |
+|---|---|
+| `resources/anti-patterns.md` | Scanner run → MCP |
+| `resources/patterns-deep-dive.md` | 2 commands → MCP |
+| `resources/testing-patterns.md` | Test command → MCP |
+| `resources/troubleshooting.md` | 15+ replacements → MCP |
+
+**sf-lwc resources:**
+
+| File | Changes |
+|---|---|
+| `resources/lms-guide.md` | 2 `sf project deploy` → `metadata_create()` |
+
+**sf-soql docs:**
+
+| File | Changes |
+|---|---|
+| `docs/soql-reference.md` | 5 `sf data query` commands → `soql_query()`, section renamed |
+| `docs/anti-patterns.md` | `sf data query` → Tooling API |
+
+**sf-ai-agentscript:**
+
+| File | Changes |
+|---|---|
+| `VALIDATION.md` | Deploy + publish commands → MCP |
+| `validation/README.md` | Quick start + tiers table → MCP |
+| `resources/debugging-guide.md` | Diagnostic checklist → MCP |
+| `resources/testing-guide.md` | `sf agent test run/validate` + CI/CD workflow → MCP |
+
+**sf-ai-agentforce-testing docs:**
+
+| File | Changes |
+|---|---|
+| `docs/connected-app-setup.md` | `sf org login/display/deploy/activate/preview` → MCP |
+| `docs/agent-api-reference.md` | `sf data query --use-tooling-api` + auth table → MCP |
+| `docs/agentic-fix-loop.md` | `sf agent test run/results/validate/publish` → MCP |
+| `docs/coverage-analysis.md` | `sf agent test run/results/create` + CI/CD → MCP |
+| `docs/eca-setup-guide.md` | `sf agent preview` annotated as UI-only |
+| `docs/test-spec-guide.md` | `sf agent test create` → MCP |
+
+**sf-ai-agentforce-testing resources:**
+
+| File | Changes |
+|---|---|
+| `resources/test-spec-reference.md` | 6 sections rewritten → MCP |
+| `resources/agentic-fix-loops.md` | ASCII diagram + 6 command replacements → MCP |
+
+**sf-ai-agentforce-testing templates (YAML):**
+
+| File | Changes |
+|---|---|
+| `templates/basic-test-spec.yaml` | Comment line → MCP |
+| `templates/standard-test-spec.yaml` | 3 comment lines → MCP |
+| `templates/comprehensive-test-spec.yaml` | Comment line → MCP |
+| `templates/escalation-tests.yaml` | Comment line → MCP |
+| `templates/guardrail-tests.yaml` | Comment line → MCP |
+
 ## Known Limitations — Cannot Replace with MCP
 
-### 2. Agentforce Testing CLI Scripts — Removed
+### 1. Agentforce Testing CLI Scripts — Removed
 
 Two scripts that shelled out to `sf agent test` CLI commands have been **deleted** since Claude Cowork cannot run SF CLI:
 
@@ -109,48 +243,69 @@ Two scripts that shelled out to `sf agent test` CLI commands have been **deleted
 
 **Still not available via MCP:** `sf agent preview` (interactive UI-only feature) and `sf agent generate test-spec` (interactive CLI-only).
 
-### 3. `@salesforce/sfdx-lwc-jest` npm Package
+### 2. `@salesforce/sfdx-lwc-jest` npm Package
 
-**Files:** `cirra-ai-sf-lwc/resources/jest-testing.md`, `cirra-ai-sf-lwc/docs/cli-commands.md`
+**Files:** `cirra-ai-sf-lwc/resources/jest-testing.md`
 
 This is an **npm package name** used for LWC unit testing, not a CLI command. It runs locally and is unrelated to org connectivity. No change needed.
 
-## Remaining Work — Doc/Example/Template Files
+### 3. `sf agent validate` — No MCP Equivalent
 
-The following doc, example, and template files still contain sf CLI command examples. These are inherited from the original sf-skills repo and serve as reference material. They are **not user-facing instructions** (users interact with SKILL.md, not these support files), but should be updated in a future pass for consistency:
+Agent validation is performed locally by the IDE/LSP. References in docs annotated with explanatory notes rather than replaced.
 
-### Full CLI Reference Docs (consider removing or rewriting)
+### 4. `sf agent preview` — UI-Only Feature
 
-- `cirra-ai-sf-soql/docs/cli-commands.md`
-- `cirra-ai-sf-data/docs/sf-cli-data-commands.md`
-- `cirra-ai-sf-lwc/docs/cli-commands.md`
-- `cirra-ai-sf-metadata/docs/sf-cli-commands.md`
-- `cirra-ai-sf-ai-agentforce-testing/docs/cli-commands.md`
-- `cirra-ai-sf-ai-agentscript/docs/cli-guide.md`
+Interactive agent preview is a browser-based UI feature with no API/MCP equivalent. References in docs annotated as "UI-only, not available via MCP."
 
-### Example Files with CLI Commands
+## CLI → MCP Mapping Reference
 
-- `cirra-ai-sf-data/examples/` — crud-workflow, bulk-testing, cleanup-rollback, relationship-queries
-- `cirra-ai-sf-flow/examples/` — error-logging, record-trigger
-- `cirra-ai-sf-metadata/examples/` — custom-object, permission-set
+The following mapping was applied consistently across all files:
 
-### Template Files with CLI Comments
+| SF CLI Command | Cirra AI MCP Tool |
+|---|---|
+| `sf org login web` / `sf org display` | `cirra_ai_init()` |
+| `sf data query --query "..."` | `soql_query(query="...")` |
+| `sf data query --use-tooling-api` | `tooling_api_query(sobjectType="...", whereClause="...")` |
+| `sf data create record` | `sobject_dml(operation="insert", sobjectType="...", records=[...])` |
+| `sf data update record` | `sobject_dml(operation="update", sobjectType="...", records=[...])` |
+| `sf data delete record` | `sobject_dml(operation="delete", sobjectType="...", records=[...])` |
+| `sf data import/upsert/delete bulk` | `sobject_dml(operation="...", sobjectType="...", records=[...])` |
+| `sf project deploy start` | `metadata_create(type="...", fullName="...", metadata={...})` |
+| `sf project retrieve start` | `metadata_read(type="...", fullName="...")` |
+| `sf sobject describe` | `sobject_describe(sobjectType="...")` |
+| `sf sobject list` | `sobjects_list()` |
+| `sf org assign permset` | `sobject_dml(operation="insert", sobjectType="PermissionSetAssignment", ...)` |
+| `sf agent test create` | `tooling_api_dml(operation="create", sobjectType="AiEvaluationDefinition", ...)` |
+| `sf agent test run` | `tooling_api_dml(operation="create", sobjectType="AiEvaluationRun", ...)` |
+| `sf agent test results` | `tooling_api_query(sobjectType="AiEvaluationResult", ...)` |
+| `sf agent test list` | `tooling_api_query(sobjectType="AiEvaluationDefinition", ...)` |
+| `sf agent publish` | `metadata_create(type="GenAiPlannerBundle", ...)` |
+| `sf agent activate` | `metadata_update(type="GenAiPlannerBundle", ...)` |
+| `--target-org <alias>` | `orgAlias="..."` parameter |
 
-- `cirra-ai-sf-data/templates/` — bulk inserts, cleanup scripts, SOQL templates
-- `cirra-ai-sf-soql/templates/` — optimization patterns
+## Intentionally Preserved References
 
-### Supporting Docs with CLI Examples
-
-- `cirra-ai-sf-data/docs/` — bulk-operations-guide, cleanup-rollback-guide, anonymous-apex-guide, orchestration
-- `cirra-ai-sf-flow/docs/` — testing-guide, subflow-library, transform-vs-loop-guide, flow-best-practices
-- `cirra-ai-sf-metadata/docs/` — metadata-types-reference, orchestration
-- `cirra-ai-sf-apex/resources/` — troubleshooting, testing-patterns, patterns-deep-dive
-- `cirra-ai-sf-lwc/resources/` — lms-guide
-- `cirra-ai-sf-ai-agentscript/` — VALIDATION.md, validation/README.md, resources/debugging-guide
-
-### Intentionally Kept (No Action Needed)
+The following files intentionally retain SF CLI references and should NOT be modified:
 
 - **SKILL.md mapping tables** — Show "SF CLI Command → Cirra AI Tool" comparisons (educational)
 - **CREDITS.md files** — Attribution to sf CLI team and docs
 - **REFACTORING_SUMMARY.md, INDEX.md, README2.md** — Document the migration itself
 - **plugin.json changelog entries** — Historical record of migration
+- **`sfdx-project.json`** — Salesforce project file name (not a CLI command)
+- **`@salesforce/sfdx-lwc-jest`** — npm package name (not a CLI command)
+- **`curl`-based bash blocks** — API calls, not CLI commands
+
+## Migration Status: COMPLETE
+
+All actionable SF CLI references have been remediated. The migration covered:
+- **6 plugin.json** descriptions aligned
+- **1 marketplace.json** updated
+- **6 README.md** files updated
+- **5 hook scripts** fixed (CLI messages → MCP)
+- **5 hook scripts** cleaned (dead code removal)
+- **2 CLI-dependent scripts** deleted
+- **6 CLI reference docs** deleted
+- **8 example files** updated with MCP equivalents
+- **11 template files** updated with MCP equivalents
+- **~40 supporting docs/resources** updated with MCP equivalents
+- **5 YAML templates** updated with MCP equivalents

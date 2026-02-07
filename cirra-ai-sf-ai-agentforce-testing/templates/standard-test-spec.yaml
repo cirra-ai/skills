@@ -1,11 +1,11 @@
 # Standard Agent Test Specification Template
-# Compatible with sf agent test create CLI command
+# Compatible with Cirra AI MCP Server tooling API
 #
 # Usage:
 #   1. Replace <Agent_Name> with your agent's API name
 #   2. Replace topic names and actions with your agent's values
-#   3. Create test: sf agent test create --spec standard-test-spec.yaml --api-name <Test_Name> --target-org <alias>
-#   4. Run test: sf agent test run --api-name <Test_Name> --wait 10 --result-format json --target-org <alias>
+#   3. Create test: tooling_api_dml(operation="create", sobjectType="AiEvaluationDefinition", records=[...]) via Cirra AI MCP Server
+#   4. Run test: tooling_api_dml(operation="create", sobjectType="AiEvaluationRun", records=[...]) via Cirra AI MCP Server
 #
 # Generate automatically:
 #   python3 generate-test-spec.py --agent-file <Agent.agent> --output spec.yaml

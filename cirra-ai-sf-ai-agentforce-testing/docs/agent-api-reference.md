@@ -18,7 +18,7 @@ The Agent Runtime API provides programmatic access to Agentforce agents via REST
 | Topic re-matching validation          | ❌ No                      | ✅ Yes                 |
 | Requires AiEvaluationDefinition       | ✅ Yes                     | ❌ No                  |
 | Requires Agent Testing Center feature | ✅ Yes                     | ❌ No                  |
-| Auth mechanism                        | sf CLI org auth            | Client Credentials ECA |
+| Auth mechanism                        | cirra_ai_init() / org auth | Client Credentials ECA |
 
 ---
 
@@ -347,11 +347,9 @@ Returns HTTP 201 on success.
 
 Before calling the API, you need the agent's `BotDefinition` ID:
 
-```bash
+```
 # Query active agents in the org
-sf data query --use-tooling-api \
-  --query "SELECT Id, DeveloperName, MasterLabel FROM BotDefinition WHERE IsActive=true" \
-  --result-format json --target-org [alias]
+tooling_api_query(sobjectType="BotDefinition", whereClause="IsActive=true")
 ```
 
 The `Id` field from the query result is the `{agentId}` used in session creation.

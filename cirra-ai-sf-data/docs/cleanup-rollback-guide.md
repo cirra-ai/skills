@@ -57,22 +57,18 @@ DELETE [
 ];
 ```
 
-## Cleanup via sf CLI
+## Cleanup via Cirra AI MCP
 
-```bash
-# Export IDs to delete
-sf data query \
-  --query "SELECT Id FROM Account WHERE Name LIKE 'Test%'" \
-  --target-org myorg \
-  --result-format csv \
-  > delete.csv
+```
+# Query IDs to delete
+soql_query(query="SELECT Id FROM Account WHERE Name LIKE 'Test%'")
 
-# Bulk delete
-sf data delete bulk \
-  --file delete.csv \
-  --sobject Account \
-  --target-org myorg \
-  --wait 30
+# Delete the records
+sobject_dml(
+  operation="delete",
+  sobjectType="Account",
+  records=[{"Id": "001xx..."}, ...]
+)
 ```
 
 ## Best Practices

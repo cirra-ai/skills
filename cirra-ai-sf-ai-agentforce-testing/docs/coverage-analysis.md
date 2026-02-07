@@ -97,12 +97,12 @@ Phrasing Diversity = 3 ✅
 
 ### Running Coverage Analysis
 
-```bash
-# Run tests with verbose output
-sf agent test run --api-name MyAgentTests --wait 10 --verbose --result-format json --target-org dev
+```
+# Run tests by creating an evaluation run
+tooling_api_dml(operation="create", sobjectType="AiEvaluationRun", records=[{"AiEvaluationDefinitionId": "<definition_id>"}])
 
 # Get detailed results
-sf agent test results --use-most-recent --verbose --result-format json --target-org dev
+tooling_api_query(sobjectType="AiEvaluationResult", whereClause="AiEvaluationRunId='<run_id>'")
 ```
 
 ### Report Format
@@ -455,7 +455,9 @@ Skill(skill="sf-ai-agentforce-testing", args="Generate 5 alternative phrasings f
 ```yaml
 - name: Run Agent Tests
   run: |
-    sf agent test run --api-name MyAgentTests --wait 15 --result-format json --output-dir ./results --target-org dev
+    # Use Cirra AI MCP Server to create an evaluation run and retrieve results
+    # tooling_api_dml(operation="create", sobjectType="AiEvaluationRun", records=[{"AiEvaluationDefinitionId": "<definition_id>"}])
+    # tooling_api_query(sobjectType="AiEvaluationResult", whereClause="AiEvaluationRunId='<run_id>'")
 
 - name: Check Coverage
   run: |
@@ -547,5 +549,5 @@ Focus first on:
 **Solution:**
 
 1. Verify test spec includes new tests
-2. Force overwrite: `sf agent test create --force-overwrite`
+2. Force overwrite: `tooling_api_dml(operation="create", sobjectType="AiEvaluationDefinition", records=[...])`
 3. Check test run includes all test cases

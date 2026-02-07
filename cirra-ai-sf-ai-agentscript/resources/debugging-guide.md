@@ -291,12 +291,12 @@ instructions: ->
 
 ### Quick Triage
 
-| Check                 | Command/Action                                                                          |
-| --------------------- | --------------------------------------------------------------------------------------- |
-| Syntax valid?         | `sf agent validate --source-dir ./agent`                                                |
-| User exists?          | `sf data query -q "SELECT Username FROM User WHERE Profile.Name='Einstein Agent User'"` |
-| Topic exists?         | Search for topic name in script                                                         |
-| Variable initialized? | Check `variables:` block                                                                |
+| Check                 | Command/Action                                                                                         |
+| --------------------- | ------------------------------------------------------------------------------------------------------ |
+| Syntax valid?         | Local validation or IDE LSP                                                                            |
+| User exists?          | `soql_query(query="SELECT Username FROM User WHERE Profile.Name='Einstein Agent User'")`               |
+| Topic exists?         | Search for topic name in script                                                                        |
+| Variable initialized? | Check `variables:` block                                                                               |
 
 ### Deep Investigation
 

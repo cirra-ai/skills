@@ -6,7 +6,7 @@ Complete reference for creating YAML test specifications for Agentforce agents.
 
 ## Overview
 
-Test specifications define expected agent behavior using YAML format. When you run `sf agent test create`, these YAML files are converted to `AiEvaluationDefinition` metadata in the org.
+Test specifications define expected agent behavior using YAML format. When you create tests via `tooling_api_dml(operation="create", sobjectType="AiEvaluationDefinition", records=[...])`, these YAML definitions are converted to `AiEvaluationDefinition` metadata in the org.
 
 ---
 

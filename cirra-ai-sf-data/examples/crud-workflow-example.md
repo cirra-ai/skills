@@ -24,14 +24,15 @@ Request: "Describe object Account in org dev - show required fields and picklist
 
 ## Phase 2: Create Records
 
-### sf CLI - Single Record
+### Cirra AI MCP - Single Record
 
-```bash
-sf data create record \
-  --sobject Account \
-  --values "Name='Enterprise Corp' Industry='Technology' AnnualRevenue=5000000" \
-  --target-org dev \
-  --json
+```
+sobject_dml(
+  operation="insert",
+  sobjectType="Account",
+  records=[{Name: "Enterprise Corp", Industry: "Technology", AnnualRevenue: 5000000}],
+  orgAlias="dev"
+)
 ```
 
 **Output:**
@@ -46,73 +47,79 @@ sf data create record \
 }
 ```
 
-### sf CLI - Query Created Record
+### Cirra AI MCP - Query Created Record
 
-```bash
-sf data query \
-  --query "SELECT Id, Name, Industry, AnnualRevenue FROM Account WHERE Name = 'Enterprise Corp'" \
-  --target-org dev \
-  --json
+```
+soql_query(
+  query="SELECT Id, Name, Industry, AnnualRevenue FROM Account WHERE Name = 'Enterprise Corp'",
+  orgAlias="dev"
+)
 ```
 
 ## Phase 3: Update Records
 
 ### Update Single Record
 
-```bash
-sf data update record \
-  --sobject Account \
-  --record-id 001XXXXXXXXXXXX \
-  --values "Rating='Hot' Type='Customer - Direct'" \
-  --target-org dev
+```
+sobject_dml(
+  operation="update",
+  sobjectType="Account",
+  records=[{Id: "001XXXXXXXXXXXX", Rating: "Hot", Type: "Customer - Direct"}],
+  orgAlias="dev"
+)
 ```
 
 ### Verify Update
 
-```bash
-sf data get record \
-  --sobject Account \
-  --record-id 001XXXXXXXXXXXX \
-  --target-org dev
+```
+soql_query(
+  query="SELECT Id, Name, Rating, Type FROM Account WHERE Id = '001XXXXXXXXXXXX'",
+  orgAlias="dev"
+)
 ```
 
 ## Phase 4: Create Related Records
 
 ### Create Contact for Account
 
-```bash
-sf data create record \
-  --sobject Contact \
-  --values "FirstName='John' LastName='Smith' AccountId='001XXXXXXXXXXXX' Title='CTO'" \
-  --target-org dev
+```
+sobject_dml(
+  operation="insert",
+  sobjectType="Contact",
+  records=[{FirstName: "John", LastName: "Smith", AccountId: "001XXXXXXXXXXXX", Title: "CTO"}],
+  orgAlias="dev"
+)
 ```
 
 ### Create Opportunity
 
-```bash
-sf data create record \
-  --sobject Opportunity \
-  --values "Name='Enterprise Deal' AccountId='001XXXXXXXXXXXX' StageName='Prospecting' CloseDate=2025-03-31 Amount=250000" \
-  --target-org dev
+```
+sobject_dml(
+  operation="insert",
+  sobjectType="Opportunity",
+  records=[{Name: "Enterprise Deal", AccountId: "001XXXXXXXXXXXX", StageName: "Prospecting", CloseDate: "2025-03-31", Amount: 250000}],
+  orgAlias="dev"
+)
 ```
 
 ## Phase 5: Query Relationships
 
 ### Parent-to-Child (Subquery)
 
-```bash
-sf data query \
-  --query "SELECT Id, Name, (SELECT Id, Name, Title FROM Contacts), (SELECT Id, Name, Amount, StageName FROM Opportunities) FROM Account WHERE Name = 'Enterprise Corp'" \
-  --target-org dev \
-  --json
+```
+soql_query(
+  query="SELECT Id, Name, (SELECT Id, Name, Title FROM Contacts), (SELECT Id, Name, Amount, StageName FROM Opportunities) FROM Account WHERE Name = 'Enterprise Corp'",
+  orgAlias="dev"
+)
 ```
 
 ### Child-to-Parent (Dot Notation)
 
-```bash
-sf data query \
-  --query "SELECT Id, Name, Account.Name, Account.Industry FROM Contact WHERE Account.Name = 'Enterprise Corp'" \
-  --target-org dev
+```
+soql_query(
+  query="SELECT Id, Name, Account.Name, Account.Industry FROM Contact WHERE Account.Name = 'Enterprise Corp'",
+  orgAlias="dev"
+)
 ```
 
 ## Phase 6: Delete Records
@@ -121,24 +128,30 @@ sf data query \
 
 Children first, then parents:
 
-```bash
+```
 # Delete Opportunities
-sf data delete record \
-  --sobject Opportunity \
-  --record-id 006XXXXXXXXXXXX \
-  --target-org dev
+sobject_dml(
+  operation="delete",
+  sobjectType="Opportunity",
+  records=[{Id: "006XXXXXXXXXXXX"}],
+  orgAlias="dev"
+)
 
 # Delete Contacts
-sf data delete record \
-  --sobject Contact \
-  --record-id 003XXXXXXXXXXXX \
-  --target-org dev
+sobject_dml(
+  operation="delete",
+  sobjectType="Contact",
+  records=[{Id: "003XXXXXXXXXXXX"}],
+  orgAlias="dev"
+)
 
 # Delete Account
-sf data delete record \
-  --sobject Account \
-  --record-id 001XXXXXXXXXXXX \
-  --target-org dev
+sobject_dml(
+  operation="delete",
+  sobjectType="Account",
+  records=[{Id: "001XXXXXXXXXXXX"}],
+  orgAlias="dev"
+)
 ```
 
 ## Anonymous Apex Alternative
@@ -177,8 +190,9 @@ System.debug('Created hierarchy: Account=' + acc.Id + ', Contact=' + con.Id + ',
 
 Execute:
 
-```bash
-sf apex run --file create-hierarchy.apex --target-org dev
+```
+# Execute via Apex execution in Salesforce Setup or Cirra AI MCP tooling_api_dml
+# No direct MCP equivalent for anonymous Apex execution
 ```
 
 ## Validation Score

@@ -21,7 +21,7 @@ Comprehensive guide to advanced Apex patterns including Trigger Actions Framewor
 
 1. **Trigger Actions Framework Package Installed**
    - GitHub: https://github.com/mitchspano/apex-trigger-actions-framework
-   - Install via: `sf package install --package 04tKZ000000gUEFYA2 --target-org [alias] --wait 10`
+   - Install via: `# Package install: use metadata_create or Salesforce Setup`
    - Or use unlocked package from repository
 
 2. **Custom Metadata Type Records Created**
@@ -154,8 +154,8 @@ For each trigger action class, create a Custom Metadata record:
 
 **Deploy Custom Metadata:**
 
-```bash
-sf project deploy start --metadata CustomMetadata:Trigger_Action.TA_Lead_CalculateScore_BI --target-org myorg
+```
+metadata_create(type="CustomMetadata", fullName="Trigger_Action.TA_Lead_CalculateScore_BI", metadata={...})
 ```
 
 ---

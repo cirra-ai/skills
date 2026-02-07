@@ -174,9 +174,8 @@ Test with multiple user profiles to verify security.
 
 **CLI Approach**:
 
-```bash
-# Login as different user
-sf org login user --username standard.user@company.com --target-org myOrg
+```
+# Authentication: use cirra_ai_init via Cirra AI MCP Server
 
 # Run tests/verify behavior
 ```
@@ -248,8 +247,8 @@ For flows running in System Mode:
 
 **Query Recent Executions**:
 
-```bash
-sf data query --query "SELECT Id, Status, CreatedDate FROM FlowInterview WHERE FlowDeveloperName='[FlowName]' ORDER BY CreatedDate DESC LIMIT 10" --target-org [org]
+```
+soql_query(query="SELECT Id, Status, CreatedDate FROM FlowInterview WHERE FlowDeveloperName='[FlowName]' ORDER BY CreatedDate DESC LIMIT 10")
 ```
 
 ### Autolaunched Flows
@@ -292,8 +291,8 @@ System.assertEquals('Success', result);
 
 **Verify Schedule**:
 
-```bash
-sf data query --query "SELECT Id, CronJobDetail.Name, State, NextFireTime FROM CronTrigger WHERE CronJobDetail.Name LIKE '%[FlowName]%'" --target-org [org]
+```
+soql_query(query="SELECT Id, CronJobDetail.Name, State, NextFireTime FROM CronTrigger WHERE CronJobDetail.Name LIKE '%[FlowName]%'")
 ```
 
 ### Platform Event-Triggered Flows
@@ -324,22 +323,19 @@ System.assert(sr.isSuccess());
 
 Follow this 5-step deployment validation:
 
-| Step | Action                     | Tool/Method                         | Success Criteria          |
-| ---- | -------------------------- | ----------------------------------- | ------------------------- |
-| 1    | Validate XML structure     | Flow validator scripts              | No errors                 |
-| 2    | Deploy with checkOnly=true | `sf project deploy start --dry-run` | Deployment succeeds       |
-| 3    | Verify package.xml         | Manual review                       | API version matches flow  |
-| 4    | Test with minimal data     | 1-5 records in sandbox              | Basic functionality works |
-| 5    | Test with bulk data        | 200+ records in sandbox             | Governor limits OK        |
+| Step | Action                     | Tool/Method                            | Success Criteria          |
+| ---- | -------------------------- | -------------------------------------- | ------------------------- |
+| 1    | Validate XML structure     | Flow validator scripts                 | No errors                 |
+| 2    | Deploy with checkOnly=true | `metadata_create(..., checkOnly=true)` | Deployment succeeds       |
+| 3    | Verify package.xml         | Manual review                          | API version matches flow  |
+| 4    | Test with minimal data     | 1-5 records in sandbox                 | Basic functionality works |
+| 5    | Test with bulk data        | 200+ records in sandbox                | Governor limits OK        |
 
 ### Dry-Run Deployment
 
-```bash
+```
 # Validate without deploying
-sf project deploy start --source-dir force-app --dry-run --target-org sandbox
-
-# Check deployment status
-sf project deploy report --target-org sandbox
+metadata_create(type="Flow", fullName="My_Flow", metadata={...}, checkOnly=true)
 ```
 
 ### Package.xml Verification
@@ -490,26 +486,25 @@ If approaching limits:
 
 ### Query Flow Errors
 
-```bash
-sf data query --query "SELECT Id, ElementApiName, ErrorMessage, FlowVersionId, InterviewGuid FROM FlowInterviewLogEntry WHERE CreatedDate = TODAY ORDER BY CreatedDate DESC LIMIT 20" --target-org [org]
+```
+soql_query(query="SELECT Id, ElementApiName, ErrorMessage, FlowVersionId, InterviewGuid FROM FlowInterviewLogEntry WHERE CreatedDate = TODAY ORDER BY CreatedDate DESC LIMIT 20")
 ```
 
 ---
 
 ## Quick Reference Commands
 
-```bash
-# Deploy and test
-sf project deploy start --source-dir force-app --target-org sandbox
+```
+# Deploy via Cirra AI MCP Server
+metadata_create(type="Flow", fullName="My_Flow", metadata={...})
 
 # Query flow interviews
-sf data query --query "SELECT Id, Status FROM FlowInterview WHERE FlowDeveloperName='MyFlow' LIMIT 10" --target-org sandbox
+soql_query(query="SELECT Id, Status FROM FlowInterview WHERE FlowDeveloperName='MyFlow' LIMIT 10")
 
 # Check scheduled jobs
-sf data query --query "SELECT Id, CronJobDetail.Name, State, NextFireTime FROM CronTrigger" --target-org sandbox
+soql_query(query="SELECT Id, CronJobDetail.Name, State, NextFireTime FROM CronTrigger")
 
-# Login as different user
-sf org login user --username testuser@company.com --target-org sandbox
+# Authentication: use cirra_ai_init via Cirra AI MCP Server
 ```
 
 ---

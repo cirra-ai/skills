@@ -331,16 +331,12 @@ Modify the query filters in the template for your specific object and criteria.
 
 ### Step 1: Deploy Subflows to Your Org
 
-```bash
+```
 # Deploy all subflows at once
-sf project deploy start \
-  --source-dir templates/subflows/ \
-  --target-org myorg
+metadata_create(type="Flow", fullName="Sub_LogError", metadata={...})
 
-# Or deploy individually
-sf project deploy start \
-  --source-dir templates/subflows/subflow-error-logger.xml \
-  --target-org myorg
+# Or deploy individually via Cirra AI MCP Server
+metadata_create(type="Flow", fullName="Sub_LogError", metadata={...})
 ```
 
 ### Step 2: Activate Subflows
@@ -355,11 +351,9 @@ sf project deploy start \
 
 For **Sub_LogError**, create the Flow_Error_Log\_\_c object:
 
-```bash
-# Using Salesforce CLI
-sf data create record \
-  --sobject CustomObject \
-  --values "FullName=Flow_Error_Log__c Label='Flow Error Log' PluralLabel='Flow Error Logs'"
+```
+# Using Cirra AI MCP Server
+metadata_create(type="CustomObject", fullName="Flow_Error_Log__c", metadata={label: "Flow Error Log", pluralLabel: "Flow Error Logs"})
 ```
 
 Or manually in Setup → Object Manager → Create → Custom Object.
@@ -437,11 +431,9 @@ Screen Flow
 3. Verify output variables and behavior
 4. Check error logs if using Sub_LogError
 
-```bash
+```
 # Example: Test Sub_LogError
-sf data query \
-  --query "SELECT Flow_Name__c, Error_Message__c FROM Flow_Error_Log__c ORDER BY CreatedDate DESC LIMIT 5" \
-  --target-org myorg
+soql_query(query="SELECT Flow_Name__c, Error_Message__c FROM Flow_Error_Log__c ORDER BY CreatedDate DESC LIMIT 5")
 ```
 
 ### Integration Testing in Parent Flows

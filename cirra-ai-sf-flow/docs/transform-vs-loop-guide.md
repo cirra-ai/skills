@@ -365,17 +365,14 @@ private class TransformFlowTest {
 }
 ```
 
-### 3. CLI Performance Comparison
+### 3. Performance Comparison via Debug Logs
 
-```bash
-# Enable debug logging
-sf apex log tail --color
+```
+# Debug logs: use sf-debug skill or Salesforce Setup
 
-# Run Transform flow via anonymous Apex
-sf apex run -f scripts/run-transform-flow.apex
-
+# Anonymous Apex: not available via MCP. Use Developer Console
+# Run Transform flow via anonymous Apex in Developer Console
 # Run equivalent Loop flow for comparison
-sf apex run -f scripts/run-loop-flow.apex
 
 # Compare CPU_TIME in debug logs
 # Transform should show ~30-50% lower CPU_TIME

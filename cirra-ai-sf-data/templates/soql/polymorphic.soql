@@ -190,9 +190,6 @@ for (Task t : tasks) {
 */
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- SF CLI USAGE
+-- CIRRA AI MCP USAGE
 -- ═══════════════════════════════════════════════════════════════════════════════
--- sf data query \
---   --query "SELECT Id, Subject, TYPEOF Who WHEN Contact THEN FirstName, LastName WHEN Lead THEN Company END FROM Task WHERE ActivityDate = TODAY LIMIT 10" \
---   --target-org myorg \
---   --json
+-- soql_query(query="SELECT Id, Subject, TYPEOF Who WHEN Contact THEN FirstName, LastName WHEN Lead THEN Company END FROM Task WHERE ActivityDate = TODAY LIMIT 10") via Cirra AI MCP

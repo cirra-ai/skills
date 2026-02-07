@@ -206,21 +206,18 @@ SELECT Id, (SELECT Id FROM Children__r) FROM Parent__c
 
 ---
 
-## CLI Commands
+## MCP Tool Commands
 
-```bash
+```
 # Basic query
-sf data query --query "SELECT Id, Name FROM Account LIMIT 10" --target-org my-org
+soql_query(query="SELECT Id, Name FROM Account LIMIT 10", orgAlias="my-org")
 
-# JSON output
-sf data query --query "SELECT Id, Name FROM Account" --target-org my-org --json
+# Query with specific org alias
+soql_query(query="SELECT Id, Name FROM Account", orgAlias="my-org")
 
-# CSV output
-sf data query --query "SELECT Id, Name FROM Account" --result-format csv --target-org my-org
+# Tooling API query (e.g., for query plan or metadata objects)
+tooling_api_query(sobjectType="Account", whereClause="Name = 'Test'", orgAlias="my-org")
 
-# Bulk query (for large results)
-sf data query --query "SELECT Id, Name FROM Account" --bulk --target-org my-org
-
-# Query plan
-sf data query --query "SELECT Id FROM Account WHERE Name = 'Test'" --use-tooling-api --plan --target-org my-org
+# Describe an object's fields
+sobject_describe(sobjectType="Account", orgAlias="my-org")
 ```

@@ -171,8 +171,13 @@ For real-time error monitoring, publish a Platform Event instead of creating a r
 
 ### 1. Deploy Sub_LogError
 
-```bash
-sf project deploy start --source-dir templates/subflows/ --target-org myorg
+```
+metadata_create(
+  type="Flow",
+  fullName="Sub_LogError",
+  metadata={ ... },  // Sub_LogError flow metadata
+  orgAlias="myorg"
+) via Cirra AI MCP
 ```
 
 ### 2. Create Test Flow with Intentional Error
@@ -181,8 +186,11 @@ Create a flow that attempts to update a field that doesn't exist, then check Flo
 
 ### 3. Verify Error Capture
 
-```bash
-sf data query --query "SELECT Flow_Name__c, Error_Message__c FROM Flow_Error_Log__c ORDER BY CreatedDate DESC LIMIT 1" --target-org myorg
+```
+soql_query(
+  query="SELECT Flow_Name__c, Error_Message__c FROM Flow_Error_Log__c ORDER BY CreatedDate DESC LIMIT 1",
+  orgAlias="myorg"
+) via Cirra AI MCP
 ```
 
 ## Best Practices

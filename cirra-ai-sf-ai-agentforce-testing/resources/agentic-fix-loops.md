@@ -568,14 +568,14 @@ Skill(skill="sf-ai-agentscript", args="Fix action chaining in agent MyAgent - en
 │                  AUTOMATED AGENT TESTING FLOW                       │
 ├────────────────────────────────────────────────────────────────────┤
 │                                                                     │
-│   Agent Script  →  Test Spec Generator  →  sf agent test create    │
-│   (.agent file)    (generate-test-spec.py)    (CLI)                │
+│   Agent Script  →  Test Spec Generator  →  tooling_api_dml        │
+│   (.agent file)    (generate-test-spec.py)    (create)             │
 │         │                   │                    │                  │
 │         │           Extract topics/          Deploy to             │
 │         │           actions/expected         org                   │
 │         ▼                   ▼                    ▼                  │
-│   Validation  ←───  Result Parser  ←───  sf agent test run         │
-│   Framework    (parse-agent-test-results.py)  (--result-format json)│
+│   Validation  ←───  Result Parser  ←───  tooling_api_query         │
+│   Framework    (parse-agent-test-results.py)  (AiEvaluationResult) │
 │         │                │                                          │
 │         ▼                ▼                                          │
 │   Report Generator  +  Agentic Fix Loop (sf-ai-agentscript)        │
@@ -664,8 +664,21 @@ python3 hooks/scripts/generate-test-spec.py \
 
 **Initial Test Failure:**
 
-```bash
-sf agent test run --api-name MyAgentTest --wait 10 --result-format json --target-org dev
+```
+# Start test run
+tooling_api_dml(
+  operation="create",
+  sobjectType="AiEvaluationRun",
+  records=[{AiEvaluationDefinitionId: "<MyAgentTest-def-id>"}],
+  orgAlias="dev"
+)
+
+# Fetch results
+tooling_api_query(
+  sobjectType="AiEvaluationResult",
+  whereClause="AiEvaluationRunId = '<run-id>'",
+  orgAlias="dev"
+)
 ```
 
 **Output:**
@@ -688,7 +701,7 @@ sf agent test run --api-name MyAgentTest --wait 10 --result-format json --target
 
 **Step 1: Read Agent Script**
 
-```bash
+```
 # Read current agent definition
 Read(file_path="/path/to/agents/MyAgent.agent")
 ```
@@ -709,17 +722,22 @@ Skill(skill="sf-ai-agentscript", args="Fix topic 'billing_inquiry' in agent MyAg
 
 **Step 4: Re-Publish Agent**
 
-```bash
+```
 # sf-ai-agentforce skill will:
 # 1. Update agent script
-# 2. Validate via sf agent validate
-# 3. Publish via sf agent publish authoring-bundle
+# 2. Validate locally (IDE/LSP validation)
+# 3. Publish via metadata_create(type="GenAiPlannerBundle", ...)
 ```
 
 **Step 5: Re-Run Test**
 
-```bash
-sf agent test run --api-name MyAgentTest --wait 10 --result-format json --target-org dev
+```
+tooling_api_dml(
+  operation="create",
+  sobjectType="AiEvaluationRun",
+  records=[{AiEvaluationDefinitionId: "<MyAgentTest-def-id>"}],
+  orgAlias="dev"
+)
 ```
 
 **Output:**
@@ -745,23 +763,26 @@ sf agent test run --api-name MyAgentTest --wait 10 --result-format json --target
 
 ### If Agent Testing Center NOT Available
 
-```bash
+```
 # Check if enabled
-sf agent test list --target-org dev
+tooling_api_query(
+  sobjectType="AiEvaluationDefinition",
+  whereClause="CreatedDate = TODAY",
+  orgAlias="dev"
+)
 
-# If error: "Not available for deploy" or "INVALID_TYPE: Cannot use: AiEvaluationDefinition"
+# If error: "INVALID_TYPE: Cannot use: AiEvaluationDefinition"
 # → Agent Testing Center is NOT enabled
 ```
 
-**Fallback 1: sf agent preview (Recommended)**
+**Fallback 1: Agent Preview (Recommended)**
 
-```bash
-sf agent preview --api-name MyAgent --output-dir ./transcripts --target-org dev
-```
+> Note: `sf agent preview` is not available via MCP -- this is a UI-only feature.
+> Use the Salesforce Setup UI to preview and interactively test your agent.
 
-- Interactive testing, no special features required
-- Use `--output-dir` to save transcripts for manual review
+- Interactive testing via Salesforce Setup UI
 - Test utterances manually one by one
+- Save transcripts manually for review
 
 **Fallback 2: Manual Testing with Generated Spec**
 

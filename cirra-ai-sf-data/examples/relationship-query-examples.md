@@ -13,11 +13,11 @@ FROM Account
 WHERE Industry = 'Technology'
 ```
 
-```bash
-sf data query \
-  --query "SELECT Id, Name, (SELECT Id, FirstName, LastName FROM Contacts) FROM Account WHERE Industry = 'Technology' LIMIT 5" \
-  --target-org dev \
-  --json
+```
+soql_query(
+  query="SELECT Id, Name, (SELECT Id, FirstName, LastName FROM Contacts) FROM Account WHERE Industry = 'Technology' LIMIT 5",
+  orgAlias="dev"
+)
 ```
 
 ### Multiple Subqueries
@@ -55,10 +55,11 @@ FROM Contact
 WHERE Account.Industry = 'Technology'
 ```
 
-```bash
-sf data query \
-  --query "SELECT Id, FirstName, LastName, Account.Name, Account.Industry FROM Contact WHERE Account.Industry = 'Technology' LIMIT 10" \
-  --target-org dev
+```
+soql_query(
+  query="SELECT Id, FirstName, LastName, Account.Name, Account.Industry FROM Contact WHERE Account.Industry = 'Technology' LIMIT 10",
+  orgAlias="dev"
+)
 ```
 
 ### Multi-Level Traversal
@@ -100,11 +101,11 @@ FROM Task
 WHERE Status = 'Open'
 ```
 
-```bash
-sf data query \
-  --query "SELECT Id, Subject, TYPEOF Who WHEN Contact THEN FirstName, LastName WHEN Lead THEN FirstName, LastName END FROM Task WHERE Status = 'Open' LIMIT 5" \
-  --target-org dev \
-  --json
+```
+soql_query(
+  query="SELECT Id, Subject, TYPEOF Who WHEN Contact THEN FirstName, LastName WHEN Lead THEN FirstName, LastName END FROM Task WHERE Status = 'Open' LIMIT 5",
+  orgAlias="dev"
+)
 ```
 
 ### Event Relationships
@@ -131,10 +132,11 @@ HAVING COUNT(Id) > 10
 ORDER BY SUM(AnnualRevenue) DESC
 ```
 
-```bash
-sf data query \
-  --query "SELECT Industry, COUNT(Id) total, SUM(AnnualRevenue) revenue FROM Account GROUP BY Industry HAVING COUNT(Id) > 5" \
-  --target-org dev
+```
+soql_query(
+  query="SELECT Industry, COUNT(Id) total, SUM(AnnualRevenue) revenue FROM Account GROUP BY Industry HAVING COUNT(Id) > 5",
+  orgAlias="dev"
+)
 ```
 
 ### Rollup by Date

@@ -283,37 +283,21 @@ if (!previewOnly && totalRecords > 0) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// SF CLI ALTERNATIVE WITH DATE LITERALS
+// CIRRA AI MCP ALTERNATIVE WITH DATE LITERALS
 // ═══════════════════════════════════════════════════════════════════════════════
 
 /*
-Using SOQL date literals:
+Using SOQL date literals via Cirra AI MCP Server:
 
-# Records created today
-sf data query \
-  --query "SELECT Id FROM Account WHERE CreatedDate = TODAY AND Name LIKE 'Test%'" \
-  --target-org myorg \
-  --result-format csv \
-  > delete-today.csv
+Records created today:
+soql_query(query="SELECT Id FROM Account WHERE CreatedDate = TODAY AND Name LIKE 'Test%'")
 
-# Records created in the last hour
-sf data query \
-  --query "SELECT Id FROM Account WHERE CreatedDate = LAST_N_HOURS:1 AND Name LIKE 'Test%'" \
-  --target-org myorg \
-  --result-format csv \
-  > delete-lasthour.csv
+Records created in the last hour:
+soql_query(query="SELECT Id FROM Account WHERE CreatedDate = LAST_N_HOURS:1 AND Name LIKE 'Test%'")
 
-# Records created this week
-sf data query \
-  --query "SELECT Id FROM Account WHERE CreatedDate = THIS_WEEK AND Name LIKE 'Test%'" \
-  --target-org myorg \
-  --result-format csv \
-  > delete-thisweek.csv
+Records created this week:
+soql_query(query="SELECT Id FROM Account WHERE CreatedDate = THIS_WEEK AND Name LIKE 'Test%'")
 
-# Then bulk delete
-sf data delete bulk \
-  --file delete-today.csv \
-  --sobject Account \
-  --target-org myorg \
-  --wait 30
+Then delete the records:
+sobject_dml(operation="delete", sobjectType="Account", records=[...])
 */

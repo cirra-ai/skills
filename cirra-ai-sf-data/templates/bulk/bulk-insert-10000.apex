@@ -4,7 +4,7 @@
  * For Bulk API and large data volume testing
  * ═══════════════════════════════════════════════════════════════════════════════
  *
- * ⚠️  IMPORTANT: This script is designed to be run via sf CLI Bulk API
+ * ⚠️  IMPORTANT: This script is designed to be run via Cirra AI MCP Server
  *     NOT via Anonymous Apex (which has governor limits)
  *
  * PURPOSE:
@@ -15,7 +15,7 @@
  * • Report/Dashboard testing with realistic volumes
  *
  * APPROACHES:
- * 1. Use sf data import bulk with CSV files (recommended)
+ * 1. Use sobject_dml(operation="insert", ...) via Cirra AI MCP (recommended)
  * 2. Use Data Loader for very large datasets
  * 3. Use batch Apex to create in smaller chunks
  *
@@ -96,8 +96,8 @@ public class BulkAccountCreator implements Database.Batchable<Integer>, Database
 // Database.executeBatch(new BulkAccountCreator(10000), 200);
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// APPROACH 2: GENERATE CSV FOR BULK API IMPORT
-// Run this to generate CSV, then use sf data import bulk
+// APPROACH 2: GENERATE DATA FOR BULK IMPORT
+// Run this to generate records, then use sobject_dml(operation="insert", ...) via Cirra AI MCP
 // ═══════════════════════════════════════════════════════════════════════════════
 
 /**
@@ -146,40 +146,25 @@ public class BulkCsvGenerator {
 // Usage:
 // String csv = BulkCsvGenerator.generateAccountCsv(1000);
 // System.debug(csv);
-// Then save to file and use: sf data import bulk --file accounts.csv --sobject Account --target-org myorg
+// Then use: sobject_dml(operation="insert", sobjectType="Account", records=[...]) via Cirra AI MCP
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// SF CLI BULK IMPORT COMMANDS
+// CIRRA AI MCP BULK IMPORT
 // ═══════════════════════════════════════════════════════════════════════════════
 
 /*
-STEP 1: Create CSV file with headers and data
+STEP 1: Prepare records as JSON
 
-Example accounts.csv:
-Name,Industry,Type,AnnualRevenue,BillingCity,BillingState,BillingCountry
-BulkTest_0000001,Technology,Prospect,100000,San Francisco,CA,USA
-BulkTest_0000002,Healthcare,Customer,150000,San Francisco,CA,USA
-...
+Example records:
+[
+  {"Name": "BulkTest_0000001", "Industry": "Technology", "Type": "Prospect", "AnnualRevenue": 100000, "BillingCity": "San Francisco", "BillingState": "CA", "BillingCountry": "USA"},
+  {"Name": "BulkTest_0000002", "Industry": "Healthcare", "Type": "Customer", "AnnualRevenue": 150000, "BillingCity": "San Francisco", "BillingState": "CA", "BillingCountry": "USA"},
+  ...
+]
 
-STEP 2: Import using Bulk API 2.0
+STEP 2: Import using Cirra AI MCP Server
 
-# Import with wait for completion
-sf data import bulk \
-  --file accounts.csv \
-  --sobject Account \
-  --target-org myorg \
-  --wait 30
-
-# Import async (returns job ID)
-sf data import bulk \
-  --file accounts.csv \
-  --sobject Account \
-  --target-org myorg
-
-# Check job status
-sf data bulk results \
-  --job-id 7500000000XXXXX \
-  --target-org myorg
+sobject_dml(operation="insert", sobjectType="Account", records=[...])
 
 */
 
@@ -226,7 +211,7 @@ if __name__ == '__main__':
     generate_accounts(10000)
 
 Run: python generate_bulk_data.py
-Then: sf data import bulk --file accounts.csv --sobject Account --target-org myorg --wait 30
+Then: sobject_dml(operation="insert", sobjectType="Account", records=[...]) via Cirra AI MCP
 
 */
 
@@ -235,29 +220,16 @@ Then: sf data import bulk --file accounts.csv --sobject Account --target-org myo
 // ═══════════════════════════════════════════════════════════════════════════════
 
 /*
-CLEANUP via Bulk API:
+CLEANUP via Cirra AI MCP Server:
 
-# Step 1: Export IDs to delete
-sf data query \
-  --query "SELECT Id FROM Account WHERE Name LIKE 'BulkTest%' OR Name LIKE 'BulkData%' OR Name LIKE 'BulkImport%'" \
-  --target-org myorg \
-  --result-format csv \
-  > delete-accounts.csv
+Step 1: Query IDs to delete
+soql_query(query="SELECT Id FROM Account WHERE Name LIKE 'BulkTest%' OR Name LIKE 'BulkData%' OR Name LIKE 'BulkImport%'")
 
-# Step 2: Bulk delete
-sf data delete bulk \
-  --file delete-accounts.csv \
-  --sobject Account \
-  --target-org myorg \
-  --wait 30
+Step 2: Delete records
+sobject_dml(operation="delete", sobjectType="Account", records=[...])
 
-# For hard delete (permanent, requires permission):
-sf data delete bulk \
-  --file delete-accounts.csv \
-  --sobject Account \
-  --target-org myorg \
-  --hard-delete \
-  --wait 30
+For hard delete (permanent, requires permission):
+sobject_dml(operation="hardDelete", sobjectType="Account", records=[...])
 */
 
 // ═══════════════════════════════════════════════════════════════════════════════

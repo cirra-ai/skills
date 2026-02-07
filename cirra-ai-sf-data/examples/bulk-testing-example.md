@@ -48,8 +48,9 @@ System.debug('DML Statements: ' + Limits.getDmlStatements() + '/' + Limits.getLi
 
 Save as `bulk-test-accounts.apex` and run:
 
-```bash
-sf apex run --file bulk-test-accounts.apex --target-org dev
+```
+# Execute via Apex execution in Salesforce Setup or Cirra AI MCP tooling_api_dml
+# No direct MCP equivalent for anonymous Apex execution
 ```
 
 ## Method 2: CSV Bulk Import
@@ -64,14 +65,20 @@ BulkTest Account 3,Finance,5000000
 ... (251 rows)
 ```
 
-### Import via sf CLI
+### Import via Cirra AI MCP
 
-```bash
-sf data import bulk \
-  --file accounts-bulk.csv \
-  --sobject Account \
-  --target-org dev \
-  --wait 30
+```
+sobject_dml(
+  operation="insert",
+  sobjectType="Account",
+  records=[
+    {Name: "BulkTest Account 1", Industry: "Technology", AnnualRevenue: 1000000},
+    {Name: "BulkTest Account 2", Industry: "Healthcare", AnnualRevenue: 2000000},
+    {Name: "BulkTest Account 3", Industry: "Finance", AnnualRevenue: 5000000}
+    // ... (251 records from CSV)
+  ],
+  orgAlias="dev"
+)
 ```
 
 ## Method 3: JSON Tree Import
@@ -99,37 +106,51 @@ For hierarchical test data with relationships:
 }
 ```
 
-```bash
-sf data import tree \
-  --files bulk-hierarchy.json \
-  --target-org dev
+```
+# Insert parent records first, then children with parent IDs
+sobject_dml(
+  operation="insert",
+  sobjectType="Account",
+  records=[{Name: "BulkTest Parent 1", Industry: "Technology"}],
+  orgAlias="dev"
+)
+
+# Then insert related Contacts using the returned Account IDs
+sobject_dml(
+  operation="insert",
+  sobjectType="Contact",
+  records=[{FirstName: "Test", LastName: "Contact 1", AccountId: "<returned_account_id>"}],
+  orgAlias="dev"
+)
 ```
 
 ## Verify Trigger Executed Correctly
 
 ### Check Trigger Results
 
-```bash
-sf data query \
-  --query "SELECT Id, Name, Industry, Custom_Field__c FROM Account WHERE Name LIKE 'BulkTest%' LIMIT 10" \
-  --target-org dev \
-  --json
+```
+soql_query(
+  query="SELECT Id, Name, Industry, Custom_Field__c FROM Account WHERE Name LIKE 'BulkTest%' LIMIT 10",
+  orgAlias="dev"
+)
 ```
 
 ### Check Related Tasks Created
 
-```bash
-sf data query \
-  --query "SELECT Id, Subject, WhatId, What.Name FROM Task WHERE What.Name LIKE 'BulkTest%'" \
-  --target-org dev
+```
+soql_query(
+  query="SELECT Id, Subject, WhatId, What.Name FROM Task WHERE What.Name LIKE 'BulkTest%'",
+  orgAlias="dev"
+)
 ```
 
 ### Count Records
 
-```bash
-sf data query \
-  --query "SELECT COUNT(Id) total FROM Account WHERE Name LIKE 'BulkTest%'" \
-  --target-org dev
+```
+soql_query(
+  query="SELECT COUNT(Id) total FROM Account WHERE Name LIKE 'BulkTest%'",
+  orgAlias="dev"
+)
 ```
 
 ## Test Bulk Update

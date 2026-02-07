@@ -272,16 +272,10 @@ System.debug('Accounts needing outreach: ' + neglectedAccounts.size());
 */
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- SF CLI USAGE
+-- CIRRA AI MCP USAGE
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Semi-join:
--- sf data query \
---   --query "SELECT Id, Name FROM Account WHERE Id IN (SELECT AccountId FROM Opportunity WHERE StageName = 'Closed Won') LIMIT 20" \
---   --target-org myorg \
---   --json
+-- soql_query(query="SELECT Id, Name FROM Account WHERE Id IN (SELECT AccountId FROM Opportunity WHERE StageName = 'Closed Won') LIMIT 20") via Cirra AI MCP
 --
 -- Anti-join:
--- sf data query \
---   --query "SELECT Id, Name FROM Account WHERE Id NOT IN (SELECT AccountId FROM Contact) LIMIT 20" \
---   --target-org myorg \
---   --json
+-- soql_query(query="SELECT Id, Name FROM Account WHERE Id NOT IN (SELECT AccountId FROM Contact) LIMIT 20") via Cirra AI MCP

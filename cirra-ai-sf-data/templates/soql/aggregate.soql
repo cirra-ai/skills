@@ -16,7 +16,7 @@
 --
 -- IMPORTANT:
 -- • Aggregate queries return AggregateResult objects, not SObjects
--- • Cannot use with Bulk API export (use sf data query instead)
+-- • Cannot use with Bulk API export (use soql_query via Cirra AI MCP instead)
 -- • GROUP BY fields must appear in SELECT or be aggregated
 --
 -- ═══════════════════════════════════════════════════════════════════════════════
@@ -215,12 +215,9 @@ for (AggregateResult ar : oppResults) {
 */
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- SF CLI USAGE
+-- CIRRA AI MCP USAGE
 -- ═══════════════════════════════════════════════════════════════════════════════
--- sf data query \
---   --query "SELECT Industry, COUNT(Id) RecordCount, SUM(AnnualRevenue) TotalRevenue FROM Account WHERE Industry != null GROUP BY Industry ORDER BY SUM(AnnualRevenue) DESC" \
---   --target-org myorg \
---   --json
+-- soql_query(query="SELECT Industry, COUNT(Id) RecordCount, SUM(AnnualRevenue) TotalRevenue FROM Account WHERE Industry != null GROUP BY Industry ORDER BY SUM(AnnualRevenue) DESC") via Cirra AI MCP
 --
--- NOTE: Aggregate queries do NOT work with sf data export bulk
--- Use sf data query for aggregate results
+-- NOTE: Aggregate queries do NOT work with bulk export
+-- Use soql_query via Cirra AI MCP for aggregate results

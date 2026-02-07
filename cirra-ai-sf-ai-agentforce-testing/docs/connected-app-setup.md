@@ -21,15 +21,15 @@ Live mode requires a **Connected App** for OAuth authentication.
 
 ✅ **Required for:**
 
-- `sf agent preview --use-live-actions`
+- `sf agent preview --use-live-actions` (not available via MCP — UI-only feature)
 - Testing real data queries
 - Validating Flow execution
 - Debugging Apex integration
 
 ❌ **Not required for:**
 
-- `sf agent preview` (simulated mode)
-- `sf agent test run` (automated tests)
+- `sf agent preview` (simulated mode, not available via MCP — UI-only feature)
+- Automated agent test runs via MCP
 - Agent validation and publishing
 
 ---
@@ -103,23 +103,20 @@ After creating the Connected App:
 
 ## Authentication
 
-### Authenticate with the Connected App
+### Connect to the Salesforce Org
 
-```bash
-# Web-based OAuth login
-sf org login web --client-id YOUR_CONSUMER_KEY --set-default-dev-hub --alias preview-auth
+```
+# Connect to the org via Cirra AI MCP Server
+cirra_ai_init()
 ```
 
-### Or use existing org authentication
+### Or verify existing org connection
 
-If already authenticated to the org:
+If already connected to the org:
 
-```bash
-# Check current auth
-sf org display --target-org [alias]
-
-# Re-authenticate if needed
-sf org login web --alias [alias]
+```
+# Verify org connection
+cirra_ai_init()
 ```
 
 ---
@@ -128,7 +125,9 @@ sf org login web --alias [alias]
 
 ### Basic Live Preview
 
-```bash
+> **Note:** `sf agent preview` is not available via MCP (UI-only feature). Use the Salesforce Setup UI or CLI directly for live preview.
+
+```
 sf agent preview \
   --api-name Customer_Support_Agent \
   --use-live-actions \
@@ -138,7 +137,7 @@ sf agent preview \
 
 ### With Debug Logs
 
-```bash
+```
 sf agent preview \
   --api-name Customer_Support_Agent \
   --use-live-actions \
@@ -150,7 +149,7 @@ sf agent preview \
 
 ### Save Transcripts
 
-```bash
+```
 sf agent preview \
   --api-name Customer_Support_Agent \
   --use-live-actions \
@@ -227,7 +226,7 @@ When using `--apex-debug`:
 **Solution:**
 
 1. Verify Connected App callback URL matches `http://localhost:1717/OauthRedirect`
-2. Re-authenticate: `sf org login web --alias [alias]`
+2. Re-connect to the org: `cirra_ai_init()`
 3. Check Connected App is enabled for the user's profile
 
 ### "Connected App not found"
@@ -245,9 +244,9 @@ When using `--apex-debug`:
 
 **Solution:**
 
-1. Verify Flow is active: `sf flow resume --name [FlowName]`
-2. Verify Apex is deployed: `sf project deploy start --metadata ApexClass:[ClassName]`
-3. Check agent is activated: `sf agent activate --api-name [Agent]`
+1. Verify Flow is active: `soql_query(query="SELECT Id, Status FROM Flow WHERE DefinitionId IN (SELECT Id FROM FlowDefinition WHERE DeveloperName='[FlowName]')")`
+2. Verify Apex is deployed: `metadata_read(type="ApexClass", fullName="[ClassName]")`
+3. Check agent is activated: `metadata_update(type="GenAiPlannerBundle", fullName="[Agent]", metadata={...})`
 
 ### Timeout errors
 
@@ -304,8 +303,8 @@ If using metadata-based deployment:
 
 Deploy with:
 
-```bash
-sf project deploy start --metadata ConnectedApp:Agentforce_Preview --target-org [alias]
+```
+metadata_create(type="ConnectedApp", fullName="Agentforce_Preview", metadata={...})
 ```
 
 ---
@@ -330,7 +329,7 @@ There are **two different OAuth approaches** used in agent testing, each requiri
 ```
 What are you testing?
     │
-    ├─ Interactive preview (sf agent preview)?
+    ├─ Interactive preview (sf agent preview — not available via MCP, UI-only)?
     │   → Use Connected App (Web OAuth) — this guide
     │
     └─ Multi-turn API conversations?
@@ -341,7 +340,7 @@ What are you testing?
 
 If you're doing **comprehensive testing** (both CLI preview and multi-turn API), you'll need:
 
-1. A **Connected App** for `sf agent preview --use-live-actions` (this guide)
+1. A **Connected App** for `sf agent preview --use-live-actions` (not available via MCP — UI-only feature) (this guide)
 2. An **External Client App** for Agent Runtime API testing ([ECA Setup Guide](eca-setup-guide.md))
 
 These are separate app types and can coexist in the same org.

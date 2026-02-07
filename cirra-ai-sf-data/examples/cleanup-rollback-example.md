@@ -116,22 +116,22 @@ delete [SELECT Id FROM Account WHERE Name LIKE :testPattern];
 System.debug('Cleanup complete');
 ```
 
-### sf CLI Cleanup
+### Cirra AI MCP Cleanup
 
-```bash
+```
 # Query records to delete
-sf data query \
-  --query "SELECT Id FROM Account WHERE Name LIKE 'Test%'" \
-  --target-org dev \
-  --result-format csv \
-  > delete-accounts.csv
+soql_query(
+  query="SELECT Id FROM Account WHERE Name LIKE 'Test%'",
+  orgAlias="dev"
+)
 
-# Bulk delete
-sf data delete bulk \
-  --file delete-accounts.csv \
-  --sobject Account \
-  --target-org dev \
-  --wait 30
+# Delete using the returned IDs
+sobject_dml(
+  operation="delete",
+  sobjectType="Account",
+  records=[{Id: "<id_1>"}, {Id: "<id_2>"}, ...],
+  orgAlias="dev"
+)
 ```
 
 ## Method 3: Cleanup by Time Window
@@ -276,41 +276,42 @@ public class MyTestClass {
 }
 ```
 
-## Cleanup via sf CLI
+## Cleanup via Cirra AI MCP
 
-### Generate Cleanup CSV
+### Query Records for Cleanup
 
-```bash
-# Export IDs of test records
-sf data query \
-  --query "SELECT Id FROM Account WHERE Name LIKE 'Test%'" \
-  --target-org dev \
-  --result-format csv \
-  > cleanup-accounts.csv
+```
+# Query Account IDs to delete
+soql_query(
+  query="SELECT Id FROM Account WHERE Name LIKE 'Test%'",
+  orgAlias="dev"
+)
 
-sf data query \
-  --query "SELECT Id FROM Contact WHERE Account.Name LIKE 'Test%'" \
-  --target-org dev \
-  --result-format csv \
-  > cleanup-contacts.csv
+# Query Contact IDs to delete
+soql_query(
+  query="SELECT Id FROM Contact WHERE Account.Name LIKE 'Test%'",
+  orgAlias="dev"
+)
 ```
 
 ### Execute Bulk Delete
 
-```bash
-# Delete children first
-sf data delete bulk \
-  --file cleanup-contacts.csv \
-  --sobject Contact \
-  --target-org dev \
-  --wait 30
+```
+# Delete children first (using IDs from query above)
+sobject_dml(
+  operation="delete",
+  sobjectType="Contact",
+  records=[{Id: "<contact_id_1>"}, {Id: "<contact_id_2>"}, ...],
+  orgAlias="dev"
+)
 
 # Then delete parents
-sf data delete bulk \
-  --file cleanup-accounts.csv \
-  --sobject Account \
-  --target-org dev \
-  --wait 30
+sobject_dml(
+  operation="delete",
+  sobjectType="Account",
+  records=[{Id: "<account_id_1>"}, {Id: "<account_id_2>"}, ...],
+  orgAlias="dev"
+)
 ```
 
 ## Best Practices Summary
@@ -322,7 +323,7 @@ sf data delete bulk \
 | Time Window        | Post-test cleanup | Needs accurate timestamp      |
 | ID Tracking        | Precise cleanup   | Requires tracking discipline  |
 | @testSetup         | Unit tests        | Only in @isTest classes       |
-| sf CLI Bulk        | Large volumes     | External tool required        |
+| Cirra AI MCP       | Large volumes     | MCP server connection needed  |
 
 ## Golden Rules
 

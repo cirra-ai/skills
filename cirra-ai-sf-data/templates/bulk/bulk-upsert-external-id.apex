@@ -106,31 +106,27 @@ System.debug('Errors: ' + errorCount);
 System.debug('═══════════════════════════════════════════════════════════════');
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// SF CLI BULK UPSERT
+// CIRRA AI MCP BULK UPSERT
 // ═══════════════════════════════════════════════════════════════════════════════
 
 /*
-STEP 1: Create CSV with External ID column
+STEP 1: Prepare records with External ID field
 
-Example accounts-upsert.csv:
-External_Id__c,Name,Industry,Type,AnnualRevenue,BillingCity,BillingState
-EXT-001,External Account One,Technology,Prospect,1000000,San Francisco,CA
-EXT-002,External Account Two,Healthcare,Customer,2000000,New York,NY
-EXT-003,External Account Three,Finance,Partner,3000000,Chicago,IL
+Example records:
+[
+  {"External_Id__c": "EXT-001", "Name": "External Account One", "Industry": "Technology", "Type": "Prospect", "AnnualRevenue": 1000000, "BillingCity": "San Francisco", "BillingState": "CA"},
+  {"External_Id__c": "EXT-002", "Name": "External Account Two", "Industry": "Healthcare", "Type": "Customer", "AnnualRevenue": 2000000, "BillingCity": "New York", "BillingState": "NY"},
+  {"External_Id__c": "EXT-003", "Name": "External Account Three", "Industry": "Finance", "Type": "Partner", "AnnualRevenue": 3000000, "BillingCity": "Chicago", "BillingState": "IL"}
+]
 
-STEP 2: Run bulk upsert
+STEP 2: Run upsert via Cirra AI MCP Server
 
-sf data upsert bulk \
-  --file accounts-upsert.csv \
-  --sobject Account \
-  --external-id External_Id__c \
-  --target-org myorg \
-  --wait 30
+sobject_dml(operation="upsert", sobjectType="Account", externalIdField="External_Id__c", records=[...])
 
 NOTES:
 • The External_Id__c field must exist and be marked as External ID in Salesforce
-• To use standard Id field as the external ID: --external-id Id
-• CSV must include the external ID column
+• To use standard Id field as the external ID: externalIdField="Id"
+• Records must include the external ID field
 */
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -184,12 +180,7 @@ CON-003,Bob,Johnson,bob.johnson@example.com,EXT-002
 
 Note: Use "Account.External_Id__c" to reference parent by External ID
 
-sf data upsert bulk \
-  --file contacts-upsert.csv \
-  --sobject Contact \
-  --external-id External_Id__c \
-  --target-org myorg \
-  --wait 30
+sobject_dml(operation="upsert", sobjectType="Contact", externalIdField="External_Id__c", records=[...]) via Cirra AI MCP
 */
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -204,12 +195,7 @@ Id,Name,Industry,AnnualRevenue
 001XXXXXXXXXXXX1,Updated Account One,Technology,1500000
 001XXXXXXXXXXXX2,Updated Account Two,Healthcare,2500000
 
-sf data upsert bulk \
-  --file updates.csv \
-  --sobject Account \
-  --external-id Id \
-  --target-org myorg \
-  --wait 30
+sobject_dml(operation="upsert", sobjectType="Account", externalIdField="Id", records=[...]) via Cirra AI MCP
 */
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -220,28 +206,14 @@ sf data upsert bulk \
 FULL SYNC WORKFLOW:
 
 1. Export current data from Salesforce
-   sf data query \
-     --query "SELECT External_Id__c, Name, Industry FROM Account WHERE External_Id__c != null" \
-     --target-org myorg \
-     --result-format csv \
-     > current-accounts.csv
+   soql_query(query="SELECT External_Id__c, Name, Industry FROM Account WHERE External_Id__c != null") via Cirra AI MCP
 
-2. Generate sync file from external system (your process)
+2. Generate sync data from external system (your process)
    - Include External_Id__c for each record
    - Include all fields to update/insert
 
-3. Upsert the sync file
-   sf data upsert bulk \
-     --file sync-accounts.csv \
-     --sobject Account \
-     --external-id External_Id__c \
-     --target-org myorg \
-     --wait 30
-
-4. Check results
-   sf data bulk results \
-     --job-id [job-id-from-step-3] \
-     --target-org myorg
+3. Upsert the sync data
+   sobject_dml(operation="upsert", sobjectType="Account", externalIdField="External_Id__c", records=[...]) via Cirra AI MCP
 */
 
 // ═══════════════════════════════════════════════════════════════════════════════

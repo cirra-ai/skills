@@ -347,24 +347,24 @@ aura/MyComponent/
 
 ---
 
-## sf CLI Metadata Commands
+## Metadata Commands via Cirra AI MCP
 
-```bash
-# List metadata types
-sf org list metadata-types --target-org [alias]
+```
+# List available sObjects
+sobjects_list()
 
-# List specific metadata
-sf org list metadata --metadata-type CustomObject --target-org [alias]
+# List specific metadata type
+tooling_api_query(
+  sobjectType="EntityDefinition",
+  whereClause="IsCustomizable=true"
+)
 
 # Describe object
-sf sobject describe --sobject Account --target-org [alias]
+sobject_describe(sobjectType="Account")
 
 # Retrieve metadata
-sf project retrieve start --metadata CustomObject:Account
+metadata_read(type="CustomObject", fullName="Account")
 
-# Deploy metadata
-sf project deploy start --source-dir force-app
-
-# Generate package.xml
-sf project generate manifest --source-dir force-app
+# Create/deploy metadata
+metadata_create(type="CustomObject", fullName="Invoice__c", metadata={...})
 ```

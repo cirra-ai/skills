@@ -130,10 +130,10 @@ ERROR TESTING:
 □ Check error messages are helpful
 
 Debug Logs Query:
-sf data query --query "SELECT Id, Status, NumElements FROM FlowInterview
-WHERE FlowDefinitionName='Opportunity_Closed_Won_Update_Contacts'
-AND CreatedDate=TODAY ORDER BY CreatedDate DESC LIMIT 50"
---target-org sandbox-test
+soql_query(
+  query="SELECT Id, Status, NumElements FROM FlowInterview WHERE FlowDefinitionName='Opportunity_Closed_Won_Update_Contacts' AND CreatedDate=TODAY ORDER BY CreatedDate DESC LIMIT 50",
+  orgAlias="sandbox-test"
+) via Cirra AI MCP
 ```
 
 ## Generated Flow Structure (Key Parts)
@@ -321,12 +321,10 @@ After successful bulk testing in sandbox:
 
 4. **Set up monitoring:**
    ```
-   sf data query --query "SELECT Id, Status, NumElements
-   FROM FlowInterview
-   WHERE FlowDefinitionName='Opportunity_Closed_Won_Update_Contacts'
-   AND Status='Error'
-   AND CreatedDate=LAST_N_DAYS:1"
-   --target-org production
+   soql_query(
+     query="SELECT Id, Status, NumElements FROM FlowInterview WHERE FlowDefinitionName='Opportunity_Closed_Won_Update_Contacts' AND Status='Error' AND CreatedDate=LAST_N_DAYS:1",
+     orgAlias="production"
+   ) via Cirra AI MCP
    ```
 
 ## Performance Metrics

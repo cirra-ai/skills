@@ -98,7 +98,7 @@ When building agents with Flow actions:
 │     └── Create agent with flow:// target                                    │
 │                                                                             │
 │  8. sf-deploy                                                               │
-│     └── Publish agent (sf agent publish)                                    │
+│     └── Publish agent (metadata_create via Cirra AI MCP)                    │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -161,7 +161,7 @@ actions:
 | From sf-flow | To Skill      | When                                                |
 | ------------ | ------------- | --------------------------------------------------- |
 | sf-flow      | → sf-metadata | "Describe Invoice\_\_c" (verify fields before flow) |
-| sf-flow      | → sf-deploy   | "Deploy flow with --dry-run"                        |
+| sf-flow      | → sf-deploy   | "Deploy flow with checkOnly"                        |
 | sf-flow      | → sf-data     | "Create 200 test Accounts" (after deploy)           |
 
 ---

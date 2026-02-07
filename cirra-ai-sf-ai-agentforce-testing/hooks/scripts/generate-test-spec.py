@@ -527,10 +527,10 @@ Examples:
     print("\nNext steps:")
     print(f"  1. Review: cat {args.output}")
     print(
-        f"  2. Create test: sf agent test create --spec {args.output} --api-name {structure.agent_name}_Tests --target-org [alias]"
+        f"  2. Create test: tooling_api_dml(operation='create', sobjectType='AiEvaluationDefinition', records=[{{'MasterLabel': '{structure.agent_name}_Tests', 'DeveloperName': '{structure.agent_name}_Tests'}}])"
     )
     print(
-        f"  3. Run tests: sf agent test run --api-name {structure.agent_name}_Tests --wait 10 --result-format json --target-org [alias]"
+        f"  3. Run tests: tooling_api_dml(operation='create', sobjectType='AiEvaluationRun', records=[{{'AiEvaluationDefinitionId': '<id_from_step_2>'}}])"
     )
 
 

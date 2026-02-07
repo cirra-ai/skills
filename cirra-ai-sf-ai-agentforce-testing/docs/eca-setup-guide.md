@@ -6,14 +6,14 @@ Guide for creating an External Client App with Client Credentials flow to authen
 
 ## Overview
 
-The Agent Runtime API requires **OAuth 2.0 Client Credentials flow**, which is different from the Web Server OAuth flow used by `sf agent preview`. This requires an **External Client App (ECA)**, not a standard Connected App.
+The Agent Runtime API requires **OAuth 2.0 Client Credentials flow**, which is different from the Web Server OAuth flow used by `sf agent preview` (not available via MCP — UI-only feature). This requires an **External Client App (ECA)**, not a standard Connected App.
 
 ### OAuth Flow Comparison
 
-| Flow                                | Used By                                | App Type                  | User Interaction          |
-| ----------------------------------- | -------------------------------------- | ------------------------- | ------------------------- |
-| **Web Server (Authorization Code)** | `sf agent preview --use-live-actions`  | Connected App             | Browser login required    |
-| **Client Credentials**              | Agent Runtime API (multi-turn testing) | External Client App (ECA) | None (machine-to-machine) |
+| Flow | Used By | App Type | User Interaction |
+| --- | --- | --- | --- |
+| **Web Server (Authorization Code)** | `sf agent preview --use-live-actions` (UI-only) | Connected App | Browser login required |
+| **Client Credentials** | Agent Runtime API (multi-turn testing) | External Client App (ECA) | None (machine-to-machine) |
 
 > **Key Difference:** Client Credentials flow is machine-to-machine — no browser login needed. Perfect for automated testing.
 
@@ -166,12 +166,12 @@ curl -s -X POST "https://${SF_MY_DOMAIN}/services/oauth2/token" \
 
 ## ECA vs Connected App: When to Use Which
 
-| Scenario                              | Use                                      | Why                                   |
-| ------------------------------------- | ---------------------------------------- | ------------------------------------- |
-| `sf agent preview --use-live-actions` | Connected App (Web OAuth)                | CLI needs browser-based user login    |
-| Multi-turn API testing                | External Client App (Client Credentials) | Machine-to-machine, no browser needed |
-| CI/CD automated testing               | External Client App (Client Credentials) | Non-interactive, scriptable           |
-| Manual ad-hoc testing                 | Either                                   | Depends on test approach              |
+| Scenario | Use | Why |
+| --- | --- | --- |
+| `sf agent preview --use-live-actions` (UI-only) | Connected App (Web OAuth) | CLI needs browser-based user login |
+| Multi-turn API testing | External Client App (Client Credentials) | Machine-to-machine, no browser needed |
+| CI/CD automated testing | External Client App (Client Credentials) | Non-interactive, scriptable |
+| Manual ad-hoc testing | Either | Depends on test approach |
 
 ---
 

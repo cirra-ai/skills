@@ -4,7 +4,7 @@ Complete reference for Agentforce agent test specification YAML format.
 
 ## Overview
 
-Test specifications define automated test cases for Agentforce agents. They are created using `sf agent test create` and executed via `sf agent test run`.
+Test specifications define automated test cases for Agentforce agents. They are created using `tooling_api_dml(operation="create", sobjectType="AiEvaluationDefinition", ...)` and executed via `tooling_api_dml(operation="create", sobjectType="AiEvaluationRun", ...)`.
 
 **Related Documentation:**
 
@@ -457,66 +457,79 @@ Add descriptions to complex tests:
 
 ---
 
-## CLI Commands for Test Specs
+## MCP Tool Commands for Test Specs
 
-### Generate Test Spec (Interactive)
+### Generate Test Spec
 
-```bash
-# Interactive test spec generation
-sf agent generate test-spec --output-file ./tests/agent-spec.yaml
-
-# Note: There is NO --api-name flag! Command is interactive-only.
+```
+# Generate test spec from agent file using the Python script
+python3 hooks/scripts/generate-test-spec.py \
+  --agent-file /path/to/Agent.agent \
+  --output ./tests/agent-spec.yaml \
+  --verbose
 ```
 
 ### Create Test in Org
 
-```bash
-# Deploy test spec to org
-sf agent test create \
-  --spec ./tests/agent-spec.yaml \
-  --api-name MyAgentTest \
-  --target-org dev
+```
+# Create test definition in org
+tooling_api_dml(
+  operation="create",
+  sobjectType="AiEvaluationDefinition",
+  records=[{DeveloperName: "MyAgentTest", ...spec fields}],
+  orgAlias="dev"
+)
 
-# Overwrite existing test
-sf agent test create \
-  --spec ./tests/agent-spec.yaml \
-  --force-overwrite \
-  --target-org dev
+# Overwrite existing test (delete + recreate)
+tooling_api_dml(
+  operation="delete",
+  sobjectType="AiEvaluationDefinition",
+  records=[{Id: "<existing-def-id>"}],
+  orgAlias="dev"
+)
+tooling_api_dml(
+  operation="create",
+  sobjectType="AiEvaluationDefinition",
+  records=[{DeveloperName: "MyAgentTest", ...spec fields}],
+  orgAlias="dev"
+)
 ```
 
 ### Run Tests
 
-```bash
-# Run with wait
-sf agent test run \
-  --api-name MyAgentTest \
-  --wait 10 \
-  --result-format json \
-  --target-org dev
+```
+# Start a test run
+tooling_api_dml(
+  operation="create",
+  sobjectType="AiEvaluationRun",
+  records=[{AiEvaluationDefinitionId: "<test-def-id>"}],
+  orgAlias="dev"
+)
 
-# Run async
-sf agent test run \
-  --api-name MyAgentTest \
-  --result-format json \
-  --target-org dev
+# Poll for completion
+tooling_api_query(
+  sobjectType="AiEvaluationRun",
+  whereClause="Id = '<run-id>'",
+  orgAlias="dev"
+)
 ```
 
 ### Get Results
 
-```bash
-# Get results by job ID
-sf agent test results \
-  --job-id JOB_ID \
-  --result-format json \
-  --output-dir ./results \
-  --target-org dev
+```
+# Get results by run ID
+tooling_api_query(
+  sobjectType="AiEvaluationResult",
+  whereClause="AiEvaluationRunId = '<run-id>'",
+  orgAlias="dev"
+)
 
 # Get most recent results
-sf agent test results \
-  --use-most-recent \
-  --verbose \
-  --result-format json \
-  --target-org dev
+tooling_api_query(
+  sobjectType="AiEvaluationResult",
+  whereClause="CreatedDate = TODAY ORDER BY CreatedDate DESC LIMIT 10",
+  orgAlias="dev"
+)
 ```
 
 ---
@@ -531,16 +544,21 @@ sf agent test results \
 
 **Solution:**
 
-```bash
+```
 # Publish agent
-sf agent publish authoring-bundle \
-  --api-name MyAgent \
-  --target-org dev
+metadata_create(
+  type="GenAiPlannerBundle",
+  fullName="MyAgent",
+  metadata={...},
+  orgAlias="dev"
+)
 
 # Verify published
-sf data query --use-tooling-api \
-  --query "SELECT Id, DeveloperName FROM BotDefinition WHERE DeveloperName='MyAgent'" \
-  --target-org dev
+tooling_api_query(
+  sobjectType="BotDefinition",
+  whereClause="DeveloperName = 'MyAgent'",
+  orgAlias="dev"
+)
 ```
 
 ### Issue: Action Not Invoked

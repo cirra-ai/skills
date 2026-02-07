@@ -170,9 +170,9 @@ except LSPNotAvailableException:
 
 **Run from CLI (if available):**
 
-```bash
-# This requires Salesforce CLI with Apex Language Server
-sf apex compile --file force-app/main/default/classes/MyClass.cls
+```
+# Compilation check: deploy with metadata_create
+# Or use VS Code Apex Language Server for local validation
 ```
 
 ---
@@ -181,14 +181,14 @@ sf apex compile --file force-app/main/default/classes/MyClass.cls
 
 **Before deploying Apex code, verify these prerequisites:**
 
-| Prerequisite              | Check Command                                           | Required For                |
-| ------------------------- | ------------------------------------------------------- | --------------------------- |
-| **TAF Package**           | `sf package installed list --target-org alias`          | TAF trigger pattern         |
-| **Custom Fields**         | `sf sobject describe --sobject Lead --target-org alias` | Field references in code    |
-| **Permission Sets**       | `sf org list metadata --metadata-type PermissionSet`    | FLS for custom fields       |
-| **Trigger_Action\_\_mdt** | Check Setup → Custom Metadata Types                     | TAF trigger execution       |
-| **Named Credentials**     | Check Setup → Named Credentials                         | External callouts           |
-| **Custom Settings**       | Check Setup → Custom Settings                           | Bypass flags, configuration |
+| Prerequisite              | Check Command                                                        | Required For                |
+| ------------------------- | -------------------------------------------------------------------- | --------------------------- |
+| **TAF Package**           | `tooling_api_query(sobjectType="InstalledSubscriberPackage")`        | TAF trigger pattern         |
+| **Custom Fields**         | `sobject_describe(sobjectType="Lead")`                               | Field references in code    |
+| **Permission Sets**       | `soql_query(query="SELECT Id, Name FROM PermissionSet")`             | FLS for custom fields       |
+| **Trigger_Action\_\_mdt** | Check Setup → Custom Metadata Types                                  | TAF trigger execution       |
+| **Named Credentials**     | Check Setup → Named Credentials                                      | External callouts           |
+| **Custom Settings**       | Check Setup → Custom Settings                                        | Bypass flags, configuration |
 
 ---
 
@@ -196,19 +196,19 @@ sf apex compile --file force-app/main/default/classes/MyClass.cls
 
 ```
 1. sf-metadata: Create custom fields
-   └─> sf sobject create --sobject-name Lead --fields "Score__c:Number(3,0)"
+   └─> metadata_create(type="CustomField", fullName="Lead.Score__c", metadata={...})
 
 2. sf-metadata: Create Permission Sets
    └─> Grant FLS on custom fields
 
 3. sf-deploy: Deploy fields + Permission Sets
-   └─> sf project deploy start --metadata-dir force-app/main/default/objects
+   └─> metadata_create(type="CustomField", ...)
 
 4. sf-apex: Deploy Apex classes/triggers
-   └─> sf project deploy start --metadata-dir force-app/main/default/classes
+   └─> metadata_create(type="ApexClass", fullName="MyClass", metadata={...})
 
 5. sf-data: Create test data
-   └─> sf data create record --sobject Account --values "Name='Test'"
+   └─> sobject_dml(operation="insert", sobjectType="Account", records=[{Name: "Test"}])
 ```
 
 ---
@@ -217,36 +217,25 @@ sf apex compile --file force-app/main/default/classes/MyClass.cls
 
 **Check TAF Package:**
 
-```bash
-sf package installed list --target-org myorg --json
+```
+tooling_api_query(sobjectType="InstalledSubscriberPackage")
 ```
 
-**Output:**
-
-```json
-{
-  "result": [
-    {
-      "Id": "04t...",
-      "SubscriberPackageName": "Trigger Actions Framework",
-      "SubscriberPackageVersionNumber": "1.2.0"
-    }
-  ]
-}
-```
+**Expected Result:** Look for "Trigger Actions Framework" in the response.
 
 **If not installed:**
 
-```bash
-sf package install --package 04tKZ000000gUEFYA2 --target-org myorg --wait 10
+```
+# Package install: use metadata_create or Salesforce Setup
+# Install package 04tKZ000000gUEFYA2 via Salesforce Setup → Installed Packages
 ```
 
 ---
 
 **Check Custom Metadata Records:**
 
-```bash
-sf data query --query "SELECT DeveloperName, Object__c, Apex_Class_Name__c FROM Trigger_Action__mdt" --target-org myorg
+```
+soql_query(query="SELECT DeveloperName, Object__c, Apex_Class_Name__c FROM Trigger_Action__mdt")
 ```
 
 **Expected Output:**
@@ -278,14 +267,14 @@ Error: Field Account.Custom_Field__c does not exist
 
 1. Verify field exists:
 
-   ```bash
-   sf sobject describe --sobject Account --target-org myorg | grep Custom_Field__c
+   ```
+   sobject_describe(sobjectType="Account")
    ```
 
 2. Deploy field first:
 
-   ```bash
-   sf project deploy start --metadata CustomField:Account.Custom_Field__c --target-org myorg
+   ```
+   metadata_create(type="CustomField", fullName="Account.Custom_Field__c", metadata={...})
    ```
 
 3. Then deploy Apex
@@ -304,12 +293,12 @@ Error: Invalid type: TriggerAction.BeforeInsert
 
 **Fix:**
 
-```bash
-# Install TAF package
-sf package install --package 04tKZ000000gUEFYA2 --target-org myorg --wait 10
+```
+# Package install: use metadata_create or Salesforce Setup
+# Install package 04tKZ000000gUEFYA2 via Salesforce Setup → Installed Packages
 
 # Verify
-sf package installed list --target-org myorg
+tooling_api_query(sobjectType="InstalledSubscriberPackage")
 ```
 
 ---
@@ -327,10 +316,7 @@ Error: Insufficient access rights on object id
 **Fix:**
 
 1. Verify user has "Modify All Data" or is System Administrator
-2. Or add specific permissions to user's profile:
-   ```bash
-   sf org assign permset --name "Deploy_Permissions" --target-org myorg
-   ```
+2. Or add specific permissions to user's profile via Salesforce Setup → Permission Set Assignments
 
 ---
 
@@ -348,8 +334,8 @@ Error: Average test coverage across all Apex Classes and Triggers is 68%, at lea
 
 1. Identify uncovered classes:
 
-   ```bash
-   sf apex run test --code-coverage --result-format human --target-org myorg
+   ```
+   # Test execution: use sf-testing skill or Salesforce Setup
    ```
 
 2. Add missing test classes
@@ -375,8 +361,8 @@ Error: FIELD_CUSTOM_VALIDATION_EXCEPTION: Annual Revenue must be greater than 0
 
 1. Check validation rules:
 
-   ```bash
-   sf data query --query "SELECT ValidationName, ErrorDisplayField, ErrorMessage FROM ValidationRule WHERE EntityDefinition.QualifiedApiName = 'Account'" --target-org myorg
+   ```
+   soql_query(query="SELECT ValidationName, ErrorDisplayField, ErrorMessage FROM ValidationRule WHERE EntityDefinition.QualifiedApiName = 'Account'")
    ```
 
 2. Update Apex to satisfy validation logic:
@@ -403,12 +389,11 @@ Error: FIELD_CUSTOM_VALIDATION_EXCEPTION: Annual Revenue must be greater than 0
 
 **Via CLI:**
 
-```bash
+```
 # Create trace flag
-sf data create record --sobject TraceFlag --values "StartDate=2025-01-01T00:00:00Z EndDate=2025-01-02T00:00:00Z LogType=USER_DEBUG TracedEntityId=<USER_ID> DebugLevelId=<DEBUG_LEVEL_ID>" --target-org myorg
+sobject_dml(operation="insert", sobjectType="TraceFlag", records=[{StartDate: "2025-01-01T00:00:00Z", EndDate: "2025-01-02T00:00:00Z", LogType: "USER_DEBUG", TracedEntityId: "<USER_ID>", DebugLevelId: "<DEBUG_LEVEL_ID>"}])
 
-# Tail logs in real-time
-sf apex tail log --target-org myorg
+# Debug logs: use sf-debug skill or Salesforce Setup
 ```
 
 ---
@@ -642,17 +627,12 @@ static void setup() {
 2. Click "Run Test" above `@IsTest` method
 3. View results in Output panel
 
-**CLI:**
+**Via Cirra AI MCP:**
 
-```bash
-# Run specific test class
-sf apex run test --tests AccountServiceTest --result-format human --code-coverage --target-org myorg
-
-# Run all tests
-sf apex run test --test-level RunLocalTests --result-format human --code-coverage --target-org myorg
-
-# Run tests and generate coverage report
-sf apex run test --test-level RunLocalTests --code-coverage --result-format json --output-dir test-results --target-org myorg
+```
+# Test execution: use sf-testing skill or Salesforce Setup
+# Run tests from Salesforce Setup → Apex Test Execution
+# Or use Developer Console → Test → Run All
 ```
 
 **Output:**

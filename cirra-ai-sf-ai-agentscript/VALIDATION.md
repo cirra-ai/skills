@@ -71,19 +71,22 @@ Each validation agent tests specific patterns documented in SKILL.md:
 
 ## Validation Command
 
-```bash
+```
 # Navigate to validation directory
 cd sf-ai-agentscript/validation
 
-# Deploy metadata first
-sf project deploy start \
-  --source-dir validation-agents/force-app/main/default/aiAuthoringBundles \
-  --target-org R6-Agentforce-SandboxFull
+# Deploy metadata first via Cirra AI MCP Server
+metadata_create(type="GenAiPlannerBundle", fullName="Val_Minimal_Syntax", metadata={...})
 
-# Publish each agent
-for agent in Val_Minimal_Syntax Val_Arithmetic_Ops Val_Comparison_Ops Val_Variable_Scopes Val_Topic_Transitions Val_Latch_Pattern Val_Loop_Guard Val_Interpolation; do
-  sf agent publish authoring-bundle --api-name "$agent" --target-org R6-Agentforce-SandboxFull
-done
+# Publish each agent via Cirra AI MCP Server
+metadata_create(type="GenAiPlannerBundle", fullName="Val_Minimal_Syntax", metadata={...})
+metadata_create(type="GenAiPlannerBundle", fullName="Val_Arithmetic_Ops", metadata={...})
+metadata_create(type="GenAiPlannerBundle", fullName="Val_Comparison_Ops", metadata={...})
+metadata_create(type="GenAiPlannerBundle", fullName="Val_Variable_Scopes", metadata={...})
+metadata_create(type="GenAiPlannerBundle", fullName="Val_Topic_Transitions", metadata={...})
+metadata_create(type="GenAiPlannerBundle", fullName="Val_Latch_Pattern", metadata={...})
+metadata_create(type="GenAiPlannerBundle", fullName="Val_Loop_Guard", metadata={...})
+metadata_create(type="GenAiPlannerBundle", fullName="Val_Interpolation", metadata={...})
 ```
 
 ## History
@@ -110,8 +113,8 @@ done
 
 ### Common Issues
 
-| Issue                            | Cause                      | Resolution                                |
-| -------------------------------- | -------------------------- | ----------------------------------------- |
-| `Nonexistent flag: --source-dir` | CLI version change         | Use `sf agent publish --api-name` instead |
-| `Unknown error` on publish       | Usually successful         | Check full JSON output for actual status  |
-| `Default agent user not found`   | Wrong org or user inactive | Query target org for Einstein Agent User  |
+| Issue                            | Cause                      | Resolution                                                     |
+| -------------------------------- | -------------------------- | -------------------------------------------------------------- |
+| `Nonexistent flag: --source-dir` | CLI version change         | Use `metadata_create(type="GenAiPlannerBundle", ...)` instead  |
+| `Unknown error` on publish       | Usually successful         | Check full JSON output for actual status                       |
+| `Default agent user not found`   | Wrong org or user inactive | Query target org for Einstein Agent User                       |

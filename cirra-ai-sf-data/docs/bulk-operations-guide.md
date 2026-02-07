@@ -4,64 +4,72 @@ When and how to use Salesforce Bulk API operations.
 
 ## Decision Matrix
 
-| Record Count | Recommended API | Command                 |
-| ------------ | --------------- | ----------------------- |
-| 1-10         | Single Record   | `sf data create record` |
-| 11-2000      | Standard API    | `sf data query` + Apex  |
-| 2000-10M     | Bulk API 2.0    | `sf data import bulk`   |
-| 10M+         | Data Loader     | External tool           |
+| Record Count | Recommended API | Command                                        |
+| ------------ | --------------- | ---------------------------------------------- |
+| 1-10         | Single Record   | `sobject_dml(operation="insert", ...)`         |
+| 11-2000      | Standard API    | `sobject_dml(operation="insert", ...)`         |
+| 2000-10M     | Bulk API 2.0    | `sobject_dml(operation="insert", ...)` (batch) |
+| 10M+         | Data Loader     | External tool                                  |
 
-## Bulk API 2.0 Commands
+## Execution via Cirra AI MCP
 
-### Import (Insert)
+### Insert
 
-```bash
-sf data import bulk \
-  --file accounts.csv \
-  --sobject Account \
-  --target-org myorg \
-  --wait 30
+```
+sobject_dml(
+  operation="insert",
+  sobjectType="Account",
+  records=[
+    {"Name": "Acme Corp", "Industry": "Technology"},
+    {"Name": "Globex Inc", "Industry": "Finance"}
+  ]
+)
 ```
 
 ### Update
 
-```bash
-sf data update bulk \
-  --file updates.csv \
-  --sobject Account \
-  --target-org myorg \
-  --wait 30
+```
+sobject_dml(
+  operation="update",
+  sobjectType="Account",
+  records=[
+    {"Id": "001xx000003DGbYAAW", "Industry": "Healthcare"},
+    {"Id": "001xx000003DGbZAAW", "Industry": "Finance"}
+  ]
+)
 ```
 
 ### Upsert (Insert or Update)
 
-```bash
-sf data upsert bulk \
-  --file upsert.csv \
-  --sobject Account \
-  --external-id External_Id__c \
-  --target-org myorg \
-  --wait 30
+```
+sobject_dml(
+  operation="upsert",
+  sobjectType="Account",
+  externalIdField="External_Id__c",
+  records=[
+    {"External_Id__c": "EXT-001", "Name": "Acme Corp"},
+    {"External_Id__c": "EXT-002", "Name": "Globex Inc"}
+  ]
+)
 ```
 
 ### Delete
 
-```bash
-sf data delete bulk \
-  --file delete.csv \
-  --sobject Account \
-  --target-org myorg \
-  --wait 30
+```
+sobject_dml(
+  operation="delete",
+  sobjectType="Account",
+  records=[
+    {"Id": "001xx000003DGbYAAW"},
+    {"Id": "001xx000003DGbZAAW"}
+  ]
+)
 ```
 
-### Export
+### Export (Query)
 
-```bash
-sf data export bulk \
-  --query "SELECT Id, Name FROM Account" \
-  --output-file accounts.csv \
-  --target-org myorg \
-  --wait 30
+```
+soql_query(query="SELECT Id, Name FROM Account")
 ```
 
 ## CSV Format Requirements
@@ -82,17 +90,10 @@ sf data export bulk \
 
 ## Error Handling
 
-```bash
-# Check job status
-sf data resume --job-id [job-id] --target-org myorg
-
-# Get results
-sf data bulk results --job-id [job-id] --target-org myorg
-```
+The MCP `sobject_dml` tool returns results directly, including any per-record errors. No separate job status or result retrieval commands are needed.
 
 ## Best Practices
 
-1. **Chunk large files** - Split files >100MB
-2. **Use --wait** - Monitor completion
-3. **Handle partial failures** - Check result files
-4. **Test in sandbox** - Validate before production
+1. **Chunk large record sets** - Split into batches for large operations
+2. **Handle partial failures** - Check per-record results from `sobject_dml`
+3. **Test in sandbox** - Validate before production

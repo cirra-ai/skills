@@ -13,10 +13,10 @@
       ├── MyAgent.agent              <- Agent Script file
       └── MyAgent.bundle-meta.xml    <- This file (rename to match agent)
 
-  DEPLOYMENT COMMAND:
-  sf agent publish authoring-bundle --source-dir ./force-app/main/default/aiAuthoringBundles/MyAgent
+  DEPLOYMENT VIA CIRRA AI MCP SERVER:
+  metadata_create(type="GenAiPlannerBundle", fullName="MyAgent", metadata={...})
 
-  DO NOT USE: sf project deploy start (will fail with "Required fields are missing: [BundleType]")
+  NOTE: Standard metadata deploy may fail with "Required fields are missing: [BundleType]" — use the GenAiPlannerBundle type.
 -->
 <AiAuthoringBundle xmlns="http://soap.sforce.com/2006/04/metadata">
     <bundleType>AGENT</bundleType>

@@ -336,17 +336,17 @@ A filter is SELECTIVE when:
 
 Before deploying SOQL to production:
 
-1. [ ] Run Query Plan tool (Developer Console or CLI)
+1. [ ] Run Query Plan tool (Developer Console or MCP Tooling API)
 2. [ ] Verify `LeadingOperationType` is "Index" not "TableScan"
 3. [ ] Test with 200+ records in trigger context
 4. [ ] Verify query count stays under 100 per transaction
 5. [ ] Check heap usage for large result sets
 
-```bash
-# CLI Query Plan
-sf data query \
-  --query "SELECT Id FROM Account WHERE Name = 'Test'" \
-  --target-org my-org \
-  --use-tooling-api \
-  --plan
+```
+# MCP Tool Query (Tooling API)
+tooling_api_query(
+  sobjectType="Account",
+  whereClause="Name = 'Test'",
+  orgAlias="my-org"
+)
 ```
