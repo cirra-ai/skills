@@ -1,7 +1,7 @@
 {
   "name": "cirra-ai-skills",
   "private": true,
-  "description": "Cirra AI skill plugins for Claude Code",
+  "description": "Cirra AI skill plugins for Claude Code and Claude Cowork",
   "license": "MIT",
   "scripts": {
     "lint": "prettier --check . && ruff check .",

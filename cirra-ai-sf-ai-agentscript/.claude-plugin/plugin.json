@@ -1,7 +1,7 @@
 {
   "name": "cirra-ai-sf-ai-agentscript",
   "version": "1.4.0",
-  "description": "Agent Script DSL development skill for Salesforce Agentforce using Cirra AI MCP Server. Enables writing deterministic agents in a single .agent file with FSM architecture, instruction resolution, and hybrid reasoning.",
+  "description": "Agent Script DSL authoring with 100-point scoring, instruction resolution patterns, FSM architecture, and deterministic execution guarantees using Cirra AI MCP Server. Master the three-phase instruction resolution model and build enterprise-grade AI agents.",
   "author": {
     "name": "Cirra AI (based on original by Jag Valaiyapathy)",
     "email": "info@cirra.ai"

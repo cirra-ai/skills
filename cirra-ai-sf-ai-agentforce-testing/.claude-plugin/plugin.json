@@ -1,7 +1,7 @@
 {
   "name": "cirra-ai-sf-ai-agentforce-testing",
   "display_name": "Agentforce Testing (Cirra AI MCP)",
-  "description": "Comprehensive Agentforce testing skill with dual-track workflow: multi-turn API testing (primary) and CLI Testing Center (secondary). Uses Cirra AI MCP Server for org access instead of Salesforce CLI.",
+  "description": "Comprehensive Agentforce testing skill with dual-track workflow: multi-turn API testing (primary) and CLI Testing Center (secondary) using Cirra AI MCP Server. Execute multi-turn conversations via Agent Runtime API, run single-utterance tests, analyze topic/action/context coverage, and automatically fix failing agents with 100-point scoring across 7 categories.",
   "version": "2.0.0-cirra",
   "author": {
     "name": "Cirra AI (based on original by Jag Valaiyapathy)",

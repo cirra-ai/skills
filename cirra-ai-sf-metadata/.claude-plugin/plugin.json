@@ -1,7 +1,7 @@
 {
   "name": "cirra-ai-sf-metadata",
   "version": "1.0.0",
-  "description": "Salesforce metadata generation, org querying, and validation via Cirra AI MCP Server. 120-point scoring across 6 categories.",
+  "description": "Generates and queries Salesforce metadata with 120-point scoring using Cirra AI MCP Server. Use when creating custom objects, fields, profiles, permission sets, validation rules, or querying org metadata structures.",
   "author": {
     "name": "Cirra AI (based on original by Jag Valaiyapathy)",
     "email": "info@cirra.ai"

@@ -1,7 +1,7 @@
 {
   "name": "cirra-ai-sf-lwc",
   "version": "2.2.0",
-  "description": "Lightning Web Components development with Cirra AI MCP Server integration",
+  "description": "Lightning Web Components development skill with SLDS 2 validation (140-point scoring) using Cirra AI MCP Server. Includes dark mode compatibility checks, styling hooks validation, SLDS 1→2 migration detection, accessibility audits, and component best practices.",
   "author": {
     "name": "Cirra AI (based on original by Jag Valaiyapathy)",
     "email": "info@cirra.ai"
