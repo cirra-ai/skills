@@ -40,7 +40,7 @@ This skill was developed from comprehensive documentation screenshots covering 8
 
 ### Related Skills
 
-This skill integrates with other sf-skills:
+This skill integrates with other Cirra AI skills:
 
 - **sf-ai-agentforce-legacy** - Legacy Agentforce development patterns (deprecated, use sf-ai-agentscript for new agents)
 - **sf-ai-agentforce-testing** - Agent testing with CLI
@@ -55,7 +55,7 @@ This skill integrates with other sf-skills:
 | Instruction Resolution (3-phase model) | Salesforce Agent Script Workshop                  |
 | Deterministic Building Blocks          | Salesforce Agent Script Workshop                  |
 | SOMA (Same Org Multi-Agent)            | Salesforce Agent Script Workshop                  |
-| 100-Point Scoring System               | sf-skills Pattern (adapted from sf-ai-agentforce) |
+| 100-Point Scoring System               | Cirra AI skills pattern (adapted from sf-ai-agentforce) |
 
 ## Tools & Technologies
 

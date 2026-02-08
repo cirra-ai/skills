@@ -1,6 +1,6 @@
 # cirra-ai-sf
 
-Salesforce development suite for Claude Code. Orchestrates Apex, Flow, and Data plugins with Cirra AI MCP Server.
+Salesforce admin suite for Claude Cowork and Claude Code. Orchestrates Apex, Flow, and Data plugins with Cirra AI MCP Server.
 
 ## What's Included
 
@@ -14,21 +14,37 @@ Each plugin works independently. Install this meta-plugin to get all three with 
 
 ## Installation
 
-```bash
-# Install the suite (all three plugins)
-claude /plugin install github:cirra-ai/skills/cirra-ai-sf
+### Claude Code
 
-# Or install individually
-claude /plugin install github:cirra-ai/skills/cirra-ai-sf-apex
-claude /plugin install github:cirra-ai/skills/cirra-ai-sf-flow
-claude /plugin install github:cirra-ai/skills/cirra-ai-sf-data
+Add the Cirra AI marketplace, then install the full suite or individual skills:
+
+```bash
+# Step 1: Add the marketplace (one-time)
+/plugin marketplace add cirra-ai/skills
+
+# Step 2: Install the complete suite
+/plugin install cirra-ai-sf-skills@cirra-ai
+
+# Or install individual skills
+/plugin install cirra-ai-sf-apex@cirra-ai
+/plugin install cirra-ai-sf-flow@cirra-ai
+/plugin install cirra-ai-sf-data@cirra-ai
 ```
+
+### Claude Cowork
+
+1. Download the plugin zip from the [latest release](https://github.com/cirra-ai/skills/releases)
+   - **Full suite**: download `cirra-ai-sf-skills.zip`
+   - **Individual skill**: download e.g. `cirra-ai-sf-apex.zip`
+2. In Cowork, click **Plugins** in the left sidebar
+3. Click **Upload plugin**
+4. Select the downloaded zip file
 
 ## Requirements
 
 - Cirra AI MCP Server
 - Target Salesforce org (sandbox or production)
-- Claude Code with skill plugins enabled
+- Claude Code or Claude Cowork with plugins enabled
 
 ## License
 

@@ -72,7 +72,7 @@ This skill builds upon patterns established in:
 | Test Spec YAML            | SF Agent CLI           | templates/basic-test-spec.yaml |
 | Agentic Fix Loop          | sf-testing skill       | docs/agentic-fix-loop.md       |
 | Coverage Analysis         | SF Testing Center      | docs/coverage-analysis.md      |
-| Cross-Skill Orchestration | sf-skills architecture | hooks/scripts/                 |
+| Cross-Skill Orchestration | Cirra AI skills architecture | hooks/scripts/                 |
 
 ---
 

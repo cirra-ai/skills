@@ -1,16 +1,15 @@
 #!/usr/bin/env python3
 """
-sf-data Post-Write Validation Hook (LEGACY)
-=============================================
+sf-data Post-Write Validation Hook
+===================================
 
-NOTE: This hook validates LOCAL files (.apex, .soql, .csv, .json) written to disk.
-In Cirra AI MCP workflows, operations go directly to the org — no local files are
-written. For MCP pre-flight validation, use mcp_validator_cli.py instead:
+Validates data operation files after they are written:
+- .apex files: Anonymous Apex scripts for data operations
+- .soql files: SOQL query files
+- .csv files: Bulk import CSV files
+- .json files: sObject tree JSON files
 
-    echo '{"tool":"sobject_dml","params":{...}}' | python mcp_validator_cli.py
-
-This hook is retained for backward compatibility with local template validation.
-It is ADVISORY — it provides feedback but does not block writes.
+This hook is ADVISORY - it provides feedback but does not block writes.
 """
 
 import json
@@ -67,7 +66,7 @@ def main():
 
     except Exception as e:
         # Log error but don't block the write
-        error_output = {"output": f"Validation skipped: {str(e)}"}
+        error_output = {"output": f"⚠️ Validation skipped: {str(e)}"}
         print(json.dumps(error_output))
 
 
@@ -116,36 +115,37 @@ def format_validation_report(result: dict) -> str:
     max_score = result.get("max_score", 130)
     rating = get_rating(score, max_score)
 
-    lines.append("=" * 60)
-    lines.append("   sf-data Validation Report (Legacy File Validator)")
-    lines.append("=" * 60)
+    lines.append("═" * 60)
+    lines.append("   sf-data Validation Report")
+    lines.append("═" * 60)
     lines.append("")
-    lines.append(f"Score: {score}/{max_score} {rating}")
+    lines.append(f"🎯 Score: {score}/{max_score} {rating}")
     lines.append("")
 
     # Category breakdown
     categories = result.get("categories", {})
     if categories:
         lines.append("Category Breakdown:")
-        lines.append("-" * 60)
+        lines.append("─" * 60)
         for cat_name, cat_data in categories.items():
             cat_score = cat_data.get("score", 0)
             cat_max = cat_data.get("max", 0)
             pct = (cat_score / cat_max * 100) if cat_max > 0 else 0
-            status = "OK" if pct >= 80 else "!!" if pct >= 60 else "XX"
-            lines.append(f"[{status}] {cat_name}: {cat_score}/{cat_max} ({pct:.0f}%)")
+            status = "✅" if pct >= 80 else "⚠️" if pct >= 60 else "❌"
+            lines.append(f"{status} {cat_name}: {cat_score}/{cat_max} ({pct:.0f}%)")
         lines.append("")
 
     # Issues
     issues = result.get("issues", [])
     if issues:
         lines.append("Issues Found:")
-        lines.append("-" * 60)
-        for issue in issues[:10]:
+        lines.append("─" * 60)
+        for issue in issues[:10]:  # Limit to 10 issues
             severity = issue.get("severity", "warning")
-            icon = "ERR" if severity == "error" else "WRN"
+            icon = "❌" if severity == "error" else "⚠️" if severity == "warning" else "ℹ️"
+            category = issue.get("category", "General")
             message = issue.get("message", "Unknown issue")
-            lines.append(f"[{icon}] {message}")
+            lines.append(f"{icon} [{category}] {message}")
         if len(issues) > 10:
             lines.append(f"   ... and {len(issues) - 10} more issues")
         lines.append("")
@@ -154,24 +154,24 @@ def format_validation_report(result: dict) -> str:
     recommendations = result.get("recommendations", [])
     if recommendations:
         lines.append("Recommendations:")
-        lines.append("-" * 60)
+        lines.append("─" * 60)
         for rec in recommendations[:5]:
-            lines.append(f"-> {rec}")
+            lines.append(f"💡 {rec}")
         lines.append("")
 
-    lines.append("=" * 60)
+    lines.append("═" * 60)
 
     # Status
     if score >= max_score * 0.9:
-        lines.append("VALIDATION PASSED - Excellent!")
+        lines.append("✅ VALIDATION PASSED - Excellent!")
     elif score >= max_score * 0.7:
-        lines.append("VALIDATION PASSED - Good")
+        lines.append("✅ VALIDATION PASSED - Good")
     elif score >= max_score * 0.5:
-        lines.append("VALIDATION PASSED - Review recommended")
+        lines.append("⚠️ VALIDATION PASSED - Review recommended")
     else:
-        lines.append("VALIDATION PASSED (Advisory) - Please review issues")
+        lines.append("⚠️ VALIDATION PASSED (Advisory) - Please review issues")
 
-    lines.append("=" * 60)
+    lines.append("═" * 60)
 
     return "\n".join(lines)
 
@@ -181,15 +181,15 @@ def get_rating(score: int, max_score: int) -> str:
     pct = (score / max_score * 100) if max_score > 0 else 0
 
     if pct >= 90:
-        return "Excellent (5/5)"
+        return "⭐⭐⭐⭐⭐ Excellent"
     elif pct >= 80:
-        return "Very Good (4/5)"
+        return "⭐⭐⭐⭐ Very Good"
     elif pct >= 70:
-        return "Good (3/5)"
+        return "⭐⭐⭐ Good"
     elif pct >= 60:
-        return "Needs Work (2/5)"
+        return "⭐⭐ Needs Work"
     else:
-        return "Critical Issues (1/5)"
+        return "⭐ Critical Issues"
 
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 ---
 name: cirra-ai-sf
 description: >
-  Salesforce development suite — orchestrates Apex, Flow, and Data plugins
+  Salesforce admin suite — orchestrates Apex, Flow, and Data plugins
   with Cirra AI MCP Server. Use when the user needs cross-domain Salesforce
   work spanning code, flows, and data operations.
 license: MIT
@@ -10,9 +10,21 @@ metadata:
   author: 'Cirra AI'
 ---
 
-# cirra-ai-sf: Salesforce Development Suite
+# cirra-ai-sf: Salesforce Admin Suite
 
 Orchestrates three independent Salesforce plugins into a unified development workflow. Each plugin works standalone; this meta-skill coordinates them when all three are active.
+
+## CRITICAL: Dependency Check on Session Start
+
+When this skill is loaded, you MUST check whether the sub-plugins listed below are also installed and available. Check by looking for their SKILL.md files or skill names in the current session.
+
+If any sub-plugin is **missing**, warn the user immediately:
+
+> "cirra-ai-sf is an orchestration layer for three sub-plugins. I can see that **[missing plugin(s)]** is not installed. This means I won't have access to [what it provides]. You can install it with `claude /plugin install github:cirra-ai/skills/[plugin-name]`, or I can proceed on a best-effort basis without it."
+
+Then proceed with whatever plugins ARE available. Do not silently fall back to generic knowledge — the user should know what they're missing so they can make an informed choice.
+
+If plugins **are** available you MUST use them! Don't make up your own methodology
 
 ## Sub-Plugins
 
