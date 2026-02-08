@@ -1,4 +1,4 @@
-# sf-flow
+# cirra-ai-sf-flow
 
 Creates and validates Salesforce Flows with 110-point scoring and Winter '26 best practices. Build production-ready, performant, and secure flows.
 
@@ -27,7 +27,7 @@ claude /plugin install github:cirra-ai/skills
 ### 1. Invoke the skill
 
 ```
-Skill: sf-flow
+Skill: cirra-ai-sf-flow
 Request: "Create a before-save flow to auto-populate Account fields"
 ```
 
@@ -84,17 +84,17 @@ The skill generates:
 
 ## Cross-Skill Integration
 
-| Related Skill | When to Use                               |
-| ------------- | ----------------------------------------- |
-| sf-apex       | Create @InvocableMethod for complex logic |
-| sf-lwc        | Create screen components for custom UI    |
-| sf-metadata   | Deploy custom objects BEFORE flows        |
-| sf-deploy     | Deploy flows to org                       |
+| Related Skill         | When to Use                               |
+| --------------------- | ----------------------------------------- |
+| cirra-ai-sf-apex      | Create @InvocableMethod for complex logic |
+| cirra-ai-sf-lwc       | Create screen components for custom UI    |
+| cirra-ai-sf-metadata  | Deploy custom objects BEFORE flows        |
+| cirra-ai-sf-deploy    | Deploy flows to org                       |
 
 ## Orchestration Order
 
 ```
-sf-metadata → sf-flow → sf-deploy → sf-data
+cirra-ai-sf-metadata → cirra-ai-sf-flow → cirra-ai-sf-deploy → cirra-ai-sf-data
 ```
 
 Always deploy custom objects/fields BEFORE flows that reference them.

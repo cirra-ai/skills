@@ -11,7 +11,7 @@ When and how to use Salesforce Bulk API operations.
 | 2000-10M     | Bulk API 2.0    | `sobject_dml(operation="insert", ...)` (batch) |
 | 10M+         | Data Loader     | External tool                                  |
 
-## Execution via Cirra AI MCP
+## Execution via Cirra AI MCP (cirra-ai-sf-data)
 
 ### Insert
 

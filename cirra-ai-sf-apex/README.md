@@ -1,4 +1,4 @@
-# sf-apex
+# cirra-ai-sf-apex
 
 Generates and reviews Salesforce Apex code with 2025 best practices and 150-point scoring. Build production-ready, secure, and maintainable Apex.
 
@@ -25,7 +25,7 @@ claude /plugin install github:cirra-ai/skills
 ### 1. Invoke the skill
 
 ```
-Skill: sf-apex
+Skill: cirra-ai-sf-apex
 Request: "Create an AccountService class with CRUD methods"
 ```
 
@@ -77,10 +77,10 @@ The skill generates:
 
 | Related Skill | When to Use                                 |
 | ------------- | ------------------------------------------- |
-| sf-flow       | Create Flow to call @InvocableMethod        |
-| sf-lwc        | Create LWC to call @AuraEnabled controllers |
-| sf-testing    | Run tests and analyze coverage              |
-| sf-deploy     | Deploy Apex to org                          |
+| cirra-ai-sf-flow       | Create Flow to call @InvocableMethod        |
+| cirra-ai-sf-lwc        | Create LWC to call @AuraEnabled controllers |
+| cirra-ai-sf-testing    | Run tests and analyze coverage              |
+| cirra-ai-sf-deploy     | Deploy Apex to org                          |
 
 ## Documentation
 

@@ -10,11 +10,25 @@
   },
   "plugins": [
     {
+      "name": "cirra-ai-sf",
+      "description": "Salesforce development suite — orchestrates Apex, Flow, and Data plugins with Cirra AI MCP Server",
+      "source": "./cirra-ai-sf",
+      "version": "1.0.0",
+      "author": {
+        "name": "Cirra AI",
+        "url": "https://github.com/cirra-ai"
+      },
+      "category": "salesforce",
+      "tags": ["salesforce", "orchestration", "apex", "flow", "data"],
+      "keywords": ["salesforce", "suite", "orchestration"]
+    },
+    {
       "name": "cirra-ai-sf-skills",
       "description": "Complete Cirra AI Salesforce skills suite - Apex, Flow, Metadata, Data, Deployment, and Skill Builder (install all at once)",
       "source": "./",
       "strict": false,
       "skills": [
+        "./cirra-ai-sf",
         "./cirra-ai-sf-apex",
         "./cirra-ai-sf-flow",
         "./cirra-ai-sf-metadata",

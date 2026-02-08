@@ -1,6 +1,6 @@
-# Multi-Skill Orchestration: sf-data Perspective
+# Multi-Skill Orchestration: cirra-ai-sf-data Perspective
 
-This document details how sf-data fits into the multi-skill workflow for Salesforce development.
+This document details how cirra-ai-sf-data fits into the multi-skill workflow for Salesforce development.
 
 ---
 
@@ -10,25 +10,25 @@ This document details how sf-data fits into the multi-skill workflow for Salesfo
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │  STANDARD MULTI-SKILL ORCHESTRATION ORDER                                   │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│  1. sf-metadata                                                             │
+│  1. cirra-ai-sf-metadata                                                             │
 │     └── Create object/field definitions (LOCAL files)                       │
 │                                                                             │
-│  2. sf-flow                                                                 │
+│  2. cirra-ai-sf-flow                                                                 │
 │     └── Create flow definitions (LOCAL files)                               │
 │                                                                             │
-│  3. sf-deploy                                                               │
+│  3. cirra-ai-sf-deploy                                                               │
 │     └── Deploy all metadata (REMOTE)                                        │
 │                                                                             │
-│  4. sf-data  ◀── YOU ARE HERE (LAST!)                                      │
+│  4. cirra-ai-sf-data  ◀── YOU ARE HERE (LAST!)                                      │
 │     └── Create test data (REMOTE - objects must exist!)                     │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## ⚠️ Why sf-data Goes LAST
+## ⚠️ Why cirra-ai-sf-data Goes LAST
 
-**sf-data operates on REMOTE org data.** Objects/fields must be deployed before sf-data can:
+**cirra-ai-sf-data operates on REMOTE org data.** Objects/fields must be deployed before cirra-ai-sf-data can:
 
 - Insert records
 - Query existing data
@@ -38,7 +38,7 @@ This document details how sf-data fits into the multi-skill workflow for Salesfo
 ```
 ERROR: "SObject type 'Quote__c' is not supported"
 CAUSE: Quote__c object was never deployed to the org
-FIX:   Run sf-deploy BEFORE sf-data
+FIX:   Run cirra-ai-sf-deploy BEFORE cirra-ai-sf-data
 ```
 
 ---
@@ -47,7 +47,7 @@ FIX:   Run sf-deploy BEFORE sf-data
 
 | Error                                      | Cause                          | Fix                           |
 | ------------------------------------------ | ------------------------------ | ----------------------------- |
-| `SObject type 'X' not supported`           | Object not deployed            | Deploy via sf-deploy first    |
+| `SObject type 'X' not supported`           | Object not deployed            | Deploy via cirra-ai-sf-deploy first    |
 | `INVALID_FIELD: No such column 'Field__c'` | Field not deployed OR FLS      | Deploy field + Permission Set |
 | `REQUIRED_FIELD_MISSING`                   | Validation rule requires field | Include all required fields   |
 | `FIELD_CUSTOM_VALIDATION_EXCEPTION`        | Validation rule triggered      | Use valid test data values    |
@@ -59,10 +59,10 @@ FIX:   Run sf-deploy BEFORE sf-data
 When testing triggers or flows, always create test data AFTER deployment:
 
 ```
-1. sf-apex   → Create trigger handler class
-2. sf-flow   → Create record-triggered flow
-3. sf-deploy → Deploy trigger + flow + objects
-4. sf-data   ◀── CREATE TEST DATA NOW
+1. cirra-ai-sf-apex   → Create trigger handler class
+2. cirra-ai-sf-flow   → Create record-triggered flow
+3. cirra-ai-sf-deploy → Deploy trigger + flow + objects
+4. cirra-ai-sf-data   ◀── CREATE TEST DATA NOW
               └── Triggers and flows will fire!
 ```
 
@@ -100,16 +100,16 @@ sobject_dml(
 
 ## Cross-Skill Integration Table
 
-| From Skill | To sf-data | When                                               |
+| From Skill | To cirra-ai-sf-data | When                                               |
 | ---------- | ---------- | -------------------------------------------------- |
-| sf-apex    | → sf-data  | "Create 251 Accounts for bulk testing"             |
-| sf-flow    | → sf-data  | "Create Opportunities with StageName='Closed Won'" |
-| sf-testing | → sf-data  | "Generate test records for test class"             |
+| cirra-ai-sf-apex    | → cirra-ai-sf-data  | "Create 251 Accounts for bulk testing"             |
+| cirra-ai-sf-flow    | → cirra-ai-sf-data  | "Create Opportunities with StageName='Closed Won'" |
+| cirra-ai-sf-testing | → cirra-ai-sf-data  | "Generate test records for test class"             |
 
-| From sf-data | To Skill      | When                                                |
+| From cirra-ai-sf-data | To Skill      | When                                                |
 | ------------ | ------------- | --------------------------------------------------- |
-| sf-data      | → sf-metadata | "Describe Invoice\_\_c" (discover object structure) |
-| sf-data      | → sf-deploy   | "Redeploy field after adding validation rule"       |
+| cirra-ai-sf-data      | → cirra-ai-sf-metadata | "Describe Invoice\_\_c" (discover object structure) |
+| cirra-ai-sf-data      | → cirra-ai-sf-deploy   | "Redeploy field after adding validation rule"       |
 
 ---
 
@@ -135,14 +135,14 @@ tooling_api_query(
 
 ## Factory Pattern Integration
 
-Test Data Factory classes work with sf-data:
+Test Data Factory classes work with cirra-ai-sf-data:
 
 ```
-sf-apex:  Creates TestDataFactory_Account.cls
+cirra-ai-sf-apex:  Creates TestDataFactory_Account.cls
           ↓
-sf-deploy: Deploys factory class
+cirra-ai-sf-deploy: Deploys factory class
           ↓
-sf-data:  Calls factory via Anonymous Apex
+cirra-ai-sf-data:  Calls factory via Anonymous Apex
           ↓
           251 records created → triggers fire → flows run
 ```
@@ -161,9 +161,9 @@ System.debug('Created ' + accounts.size() + ' accounts');
 After testing, clean up in reverse order:
 
 ```
-1. sf-data   → Delete test records
-2. sf-deploy → Deactivate flows (if needed)
-3. sf-deploy → Remove test metadata (if needed)
+1. cirra-ai-sf-data   → Delete test records
+2. cirra-ai-sf-deploy → Deactivate flows (if needed)
+3. cirra-ai-sf-deploy → Remove test metadata (if needed)
 ```
 
 **Cleanup command:**
@@ -186,6 +186,6 @@ sobject_dml(
 
 | Topic              | Location                                 |
 | ------------------ | ---------------------------------------- |
-| Test data patterns | `sf-data/docs/test-data-patterns.md`     |
-| Cleanup guide      | `sf-data/docs/cleanup-rollback-guide.md` |
-| Factory templates  | `sf-data/templates/factories/`           |
+| Test data patterns | `cirra-ai-sf-data/docs/test-data-patterns.md`     |
+| Cleanup guide      | `cirra-ai-sf-data/docs/cleanup-rollback-guide.md` |
+| Factory templates  | `cirra-ai-sf-data/templates/factories/`           |

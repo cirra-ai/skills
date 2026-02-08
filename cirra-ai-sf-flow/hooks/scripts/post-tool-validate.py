@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Post-Tool Validation Hook for sf-flow plugin.
+Post-Tool Validation Hook for cirra-ai-sf-flow plugin.
 
 This hook runs AFTER Write or Edit tool completes and provides validation
 feedback for Salesforce Flow files (*.flow-meta.xml).
@@ -22,8 +22,8 @@ import json
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, SCRIPT_DIR)
 
-# Find shared modules (../../shared relative to sf-flow)
-PLUGIN_ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR))  # sf-flow/
+# Find shared modules (../../shared relative to cirra-ai-sf-flow)
+PLUGIN_ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR))  # cirra-ai-sf-flow/
 SKILLS_ROOT = os.path.dirname(PLUGIN_ROOT)  # skills root
 SHARED_DIR = os.path.join(SKILLS_ROOT, "shared")
 sys.path.insert(0, SHARED_DIR)

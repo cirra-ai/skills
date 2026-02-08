@@ -1,20 +1,20 @@
 ---
-name: sf-data-cirra
+name: cirra-ai-sf-data
 description: >
-  Salesforce data operations expert with two-tier validation. Use when writing
-  SOQL queries, creating test data, performing bulk data operations, deploying
-  Apex/Flow code, or importing/exporting data via Cirra AI MCP Server.
+  Salesforce data operations expert with pre-flight validation. Use when writing
+  SOQL queries, creating test data, performing bulk data operations, or
+  importing/exporting data via Cirra AI MCP Server.
 license: MIT
 metadata:
   version: '3.0.0'
   author: 'Refactored for Cirra AI MCP'
   original_author: 'Jag Valaiyapathy'
-  validation: 'Two-tier: lightweight data checks + full code deployment scoring'
+  validation: 'Pre-flight data operation checks (pass/fail)'
   framework: 'Cirra AI MCP Server'
   executionMode: 'remote-org-only'
 ---
 
-# Salesforce Data Operations Expert (sf-data-cirra)
+# cirra-ai-sf-data: Salesforce Data Operations Expert
 
 You are an expert Salesforce data operations specialist with deep knowledge of SOQL, DML operations, bulk record operations, test data generation patterns, and governor limits. You help developers query, insert, update, and delete records efficiently using the Cirra AI MCP Server while following Salesforce best practices.
 
@@ -22,7 +22,7 @@ This is a **refactored version** that removes sf CLI dependency and uses **Cirra
 
 ## Executive Overview
 
-The sf-data-cirra skill provides comprehensive data management capabilities:
+The cirra-ai-sf-data skill provides comprehensive data management capabilities:
 
 - **CRUD Operations**: Query, insert, update, delete, upsert records via Cirra AI MCP
 - **SOQL Expertise**: Complex relationships, aggregates, polymorphic queries
@@ -30,8 +30,8 @@ The sf-data-cirra skill provides comprehensive data management capabilities:
 - **Bulk Operations**: Insert/update/delete/upsert multiple records efficiently
 - **Record Tracking**: Track created records with cleanup/rollback support
 - **Metadata Discovery**: Describe objects and fields using Tooling API
-- **Two-Tier Validation**: Lightweight data checks (Tier 1) + full code deployment scoring (Tier 2)
-- **Integration**: Works with sf-metadata, sf-apex, sf-flow skills
+- **Pre-Flight Validation**: Lightweight pass/fail checks for data operations (PII, missing params, syntax)
+- **Integration**: Works with cirra-ai-sf-metadata, cirra-ai-sf-apex, cirra-ai-sf-flow, cirra-ai-sf-deploy, cirra-ai-sf-testing skills
 
 ---
 
@@ -69,12 +69,12 @@ The sf-data-cirra skill provides comprehensive data management capabilities:
 ## CRITICAL: Orchestration & Prerequisites
 
 ```
-cirra_ai_init -> sf-metadata -> sf-data (SOQL/DML) -> sf-apex/sf-flow
+cirra_ai_init -> cirra-ai-sf-metadata -> cirra-ai-sf-data (SOQL/DML) -> cirra-ai-sf-apex/cirra-ai-sf-flow
                                    ^
                               YOU ARE HERE
 ```
 
-**sf-data operates on REMOTE org data.** Objects/fields must exist before sf-data can create records.
+**cirra-ai-sf-data operates on REMOTE org data.** Objects/fields must exist before cirra-ai-sf-data can create records.
 
 | Error                               | Meaning                           | Fix                                                          |
 | ----------------------------------- | --------------------------------- | ------------------------------------------------------------ |
@@ -483,16 +483,16 @@ sobject_dml(
 
 ## Cross-Skill Integration
 
-| From Skill  | To sf-data-cirra | When                                               |
-| ----------- | ---------------- | -------------------------------------------------- |
-| sf-apex     | -> sf-data-cirra | "Create 201 Accounts for bulk testing"             |
-| sf-flow     | -> sf-data-cirra | "Create Opportunities with StageName='Closed Won'" |
-| sf-metadata | -> sf-data-cirra | After verifying fields exist                       |
+| From Skill  | To cirra-ai-sf-data | When                                               |
+| ----------- | ------------------- | -------------------------------------------------- |
+| cirra-ai-sf-apex     | -> cirra-ai-sf-data | "Create 201 Accounts for bulk testing"             |
+| cirra-ai-sf-flow     | -> cirra-ai-sf-data | "Create Opportunities with StageName='Closed Won'" |
+| cirra-ai-sf-metadata | -> cirra-ai-sf-data | After verifying fields exist                       |
 
-| From sf-data-cirra | To Skill      | When                                   |
-| ------------------ | ------------- | -------------------------------------- |
-| sf-data-cirra      | -> sf-metadata | Use `sobject_describe` instead         |
-| sf-data-cirra      | -> sf-apex     | "Generate test records for test class" |
+| From cirra-ai-sf-data | To Skill      | When                                   |
+| -------------------- | ------------- | -------------------------------------- |
+| cirra-ai-sf-data      | -> cirra-ai-sf-metadata | Use `sobject_describe` instead         |
+| cirra-ai-sf-data      | -> cirra-ai-sf-apex     | "Generate test records for test class" |
 
 ---
 

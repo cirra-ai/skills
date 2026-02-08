@@ -46,7 +46,7 @@ import os
 
 # Import validators from shared location
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PLUGIN_ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR))  # sf-flow/
+PLUGIN_ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR))  # cirra-ai-sf-flow/
 SKILLS_ROOT = os.path.dirname(PLUGIN_ROOT)  # skills root
 SHARED_SCRIPTS = os.path.join(SKILLS_ROOT, "shared", "hooks", "scripts")
 sys.path.insert(0, SHARED_SCRIPTS)
@@ -1727,9 +1727,9 @@ class EnhancedFlowValidator:
         # Deployment reminder - always shown when approved
         if not results["critical_issues"]:
             report.append("")
-            report.append("📦 NEXT STEP - Use sf-deploy skill (REQUIRED):")
+            report.append("📦 NEXT STEP - Use cirra-ai-sf-deploy skill (REQUIRED):")
             report.append("─" * 70)
-            report.append('   Skill(skill="sf-deploy")')
+            report.append('   Skill(skill="cirra-ai-sf-deploy")')
             report.append('   Request: "Deploy flow to [target-org] with --dry-run first"')
             report.append("")
             report.append("   ⚠️  NEVER use 'sf project deploy' directly via Bash")

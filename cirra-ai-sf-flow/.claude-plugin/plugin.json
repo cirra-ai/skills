@@ -27,9 +27,13 @@
   },
   "skills": [
     {
-      "id": "sf-flow",
-      "name": "sf-flow",
-      "path": "skills/sf-flow"
+      "id": "cirra-ai-sf-flow",
+      "name": "cirra-ai-sf-flow",
+      "path": "skills/cirra-ai-sf-flow"
     }
+  ],
+  "relatedSkills": [
+    { "skill": "cirra-ai-sf-apex", "reason": "Create @InvocableMethod for complex logic" },
+    { "skill": "cirra-ai-sf-data", "reason": "Test data creation and SOQL queries" }
   ]
 }

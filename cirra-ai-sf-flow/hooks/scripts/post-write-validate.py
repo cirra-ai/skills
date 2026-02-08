@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Post-Write Validation Hook for sf-flow plugin.
+Post-Write Validation Hook for cirra-ai-sf-flow plugin.
 
 This hook runs AFTER the Write tool completes and provides validation feedback
 for Salesforce Flow files (*.flow-meta.xml).

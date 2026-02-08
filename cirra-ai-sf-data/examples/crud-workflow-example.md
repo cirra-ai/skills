@@ -1,6 +1,6 @@
 # CRUD Workflow Example
 
-Complete end-to-end example of data operations using sf-data skill.
+Complete end-to-end example of data operations using cirra-ai-sf-data skill.
 
 ## Scenario
 
@@ -10,10 +10,10 @@ Create a Deal Desk workflow test environment with:
 - Contacts as decision makers
 - Opportunities at different stages
 
-## Phase 1: Discovery (sf-metadata)
+## Phase 1: Discovery (cirra-ai-sf-metadata)
 
 ```
-Skill(skill="sf-metadata")
+Skill(skill="cirra-ai-sf-metadata")
 Request: "Describe object Account in org dev - show required fields and picklist values"
 ```
 
@@ -22,7 +22,7 @@ Request: "Describe object Account in org dev - show required fields and picklist
 - Required: Name
 - Picklists: Industry, Type, Rating
 
-## Phase 2: Create Records
+## Phase 2: Create Records (cirra-ai-sf-data)
 
 ### Cirra AI MCP - Single Record
 

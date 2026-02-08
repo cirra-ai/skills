@@ -368,7 +368,7 @@ private class TransformFlowTest {
 ### 3. Performance Comparison via Debug Logs
 
 ```
-# Debug logs: use sf-debug skill or Salesforce Setup
+# Debug logs: use cirra-ai-sf-debug skill or Salesforce Setup
 
 # Anonymous Apex: not available via MCP. Use Developer Console
 # Run Transform flow via anonymous Apex in Developer Console

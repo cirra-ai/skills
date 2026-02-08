@@ -1,6 +1,6 @@
-# Multi-Skill Orchestration: sf-flow Perspective
+# Multi-Skill Orchestration: cirra-ai-sf-flow Perspective
 
-This document details how sf-flow fits into the multi-skill workflow for Salesforce development.
+This document details how cirra-ai-sf-flow fits into the multi-skill workflow for Salesforce development.
 
 ---
 
@@ -10,36 +10,36 @@ This document details how sf-flow fits into the multi-skill workflow for Salesfo
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │  STANDARD MULTI-SKILL ORCHESTRATION ORDER                                   │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│  1. sf-metadata                                                             │
+│  1. cirra-ai-sf-metadata                                                    │
 │     └── Create object/field definitions (LOCAL files)                       │
 │                                                                             │
-│  2. sf-flow  ◀── YOU ARE HERE                                              │
+│  2. cirra-ai-sf-flow  ◀── YOU ARE HERE                                     │
 │     └── Create flow definitions (LOCAL files)                               │
 │                                                                             │
-│  3. sf-deploy                                                               │
+│  3. cirra-ai-sf-deploy                                                      │
 │     └── Deploy all metadata (REMOTE)                                        │
 │                                                                             │
-│  4. sf-data                                                                 │
+│  4. cirra-ai-sf-data                                                        │
 │     └── Create test data (REMOTE - objects must exist!)                     │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Why sf-flow Depends on sf-metadata
+## Why cirra-ai-sf-flow Depends on cirra-ai-sf-metadata
 
-| sf-flow Uses      | From sf-metadata     | What Fails Without It                 |
-| ----------------- | -------------------- | ------------------------------------- |
-| Object references | Custom Objects       | `Invalid reference: Quote__c`         |
-| Field references  | Custom Fields        | `Field does not exist: Status__c`     |
-| Picklist values   | Picklist Fields      | Flow decision uses non-existent value |
-| Record Types      | Record Type metadata | `Invalid record type: Inquiry`        |
+| cirra-ai-sf-flow Uses | From cirra-ai-sf-metadata | What Fails Without It                 |
+| --------------------- | ------------------------- | ------------------------------------- |
+| Object references     | Custom Objects            | `Invalid reference: Quote__c`         |
+| Field references      | Custom Fields             | `Field does not exist: Status__c`     |
+| Picklist values       | Picklist Fields           | Flow decision uses non-existent value |
+| Record Types          | Record Type metadata      | `Invalid record type: Inquiry`        |
 
-**Rule**: If your Flow references custom objects or fields, create them with sf-metadata FIRST.
+**Rule**: If your Flow references custom objects or fields, create them with cirra-ai-sf-metadata FIRST.
 
 ---
 
-## sf-flow's Role in the Triangle Architecture
+## cirra-ai-sf-flow's Role in the Triangle Architecture
 
 Flow acts as the **orchestrator** in the Flow-LWC-Apex triangle:
 
@@ -76,28 +76,28 @@ When building agents with Flow actions:
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │  AGENTFORCE FLOW ORCHESTRATION                                              │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│  1. sf-metadata                                                             │
+│  1. cirra-ai-sf-metadata                                                    │
 │     └── Create object/field definitions                                     │
 │                                                                             │
-│  2. sf-connected-apps (if external API)                                     │
+│  2. cirra-ai-sf-connected-apps (if external API)                            │
 │     └── Create OAuth Connected App                                          │
 │                                                                             │
-│  3. sf-integration (if external API)                                        │
+│  3. cirra-ai-sf-integration (if external API)                               │
 │     └── Create Named Credential + External Service                          │
 │                                                                             │
-│  4. sf-apex (if custom logic needed)                                        │
+│  4. cirra-ai-sf-apex (if custom logic needed)                               │
 │     └── Create @InvocableMethod classes                                     │
 │                                                                             │
-│  5. sf-flow  ◀── YOU ARE HERE                                              │
+│  5. cirra-ai-sf-flow  ◀── YOU ARE HERE                                     │
 │     └── Create Flow (HTTP Callout, Apex wrapper, or standard)               │
 │                                                                             │
-│  6. sf-deploy                                                               │
+│  6. cirra-ai-sf-deploy                                                      │
 │     └── Deploy all metadata                                                 │
 │                                                                             │
-│  7. sf-ai-agentforce                                                        │
+│  7. cirra-ai-sf-ai-agentforce                                               │
 │     └── Create agent with flow:// target                                    │
 │                                                                             │
-│  8. sf-deploy                                                               │
+│  8. cirra-ai-sf-deploy                                                      │
 │     └── Publish agent (metadata_create via Cirra AI MCP)                    │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -142,27 +142,27 @@ actions:
 
 ### 3. Common Integration Errors
 
-| Error                       | Cause                    | Fix                               |
-| --------------------------- | ------------------------ | --------------------------------- |
-| "Internal Error" on publish | Variable name mismatch   | Match Flow var names exactly      |
-| "Flow not found"            | Flow not deployed        | sf-deploy before sf-ai-agentforce |
-| Agent can't read output     | Missing `isOutput: true` | Add output flag to Flow variable  |
+| Error                       | Cause                    | Fix                                              |
+| --------------------------- | ------------------------ | ------------------------------------------------ |
+| "Internal Error" on publish | Variable name mismatch   | Match Flow var names exactly                     |
+| "Flow not found"            | Flow not deployed        | cirra-ai-sf-deploy before cirra-ai-sf-ai-agentforce |
+| Agent can't read output     | Missing `isOutput: true` | Add output flag to Flow variable                 |
 
 ---
 
 ## Cross-Skill Integration Table
 
-| From Skill       | To sf-flow | When                                        |
-| ---------------- | ---------- | ------------------------------------------- |
-| sf-ai-agentforce | → sf-flow  | "Create Autolaunched Flow for agent action" |
-| sf-apex          | → sf-flow  | "Create Flow wrapper for Apex logic"        |
-| sf-integration   | → sf-flow  | "Create HTTP Callout Flow"                  |
+| From Skill                  | To cirra-ai-sf-flow | When                                        |
+| --------------------------- | ------------------- | ------------------------------------------- |
+| cirra-ai-sf-ai-agentforce   | → cirra-ai-sf-flow  | "Create Autolaunched Flow for agent action" |
+| cirra-ai-sf-apex            | → cirra-ai-sf-flow  | "Create Flow wrapper for Apex logic"        |
+| cirra-ai-sf-integration     | → cirra-ai-sf-flow  | "Create HTTP Callout Flow"                  |
 
-| From sf-flow | To Skill      | When                                                |
-| ------------ | ------------- | --------------------------------------------------- |
-| sf-flow      | → sf-metadata | "Describe Invoice\_\_c" (verify fields before flow) |
-| sf-flow      | → sf-deploy   | "Deploy flow with checkOnly"                        |
-| sf-flow      | → sf-data     | "Create 200 test Accounts" (after deploy)           |
+| From cirra-ai-sf-flow | To Skill                  | When                                                |
+| --------------------- | ------------------------- | --------------------------------------------------- |
+| cirra-ai-sf-flow      | → cirra-ai-sf-metadata    | "Describe Invoice\_\_c" (verify fields before flow) |
+| cirra-ai-sf-flow      | → cirra-ai-sf-deploy      | "Deploy flow with checkOnly"                        |
+| cirra-ai-sf-flow      | → cirra-ai-sf-data        | "Create 200 test Accounts" (after deploy)           |
 
 ---
 
@@ -186,7 +186,7 @@ When deploying Flows that reference Apex or LWC:
 ## Best Practices
 
 1. **Always verify objects exist** before creating Flow references
-2. **Use sf-metadata describe** to confirm field API names
+2. **Use cirra-ai-sf-metadata describe** to confirm field API names
 3. **Deploy as Draft first** for complex flows
 4. **Test with 251 records** for bulk safety
 5. **Match variable names exactly** when creating for Agentforce
@@ -195,9 +195,9 @@ When deploying Flows that reference Apex or LWC:
 
 ## Related Documentation
 
-| Topic                               | Location                                     |
-| ----------------------------------- | -------------------------------------------- |
-| Triangle pattern (Flow perspective) | `sf-flow/docs/triangle-pattern.md`           |
-| LWC integration                     | `sf-flow/docs/lwc-integration-guide.md`      |
-| Apex action template                | `sf-flow/templates/apex-action-template.xml` |
-| sf-ai-agentforce                    | `sf-ai-agentforce/SKILL.md`                  |
+| Topic                               | Location                                          |
+| ----------------------------------- | -------------------------------------------------- |
+| Triangle pattern (Flow perspective) | `cirra-ai-sf-flow/docs/triangle-pattern.md`       |
+| LWC integration                     | `cirra-ai-sf-flow/docs/lwc-integration-guide.md`  |
+| Apex action template                | `cirra-ai-sf-flow/templates/apex-action-template.xml` |
+| cirra-ai-sf-ai-agentforce           | `cirra-ai-sf-ai-agentforce/SKILL.md`              |

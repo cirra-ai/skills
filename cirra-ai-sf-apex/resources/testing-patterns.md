@@ -908,7 +908,7 @@ static void testEveryMethod() {
 **CLI:**
 
 ```
-# Test execution: use sf-testing skill or Salesforce Setup
+# Test execution: use cirra-ai-sf-testing skill or Salesforce Setup
 ```
 
 ---

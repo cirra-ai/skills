@@ -551,7 +551,7 @@ Even for simple pass-through flows, add at least one assignment:
 ### Deployment
 
 - **Problem**: Using direct CLI commands
-- **Solution**: Always use sf-deploy skill
+- **Solution**: Always use cirra-ai-sf-deploy skill
 
 ### $Record Context
 

@@ -24,5 +24,9 @@
       "sobject_describe"
     ],
     "optional": ["metadata_delete", "tooling_api_dml", "sobjects_list"]
-  }
+  },
+  "relatedSkills": [
+    { "skill": "cirra-ai-sf-data", "reason": "SOQL queries, test data factories, DML operations" },
+    { "skill": "cirra-ai-sf-flow", "reason": "Flow creation when wrapping Apex @InvocableMethod" }
+  ]
 }

@@ -1,5 +1,5 @@
 ---
-name: sf-flow
+name: cirra-ai-sf-flow
 description: >
   Creates and validates Salesforce flows with 110-point scoring and Winter '26
   best practices using Cirra AI MCP Server. Use when building record-triggered flows,
@@ -12,7 +12,7 @@ metadata:
   mcp_server: 'cirra_ai'
 ---
 
-# sf-flow: Salesforce Flow Creation and Validation (Cirra AI)
+# cirra-ai-sf-flow: Salesforce Flow Creation and Validation (Cirra AI)
 
 Expert Salesforce Flow Builder with deep knowledge of best practices, bulkification, and Winter '26 (API 65.0) metadata. Create production-ready, performant, secure, and maintainable flows using Cirra AI MCP Server for deployment.
 
@@ -74,15 +74,15 @@ This initializes your Salesforce org connection. It must be called once per sess
 
 ## ⚠️ CRITICAL: Orchestration Order
 
-**sf-metadata → sf-flow → sf-deploy → sf-data** (you are here: sf-flow with Cirra AI)
+**cirra-ai-sf-metadata → cirra-ai-sf-flow → cirra-ai-sf-deploy → cirra-ai-sf-data** (you are here: cirra-ai-sf-flow with Cirra AI)
 
-⚠️ Flow references custom object/fields? Create with sf-metadata FIRST. Deploy objects BEFORE flows.
+⚠️ Flow references custom object/fields? Create with cirra-ai-sf-metadata FIRST. Deploy objects BEFORE flows.
 
 ```
-1. sf-metadata  → Create objects/fields (local)
-2. sf-flow      ◀── YOU ARE HERE (create flow, deploy via Cirra AI)
-3. sf-deploy    → Optional additional deployment (already deployed via metadata_create)
-4. sf-data      → Create test data (remote - objects must exist!)
+1. cirra-ai-sf-metadata  → Create objects/fields (local)
+2. cirra-ai-sf-flow      ◀── YOU ARE HERE (create flow, deploy via Cirra AI)
+3. cirra-ai-sf-deploy    → Optional additional deployment (already deployed via metadata_create)
+4. cirra-ai-sf-data      → Create test data (remote - objects must exist!)
 ```
 
 See `docs/orchestration.md` for extended orchestration patterns including Agentforce.
@@ -120,8 +120,8 @@ Use **AskUserQuestion** to gather:
 1. **Verify Cirra AI connection**: Ensure cirra_ai_init has been called
 2. Use `sobject_describe` to verify object/field existence before referencing
 3. Use `metadata_list` to check existing flows: `metadata_list(type="Flow")`
-4. Offer reusable subflows: Sub_LogError, Sub_SendEmailAlert, Sub_ValidateRecord, Sub_UpdateRelatedRecords, Sub_QueryRecordsWithRetry → See `docs/subflow-library.md` (in sf-flow folder)
-5. If complex automation: Reference `docs/governance-checklist.md` (in sf-flow folder)
+4. Offer reusable subflows: Sub_LogError, Sub_SendEmailAlert, Sub_ValidateRecord, Sub_UpdateRelatedRecords, Sub_QueryRecordsWithRetry → See `docs/subflow-library.md` (in cirra-ai-sf-flow folder)
+5. If complex automation: Reference `docs/governance-checklist.md` (in cirra-ai-sf-flow folder)
 6. Create TodoWrite tasks: Gather requirements ✓, Select template, Generate XML, Validate, Deploy, Test
 
 ### Phase 2: Flow Design & Template Selection
@@ -174,7 +174,7 @@ Rule: `allowFinish="true"` required on all screens. Connector present → "Next"
 
 **Orchestration**: For complex flows (multiple objects/steps), suggest Parent-Child or Sequential pattern.
 
-- **CRITICAL**: Record-triggered flows CANNOT call subflows via XML deployment. Use inline orchestration instead. See `docs/xml-gotchas.md` (in sf-flow) and `docs/orchestration-guide.md` (in sf-flow)
+- **CRITICAL**: Record-triggered flows CANNOT call subflows via XML deployment. Use inline orchestration instead. See `docs/xml-gotchas.md` (in cirra-ai-sf-flow) and `docs/orchestration-guide.md` (in cirra-ai-sf-flow)
 
 ### Phase 3: Flow Generation & Deployment (via Cirra AI)
 
@@ -326,7 +326,7 @@ sobject_describe(
 
 **For Agentforce Flows**: Variable names must match Agent Script input/output names exactly.
 
-For complex flows: `docs/governance-checklist.md` (in sf-flow)
+For complex flows: `docs/governance-checklist.md` (in cirra-ai-sf-flow)
 
 ### Phase 5: Testing & Documentation
 
@@ -339,7 +339,7 @@ Quick reference:
 - **Autolaunched**: Apex test class, edge cases, bulkification
 - **Scheduled**: Verify schedule, manual Run first, monitor logs
 
-**Best Practices**: See `docs/flow-best-practices.md` (in sf-flow) for:
+**Best Practices**: See `docs/flow-best-practices.md` (in cirra-ai-sf-flow) for:
 
 - Three-tier error handling strategy
 - Multi-step DML rollback patterns
@@ -360,7 +360,7 @@ Quick reference:
   Navigate: Setup → Process Automation → Flows → "[FlowName]"
 
 Next Steps: Test (unit, bulk, security), Review docs, Activate if Draft, Monitor logs
-Resources: `examples/`, `docs/subflow-library.md`, `docs/orchestration-guide.md`, `docs/governance-checklist.md` (in sf-flow folder)
+Resources: `examples/`, `docs/subflow-library.md`, `docs/orchestration-guide.md`, `docs/governance-checklist.md` (in cirra-ai-sf-flow folder)
 ```
 
 ## Best Practices (Built-In Enforcement)
@@ -439,7 +439,7 @@ screens → start → status → subflows → textTemplates → variables → wa
 - **Button Names (v2.0.0)**: `Action_[Verb]_[Object]` (e.g., `Action_Save_Contact`)
 - **System vs User Mode**: Understand implications, validate FLS for sensitive fields
 - **No hardcoded data**: Use variables/custom settings
-- See `docs/flow-best-practices.md` (in sf-flow) for comprehensive guidance
+- See `docs/flow-best-practices.md` (in cirra-ai-sf-flow) for comprehensive guidance
 
 ## Common Error Patterns
 
@@ -456,7 +456,7 @@ screens → start → status → subflows → textTemplates → variables → wa
 | "Parent.Field doesn't exist"    | Use TWO Get Records (child then parent)                 |
 | `$Record__c` loop fails         | Use `$Record` directly (single context, not collection) |
 
-**XML Gotchas**: See `docs/xml-gotchas.md` (in sf-flow)
+**XML Gotchas**: See `docs/xml-gotchas.md` (in cirra-ai-sf-flow)
 
 ## Edge Cases
 
@@ -538,17 +538,17 @@ tooling_api_query(
 
 ## Cross-Skill Integration
 
-| From Skill        | To sf-flow | When                                        |
-| ----------------- | ---------- | ------------------------------------------- |
-| sf-ai-agentscript | → sf-flow  | "Create Autolaunched Flow for agent action" |
-| sf-apex           | → sf-flow  | "Create Flow wrapper for Apex logic"        |
-| sf-integration    | → sf-flow  | "Create HTTP Callout Flow"                  |
+| From Skill            | To cirra-ai-sf-flow | When                                        |
+| --------------------- | ------------------- | ------------------------------------------- |
+| cirra-ai-sf-ai-agentscript | → cirra-ai-sf-flow  | "Create Autolaunched Flow for agent action" |
+| cirra-ai-sf-apex           | → cirra-ai-sf-flow  | "Create Flow wrapper for Apex logic"        |
+| cirra-ai-sf-integration    | → cirra-ai-sf-flow  | "Create HTTP Callout Flow"                  |
 
-| From sf-flow | To Skill      | When                                                |
-| ------------ | ------------- | --------------------------------------------------- |
-| sf-flow      | → sf-metadata | "Describe Invoice\_\_c" (verify fields before flow) |
-| sf-flow      | → sf-deploy   | "Deploy flow with --dry-run"                        |
-| sf-flow      | → sf-data     | "Create 200 test Accounts" (after deploy)           |
+| From cirra-ai-sf-flow | To Skill              | When                                                |
+| --------------------- | --------------------- | --------------------------------------------------- |
+| cirra-ai-sf-flow      | → cirra-ai-sf-metadata | "Describe Invoice\_\_c" (verify fields before flow) |
+| cirra-ai-sf-flow      | → cirra-ai-sf-deploy   | "Deploy flow with --dry-run"                        |
+| cirra-ai-sf-flow      | → cirra-ai-sf-data     | "Create 200 test Accounts" (after deploy)           |
 
 **Deployment**: See Phase 4 above.
 
@@ -588,9 +588,9 @@ Embed custom Lightning Web Components in Flow Screens for rich, interactive UIs.
 
 | Resource              | Location                                                                          |
 | --------------------- | --------------------------------------------------------------------------------- |
-| LWC Integration Guide | [docs/lwc-integration-guide.md](docs/lwc-integration-guide.md)                    |
-| LWC Component Setup   | [sf-lwc/docs/flow-integration-guide.md](../sf-lwc/docs/flow-integration-guide.md) |
-| Triangle Architecture | [docs/triangle-pattern.md](docs/triangle-pattern.md)                              |
+| LWC Integration Guide | [docs/lwc-integration-guide.md](docs/lwc-integration-guide.md)                                     |
+| LWC Component Setup   | [cirra-ai-sf-lwc/docs/flow-integration-guide.md](../cirra-ai-sf-lwc/docs/flow-integration-guide.md) |
+| Triangle Architecture | [docs/triangle-pattern.md](docs/triangle-pattern.md)                                               |
 
 ---
 
@@ -621,21 +621,21 @@ Call Apex `@InvocableMethod` classes from Flow for complex business logic.
 
 ### Documentation
 
-| Resource                    | Location                                                                |
-| --------------------------- | ----------------------------------------------------------------------- |
+| Resource                    | Location                                                                          |
+| --------------------------- | ------------------------------------------------------------------------------------- |
 | Apex Action Template        | `templates/apex-action-template.xml`                                    |
-| Apex @InvocableMethod Guide | [sf-apex/docs/flow-integration.md](../sf-apex/docs/flow-integration.md) |
+| Apex @InvocableMethod Guide | [cirra-ai-sf-apex/docs/flow-integration.md](../cirra-ai-sf-apex/docs/flow-integration.md) |
 | Triangle Architecture       | [docs/triangle-pattern.md](docs/triangle-pattern.md)                    |
 
-### ⚠️ Flows for sf-ai-agentscript
+### ⚠️ Flows for cirra-ai-sf-ai-agentscript
 
-**When sf-ai-agentscript requests a Flow:**
+**When cirra-ai-sf-ai-agentscript requests a Flow:**
 
-- sf-ai-agentscript will invoke sf-flow (this skill) to create Flows
-- sf-flow creates the validated Flow XML
-- sf-flow deploys via Cirra AI metadata_create tool
+- cirra-ai-sf-ai-agentscript will invoke cirra-ai-sf-flow (this skill) to create Flows
+- cirra-ai-sf-flow creates the validated Flow XML
+- cirra-ai-sf-flow deploys via Cirra AI metadata_create tool
 - **Action Definition registration required** (see below)
-- Only THEN can sf-ai-agentscript use `flow://FlowName` targets
+- Only THEN can cirra-ai-sf-ai-agentscript use `flow://FlowName` targets
 
 **Variable Name Matching**: When creating Flows for Agentforce agents:
 
@@ -676,7 +676,7 @@ Flow formulas have more limited function support than formula fields. Avoid:
 
 **Registration Workflow:**
 
-1. **Deploy Flow** to target org via sf-flow + Cirra AI metadata_create
+1. **Deploy Flow** to target org via cirra-ai-sf-flow + Cirra AI metadata_create
 2. Navigate to **Setup > Agentforce > Action Definitions**
 3. Click **"New Action"**, select **"Flow"** as target type
 4. Choose your deployed Flow from the list
@@ -689,21 +689,21 @@ Flow formulas have more limited function support than formula fields. Avoid:
 ```
 Flow Created  →  Deployed to Org  →  Action Definition Created  →  Agent Can Use
      ↑               ↑                        ↑                         ↑
-   sf-flow       Cirra AI            Setup > Agentforce         @actions.MyAction
+   cirra-ai-sf-flow  Cirra AI            Setup > Agentforce         @actions.MyAction
 ```
 
 **Why This Matters**: The Action Definition is what exposes the Flow to the agent runtime with proper input/output schema mapping. Without it, `@actions.FlowName` will fail with `ValidationError: Tool target 'FlowName' is not an action definition`.
 
-| Direction                   | Pattern                                                                |
-| --------------------------- | ---------------------------------------------------------------------- |
-| sf-flow → sf-metadata       | "Describe Invoice\_\_c" (verify fields before flow)                    |
-| sf-flow → Cirra AI          | Deploy with validation via metadata_create                             |
-| sf-flow → sf-data           | "Create 200 test Accounts" (test data after deploy)                    |
-| sf-ai-agentscript → sf-flow | "Create Autolaunched Flow for agent action" - **sf-flow is MANDATORY** |
+| Direction                      | Pattern                                                                        |
+| ------------------------------ | ------------------------------------------------------------------------------ |
+| cirra-ai-sf-flow → cirra-ai-sf-metadata       | "Describe Invoice\_\_c" (verify fields before flow)                    |
+| cirra-ai-sf-flow → Cirra AI          | Deploy with validation via metadata_create                             |
+| cirra-ai-sf-flow → cirra-ai-sf-data           | "Create 200 test Accounts" (test data after deploy)                    |
+| cirra-ai-sf-ai-agentscript → cirra-ai-sf-flow | "Create Autolaunched Flow for agent action" - **cirra-ai-sf-flow is MANDATORY** |
 
 ## Notes
 
-**Dependencies** (optional): sf-metadata, sf-data | **API**: 65.0 | **Mode**: Strict (warnings block) | **MCP Server**: Cirra AI (required)
+**Dependencies** (optional): cirra-ai-sf-metadata, cirra-ai-sf-data | **API**: 65.0 | **Mode**: Strict (warnings block) | **MCP Server**: Cirra AI (required)
 
 **Required Setup**:
 

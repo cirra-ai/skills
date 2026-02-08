@@ -2,7 +2,7 @@
   "name": "cirra-ai-sf-data",
   "displayName": "Salesforce Data Operations (Cirra AI MCP)",
   "version": "1.0.0",
-  "description": "Salesforce data operations expert with 130-point scoring using Cirra AI MCP Server. Use when writing SOQL queries, creating test data, performing bulk data operations, or importing/exporting data.",
+  "description": "Salesforce data operations expert using Cirra AI MCP Server. Use when writing SOQL queries, creating test data, performing bulk data operations, or importing/exporting data. Includes pre-flight validation for data operations.",
   "author": {
     "name": "Cirra AI (based on original by Jag Valaiyapathy)",
     "email": "info@cirra.ai"
@@ -56,7 +56,7 @@
     "supportedObjects": "All Salesforce standard and custom objects"
   },
   "integrations": {
-    "skills": ["sf-metadata", "sf-apex", "sf-flow"],
+    "skills": ["cirra-ai-sf-metadata", "cirra-ai-sf-apex", "cirra-ai-sf-flow"],
     "tools": ["Cirra AI MCP Server (soql_query, sobject_dml, sobject_describe, tooling_api_query)"]
   },
   "scoring": {

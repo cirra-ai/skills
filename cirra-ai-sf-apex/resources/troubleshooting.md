@@ -195,19 +195,19 @@ except LSPNotAvailableException:
 ### Common Deployment Order
 
 ```
-1. sf-metadata: Create custom fields
+1. cirra-ai-sf-metadata: Create custom fields
    └─> metadata_create(type="CustomField", fullName="Lead.Score__c", metadata={...})
 
-2. sf-metadata: Create Permission Sets
+2. cirra-ai-sf-metadata: Create Permission Sets
    └─> Grant FLS on custom fields
 
-3. sf-deploy: Deploy fields + Permission Sets
+3. cirra-ai-sf-deploy: Deploy fields + Permission Sets
    └─> metadata_create(type="CustomField", ...)
 
-4. sf-apex: Deploy Apex classes/triggers
+4. cirra-ai-sf-apex: Deploy Apex classes/triggers
    └─> metadata_create(type="ApexClass", fullName="MyClass", metadata={...})
 
-5. sf-data: Create test data
+5. cirra-ai-sf-data: Create test data
    └─> sobject_dml(operation="insert", sobjectType="Account", records=[{Name: "Test"}])
 ```
 
@@ -247,7 +247,7 @@ TA_Account_SetDefaults  Account    TA_Account_SetDefaults
 TA_Lead_CalculateScore  Lead       TA_Lead_CalculateScore
 ```
 
-**If missing, create via sf-metadata skill.**
+**If missing, create via cirra-ai-sf-metadata skill.**
 
 ---
 
@@ -335,7 +335,7 @@ Error: Average test coverage across all Apex Classes and Triggers is 68%, at lea
 1. Identify uncovered classes:
 
    ```
-   # Test execution: use sf-testing skill or Salesforce Setup
+   # Test execution: use cirra-ai-sf-testing skill or Salesforce Setup
    ```
 
 2. Add missing test classes
@@ -393,7 +393,7 @@ Error: FIELD_CUSTOM_VALIDATION_EXCEPTION: Annual Revenue must be greater than 0
 # Create trace flag
 sobject_dml(operation="insert", sobjectType="TraceFlag", records=[{StartDate: "2025-01-01T00:00:00Z", EndDate: "2025-01-02T00:00:00Z", LogType: "USER_DEBUG", TracedEntityId: "<USER_ID>", DebugLevelId: "<DEBUG_LEVEL_ID>"}])
 
-# Debug logs: use sf-debug skill or Salesforce Setup
+# Debug logs: use cirra-ai-sf-debug skill or Salesforce Setup
 ```
 
 ---
@@ -630,7 +630,7 @@ static void setup() {
 **Via Cirra AI MCP:**
 
 ```
-# Test execution: use sf-testing skill or Salesforce Setup
+# Test execution: use cirra-ai-sf-testing skill or Salesforce Setup
 # Run tests from Salesforce Setup → Apex Test Execution
 # Or use Developer Console → Test → Run All
 ```

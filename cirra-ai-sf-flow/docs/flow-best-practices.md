@@ -99,7 +99,7 @@ Sketch your Flow logic before building. Recommended tools:
 
 | Dependency Type       | Check Before Building                                  |
 | --------------------- | ------------------------------------------------------ |
-| Custom Objects/Fields | Do they exist? Create with sf-metadata first           |
+| Custom Objects/Fields | Do they exist? Create with cirra-ai-sf-metadata first  |
 | Custom Metadata Types | Bypass settings, thresholds, config values             |
 | Permission Sets       | Required for System Mode considerations                |
 | External Systems      | Callout endpoints, credentials                         |
@@ -856,7 +856,7 @@ HARD-CODED PATTERN AUDIT
 ═══════════════════════════════════════════════════════════
 ```
 
-> **Validator Note**: The sf-flow validator automatically flags `HardcodedId` and `HardcodedUrl` patterns during analysis.
+> **Validator Note**: The cirra-ai-sf-flow validator automatically flags `HardcodedId` and `HardcodedUrl` patterns during analysis.
 
 ### When NOT to Use CMDT
 
@@ -1357,7 +1357,7 @@ original end date is null (new contracts)."
 
 - [ ] Test with bulk data (200+ records)
 - [ ] Keep flows in Draft until fully tested
-- [ ] **Always use sf-deploy skill** - never direct CLI commands
+- [ ] **Always use cirra-ai-sf-deploy skill** - never direct CLI commands
 
 ---
 
