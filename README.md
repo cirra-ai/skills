@@ -18,31 +18,31 @@ More plugins (LWC, metadata, SOQL, permissions, Agent Script, and others) are be
 
 ## Installation
 
+### Claude Cowork
+
+1. Open **Plugins** in the left sidebar and click **Browse plugins**
+2. From the dropdown, select **Add marketplace from GitHub**
+3. Enter `cirra-ai/skills` and confirm
+4. Browse the Cirra AI marketplace and install the plugins you need
+
+Alternatively, download a plugin zip from the [latest release](https://github.com/cirra-ai/skills/releases) and use **Upload plugin** to install it manually.
+
+See the [Cowork plugins docs](https://docs.anthropic.com/en/docs/cowork/plugins) for more details.
+
 ### Claude Code
 
-Add the Cirra AI marketplace, then install the full suite or individual plugins:
+See the [Claude Code plugins docs](https://docs.anthropic.com/en/docs/claude-code/plugins) for general setup, then:
 
 ```bash
-# Step 1: Add the marketplace (one-time)
+# Add the marketplace (one-time)
 /plugin marketplace add cirra-ai/skills
 
-# Step 2: Install the complete suite
+# Install the complete suite
 /plugin install cirra-ai-sf-skills@cirra-ai
 
 # Or install individual plugins
 /plugin install cirra-ai-sf-apex@cirra-ai
-/plugin install cirra-ai-sf-flow@cirra-ai
-/plugin install cirra-ai-sf-data@cirra-ai
 ```
-
-### Claude Cowork
-
-1. Download the plugin zip from the [latest release](https://github.com/cirra-ai/skills/releases)
-   - **Full suite**: download `cirra-ai-sf-skills.zip`
-   - **Individual plugin**: download e.g. `cirra-ai-sf-apex.zip`
-2. In Cowork, click **Plugins** in the left sidebar
-3. Click **Upload plugin**
-4. Select the downloaded zip file
 
 ## Requirements
 
