@@ -1,5 +1,6 @@
 {
   "name": "cirra-ai-sf-apex",
+  "displayName": "Salesforce Apex Development (Cirra AI)",
   "version": "1.0.0",
   "description": "Generates and reviews Salesforce Apex code with 2025 best practices and 150-point scoring using Cirra AI MCP Server. Use when writing Apex classes, triggers, test classes, batch jobs, or reviewing existing Apex code for bulkification, security, and SOLID principles.",
   "author": {
@@ -8,11 +9,8 @@
   },
   "repository": "https://github.com/cirra-ai/skills",
   "license": "MIT",
-  "keywords": ["salesforce", "apex", "trigger", "testing", "cirra-ai", "metadata-api"],
-  "requirements": {
-    "cirra_ai_team": "Required - Cirra AI team identifier",
-    "sf_user": "Required - Salesforce org user context"
-  },
+  "category": "salesforce",
+  "tags": ["salesforce", "apex", "trigger", "testing", "cirra-ai", "metadata-api"],
   "mcpTools": {
     "required": [
       "cirra_ai_init",

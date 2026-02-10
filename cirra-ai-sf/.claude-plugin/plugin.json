@@ -1,5 +1,6 @@
 {
   "name": "cirra-ai-sf",
+  "displayName": "Salesforce Development Suite (Cirra AI)",
   "version": "1.0.0",
   "description": "Salesforce development suite — orchestrates Apex, Flow, and Data plugins with Cirra AI MCP Server. Install this to get all three core Salesforce development skills working together.",
   "author": {
