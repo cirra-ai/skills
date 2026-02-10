@@ -14,7 +14,7 @@ jobs:
       security-events: write
     strategy:
       matrix:
-        language: [actions]
+        language: [actions, python]
     steps:
       - uses: actions/checkout@v6
       - name: Initialize CodeQL

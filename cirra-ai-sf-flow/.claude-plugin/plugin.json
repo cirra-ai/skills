@@ -1,0 +1,30 @@
+{
+  "name": "cirra-ai-sf-flow",
+  "displayName": "Salesforce Flow Builder (Cirra AI)",
+  "version": "1.0.0",
+  "description": "Creates and validates Salesforce flows with 110-point scoring and Winter '26 best practices using Cirra AI MCP Server. Use when building record-triggered flows, screen flows, autolaunched flows, scheduled flows, or reviewing existing flow performance.",
+  "author": {
+    "name": "Cirra AI (based on original by Jag Valaiyapathy)",
+    "email": "info@cirra.ai"
+  },
+  "repository": "https://github.com/cirra-ai/skills",
+  "license": "MIT",
+  "category": "salesforce",
+  "tags": ["salesforce", "flow", "automation", "screen-flow", "cirra-ai"],
+  "mcpTools": {
+    "required": [
+      "cirra_ai_init",
+      "soql_query",
+      "tooling_api_query",
+      "metadata_create",
+      "metadata_read",
+      "metadata_list",
+      "sobject_describe"
+    ],
+    "optional": ["metadata_update", "metadata_delete"]
+  },
+  "relatedSkills": [
+    { "skill": "cirra-ai-sf-apex", "reason": "Create @InvocableMethod for complex logic" },
+    { "skill": "cirra-ai-sf-data", "reason": "Test data creation and SOQL queries" }
+  ]
+}

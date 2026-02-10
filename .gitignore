@@ -1,0 +1,7 @@
+node_modules/
+install/
+.DS_Store
+__MACOSX/
+*.pyc
+__pycache__/
+.ruff_cache/

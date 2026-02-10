@@ -1,0 +1,11 @@
+# THIRD-PARTY CREDITS
+
+The following plugins and skills were adapted from corresponding skills in the https://github.com/Jaganpro/sf-skills/ repository maintained by Jag Valaiyapathy:
+
+- cirra-ai-sf-apex
+- cirra-ai-sf-data
+- cirra-ai-sf-flow
+
+The original artifacts are licensed under the MIT license: https://github.com/Jaganpro/sf-skills/blob/main/LICENSE
+
+These skills were modified to run with the Cirra AI MCP Server in the context of (https://claude.com/product/cowork) Claude Cowork.

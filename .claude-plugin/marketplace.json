@@ -1,0 +1,77 @@
+{
+  "name": "cirra-ai",
+  "owner": {
+    "name": "Cirra AI, Inc.",
+    "url": "https://github.com/cirra-ai"
+  },
+  "metadata": {
+    "description": "Salesforce admin plugins for Claude Cowork and Claude Code",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "cirra-ai-sf",
+      "description": "Salesforce development suite — orchestrates Apex, Flow, and Data plugins with Cirra AI MCP Server",
+      "source": "./cirra-ai-sf",
+      "version": "1.0.0",
+      "author": {
+        "name": "Cirra AI",
+        "url": "https://github.com/cirra-ai"
+      },
+      "category": "salesforce",
+      "tags": ["salesforce", "orchestration", "apex", "flow", "data"],
+      "keywords": ["salesforce", "suite", "orchestration"]
+    },
+    {
+      "name": "cirra-ai-sf-skills",
+      "description": "Complete Cirra AI Salesforce skills suite - Apex, Flow, Metadata, Data, Deployment, and Skill Builder (install all at once)",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./cirra-ai-sf",
+        "./cirra-ai-sf-apex",
+        "./cirra-ai-sf-flow",
+        "./cirra-ai-sf-data"
+      ]
+    },
+    {
+      "name": "cirra-ai-sf-apex",
+      "description": "Apex code generation and review with 150-point scoring and TAF patterns",
+      "source": "./cirra-ai-sf-apex",
+      "version": "1.0.0",
+      "author": {
+        "name": "Cirra AI",
+        "url": "https://github.com/cirra-ai"
+      },
+      "category": "development",
+      "tags": ["salesforce", "apex", "backend", "triggers"],
+      "keywords": ["apex", "trigger", "test-class", "batch", "queueable"]
+    },
+    {
+      "name": "cirra-ai-sf-flow",
+      "description": "Salesforce Flow creation and validation with 110-point scoring",
+      "source": "./cirra-ai-sf-flow",
+      "version": "1.0.0",
+      "author": {
+        "name": "Cirra AI",
+        "url": "https://github.com/cirra-ai"
+      },
+      "category": "development",
+      "tags": ["salesforce", "flow", "automation", "declarative"],
+      "keywords": ["flow", "screen-flow", "autolaunched", "subflow"]
+    },
+    {
+      "name": "cirra-ai-sf-data",
+      "description": "Salesforce data operations with SOQL expertise, test data factories, and 130-point validation",
+      "source": "./cirra-ai-sf-data",
+      "version": "1.0.0",
+      "author": {
+        "name": "Cirra AI",
+        "url": "https://github.com/cirra-ai"
+      },
+      "category": "data",
+      "tags": ["salesforce", "soql", "data", "records"],
+      "keywords": ["soql", "data", "records", "test-data", "factory"]
+    }
+  ]
+}
