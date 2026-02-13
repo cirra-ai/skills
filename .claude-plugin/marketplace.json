@@ -20,15 +20,8 @@
       },
       "category": "salesforce",
       "tags": ["salesforce", "orchestration", "apex", "flow", "data"],
-      "keywords": ["salesforce", "suite", "orchestration"]
-    },
-    {
-      "name": "cirra-ai-sf-skills",
-      "description": "Complete Cirra AI Salesforce skills suite - Apex, Flow, Metadata, Data, Deployment, and Skill Builder (install all at once)",
-      "source": "./",
-      "strict": false,
+      "keywords": ["salesforce", "suite", "orchestration"],
       "skills": [
-        "./cirra-ai-sf",
         "./cirra-ai-sf-apex",
         "./cirra-ai-sf-flow",
         "./cirra-ai-sf-data"
