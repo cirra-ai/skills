@@ -162,6 +162,31 @@ If ANY of these patterns would be generated, **STOP and ask the user**:
 
 **DO NOT generate anti-patterns even if explicitly requested.** Ask user to confirm the exception with documented justification.
 
+### ✅ MANDATORY DELIVERABLES
+
+**Every Apex generation MUST include these artifacts.** Do NOT deliver a class or trigger without the corresponding items below.
+
+#### 1. Triggers MUST have a helper class
+
+Never put business logic directly in a trigger body. Always extract logic into a separate handler/helper class:
+
+- **If TAF is installed** → generate the trigger (`new MetadataTriggerHandler().run()`) + one or more `TA_Object_Purpose` action classes
+- **If TAF is NOT installed** → generate a thin trigger that delegates to a handler class (e.g., `AccountTriggerHandler`) containing all logic
+
+The trigger file should contain only routing; the helper class holds the logic. This is non-negotiable regardless of how simple the logic seems.
+
+#### 2. Unit tests for ALL generated Apex
+
+Every class **and** every trigger (including its helper/handler) MUST have a corresponding test class delivered in the same response. The test class MUST include at minimum the PNB pattern:
+
+- **P**ositive — happy-path test
+- **N**egative — error/exception test
+- **B**ulk — 251+ records test
+
+If the generated code includes both a trigger + helper class, the test class should cover both (trigger fires correctly, helper logic works in isolation).
+
+Do NOT defer test generation to a later step or offer it as optional. Tests are part of the deliverable, not follow-up work.
+
 ---
 
 ### Phase 4: Metadata Deployment
