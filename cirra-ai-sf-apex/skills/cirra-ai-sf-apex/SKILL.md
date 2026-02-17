@@ -24,22 +24,6 @@ mcpTools:
     - metadata_delete
     - tooling_api_dml
     - sobjects_list
-hooks:
-  SessionStart:
-    - type: command
-      command: 'cirra_ai_init'
-      timeout: 5000
-  PreToolUse:
-    - matcher: 'Bash'
-      hooks:
-        - type: notification
-          message: 'Cirra AI MCP Server initialized'
-  PostToolUse:
-    - matcher: 'Write|Edit'
-      hooks:
-        - type: validation
-          rule: 'Validate Apex syntax before metadata operations'
-          timeout: 15000
 ---
 
 # cirra-ai-sf-apex: Salesforce Apex Code Generation and Review (Cirra AI Edition)

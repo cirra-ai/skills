@@ -1,6 +1,6 @@
 {
   "name": "cirra-ai-sf-flow",
-  "version": "1.0.0",
+  "version": "2.1.0",
   "description": "Creates and validates Salesforce flows with 110-point scoring and Winter '26 best practices using Cirra AI MCP Server. Use when building record-triggered flows, screen flows, autolaunched flows, scheduled flows, or reviewing existing flow performance.",
   "author": {
     "name": "Cirra AI (based on original by Jag Valaiyapathy)",

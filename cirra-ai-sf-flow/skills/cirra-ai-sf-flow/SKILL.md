@@ -157,10 +157,10 @@ Use **AskUserQuestion** to gather:
 
 **Template Path Resolution** (try in order):
 
-1. **Marketplace folder**: `~/.claude/plugins/marketplaces/cirra-ai/cirra-ai-sf-flow/templates/[template].xml`
+1. **Plugin folder**: `${CLAUDE_PLUGIN_ROOT}/templates/[template].xml`
 2. **Project folder**: `[project-root]/cirra-ai-sf-flow/templates/[template].xml`
 
-**Example**: `Read: ~/.claude/plugins/marketplaces/cirra-ai/cirra-ai-sf-flow/templates/record-triggered-flow-template.xml`
+**Example**: `Read: ${CLAUDE_PLUGIN_ROOT}/templates/record-triggered-flow-template.xml`
 
 **Naming Convention** (Recommended Prefixes):
 

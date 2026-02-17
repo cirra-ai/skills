@@ -1,6 +1,6 @@
 {
   "name": "cirra-ai-sf-data",
-  "version": "1.0.0",
+  "version": "3.0.0",
   "description": "Salesforce data operations expert using Cirra AI MCP Server. Use when writing SOQL queries, creating test data, performing bulk data operations, or importing/exporting data. Includes pre-flight validation for data operations.",
   "author": {
     "name": "Cirra AI (based on original by Jag Valaiyapathy)",
