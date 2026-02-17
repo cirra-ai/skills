@@ -1,57 +1,32 @@
 {
   "name": "cirra-ai-sf-lwc",
-  "version": "2.2.0",
-  "description": "Lightning Web Components development skill with SLDS 2 validation (140-point scoring) using Cirra AI MCP Server. Includes dark mode compatibility checks, styling hooks validation, SLDS 1→2 migration detection, accessibility audits, and component best practices.",
+  "displayName": "Salesforce LWC Development (Cirra AI)",
+  "version": "1.0.0",
+  "description": "Lightning Web Components development skill with PICKLES architecture methodology, component scaffolding, wire service patterns, event handling, Apex integration, GraphQL support, and Jest test generation. Build modern Salesforce UIs with proper reactivity, accessibility, dark mode compatibility, and performance patterns.",
   "author": {
     "name": "Cirra AI (based on original by Jag Valaiyapathy)",
     "email": "info@cirra.ai"
   },
   "repository": "https://github.com/cirra-ai/skills",
   "license": "MIT",
-  "type": "skill",
-  "mcp_dependencies": [
-    {
-      "name": "cirra-ai",
-      "description": "Salesforce Cirra AI MCP Server for metadata operations",
-      "endpoints": [
-        "metadata_create",
-        "metadata_update",
-        "metadata_list",
-        "sobject_describe",
-        "soql_query",
-        "tooling_api_query",
-        "cirra_ai_init"
-      ]
-    }
-  ],
-  "capabilities": {
-    "code_generation": {
-      "lwc_components": "Full LWC bundle generation (JS, HTML, CSS, meta.xml)",
-      "typescript_support": "TypeScript component generation with type definitions",
-      "jest_tests": "Comprehensive Jest test generation",
-      "dark_mode": "SLDS 2 compliant dark mode ready components"
-    },
-    "deployment": {
-      "metadata_create": "Deploy components via Cirra AI metadata_create",
-      "validation": "SLDS 2 165-point scoring system"
-    },
-    "validation": {
-      "pickles_framework": "Architecture methodology validation",
-      "slds_2_compliance": "Dark mode and accessibility checks",
-      "accessibility": "WCAG compliance validation",
-      "performance": "Lazy loading and optimization patterns"
-    }
+  "category": "salesforce",
+  "tags": ["salesforce", "lwc", "lightning-web-components", "slds", "frontend", "cirra-ai"],
+  "mcpTools": {
+    "required": [
+      "cirra_ai_init",
+      "metadata_create",
+      "metadata_update",
+      "metadata_read",
+      "metadata_list",
+      "sobject_describe",
+      "soql_query",
+      "tooling_api_query"
+    ],
+    "optional": ["metadata_delete", "sobjects_list"]
   },
-  "hooks": {
-    "preDeploy": [
-      {
-        "type": "validation",
-        "description": "Validate SLDS 2 compliance (165-point scoring)"
-      },
-      {
-        "type": "validation",
-        "description": "Check PICKLES framework adherence"
-      }
-    ]
-  }
+  "relatedSkills": [
+    { "skill": "cirra-ai-sf-apex", "reason": "Generate Apex controllers (@AuraEnabled, @InvocableMethod)" },
+    { "skill": "cirra-ai-sf-flow", "reason": "Embed LWC components in Flow Screens" },
+    { "skill": "cirra-ai-sf-data", "reason": "SOQL queries and test data for component development" }
+  ]
 }

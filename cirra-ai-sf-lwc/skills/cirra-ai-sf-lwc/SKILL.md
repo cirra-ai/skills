@@ -10,9 +10,24 @@ license: MIT
 metadata:
   version: '2.2.0'
   author: 'Jag Valaiyapathy'
+  refactorNote: 'Migrated from Salesforce CLI (sf lightning generate component / sf project deploy) to Cirra AI MCP Server (metadata_create/metadata_update/metadata_read)'
   scoring: '165 points across 8 categories (SLDS 2 + Dark Mode compliant)'
-  mcp_enabled: true
-  cirra_ai_required: true
+hooks:
+  SessionStart:
+    - type: command
+      command: 'cirra_ai_init'
+      timeout: 5000
+  PreToolUse:
+    - matcher: 'Bash'
+      hooks:
+        - type: notification
+          message: 'Cirra AI MCP Server initialized'
+  PostToolUse:
+    - matcher: 'Write|Edit'
+      hooks:
+        - type: validation
+          rule: 'Validate LWC syntax and SLDS 2 compliance before metadata operations'
+          timeout: 15000
 ---
 
 # cirra-ai-sf-lwc: Lightning Web Components Development
@@ -35,11 +50,31 @@ Expert frontend engineer specializing in Lightning Web Components for Salesforce
 
 ---
 
+## Key Changes from CLI Version
+
+### Removed (CLI-dependent)
+
+- `sf lightning generate component` → Replaced with direct file generation by Claude
+- `sf project deploy -m LightningComponentBundle` → Replaced with `metadata_create` (Cirra AI MCP)
+- `sf project retrieve` → Replaced with `metadata_read` (Cirra AI MCP)
+- `sf sobject describe` → Replaced with `sobject_describe` (Cirra AI MCP)
+- `sf data query --use-tooling-api` → Replaced with `tooling_api_query` (Cirra AI MCP)
+
+### Added (Cirra AI MCP)
+
+- **cirra_ai_init**: Initialize MCP server connection (MUST call first)
+- **metadata_create**: Deploy new LWC bundles
+- **metadata_update**: Update existing LWC bundles
+- **metadata_read**: Retrieve existing components for review
+- **metadata_list**: List deployed LightningComponentBundles
+- **soql_query**: Query data for component development context
+- **tooling_api_query**: Query LightningComponentBundle metadata
+
+---
+
 ## Cirra AI MCP Integration
 
-The refactored sf-lwc skill uses **Cirra AI MCP Server** for deployment and metadata operations, replacing local CLI commands.
-
-### Workflow Changes
+### Workflow
 
 | Task                         | Original (CLI)                                        | New (Cirra AI)                                         |
 | ---------------------------- | ----------------------------------------------------- | ------------------------------------------------------ |
@@ -68,36 +103,26 @@ The refactored sf-lwc skill uses **Cirra AI MCP Server** for deployment and meta
 6. Validation: tooling_api_query to verify LightningComponentBundle metadata
 ```
 
-### Quick Reference: MCP Tool Mapping
+### MCP Tools Mapping
 
-| Cirra AI Tool       | Purpose                          | Parameters                                    |
-| ------------------- | -------------------------------- | --------------------------------------------- |
-| `cirra_ai_init`     | Authenticate with Salesforce org | `sf_user`, `cirra_ai_team`, `scope`           |
-| `metadata_create`   | Deploy LWC bundle                | `type`, `metadata`, `sf_user`                 |
-| `metadata_list`     | List existing components         | `type`, `sf_user`                             |
-| `sobject_describe`  | Get object metadata              | `sObject`, `sf_user`                          |
-| `soql_query`        | Execute SOQL queries             | `sObject`, `fields`, `whereClause`, `sf_user` |
-| `tooling_api_query` | Query metadata objects           | `sObject`, `fields`, `whereClause`, `sf_user` |
+| Operation              | CLI Command                                           | MCP Tool            | Example                                                                              |
+| ---------------------- | ----------------------------------------------------- | ------------------- | ------------------------------------------------------------------------------------ |
+| Generate component     | `sf lightning generate component`                     | (Claude generates)  | Claude writes JS/HTML/CSS/meta.xml directly                                          |
+| Deploy component       | `sf project deploy start -m LightningComponentBundle` | `metadata_create`   | `metadata_create(type="LightningComponentBundle", metadata=[...])`                   |
+| Update component       | `sf project deploy` (existing)                        | `metadata_update`   | `metadata_update(type="LightningComponentBundle", metadata=[...])`                   |
+| Retrieve component     | `sf project retrieve`                                 | `metadata_read`     | `metadata_read(type="LightningComponentBundle", fullNames=["c/accountDashboard"])`   |
+| List components        | `sf metadata list`                                    | `metadata_list`     | `metadata_list(type="LightningComponentBundle")`                                     |
+| Query metadata objects | `sf data query --use-tooling-api`                     | `tooling_api_query` | `tooling_api_query(sObject="LightningComponentBundle", whereClause="...")`           |
+| Describe sObject       | `sf sobject describe`                                 | `sobject_describe`  | `sobject_describe(sObject="Account")`                                                |
+| Query data             | `sf data query`                                       | `soql_query`        | `soql_query(sObject="Account", fields=["Id","Name"], whereClause="Industry='Tech'")` |
+| Delete component       | `sf project delete`                                   | `metadata_delete`   | `metadata_delete(type="LightningComponentBundle", fullNames=["c/accountDashboard"])` |
 
-### Authentication Example
+### Required Initialization
+
+**ALWAYS start with**:
 
 ```
-User Request: "Deploy my accountDashboard component to my sandbox"
-
-1. Claude: Calls cirra_ai_init(sf_user="user@example.com", scope="salesforce-metadata")
-2. Org authentication established
-3. Claude: Calls metadata_create(
-     type="LightningComponentBundle",
-     metadata=[{
-       fullName: "c/accountDashboard",
-       apiVersion: "66.0",
-       description: "SLDS 2 compliant account dashboard",
-       isExposed: true,
-       ...
-     }],
-     sf_user="user@example.com"
-   )
-4. Component deployed successfully
+cirra_ai_init(cirra_ai_team="[YOUR_TEAM_ID]", sf_user="[YOUR_ORG_ALIAS]")
 ```
 
 ---
@@ -232,11 +257,9 @@ The cirra-ai-sf-lwc skill includes automated SLDS 2 validation that ensures dark
 **Scoring Thresholds**:
 
 ```
-⭐⭐⭐⭐⭐ 150-165 pts → Production-ready, full SLDS 2 + Dark Mode
-⭐⭐⭐⭐   125-149 pts → Good component, minor styling issues
-⭐⭐⭐     100-124 pts → Functional, needs SLDS cleanup
-⭐⭐       75-99 pts  → Basic functionality, SLDS issues
-⭐         <75 pts   → Needs significant work
+✅ 150-165 pts → Production-ready, full SLDS 2 + Dark Mode
+⚠️ 100-149 pts → Good component, minor styling issues to address
+❌  <100 pts   → Needs significant SLDS 2 cleanup before deploy
 ```
 
 ---
@@ -417,9 +440,15 @@ WCAG compliance is mandatory for all components.
 
 ## Deployment via Cirra AI
 
-### Step 1: Generate Component
+### Step 1: Initialize & Generate
 
-Request component generation with PICKLES framework adherence:
+**FIRST**: Call `cirra_ai_init`:
+
+```
+Use: cirra_ai_init(cirra_ai_team="your-team-id", sf_user="your-org-alias")
+```
+
+Then generate the LWC bundle:
 
 ```
 User: "Generate an accountDashboard LWC component for displaying account metrics"
@@ -436,39 +465,30 @@ Claude:
 
 ### Step 2: Deploy via metadata_create
 
-```javascript
-// Claude executes:
-const metadata = [
-  {
-    fullName: 'c/accountDashboard',
-    apiVersion: '66.0',
-    isExposed: true,
-    masterLabel: 'Account Dashboard',
-    description: 'SLDS 2 compliant account metrics dashboard',
-    source: 'export default class AccountDashboard extends LightningElement { ... }',
-    html: '<template><div class="slds-box">...</div></template>',
-    css: ':host { --slds-g-color-surface-1: var(--slds-c-card-color-background); }',
-    meta: '<?xml version="1.0"?><LightningComponentBundle>...</LightningComponentBundle>',
-  },
-];
-
-await metadata_create({
-  type: 'LightningComponentBundle',
-  metadata: metadata,
-  sf_user: 'user@example.com',
-});
+```
+metadata_create(
+  type="LightningComponentBundle",
+  metadata=[{
+    "fullName": "c/accountDashboard",
+    "apiVersion": "66.0",
+    "isExposed": true,
+    "masterLabel": "Account Dashboard",
+    "description": "SLDS 2 compliant account metrics dashboard",
+    "source": "export default class AccountDashboard extends LightningElement { ... }",
+    "html": "<template><div class=\"slds-box\">...</div></template>",
+    "css": ":host { --slds-g-color-surface-1: var(--slds-c-card-color-background); }",
+    "meta": "<?xml version=\"1.0\"?><LightningComponentBundle>...</LightningComponentBundle>"
+  }]
+)
 ```
 
-### Step 3: Validate Deployment
+### Step 3: Verify Deployment
 
-```javascript
-// Query deployed component via Tooling API:
-const result = await tooling_api_query({
-  sObject: 'LightningComponentBundle',
-  fields: ['Id', 'DeveloperName', 'ApiVersion'],
-  whereClause: "DeveloperName = 'accountDashboard'",
-  sf_user: 'user@example.com',
-});
+```
+tooling_api_query(
+  sObject="LightningComponentBundle",
+  whereClause="DeveloperName = 'accountDashboard'"
+)
 ```
 
 ---
@@ -479,10 +499,9 @@ const result = await tooling_api_query({
 
 **Request**: "Create an account list component that loads accounts using Apex wire service"
 
-**Generated Files**:
+**Generated: accountList.js**
 
 ```javascript
-// accountList.js
 import { LightningElement, wire, api } from 'lwc';
 import getAccounts from '@salesforce/apex/AccountController.getAccounts';
 
@@ -506,8 +525,9 @@ export default class AccountList extends LightningElement {
 }
 ```
 
+**Generated: accountList.html**
+
 ```html
-<!-- accountList.html -->
 <template>
   <lightning-card title="Accounts" icon-name="standard:account">
     <template lwc:if="{isLoading}">
@@ -531,8 +551,9 @@ export default class AccountList extends LightningElement {
 </template>
 ```
 
+**Generated: accountList.css**
+
 ```css
-/* accountList.css */
 :host {
   --slds-g-color-surface-1: var(--slds-c-card-color-background, #ffffff);
 }
@@ -557,40 +578,21 @@ export default class ParentComponent extends LightningElement {
 
   handleAccountSelection(event) {
     this.selectedAccountId = event.detail.id;
-    console.log('Selected Account:', this.selectedAccountId);
   }
 }
-```
-
-**Generated: parentComponent.html**
-
-```html
-<template>
-  <div class="slds-box">
-    <c-child-account-selector
-      onaccountselected="{handleAccountSelection}"
-    ></c-child-account-selector>
-
-    <template lwc:if="{selectedAccountId}">
-      <p>Selected Account ID: {selectedAccountId}</p>
-    </template>
-  </div>
-</template>
 ```
 
 **Generated: childAccountSelector.js**
 
 ```javascript
-import { LightningElement, track } from 'lwc';
+import { LightningElement } from 'lwc';
 
 export default class ChildAccountSelector extends LightningElement {
-  @track selectedAccount;
-
   handleSelect(event) {
-    this.selectedAccount = event.currentTarget.dataset.id;
+    const selectedId = event.currentTarget.dataset.id;
     this.dispatchEvent(
       new CustomEvent('accountselected', {
-        detail: { id: this.selectedAccount },
+        detail: { id: selectedId },
       })
     );
   }
@@ -714,9 +716,21 @@ Make components discoverable by Agentforce agents:
 | ----------- | -------------------------------------------------------------- |
 | sf-apex     | Generate Apex controllers (`@AuraEnabled`, `@InvocableMethod`) |
 | sf-flow     | Embed components in Flow Screens, pass data to/from Flow       |
-| sf-testing  | Generate Jest tests                                            |
-| sf-deploy   | Deploy components (via Cirra AI metadata_create)               |
-| sf-metadata | Create message channels                                        |
+| sf-data     | SOQL queries and test data for component development           |
+| sf-metadata | Create LWC message channels                                    |
+
+---
+
+## Limitations & Workarounds
+
+| Feature                    | CLI Support                                           | MCP Support                               | Workaround                                          |
+| -------------------------- | ----------------------------------------------------- | ----------------------------------------- | --------------------------------------------------- |
+| Local file scaffolding     | `sf lightning generate component`                     | ❌ Not available                          | Claude generates code as strings, writes via Edit   |
+| Automatic file sync        | `force-app/main/default/lwc/`                         | ❌ Not available                          | Generate as strings, deploy via metadata_create     |
+| LWC Jest runner            | `sf lightning lwc test run`                           | ❌ Not available                          | Run `npm run test` locally                          |
+| Component metadata deploy  | `sf project deploy start -m LightningComponentBundle` | ✅ `metadata_create` / `metadata_update`  | Full support via MCP                                |
+| Component metadata retrieve | `sf project retrieve`                                | ✅ `metadata_read`                        | Full support via MCP                                |
+| List deployed components   | `sf metadata list`                                    | ✅ `metadata_list`                        | Full support via MCP                                |
 
 ---
 
@@ -753,7 +767,7 @@ Make components discoverable by Agentforce agents:
 | [docs/template-anti-patterns.md](docs/template-anti-patterns.md)           | LLM template mistakes (inline expressions, ternary operators)         |
 | [docs/async-notification-patterns.md](docs/async-notification-patterns.md) | Platform Events + empApi subscription patterns                        |
 | [docs/flow-integration-guide.md](docs/flow-integration-guide.md)           | Flow-LWC communication, apex:// type bindings                         |
-| [docs/cirra-ai-deployment.md](docs/cirra-ai-deployment.md)                 | Cirra AI MCP Server integration guide                                 |
+| [docs/triangle-pattern.md](docs/triangle-pattern.md)                       | Triangle pattern for LWC component design                             |
 
 ### External References
 
@@ -763,7 +777,6 @@ Make components discoverable by Agentforce agents:
 - [SLDS Styling Hooks](https://developer.salesforce.com/docs/platform/lwc/guide/create-components-css-custom-properties.html)
 - [James Simone - Composable Modal](https://www.jamessimone.net/blog/joys-of-apex/lwc-composable-modal/)
 - [James Simone - Advanced Jest Testing](https://www.jamessimone.net/blog/joys-of-apex/advanced-lwc-jest-testing/)
-- [Cirra AI MCP Server Docs](https://github.com/trailheadapps/cirra-ai-mcp-server)
 
 ---
 
@@ -771,3 +784,5 @@ Make components discoverable by Agentforce agents:
 
 MIT License. See [LICENSE](LICENSE) file.
 Copyright (c) 2024-2025 Jag Valaiyapathy
+
+**Refactored for Cirra AI MCP Server by Claude Agent (2025)**
