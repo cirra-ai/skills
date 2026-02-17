@@ -11,6 +11,19 @@ metadata:
   author: 'Jag Valaiyapathy'
   refactorNote: 'Migrated from Salesforce CLI (sf project deploy/retrieve) to Cirra AI MCP Server (metadata_create/metadata_update/metadata_read)'
   scoring: '150 points across 8 categories'
+mcpTools:
+  required:
+    - cirra_ai_init
+    - soql_query
+    - tooling_api_query
+    - metadata_create
+    - metadata_update
+    - metadata_read
+    - sobject_describe
+  optional:
+    - metadata_delete
+    - tooling_api_dml
+    - sobjects_list
 hooks:
   SessionStart:
     - type: command

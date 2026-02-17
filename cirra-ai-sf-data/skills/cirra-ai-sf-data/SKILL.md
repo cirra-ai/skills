@@ -12,6 +12,15 @@ metadata:
   validation: 'Pre-flight data operation checks (pass/fail)'
   framework: 'Cirra AI MCP Server'
   executionMode: 'remote-org-only'
+mcpTools:
+  required:
+    - cirra_ai_init
+    - soql_query
+    - sobject_dml
+    - sobject_describe
+    - tooling_api_query
+  optional:
+    - sobjects_list
 ---
 
 # cirra-ai-sf-data: Salesforce Data Operations Expert

@@ -10,6 +10,18 @@ metadata:
   author: 'Jag Valaiyapathy'
   scoring: '110 points across 6 categories'
   mcp_server: 'cirra_ai'
+mcpTools:
+  required:
+    - cirra_ai_init
+    - soql_query
+    - tooling_api_query
+    - metadata_create
+    - metadata_read
+    - metadata_list
+    - sobject_describe
+  optional:
+    - metadata_update
+    - metadata_delete
 ---
 
 # cirra-ai-sf-flow: Salesforce Flow Creation and Validation (Cirra AI)

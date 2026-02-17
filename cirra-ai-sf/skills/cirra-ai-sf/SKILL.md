@@ -8,6 +8,9 @@ license: MIT
 metadata:
   version: '1.0.0'
   author: 'Cirra AI'
+mcpTools:
+  required:
+    - cirra_ai_init
 ---
 
 # cirra-ai-sf: Salesforce Admin Suite
