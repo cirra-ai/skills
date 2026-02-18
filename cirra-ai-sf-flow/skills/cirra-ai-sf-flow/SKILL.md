@@ -263,7 +263,7 @@ If ANY of these patterns would be generated, **STOP and ask the user**:
 1. **Initialize connection** (once per session):
 
 ```python
-cirra_ai_init(sf_user="your-salesforce-username")
+cirra_ai_init()
 ```
 
 2. **Deploy Flow XML**:
@@ -463,6 +463,61 @@ screens → start → status → subflows → textTemplates → variables → wa
 | Unknown org  | Use standard objects (Account, Contact, etc.) |
 
 **Debug**: Flow not visible → deploy report + permissions | Tests fail → Debug Logs + bulk test | Sandbox→Prod fails → FLS + dependencies
+
+---
+
+## Flow MCP Patterns
+
+### General rules
+- Do **not** hard-code IDs (queues, users, record types) in flows
+- Use Entry Conditions (formulas in the `start` block) instead of a Decision with an empty action
+- Set layout to Auto-Layout (`CanvasMode: AUTO_LAYOUT_CANVAS`)
+- Do **not** create a new flow to fix an issue — create a new **version** instead
+- Do **not** say something "cannot be done via API" — always attempt it
+
+### List all flows (with active and latest version info)
+```
+tooling_api_query(sObject="FlowDefinition", fields=["Id","DeveloperName","NamespacePrefix","MasterLabel","Description","ActiveVersionId","ActiveVersion.VersionNumber","LatestVersionId","LatestVersion.VersionNumber","LatestVersion.Status","LatestVersion.MasterLabel","LatestVersion.Description"])
+```
+
+### Retrieve a specific flow version
+First get the version Id from the FlowDefinition query above, then:
+```
+tooling_api_query(sObject="Flow", fields=["Id","FullName","DefinitionId","Definition.DeveloperName","MasterLabel","Description","VersionNumber","Status","Metadata","ProcessType"], whereClause="Id='<flow version id>'")
+```
+Note: do **not** include `FullName` or `Metadata` in multi-record queries — only single-record retrieval supports these.
+
+### Create a new flow
+```
+metadata_create(type="Flow", metadata=[{"fullName": "Flow_Name", "content": "[flow-xml]"}])
+```
+
+### Update a flow (creates a new version)
+1. Retrieve current metadata: `metadata_read(type="Flow", fullNames=["Flow_Name"])`
+2. Apply changes to the metadata object
+3. Deploy: `metadata_update(type="Flow", metadata=[{...}], upsert=True)`
+   - **Do NOT change the `fullName`** — version numbers are managed automatically
+   - In production: deploy as `status: Draft` and ask user to activate manually if you get an error
+
+### Activate / deactivate a flow version
+```
+metadata_update(type="FlowDefinition", metadata=[{"fullName": "Flow_Name", "activeVersionNumber": <version>}])
+```
+To deactivate all versions: set `activeVersionNumber` to `0`.
+
+### Delete a flow
+1. Deactivate: `metadata_update(type="FlowDefinition", metadata=[{"fullName": "Flow_Name", "activeVersionNumber": 0}])`
+2. Delete all versions: `tooling_api_dml(operation="delete", sObject="Flow", record={"Id": "<flow version id>"})`  (repeat for each version)
+
+### Check flow test coverage
+```
+tooling_api_query(sObject="Flow", fields=["Definition.DeveloperName"], whereClause="Status = 'Active' AND (ProcessType = 'AutolaunchedFlow' OR ProcessType = 'Workflow' OR ProcessType = 'CustomEvent' OR ProcessType = 'InvocableProcess') AND Id NOT IN (SELECT FlowVersionId FROM FlowTestCoverage)")
+```
+
+### Find paused or failed flow interviews
+```
+soql_query(sObject="FlowInterview", fields=["Id","Name","CurrentElement","InterviewStatus","PauseLabel","CreatedDate"], whereClause="InterviewStatus IN ('Paused', 'Failed')")
+```
 
 ---
 
