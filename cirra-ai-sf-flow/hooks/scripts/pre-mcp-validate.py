@@ -104,12 +104,10 @@ def main() -> int:
     max_score = result.get("max_score", MAX_SCORE)
     full_name = result.get("full_name", result.get("flow_name", "flow"))
     all_issues = _collect_issues(result)
-    critical_issues = result.get("critical_issues", [])
-    blocking_issues = critical_issues + [i for i in all_issues if i not in critical_issues]
     pct = (score / max_score * 100) if max_score > 0 else 0
 
     # Critical/High issues → deny
-    blocking = [i for i in blocking_issues if i.get("severity") in ("CRITICAL", "HIGH")]
+    blocking = [i for i in all_issues if i.get("severity") in ("CRITICAL", "HIGH")]
     if blocking:
         lines = []
         for issue in blocking[:5]:

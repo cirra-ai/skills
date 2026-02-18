@@ -68,7 +68,7 @@ def run_validation(file_path: str) -> dict:
             issues.append({
                 "severity": "INFO",
                 "category": "",
-                "message": item.get("message", item if isinstance(item, str) else ""),
+                "message": item if isinstance(item, str) else item.get("message", ""),
                 "line": 0,
                 "fix": "",
             })

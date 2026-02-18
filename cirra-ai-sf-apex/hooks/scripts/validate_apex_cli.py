@@ -118,7 +118,7 @@ def run_validation(file_path: str) -> dict:
             output_parts.append("✅ No issues found!")
 
         output_parts.append("═" * 60)
-        if pct >= 67:
+        if pct >= THRESHOLD_PCT:
             output_parts.append("✅ PASSED — safe to deploy")
         else:
             output_parts.append("❌ BELOW THRESHOLD — fix issues before deploying")
