@@ -11,9 +11,6 @@ Decisions:
   - Score < 67% (< 100/150)                              → allow with warning
   - Pass                                                 → allow with score summary
   - Non-Apex type or validator unavailable               → allow silently
-
-To disable validation for a project, create a file named
-.no-apex-validation in the project root ($CLAUDE_PROJECT_DIR).
 """
 
 import json
@@ -45,12 +42,6 @@ def _deny(reason: str) -> dict:
 
 
 def main() -> int:
-    # Opt-out flag file
-    project_dir = os.environ.get("CLAUDE_PROJECT_DIR", "")
-    if project_dir and os.path.exists(os.path.join(project_dir, ".no-apex-validation")):
-        print(json.dumps(_allow()))
-        return 0
-
     try:
         hook_input = json.load(sys.stdin)
     except (json.JSONDecodeError, Exception):

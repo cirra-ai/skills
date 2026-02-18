@@ -11,9 +11,6 @@ Decisions:
   - Score < 80% (< 88/110)                                    → allow with warning
   - Pass                                                       → allow with score summary
   - Non-Flow type or validator unavailable                     → allow silently
-
-To disable validation for a project, create a file named
-.no-flow-validation in the project root ($CLAUDE_PROJECT_DIR).
 """
 
 import json
@@ -59,12 +56,6 @@ def _collect_issues(result: dict) -> list:
 
 
 def main() -> int:
-    # Opt-out flag file
-    project_dir = os.environ.get("CLAUDE_PROJECT_DIR", "")
-    if project_dir and os.path.exists(os.path.join(project_dir, ".no-flow-validation")):
-        print(json.dumps(_allow()))
-        return 0
-
     try:
         hook_input = json.load(sys.stdin)
     except (json.JSONDecodeError, Exception):
