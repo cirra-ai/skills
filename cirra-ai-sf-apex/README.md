@@ -112,7 +112,6 @@ Score is mapped to a 1–5 star rating (Excellent / Very Good / Good / Needs Wor
 | Script | Purpose |
 |---|---|
 | `post-write-validate.py` | Legacy version of the hook (Write only, no LLM check). Not wired in hooks.json |
-| `apex-lsp-validate.py` | Apex Language Server syntax validation. Requires VS Code + Salesforce Extension Pack + Java 11+. Not wired by default |
 | `mcp_validator_cli.py` | Manual pre-flight check for MCP metadata deployment calls |
 
 **Manual MCP pre-flight** — validate an Apex deployment payload before calling the MCP tool:
