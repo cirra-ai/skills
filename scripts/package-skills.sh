@@ -17,8 +17,9 @@ SKILLS_DIR="$REPO_ROOT/install/skills"
 rm -rf "$SKILLS_DIR"
 mkdir -p "$SKILLS_DIR"
 
-# License section appended to SKILL.md so each skill is self-contained
-LICENSE_SECTION='---
+# Base license section appended to SKILL.md so each skill is self-contained.
+# A CREDITS line is appended conditionally below if CREDITS.md is present.
+LICENSE_SECTION_BASE='---
 
 ## License
 
@@ -26,8 +27,9 @@ MIT License — see [LICENSE](LICENSE) for details.
 
 This skill is designed for use with Cirra AI, a commercial product developed by Cirra AI, Inc.
 The skill and its contents are provided independently and are not part of the Cirra AI product itself.
-Use of Cirra AI is subject to its own separate terms and conditions.
+Use of Cirra AI is subject to its own separate terms and conditions.'
 
+LICENSE_SECTION_CREDITS='
 For credits and attribution see [CREDITS.md](CREDITS.md).'
 
 echo "=== Packaging Cirra AI Skills ==="
@@ -88,8 +90,6 @@ if content.startswith('---\n'):
 
 open(dst, 'w').write(content)
 PYEOF
-  printf '\n%s\n' "$LICENSE_SECTION" >> "$tmp_dir/SKILL.md"
-
   # LICENSE — prefer plugin-level copy, fall back to repo root
   if [[ -f "$plugin_dir/LICENSE" ]]; then
     cp "$plugin_dir/LICENSE" "$tmp_dir/LICENSE"
@@ -97,9 +97,12 @@ PYEOF
     cp "$REPO_ROOT/LICENSE" "$tmp_dir/LICENSE"
   fi
 
-  # CREDITS.md — only present in some plugins
+  # CREDITS.md — only present in some plugins; append reference only if present
   if [[ -f "$plugin_dir/CREDITS.md" ]]; then
     cp "$plugin_dir/CREDITS.md" "$tmp_dir/CREDITS.md"
+    printf '\n%s%s\n' "$LICENSE_SECTION_BASE" "$LICENSE_SECTION_CREDITS" >> "$tmp_dir/SKILL.md"
+  else
+    printf '\n%s\n' "$LICENSE_SECTION_BASE" >> "$tmp_dir/SKILL.md"
   fi
 
   # Zip contents flat (files at root, not in a subdirectory)
