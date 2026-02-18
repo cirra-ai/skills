@@ -5,29 +5,7 @@ description: >
   component scaffolding, wire service patterns, event handling, Apex integration,
   GraphQL support, and Jest test generation. Build modern Salesforce UIs with
   proper reactivity, accessibility, dark mode compatibility, and performance patterns.
-  Now powered by Cirra AI MCP Server for seamless metadata deployment.
-license: MIT
-metadata:
-  version: '2.2.0'
-  author: 'Jag Valaiyapathy'
-  refactorNote: 'Migrated from Salesforce CLI (sf lightning generate component / sf project deploy) to Cirra AI MCP Server (metadata_create/metadata_update/metadata_read)'
-  scoring: '165 points across 8 categories (SLDS 2 + Dark Mode compliant)'
-hooks:
-  SessionStart:
-    - type: command
-      command: 'cirra_ai_init'
-      timeout: 5000
-  PreToolUse:
-    - matcher: 'Bash'
-      hooks:
-        - type: notification
-          message: 'Cirra AI MCP Server initialized'
-  PostToolUse:
-    - matcher: 'Write|Edit'
-      hooks:
-        - type: validation
-          rule: 'Validate LWC syntax and SLDS 2 compliance before metadata operations'
-          timeout: 15000
+  Powered by Cirra AI MCP Server for seamless metadata deployment.
 ---
 
 # cirra-ai-sf-lwc: Lightning Web Components Development

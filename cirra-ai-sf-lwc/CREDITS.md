@@ -2,7 +2,9 @@
 
 ## Modifications by Cirra AI (2026)
 
-This skill was modified from its original source to work with the Cirra AI MCP Server.
+This plugin was adapted from the [sf-lwc](https://github.com/Jaganpro/sf-skills/tree/main/sf-lwc) plugin published by Jag Valaiyapathy.
+
+It was modified from its original source primarily to work with the Cirra AI MCP Server in Claude Cowork.
 
 See below for original credits and attribution.
 
@@ -74,6 +76,4 @@ Key contributions:
 | Complex Template Expressions | Spring '26 (Beta) | JavaScript expressions in templates                     |
 | Agentforce Discoverability   | Spring '26 Docs   | `lightning__agentforce` capability                      |
 
-## License
-
-MIT License - See [LICENSE](../LICENSE)
+_If we've missed anyone whose work influenced this skill, please let us know so we can add proper attribution._
