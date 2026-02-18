@@ -13,8 +13,6 @@ Designed to work with Cirra AI MCP Server for data collection.
 """
 
 import json
-import os
-import sys
 import argparse
 from pathlib import Path
 from datetime import datetime
