@@ -137,9 +137,9 @@ def run_validation(file_path: str) -> dict:
         return {"success": True, "output": "\n".join(output_parts), "score": score, "max_score": max_score, "pct": pct}
 
     except ImportError as e:
-        return {"success": False, "output": f"⚠️  Validator not available: {e}", "pct": 100}
+        return {"success": False, "output": f"⚠️  Validator not available: {e}", "pct": 0}
     except Exception as e:
-        return {"success": False, "output": f"⚠️  Validation error: {e}", "pct": 100}
+        return {"success": False, "output": f"⚠️  Validation error: {e}", "pct": 0}
 
 
 def main() -> int:

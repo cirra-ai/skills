@@ -1,4 +1,4 @@
-name: Package Plugins
+name: Package & Publish
 
 on:
   push:
@@ -14,22 +14,31 @@ jobs:
   package:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Package plugins
         run: ./scripts/package.sh
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+      - name: Package skills
+        run: ./scripts/package-skills.sh
+
+      - name: Upload plugin artifacts
+        uses: actions/upload-artifact@v6
         with:
           name: plugin-zips
           path: install/plugins/*.zip
+
+      - name: Upload skill artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: skill-zips
+          path: install/skills/*.zip
 
       - name: Attach to release
         if: github.event_name == 'release'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          for zip in install/plugins/*.zip; do
+          for zip in install/plugins/*.zip install/skills/*.zip; do
             gh release upload "${{ github.event.release.tag_name }}" "$zip" --clobber
           done
