@@ -98,9 +98,3 @@ tooling_api_query(
 3. Validate each class body (write → validate → delete).
 4. Show the summary table sorted by score ascending.
 5. Highlight any below 100/150 (67%) as requiring attention.
-
-## Disabling validation
-
-To disable automatic pre-deployment validation for a project, create a file named `.no-apex-validation` in the project root. The hook will silently skip. Remove the file to re-enable.
-
-This command always runs validation regardless of that flag.

@@ -280,7 +280,7 @@ cirra_ai_init(sf_user="your-salesforce-username")
 
 2. **Deploy Flow XML**:
 
-> **Automatic validation**: A skill-scoped PreToolUse hook runs `pre-mcp-validate.py` before every `metadata_create`, `metadata_update`, and `tooling_api_dml` call while this skill is active. It blocks deployment for CRITICAL/HIGH issues (DML in loops, missing fault paths) and warns when score is below 80% (88/110). Disable for a project by creating `.no-flow-validation` in the project root.
+> **Automatic validation**: A skill-scoped PreToolUse hook runs `pre-mcp-validate.py` before every `metadata_create`, `metadata_update`, and `tooling_api_dml` call while this skill is active. It blocks deployment for CRITICAL/HIGH issues (DML in loops, missing fault paths) and warns when score is below 80% (88/110).
 
 ```python
 metadata_create(
@@ -719,6 +719,4 @@ Flow Created  →  Deployed to Org  →  Action Definition Created  →  Agent C
 - `cirra_ai_init()` called once per session
 - Valid Salesforce username for `sf_user` parameter
 
-**Validation hook**: Scope-limited to this skill — `pre-mcp-validate.py` only fires while cirra-ai-sf-flow is active.
-
-**Disable validation**: Create `.no-flow-validation` in project root to skip pre-deployment checks.
+**Validation hook**: Scope-limited to this skill — `pre-mcp-validate.py` only fires while cirra-ai-sf-flow is active; use `/validate-flow` for on-demand checks.

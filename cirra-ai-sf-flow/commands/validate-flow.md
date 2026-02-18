@@ -98,9 +98,3 @@ metadata_read(
 3. Validate each flow (write → validate → delete).
 4. Show the summary table sorted by score ascending.
 5. Highlight any below 88/110 (80%) as requiring attention.
-
-## Disabling validation
-
-To disable automatic pre-deployment validation for a project, create a file named `.no-flow-validation` in the project root. The hook will silently skip. Remove the file to re-enable.
-
-This command always runs validation regardless of that flag.

@@ -162,8 +162,7 @@ Generate Apex code as a STRING with full ApexDoc comments and validation.
 
 > **Automatic validation**: a PreToolUse hook runs `pre-mcp-validate.py` before every
 > `metadata_create`/`metadata_update` call. Critical issues (SOQL/DML in loops, injection)
-> block deployment automatically. To skip for a project, create `.no-apex-validation` in
-> the project root. To validate explicitly before deploying, use `/validate-apex <ClassName>`.
+> block deployment automatically. To validate explicitly before deploying, use `/validate-apex <ClassName>`.
 
 ```
 metadata_create(
@@ -631,5 +630,4 @@ accounts = (List<Account>) Security.stripInaccessible(AccessType.READABLE, accou
 - **MCP Initialization**: ALWAYS call `cirra_ai_init` first
 - **Code as String**: Generate all Apex as strings, deploy via metadata_create/update
 - **No Local Files**: Apex code is NOT saved to local file system - lives only in Salesforce org via Metadata API
-- **Validation hook**: scope-limited to this skill — only active when cirra-ai-sf-apex skill is in use
-- **Disable validation**: create `.no-apex-validation` in project root to opt out; use `/validate-apex` for on-demand checks
+- **Validation hook**: scope-limited to this skill — only active when cirra-ai-sf-apex skill is in use; use `/validate-apex` for on-demand checks
