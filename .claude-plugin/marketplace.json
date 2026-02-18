@@ -6,21 +6,21 @@
   },
   "metadata": {
     "description": "Salesforce admin plugins for Claude Cowork and Claude Code",
-    "version": "1.0.0"
+    "version": "2.0.0"
   },
   "plugins": [
     {
-      "name": "cirra-ai-sf",
-      "description": "Salesforce development suite — orchestrates Apex, Flow, and Data plugins with Cirra AI MCP Server",
-      "source": "./cirra-ai-sf",
-      "version": "1.0.0",
+      "name": "cirra-ai-sf-audit",
+      "description": "Salesforce audit suite — orchestrates Apex, Flow, and Data plugins with Cirra AI MCP Server. Includes org-wide audit orchestrator with output-directory-first architecture.",
+      "source": "./cirra-ai-sf-audit",
+      "version": "2.0.0",
       "author": {
         "name": "Cirra AI",
         "url": "https://github.com/cirra-ai"
       },
       "category": "salesforce",
-      "tags": ["salesforce", "orchestration", "apex", "flow", "data"],
-      "keywords": ["salesforce", "suite", "orchestration"],
+      "tags": ["salesforce", "orchestration", "apex", "flow", "data", "audit"],
+      "keywords": ["salesforce", "suite", "orchestration", "audit"],
       "skills": [
         "./cirra-ai-sf-apex",
         "./cirra-ai-sf-flow",
@@ -29,35 +29,35 @@
     },
     {
       "name": "cirra-ai-sf-apex",
-      "description": "Apex code generation and review with 150-point scoring and TAF patterns",
+      "description": "Apex code generation and review with 150-point scoring, TAF patterns, and org-wide audit scorer",
       "source": "./cirra-ai-sf-apex",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "author": {
         "name": "Cirra AI",
         "url": "https://github.com/cirra-ai"
       },
       "category": "development",
-      "tags": ["salesforce", "apex", "backend", "triggers"],
-      "keywords": ["apex", "trigger", "test-class", "batch", "queueable"]
+      "tags": ["salesforce", "apex", "backend", "triggers", "audit"],
+      "keywords": ["apex", "trigger", "test-class", "batch", "queueable", "audit"]
     },
     {
       "name": "cirra-ai-sf-flow",
-      "description": "Salesforce Flow creation and validation with 110-point scoring",
+      "description": "Salesforce Flow creation and validation with 110-point scoring and org-wide audit scorer",
       "source": "./cirra-ai-sf-flow",
-      "version": "1.0.0",
+      "version": "2.1.0",
       "author": {
         "name": "Cirra AI",
         "url": "https://github.com/cirra-ai"
       },
       "category": "development",
-      "tags": ["salesforce", "flow", "automation", "declarative"],
-      "keywords": ["flow", "screen-flow", "autolaunched", "subflow"]
+      "tags": ["salesforce", "flow", "automation", "declarative", "audit"],
+      "keywords": ["flow", "screen-flow", "autolaunched", "subflow", "audit"]
     },
     {
       "name": "cirra-ai-sf-data",
-      "description": "Salesforce data operations with SOQL expertise, test data factories, and 130-point validation",
+      "description": "Salesforce data operations with SOQL expertise, test data factories, pre-flight validation, and output-directory-first architecture",
       "source": "./cirra-ai-sf-data",
-      "version": "1.0.0",
+      "version": "3.0.0",
       "author": {
         "name": "Cirra AI",
         "url": "https://github.com/cirra-ai"

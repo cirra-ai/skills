@@ -1,0 +1,19 @@
+{
+  "name": "cirra-ai-sf-audit",
+  "version": "2.0.0",
+  "description": "Salesforce development suite — orchestrates Apex, Flow, and Data plugins with Cirra AI MCP Server. Includes scalable org audit orchestrator with output-directory-first architecture. Install this to get all three core Salesforce development skills working together.",
+  "author": {
+    "name": "Cirra AI",
+    "email": "info@cirra.ai"
+  },
+  "repository": "https://github.com/cirra-ai/skills",
+  "license": "MIT",
+  "keywords": ["salesforce", "apex", "flow", "data", "orchestration", "cirra-ai", "audit"],
+  "skills": "./skills",
+  "mcpServers": {
+    "cirra-ai": {
+      "type": "http",
+      "url": "https://mcp.cirra.ai/mcp"
+    }
+  }
+}
