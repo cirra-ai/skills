@@ -18,7 +18,7 @@ import sys
 import argparse
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 
 
 # ============================================================================
@@ -121,25 +121,9 @@ class AuditState:
     def get_phase_status(self, phase: int) -> str:
         return self.state['phases'].get(str(phase), {}).get('status', 'pending')
 
-    def complete_phase(self, phase: int, result: Optional[Dict] = None) -> None:
-        self.state['phases'][str(phase)] = {'status': 'completed', 'result': result}
-        self.state['current_phase'] = phase + 1
-        self.output.save_state(self.state)
-
-    def set_org_info(self, org_info: Dict) -> None:
-        self.state['org_info'] = org_info
-        self.output.save_state(self.state)
-
-    def set_counts(self, apex_count: int, flow_count: int) -> None:
-        self.state['counts'] = {'apex_classes': apex_count, 'flows': flow_count}
-        self.output.save_state(self.state)
-
     @property
     def current_phase(self) -> int:
         return self.state.get('current_phase', 0)
-
-    def is_phase_done(self, phase: int) -> bool:
-        return self.get_phase_status(phase) == 'completed'
 
 
 # ============================================================================
