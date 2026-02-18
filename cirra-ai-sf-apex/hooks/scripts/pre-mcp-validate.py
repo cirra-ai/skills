@@ -15,7 +15,6 @@ Decisions:
 
 import json
 import os
-import re
 import sys
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -51,8 +50,11 @@ def main() -> int:
     tool_name = hook_input.get("tool_name", "")
     tool_input = hook_input.get("tool_input", {})
 
-    # Strip mcp__<server>__ prefix → base tool name
-    base_tool = re.sub(r"^mcp__[^_]+__", "", tool_name)
+    # Strip mcp__<server>__  prefix → base tool name.
+    # Server names may contain underscores (e.g. mcp__cirra_ai__metadata_create),
+    # so split on __ with maxsplit=2 rather than using a character-class regex.
+    parts = tool_name.split("__", 2)
+    base_tool = parts[2] if tool_name.startswith("mcp__") and len(parts) > 2 else tool_name
 
     validator_input = {"tool": base_tool, "params": tool_input}
 

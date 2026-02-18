@@ -21,6 +21,21 @@ import sys
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, SCRIPT_DIR)
 
+THRESHOLD_PCT = 67
+
+# Max scores per category — matches ApexValidator.__init__ self.scores initialisation.
+# validator.scores is mutated in-place during validate(), so cannot be used for max lookup.
+_APEX_MAX_SCORES = {
+    "bulkification": 25,
+    "security": 25,
+    "testing": 25,
+    "architecture": 20,
+    "clean_code": 20,
+    "error_handling": 15,
+    "performance": 10,
+    "documentation": 10,
+}
+
 
 def run_validation(file_path: str) -> dict:
     """Run full validation pipeline on an Apex file.
@@ -83,7 +98,7 @@ def run_validation(file_path: str) -> dict:
             output_parts.append("")
             output_parts.append("📋 Category Breakdown:")
             for cat, cat_score in scores.items():
-                max_cat = validator.scores.get(cat, 0)
+                max_cat = _APEX_MAX_SCORES.get(cat, 0)
                 if max_cat > 0:
                     icon = "✅" if cat_score == max_cat else ("⚠️" if cat_score >= max_cat * 0.7 else "❌")
                     diff = f" (-{max_cat - cat_score})" if cat_score < max_cat else ""
@@ -141,7 +156,7 @@ def main() -> int:
 
     result = run_validation(file_path)
     print(result["output"])
-    return 0 if result.get("pct", 0) >= 67 else 1
+    return 0 if result.get("success") and result.get("pct", 0) >= THRESHOLD_PCT else 1
 
 
 if __name__ == "__main__":

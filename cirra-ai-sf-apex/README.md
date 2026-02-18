@@ -77,7 +77,7 @@ The skill generates:
 
 This plugin ships Python validation scripts in `hooks/scripts/` that run automatically at two points. Validation is **skill-scoped** — the pre-deployment hook only registers while the cirra-ai-sf-apex skill is active, so there is no overhead when doing unrelated work.
 
-To disable automatic validation for a project, create `.no-apex-validation` in the project root. Use [`/validate-apex`](#validate-apex-command) for on-demand checks at any time.
+Use [`/validate-apex`](#validate-apex-command) for on-demand checks at any time.
 
 ### Hook 1: `pre-mcp-validate.py` — pre-deployment (blocking)
 

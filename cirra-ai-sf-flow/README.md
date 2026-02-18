@@ -112,7 +112,7 @@ Always deploy custom objects/fields BEFORE flows that reference them.
 
 This plugin ships Python validation scripts in `hooks/scripts/` that run automatically at two points. Validation is **skill-scoped** — the pre-deployment hook only registers while the cirra-ai-sf-flow skill is active, so there is no overhead when doing unrelated work.
 
-To disable automatic validation for a project, create `.no-flow-validation` in the project root. Use [`/validate-flow`](#validate-flow-command) for on-demand checks at any time.
+Use [`/validate-flow`](#validate-flow-command) for on-demand checks at any time.
 
 ### Hook 1: `pre-mcp-validate.py` — pre-deployment (blocking)
 

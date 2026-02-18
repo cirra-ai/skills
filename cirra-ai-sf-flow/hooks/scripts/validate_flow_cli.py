@@ -43,17 +43,35 @@ def run_validation(file_path: str) -> dict:
         max_score = MAX_SCORE
         categories = results.get("categories", {})
 
-        # Collect all issues
+        # Collect all issues from top-level aggregated lists.
+        # EnhancedFlowValidator category dicts use critical_issues/warnings/advisory keys,
+        # NOT a generic "issues" key — iterating cat_data.get("issues") would always be empty.
+        # The top-level critical_issues and warnings lists are pre-aggregated by validate().
         issues = []
-        for cat_name, cat_data in categories.items():
-            for issue in cat_data.get("issues", []):
-                issues.append({
-                    "severity": issue.get("severity", "INFO"),
-                    "category": cat_name,
-                    "message": issue.get("message", ""),
-                    "line": issue.get("line", 0),
-                    "fix": issue.get("fix", ""),
-                })
+        for item in results.get("critical_issues", []):
+            issues.append({
+                "severity": item.get("severity", "CRITICAL"),
+                "category": "",
+                "message": item.get("message", ""),
+                "line": 0,
+                "fix": item.get("fix", ""),
+            })
+        for item in results.get("warnings", []):
+            issues.append({
+                "severity": item.get("severity", "HIGH"),
+                "category": "",
+                "message": item.get("message", ""),
+                "line": 0,
+                "fix": item.get("suggestion", ""),
+            })
+        for item in results.get("advisory_suggestions", []):
+            issues.append({
+                "severity": "INFO",
+                "category": "",
+                "message": item.get("message", item if isinstance(item, str) else ""),
+                "line": 0,
+                "fix": "",
+            })
 
         pct = (score / max_score * 100) if max_score > 0 else 0
 
@@ -137,7 +155,7 @@ def main() -> int:
 
     result = run_validation(file_path)
     print(result["output"])
-    return 0 if result.get("pct", 0) >= THRESHOLD_PCT else 1
+    return 0 if result.get("success") and result.get("pct", 0) >= THRESHOLD_PCT else 1
 
 
 if __name__ == "__main__":
