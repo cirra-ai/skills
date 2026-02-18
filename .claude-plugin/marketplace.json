@@ -65,6 +65,19 @@
       "category": "data",
       "tags": ["salesforce", "soql", "data", "records"],
       "keywords": ["soql", "data", "records", "test-data", "factory"]
+    },
+    {
+      "name": "cirra-ai-sf-lwc",
+      "description": "Lightning Web Components development with PICKLES architecture, component scaffolding, wire service patterns, event handling, Apex integration, GraphQL support, and Jest test generation",
+      "source": "./cirra-ai-sf-lwc",
+      "version": "1.0.0",
+      "author": {
+        "name": "Cirra AI",
+        "url": "https://github.com/cirra-ai"
+      },
+      "category": "development",
+      "tags": ["salesforce", "lwc", "lightning-web-components", "slds", "frontend"],
+      "keywords": ["lwc", "lightning", "web-components", "frontend", "ui", "jest"]
     }
   ]
 }
