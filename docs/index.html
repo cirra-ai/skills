@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cirra AI Salesforce Skills — Downloads</title>
+  <title>Cirra AI Salesforce Plugins — Downloads</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -42,7 +42,16 @@
       padding-bottom: 1.5rem;
       border-bottom: 1px solid var(--border);
     }
-    .site-header .logo { font-size: 1.6rem; font-weight: 700; color: var(--text); }
+    .site-header .logo-icon {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+    }
+    .site-header .logo {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text);
+    }
     .site-header .logo span { color: var(--accent); }
     .site-header .sub { color: var(--muted); font-size: 0.9rem; margin-top: 0.15rem; }
     .badge {
@@ -120,7 +129,7 @@
       text-decoration: none !important;
     }
     .btn:hover { opacity: 0.85; }
-    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary  { background: var(--accent); color: #fff; }
     .btn-secondary { background: var(--accent2); color: #000; }
     .btn-outline {
       background: transparent;
@@ -185,139 +194,133 @@
 
   <!-- Header -->
   <header class="site-header">
+    <div class="logo-icon">
+      <svg width="40" height="40" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect width="32" height="32" rx="8" fill="white"/><path d="M26 3.62601V5.54029C26 5.88611 25.7247 6.1663 25.385 6.1663H22.8478C20.3569 6.1663 18.3068 8.12858 18.1133 10.616C18.096 10.8335 17.9179 11 17.7043 11H15.4135C15.1729 11 14.9881 10.7923 15.0006 10.5474C15.2306 6.3397 18.6562 3 22.8478 3H25.385C25.7247 3 26 3.28019 26 3.62601Z" fill="url(#lg0)"/><path d="M14.2173 25.9421C11.3581 25.9421 9.03974 23.6099 9.03974 20.7337V20.2654C9.03974 17.3891 11.3581 15.0569 14.2173 15.0569H17.7395C18.0357 15.0569 18.2765 15.2991 18.2765 15.5972V17.6153C18.2765 17.9133 18.5173 18.1555 18.8135 18.1555H20.8197C21.1159 18.1555 21.3567 17.9133 21.3567 17.6153V15.5972C21.3567 15.2991 21.1159 15.0569 20.8197 15.0569H18.8164C18.5201 15.0569 18.2793 14.8147 18.2793 14.5167V12.5402C18.2793 12.2422 18.0386 12 17.7423 12H14.2173C9.67928 12 6 15.7012 6 20.2663V20.7337C6 25.2988 9.67928 29 14.2173 29H25.463C25.7592 29 26 28.7578 26 28.4598V26.4833C26 26.1853 25.7592 25.9431 25.463 25.9431H14.2173V25.9421Z" fill="url(#lg1)"/><defs><linearGradient id="lg0" x1="15.85" y1="2.33" x2="42.19" y2="28.21" gradientUnits="userSpaceOnUse"><stop stop-color="#00FFDA"/><stop offset="0.9" stop-color="#4068EB"/></linearGradient><linearGradient id="lg1" x1="6.08" y1="12.12" x2="31.52" y2="37.41" gradientUnits="userSpaceOnUse"><stop stop-color="#24F0BA"/><stop offset="0.68" stop-color="#4068EB"/></linearGradient></defs></svg>
+    </div>
     <div>
-      <div class="logo">Cirra AI <span>Salesforce Skills</span></div>
+      <div class="logo">Cirra AI <span>Salesforce Plugins</span></div>
       <div class="sub">Claude Code &amp; Claude Cowork plugins for Salesforce development</div>
     </div>
   </header>
 
   <!-- Intro -->
   <p class="intro">
-    Download and install AI skills for Salesforce development in <strong>Claude Code</strong> or
+    Download and install AI plugins for Salesforce development in <strong>Claude Code</strong> or
     <strong>Claude Cowork</strong>. Each package includes everything needed to generate Apex code,
     build Flows, query data, and more — powered by the Cirra AI MCP Server.
   </p>
 
   <div class="callout">
-    <strong>What should I download?</strong> — If you're not sure, grab the
-    <strong>All-in-One Plugin Bundle</strong> below. It installs all four skills at once.
+    <strong>What should I download?</strong> — If you&#8217;re not sure, grab the
+    <strong>All-in-One Plugin Bundle</strong> below. It installs all 5 plugins at once.
     Individual plugins and skill-only files are also available for leaner installs.
   </div>
 
-  <!-- ── Plugins ── -->
+  <!-- ── Plugin Packages ── -->
   <h2>Plugin Packages <span class="badge badge-blue">Recommended</span></h2>
   <p style="color:var(--muted);font-size:0.875rem;margin-bottom:1.25rem;">
     Full packages with skills, commands, hooks, templates, and MCP server configuration.
     Install via the plugin manager or by uploading the zip in Claude Cowork.
   </p>
 
-  <!-- All-in-one -->
+  <!-- All-in-one bundle (featured) -->
   <div class="card featured">
     <div class="card-body">
       <div class="card-title">All-in-One Plugin Bundle</div>
       <div class="card-desc">
-        All four Salesforce plugins in one zip — Apex, Flow, Data, and the Orchestrator.
-        The easiest way to get started.
+        All 5 Salesforce plugins in one zip. The easiest way to get started.
       </div>
       <div class="card-tags">
-        <span class="tag">apex</span>
-        <span class="tag">flow</span>
-        <span class="tag">data</span>
-        <span class="tag">soql</span>
-        <span class="tag">orchestration</span>
+          <span class="tag">apex</span>
+          <span class="tag">data</span>
+          <span class="tag">flow</span>
+          <span class="tag">sf</span>
+          <span class="tag">audit</span>
       </div>
     </div>
     <a class="btn btn-secondary"
        href="https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf-skills.zip">
-      ⬇ Download Bundle
+      &#11015; Download Bundle
     </a>
   </div>
 
-  <!-- Apex -->
+  <!-- Individual plugin cards (auto-generated from plugin.json files) -->
   <div class="card">
     <div class="card-body">
       <div class="card-title">cirra-ai-sf-apex</div>
-      <div class="card-desc">
-        Generates and reviews Salesforce Apex code with 2025 best practices and 150-point scoring.
-        Covers Apex classes, triggers (TAF), test classes, batch jobs, and queueables.
-      </div>
+      <div class="card-desc">Generates and reviews Salesforce Apex code with 2025 best practices and 150-point scoring using Cirra AI MCP Server. Use when writing Apex classes, triggers, test classes, batch jobs, or reviewing existing Apex code for bulkification, security, and SOLID principles.</div>
       <div class="card-tags">
-        <span class="tag">apex</span>
-        <span class="tag">triggers</span>
-        <span class="tag">testing</span>
-        <span class="tag">TAF</span>
-        <span class="tag">v2.0</span>
+          <span class="tag">v2.0.0</span>
+          <span class="tag">apex</span>
+          <span class="tag">trigger</span>
+          <span class="tag">testing</span>
+          <span class="tag">metadata-api</span>
       </div>
     </div>
-    <a class="btn btn-primary"
-       href="https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf-apex.zip">
-      ⬇ Download
-    </a>
+    <a class="btn btn-primary" href="https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf-apex.zip">&#11015; Download</a>
   </div>
 
-  <!-- Flow -->
-  <div class="card">
-    <div class="card-body">
-      <div class="card-title">cirra-ai-sf-flow</div>
-      <div class="card-desc">
-        Creates and validates Salesforce Flows with 110-point scoring and Winter '26 best practices.
-        Record-triggered flows, screen flows, autolaunched flows, and scheduled flows.
-      </div>
-      <div class="card-tags">
-        <span class="tag">flow</span>
-        <span class="tag">screen-flow</span>
-        <span class="tag">automation</span>
-        <span class="tag">v2.1</span>
-      </div>
-    </div>
-    <a class="btn btn-primary"
-       href="https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf-flow.zip">
-      ⬇ Download
-    </a>
-  </div>
-
-  <!-- Data -->
   <div class="card">
     <div class="card-body">
       <div class="card-title">cirra-ai-sf-data</div>
-      <div class="card-desc">
-        Salesforce data operations expert — SOQL queries, bulk data operations, test data creation,
-        and import/export. Includes 130-point scoring and pre-flight validation.
-      </div>
+      <div class="card-desc">Salesforce data operations expert using Cirra AI MCP Server. Use when writing SOQL queries, creating test data, performing bulk data operations, or importing/exporting data. Includes pre-flight validation for data operations.</div>
       <div class="card-tags">
-        <span class="tag">soql</span>
-        <span class="tag">data</span>
-        <span class="tag">bulk</span>
-        <span class="tag">v3.0</span>
+          <span class="tag">v3.0.0</span>
+          <span class="tag">soql</span>
+          <span class="tag">dml</span>
+          <span class="tag">test-data</span>
+          <span class="tag">bulk-operations</span>
       </div>
     </div>
-    <a class="btn btn-primary"
-       href="https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf-data.zip">
-      ⬇ Download
-    </a>
+    <a class="btn btn-primary" href="https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf-data.zip">&#11015; Download</a>
   </div>
 
-  <!-- Orchestrator -->
+  <div class="card">
+    <div class="card-body">
+      <div class="card-title">cirra-ai-sf-flow</div>
+      <div class="card-desc">Creates and validates Salesforce flows with 110-point scoring and Winter '26 best practices using Cirra AI MCP Server. Use when building record-triggered flows, screen flows, autolaunched flows, scheduled flows, or reviewing existing flow performance.</div>
+      <div class="card-tags">
+          <span class="tag">v2.1.0</span>
+          <span class="tag">flow</span>
+          <span class="tag">automation</span>
+          <span class="tag">screen-flow</span>
+      </div>
+    </div>
+    <a class="btn btn-primary" href="https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf-flow.zip">&#11015; Download</a>
+  </div>
+
   <div class="card">
     <div class="card-body">
       <div class="card-title">cirra-ai-sf</div>
-      <div class="card-desc">
-        Orchestrator plugin — routes requests to the right Apex, Flow, or Data plugin automatically.
-        Install this alongside the individual plugins for a unified Salesforce development experience.
-      </div>
+      <div class="card-desc">Salesforce development suite — orchestrates Apex, Flow, and Data plugins with Cirra AI MCP Server. Install this to get all three core Salesforce development skills working together.</div>
       <div class="card-tags">
-        <span class="tag">orchestration</span>
-        <span class="tag">routing</span>
-        <span class="tag">v1.0</span>
+          <span class="tag">v1.0.0</span>
+          <span class="tag">apex</span>
+          <span class="tag">flow</span>
+          <span class="tag">data</span>
+          <span class="tag">orchestration</span>
       </div>
     </div>
-    <a class="btn btn-primary"
-       href="https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf.zip">
-      ⬇ Download
-    </a>
+    <a class="btn btn-primary" href="https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf.zip">&#11015; Download</a>
   </div>
 
-  <!-- ── Skills ── -->
+  <div class="card">
+    <div class="card-body">
+      <div class="card-title">cirra-ai-sf-audit</div>
+      <div class="card-desc">Salesforce development suite — orchestrates Apex, Flow, and Data plugins with Cirra AI MCP Server. Includes scalable org audit orchestrator with output-directory-first architecture. Install this to get all three core Salesforce development skills working together.</div>
+      <div class="card-tags">
+          <span class="tag">v2.0.0</span>
+          <span class="tag">apex</span>
+          <span class="tag">flow</span>
+          <span class="tag">data</span>
+          <span class="tag">orchestration</span>
+          <span class="tag">audit</span>
+      </div>
+    </div>
+    <a class="btn btn-primary" href="https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf-audit.zip">&#11015; Download</a>
+  </div>
+
+  <!-- ── Skill-Only Files ── -->
   <h2>Skill-Only Files <span class="badge badge-green">Lightweight</span></h2>
   <p style="color:var(--muted);font-size:0.875rem;margin-bottom:1.25rem;">
     Just the <code>SKILL.md</code> instruction file, plus <code>LICENSE</code> and
@@ -325,75 +328,69 @@
     commands, or templates. Each file includes a self-contained license section.
   </p>
 
-  <!-- Apex skill -->
   <div class="card">
     <div class="card-body">
       <div class="card-title">cirra-ai-sf-apex — Skill Only</div>
-      <div class="card-desc">
-        Apex code generation and review instructions: 8-category scoring rubric, guardrails,
-        TAF patterns, async decision matrix, and MCP tool mapping.
-      </div>
+      <div class="card-desc">Generates and reviews Salesforce Apex code with 2025 best practices and 150-point scoring using Cirra AI MCP Server. Use when writing Apex classes,…</div>
       <div class="card-tags">
-        <span class="tag">apex</span><span class="tag">skill-only</span>
+          <span class="tag">apex</span>
+          <span class="tag">trigger</span>
+          <span class="tag">skill-only</span>
       </div>
     </div>
-    <a class="btn btn-outline"
-       href="https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf-apex-skill.zip">
-      ⬇ Download
-    </a>
+    <a class="btn btn-outline" href="https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf-apex-skill.zip">&#11015; Download</a>
   </div>
 
-  <!-- Flow skill -->
-  <div class="card">
-    <div class="card-body">
-      <div class="card-title">cirra-ai-sf-flow — Skill Only</div>
-      <div class="card-desc">
-        Flow creation and validation instructions: 110-point scoring, flow type decision matrix,
-        Winter '26 best practices, and deployment patterns.
-      </div>
-      <div class="card-tags">
-        <span class="tag">flow</span><span class="tag">skill-only</span>
-      </div>
-    </div>
-    <a class="btn btn-outline"
-       href="https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf-flow-skill.zip">
-      ⬇ Download
-    </a>
-  </div>
-
-  <!-- Data skill -->
   <div class="card">
     <div class="card-body">
       <div class="card-title">cirra-ai-sf-data — Skill Only</div>
-      <div class="card-desc">
-        Data operations instructions: SOQL query building, bulk patterns, pre-flight validation,
-        and MCP tool mapping for all data operations.
-      </div>
+      <div class="card-desc">Salesforce data operations expert using Cirra AI MCP Server. Use when writing SOQL queries, creating test data, performing bulk data operations, or…</div>
       <div class="card-tags">
-        <span class="tag">soql</span><span class="tag">data</span><span class="tag">skill-only</span>
+          <span class="tag">soql</span>
+          <span class="tag">dml</span>
+          <span class="tag">skill-only</span>
       </div>
     </div>
-    <a class="btn btn-outline"
-       href="https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf-data-skill.zip">
-      ⬇ Download
-    </a>
+    <a class="btn btn-outline" href="https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf-data-skill.zip">&#11015; Download</a>
   </div>
 
-  <!-- Orchestrator skill -->
+  <div class="card">
+    <div class="card-body">
+      <div class="card-title">cirra-ai-sf-flow — Skill Only</div>
+      <div class="card-desc">Creates and validates Salesforce flows with 110-point scoring and Winter '26 best practices using Cirra AI MCP Server. Use when building record-tri…</div>
+      <div class="card-tags">
+          <span class="tag">flow</span>
+          <span class="tag">automation</span>
+          <span class="tag">skill-only</span>
+      </div>
+    </div>
+    <a class="btn btn-outline" href="https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf-flow-skill.zip">&#11015; Download</a>
+  </div>
+
   <div class="card">
     <div class="card-body">
       <div class="card-title">cirra-ai-sf — Skill Only</div>
-      <div class="card-desc">
-        Orchestrator instructions — routes Salesforce development requests to the right specialist skill.
-      </div>
+      <div class="card-desc">Salesforce development suite — orchestrates Apex, Flow, and Data plugins with Cirra AI MCP Server. Install this to get all three core Salesforce de…</div>
       <div class="card-tags">
-        <span class="tag">orchestration</span><span class="tag">skill-only</span>
+          <span class="tag">apex</span>
+          <span class="tag">flow</span>
+          <span class="tag">skill-only</span>
       </div>
     </div>
-    <a class="btn btn-outline"
-       href="https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf-skill.zip">
-      ⬇ Download
-    </a>
+    <a class="btn btn-outline" href="https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf-skill.zip">&#11015; Download</a>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="card-title">cirra-ai-sf-audit — Skill Only</div>
+      <div class="card-desc">Salesforce development suite — orchestrates Apex, Flow, and Data plugins with Cirra AI MCP Server. Includes scalable org audit orchestrator with ou…</div>
+      <div class="card-tags">
+          <span class="tag">apex</span>
+          <span class="tag">flow</span>
+          <span class="tag">skill-only</span>
+      </div>
+    </div>
+    <a class="btn btn-outline" href="https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf-audit-skill.zip">&#11015; Download</a>
   </div>
 
   <!-- ── How to Install ── -->
@@ -425,7 +422,7 @@
     <h3>Skill-Only Files</h3>
     <ol>
       <li>Download a skill zip and extract it</li>
-      <li>Place <code>SKILL.md</code> in your project's <code>.claude/skills/</code> directory</li>
+      <li>Place <code>SKILL.md</code> in your project&#8217;s <code>.claude/skills/</code> directory</li>
       <li>Claude will pick up the skill automatically in that project</li>
     </ol>
   </div>
@@ -433,11 +430,11 @@
   <!-- Footer -->
   <footer class="site-footer">
     <span>
-      © 2026 <a href="https://cirra.ai">Cirra AI, Inc.</a> — MIT License
+      &copy; 2026 <a href="https://cirra.ai">Cirra AI, Inc.</a> — MIT License
     </span>
     <span>
-      <a href="https://github.com/cirra-ai/skills">GitHub</a> ·
-      <a href="https://github.com/cirra-ai/skills/releases">All Releases</a> ·
+      <a href="https://github.com/cirra-ai/skills">GitHub</a> &#183;
+      <a href="https://github.com/cirra-ai/skills/releases">All Releases</a> &#183;
       <a href="https://github.com/cirra-ai/skills/issues">Issues</a>
     </span>
   </footer>

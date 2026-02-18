@@ -2,6 +2,15 @@ name: Publish Downloads Page
 
 # Deploy docs/ to GitHub Pages on every push to main.
 #
+# The downloads page is generated dynamically from plugin.json files so it
+# always reflects the current set of plugins without manual edits.
+#
+# Triggers when:
+#   - Any plugin's plugin.json is added or changed (new/updated plugin)
+#   - The page generator script changes
+#   - Static assets in docs/ change
+#   - Manually via workflow_dispatch
+#
 # One-time setup (repo owner):
 #   Settings → Pages → Source: GitHub Actions → Save
 #
@@ -13,6 +22,8 @@ on:
     branches: [main]
     paths:
       - 'docs/**'
+      - 'cirra-ai-*/.claude-plugin/plugin.json'
+      - 'scripts/generate-pages.py'
   workflow_dispatch:
 
 permissions:
@@ -31,7 +42,10 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
+
+      - name: Generate downloads page
+        run: python3 scripts/generate-pages.py . > docs/index.html
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
