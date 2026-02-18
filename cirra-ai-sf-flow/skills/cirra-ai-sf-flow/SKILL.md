@@ -4,6 +4,13 @@ description: >
   Creates and validates Salesforce flows with 110-point scoring and Winter '26
   best practices using Cirra AI MCP Server. Use when building record-triggered flows,
   screen flows, autolaunched flows, scheduled flows, or reviewing existing flow performance.
+hooks:
+  PreToolUse:
+    - matcher: "mcp__.*__metadata_create|mcp__.*__metadata_update|mcp__.*__tooling_api_dml"
+      hooks:
+        - type: command
+          command: "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/pre-mcp-validate.py"
+          timeout: 30
 ---
 
 # cirra-ai-sf-flow: Salesforce Flow Creation and Validation (Cirra AI)
@@ -203,6 +210,11 @@ metadata_create(
 )
 ```
 
+**For Review** — validate an existing flow from the org or a local file before modifying:
+
+- `/validate-flow <FlowApiName>` — fetch and validate a single flow from the org
+- `/validate-flow --all` — full org audit sorted by score
+
 **Validation (STRICT MODE)**:
 
 - **BLOCK**: XML invalid, missing required fields (apiVersion/label/processType/status), API <65.0, broken refs, DML in loops
@@ -267,6 +279,8 @@ cirra_ai_init(sf_user="your-salesforce-username")
 ```
 
 2. **Deploy Flow XML**:
+
+> **Automatic validation**: A skill-scoped PreToolUse hook runs `pre-mcp-validate.py` before every `metadata_create`, `metadata_update`, and `tooling_api_dml` call while this skill is active. It blocks deployment for CRITICAL/HIGH issues (DML in loops, missing fault paths) and warns when score is below 80% (88/110). Disable for a project by creating `.no-flow-validation` in the project root.
 
 ```python
 metadata_create(
@@ -704,3 +718,7 @@ Flow Created  →  Deployed to Org  →  Action Definition Created  →  Agent C
 - Cirra AI account connected to Salesforce org
 - `cirra_ai_init()` called once per session
 - Valid Salesforce username for `sf_user` parameter
+
+**Validation hook**: Scope-limited to this skill — `pre-mcp-validate.py` only fires while cirra-ai-sf-flow is active.
+
+**Disable validation**: Create `.no-flow-validation` in project root to skip pre-deployment checks.
