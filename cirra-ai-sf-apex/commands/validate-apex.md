@@ -10,8 +10,8 @@ Validate one or more Apex classes using the 150-point static analysis pipeline a
 | Input after `/validate-apex` | Interpretation |
 |---|---|
 | `MyClass` | Class name — fetch body from org, validate |
-| `force-app/.../MyClass.cls` (ends `.cls` or `.trigger`) | Local file — validate directly |
-| `MyClass,OtherClass,ThirdClass` | Comma-separated list — validate each in sequence |
+| `<path>/MyClass.cls` (ends `.cls` or `.trigger`) | Local file — validate directly |
+| `MyClass,OtherClass,ThirdClass` | Comma-separated list — bulk fetch, validate each |
 | `--all` | All ApexClass records in the org |
 | *(no argument)* | Ask the user what to validate |
 
@@ -58,7 +58,19 @@ python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_apex_cli.py" "/tmp/validat
 
 ### Comma-separated list
 
-Validate each class using the class name workflow above. After all classes are validated, show a summary table sorted by score ascending (worst first):
+Fetch all class bodies in a single query to avoid N queries:
+
+```
+tooling_api_query(
+  sObject="ApexClass",
+  fields=["Name", "Body"],
+  whereClause="Name IN ('Class1', 'Class2', 'Class3')"
+)
+```
+
+**Fallback**: If the bulk fetch fails (timeout or size error), fall back to individual queries per class.
+
+Validate each class body using the class name workflow (write → validate → delete). After all classes are validated, show a summary table sorted by score ascending (worst first):
 
 | Class | Score | % | Status |
 |---|---|---|---|
@@ -72,9 +84,20 @@ Validate each class using the class name workflow above. After all classes are v
 tooling_api_query(sObject="ApexClass", fields=["Name"], limit=200)
 ```
 
-2. Validate each using the class name workflow.
-3. Show the summary table sorted by score ascending.
-4. Highlight any below 100/150 (67%) as requiring attention.
+2. Fetch class bodies in batches of 50 (large bodies can make bigger batches fail):
+```
+tooling_api_query(
+  sObject="ApexClass",
+  fields=["Name", "Body"],
+  whereClause="Name IN (<50 names>)"
+)
+```
+
+**Backoff strategy**: If a batch of 50 fails (timeout or response size error), retry with 20 names, then 10, then fall back to individual queries for that batch.
+
+3. Validate each class body (write → validate → delete).
+4. Show the summary table sorted by score ascending.
+5. Highlight any below 100/150 (67%) as requiring attention.
 
 ## Disabling validation
 
