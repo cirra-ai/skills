@@ -31,13 +31,19 @@ Expert Apex developer specializing in clean code, SOLID principles, and 2025 bes
 
 ### Phase 1: Requirements Gathering & MCP Initialization
 
-**FIRST**: Call `cirra_ai_init` with your Salesforce org context:
+**FIRST**: Call `cirra_ai_init()` with no parameters:
 
 ```
-Use: cirra_ai_init(cirra_ai_team="your-team-id", sf_user="your-org-alias")
+cirra_ai_init()
 ```
 
-**Then** use **AskUserQuestion** to gather:
+- If a default org is configured, proceed immediately and confirm with the user:
+  > "I've connected to **[org]**. Would you like me to use the defaults, or do you want to select different options?"
+- If no default is configured, ask for the Salesforce user/alias before proceeding.
+
+Do **not** ask for org details before calling `cirra_ai_init()`.
+
+**Then** use **AskUserQuestion** to gather (for code generation tasks):
 
 - Class type (Trigger, Service, Selector, Batch, Queueable, Test, Controller)
 - Primary purpose (one sentence)
@@ -84,7 +90,7 @@ Use: cirra_ai_init(cirra_ai_team="your-team-id", sf_user="your-org-alias")
 **For Review**:
 
 1. Use `/validate-apex <ClassName>` to fetch and score existing code from the org in one step
-2. Or query manually: `metadata_read(type="ApexClass", fullNames=["AccountService"])`
+2. Or query manually: `tooling_api_query(sObject="ApexClass", fields=["Id","FullName","Name","Body","Metadata"], whereClause="Id = '<classId>'")`
 3. Analyze against best practices and generate improvement report with specific fixes
 4. For bulk audit: `/validate-apex --all` or `/validate-apex Class1,Class2,Class3`
 
@@ -439,8 +445,10 @@ When writing test classes, use these specific exception types:
 **ALWAYS start with**:
 
 ```
-cirra_ai_init(cirra_ai_team="[YOUR_TEAM_ID]", sf_user="[YOUR_ORG_ALIAS]")
+cirra_ai_init()
 ```
+
+Call with no parameters — uses the default org. If a default is configured, confirm with the user before proceeding. If no default is configured, ask for the Salesforce user/alias.
 
 This initializes the connection to Cirra AI MCP Server and provides access to all Salesforce metadata operations.
 
@@ -450,41 +458,73 @@ This initializes the connection to Cirra AI MCP Server and provides access to al
 | --------------- | --------------------------------- | ------------------- | ------------------------------------------------------------------------ |
 | Query Apex code | `sf data query`                   | `soql_query`        | `soql_query(sObject="ApexClass", whereClause="Name = 'AccountService'")` |
 | Query metadata  | `sf data query --use-tooling-api` | `tooling_api_query` | `tooling_api_query(sObject="ApexClass")`                                 |
-| Deploy class    | `sf project deploy`               | `metadata_create`   | `metadata_create(type="ApexClass", metadata=[...])`                      |
-| Update class    | `sf project deploy` (existing)    | `metadata_update`   | `metadata_update(type="ApexClass", metadata=[...])`                      |
-| Retrieve class  | `sf project retrieve`             | `metadata_read`     | `metadata_read(type="ApexClass", fullNames=["AccountService"])`          |
+| Deploy class    | `sf project deploy`               | `tooling_api_dml`   | `tooling_api_dml(operation="insert", sObject="ApexClass", record={"Name":"MyClass","Body":"...","Status":"Active"})` |
+| Update class    | `sf project deploy` (existing)    | `tooling_api_dml`   | `tooling_api_dml(operation="update", sObject="ApexClass", record={"Id":"...","Name":"MyClass","Body":"...","Status":"Active"})` |
+| List classes    | `sf project retrieve`             | `tooling_api_query` | `tooling_api_query(sObject="ApexClass", whereClause="Name = 'AccountService'")` |
+| Retrieve class body | `sf project retrieve`         | `tooling_api_query` | `tooling_api_query(sObject="ApexClass", fields=["Id","FullName","Name","Body","Metadata"], whereClause="Id = '<classId>'")` |
 | Describe object | `sf sobject describe`             | `sobject_describe`  | `sobject_describe(sObject="Account")`                                    |
-| Delete class    | `sf project delete`               | `metadata_delete`   | `metadata_delete(type="ApexClass", fullNames=["AccountService"])`        |
+| Delete class    | `sf project delete`               | `tooling_api_dml`   | `tooling_api_dml(operation="delete", sObject="ApexClass", record={"Id":"<classId>"})` |
 | Test results    | `sf apex test run` (query)        | `tooling_api_query` | `tooling_api_query(sObject="ApexTestResult")`                            |
 
-### Metadata API Format
+### Apex Class / Trigger DML Format
 
-When deploying via `metadata_create` or `metadata_update`, use this format:
+Use `tooling_api_dml` for all Apex class and trigger create/update/delete operations:
 
+**Create class**:
 ```
-metadata_create(
-  type="ApexClass",
-  metadata=[{
-    "fullName": "ClassName",
-    "apiVersion": "65.0",
-    "status": "Active",
-    "body": "public class ClassName { ... }"
-  }]
+tooling_api_dml(
+  operation="insert",
+  sObject="ApexClass",
+  record={
+    "Name": "ClassName",
+    "Body": "public class ClassName { ... }",
+    "Status": "Active",
+    "ApiVersion": "65.0"
+  }
 )
 ```
 
-For triggers:
-
+**Update class** (Id, Name, Body, Status are all required):
 ```
-metadata_create(
-  type="ApexTrigger",
-  metadata=[{
-    "fullName": "AccountTrigger",
-    "apiVersion": "65.0",
-    "status": "Active",
-    "body": "trigger AccountTrigger on Account (...) { ... }",
-    "triggerEvents": ["before insert", "after insert", ...]
-  }]
+tooling_api_dml(
+  operation="update",
+  sObject="ApexClass",
+  record={
+    "Id": "<classId>",
+    "Name": "ClassName",
+    "Body": "public class ClassName { ... }",
+    "Status": "Active"
+  }
+)
+```
+
+**Create trigger**:
+```
+tooling_api_dml(
+  operation="insert",
+  sObject="ApexTrigger",
+  record={
+    "Name": "AccountTrigger",
+    "TableEnumOrId": "Account",
+    "Body": "trigger AccountTrigger on Account (before insert, after insert) { ... }",
+    "Status": "Active",
+    "ApiVersion": "65.0"
+  }
+)
+```
+
+**Update trigger** (Id, TableEnumOrId, Name, Body, Status all required):
+```
+tooling_api_dml(
+  operation="update",
+  sObject="ApexTrigger",
+  record={
+    "Id": "<triggerId>",
+    "Name": "AccountTrigger",
+    "TableEnumOrId": "Account",
+    "Body": "trigger AccountTrigger on Account (...) { ... }",
+    "Status": "Active"
+  }
 )
 ```
 
@@ -536,7 +576,7 @@ soql_query(
 | `sobject_describe`  | Discover object/fields before coding | `sobject_describe(sObject="Invoice__c")` → get field names, types, CRUD      |
 | `soql_query`        | Test code behavior after deploy      | `soql_query(sObject="Account", whereClause="Id IN :accountIds")`             |
 | `tooling_api_query` | Check existing Apex classes          | `tooling_api_query(sObject="ApexClass", whereClause="Name LIKE 'Account%'")` |
-| `metadata_read`     | Retrieve existing code for review    | `metadata_read(type="ApexClass", fullNames=["AccountService"])`              |
+| `tooling_api_query` | Retrieve class body for review       | `tooling_api_query(sObject="ApexClass", fields=["Id","FullName","Name","Body","Metadata"], whereClause="Id = '<classId>'")` |
 | `metadata_create`   | Deploy new Apex classes/triggers     | `metadata_create(type="ApexClass", metadata=[...])`                          |
 | `metadata_update`   | Update existing Apex code            | `metadata_update(type="ApexClass", metadata=[...])`                          |
 | `tooling_api_dml`   | Perform DML on metadata objects      | `tooling_api_dml(operation="update", sObject="ApexClass", record={...})`     |
@@ -600,6 +640,72 @@ accounts = (List<Account>) Security.stripInaccessible(AccessType.READABLE, accou
 
 ---
 
+## Apex Class MCP Patterns
+
+**Always obtain explicit approval before creating, updating, or deleting a class or trigger.**
+
+### List all classes
+```
+tooling_api_query(sObject="ApexClass", fields=["Id","Name","NamespacePrefix","ApiVersion","IsValid","Status","ManageableState"])
+```
+
+### Retrieve class body (for review or edit)
+```
+tooling_api_query(sObject="ApexClass", fields=["Id","FullName","Name","NamespacePrefix","Body","Metadata"], whereClause="Id = '<classId>'")
+```
+
+Do **not** use `metadata_read` for ApexClass — it does not return the class body.
+
+### Create a class
+```
+tooling_api_dml(operation="insert", sObject="ApexClass", record={"Name": "MyClass", "Body": "public class MyClass { ... }", "Status": "Active", "ApiVersion": "65.0"})
+```
+
+Offer to create a test class alongside. Verify referenced fields/objects exist before creating.
+
+### Update a class
+```
+tooling_api_dml(operation="update", sObject="ApexClass", record={"Id": "<classId>", "Name": "MyClass", "Body": "...", "Status": "Active"})
+```
+
+### Delete a class
+```
+tooling_api_dml(operation="delete", sObject="ApexClass", record={"Id": "<classId>"})
+```
+
+Before deleting: check for references in other Apex classes, triggers, LWC, and flows. List references and offer to handle them first.
+
+## Apex Trigger MCP Patterns
+
+### List all triggers
+```
+tooling_api_query(sObject="ApexTrigger", fields=["Id","Name","NamespacePrefix","TableEnumOrId","ApiVersion","IsValid","Status","ManageableState"])
+```
+
+### Retrieve trigger body
+```
+tooling_api_query(sObject="ApexTrigger", fields=["Id","FullName","Name","NamespacePrefix","TableEnumOrId","Body","Metadata"], whereClause="Id = '<triggerId>'")
+```
+
+### Create a trigger
+```
+tooling_api_dml(operation="insert", sObject="ApexTrigger", record={"Name": "AccountTrigger", "TableEnumOrId": "Account", "Body": "trigger AccountTrigger on Account (...) { ... }", "Status": "Active", "ApiVersion": "65.0"})
+```
+
+Suggest creating a helper class and test class alongside. Verify referenced fields/objects exist first.
+
+### Update a trigger
+```
+tooling_api_dml(operation="update", sObject="ApexTrigger", record={"Id": "<triggerId>", "TableEnumOrId": "Account", "Name": "AccountTrigger", "Body": "...", "Status": "Active"})
+```
+
+### Delete a trigger
+```
+tooling_api_dml(operation="delete", sObject="ApexTrigger", record={"Id": "<triggerId>"})
+```
+
+---
+
 ## Dependencies
 
 ### Cirra AI MCP Server tools
@@ -622,6 +728,46 @@ accounts = (List<Account>) Security.stripInaccessible(AccessType.READABLE, accou
 
 ---
 
+## Org-Wide Apex Audit
+
+**Do NOT create dashboards, interactive UIs, or other artifacts unless requested.** By default pull classes, analyze, and present results as text.
+
+This plugin includes `hooks/scripts/score_apex_classes.py` — a scalable scorer that audits ALL custom Apex classes in an org using the 150-point rubric.
+
+### Usage
+
+```bash
+python3 hooks/scripts/score_apex_classes.py --output-dir ./audit_output [--batch-size 200] [--resume]
+```
+
+### Features
+
+- **Pagination**: Fetches classes in batches via `tooling_api_query` with `Id > lastId` cursor
+- **Resume**: Saves progress every 50 classes to `{output_dir}/intermediate/apex_scoring_progress.json`
+- **Anti-Pattern Detection**: Regex-based detection of SOQL in loops, DML in loops, missing sharing keywords, hardcoded IDs, empty catch blocks, SOQL injection
+- **Metadata-Only Scoring**: Falls back to size/API-version heuristics when class body is unavailable
+- **Output-Directory-First**: ALL files written to `--output-dir` — no files outside the output tree
+
+### Output Files
+
+```
+{output_dir}/intermediate/
+├── apex_batch_*.json           # Raw class metadata per batch
+├── apex_scoring_progress.json  # Resume checkpoint
+├── apex_scores.json            # Individual class scores
+└── apex_scoring_summary.json   # Aggregate statistics & distribution
+```
+
+### Scoring Thresholds
+
+| Range | Recommendation |
+|---|---|
+| ≥ 90 | ✅ Deploy |
+| 67-89 | ⚠️ Review |
+| < 67 | ❌ Block |
+
+---
+
 ## Notes
 
 - **API Version**: 65.0 required
@@ -630,4 +776,5 @@ accounts = (List<Account>) Security.stripInaccessible(AccessType.READABLE, accou
 - **MCP Initialization**: ALWAYS call `cirra_ai_init` first
 - **Code as String**: Generate all Apex as strings, deploy via metadata_create/update
 - **No Local Files**: Apex code is NOT saved to local file system - lives only in Salesforce org via Metadata API
+- **Audit Output**: All audit intermediate files go to `--output-dir` by default
 - **Validation hook**: scope-limited to this skill — only active when cirra-ai-sf-apex skill is in use; use `/validate-apex` for on-demand checks

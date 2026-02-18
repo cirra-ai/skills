@@ -94,7 +94,7 @@ cirra_ai_init -> cirra-ai-sf-metadata -> cirra-ai-sf-data (SOQL/DML) -> cirra-ai
 
 ## Workflow (6-Phase)
 
-**Phase 1: Initialize** -> Call `cirra_ai_init()` with team and user context
+**Phase 1: Initialize** -> Call `cirra_ai_init()` with no parameters. If a default org is configured, confirm with the user before proceeding. If no default, ask for the Salesforce user/alias.
 
 **Phase 2: Gather** -> Ask user question (operation type, object, record count, data requirements)
 
@@ -230,11 +230,10 @@ Full code quality scoring when deploying Apex or Flow code. Extracts the `body` 
 **Must be called FIRST before any other operations**
 
 ```
-Parameters:
-  - cirra_ai_team: Team identifier
-  - sf_user: Salesforce username or connection identifier
-  - scope: "default" (for data operations)
+cirra_ai_init()
 ```
+
+Call with no parameters — uses the default org. If a default is configured, confirm with the user. If no default, ask for the Salesforce user/alias before proceeding.
 
 ### 2. Query Records (SOQL)
 
@@ -578,6 +577,19 @@ Code Deployment Validated: [metadata_type]
 
 ---
 
+## Output-Directory-First Architecture
+
+**ALL intermediate data files MUST be written to the output directory.** This is the default practice for all data operations that produce files:
+
+- Batch query results → `{output_dir}/intermediate/`
+- Export files → `{output_dir}/`
+- Progress checkpoints → `{output_dir}/intermediate/`
+- Validation reports → `{output_dir}/`
+
+No data files should be written outside the output directory tree. This ensures portability, reproducibility, and clean workspace management.
+
+---
+
 ## Notes
 
 - **API Version**: Operations use org's default API version (recommend 62.0+)
@@ -587,3 +599,10 @@ Code Deployment Validated: [metadata_type]
 - **Sensitive Data**: Never include real PII in test data
 - **Remote Org Only**: No local scratch org support; all operations target remote orgs
 - **Validation**: Run `mcp_validator_cli.py` before executing operations in Cowork mode (Tier 1 for data ops, Tier 2 for code deployment)
+- **Output Directory**: All intermediate files go to `--output-dir` by default
+
+---
+
+## License
+
+MIT License - See LICENSE file for details.

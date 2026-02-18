@@ -48,9 +48,10 @@ Expert Salesforce Flow Builder with deep knowledge of best practices, bulkificat
 **BEFORE using any Cirra AI tools:**
 
 ```python
-# Call this function FIRST in any interaction
-cirra_ai_init(sf_user="your-salesforce-username")
+cirra_ai_init()
 ```
+
+Call with no parameters — uses the default org. If a default is configured, confirm with the user before proceeding. If no default is configured, ask for the Salesforce user/alias.
 
 This initializes your Salesforce org connection. It must be called once per session before using any of these Cirra AI tools:
 
@@ -112,13 +113,12 @@ Use **AskUserQuestion** to gather:
 - Flow type (Screen, Record-Triggered After/Before Save/Delete, Platform Event, Autolaunched, Scheduled)
 - Primary purpose (one sentence)
 - Trigger object/conditions (if record-triggered)
-- Target org alias or username
 
 **Pre-Development Planning**: For complex flows, document requirements and sketch logic before building. See `docs/flow-best-practices.md` Section 2 "Pre-Development Planning" for templates and recommended tools.
 
 **Then**:
 
-1. **Verify Cirra AI connection**: Ensure cirra_ai_init has been called
+1. **Initialize**: Call `cirra_ai_init()` with no parameters. If a default org is configured, confirm with the user. If no default, ask for the Salesforce user/alias before proceeding.
 2. Use `sobject_describe` to verify object/field existence before referencing
 3. Use `metadata_list` to check existing flows: `metadata_list(type="Flow")`
 4. Offer reusable subflows: Sub_LogError, Sub_SendEmailAlert, Sub_ValidateRecord, Sub_UpdateRelatedRecords, Sub_QueryRecordsWithRetry → See `docs/subflow-library.md` (in cirra-ai-sf-flow folder)
@@ -275,7 +275,7 @@ If ANY of these patterns would be generated, **STOP and ask the user**:
 1. **Initialize connection** (once per session):
 
 ```python
-cirra_ai_init(sf_user="your-salesforce-username")
+cirra_ai_init()
 ```
 
 2. **Deploy Flow XML**:
@@ -477,6 +477,61 @@ screens → start → status → subflows → textTemplates → variables → wa
 | Unknown org  | Use standard objects (Account, Contact, etc.) |
 
 **Debug**: Flow not visible → deploy report + permissions | Tests fail → Debug Logs + bulk test | Sandbox→Prod fails → FLS + dependencies
+
+---
+
+## Flow MCP Patterns
+
+### General rules
+- Do **not** hard-code IDs (queues, users, record types) in flows
+- Use Entry Conditions (formulas in the `start` block) instead of a Decision with an empty action
+- Set layout to Auto-Layout (`CanvasMode: AUTO_LAYOUT_CANVAS`)
+- Do **not** create a new flow to fix an issue — create a new **version** instead
+- Do **not** say something "cannot be done via API" — always attempt it
+
+### List all flows (with active and latest version info)
+```
+tooling_api_query(sObject="FlowDefinition", fields=["Id","DeveloperName","NamespacePrefix","MasterLabel","Description","ActiveVersionId","ActiveVersion.VersionNumber","LatestVersionId","LatestVersion.VersionNumber","LatestVersion.Status","LatestVersion.MasterLabel","LatestVersion.Description"])
+```
+
+### Retrieve a specific flow version
+First get the version Id from the FlowDefinition query above, then:
+```
+tooling_api_query(sObject="Flow", fields=["Id","FullName","DefinitionId","Definition.DeveloperName","MasterLabel","Description","VersionNumber","Status","Metadata","ProcessType"], whereClause="Id='<flow version id>'")
+```
+Note: do **not** include `FullName` or `Metadata` in multi-record queries — only single-record retrieval supports these.
+
+### Create a new flow
+```
+metadata_create(type="Flow", metadata=[{"fullName": "Flow_Name", "content": "[flow-xml]"}])
+```
+
+### Update a flow (creates a new version)
+1. Retrieve current metadata: `metadata_read(type="Flow", fullNames=["Flow_Name"])`
+2. Apply changes to the metadata object
+3. Deploy: `metadata_update(type="Flow", metadata=[{...}], upsert=True)`
+   - **Do NOT change the `fullName`** — version numbers are managed automatically
+   - In production: deploy as `status: Draft` and ask user to activate manually if you get an error
+
+### Activate / deactivate a flow version
+```
+metadata_update(type="FlowDefinition", metadata=[{"fullName": "Flow_Name", "activeVersionNumber": <version>}])
+```
+To deactivate all versions: set `activeVersionNumber` to `0`.
+
+### Delete a flow
+1. Deactivate: `metadata_update(type="FlowDefinition", metadata=[{"fullName": "Flow_Name", "activeVersionNumber": 0}])`
+2. Delete all versions: `tooling_api_dml(operation="delete", sObject="Flow", record={"Id": "<flow version id>"})`  (repeat for each version)
+
+### Check flow test coverage
+```
+tooling_api_query(sObject="Flow", fields=["Definition.DeveloperName"], whereClause="Status = 'Active' AND (ProcessType = 'AutolaunchedFlow' OR ProcessType = 'Workflow' OR ProcessType = 'CustomEvent' OR ProcessType = 'InvocableProcess') AND Id NOT IN (SELECT FlowVersionId FROM FlowTestCoverage)")
+```
+
+### Find paused or failed flow interviews
+```
+soql_query(sObject="FlowInterview", fields=["Id","Name","CurrentElement","InterviewStatus","PauseLabel","CreatedDate"], whereClause="InterviewStatus IN ('Paused', 'Failed')")
+```
 
 ---
 
@@ -709,6 +764,44 @@ Flow Created  →  Deployed to Org  →  Action Definition Created  →  Agent C
 | cirra-ai-sf-flow → cirra-ai-sf-data           | "Create 200 test Accounts" (test data after deploy)                    |
 | cirra-ai-sf-ai-agentscript → cirra-ai-sf-flow | "Create Autolaunched Flow for agent action" - **cirra-ai-sf-flow is MANDATORY** |
 
+## Org-Wide Flow Audit
+
+This plugin includes `hooks/scripts/score_flows.py` — a scalable scorer that audits ALL active Flows in an org using the 110-point rubric.
+
+### Usage
+
+```bash
+python3 hooks/scripts/score_flows.py --output-dir ./audit_output [--batch-size 200] [--resume]
+```
+
+### Features
+
+- **Pagination**: Fetches FlowDefinitions in batches via `tooling_api_query` with `Id > lastId` cursor
+- **Resume**: Saves progress every 50 flows to `{output_dir}/intermediate/flow_scoring_progress.json`
+- **Anti-Pattern Detection**: DML in loop, query in loop, missing fault path, missing description, naming violation, storeOutputAutomatically, hardcoded IDs, infinite loop risk, excessive complexity
+- **Dual Detection**: Both metadata-based (field heuristics) and XML-based (full `metadata_read` analysis)
+- **Output-Directory-First**: ALL files written to `--output-dir` — no files outside the output tree
+
+### Output Files
+
+```
+{output_dir}/intermediate/
+├── flow_batch_*.json              # Raw FlowDefinition metadata per batch
+├── flow_scoring_progress.json     # Resume checkpoint
+├── flow_scores.json               # Individual flow scores
+└── flow_scoring_summary.json      # Aggregate statistics & distribution
+```
+
+### Scoring Thresholds
+
+| Range | Recommendation |
+|---|---|
+| ≥ 88 | ✅ Deploy |
+| 55-87 | ⚠️ Review |
+| < 55 | ❌ Block |
+
+---
+
 ## Notes
 
 **Dependencies** (optional): cirra-ai-sf-metadata, cirra-ai-sf-data | **API**: 65.0 | **Mode**: Strict (warnings block) | **MCP Server**: Cirra AI (required)
@@ -718,5 +811,6 @@ Flow Created  →  Deployed to Org  →  Action Definition Created  →  Agent C
 - Cirra AI account connected to Salesforce org
 - `cirra_ai_init()` called once per session
 - Valid Salesforce username for `sf_user` parameter
+- **Audit Output**: All audit intermediate files go to `--output-dir` by default
 
 **Validation hook**: Scope-limited to this skill — `pre-mcp-validate.py` only fires while cirra-ai-sf-flow is active; use `/validate-flow` for on-demand checks.
