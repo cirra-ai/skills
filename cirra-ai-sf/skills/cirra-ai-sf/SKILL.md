@@ -74,6 +74,12 @@ No plugin needs to import from another plugin's codebase.
 cirra_ai_init(sf_user="your-username")
 ```
 
+## Commands
+
+| Command | Purpose |
+|---|---|
+| `/audit` | Full org audit — scores all Apex and Flows, generates Word/Excel/HTML reports |
+
 ## Related Skills
 
 These plugins complement the core three but are independent:
