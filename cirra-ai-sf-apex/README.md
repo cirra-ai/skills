@@ -75,9 +75,22 @@ The skill generates:
 
 ## Validation Hooks
 
-This plugin ships Python validation scripts in `hooks/scripts/` that run automatically after every `Write` or `Edit` tool call on Apex files (`.cls`, `.trigger`). All hooks are **advisory** — they provide feedback but never block operations.
+This plugin ships Python validation scripts in `hooks/scripts/` that run automatically at two points. Validation is **skill-scoped** — the pre-deployment hook only registers while the cirra-ai-sf-apex skill is active, so there is no overhead when doing unrelated work.
 
-### Active hook: `post-tool-validate.py`
+To disable automatic validation for a project, create `.no-apex-validation` in the project root. Use [`/validate-apex`](#validate-apex-command) for on-demand checks at any time.
+
+### Hook 1: `pre-mcp-validate.py` — pre-deployment (blocking)
+
+Defined in `skills/cirra-ai-sf-apex/SKILL.md` frontmatter as a **skill-scoped PreToolUse hook**. Fires before every `metadata_create`, `metadata_update`, and `tooling_api_dml` call while the Apex skill is active.
+
+| Result | Action |
+|---|---|
+| Critical/High issues (SOQL/DML in loops, injection) | Blocks deployment, surfaces issues to Claude |
+| Score < 67% | Allows deployment with advisory warning |
+| Pass | Allows deployment with score summary |
+| Non-Apex type (Flow, CustomObject, etc.) | Passes through silently |
+
+### Hook 2: `post-tool-validate.py` — post-write (advisory)
 
 Triggered by `hooks/hooks.json` on `PostToolUse` for `Write|Edit`. Runs a two-phase validation pipeline and outputs a scored report to the transcript.
 
@@ -107,11 +120,26 @@ Catches mistakes that AI models commonly make when generating Apex:
 
 Score is mapped to a 1–5 star rating (Excellent / Very Good / Good / Needs Work / Critical Issues) with a per-category breakdown and prioritised issue list (up to 12 issues, sorted by severity).
 
+## /validate-apex Command
+
+On-demand validation command. Accepts a class name, local file path, comma-separated list, or `--all`:
+
+| Invocation | What happens |
+|---|---|
+| `/validate-apex MyClass` | Fetches `MyClass` body from org via `tooling_api_query`, validates |
+| `/validate-apex path/to/MyClass.cls` | Reads local file, validates |
+| `/validate-apex MyClass,OtherClass` | Validates each in sequence, shows summary table |
+| `/validate-apex --all` | Validates all ApexClass records in the org, summary sorted by score |
+
+The command uses `validate_apex_cli.py` under the hood — the same 150-point + LLM anti-pattern pipeline as the hooks.
+
 ### Other scripts
 
 | Script | Purpose |
 |---|---|
-| `post-write-validate.py` | Legacy version of the hook (Write only, no LLM check). Not wired in hooks.json |
+| `validate_apex_cli.py` | Standalone CLI used by `/validate-apex` — takes a file path argument |
+| `pre-mcp-validate.py` | PreToolUse hook adapter — translates hook stdin to mcp_validator format |
+| `post-write-validate.py` | Legacy hook (Write only, no LLM check). Not wired in hooks.json |
 | `mcp_validator_cli.py` | Manual pre-flight check for MCP metadata deployment calls |
 
 **Manual MCP pre-flight** — validate an Apex deployment payload before calling the MCP tool:

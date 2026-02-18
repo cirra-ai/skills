@@ -5,6 +5,13 @@ description: >
   scoring using Cirra AI MCP Server metadata API. Use when writing Apex classes, triggers,
   test classes, batch jobs, or reviewing existing Apex code for bulkification, security,
   and SOLID principles.
+hooks:
+  PreToolUse:
+    - matcher: "mcp__.*__metadata_create|mcp__.*__metadata_update|mcp__.*__tooling_api_dml"
+      hooks:
+        - type: command
+          command: "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/pre-mcp-validate.py"
+          timeout: 30
 ---
 
 # cirra-ai-sf-apex: Salesforce Apex Code Generation and Review (Cirra AI Edition)
@@ -82,10 +89,10 @@ Do **not** ask for org details before calling `cirra_ai_init()`.
 
 **For Review**:
 
-1. List classes: `tooling_api_query(sObject="ApexClass", whereClause="Name LIKE 'AccountService%'")`
-2. Retrieve class body: `tooling_api_query(sObject="ApexClass", fields=["Id","FullName","Name","Body","Metadata"], whereClause="Id = '<classId>'")`
-2. Analyze against best practices
-3. Generate improvement report with specific fixes
+1. Use `/validate-apex <ClassName>` to fetch and score existing code from the org in one step
+2. Or query manually: `tooling_api_query(sObject="ApexClass", fields=["Id","FullName","Name","Body","Metadata"], whereClause="Id = '<classId>'")`
+3. Analyze against best practices and generate improvement report with specific fixes
+4. For bulk audit: `/validate-apex --all` or `/validate-apex Class1,Class2,Class3`
 
 **Run Validation**:
 
@@ -158,6 +165,11 @@ Do NOT defer test generation to a later step or offer it as optional. Tests are 
 Generate Apex code as a STRING with full ApexDoc comments and validation.
 
 **Step 2: Deploy via Cirra AI MCP**
+
+> **Automatic validation**: a PreToolUse hook runs `pre-mcp-validate.py` before every
+> `metadata_create`/`metadata_update` call. Critical issues (SOQL/DML in loops, injection)
+> block deployment automatically. To skip for a project, create `.no-apex-validation` in
+> the project root. To validate explicitly before deploying, use `/validate-apex <ClassName>`.
 
 ```
 metadata_create(
@@ -766,12 +778,5 @@ python3 hooks/scripts/score_apex_classes.py --output-dir ./audit_output [--batch
 - **Code as String**: Generate all Apex as strings, deploy via metadata_create/update
 - **No Local Files**: Apex code is NOT saved to local file system - lives only in Salesforce org via Metadata API
 - **Audit Output**: All audit intermediate files go to `--output-dir` by default
-
----
-
-## License
-
-MIT License. See LICENSE file.
-Copyright (c) 2024-2025 Jag Valaiyapathy
-
-**Refactored for Cirra AI MCP Server by Claude Agent (2025)**
+- **Validation hook**: scope-limited to this skill — only active when cirra-ai-sf-apex skill is in use
+- **Disable validation**: create `.no-apex-validation` in project root to opt out; use `/validate-apex` for on-demand checks
