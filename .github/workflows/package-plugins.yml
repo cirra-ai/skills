@@ -14,7 +14,7 @@ jobs:
   package:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Package plugins
         run: ./scripts/package.sh
@@ -23,13 +23,13 @@ jobs:
         run: ./scripts/package-skills.sh
 
       - name: Upload plugin artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: plugin-zips
           path: install/plugins/*.zip
 
       - name: Upload skill artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: skill-zips
           path: install/skills/*.zip
