@@ -41,9 +41,10 @@ Expert Salesforce Flow Builder with deep knowledge of best practices, bulkificat
 **BEFORE using any Cirra AI tools:**
 
 ```python
-# Call this function FIRST in any interaction
-cirra_ai_init(sf_user="your-salesforce-username")
+cirra_ai_init()
 ```
+
+Call with no parameters — uses the default org. If a default is configured, confirm with the user before proceeding. If no default is configured, ask for the Salesforce user/alias.
 
 This initializes your Salesforce org connection. It must be called once per session before using any of these Cirra AI tools:
 
@@ -105,13 +106,12 @@ Use **AskUserQuestion** to gather:
 - Flow type (Screen, Record-Triggered After/Before Save/Delete, Platform Event, Autolaunched, Scheduled)
 - Primary purpose (one sentence)
 - Trigger object/conditions (if record-triggered)
-- Target org alias or username
 
 **Pre-Development Planning**: For complex flows, document requirements and sketch logic before building. See `docs/flow-best-practices.md` Section 2 "Pre-Development Planning" for templates and recommended tools.
 
 **Then**:
 
-1. **Verify Cirra AI connection**: Ensure cirra_ai_init has been called
+1. **Initialize**: Call `cirra_ai_init()` with no parameters. If a default org is configured, confirm with the user. If no default, ask for the Salesforce user/alias before proceeding.
 2. Use `sobject_describe` to verify object/field existence before referencing
 3. Use `metadata_list` to check existing flows: `metadata_list(type="Flow")`
 4. Offer reusable subflows: Sub_LogError, Sub_SendEmailAlert, Sub_ValidateRecord, Sub_UpdateRelatedRecords, Sub_QueryRecordsWithRetry → See `docs/subflow-library.md` (in cirra-ai-sf-flow folder)

@@ -94,7 +94,7 @@ cirra_ai_init -> cirra-ai-sf-metadata -> cirra-ai-sf-data (SOQL/DML) -> cirra-ai
 
 ## Workflow (6-Phase)
 
-**Phase 1: Initialize** -> Call `cirra_ai_init()` with team and user context
+**Phase 1: Initialize** -> Call `cirra_ai_init()` with no parameters. If a default org is configured, confirm with the user before proceeding. If no default, ask for the Salesforce user/alias.
 
 **Phase 2: Gather** -> Ask user question (operation type, object, record count, data requirements)
 
@@ -230,11 +230,10 @@ Full code quality scoring when deploying Apex or Flow code. Extracts the `body` 
 **Must be called FIRST before any other operations**
 
 ```
-Parameters:
-  - cirra_ai_team: Team identifier
-  - sf_user: Salesforce username or connection identifier
-  - scope: "default" (for data operations)
+cirra_ai_init()
 ```
+
+Call with no parameters — uses the default org. If a default is configured, confirm with the user. If no default, ask for the Salesforce user/alias before proceeding.
 
 ### 2. Query Records (SOQL)
 

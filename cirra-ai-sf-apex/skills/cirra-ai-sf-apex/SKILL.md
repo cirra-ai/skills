@@ -24,13 +24,19 @@ Expert Apex developer specializing in clean code, SOLID principles, and 2025 bes
 
 ### Phase 1: Requirements Gathering & MCP Initialization
 
-**FIRST**: Call `cirra_ai_init` with your Salesforce org context:
+**FIRST**: Call `cirra_ai_init()` with no parameters:
 
 ```
-Use: cirra_ai_init(cirra_ai_team="your-team-id", sf_user="your-org-alias")
+cirra_ai_init()
 ```
 
-**Then** use **AskUserQuestion** to gather:
+- If a default org is configured, proceed immediately and confirm with the user:
+  > "I've connected to **[org]**. Would you like me to use the defaults, or do you want to select different options?"
+- If no default is configured, ask for the Salesforce user/alias before proceeding.
+
+Do **not** ask for org details before calling `cirra_ai_init()`.
+
+**Then** use **AskUserQuestion** to gather (for code generation tasks):
 
 - Class type (Trigger, Service, Selector, Batch, Queueable, Test, Controller)
 - Primary purpose (one sentence)
@@ -427,8 +433,10 @@ When writing test classes, use these specific exception types:
 **ALWAYS start with**:
 
 ```
-cirra_ai_init(cirra_ai_team="[YOUR_TEAM_ID]", sf_user="[YOUR_ORG_ALIAS]")
+cirra_ai_init()
 ```
+
+Call with no parameters — uses the default org. If a default is configured, confirm with the user before proceeding. If no default is configured, ask for the Salesforce user/alias.
 
 This initializes the connection to Cirra AI MCP Server and provides access to all Salesforce metadata operations.
 
@@ -611,6 +619,8 @@ accounts = (List<Account>) Security.stripInaccessible(AccessType.READABLE, accou
 ---
 
 ## Org-Wide Apex Audit
+
+**Do NOT create dashboards, interactive UIs, or artifacts.** Pull the classes, run the analysis, and present results as text directly in the conversation. Generate an HTML or document report only when the user explicitly asks for one.
 
 This plugin includes `hooks/scripts/score_apex_classes.py` — a scalable scorer that audits ALL custom Apex classes in an org using the 150-point rubric.
 

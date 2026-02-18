@@ -78,8 +78,10 @@ No plugin needs to import from another plugin's codebase.
 **CRITICAL**: Call `cirra_ai_init()` once per session before using any Cirra AI MCP tools.
 
 ```python
-cirra_ai_init(sf_user="your-username")
+cirra_ai_init()
 ```
+
+Call with no parameters — uses the default org. If a default is configured, confirm with the user before proceeding. If no default is configured, ask for the Salesforce user/alias.
 
 ## Org Audit Orchestration
 
