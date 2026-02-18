@@ -70,7 +70,7 @@ def run_validation(file_path: str) -> dict:
                 "category": "",
                 "message": item if isinstance(item, str) else item.get("message", ""),
                 "line": 0,
-                "fix": "",
+                "fix": "" if isinstance(item, str) else item.get("suggestion", ""),
             })
 
         pct = (score / max_score * 100) if max_score > 0 else 0
@@ -108,13 +108,13 @@ def run_validation(file_path: str) -> dict:
         if issues:
             output_parts.append("")
             output_parts.append(f"⚠️  Issues Found ({len(issues)}):")
-            severity_order = {"CRITICAL": 0, "HIGH": 1, "MODERATE": 2, "WARNING": 3, "LOW": 4, "INFO": 5}
-            issues.sort(key=lambda x: severity_order.get(x.get("severity", "INFO"), 5))
+            severity_order = {"CRITICAL": 0, "HIGH": 1, "MEDIUM": 2, "MODERATE": 3, "WARNING": 4, "LOW": 5, "INFO": 6}
+            issues.sort(key=lambda x: severity_order.get(x.get("severity", "INFO"), 6))
             for issue in issues[:12]:
                 sev = issue.get("severity", "INFO")
                 icon = {
-                    "CRITICAL": "🔴", "HIGH": "🟠", "MODERATE": "🟡",
-                    "WARNING": "🟡", "LOW": "🔵", "INFO": "⚪",
+                    "CRITICAL": "🔴", "HIGH": "🟠", "MEDIUM": "🟡",
+                    "MODERATE": "🟡", "WARNING": "🟡", "LOW": "🔵", "INFO": "⚪",
                 }.get(sev, "⚪")
                 line_info = f"L{issue['line']}" if issue.get("line") else ""
                 msg = issue["message"][:65] + "..." if len(issue["message"]) > 65 else issue["message"]
