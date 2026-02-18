@@ -1,7 +1,6 @@
 {
   "name": "cirra-ai-sf-apex",
-  "displayName": "Salesforce Apex Development (Cirra AI)",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Generates and reviews Salesforce Apex code with 2025 best practices and 150-point scoring using Cirra AI MCP Server. Use when writing Apex classes, triggers, test classes, batch jobs, or reviewing existing Apex code for bulkification, security, and SOLID principles.",
   "author": {
     "name": "Cirra AI (based on original by Jag Valaiyapathy)",
@@ -9,22 +8,12 @@
   },
   "repository": "https://github.com/cirra-ai/skills",
   "license": "MIT",
-  "category": "salesforce",
-  "tags": ["salesforce", "apex", "trigger", "testing", "cirra-ai", "metadata-api"],
-  "mcpTools": {
-    "required": [
-      "cirra_ai_init",
-      "soql_query",
-      "tooling_api_query",
-      "metadata_create",
-      "metadata_update",
-      "metadata_read",
-      "sobject_describe"
-    ],
-    "optional": ["metadata_delete", "tooling_api_dml", "sobjects_list"]
-  },
-  "relatedSkills": [
-    { "skill": "cirra-ai-sf-data", "reason": "SOQL queries, test data factories, DML operations" },
-    { "skill": "cirra-ai-sf-flow", "reason": "Flow creation when wrapping Apex @InvocableMethod" }
-  ]
+  "keywords": ["salesforce", "apex", "trigger", "testing", "cirra-ai", "metadata-api"],
+  "skills": "./skills",
+  "mcpServers": {
+    "cirra-ai": {
+      "type": "http",
+      "url": "https://mcp.cirra.ai/mcp"
+    }
+  }
 }

@@ -4,12 +4,6 @@ description: >
   Creates and validates Salesforce flows with 110-point scoring and Winter '26
   best practices using Cirra AI MCP Server. Use when building record-triggered flows,
   screen flows, autolaunched flows, scheduled flows, or reviewing existing flow performance.
-license: MIT
-metadata:
-  version: '2.1.0'
-  author: 'Jag Valaiyapathy'
-  scoring: '110 points across 6 categories'
-  mcp_server: 'cirra_ai'
 ---
 
 # cirra-ai-sf-flow: Salesforce Flow Creation and Validation (Cirra AI)
@@ -145,10 +139,10 @@ Use **AskUserQuestion** to gather:
 
 **Template Path Resolution** (try in order):
 
-1. **Marketplace folder**: `~/.claude/plugins/marketplaces/cirra-ai/cirra-ai-sf-flow/templates/[template].xml`
+1. **Plugin folder**: `${CLAUDE_PLUGIN_ROOT}/templates/[template].xml`
 2. **Project folder**: `[project-root]/cirra-ai-sf-flow/templates/[template].xml`
 
-**Example**: `Read: ~/.claude/plugins/marketplaces/cirra-ai/cirra-ai-sf-flow/templates/record-triggered-flow-template.xml`
+**Example**: `Read: ${CLAUDE_PLUGIN_ROOT}/templates/record-triggered-flow-template.xml`
 
 **Naming Convention** (Recommended Prefixes):
 
@@ -710,10 +704,3 @@ Flow Created  →  Deployed to Org  →  Action Definition Created  →  Agent C
 - Cirra AI account connected to Salesforce org
 - `cirra_ai_init()` called once per session
 - Valid Salesforce username for `sf_user` parameter
-
----
-
-## License
-
-MIT License. See [LICENSE](LICENSE) file.
-Copyright (c) 2024-2025 Jag Valaiyapathy

@@ -108,14 +108,44 @@ Always deploy custom objects/fields BEFORE flows that reference them.
 - [Wait Patterns](docs/wait-patterns.md) - Delay and scheduling
 - [Testing Guide](docs/testing-guide.md) - Validation strategies
 
+## Validation Hooks
+
+This plugin ships Python validation scripts in `hooks/scripts/` that run automatically after every `Write` or `Edit` tool call on Flow files (`.flow-meta.xml`, `.xml`). All hooks are **advisory** — they provide feedback but never block operations.
+
+### Active hook: `post-tool-validate.py`
+
+Triggered by `hooks/hooks.json` on `PostToolUse` for `Write|Edit`. Runs the `EnhancedFlowValidator` and outputs a scored report to the transcript.
+
+**`validate_flow.py`: 110-point static analysis (Lightning Flow Scanner parity)**
+
+| Category | Points | What it checks |
+|---|---|---|
+| Design & Naming | 25 | Element naming conventions, alphabetical ordering, flow description |
+| Logic & Structure | 20 | Entry criteria, flow variables, decision logic |
+| Architecture & Orchestration | 20 | Flow type appropriateness, subflow usage, API versioning |
+| Performance & Bulk Safety | 20 | DML/queries in loops, 251-record bulk handling, collection patterns |
+| Error Handling & Observability | 15 | Fault connectors on all DML/queries, unhandled paths |
+| Security & Governance | 10 | Sharing mode, hardcoded IDs, API version ≥ 59.0 |
+
+**Scoring thresholds**: 88+ (80%) required for deployment recommendation. Score maps to star rating (Excellent / Very Good / Good / Needs Work / Critical Issues) with per-category breakdown and prioritised issue list.
+
+### Other scripts
+
+| Script | Purpose |
+|---|---|
+| `post-write-validate.py` | Legacy version of the hook (Write only). Not wired in hooks.json |
+
 ## Requirements
 
+- Claude Cowork or Claude Code with skill plugins enabled
 - Cirra AI MCP Server
 - Target Salesforce org
-- API Version 65.0+ (Winter '26)
+  - API Version 65.0+ (Winter '26)
 
 ## License
 
-MIT License. See LICENSE file.
-Copyright (c) 2024-2025 Jag Valaiyapathy
-Copyright (c) 2026 Cirra AI, Inc.
+MIT License — see [LICENSE](LICENSE) for details.
+
+This plugin is designed for use with Cirra AI, a commercial product developed by Cirra AI, Inc. The plugin and its contents are provided independently and are not part of the Cirra AI product itself. Use of Cirra AI is subject to its own separate terms and conditions.
+
+For credits see [CREDITS](CREDITS.md)

@@ -73,6 +73,54 @@ The skill generates:
 | `queueable.cls`      | Queueable async job               |
 | `test-class.cls`     | Test class with data factory      |
 
+## Validation Hooks
+
+This plugin ships Python validation scripts in `hooks/scripts/` that run automatically after every `Write` or `Edit` tool call on Apex files (`.cls`, `.trigger`). All hooks are **advisory** — they provide feedback but never block operations.
+
+### Active hook: `post-tool-validate.py`
+
+Triggered by `hooks/hooks.json` on `PostToolUse` for `Write|Edit`. Runs a two-phase validation pipeline and outputs a scored report to the transcript.
+
+**Phase 1 — `validate_apex.py`: 150-point static analysis**
+
+| Category | Points | What it checks |
+|---|---|---|
+| Bulkification | 25 | SOQL/DML inside loops |
+| Security | 25 | Sharing keywords, SOQL injection risk |
+| Testing | 25 | Test methods, assertions, coverage patterns |
+| Architecture | 20 | SOLID principles, separation of concerns |
+| Clean Code | 20 | PascalCase classes, camelCase methods |
+| Error Handling | 15 | Empty catch blocks, exception patterns |
+| Performance | 10 | Async patterns, governor limit awareness |
+| Documentation | 10 | ApexDoc on public methods |
+
+**Phase 1.5 — `llm_pattern_validator.py`: LLM anti-pattern detection**
+
+Catches mistakes that AI models commonly make when generating Apex:
+
+- **Java types**: `ArrayList`, `HashMap`, `StringBuilder`, etc. (don't exist in Apex)
+- **Hallucinated methods**: `stream()`, `collect()`, `addMilliseconds()`, `getOrDefault()`, `entrySet()`, `String.matches()`, etc.
+- **Unsafe Map access**: `map.get(key).method()` without null check or `containsKey()`
+- **SOQL field gaps**: queries with very few fields where subsequent code accesses many more
+
+**Phase 2 — Scoring and output**
+
+Score is mapped to a 1–5 star rating (Excellent / Very Good / Good / Needs Work / Critical Issues) with a per-category breakdown and prioritised issue list (up to 12 issues, sorted by severity).
+
+### Other scripts
+
+| Script | Purpose |
+|---|---|
+| `post-write-validate.py` | Legacy version of the hook (Write only, no LLM check). Not wired in hooks.json |
+| `mcp_validator_cli.py` | Manual pre-flight check for MCP metadata deployment calls |
+
+**Manual MCP pre-flight** — validate an Apex deployment payload before calling the MCP tool:
+
+```bash
+echo '{"tool":"metadata_create","params":{"type":"ApexClass","metadata":[{"fullName":"MyClass","body":"public class MyClass {}"}]}}' \
+  | python hooks/scripts/mcp_validator_cli.py --format report
+```
+
 ## Cross-Skill Integration
 
 | Related Skill | When to Use                                 |
@@ -92,11 +140,14 @@ The skill generates:
 
 ## Requirements
 
+- Claude Cowork or Claude Code with skill plugins enabled
 - Cirra AI MCP Server
 - Target Salesforce org
 
 ## License
 
-MIT License. See LICENSE file.
-Copyright (c) 2024-2025 Jag Valaiyapathy
-Copyright (c) 2026 Cirra AI, Inc.
+MIT License — see [LICENSE](LICENSE) for details.
+
+This plugin is designed for use with Cirra AI, a commercial product developed by Cirra AI, Inc. The plugin and its contents are provided independently and are not part of the Cirra AI product itself. Use of Cirra AI is subject to its own separate terms and conditions.
+
+For credits see [CREDITS](CREDITS.md)

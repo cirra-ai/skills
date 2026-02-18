@@ -1,7 +1,6 @@
 {
   "name": "cirra-ai-sf-data",
-  "displayName": "Salesforce Data Operations (Cirra AI)",
-  "version": "1.0.0",
+  "version": "3.0.0",
   "description": "Salesforce data operations expert using Cirra AI MCP Server. Use when writing SOQL queries, creating test data, performing bulk data operations, or importing/exporting data. Includes pre-flight validation for data operations.",
   "author": {
     "name": "Cirra AI (based on original by Jag Valaiyapathy)",
@@ -9,20 +8,12 @@
   },
   "repository": "https://github.com/cirra-ai/skills",
   "license": "MIT",
-  "category": "salesforce",
-  "tags": ["salesforce", "soql", "dml", "test-data", "bulk-operations", "cirra-ai"],
-  "mcpTools": {
-    "required": [
-      "cirra_ai_init",
-      "soql_query",
-      "sobject_dml",
-      "sobject_describe",
-      "tooling_api_query"
-    ],
-    "optional": ["sobjects_list"]
-  },
-  "relatedSkills": [
-    { "skill": "cirra-ai-sf-apex", "reason": "Apex classes for complex data logic and triggers" },
-    { "skill": "cirra-ai-sf-flow", "reason": "Flows for declarative data automation" }
-  ]
+  "keywords": ["salesforce", "soql", "dml", "test-data", "bulk-operations", "cirra-ai"],
+  "skills": "./skills",
+  "mcpServers": {
+    "cirra-ai": {
+      "type": "http",
+      "url": "https://mcp.cirra.ai/mcp"
+    }
+  }
 }
