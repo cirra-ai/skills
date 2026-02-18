@@ -11,7 +11,7 @@ Validate one or more Flows using the 110-point static analysis pipeline and retu
 |---|---|
 | `Auto_Lead_Assignment` | Flow API name — fetch XML from org, validate |
 | `force-app/.../Auto_Lead_Assignment.flow-meta.xml` (ends `.flow-meta.xml` or `.xml`) | Local file — validate directly |
-| `Auto_Lead_Assignment,Screen_Case_Intake` | Comma-separated list — validate each in sequence |
+| `Auto_Lead_Assignment,Screen_Case_Intake` | Comma-separated list — bulk fetch, validate each |
 | `--all` | All Flow records in the org |
 | *(no argument)* | Ask the user what to validate |
 
@@ -58,7 +58,19 @@ python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_flow_cli.py" "/tmp/validat
 
 ### Comma-separated list
 
-Validate each flow using the flow API name workflow above. After all flows are validated, show a summary table sorted by score ascending (worst first):
+Fetch all flow XML bodies in a single call:
+
+```
+metadata_read(
+  type="Flow",
+  fullNames=["Flow1", "Flow2", "Flow3"],
+  sf_user="<sf_user>"
+)
+```
+
+**Fallback**: If the bulk read fails (timeout or size error), fall back to individual `metadata_read` calls per flow.
+
+Validate each flow body (write → validate → delete). After all flows are validated, show a summary table sorted by score ascending (worst first):
 
 | Flow | Score | % | Status |
 |---|---|---|---|
@@ -72,12 +84,17 @@ Validate each flow using the flow API name workflow above. After all flows are v
 metadata_list(type="Flow", sf_user="<sf_user>")
 ```
 
-2. Validate each using the flow API name workflow.
-3. Show the summary table sorted by score ascending.
-4. Highlight any below 88/110 (80%) as requiring attention.
+2. Fetch flow XML in batches of 20 (large flows can make bigger batches fail):
+```
+metadata_read(
+  type="Flow",
+  fullNames=["Flow1", ..., "Flow20"],
+  sf_user="<sf_user>"
+)
+```
 
-## Disabling validation
+**Backoff strategy**: If a batch of 20 fails (timeout or response size error), retry with 10, then 5, then fall back to individual reads for that batch.
 
-To disable automatic pre-deployment validation for a project, create a file named `.no-flow-validation` in the project root. The hook will silently skip. Remove the file to re-enable.
-
-This command always runs validation regardless of that flag.
+3. Validate each flow (write → validate → delete).
+4. Show the summary table sorted by score ascending.
+5. Highlight any below 88/110 (80%) as requiring attention.

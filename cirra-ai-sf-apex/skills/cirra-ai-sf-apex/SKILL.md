@@ -168,8 +168,7 @@ Generate Apex code as a STRING with full ApexDoc comments and validation.
 
 > **Automatic validation**: a PreToolUse hook runs `pre-mcp-validate.py` before every
 > `metadata_create`/`metadata_update` call. Critical issues (SOQL/DML in loops, injection)
-> block deployment automatically. To skip for a project, create `.no-apex-validation` in
-> the project root. To validate explicitly before deploying, use `/validate-apex <ClassName>`.
+> block deployment automatically. To validate explicitly before deploying, use `/validate-apex <ClassName>`.
 
 ```
 metadata_create(
@@ -778,5 +777,4 @@ python3 hooks/scripts/score_apex_classes.py --output-dir ./audit_output [--batch
 - **Code as String**: Generate all Apex as strings, deploy via metadata_create/update
 - **No Local Files**: Apex code is NOT saved to local file system - lives only in Salesforce org via Metadata API
 - **Audit Output**: All audit intermediate files go to `--output-dir` by default
-- **Validation hook**: scope-limited to this skill — only active when cirra-ai-sf-apex skill is in use
-- **Disable validation**: create `.no-apex-validation` in project root to opt out; use `/validate-apex` for on-demand checks
+- **Validation hook**: scope-limited to this skill — only active when cirra-ai-sf-apex skill is in use; use `/validate-apex` for on-demand checks

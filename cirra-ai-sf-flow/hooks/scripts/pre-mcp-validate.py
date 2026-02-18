@@ -11,14 +11,10 @@ Decisions:
   - Score < 80% (< 88/110)                                    → allow with warning
   - Pass                                                       → allow with score summary
   - Non-Flow type or validator unavailable                     → allow silently
-
-To disable validation for a project, create a file named
-.no-flow-validation in the project root ($CLAUDE_PROJECT_DIR).
 """
 
 import json
 import os
-import re
 import sys
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -46,25 +42,30 @@ def _deny(reason: str) -> dict:
 
 
 def _collect_issues(result: dict) -> list:
-    """Collect issues from either EnhancedFlowValidator or basic_flow_check result format."""
-    issues = list(result.get("issues", []))
-    for cat_data in result.get("categories", {}).values():
-        for issue in cat_data.get("issues", []):
-            issues.append({
-                "severity": issue.get("severity", "INFO"),
-                "message": issue.get("message", ""),
-                "line": issue.get("line", 0),
-            })
+    """Collect all issues from validator result.
+
+    Handles both EnhancedFlowValidator (top-level critical_issues/warnings lists)
+    and basic_flow_check (top-level issues list) formats.
+    EnhancedFlowValidator category dicts use critical_issues/warnings/advisory keys,
+    NOT a generic "issues" key — iterating cat_data.get("issues") would always be empty.
+    """
+    issues = list(result.get("issues", []))  # basic_flow_check format
+    for item in result.get("critical_issues", []):
+        issues.append({
+            "severity": item.get("severity", "CRITICAL"),
+            "message": item.get("message", ""),
+            "line": 0,
+        })
+    for item in result.get("warnings", []):
+        issues.append({
+            "severity": item.get("severity", "HIGH"),
+            "message": item.get("message", ""),
+            "line": 0,
+        })
     return issues
 
 
 def main() -> int:
-    # Opt-out flag file
-    project_dir = os.environ.get("CLAUDE_PROJECT_DIR", "")
-    if project_dir and os.path.exists(os.path.join(project_dir, ".no-flow-validation")):
-        print(json.dumps(_allow()))
-        return 0
-
     try:
         hook_input = json.load(sys.stdin)
     except (json.JSONDecodeError, Exception):
@@ -74,9 +75,11 @@ def main() -> int:
     tool_name = hook_input.get("tool_name", "")
     tool_input = hook_input.get("tool_input", {})
 
-    # Strip mcp__<server>__ prefix → base tool name
-    # Use .+? (non-greedy) so server names with underscores (e.g. cirra_ai) are handled correctly
-    base_tool = re.sub(r"^mcp__.+?__", "", tool_name)
+    # Strip mcp__<server>__  prefix → base tool name.
+    # Server names may contain underscores (e.g. mcp__cirra_ai__metadata_create),
+    # so split on __ with maxsplit=2 rather than using a character-class regex.
+    parts = tool_name.split("__", 2)
+    base_tool = parts[2] if tool_name.startswith("mcp__") and len(parts) > 2 else tool_name
 
     validator_input = {"tool": base_tool, "params": tool_input}
 
@@ -101,12 +104,10 @@ def main() -> int:
     max_score = result.get("max_score", MAX_SCORE)
     full_name = result.get("full_name", result.get("flow_name", "flow"))
     all_issues = _collect_issues(result)
-    critical_issues = result.get("critical_issues", [])
-    blocking_issues = critical_issues + [i for i in all_issues if i not in critical_issues]
     pct = (score / max_score * 100) if max_score > 0 else 0
 
     # Critical/High issues → deny
-    blocking = [i for i in blocking_issues if i.get("severity") in ("CRITICAL", "HIGH")]
+    blocking = [i for i in all_issues if i.get("severity") in ("CRITICAL", "HIGH")]
     if blocking:
         lines = []
         for issue in blocking[:5]:
