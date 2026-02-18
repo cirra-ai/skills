@@ -61,7 +61,8 @@ def main() -> int:
     tool_input = hook_input.get("tool_input", {})
 
     # Strip mcp__<server>__ prefix → base tool name
-    base_tool = re.sub(r"^mcp__[^_]+__", "", tool_name)
+    # Use .+? (non-greedy) so server names with underscores (e.g. cirra_ai) are handled correctly
+    base_tool = re.sub(r"^mcp__.+?__", "", tool_name)
 
     validator_input = {"tool": base_tool, "params": tool_input}
 

@@ -33,6 +33,7 @@ def run_validation(file_path: str) -> dict:
         from validate_apex import ApexValidator
 
         validator = ApexValidator(file_path)
+        max_scores = dict(validator.scores)  # capture before validate() mutates in place
         results = validator.validate()
 
         score = results.get("score", 0)
@@ -83,7 +84,7 @@ def run_validation(file_path: str) -> dict:
             output_parts.append("")
             output_parts.append("📋 Category Breakdown:")
             for cat, cat_score in scores.items():
-                max_cat = validator.scores.get(cat, 0)
+                max_cat = max_scores.get(cat, 0)
                 if max_cat > 0:
                     icon = "✅" if cat_score == max_cat else ("⚠️" if cat_score >= max_cat * 0.7 else "❌")
                     diff = f" (-{max_cat - cat_score})" if cat_score < max_cat else ""
@@ -123,9 +124,9 @@ def run_validation(file_path: str) -> dict:
         return {"success": True, "output": "\n".join(output_parts), "score": score, "max_score": max_score, "pct": pct}
 
     except ImportError as e:
-        return {"success": False, "output": f"⚠️  Validator not available: {e}", "pct": 100}
+        return {"success": False, "output": f"⚠️  Validator not available: {e}", "pct": 0}
     except Exception as e:
-        return {"success": False, "output": f"⚠️  Validation error: {e}", "pct": 100}
+        return {"success": False, "output": f"⚠️  Validation error: {e}", "pct": 0}
 
 
 def main() -> int:
