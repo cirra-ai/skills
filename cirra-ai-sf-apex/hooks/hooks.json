@@ -2,7 +2,7 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "metadata_create|metadata_update|tooling_api_dml",
+        "matcher": ".*metadata_create|.*metadata_update|.*tooling_api_dml",
         "hooks": [
           {
             "type": "command",
