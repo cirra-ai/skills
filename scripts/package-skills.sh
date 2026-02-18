@@ -54,8 +54,40 @@ for skill_md in "$REPO_ROOT"/*/skills/*/SKILL.md; do
 
   tmp_dir="$(mktemp -d)"
 
-  # SKILL.md with License section appended
-  cp "$skill_md" "$tmp_dir/SKILL.md"
+  # SKILL.md — strip frontmatter keys not allowed in standalone skills,
+  # then append License section.
+  # Allowed keys: name, description, license, allowed-tools, compatibility, metadata
+  # Stripped keys: hooks (requires plugin infrastructure; invalid standalone)
+  python3 - "$skill_md" "$tmp_dir/SKILL.md" <<'PYEOF'
+import sys
+
+ALLOWED = {'name', 'description', 'license', 'allowed-tools', 'compatibility', 'metadata'}
+
+src, dst = sys.argv[1], sys.argv[2]
+content = open(src).read()
+
+if content.startswith('---\n'):
+    end = content.index('\n---\n', 4)
+    frontmatter_lines = content[4:end].split('\n')
+    body = content[end + 5:]
+
+    out_lines = []
+    skip = False
+    for line in frontmatter_lines:
+        # Top-level key: non-indented, non-empty
+        if line and not line[0].isspace():
+            key = line.split(':')[0].strip()
+            skip = key not in ALLOWED
+            if skip:
+                continue  # don't warn, just drop silently
+        if not skip:
+            out_lines.append(line)
+
+    new_fm = '\n'.join(out_lines).strip()
+    content = f'---\n{new_fm}\n---\n\n{body}'
+
+open(dst, 'w').write(content)
+PYEOF
   printf '\n%s\n' "$LICENSE_SECTION" >> "$tmp_dir/SKILL.md"
 
   # LICENSE — prefer plugin-level copy, fall back to repo root
