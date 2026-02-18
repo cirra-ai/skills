@@ -268,7 +268,7 @@ Examples:
 
     if args.reset:
         print("🔄 Resetting audit state...")
-        state_file = output.path('audit_state.json')
+        state_file = output.path('audit_state.json', 'intermediate')
         if state_file.exists():
             state_file.unlink()
         state = AuditState(output)
