@@ -12,6 +12,7 @@
   "skills": "./skills",
   "mcpServers": {
     "cirra-ai": {
+      "type": "http",
       "url": "https://mcp.cirra.ai/mcp"
     }
   }

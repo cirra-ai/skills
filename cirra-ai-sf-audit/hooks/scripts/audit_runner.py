@@ -103,10 +103,8 @@ class AuditState:
         self.output = output
         self.state = self._load_or_create()
 
-    def _load_or_create(self) -> Dict:
-        existing = self.output.load_state()
-        if existing:
-            return existing
+    @staticmethod
+    def _default_state() -> Dict:
         return {
             'version': AUDIT_VERSION,
             'started': datetime.now().isoformat(),
@@ -115,6 +113,10 @@ class AuditState:
             'org_info': {},
             'counts': {'apex_classes': 0, 'flows': 0},
         }
+
+    def _load_or_create(self) -> Dict:
+        existing = self.output.load_state()
+        return existing if existing else self._default_state()
 
     def get_phase_status(self, phase: int) -> str:
         return self.state['phases'].get(str(phase), {}).get('status', 'pending')
@@ -216,32 +218,6 @@ def build_mcp_collection_queries(batch_size: int = 200) -> Dict:
 
 
 # ============================================================================
-# REPORT GENERATION HELPERS
-# ============================================================================
-
-def generate_combined_summary(apex_summary: Dict, flow_summary: Dict, output: AuditOutputManager) -> Dict:
-    """Combine Apex and Flow summaries into a single audit summary."""
-    combined = {
-        'audit_date': datetime.now().isoformat(),
-        'audit_version': AUDIT_VERSION,
-        'apex': apex_summary,
-        'flow': flow_summary,
-        'totals': {
-            'components': (apex_summary.get('total_classes', 0) + flow_summary.get('total_flows', 0)),
-            'deploy': (apex_summary.get('distribution', {}).get('deploy', {}).get('count', 0) +
-                       flow_summary.get('distribution', {}).get('deploy', {}).get('count', 0)),
-            'review': (apex_summary.get('distribution', {}).get('review', {}).get('count', 0) +
-                       flow_summary.get('distribution', {}).get('review', {}).get('count', 0)),
-            'block': (apex_summary.get('distribution', {}).get('block', {}).get('count', 0) +
-                      flow_summary.get('distribution', {}).get('block', {}).get('count', 0)),
-        },
-    }
-
-    output.save_json(combined, 'audit_combined_summary.json')
-    return combined
-
-
-# ============================================================================
 # MAIN ORCHESTRATOR
 # ============================================================================
 
@@ -292,17 +268,10 @@ Examples:
 
     if args.reset:
         print("🔄 Resetting audit state...")
-        state = AuditState.__new__(AuditState)
-        state.output = output
-        state.state = {
-            'version': AUDIT_VERSION,
-            'started': datetime.now().isoformat(),
-            'current_phase': 0,
-            'phases': {str(i): {'status': 'pending', 'result': None} for i in range(len(PHASES))},
-            'org_info': {},
-            'counts': {'apex_classes': 0, 'flows': 0},
-        }
-        output.save_state(state.state)
+        state_file = output.path('audit_state.json')
+        if state_file.exists():
+            state_file.unlink()
+        state = AuditState(output)
         print("✅ Audit state reset.")
         return
 

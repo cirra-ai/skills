@@ -44,7 +44,7 @@
       "name": "cirra-ai-sf-flow",
       "description": "Salesforce Flow creation and validation with 110-point scoring and org-wide audit scorer",
       "source": "./cirra-ai-sf-flow",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "author": {
         "name": "Cirra AI",
         "url": "https://github.com/cirra-ai"
@@ -57,7 +57,7 @@
       "name": "cirra-ai-sf-data",
       "description": "Salesforce data operations with SOQL expertise, test data factories, pre-flight validation, and output-directory-first architecture",
       "source": "./cirra-ai-sf-data",
-      "version": "2.0.0",
+      "version": "3.0.0",
       "author": {
         "name": "Cirra AI",
         "url": "https://github.com/cirra-ai"
