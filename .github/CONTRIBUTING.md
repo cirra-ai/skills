@@ -11,10 +11,6 @@ How to contribute
 5. Run linters and tests locally before opening a PR.
 6. Fill the PR template and link any related issues.
 
-Labels
-
-- Look for issues labeled `good first issue` or `help wanted` if you are new.
-
 Code style
 
 - Follow existing project style. Add or update tests for your changes.

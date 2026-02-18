@@ -418,10 +418,11 @@ User: @cirra-ai-sf-apex Generate a service class for Account
 
 ## License
 
-Apache-2.0 License
+MIT License
+Copyright (c) 2026 Cirra AI, Inc.
 Copyright (c) 2024-2025 Jag Valaiyapathy
 
-**Refactored for Cirra AI MCP Server by Claude Agent (2025)**
+Refactored for use with the Cirra AI MCP Server
 
 ---
 

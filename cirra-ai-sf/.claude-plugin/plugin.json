@@ -8,18 +8,12 @@
   },
   "repository": "https://github.com/cirra-ai/skills",
   "license": "MIT",
-  "category": "salesforce",
-  "tags": ["salesforce", "apex", "flow", "data", "orchestration", "cirra-ai"],
-  "mcpTools": {
-    "required": ["cirra_ai_init"]
-  },
-  "relatedSkills": [
-    { "skill": "cirra-ai-sf-apex", "reason": "Apex code generation, review, and 150-point scoring" },
-    { "skill": "cirra-ai-sf-flow", "reason": "Flow creation, validation, and 110-point scoring" },
-    { "skill": "cirra-ai-sf-data", "reason": "SOQL queries, DML operations, test data factories" }
-  ],
-  "cross_skill_orchestration": {
-    "pattern": "cirra-ai-sf-metadata → cirra-ai-sf-apex / cirra-ai-sf-flow → cirra-ai-sf-data",
-    "description": "Create metadata (objects/fields) first, then deploy code (Apex/Flows), then create test data"
+  "keywords": ["salesforce", "apex", "flow", "data", "orchestration", "cirra-ai"],
+  "skills": "./skills",
+  "mcpServers": {
+    "cirra-ai": {
+      "type": "http",
+      "url": "https://mcp.cirra.ai/mcp"
+    }
   }
 }

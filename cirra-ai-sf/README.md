@@ -1,51 +1,33 @@
 # cirra-ai-sf
 
-Salesforce admin suite for Claude Cowork and Claude Code. Orchestrates Apex, Flow, and Data plugins with Cirra AI MCP Server.
+Salesforce orchestrator plugin for Claude Cowork. Coordinates the individual Salesforce plugins (Apex, Flow, Data, and others) into a unified admin suite.
 
-## What's Included
+When installed, this plugin routes tasks to the appropriate sub-plugin based on context — e.g., Apex code reviews go to `cirra-ai-sf-apex`, data operations go to `cirra-ai-sf-data`.
 
-| Plugin | What It Does |
-|---|---|
-| [cirra-ai-sf-apex](../cirra-ai-sf-apex/) | Apex code generation, review, and 150-point scoring |
-| [cirra-ai-sf-flow](../cirra-ai-sf-flow/) | Flow creation, validation, and 110-point scoring |
-| [cirra-ai-sf-data](../cirra-ai-sf-data/) | SOQL queries, DML operations, test data factories |
+Each sub-plugin also works independently without the orchestrator.
 
-Each plugin works independently. Install this meta-plugin to get all three with coordinated orchestration.
+## Sample Prompts
+
+- "Perform a thorough audit of the Apex classes and Flows in my Salesforce org. Use Cirra AI and the cirra-ai-sf plugin. Use the default org for Cirra AI. Please generate Word, HTML and Excel versions of the report."
+- "I need a new custom object called Inspection\_\_c with fields for Status, Inspector, and Date. Then create an Apex trigger that auto-assigns inspectors based on region, a Screen Flow for field technicians to submit inspection results, and seed 50 test records so I can demo it. Do this in the default org for Cirra AI."
+- "Review all Apex triggers in my org for bulkification issues and governor limit risks. For each issue found, suggest a fix and score the code. Do this in the default org for Cirra AI."
+
+## Model choice
+
+For reports, analysis and simple metadata task the Sonnet model is a good and cost effective choice. For deeper thinking about how to best build new features or debug existing issues, the Opus model may be needed.
 
 ## Installation
 
-### Claude Code
-
-Add the Cirra AI marketplace, then install the full suite or individual skills:
-
-```bash
-# Step 1: Add the marketplace (one-time)
-/plugin marketplace add cirra-ai/skills
-
-# Step 2: Install the complete suite
-/plugin install cirra-ai-sf-skills@cirra-ai
-
-# Or install individual skills
-/plugin install cirra-ai-sf-apex@cirra-ai
-/plugin install cirra-ai-sf-flow@cirra-ai
-/plugin install cirra-ai-sf-data@cirra-ai
-```
-
-### Claude Cowork
-
-1. Download the plugin zip from the [latest release](https://github.com/cirra-ai/skills/releases)
-   - **Full suite**: download `cirra-ai-sf-skills.zip`
-   - **Individual skill**: download e.g. `cirra-ai-sf-apex.zip`
-2. In Cowork, click **Plugins** in the left sidebar
-3. Click **Upload plugin**
-4. Select the downloaded zip file
+For installation instructions and the full plugin catalog, see the [root README](../README.md).
 
 ## Requirements
 
+- Claude Cowork or Claude Code with skill plugins enabled
 - Cirra AI MCP Server
-- Target Salesforce org (sandbox or production)
-- Claude Code or Claude Cowork with plugins enabled
+- Target Salesforce org
 
 ## License
 
-MIT License. See LICENSE file.
+MIT License — see [LICENSE](LICENSE) for details.
+
+This plugin is designed for use with Cirra AI, a commercial product developed by Cirra AI, Inc. The plugin and its contents are provided independently and are not part of the Cirra AI product itself. Use of Cirra AI is subject to its own separate terms and conditions.

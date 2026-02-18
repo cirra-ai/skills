@@ -20,33 +20,11 @@
       },
       "category": "salesforce",
       "tags": ["salesforce", "orchestration", "apex", "flow", "data"],
-      "keywords": ["salesforce", "suite", "orchestration"]
-    },
-    {
-      "name": "cirra-ai-sf-skills",
-      "description": "Complete Cirra AI Salesforce skills suite - Apex, Flow, Metadata, Data, Deployment, and Skill Builder (install all at once)",
-      "source": "./",
-      "strict": false,
+      "keywords": ["salesforce", "suite", "orchestration"],
       "skills": [
-        "./cirra-ai-sf",
         "./cirra-ai-sf-apex",
         "./cirra-ai-sf-flow",
-        "./cirra-ai-sf-metadata",
-        "./cirra-ai-sf-data",
-        "./sf-deploy",
-        "./skill-builder",
-        "./sf-ai-agentforce-legacy",
-        "./sf-diagram-mermaid",
-        "./sf-integration",
-        "./sf-connected-apps",
-        "./cirra-ai-sf-lwc",
-        "./sf-debug",
-        "./cirra-ai-sf-soql",
-        "./sf-testing",
-        "./sf-diagram-nanobananapro",
-        "./cirra-ai-sf-ai-agentforce-testing",
-        "./cirra-ai-sf-ai-agentscript",
-        "./sf-ai-agentforce-observability"
+        "./cirra-ai-sf-data"
       ]
     },
     {
@@ -76,19 +54,6 @@
       "keywords": ["flow", "screen-flow", "autolaunched", "subflow"]
     },
     {
-      "name": "cirra-ai-sf-metadata",
-      "description": "Salesforce metadata generation and org querying with 120-point scoring",
-      "source": "./cirra-ai-sf-metadata",
-      "version": "1.0.0",
-      "author": {
-        "name": "Cirra AI",
-        "url": "https://github.com/cirra-ai"
-      },
-      "category": "metadata",
-      "tags": ["salesforce", "metadata", "fields", "objects"],
-      "keywords": ["metadata", "custom-field", "object", "permission"]
-    },
-    {
       "name": "cirra-ai-sf-data",
       "description": "Salesforce data operations with SOQL expertise, test data factories, and 130-point validation",
       "source": "./cirra-ai-sf-data",
@@ -100,197 +65,6 @@
       "category": "data",
       "tags": ["salesforce", "soql", "data", "records"],
       "keywords": ["soql", "data", "records", "test-data", "factory"]
-    },
-    {
-      "name": "sf-deploy",
-      "description": "Salesforce DevOps automation using Cirra AI MCP Server",
-      "source": "./sf-deploy",
-      "version": "1.0.0",
-      "author": {
-        "name": "Cirra AI",
-        "url": "https://github.com/cirra-ai"
-      },
-      "category": "devops",
-      "tags": ["salesforce", "deployment", "ci-cd", "cirra-ai"],
-      "keywords": ["deploy", "metadata-api", "validation", "ci-cd"]
-    },
-    {
-      "name": "skill-builder",
-      "description": "Interactive wizard for creating Claude Code skills",
-      "source": "./skill-builder",
-      "version": "1.0.0",
-      "author": {
-        "name": "Cirra AI",
-        "url": "https://github.com/cirra-ai"
-      },
-      "category": "utilities",
-      "tags": ["claude-code", "skills", "generator", "templates"],
-      "keywords": ["skill", "generator", "template", "wizard"]
-    },
-    {
-      "name": "sf-ai-agentforce-legacy",
-      "description": "[DEPRECATED] Agentforce agent creation using Agent Script syntax. For new agents, use sf-ai-agentscript instead.",
-      "source": "./sf-ai-agentforce-legacy",
-      "version": "1.0.1",
-      "author": {
-        "name": "Cirra AI",
-        "url": "https://github.com/cirra-ai"
-      },
-      "category": "ai",
-      "tags": ["salesforce", "agentforce", "ai-agents", "legacy", "deprecated"],
-      "keywords": ["agentforce", "agent", "topic", "action", "legacy"]
-    },
-    {
-      "name": "sf-diagram-mermaid",
-      "description": "Mermaid diagrams for OAuth flows, ERDs, integrations, and Agentforce architecture with 80-point scoring",
-      "source": "./sf-diagram-mermaid",
-      "version": "1.1.0",
-      "author": {
-        "name": "Cirra AI",
-        "url": "https://github.com/cirra-ai"
-      },
-      "category": "utilities",
-      "tags": ["salesforce", "diagrams", "mermaid", "visualization"],
-      "keywords": ["mermaid", "diagram", "erd", "flowchart"]
-    },
-    {
-      "name": "sf-integration",
-      "description": "Named Credentials, External Services, REST/SOAP callouts, Platform Events, and CDC with 120-point scoring. Includes automation scripts for credential configuration.",
-      "source": "./sf-integration",
-      "version": "1.1.0",
-      "author": {
-        "name": "Cirra AI",
-        "url": "https://github.com/cirra-ai"
-      },
-      "category": "integration",
-      "tags": ["salesforce", "api", "rest", "callouts"],
-      "keywords": ["rest", "callout", "named-credential", "platform-event"]
-    },
-    {
-      "name": "sf-connected-apps",
-      "description": "Connected Apps and External Client Apps with OAuth configuration and 120-point scoring",
-      "source": "./sf-connected-apps",
-      "version": "1.0.0",
-      "author": {
-        "name": "Cirra AI",
-        "url": "https://github.com/cirra-ai"
-      },
-      "category": "integration",
-      "tags": ["salesforce", "oauth", "connected-apps", "security"],
-      "keywords": ["oauth", "connected-app", "jwt", "authorization"]
-    },
-    {
-      "name": "cirra-ai-sf-lwc",
-      "description": "Lightning Web Components development with SLDS 2 validation and 140-point scoring",
-      "source": "./cirra-ai-sf-lwc",
-      "version": "1.0.0",
-      "author": {
-        "name": "Cirra AI",
-        "url": "https://github.com/cirra-ai"
-      },
-      "category": "development",
-      "tags": ["salesforce", "lwc", "frontend", "components"],
-      "keywords": ["lwc", "lightning", "component", "slds"]
-    },
-    {
-      "name": "sf-debug",
-      "description": "Salesforce debugging with log analysis, governor limits, and agentic fix suggestions",
-      "source": "./sf-debug",
-      "version": "1.0.0",
-      "author": {
-        "name": "Cirra AI",
-        "url": "https://github.com/cirra-ai"
-      },
-      "category": "utilities",
-      "tags": ["salesforce", "debug", "logs", "troubleshooting"],
-      "keywords": ["debug", "logs", "governor-limits", "trace"]
-    },
-    {
-      "name": "cirra-ai-sf-soql",
-      "description": "SOQL query generation, optimization, and 100-point validation",
-      "source": "./cirra-ai-sf-soql",
-      "version": "1.0.0",
-      "author": {
-        "name": "Cirra AI",
-        "url": "https://github.com/cirra-ai"
-      },
-      "category": "data",
-      "tags": ["salesforce", "soql", "queries", "optimization"],
-      "keywords": ["soql", "query", "selectivity", "optimization"]
-    },
-    {
-      "name": "sf-testing",
-      "description": "Apex test execution, coverage analysis, and agentic test-fix loops with 120-point scoring",
-      "source": "./sf-testing",
-      "version": "1.0.0",
-      "author": {
-        "name": "Cirra AI",
-        "url": "https://github.com/cirra-ai"
-      },
-      "category": "development",
-      "tags": ["salesforce", "testing", "apex", "coverage"],
-      "keywords": ["testing", "coverage", "apex-test", "assertions"]
-    },
-    {
-      "name": "sf-diagram-nanobananapro",
-      "description": "AI-powered visual content generation for Salesforce using Nano Banana Pro (Gemini 3 Pro Image)",
-      "source": "./sf-diagram-nanobananapro",
-      "version": "1.1.0",
-      "author": {
-        "name": "Cirra AI",
-        "url": "https://github.com/cirra-ai"
-      },
-      "category": "ai",
-      "tags": ["salesforce", "gemini", "image-generation", "visual"],
-      "keywords": ["gemini", "nano-banana", "image", "erd"]
-    },
-    {
-      "name": "cirra-ai-sf-ai-agentforce-testing",
-      "description": "Agentforce agent testing with test execution, coverage analysis, and agentic fix loops",
-      "source": "./cirra-ai-sf-ai-agentforce-testing",
-      "version": "1.0.0",
-      "author": {
-        "name": "Cirra AI",
-        "url": "https://github.com/cirra-ai"
-      },
-      "category": "ai",
-      "tags": ["salesforce", "agentforce", "testing", "agents"],
-      "keywords": ["agent-testing", "test-spec", "coverage"]
-    },
-    {
-      "name": "cirra-ai-sf-ai-agentscript",
-      "description": "Agent Script DSL authoring with 100-point scoring, instruction resolution patterns, and FSM architecture",
-      "source": "./cirra-ai-sf-ai-agentscript",
-      "version": "1.0.0",
-      "author": {
-        "name": "Cirra AI",
-        "url": "https://github.com/cirra-ai"
-      },
-      "category": "ai",
-      "tags": ["salesforce", "agentscript", "ai-agents", "dsl"],
-      "keywords": ["agentscript", "fsm", "instruction-resolution", "deterministic", "atlas"]
-    },
-    {
-      "name": "sf-ai-agentforce-observability",
-      "description": "Extract and analyze Agentforce session tracing data from Data Cloud. 24 DMOs verified, 260+ tests, GenAI Trust Layer support.",
-      "source": "./sf-ai-agentforce-observability",
-      "version": "1.1.0",
-      "author": {
-        "name": "Cirra AI",
-        "url": "https://github.com/cirra-ai"
-      },
-      "category": "ai",
-      "tags": ["salesforce", "agentforce", "observability", "data-cloud", "analytics", "genai"],
-      "keywords": [
-        "session-tracing",
-        "data-cloud",
-        "polars",
-        "parquet",
-        "genai-quality",
-        "trust-layer",
-        "toxicity",
-        "pii-detection"
-      ]
     }
   ]
 }
