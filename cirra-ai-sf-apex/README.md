@@ -92,11 +92,14 @@ The skill generates:
 
 ## Requirements
 
+- Claude Cowork or Claude Code with skill plugins enabled
 - Cirra AI MCP Server
 - Target Salesforce org
 
 ## License
 
-MIT License. See LICENSE file.
-Copyright (c) 2024-2025 Jag Valaiyapathy
-Copyright (c) 2026 Cirra AI, Inc.
+MIT License — see [LICENSE](LICENSE) for details.
+
+This plugin is designed for use with Cirra AI, a commercial product developed by Cirra AI, Inc. The plugin and its contents are provided independently and are not part of the Cirra AI product itself. Use of Cirra AI is subject to its own separate terms and conditions.
+
+For credits see [CREDITS](CREDITS.md)

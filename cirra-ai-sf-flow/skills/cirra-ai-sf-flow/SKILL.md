@@ -4,24 +4,6 @@ description: >
   Creates and validates Salesforce flows with 110-point scoring and Winter '26
   best practices using Cirra AI MCP Server. Use when building record-triggered flows,
   screen flows, autolaunched flows, scheduled flows, or reviewing existing flow performance.
-license: MIT
-metadata:
-  version: '2.1.0'
-  author: 'Jag Valaiyapathy'
-  scoring: '110 points across 6 categories'
-  mcp_server: 'cirra_ai'
-mcpTools:
-  required:
-    - cirra_ai_init
-    - soql_query
-    - tooling_api_query
-    - metadata_create
-    - metadata_read
-    - metadata_list
-    - sobject_describe
-  optional:
-    - metadata_update
-    - metadata_delete
 ---
 
 # cirra-ai-sf-flow: Salesforce Flow Creation and Validation (Cirra AI)
@@ -722,10 +704,3 @@ Flow Created  →  Deployed to Org  →  Action Definition Created  →  Agent C
 - Cirra AI account connected to Salesforce org
 - `cirra_ai_init()` called once per session
 - Valid Salesforce username for `sf_user` parameter
-
----
-
-## License
-
-MIT License. See [LICENSE](LICENSE) file.
-Copyright (c) 2024-2025 Jag Valaiyapathy

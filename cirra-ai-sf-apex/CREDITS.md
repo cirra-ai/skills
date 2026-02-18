@@ -2,7 +2,9 @@
 
 ## Modifications by Cirra AI (2026)
 
-This skill was modified from its original source to work with the Cirra AI MCP Server.
+This plugin was adapted from the [sf-apex](https://github.com/Jaganpro/sf-skills/tree/main/sf-apex) plugin published by Jag Valaiyapathy
+
+It was modified from its original source primarily to work with the Cirra AI MCP Server in Claude Cowork.
 
 See below for original credits and attribution.
 

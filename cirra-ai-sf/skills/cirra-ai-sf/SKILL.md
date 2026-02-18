@@ -4,13 +4,6 @@ description: >
   Salesforce admin suite — orchestrates Apex, Flow, and Data plugins
   with Cirra AI MCP Server. Use when the user needs cross-domain Salesforce
   work spanning code, flows, and data operations.
-license: MIT
-metadata:
-  version: '1.0.0'
-  author: 'Cirra AI'
-mcpTools:
-  required:
-    - cirra_ai_init
 ---
 
 # cirra-ai-sf: Salesforce Admin Suite

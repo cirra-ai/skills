@@ -19,3 +19,15 @@ For reports, analysis and simple metadata task the Sonnet model is a good and co
 ## Installation
 
 For installation instructions and the full plugin catalog, see the [root README](../README.md).
+
+## Requirements
+
+- Claude Cowork or Claude Code with skill plugins enabled
+- Cirra AI MCP Server
+- Target Salesforce org
+
+## License
+
+MIT License — see [LICENSE](LICENSE) for details.
+
+This plugin is designed for use with Cirra AI, a commercial product developed by Cirra AI, Inc. The plugin and its contents are provided independently and are not part of the Cirra AI product itself. Use of Cirra AI is subject to its own separate terms and conditions.

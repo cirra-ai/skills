@@ -4,23 +4,6 @@ description: >
   Salesforce data operations expert with pre-flight validation. Use when writing
   SOQL queries, creating test data, performing bulk data operations, or
   importing/exporting data via Cirra AI MCP Server.
-license: MIT
-metadata:
-  version: '3.0.0'
-  author: 'Refactored for Cirra AI MCP'
-  original_author: 'Jag Valaiyapathy'
-  validation: 'Pre-flight data operation checks (pass/fail)'
-  framework: 'Cirra AI MCP Server'
-  executionMode: 'remote-org-only'
-mcpTools:
-  required:
-    - cirra_ai_init
-    - soql_query
-    - sobject_dml
-    - sobject_describe
-    - tooling_api_query
-  optional:
-    - sobjects_list
 ---
 
 # cirra-ai-sf-data: Salesforce Data Operations Expert
@@ -604,9 +587,3 @@ Code Deployment Validated: [metadata_type]
 - **Sensitive Data**: Never include real PII in test data
 - **Remote Org Only**: No local scratch org support; all operations target remote orgs
 - **Validation**: Run `mcp_validator_cli.py` before executing operations in Cowork mode (Tier 1 for data ops, Tier 2 for code deployment)
-
----
-
-## License
-
-MIT License - See LICENSE file for details.

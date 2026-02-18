@@ -5,25 +5,6 @@ description: >
   scoring using Cirra AI MCP Server metadata API. Use when writing Apex classes, triggers,
   test classes, batch jobs, or reviewing existing Apex code for bulkification, security,
   and SOLID principles.
-license: MIT
-metadata:
-  version: '2.0.0'
-  author: 'Jag Valaiyapathy'
-  refactorNote: 'Migrated from Salesforce CLI (sf project deploy/retrieve) to Cirra AI MCP Server (metadata_create/metadata_update/metadata_read)'
-  scoring: '150 points across 8 categories'
-mcpTools:
-  required:
-    - cirra_ai_init
-    - soql_query
-    - tooling_api_query
-    - metadata_create
-    - metadata_update
-    - metadata_read
-    - sobject_describe
-  optional:
-    - metadata_delete
-    - tooling_api_dml
-    - sobjects_list
 ---
 
 # cirra-ai-sf-apex: Salesforce Apex Code Generation and Review (Cirra AI Edition)
@@ -36,28 +17,6 @@ Expert Apex developer specializing in clean code, SOLID principles, and 2025 bes
 2. **Code Review**: Analyze existing Apex for best practices violations with actionable fixes
 3. **Validation & Scoring**: Score code against 8 categories (0-150 points)
 4. **Metadata Deployment**: Deploy via Cirra AI MCP Server (metadata_create/metadata_update/metadata_read)
-
----
-
-## Key Changes from CLI Version
-
-### Removed (CLI-dependent)
-
-- `sf project deploy` → Replaced with `metadata_create` / `metadata_update` (Cirra AI MCP)
-- `sf project retrieve` → Replaced with `metadata_read` (Cirra AI MCP)
-- `sf apex run` → Removed (anonymous Apex not supported in MCP)
-- Local file system operations (`force-app/main/default/`) → Replaced with string-based code generation
-- `sf sobject describe` → Replaced with `sobject_describe` (Cirra AI MCP)
-
-### Added (Cirra AI MCP)
-
-- **cirra_ai_init**: Initialize MCP server connection (MUST call first)
-- **metadata_create**: Deploy new Apex classes/triggers
-- **metadata_update**: Update existing Apex classes/triggers
-- **metadata_read**: Retrieve existing Apex code for review
-- **soql_query**: Query SOQL with `WITH USER_MODE` for testing context
-- **tooling_api_query**: Query ApexClass, ApexTrigger, ApexTestResult metadata
-- **tooling_api_dml**: Execute DML on metadata objects
 
 ---
 
@@ -619,10 +578,10 @@ accounts = (List<Account>) Security.stripInaccessible(AccessType.READABLE, accou
 
 ## Glossary of MCP Terms
 
-- **MCP**: Model Context Protocol - allows Claude to call Salesforce Org operations
-- **Cirra AI**: Salesforce's AI assistant that provides MCP server
+- **MCP**: Model Context Protocol - allows Claude to access external applications like Salesforce
+- **Cirra AI**: AI assistant that provides the Salesforce Admin MCP server
 - **Metadata API**: Programmatic interface to deploy/retrieve Apex, triggers, config
-- **Tooling API**: Query metadata objects like ApexClass, ApexTrigger, ApexTestResult
+- **Tooling API**: Query and update (via DML) metadata objects like ApexClass, ApexTrigger, ApexTestResult
 - **ApexClass**: Apex class metadata object (stored in Salesforce)
 - **ApexTrigger**: Apex trigger metadata object (stored in Salesforce)
 - **ApexTestResult**: Test execution result metadata object
@@ -631,11 +590,23 @@ accounts = (List<Account>) Security.stripInaccessible(AccessType.READABLE, accou
 
 ## Dependencies
 
-**Optional**: Additional Cirra AI MCP tools for enhanced workflow:
+### Cirra AI MCP Server tools
 
-- `sobject_describe` - Discover fields before coding
-- `soql_query` - Test code context
-- `tooling_api_dml` - Advanced metadata manipulation
+#### Required
+
+- cirra_ai_init
+- soql_query
+- tooling_api_query
+- metadata_create
+- metadata_update
+- metadata_read
+
+#### Optional
+
+- sobject_describe
+- metadata_delete
+- tooling_api_dml
+- sobjects_list
 
 ---
 
@@ -647,12 +618,3 @@ accounts = (List<Account>) Security.stripInaccessible(AccessType.READABLE, accou
 - **MCP Initialization**: ALWAYS call `cirra_ai_init` first
 - **Code as String**: Generate all Apex as strings, deploy via metadata_create/update
 - **No Local Files**: Apex code is NOT saved to local file system - lives only in Salesforce org via Metadata API
-
----
-
-## License
-
-MIT License. See LICENSE file.
-Copyright (c) 2024-2025 Jag Valaiyapathy
-
-**Refactored for Cirra AI MCP Server by Claude Agent (2025)**
