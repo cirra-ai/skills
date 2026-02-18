@@ -695,6 +695,44 @@ Flow Created  →  Deployed to Org  →  Action Definition Created  →  Agent C
 | cirra-ai-sf-flow → cirra-ai-sf-data           | "Create 200 test Accounts" (test data after deploy)                    |
 | cirra-ai-sf-ai-agentscript → cirra-ai-sf-flow | "Create Autolaunched Flow for agent action" - **cirra-ai-sf-flow is MANDATORY** |
 
+## Org-Wide Flow Audit
+
+This plugin includes `hooks/scripts/score_flows.py` — a scalable scorer that audits ALL active Flows in an org using the 110-point rubric.
+
+### Usage
+
+```bash
+python3 hooks/scripts/score_flows.py --output-dir ./audit_output [--batch-size 200] [--resume]
+```
+
+### Features
+
+- **Pagination**: Fetches FlowDefinitions in batches via `tooling_api_query` with `Id > lastId` cursor
+- **Resume**: Saves progress every 50 flows to `{output_dir}/intermediate/flow_scoring_progress.json`
+- **Anti-Pattern Detection**: DML in loop, query in loop, missing fault path, missing description, naming violation, storeOutputAutomatically, hardcoded IDs, infinite loop risk, excessive complexity
+- **Dual Detection**: Both metadata-based (field heuristics) and XML-based (full `metadata_read` analysis)
+- **Output-Directory-First**: ALL files written to `--output-dir` — no files outside the output tree
+
+### Output Files
+
+```
+{output_dir}/intermediate/
+├── flow_batch_*.json              # Raw FlowDefinition metadata per batch
+├── flow_scoring_progress.json     # Resume checkpoint
+├── flow_scores.json               # Individual flow scores
+└── flow_scoring_summary.json      # Aggregate statistics & distribution
+```
+
+### Scoring Thresholds
+
+| Range | Recommendation |
+|---|---|
+| ≥ 88 | ✅ Deploy |
+| 55-87 | ⚠️ Review |
+| < 55 | ❌ Block |
+
+---
+
 ## Notes
 
 **Dependencies** (optional): cirra-ai-sf-metadata, cirra-ai-sf-data | **API**: 65.0 | **Mode**: Strict (warnings block) | **MCP Server**: Cirra AI (required)
@@ -704,3 +742,11 @@ Flow Created  →  Deployed to Org  →  Action Definition Created  →  Agent C
 - Cirra AI account connected to Salesforce org
 - `cirra_ai_init()` called once per session
 - Valid Salesforce username for `sf_user` parameter
+- **Audit Output**: All audit intermediate files go to `--output-dir` by default
+
+---
+
+## License
+
+MIT License. See [LICENSE](LICENSE) file.
+Copyright (c) 2024-2025 Jag Valaiyapathy

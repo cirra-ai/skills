@@ -1,0 +1,352 @@
+#!/usr/bin/env python3
+"""
+Salesforce Org Audit Orchestrator
+Coordinates the full audit workflow: collection, scoring, and report generation.
+
+Usage:
+    python3 audit_runner.py --output-dir ./output
+
+This is the main entry point for running a complete Salesforce org audit.
+All intermediate and output files are written to the specified output directory.
+
+Designed to work with Cirra AI MCP Server for data collection.
+"""
+
+import json
+import os
+import sys
+import argparse
+from pathlib import Path
+from datetime import datetime
+from typing import Dict, List, Optional
+
+
+# ============================================================================
+# CONFIGURATION
+# ============================================================================
+
+AUDIT_VERSION = "2.0.0"
+
+PHASES = [
+    "Phase 0: Plugin Discovery",
+    "Phase 1: Initialize Cirra AI",
+    "Phase 2: Count Components",
+    "Phase 3: Collect Apex Data",
+    "Phase 4: Collect Flow Data",
+    "Phase 5: Score Apex Classes",
+    "Phase 6: Score Flows",
+    "Phase 7: Generate Word Report",
+    "Phase 8: Generate Excel Report",
+    "Phase 9: Generate HTML Report",
+    "Phase 10: Validate Reports",
+]
+
+
+# ============================================================================
+# OUTPUT MANAGER
+# ============================================================================
+
+class AuditOutputManager:
+    """Centralised output manager - all files go to the output directory."""
+
+    def __init__(self, output_dir: str):
+        self.root = Path(output_dir)
+        self.intermediate = self.root / 'intermediate'
+        self.scripts = self.root / 'scripts'
+        self.reports = self.root
+
+        # Create directory structure
+        self.intermediate.mkdir(parents=True, exist_ok=True)
+        self.scripts.mkdir(parents=True, exist_ok=True)
+
+    def path(self, filename: str, subdir: str = 'root') -> Path:
+        """Get path for a file in the specified subdirectory."""
+        dirs = {
+            'root': self.root,
+            'intermediate': self.intermediate,
+            'scripts': self.scripts,
+            'reports': self.reports,
+        }
+        return dirs.get(subdir, self.root) / filename
+
+    def save_json(self, data, filename: str, subdir: str = 'intermediate') -> Path:
+        path = self.path(filename, subdir)
+        with open(path, 'w') as f:
+            json.dump(data, f, indent=2)
+        return path
+
+    def load_json(self, filename: str, subdir: str = 'intermediate') -> Optional[dict]:
+        path = self.path(filename, subdir)
+        if path.exists():
+            with open(path, 'r') as f:
+                return json.load(f)
+        return None
+
+    def save_state(self, state: Dict) -> None:
+        """Save audit state for resume capability."""
+        state['last_updated'] = datetime.now().isoformat()
+        self.save_json(state, 'audit_state.json')
+
+    def load_state(self) -> Optional[Dict]:
+        """Load audit state for resume."""
+        return self.load_json('audit_state.json')
+
+
+# ============================================================================
+# AUDIT STATE TRACKER
+# ============================================================================
+
+class AuditState:
+    """Tracks audit progress across phases for resume capability."""
+
+    def __init__(self, output: AuditOutputManager):
+        self.output = output
+        self.state = self._load_or_create()
+
+    def _load_or_create(self) -> Dict:
+        existing = self.output.load_state()
+        if existing:
+            return existing
+        return {
+            'version': AUDIT_VERSION,
+            'started': datetime.now().isoformat(),
+            'current_phase': 0,
+            'phases': {str(i): {'status': 'pending', 'result': None} for i in range(len(PHASES))},
+            'org_info': {},
+            'counts': {'apex_classes': 0, 'flows': 0},
+        }
+
+    def get_phase_status(self, phase: int) -> str:
+        return self.state['phases'].get(str(phase), {}).get('status', 'pending')
+
+    def complete_phase(self, phase: int, result: Optional[Dict] = None) -> None:
+        self.state['phases'][str(phase)] = {'status': 'completed', 'result': result}
+        self.state['current_phase'] = phase + 1
+        self.output.save_state(self.state)
+
+    def set_org_info(self, org_info: Dict) -> None:
+        self.state['org_info'] = org_info
+        self.output.save_state(self.state)
+
+    def set_counts(self, apex_count: int, flow_count: int) -> None:
+        self.state['counts'] = {'apex_classes': apex_count, 'flows': flow_count}
+        self.output.save_state(self.state)
+
+    @property
+    def current_phase(self) -> int:
+        return self.state.get('current_phase', 0)
+
+    def is_phase_done(self, phase: int) -> bool:
+        return self.get_phase_status(phase) == 'completed'
+
+
+# ============================================================================
+# MCP DATA COLLECTION HELPERS
+# ============================================================================
+
+def build_mcp_collection_queries(batch_size: int = 200) -> Dict:
+    """
+    Generate the MCP tooling_api_query parameters needed for data collection.
+    Returns query configurations that can be passed to Cirra AI MCP tools.
+    """
+    return {
+        'apex_count': {
+            'tool': 'tooling_api_query',
+            'params': {
+                'sObject': 'ApexClass',
+                'fields': ['COUNT(Id) cnt'],
+                'whereClause': "NamespacePrefix = null",
+            }
+        },
+        'flow_count': {
+            'tool': 'tooling_api_query',
+            'params': {
+                'sObject': 'FlowDefinition',
+                'fields': ['COUNT(Id) cnt'],
+                'whereClause': "ActiveVersionId != null AND NamespacePrefix = null",
+            }
+        },
+        'apex_metadata': {
+            'tool': 'tooling_api_query',
+            'params': {
+                'sObject': 'ApexClass',
+                'fields': ['Id', 'Name', 'LengthWithoutComments', 'ApiVersion'],
+                'whereClause': "NamespacePrefix = null ORDER BY Id",
+                'limit': batch_size,
+            },
+            'pagination': {
+                'strategy': 'id_cursor',
+                'id_field': 'Id',
+                'batch_size': batch_size,
+            }
+        },
+        'apex_body': {
+            'tool': 'tooling_api_query',
+            'params': {
+                'sObject': 'ApexClass',
+                'fields': ['Id', 'Body'],
+                'whereClause': "Id = '{class_id}'",
+            },
+            'note': 'Fetch one class at a time to avoid response size limits',
+        },
+        'flow_metadata': {
+            'tool': 'tooling_api_query',
+            'params': {
+                'sObject': 'FlowDefinition',
+                'fields': ['Id', 'DeveloperName', 'MasterLabel', 'Description',
+                           'ActiveVersionId', 'NamespacePrefix'],
+                'whereClause': "ActiveVersionId != null AND NamespacePrefix = null ORDER BY Id",
+                'limit': batch_size,
+            },
+            'pagination': {
+                'strategy': 'id_cursor',
+                'id_field': 'Id',
+                'batch_size': batch_size,
+            }
+        },
+        'flow_xml': {
+            'tool': 'metadata_read',
+            'params': {
+                'type': 'Flow',
+                'fullNames': ['{flow_developer_name}'],
+            },
+            'note': 'Fetch one flow XML at a time for detailed analysis',
+        },
+    }
+
+
+# ============================================================================
+# REPORT GENERATION HELPERS
+# ============================================================================
+
+def generate_combined_summary(apex_summary: Dict, flow_summary: Dict, output: AuditOutputManager) -> Dict:
+    """Combine Apex and Flow summaries into a single audit summary."""
+    combined = {
+        'audit_date': datetime.now().isoformat(),
+        'audit_version': AUDIT_VERSION,
+        'apex': apex_summary,
+        'flow': flow_summary,
+        'totals': {
+            'components': (apex_summary.get('total_classes', 0) + flow_summary.get('total_flows', 0)),
+            'deploy': (apex_summary.get('distribution', {}).get('deploy', {}).get('count', 0) +
+                       flow_summary.get('distribution', {}).get('deploy', {}).get('count', 0)),
+            'review': (apex_summary.get('distribution', {}).get('review', {}).get('count', 0) +
+                       flow_summary.get('distribution', {}).get('review', {}).get('count', 0)),
+            'block': (apex_summary.get('distribution', {}).get('block', {}).get('count', 0) +
+                      flow_summary.get('distribution', {}).get('block', {}).get('count', 0)),
+        },
+    }
+
+    output.save_json(combined, 'audit_combined_summary.json')
+    return combined
+
+
+# ============================================================================
+# MAIN ORCHESTRATOR
+# ============================================================================
+
+def print_phase_status(state: AuditState) -> None:
+    """Print current audit progress."""
+    print("\n" + "=" * 70)
+    print("SALESFORCE ORG AUDIT - PROGRESS")
+    print("=" * 70)
+    for i, phase_name in enumerate(PHASES):
+        status = state.get_phase_status(i)
+        icon = {'completed': '✅', 'in_progress': '🔄', 'pending': '⬜'}.get(status, '⬜')
+        marker = ' ◀ CURRENT' if i == state.current_phase and status != 'completed' else ''
+        print(f"  {icon} {phase_name}{marker}")
+    print("=" * 70)
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description='Salesforce Org Audit Orchestrator',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  # Run full audit with output to specific directory
+  python3 audit_runner.py --output-dir /path/to/audit/output
+
+  # Show current audit progress
+  python3 audit_runner.py --output-dir /path/to/output --status
+
+  # Generate MCP query configurations
+  python3 audit_runner.py --output-dir /path/to/output --generate-queries
+        """,
+    )
+    parser.add_argument('--output-dir', default='.', help='Output directory for ALL audit files')
+    parser.add_argument('--batch-size', type=int, default=200, help='Batch size for pagination')
+    parser.add_argument('--status', action='store_true', help='Show current audit progress')
+    parser.add_argument('--generate-queries', action='store_true', help='Generate MCP query configs')
+    parser.add_argument('--reset', action='store_true', help='Reset audit state and start fresh')
+    args = parser.parse_args()
+
+    output = AuditOutputManager(args.output_dir)
+    state = AuditState(output)
+
+    print(f"🔍 Salesforce Org Audit Orchestrator v{AUDIT_VERSION}")
+    print(f"📁 Output directory: {output.root}")
+    print(f"   Intermediate files: {output.intermediate}")
+    print(f"   Scripts: {output.scripts}")
+    print()
+
+    if args.reset:
+        print("🔄 Resetting audit state...")
+        state = AuditState.__new__(AuditState)
+        state.output = output
+        state.state = {
+            'version': AUDIT_VERSION,
+            'started': datetime.now().isoformat(),
+            'current_phase': 0,
+            'phases': {str(i): {'status': 'pending', 'result': None} for i in range(len(PHASES))},
+            'org_info': {},
+            'counts': {'apex_classes': 0, 'flows': 0},
+        }
+        output.save_state(state.state)
+        print("✅ Audit state reset.")
+        return
+
+    if args.status:
+        print_phase_status(state)
+        return
+
+    if args.generate_queries:
+        queries = build_mcp_collection_queries(args.batch_size)
+        path = output.save_json(queries, 'mcp_query_configs.json')
+        print(f"✅ MCP query configurations saved to: {path}")
+        print("\nUse these configurations with Cirra AI MCP Server tools:")
+        for name, config in queries.items():
+            print(f"  - {name}: {config['tool']}")
+        return
+
+    # Show current status
+    print_phase_status(state)
+
+    # Provide guidance
+    print("\n📋 USAGE GUIDE:")
+    print("=" * 70)
+    print("""
+This orchestrator manages audit state and file organization.
+Data collection and scoring should be run through Claude with Cirra AI MCP.
+
+Workflow:
+  1. Run this script with --generate-queries to get MCP query configs
+  2. Use Claude + Cirra AI MCP to execute queries and save results
+  3. All intermediate files should be saved to: {intermediate}
+  4. Run score_apex_classes.py --output-dir {root} to score Apex classes
+  5. Run score_flows.py --output-dir {root} to score Flows
+  6. Use Claude to generate Word/Excel/HTML reports in {root}
+
+Key Principle: ALL files go to the output directory.
+  - Intermediate data: {intermediate}/
+  - Scripts: {scripts}/
+  - Final reports: {root}/
+""".format(
+        intermediate=output.intermediate,
+        root=output.root,
+        scripts=output.scripts,
+    ))
+
+
+if __name__ == '__main__':
+    main()

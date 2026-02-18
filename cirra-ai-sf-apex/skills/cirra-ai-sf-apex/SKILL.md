@@ -610,6 +610,44 @@ accounts = (List<Account>) Security.stripInaccessible(AccessType.READABLE, accou
 
 ---
 
+## Org-Wide Apex Audit
+
+This plugin includes `hooks/scripts/score_apex_classes.py` — a scalable scorer that audits ALL custom Apex classes in an org using the 150-point rubric.
+
+### Usage
+
+```bash
+python3 hooks/scripts/score_apex_classes.py --output-dir ./audit_output [--batch-size 200] [--resume]
+```
+
+### Features
+
+- **Pagination**: Fetches classes in batches via `tooling_api_query` with `Id > lastId` cursor
+- **Resume**: Saves progress every 50 classes to `{output_dir}/intermediate/apex_scoring_progress.json`
+- **Anti-Pattern Detection**: Regex-based detection of SOQL in loops, DML in loops, missing sharing keywords, hardcoded IDs, empty catch blocks, SOQL injection
+- **Metadata-Only Scoring**: Falls back to size/API-version heuristics when class body is unavailable
+- **Output-Directory-First**: ALL files written to `--output-dir` — no files outside the output tree
+
+### Output Files
+
+```
+{output_dir}/intermediate/
+├── apex_batch_*.json           # Raw class metadata per batch
+├── apex_scoring_progress.json  # Resume checkpoint
+├── apex_scores.json            # Individual class scores
+└── apex_scoring_summary.json   # Aggregate statistics & distribution
+```
+
+### Scoring Thresholds
+
+| Range | Recommendation |
+|---|---|
+| ≥ 90 | ✅ Deploy |
+| 67-89 | ⚠️ Review |
+| < 67 | ❌ Block |
+
+---
+
 ## Notes
 
 - **API Version**: 65.0 required
@@ -618,3 +656,13 @@ accounts = (List<Account>) Security.stripInaccessible(AccessType.READABLE, accou
 - **MCP Initialization**: ALWAYS call `cirra_ai_init` first
 - **Code as String**: Generate all Apex as strings, deploy via metadata_create/update
 - **No Local Files**: Apex code is NOT saved to local file system - lives only in Salesforce org via Metadata API
+- **Audit Output**: All audit intermediate files go to `--output-dir` by default
+
+---
+
+## License
+
+MIT License. See LICENSE file.
+Copyright (c) 2024-2025 Jag Valaiyapathy
+
+**Refactored for Cirra AI MCP Server by Claude Agent (2025)**
