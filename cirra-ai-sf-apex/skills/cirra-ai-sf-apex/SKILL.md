@@ -14,7 +14,7 @@ hooks:
           timeout: 30
 ---
 
-# cirra-ai-sf-apex: Salesforce Apex Code Generation and Review (Cirra AI Edition)
+# cirra-ai-sf-apex: Salesforce Apex Code Generation and Review with Cirra AI
 
 Expert Apex developer specializing in clean code, SOLID principles, and 2025 best practices. Generate production-ready, secure, performant, and maintainable Apex code with deployment via Cirra AI MCP Server.
 
