@@ -6,14 +6,14 @@
   },
   "metadata": {
     "description": "Salesforce admin plugins for Claude Cowork and Claude Code",
-    "version": "2.0.0"
+    "version": "2.1.0"
   },
   "plugins": [
     {
-      "name": "cirra-ai-sf-audit",
-      "description": "Salesforce audit suite — orchestrates Apex, Flow, and Data plugins with Cirra AI MCP Server. Includes org-wide audit orchestrator with output-directory-first architecture.",
-      "source": "./cirra-ai-sf-audit",
-      "version": "2.0.0",
+      "name": "cirra-ai-sf",
+      "description": "Salesforce development suite — orchestrates Apex, Flow, and Data plugins with Cirra AI MCP Server. Includes /audit command for full org audits spanning code, flows, and data.",
+      "source": "./cirra-ai-sf",
+      "version": "1.1.0",
       "author": {
         "name": "Cirra AI",
         "url": "https://github.com/cirra-ai"

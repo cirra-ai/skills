@@ -10,7 +10,6 @@ Run locally to preview changes: python3 scripts/generate-pages.py . > docs/index
 """
 
 import json
-import os
 import sys
 from pathlib import Path
 from datetime import datetime
