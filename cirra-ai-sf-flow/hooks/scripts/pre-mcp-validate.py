@@ -44,7 +44,7 @@ def _deny(reason: str) -> dict:
 def _collect_issues(result: dict) -> list:
     """Collect all issues from validator result.
 
-    Handles both EnhancedFlowValidator (top-level critical_issues/warnings lists)
+    Handles both EnhancedFlowValidator (top-level critical_issues/warnings/advisory_suggestions lists)
     and basic_flow_check (top-level issues list) formats.
     EnhancedFlowValidator category dicts use critical_issues/warnings/advisory keys,
     NOT a generic "issues" key — iterating cat_data.get("issues") would always be empty.
@@ -60,6 +60,12 @@ def _collect_issues(result: dict) -> list:
         issues.append({
             "severity": item.get("severity", "HIGH"),
             "message": item.get("message", ""),
+            "line": 0,
+        })
+    for item in result.get("advisory_suggestions", []):
+        issues.append({
+            "severity": "INFO",
+            "message": item if isinstance(item, str) else item.get("message", ""),
             "line": 0,
         })
     return issues
