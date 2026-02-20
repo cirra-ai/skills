@@ -7,10 +7,10 @@ description: >
   and SOLID principles.
 hooks:
   PreToolUse:
-    - matcher: "mcp__.*__metadata_create|mcp__.*__metadata_update|mcp__.*__tooling_api_dml"
+    - matcher: 'mcp__.*__metadata_create|mcp__.*__metadata_update|mcp__.*__tooling_api_dml'
       hooks:
         - type: command
-          command: "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/pre-mcp-validate.py"
+          command: 'python3 ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/pre-mcp-validate.py'
           timeout: 30
 ---
 
@@ -454,23 +454,24 @@ This initializes the connection to Cirra AI MCP Server and provides access to al
 
 ### MCP Tools Mapping
 
-| Operation       | CLI Command                       | MCP Tool            | Example                                                                  |
-| --------------- | --------------------------------- | ------------------- | ------------------------------------------------------------------------ |
-| Query Apex code | `sf data query`                   | `soql_query`        | `soql_query(sObject="ApexClass", whereClause="Name = 'AccountService'")` |
-| Query metadata  | `sf data query --use-tooling-api` | `tooling_api_query` | `tooling_api_query(sObject="ApexClass")`                                 |
-| Deploy class    | `sf project deploy`               | `tooling_api_dml`   | `tooling_api_dml(operation="insert", sObject="ApexClass", record={"Name":"MyClass","Body":"...","Status":"Active"})` |
-| Update class    | `sf project deploy` (existing)    | `tooling_api_dml`   | `tooling_api_dml(operation="update", sObject="ApexClass", record={"Id":"...","Name":"MyClass","Body":"...","Status":"Active"})` |
-| List classes    | `sf project retrieve`             | `tooling_api_query` | `tooling_api_query(sObject="ApexClass", whereClause="Name = 'AccountService'")` |
-| Retrieve class body | `sf project retrieve`         | `tooling_api_query` | `tooling_api_query(sObject="ApexClass", fields=["Id","FullName","Name","Body","Metadata"], whereClause="Id = '<classId>'")` |
-| Describe object | `sf sobject describe`             | `sobject_describe`  | `sobject_describe(sObject="Account")`                                    |
-| Delete class    | `sf project delete`               | `tooling_api_dml`   | `tooling_api_dml(operation="delete", sObject="ApexClass", record={"Id":"<classId>"})` |
-| Test results    | `sf apex test run` (query)        | `tooling_api_query` | `tooling_api_query(sObject="ApexTestResult")`                            |
+| Operation           | CLI Command                       | MCP Tool            | Example                                                                                                                         |
+| ------------------- | --------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Query Apex code     | `sf data query`                   | `soql_query`        | `soql_query(sObject="ApexClass", whereClause="Name = 'AccountService'")`                                                        |
+| Query metadata      | `sf data query --use-tooling-api` | `tooling_api_query` | `tooling_api_query(sObject="ApexClass")`                                                                                        |
+| Deploy class        | `sf project deploy`               | `tooling_api_dml`   | `tooling_api_dml(operation="insert", sObject="ApexClass", record={"Name":"MyClass","Body":"...","Status":"Active"})`            |
+| Update class        | `sf project deploy` (existing)    | `tooling_api_dml`   | `tooling_api_dml(operation="update", sObject="ApexClass", record={"Id":"...","Name":"MyClass","Body":"...","Status":"Active"})` |
+| List classes        | `sf project retrieve`             | `tooling_api_query` | `tooling_api_query(sObject="ApexClass", whereClause="Name = 'AccountService'")`                                                 |
+| Retrieve class body | `sf project retrieve`             | `tooling_api_query` | `tooling_api_query(sObject="ApexClass", fields=["Id","FullName","Name","Body","Metadata"], whereClause="Id = '<classId>'")`     |
+| Describe object     | `sf sobject describe`             | `sobject_describe`  | `sobject_describe(sObject="Account")`                                                                                           |
+| Delete class        | `sf project delete`               | `tooling_api_dml`   | `tooling_api_dml(operation="delete", sObject="ApexClass", record={"Id":"<classId>"})`                                           |
+| Test results        | `sf apex test run` (query)        | `tooling_api_query` | `tooling_api_query(sObject="ApexTestResult")`                                                                                   |
 
 ### Apex Class / Trigger DML Format
 
 Use `tooling_api_dml` for all Apex class and trigger create/update/delete operations:
 
 **Create class**:
+
 ```
 tooling_api_dml(
   operation="insert",
@@ -485,6 +486,7 @@ tooling_api_dml(
 ```
 
 **Update class** (Id, Name, Body, Status are all required):
+
 ```
 tooling_api_dml(
   operation="update",
@@ -499,6 +501,7 @@ tooling_api_dml(
 ```
 
 **Create trigger**:
+
 ```
 tooling_api_dml(
   operation="insert",
@@ -514,6 +517,7 @@ tooling_api_dml(
 ```
 
 **Update trigger** (Id, TableEnumOrId, Name, Body, Status all required):
+
 ```
 tooling_api_dml(
   operation="update",
@@ -571,15 +575,15 @@ soql_query(
 
 ## Cross-MCP Tool Integration
 
-| MCP Tool            | Use Case                             | Example                                                                      |
-| ------------------- | ------------------------------------ | ---------------------------------------------------------------------------- |
-| `sobject_describe`  | Discover object/fields before coding | `sobject_describe(sObject="Invoice__c")` → get field names, types, CRUD      |
-| `soql_query`        | Test code behavior after deploy      | `soql_query(sObject="Account", whereClause="Id IN :accountIds")`             |
-| `tooling_api_query` | Check existing Apex classes          | `tooling_api_query(sObject="ApexClass", whereClause="Name LIKE 'Account%'")` |
+| MCP Tool            | Use Case                             | Example                                                                                                                     |
+| ------------------- | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| `sobject_describe`  | Discover object/fields before coding | `sobject_describe(sObject="Invoice__c")` → get field names, types, CRUD                                                     |
+| `soql_query`        | Test code behavior after deploy      | `soql_query(sObject="Account", whereClause="Id IN :accountIds")`                                                            |
+| `tooling_api_query` | Check existing Apex classes          | `tooling_api_query(sObject="ApexClass", whereClause="Name LIKE 'Account%'")`                                                |
 | `tooling_api_query` | Retrieve class body for review       | `tooling_api_query(sObject="ApexClass", fields=["Id","FullName","Name","Body","Metadata"], whereClause="Id = '<classId>'")` |
-| `metadata_create`   | Deploy new Apex classes/triggers     | `metadata_create(type="ApexClass", metadata=[...])`                          |
-| `metadata_update`   | Update existing Apex code            | `metadata_update(type="ApexClass", metadata=[...])`                          |
-| `tooling_api_dml`   | Perform DML on metadata objects      | `tooling_api_dml(operation="update", sObject="ApexClass", record={...})`     |
+| `metadata_create`   | Deploy new Apex classes/triggers     | `metadata_create(type="ApexClass", metadata=[...])`                                                                         |
+| `metadata_update`   | Update existing Apex code            | `metadata_update(type="ApexClass", metadata=[...])`                                                                         |
+| `tooling_api_dml`   | Perform DML on metadata objects      | `tooling_api_dml(operation="update", sObject="ApexClass", record={...})`                                                    |
 
 ---
 
@@ -645,11 +649,13 @@ accounts = (List<Account>) Security.stripInaccessible(AccessType.READABLE, accou
 **Always obtain explicit approval before creating, updating, or deleting a class or trigger.**
 
 ### List all classes
+
 ```
 tooling_api_query(sObject="ApexClass", fields=["Id","Name","NamespacePrefix","ApiVersion","IsValid","Status","ManageableState"])
 ```
 
 ### Retrieve class body (for review or edit)
+
 ```
 tooling_api_query(sObject="ApexClass", fields=["Id","FullName","Name","NamespacePrefix","Body","Metadata"], whereClause="Id = '<classId>'")
 ```
@@ -657,6 +663,7 @@ tooling_api_query(sObject="ApexClass", fields=["Id","FullName","Name","Namespace
 Do **not** use `metadata_read` for ApexClass — it does not return the class body.
 
 ### Create a class
+
 ```
 tooling_api_dml(operation="insert", sObject="ApexClass", record={"Name": "MyClass", "Body": "public class MyClass { ... }", "Status": "Active", "ApiVersion": "65.0"})
 ```
@@ -664,11 +671,13 @@ tooling_api_dml(operation="insert", sObject="ApexClass", record={"Name": "MyClas
 Offer to create a test class alongside. Verify referenced fields/objects exist before creating.
 
 ### Update a class
+
 ```
 tooling_api_dml(operation="update", sObject="ApexClass", record={"Id": "<classId>", "Name": "MyClass", "Body": "...", "Status": "Active"})
 ```
 
 ### Delete a class
+
 ```
 tooling_api_dml(operation="delete", sObject="ApexClass", record={"Id": "<classId>"})
 ```
@@ -678,16 +687,19 @@ Before deleting: check for references in other Apex classes, triggers, LWC, and 
 ## Apex Trigger MCP Patterns
 
 ### List all triggers
+
 ```
 tooling_api_query(sObject="ApexTrigger", fields=["Id","Name","NamespacePrefix","TableEnumOrId","ApiVersion","IsValid","Status","ManageableState"])
 ```
 
 ### Retrieve trigger body
+
 ```
 tooling_api_query(sObject="ApexTrigger", fields=["Id","FullName","Name","NamespacePrefix","TableEnumOrId","Body","Metadata"], whereClause="Id = '<triggerId>'")
 ```
 
 ### Create a trigger
+
 ```
 tooling_api_dml(operation="insert", sObject="ApexTrigger", record={"Name": "AccountTrigger", "TableEnumOrId": "Account", "Body": "trigger AccountTrigger on Account (...) { ... }", "Status": "Active", "ApiVersion": "65.0"})
 ```
@@ -695,11 +707,13 @@ tooling_api_dml(operation="insert", sObject="ApexTrigger", record={"Name": "Acco
 Suggest creating a helper class and test class alongside. Verify referenced fields/objects exist first.
 
 ### Update a trigger
+
 ```
 tooling_api_dml(operation="update", sObject="ApexTrigger", record={"Id": "<triggerId>", "TableEnumOrId": "Account", "Name": "AccountTrigger", "Body": "...", "Status": "Active"})
 ```
 
 ### Delete a trigger
+
 ```
 tooling_api_dml(operation="delete", sObject="ApexTrigger", record={"Id": "<triggerId>"})
 ```
@@ -761,10 +775,10 @@ python3 hooks/scripts/score_apex_classes.py --output-dir ./audit_output [--batch
 ### Scoring Thresholds
 
 | Range | Recommendation |
-|---|---|
-| ≥ 90 | ✅ Deploy |
-| 67-89 | ⚠️ Review |
-| < 67 | ❌ Block |
+| ----- | -------------- |
+| ≥ 90  | ✅ Deploy      |
+| 67-89 | ⚠️ Review      |
+| < 67  | ❌ Block       |
 
 ---
 

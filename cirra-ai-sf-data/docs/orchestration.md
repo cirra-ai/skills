@@ -45,12 +45,12 @@ FIX:   Run cirra-ai-sf-deploy BEFORE cirra-ai-sf-data
 
 ## Common Errors from Wrong Order
 
-| Error                                      | Cause                          | Fix                           |
-| ------------------------------------------ | ------------------------------ | ----------------------------- |
-| `SObject type 'X' not supported`           | Object not deployed            | Deploy via cirra-ai-sf-deploy first    |
-| `INVALID_FIELD: No such column 'Field__c'` | Field not deployed OR FLS      | Deploy field + Permission Set |
-| `REQUIRED_FIELD_MISSING`                   | Validation rule requires field | Include all required fields   |
-| `FIELD_CUSTOM_VALIDATION_EXCEPTION`        | Validation rule triggered      | Use valid test data values    |
+| Error                                      | Cause                          | Fix                                 |
+| ------------------------------------------ | ------------------------------ | ----------------------------------- |
+| `SObject type 'X' not supported`           | Object not deployed            | Deploy via cirra-ai-sf-deploy first |
+| `INVALID_FIELD: No such column 'Field__c'` | Field not deployed OR FLS      | Deploy field + Permission Set       |
+| `REQUIRED_FIELD_MISSING`                   | Validation rule requires field | Include all required fields         |
+| `FIELD_CUSTOM_VALIDATION_EXCEPTION`        | Validation rule triggered      | Use valid test data values          |
 
 ---
 
@@ -100,14 +100,14 @@ sobject_dml(
 
 ## Cross-Skill Integration Table
 
-| From Skill | To cirra-ai-sf-data | When                                               |
-| ---------- | ---------- | -------------------------------------------------- |
+| From Skill          | To cirra-ai-sf-data | When                                               |
+| ------------------- | ------------------- | -------------------------------------------------- |
 | cirra-ai-sf-apex    | → cirra-ai-sf-data  | "Create 251 Accounts for bulk testing"             |
 | cirra-ai-sf-flow    | → cirra-ai-sf-data  | "Create Opportunities with StageName='Closed Won'" |
 | cirra-ai-sf-testing | → cirra-ai-sf-data  | "Generate test records for test class"             |
 
-| From cirra-ai-sf-data | To Skill      | When                                                |
-| ------------ | ------------- | --------------------------------------------------- |
+| From cirra-ai-sf-data | To Skill               | When                                                |
+| --------------------- | ---------------------- | --------------------------------------------------- |
 | cirra-ai-sf-data      | → cirra-ai-sf-metadata | "Describe Invoice\_\_c" (discover object structure) |
 | cirra-ai-sf-data      | → cirra-ai-sf-deploy   | "Redeploy field after adding validation rule"       |
 
@@ -184,8 +184,8 @@ sobject_dml(
 
 ## Related Documentation
 
-| Topic              | Location                                 |
-| ------------------ | ---------------------------------------- |
+| Topic              | Location                                          |
+| ------------------ | ------------------------------------------------- |
 | Test data patterns | `cirra-ai-sf-data/docs/test-data-patterns.md`     |
 | Cleanup guide      | `cirra-ai-sf-data/docs/cleanup-rollback-guide.md` |
 | Factory templates  | `cirra-ai-sf-data/templates/factories/`           |

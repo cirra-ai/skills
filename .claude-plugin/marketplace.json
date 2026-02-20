@@ -21,11 +21,7 @@
       "category": "salesforce",
       "tags": ["salesforce", "orchestration", "apex", "flow", "data", "audit"],
       "keywords": ["salesforce", "suite", "orchestration", "audit"],
-      "skills": [
-        "./cirra-ai-sf-apex",
-        "./cirra-ai-sf-flow",
-        "./cirra-ai-sf-data"
-      ]
+      "skills": ["./cirra-ai-sf-apex", "./cirra-ai-sf-flow", "./cirra-ai-sf-data"]
     },
     {
       "name": "cirra-ai-sf-apex",

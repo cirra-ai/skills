@@ -139,8 +139,8 @@ Simple pass/fail. No score — just errors and warnings.
     "sObject": "Account",
     "operation": "insert",
     "records": [
-      {"Name": "Test Account 1", "Industry": "Technology"},
-      {"Name": "Test Account 2", "Industry": "Finance"}
+      { "Name": "Test Account 1", "Industry": "Technology" },
+      { "Name": "Test Account 2", "Industry": "Finance" }
     ],
     "sf_user": "prod"
   }
@@ -149,17 +149,17 @@ Simple pass/fail. No score — just errors and warnings.
 
 **What Tier 1 checks:**
 
-| Check                          | Tool        | Severity |
-| ------------------------------ | ----------- | -------- |
-| Missing `sObject`              | Both        | Error    |
-| Missing `sf_user`              | Both        | Error    |
-| Invalid DML `operation`        | sobject_dml | Error    |
-| Empty records array            | sobject_dml | Error    |
-| Update/delete missing `Id`     | sobject_dml | Error    |
-| Upsert missing externalIdField | sobject_dml | Error    |
-| PII in record values           | sobject_dml | Warning  |
-| Inconsistent fields            | sobject_dml | Warning  |
-| SOQL syntax errors (`==`, unbalanced parens, double quotes) | soql_query | Warning |
+| Check                                                       | Tool        | Severity |
+| ----------------------------------------------------------- | ----------- | -------- |
+| Missing `sObject`                                           | Both        | Error    |
+| Missing `sf_user`                                           | Both        | Error    |
+| Invalid DML `operation`                                     | sobject_dml | Error    |
+| Empty records array                                         | sobject_dml | Error    |
+| Update/delete missing `Id`                                  | sobject_dml | Error    |
+| Upsert missing externalIdField                              | sobject_dml | Error    |
+| PII in record values                                        | sobject_dml | Warning  |
+| Inconsistent fields                                         | sobject_dml | Warning  |
+| SOQL syntax errors (`==`, unbalanced parens, double quotes) | soql_query  | Warning  |
 
 **Output:**
 
@@ -182,12 +182,14 @@ Full code quality scoring when deploying Apex or Flow code. Extracts the `body` 
   "tool": "metadata_create",
   "params": {
     "type": "ApexClass",
-    "metadata": [{
-      "fullName": "AccountService",
-      "apiVersion": "65.0",
-      "status": "Active",
-      "body": "public with sharing class AccountService {\n    public static List<Account> getByIndustry(String industry) {\n        return [SELECT Id, Name FROM Account WHERE Industry = :industry LIMIT 1000];\n    }\n}"
-    }],
+    "metadata": [
+      {
+        "fullName": "AccountService",
+        "apiVersion": "65.0",
+        "status": "Active",
+        "body": "public with sharing class AccountService {\n    public static List<Account> getByIndustry(String industry) {\n        return [SELECT Id, Name FROM Account WHERE Industry = :industry LIMIT 1000];\n    }\n}"
+      }
+    ],
     "sf_user": "prod"
   }
 }
@@ -195,13 +197,13 @@ Full code quality scoring when deploying Apex or Flow code. Extracts the `body` 
 
 **What Tier 2 checks:**
 
-| Metadata Type    | Validator              | Max Score | Key Checks                                         |
-| ---------------- | ---------------------- | --------- | -------------------------------------------------- |
-| ApexClass        | ApexValidator          | 150       | SOQL-in-loops, DML-in-loops, sharing, naming, docs |
-| ApexTrigger      | ApexValidator          | 150       | Bulkification, error handling, security             |
-| Flow             | EnhancedFlowValidator  | 110       | DML-in-loops, fault paths, naming, governance       |
-| FlowDefinition   | EnhancedFlowValidator  | 110       | Performance, error handling, security               |
-| Other types      | — (skipped)            | —         | Non-code metadata passes through without scoring    |
+| Metadata Type  | Validator             | Max Score | Key Checks                                         |
+| -------------- | --------------------- | --------- | -------------------------------------------------- |
+| ApexClass      | ApexValidator         | 150       | SOQL-in-loops, DML-in-loops, sharing, naming, docs |
+| ApexTrigger    | ApexValidator         | 150       | Bulkification, error handling, security            |
+| Flow           | EnhancedFlowValidator | 110       | DML-in-loops, fault paths, naming, governance      |
+| FlowDefinition | EnhancedFlowValidator | 110       | Performance, error handling, security              |
+| Other types    | — (skipped)           | —         | Non-code metadata passes through without scoring   |
 
 **Output:**
 
@@ -389,10 +391,10 @@ tooling_api_query(
 
 **Tier 2 — Code Deployment** (metadata_create, metadata_update, tooling_api_dml): Full code-quality scoring when deploying Apex or Flows. This is where anti-patterns like SOQL-in-loops actually matter — they'll run in production under load.
 
-| Validator              | Max Score | Categories                                                       |
-| ---------------------- | --------- | ---------------------------------------------------------------- |
-| ApexValidator          | 150       | Bulkification, Security, Testing, Architecture, Clean Code, Error Handling, Performance, Documentation |
-| EnhancedFlowValidator  | 110       | Design & Naming, Logic & Structure, Architecture, Performance, Error Handling, Security |
+| Validator             | Max Score | Categories                                                                                             |
+| --------------------- | --------- | ------------------------------------------------------------------------------------------------------ |
+| ApexValidator         | 150       | Bulkification, Security, Testing, Architecture, Clean Code, Error Handling, Performance, Documentation |
+| EnhancedFlowValidator | 110       | Design & Naming, Logic & Structure, Architecture, Performance, Error Handling, Security                |
 
 ---
 
@@ -440,9 +442,9 @@ sobject_dml(
 
 ### Cleanup Patterns
 
-| Method     | Tool                                                                         | Best For         |
-| ---------- | ---------------------------------------------------------------------------- | ---------------- |
-| By IDs     | `sobject_dml(operation="delete", records=[{"Id":"..."}])`                    | Known records    |
+| Method     | Tool                                                                        | Best For         |
+| ---------- | --------------------------------------------------------------------------- | ---------------- |
+| By IDs     | `sobject_dml(operation="delete", records=[{"Id":"..."}])`                   | Known records    |
 | By Pattern | Query with `whereClause="Name LIKE 'Test%'"` then delete returned IDs       | Test data        |
 | By Date    | Query with `whereClause="CreatedDate >= TODAY AND Name LIKE 'Test%'"` first | Recent test data |
 
@@ -474,14 +476,14 @@ sobject_dml(
 
 ## Cross-Skill Integration
 
-| From Skill  | To cirra-ai-sf-data | When                                               |
-| ----------- | ------------------- | -------------------------------------------------- |
+| From Skill           | To cirra-ai-sf-data | When                                               |
+| -------------------- | ------------------- | -------------------------------------------------- |
 | cirra-ai-sf-apex     | -> cirra-ai-sf-data | "Create 201 Accounts for bulk testing"             |
 | cirra-ai-sf-flow     | -> cirra-ai-sf-data | "Create Opportunities with StageName='Closed Won'" |
 | cirra-ai-sf-metadata | -> cirra-ai-sf-data | After verifying fields exist                       |
 
-| From cirra-ai-sf-data | To Skill      | When                                   |
-| -------------------- | ------------- | -------------------------------------- |
+| From cirra-ai-sf-data | To Skill                | When                                   |
+| --------------------- | ----------------------- | -------------------------------------- |
 | cirra-ai-sf-data      | -> cirra-ai-sf-metadata | Use `sobject_describe` instead         |
 | cirra-ai-sf-data      | -> cirra-ai-sf-apex     | "Generate test records for test class" |
 

@@ -181,14 +181,14 @@ except LSPNotAvailableException:
 
 **Before deploying Apex code, verify these prerequisites:**
 
-| Prerequisite              | Check Command                                                        | Required For                |
-| ------------------------- | -------------------------------------------------------------------- | --------------------------- |
-| **TAF Package**           | `tooling_api_query(sobjectType="InstalledSubscriberPackage")`        | TAF trigger pattern         |
-| **Custom Fields**         | `sobject_describe(sobjectType="Lead")`                               | Field references in code    |
-| **Permission Sets**       | `soql_query(query="SELECT Id, Name FROM PermissionSet")`             | FLS for custom fields       |
-| **Trigger_Action\_\_mdt** | Check Setup → Custom Metadata Types                                  | TAF trigger execution       |
-| **Named Credentials**     | Check Setup → Named Credentials                                      | External callouts           |
-| **Custom Settings**       | Check Setup → Custom Settings                                        | Bypass flags, configuration |
+| Prerequisite              | Check Command                                                 | Required For                |
+| ------------------------- | ------------------------------------------------------------- | --------------------------- |
+| **TAF Package**           | `tooling_api_query(sobjectType="InstalledSubscriberPackage")` | TAF trigger pattern         |
+| **Custom Fields**         | `sobject_describe(sobjectType="Lead")`                        | Field references in code    |
+| **Permission Sets**       | `soql_query(query="SELECT Id, Name FROM PermissionSet")`      | FLS for custom fields       |
+| **Trigger_Action\_\_mdt** | Check Setup → Custom Metadata Types                           | TAF trigger execution       |
+| **Named Credentials**     | Check Setup → Named Credentials                               | External callouts           |
+| **Custom Settings**       | Check Setup → Custom Settings                                 | Bypass flags, configuration |
 
 ---
 

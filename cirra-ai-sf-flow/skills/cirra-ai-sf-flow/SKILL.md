@@ -6,10 +6,10 @@ description: >
   screen flows, autolaunched flows, scheduled flows, or reviewing existing flow performance.
 hooks:
   PreToolUse:
-    - matcher: "mcp__.*__metadata_create|mcp__.*__metadata_update|mcp__.*__tooling_api_dml"
+    - matcher: 'mcp__.*__metadata_create|mcp__.*__metadata_update|mcp__.*__tooling_api_dml'
       hooks:
         - type: command
-          command: "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/pre-mcp-validate.py"
+          command: 'python3 ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/pre-mcp-validate.py'
           timeout: 30
 ---
 
@@ -483,6 +483,7 @@ screens → start → status → subflows → textTemplates → variables → wa
 ## Flow MCP Patterns
 
 ### General rules
+
 - Do **not** hard-code IDs (queues, users, record types) in flows
 - Use Entry Conditions (formulas in the `start` block) instead of a Decision with an empty action
 - Set layout to Auto-Layout (`CanvasMode: AUTO_LAYOUT_CANVAS`)
@@ -490,23 +491,29 @@ screens → start → status → subflows → textTemplates → variables → wa
 - Do **not** say something "cannot be done via API" — always attempt it
 
 ### List all flows (with active and latest version info)
+
 ```
 tooling_api_query(sObject="FlowDefinition", fields=["Id","DeveloperName","NamespacePrefix","MasterLabel","Description","ActiveVersionId","ActiveVersion.VersionNumber","LatestVersionId","LatestVersion.VersionNumber","LatestVersion.Status","LatestVersion.MasterLabel","LatestVersion.Description"])
 ```
 
 ### Retrieve a specific flow version
+
 First get the version Id from the FlowDefinition query above, then:
+
 ```
 tooling_api_query(sObject="Flow", fields=["Id","FullName","DefinitionId","Definition.DeveloperName","MasterLabel","Description","VersionNumber","Status","Metadata","ProcessType"], whereClause="Id='<flow version id>'")
 ```
+
 Note: do **not** include `FullName` or `Metadata` in multi-record queries — only single-record retrieval supports these.
 
 ### Create a new flow
+
 ```
 metadata_create(type="Flow", metadata=[{"fullName": "Flow_Name", "content": "[flow-xml]"}])
 ```
 
 ### Update a flow (creates a new version)
+
 1. Retrieve current metadata: `metadata_read(type="Flow", fullNames=["Flow_Name"])`
 2. Apply changes to the metadata object
 3. Deploy: `metadata_update(type="Flow", metadata=[{...}], upsert=True)`
@@ -514,21 +521,26 @@ metadata_create(type="Flow", metadata=[{"fullName": "Flow_Name", "content": "[fl
    - In production: deploy as `status: Draft` and ask user to activate manually if you get an error
 
 ### Activate / deactivate a flow version
+
 ```
 metadata_update(type="FlowDefinition", metadata=[{"fullName": "Flow_Name", "activeVersionNumber": <version>}])
 ```
+
 To deactivate all versions: set `activeVersionNumber` to `0`.
 
 ### Delete a flow
+
 1. Deactivate: `metadata_update(type="FlowDefinition", metadata=[{"fullName": "Flow_Name", "activeVersionNumber": 0}])`
-2. Delete all versions: `tooling_api_dml(operation="delete", sObject="Flow", record={"Id": "<flow version id>"})`  (repeat for each version)
+2. Delete all versions: `tooling_api_dml(operation="delete", sObject="Flow", record={"Id": "<flow version id>"})` (repeat for each version)
 
 ### Check flow test coverage
+
 ```
 tooling_api_query(sObject="Flow", fields=["Definition.DeveloperName"], whereClause="Status = 'Active' AND (ProcessType = 'AutolaunchedFlow' OR ProcessType = 'Workflow' OR ProcessType = 'CustomEvent' OR ProcessType = 'InvocableProcess') AND Id NOT IN (SELECT FlowVersionId FROM FlowTestCoverage)")
 ```
 
 ### Find paused or failed flow interviews
+
 ```
 soql_query(sObject="FlowInterview", fields=["Id","Name","CurrentElement","InterviewStatus","PauseLabel","CreatedDate"], whereClause="InterviewStatus IN ('Paused', 'Failed')")
 ```
@@ -601,14 +613,14 @@ tooling_api_query(
 
 ## Cross-Skill Integration
 
-| From Skill            | To cirra-ai-sf-flow | When                                        |
-| --------------------- | ------------------- | ------------------------------------------- |
+| From Skill                 | To cirra-ai-sf-flow | When                                        |
+| -------------------------- | ------------------- | ------------------------------------------- |
 | cirra-ai-sf-ai-agentscript | → cirra-ai-sf-flow  | "Create Autolaunched Flow for agent action" |
 | cirra-ai-sf-apex           | → cirra-ai-sf-flow  | "Create Flow wrapper for Apex logic"        |
 | cirra-ai-sf-integration    | → cirra-ai-sf-flow  | "Create HTTP Callout Flow"                  |
 
-| From cirra-ai-sf-flow | To Skill              | When                                                |
-| --------------------- | --------------------- | --------------------------------------------------- |
+| From cirra-ai-sf-flow | To Skill               | When                                                |
+| --------------------- | ---------------------- | --------------------------------------------------- |
 | cirra-ai-sf-flow      | → cirra-ai-sf-metadata | "Describe Invoice\_\_c" (verify fields before flow) |
 | cirra-ai-sf-flow      | → cirra-ai-sf-deploy   | "Deploy flow with --dry-run"                        |
 | cirra-ai-sf-flow      | → cirra-ai-sf-data     | "Create 200 test Accounts" (after deploy)           |
@@ -649,11 +661,11 @@ Embed custom Lightning Web Components in Flow Screens for rich, interactive UIs.
 
 ### Documentation
 
-| Resource              | Location                                                                          |
-| --------------------- | --------------------------------------------------------------------------------- |
-| LWC Integration Guide | [docs/lwc-integration-guide.md](docs/lwc-integration-guide.md)                                     |
+| Resource              | Location                                                                                            |
+| --------------------- | --------------------------------------------------------------------------------------------------- |
+| LWC Integration Guide | [docs/lwc-integration-guide.md](docs/lwc-integration-guide.md)                                      |
 | LWC Component Setup   | [cirra-ai-sf-lwc/docs/flow-integration-guide.md](../cirra-ai-sf-lwc/docs/flow-integration-guide.md) |
-| Triangle Architecture | [docs/triangle-pattern.md](docs/triangle-pattern.md)                                               |
+| Triangle Architecture | [docs/triangle-pattern.md](docs/triangle-pattern.md)                                                |
 
 ---
 
@@ -684,11 +696,11 @@ Call Apex `@InvocableMethod` classes from Flow for complex business logic.
 
 ### Documentation
 
-| Resource                    | Location                                                                          |
-| --------------------------- | ------------------------------------------------------------------------------------- |
-| Apex Action Template        | `templates/apex-action-template.xml`                                    |
+| Resource                    | Location                                                                                  |
+| --------------------------- | ----------------------------------------------------------------------------------------- |
+| Apex Action Template        | `templates/apex-action-template.xml`                                                      |
 | Apex @InvocableMethod Guide | [cirra-ai-sf-apex/docs/flow-integration.md](../cirra-ai-sf-apex/docs/flow-integration.md) |
-| Triangle Architecture       | [docs/triangle-pattern.md](docs/triangle-pattern.md)                    |
+| Triangle Architecture       | [docs/triangle-pattern.md](docs/triangle-pattern.md)                                      |
 
 ### ⚠️ Flows for cirra-ai-sf-ai-agentscript
 
@@ -757,11 +769,11 @@ Flow Created  →  Deployed to Org  →  Action Definition Created  →  Agent C
 
 **Why This Matters**: The Action Definition is what exposes the Flow to the agent runtime with proper input/output schema mapping. Without it, `@actions.FlowName` will fail with `ValidationError: Tool target 'FlowName' is not an action definition`.
 
-| Direction                      | Pattern                                                                        |
-| ------------------------------ | ------------------------------------------------------------------------------ |
-| cirra-ai-sf-flow → cirra-ai-sf-metadata       | "Describe Invoice\_\_c" (verify fields before flow)                    |
-| cirra-ai-sf-flow → Cirra AI          | Deploy with validation via metadata_create                             |
-| cirra-ai-sf-flow → cirra-ai-sf-data           | "Create 200 test Accounts" (test data after deploy)                    |
+| Direction                                     | Pattern                                                                         |
+| --------------------------------------------- | ------------------------------------------------------------------------------- |
+| cirra-ai-sf-flow → cirra-ai-sf-metadata       | "Describe Invoice\_\_c" (verify fields before flow)                             |
+| cirra-ai-sf-flow → Cirra AI                   | Deploy with validation via metadata_create                                      |
+| cirra-ai-sf-flow → cirra-ai-sf-data           | "Create 200 test Accounts" (test data after deploy)                             |
 | cirra-ai-sf-ai-agentscript → cirra-ai-sf-flow | "Create Autolaunched Flow for agent action" - **cirra-ai-sf-flow is MANDATORY** |
 
 ## Org-Wide Flow Audit
@@ -795,10 +807,10 @@ python3 hooks/scripts/score_flows.py --output-dir ./audit_output [--batch-size 2
 ### Scoring Thresholds
 
 | Range | Recommendation |
-|---|---|
-| ≥ 88 | ✅ Deploy |
-| 55-87 | ⚠️ Review |
-| < 55 | ❌ Block |
+| ----- | -------------- |
+| ≥ 88  | ✅ Deploy      |
+| 55-87 | ⚠️ Review      |
+| < 55  | ❌ Block       |
 
 ---
 

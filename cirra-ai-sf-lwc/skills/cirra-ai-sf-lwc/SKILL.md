@@ -701,14 +701,14 @@ Make components discoverable by Agentforce agents:
 
 ## Limitations & Workarounds
 
-| Feature                    | CLI Support                                           | MCP Support                               | Workaround                                          |
-| -------------------------- | ----------------------------------------------------- | ----------------------------------------- | --------------------------------------------------- |
-| Local file scaffolding     | `sf lightning generate component`                     | ❌ Not available                          | Claude generates code as strings, writes via Edit   |
-| Automatic file sync        | `force-app/main/default/lwc/`                         | ❌ Not available                          | Generate as strings, deploy via metadata_create     |
-| LWC Jest runner            | `sf lightning lwc test run`                           | ❌ Not available                          | Run `npm run test` locally                          |
-| Component metadata deploy  | `sf project deploy start -m LightningComponentBundle` | ✅ `metadata_create` / `metadata_update`  | Full support via MCP                                |
-| Component metadata retrieve | `sf project retrieve`                                | ✅ `metadata_read`                        | Full support via MCP                                |
-| List deployed components   | `sf metadata list`                                    | ✅ `metadata_list`                        | Full support via MCP                                |
+| Feature                     | CLI Support                                           | MCP Support                              | Workaround                                        |
+| --------------------------- | ----------------------------------------------------- | ---------------------------------------- | ------------------------------------------------- |
+| Local file scaffolding      | `sf lightning generate component`                     | ❌ Not available                         | Claude generates code as strings, writes via Edit |
+| Automatic file sync         | `force-app/main/default/lwc/`                         | ❌ Not available                         | Generate as strings, deploy via metadata_create   |
+| LWC Jest runner             | `sf lightning lwc test run`                           | ❌ Not available                         | Run `npm run test` locally                        |
+| Component metadata deploy   | `sf project deploy start -m LightningComponentBundle` | ✅ `metadata_create` / `metadata_update` | Full support via MCP                              |
+| Component metadata retrieve | `sf project retrieve`                                 | ✅ `metadata_read`                       | Full support via MCP                              |
+| List deployed components    | `sf metadata list`                                    | ✅ `metadata_list`                       | Full support via MCP                              |
 
 ---
 

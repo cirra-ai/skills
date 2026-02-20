@@ -7,12 +7,12 @@ Run a SOQL query via the Cirra AI MCP Server and display the results.
 
 ## Parsing the request
 
-| Input after `/query` | Interpretation |
-|---|---|
-| `SELECT Id, Name FROM Account LIMIT 10` | Raw SOQL — execute directly |
-| `Account` | Object name — ask what fields/filters to apply |
-| `open opportunities over $1M` | Natural language — translate to SOQL, confirm before running |
-| *(no argument)* | Ask the user what to query |
+| Input after `/query`                    | Interpretation                                               |
+| --------------------------------------- | ------------------------------------------------------------ |
+| `SELECT Id, Name FROM Account LIMIT 10` | Raw SOQL — execute directly                                  |
+| `Account`                               | Object name — ask what fields/filters to apply               |
+| `open opportunities over $1M`           | Natural language — translate to SOQL, confirm before running |
+| _(no argument)_                         | Ask the user what to query                                   |
 
 ## Workflow
 

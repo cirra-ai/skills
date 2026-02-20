@@ -270,9 +270,7 @@ class LLMPatternValidator:
                     or f"{map_var}.containsKey" in context
                     or f"{map_var} != null" in context
                     or f"{map_var} == null" in context
-                    or "if (" in self.lines[i - 1]
-                    if i > 0
-                    else False
+                    or "if (" in self.lines[i - 1]  # i >= 1 always (enumerate starts at 1)
                 )
 
                 if not has_null_check:
@@ -430,6 +428,4 @@ if __name__ == "__main__":
     else:
         print(f"✅ No LLM anti-patterns detected in {results['file']}")
 
-    # Return non-zero if critical issues
-    critical_count = sum(1 for i in results["issues"] if i["severity"] == "CRITICAL")
     sys.exit(0)  # Advisory only - don't block

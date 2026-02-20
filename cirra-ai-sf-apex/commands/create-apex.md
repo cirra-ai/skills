@@ -17,6 +17,7 @@ Use AskUserQuestion to collect:
 - **Special requirements**: async, scheduled, invocable, aura-enabled, etc.
 
 If the type is **Trigger**, also ask:
+
 - Which trigger events are needed (before insert, after update, etc.)
 - Whether the Trigger Actions Framework (TAF) is installed in the org
 
@@ -25,6 +26,7 @@ If the type is **Trigger**, also ask:
 Before generating, confirm nothing already exists with that name.
 
 **For a class**:
+
 ```
 tooling_api_query(
   sObject="ApexClass",
@@ -34,6 +36,7 @@ tooling_api_query(
 ```
 
 **For a trigger**:
+
 ```
 tooling_api_query(
   sObject="ApexTrigger",
@@ -51,6 +54,7 @@ If either already exists, suggest `/update-apex <Name>` instead.
 Follow the **MANDATORY DELIVERABLES** rule from the sf-apex skill: never put logic directly in the trigger body.
 
 **Check TAF installation** (if unknown):
+
 ```
 tooling_api_query(
   sObject="InstalledSubscriberPackage",
@@ -124,6 +128,7 @@ tooling_api_dml(
 > **Note (TAF only)**: For TAF triggers (`new MetadataTriggerHandler().run()`), deploy order between the trigger and action classes does not matter because `MetadataTriggerHandler` comes from the installed package and is already present in the org.
 
 #### Class
+
 ```
 tooling_api_dml(
   operation="insert",

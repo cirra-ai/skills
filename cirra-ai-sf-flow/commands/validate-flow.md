@@ -7,13 +7,13 @@ Validate one or more Flows using the 110-point static analysis pipeline and retu
 
 ## Parsing the request
 
-| Input after `/validate-flow` | Interpretation |
-|---|---|
-| `Auto_Lead_Assignment` | Flow API name — fetch XML from org, validate |
-| `force-app/.../Auto_Lead_Assignment.flow-meta.xml` (ends `.flow-meta.xml` or `.xml`) | Local file — validate directly |
-| `Auto_Lead_Assignment,Screen_Case_Intake` | Comma-separated list — bulk fetch, validate each |
-| `--all` | All Flow records in the org |
-| *(no argument)* | Ask the user what to validate |
+| Input after `/validate-flow`                                                         | Interpretation                                   |
+| ------------------------------------------------------------------------------------ | ------------------------------------------------ |
+| `Auto_Lead_Assignment`                                                               | Flow API name — fetch XML from org, validate     |
+| `force-app/.../Auto_Lead_Assignment.flow-meta.xml` (ends `.flow-meta.xml` or `.xml`) | Local file — validate directly                   |
+| `Auto_Lead_Assignment,Screen_Case_Intake`                                            | Comma-separated list — bulk fetch, validate each |
+| `--all`                                                                              | All Flow records in the org                      |
+| _(no argument)_                                                                      | Ask the user what to validate                    |
 
 ## Validation script
 
@@ -36,6 +36,7 @@ python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_flow_cli.py" "<file_path>"
 ### Flow API name (fetch from org)
 
 1. Fetch the Flow XML:
+
 ```
 metadata_read(
   type="Flow",
@@ -45,11 +46,13 @@ metadata_read(
 ```
 
 2. Write the XML content to a temp file:
+
 ```
 Write /tmp/validate_<FlowApiName>.flow-meta.xml  ← the flow XML
 ```
 
 3. Validate:
+
 ```bash
 python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_flow_cli.py" "/tmp/validate_<FlowApiName>.flow-meta.xml"
 ```
@@ -72,19 +75,21 @@ metadata_read(
 
 Validate each flow body (write → validate → delete). After all flows are validated, show a summary table sorted by score ascending (worst first):
 
-| Flow | Score | % | Status |
-|---|---|---|---|
+| Flow                        | Score  | %   | Status             |
+| --------------------------- | ------ | --- | ------------------ |
 | Before_Opportunity_Validate | 72/110 | 65% | ❌ Below threshold |
-| Auto_Lead_Assignment | 98/110 | 89% | ✅ Pass |
+| Auto_Lead_Assignment        | 98/110 | 89% | ✅ Pass            |
 
 ### --all
 
 1. Fetch all flow names:
+
 ```
 metadata_list(type="Flow", sf_user="<sf_user>")
 ```
 
 2. Fetch flow XML in batches of 20 (large flows can make bigger batches fail):
+
 ```
 metadata_read(
   type="Flow",

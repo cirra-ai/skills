@@ -18,6 +18,7 @@ If no name is given, ask the user which class or trigger to update and what chan
 First try `ApexClass`. If not found, try `ApexTrigger`.
 
 **Try class first**:
+
 ```
 tooling_api_query(
   sObject="ApexClass",
@@ -27,6 +28,7 @@ tooling_api_query(
 ```
 
 **If not found, try trigger**:
+
 ```
 tooling_api_query(
   sObject="ApexTrigger",
@@ -74,6 +76,7 @@ Fix any CRITICAL or HIGH issues before proceeding. The pre-deployment hook will 
 ### 5. Deploy
 
 #### Updated class
+
 ```
 tooling_api_dml(
   operation="update",
@@ -88,6 +91,7 @@ tooling_api_dml(
 ```
 
 #### Updated trigger
+
 ```
 tooling_api_dml(
   operation="update",

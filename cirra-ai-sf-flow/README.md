@@ -84,12 +84,12 @@ The skill generates:
 
 ## Cross-Skill Integration
 
-| Related Skill         | When to Use                               |
-| --------------------- | ----------------------------------------- |
-| cirra-ai-sf-apex      | Create @InvocableMethod for complex logic |
-| cirra-ai-sf-lwc       | Create screen components for custom UI    |
-| cirra-ai-sf-metadata  | Deploy custom objects BEFORE flows        |
-| cirra-ai-sf-deploy    | Deploy flows to org                       |
+| Related Skill        | When to Use                               |
+| -------------------- | ----------------------------------------- |
+| cirra-ai-sf-apex     | Create @InvocableMethod for complex logic |
+| cirra-ai-sf-lwc      | Create screen components for custom UI    |
+| cirra-ai-sf-metadata | Deploy custom objects BEFORE flows        |
+| cirra-ai-sf-deploy   | Deploy flows to org                       |
 
 ## Orchestration Order
 
@@ -118,12 +118,12 @@ Use [`/validate-flow`](#validate-flow-command) for on-demand checks at any time.
 
 Defined in `skills/cirra-ai-sf-flow/SKILL.md` frontmatter as a **skill-scoped PreToolUse hook**. Fires before every `metadata_create`, `metadata_update`, and `tooling_api_dml` call while the Flow skill is active.
 
-| Result | Action |
-|---|---|
+| Result                                                   | Action                                       |
+| -------------------------------------------------------- | -------------------------------------------- |
 | Critical/High issues (DML in loops, missing fault paths) | Blocks deployment, surfaces issues to Claude |
-| Score < 80% (< 88/110) | Allows deployment with advisory warning |
-| Pass | Allows deployment with score summary |
-| Non-Flow type (ApexClass, CustomObject, etc.) | Passes through silently |
+| Score < 80% (< 88/110)                                   | Allows deployment with advisory warning      |
+| Pass                                                     | Allows deployment with score summary         |
+| Non-Flow type (ApexClass, CustomObject, etc.)            | Passes through silently                      |
 
 ### Hook 2: `post-tool-validate.py` — post-write (advisory)
 
@@ -131,14 +131,14 @@ Triggered by `hooks/hooks.json` on `PostToolUse` for `Write|Edit`. Runs `Enhance
 
 **`validate_flow.py`: 110-point static analysis**
 
-| Category | Points | What it checks |
-|---|---|---|
-| Design & Naming | 25 | Element naming conventions, alphabetical ordering, flow description |
-| Logic & Structure | 20 | Entry criteria, flow variables, decision logic |
-| Architecture & Orchestration | 20 | Flow type appropriateness, subflow usage, API versioning |
-| Performance & Bulk Safety | 20 | DML/queries in loops, 251-record bulk handling, collection patterns |
-| Error Handling & Observability | 15 | Fault connectors on all DML/queries, unhandled paths |
-| Security & Governance | 10 | Sharing mode, hardcoded IDs, API version ≥ 59.0 |
+| Category                       | Points | What it checks                                                      |
+| ------------------------------ | ------ | ------------------------------------------------------------------- |
+| Design & Naming                | 25     | Element naming conventions, alphabetical ordering, flow description |
+| Logic & Structure              | 20     | Entry criteria, flow variables, decision logic                      |
+| Architecture & Orchestration   | 20     | Flow type appropriateness, subflow usage, API versioning            |
+| Performance & Bulk Safety      | 20     | DML/queries in loops, 251-record bulk handling, collection patterns |
+| Error Handling & Observability | 15     | Fault connectors on all DML/queries, unhandled paths                |
+| Security & Governance          | 10     | Sharing mode, hardcoded IDs, API version ≥ 59.0                     |
 
 **Scoring thresholds**: 88+ (80%) required for deployment. Score maps to star rating (Excellent / Very Good / Good / Needs Work / Critical Issues) with per-category breakdown and prioritised issue list.
 
@@ -146,23 +146,23 @@ Triggered by `hooks/hooks.json` on `PostToolUse` for `Write|Edit`. Runs `Enhance
 
 On-demand validation command. Accepts a flow API name, local file path, comma-separated list, or `--all`:
 
-| Invocation | What happens |
-|---|---|
-| `/validate-flow Auto_Lead_Assignment` | Fetches `Auto_Lead_Assignment` XML from org via `metadata_read`, validates |
-| `/validate-flow force-app/.../Auto_Lead_Assignment.flow-meta.xml` | Reads local file, validates |
-| `/validate-flow Auto_Lead_Assignment,Screen_Case_Intake` | Validates each in sequence, shows summary table |
-| `/validate-flow --all` | Validates all Flow records in the org, summary sorted by score |
+| Invocation                                                        | What happens                                                               |
+| ----------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `/validate-flow Auto_Lead_Assignment`                             | Fetches `Auto_Lead_Assignment` XML from org via `metadata_read`, validates |
+| `/validate-flow force-app/.../Auto_Lead_Assignment.flow-meta.xml` | Reads local file, validates                                                |
+| `/validate-flow Auto_Lead_Assignment,Screen_Case_Intake`          | Validates each in sequence, shows summary table                            |
+| `/validate-flow --all`                                            | Validates all Flow records in the org, summary sorted by score             |
 
 The command uses `validate_flow_cli.py` under the hood — the same 110-point pipeline as the hooks.
 
 ### Other scripts
 
-| Script | Purpose |
-|---|---|
-| `validate_flow_cli.py` | Standalone CLI used by `/validate-flow` — takes a file path argument |
-| `pre-mcp-validate.py` | PreToolUse hook adapter — translates hook stdin to FlowMCPValidator format |
-| `post-write-validate.py` | Legacy hook (Write only). Not wired in hooks.json |
-| `mcp_validator_cli.py` | Manual pre-flight check for MCP Flow deployment calls |
+| Script                   | Purpose                                                                    |
+| ------------------------ | -------------------------------------------------------------------------- |
+| `validate_flow_cli.py`   | Standalone CLI used by `/validate-flow` — takes a file path argument       |
+| `pre-mcp-validate.py`    | PreToolUse hook adapter — translates hook stdin to FlowMCPValidator format |
+| `post-write-validate.py` | Legacy hook (Write only). Not wired in hooks.json                          |
+| `mcp_validator_cli.py`   | Manual pre-flight check for MCP Flow deployment calls                      |
 
 ## Requirements
 

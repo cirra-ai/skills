@@ -43,23 +43,23 @@ Request: "Create 251 test Account records with varying Industries for trigger te
 
 ## Related Skills
 
-| Skill | When to Use |
-| --- | --- |
-| cirra-ai-sf-apex | Generate Apex code, triggers, test classes (with 150-point scoring) |
-| cirra-ai-sf-flow | Create and validate Salesforce Flows (with 110-point scoring) |
-| cirra-ai-sf-metadata | Describe objects, create custom fields, Permission Sets |
+| Skill                | When to Use                                                         |
+| -------------------- | ------------------------------------------------------------------- |
+| cirra-ai-sf-apex     | Generate Apex code, triggers, test classes (with 150-point scoring) |
+| cirra-ai-sf-flow     | Create and validate Salesforce Flows (with 110-point scoring)       |
+| cirra-ai-sf-metadata | Describe objects, create custom fields, Permission Sets             |
 
 ## Cirra AI MCP Tools
 
-| Operation   | MCP Tool                                       |
-| ----------- | ---------------------------------------------- |
-| Query       | `soql_query(sObject, fields, whereClause)`     |
-| Create      | `sobject_dml(operation="insert", ...)`         |
-| Update      | `sobject_dml(operation="update", ...)`         |
-| Delete      | `sobject_dml(operation="delete", ...)`         |
-| Upsert      | `sobject_dml(operation="upsert", ...)`         |
-| Describe    | `sobject_describe(sObject)`                    |
-| Tooling     | `tooling_api_query(sObject, fields)`           |
+| Operation | MCP Tool                                   |
+| --------- | ------------------------------------------ |
+| Query     | `soql_query(sObject, fields, whereClause)` |
+| Create    | `sobject_dml(operation="insert", ...)`     |
+| Update    | `sobject_dml(operation="update", ...)`     |
+| Delete    | `sobject_dml(operation="delete", ...)`     |
+| Upsert    | `sobject_dml(operation="upsert", ...)`     |
+| Describe  | `sobject_describe(sObject)`                |
+| Tooling   | `tooling_api_query(sObject, fields)`       |
 
 ## Validation Hooks
 
@@ -72,24 +72,25 @@ This plugin ships Python validation scripts in `hooks/scripts/` that run automat
 Triggered by `hooks/hooks.json` on `PostToolUse` for `Write`. Validates local data-related files and outputs a report to the transcript.
 
 Activates when the written file:
+
 - Has a data-related extension (`.apex`, `.soql`, `.csv`, `.json`)
 - Has a data-related name pattern (`query`, `data`, `import`, `export`, `bulk`, `factory`, `seed`, `fixture`, `dataset`)
 
 For `.soql` and `.apex` files containing SOQL, runs **`soql_validator.py`**:
 
-| Check | What it catches |
-|---|---|
-| Syntax errors | Malformed SOQL |
-| Missing WHERE | Unbounded queries on large objects |
-| Missing LIMIT | Queries without limits that could hit governor limits |
-| Hardcoded IDs | `WHERE Id = '001...'` — brittle, breaks on org refresh |
-| Non-indexed fields | WHERE on non-indexed fields causing full table scans |
-| Optimization suggestions | SELECT * patterns, missing ORDER BY, relationship query hints |
+| Check                    | What it catches                                                |
+| ------------------------ | -------------------------------------------------------------- |
+| Syntax errors            | Malformed SOQL                                                 |
+| Missing WHERE            | Unbounded queries on large objects                             |
+| Missing LIMIT            | Queries without limits that could hit governor limits          |
+| Hardcoded IDs            | `WHERE Id = '001...'` — brittle, breaks on org refresh         |
+| Non-indexed fields       | WHERE on non-indexed fields causing full table scans           |
+| Optimization suggestions | SELECT \* patterns, missing ORDER BY, relationship query hints |
 
 ### Other scripts
 
-| Script | Purpose |
-|---|---|
+| Script                 | Purpose                                              |
+| ---------------------- | ---------------------------------------------------- |
 | `mcp_validator_cli.py` | Manual pre-flight check for MCP data operation calls |
 
 **Manual MCP pre-flight** — validate a data operation payload before calling the MCP tool:

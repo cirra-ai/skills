@@ -24,11 +24,11 @@ If plugins **are** available you MUST use them! Don't make up your own methodolo
 
 ## Sub-Plugins
 
-| Plugin | Domain | Scoring |
-|---|---|---|
-| **cirra-ai-sf-apex** | Apex classes, triggers, tests, batch jobs | 150 points / 8 categories |
-| **cirra-ai-sf-flow** | Record-triggered, screen, autolaunched, scheduled flows | 110 points / 6 categories |
-| **cirra-ai-sf-data** | SOQL queries, DML operations, test data factories | Pass/fail pre-flight checks |
+| Plugin               | Domain                                                  | Scoring                     |
+| -------------------- | ------------------------------------------------------- | --------------------------- |
+| **cirra-ai-sf-apex** | Apex classes, triggers, tests, batch jobs               | 150 points / 8 categories   |
+| **cirra-ai-sf-flow** | Record-triggered, screen, autolaunched, scheduled flows | 110 points / 6 categories   |
+| **cirra-ai-sf-data** | SOQL queries, DML operations, test data factories       | Pass/fail pre-flight checks |
 
 Each plugin includes its own MCP deployment validator — no cross-plugin dependencies.
 
@@ -36,12 +36,12 @@ Each plugin includes its own MCP deployment validator — no cross-plugin depend
 
 When a user request arrives, route to the appropriate plugin:
 
-| Request Type | Route To | Examples |
-|---|---|---|
-| Write/review Apex code | cirra-ai-sf-apex | "Create a trigger handler", "Review this Apex class" |
-| Create/validate a Flow | cirra-ai-sf-flow | "Build a record-triggered flow", "Score this flow XML" |
-| Query/insert/update data | cirra-ai-sf-data | "Query all Accounts", "Create 200 test records" |
-| Mixed (code + data) | Both | "Deploy the trigger and create test data" |
+| Request Type             | Route To         | Examples                                               |
+| ------------------------ | ---------------- | ------------------------------------------------------ |
+| Write/review Apex code   | cirra-ai-sf-apex | "Create a trigger handler", "Review this Apex class"   |
+| Create/validate a Flow   | cirra-ai-sf-flow | "Build a record-triggered flow", "Score this flow XML" |
+| Query/insert/update data | cirra-ai-sf-data | "Query all Accounts", "Create 200 test records"        |
+| Mixed (code + data)      | Both             | "Deploy the trigger and create test data"              |
 
 ## Orchestration Order
 
@@ -76,17 +76,17 @@ cirra_ai_init(sf_user="your-username")
 
 ## Commands
 
-| Command | Purpose |
-|---|---|
+| Command  | Purpose                                                                       |
+| -------- | ----------------------------------------------------------------------------- |
 | `/audit` | Full org audit — scores all Apex and Flows, generates Word/Excel/HTML reports |
 
 ## Related Skills
 
 These plugins complement the core three but are independent:
 
-| Skill | Purpose |
-|---|---|
-| cirra-ai-sf-metadata | Custom objects, fields, Permission Sets |
-| cirra-ai-sf-lwc | Lightning Web Components |
-| cirra-ai-sf-soql | Advanced SOQL optimization |
-| cirra-ai-sf-ai-agentscript | Agentforce agent authoring |
+| Skill                      | Purpose                                 |
+| -------------------------- | --------------------------------------- |
+| cirra-ai-sf-metadata       | Custom objects, fields, Permission Sets |
+| cirra-ai-sf-lwc            | Lightning Web Components                |
+| cirra-ai-sf-soql           | Advanced SOQL optimization              |
+| cirra-ai-sf-ai-agentscript | Agentforce agent authoring              |

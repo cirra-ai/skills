@@ -20,12 +20,12 @@ All four Salesforce plugins in one zip — Apex, Flow, Data, and the Orchestrato
 
 ### Individual Plugins
 
-| Plugin | Description | Download |
-|--------|-------------|----------|
+| Plugin                    | Description                                                                      | Download                                                                                       |
+| ------------------------- | -------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
 | **cirra-ai-sf-apex** v2.0 | Apex code generation & review — 150-point scoring, TAF patterns, test generation | [⬇ Download](https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf-apex.zip) |
-| **cirra-ai-sf-flow** v2.1 | Flow creation & validation — 110-point scoring, Winter '26 best practices | [⬇ Download](https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf-flow.zip) |
-| **cirra-ai-sf-data** v3.0 | Data operations expert — SOQL, bulk ops, test data, 130-point scoring | [⬇ Download](https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf-data.zip) |
-| **cirra-ai-sf** v1.0 | Orchestrator — routes requests to the right specialist plugin | [⬇ Download](https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf.zip) |
+| **cirra-ai-sf-flow** v2.1 | Flow creation & validation — 110-point scoring, Winter '26 best practices        | [⬇ Download](https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf-flow.zip) |
+| **cirra-ai-sf-data** v3.0 | Data operations expert — SOQL, bulk ops, test data, 130-point scoring            | [⬇ Download](https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf-data.zip) |
+| **cirra-ai-sf** v1.0      | Orchestrator — routes requests to the right specialist plugin                    | [⬇ Download](https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf.zip)      |
 
 ---
 
@@ -34,12 +34,12 @@ All four Salesforce plugins in one zip — Apex, Flow, Data, and the Orchestrato
 Just the `SKILL.md` instruction file, plus `LICENSE` and `CREDITS.md`. Use these if you only
 want the AI instructions without hooks, commands, or templates.
 
-| Skill | Description | Download |
-|-------|-------------|----------|
-| **cirra-ai-sf-apex** skill | Apex generation instructions, guardrails, scoring rubric | [⬇ Download](https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf-apex-skill.zip) |
-| **cirra-ai-sf-flow** skill | Flow creation instructions, decision matrix, best practices | [⬇ Download](https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf-flow-skill.zip) |
+| Skill                      | Description                                                   | Download                                                                                             |
+| -------------------------- | ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| **cirra-ai-sf-apex** skill | Apex generation instructions, guardrails, scoring rubric      | [⬇ Download](https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf-apex-skill.zip) |
+| **cirra-ai-sf-flow** skill | Flow creation instructions, decision matrix, best practices   | [⬇ Download](https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf-flow-skill.zip) |
 | **cirra-ai-sf-data** skill | Data operations instructions, SOQL patterns, MCP tool mapping | [⬇ Download](https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf-data-skill.zip) |
-| **cirra-ai-sf** skill | Orchestrator instructions | [⬇ Download](https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf-skill.zip) |
+| **cirra-ai-sf** skill      | Orchestrator instructions                                     | [⬇ Download](https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf-skill.zip)      |
 
 ---
 

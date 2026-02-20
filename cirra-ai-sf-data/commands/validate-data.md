@@ -7,12 +7,12 @@ Validate a Salesforce data operation using the two-tier MCP validator and return
 
 ## Parsing the request
 
-| Input after `/validate-data` | Interpretation |
-|---|---|
-| `path/to/operation.json` | Local JSON file containing `{"tool": "...", "params": {...}}` |
-| `soql_query SELECT Id FROM Account` | Inline SOQL — validate query parameters |
-| `sobject_dml insert Account 50 records` | Describe the operation — build params and validate |
-| *(no argument)* | Ask the user what to validate |
+| Input after `/validate-data`            | Interpretation                                                |
+| --------------------------------------- | ------------------------------------------------------------- |
+| `path/to/operation.json`                | Local JSON file containing `{"tool": "...", "params": {...}}` |
+| `soql_query SELECT Id FROM Account`     | Inline SOQL — validate query parameters                       |
+| `sobject_dml insert Account 50 records` | Describe the operation — build params and validate            |
+| _(no argument)_                         | Ask the user what to validate                                 |
 
 ## Validation script
 
@@ -42,20 +42,20 @@ python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/mcp_validator_cli.py" --format repo
   "params": {
     "sObject": "Account",
     "operation": "insert",
-    "records": [
-      {"Name": "Test Account 1", "Industry": "Technology"}
-    ],
+    "records": [{ "Name": "Test Account 1", "Industry": "Technology" }],
     "sf_user": "prod"
   }
 }
 ```
 
 2. Write to a temp file:
+
 ```
 Write /tmp/validate_op.json  ← the JSON above
 ```
 
 3. Validate:
+
 ```bash
 python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/mcp_validator_cli.py" --format report /tmp/validate_op.json
 ```
@@ -66,23 +66,23 @@ python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/mcp_validator_cli.py" --format repo
 
 Simple pass/fail. Catches:
 
-| Check | Severity |
-|---|---|
-| Missing `sObject` or `sf_user` | Error |
-| Invalid DML `operation` | Error |
-| Empty records array | Error |
-| Update/delete missing `Id` | Error |
-| Upsert missing `externalIdField` | Error |
-| PII in record values | Warning |
-| Inconsistent field names across records | Warning |
-| SOQL syntax issues (`==`, unbalanced parens, double quotes) | Warning |
+| Check                                                       | Severity |
+| ----------------------------------------------------------- | -------- |
+| Missing `sObject` or `sf_user`                              | Error    |
+| Invalid DML `operation`                                     | Error    |
+| Empty records array                                         | Error    |
+| Update/delete missing `Id`                                  | Error    |
+| Upsert missing `externalIdField`                            | Error    |
+| PII in record values                                        | Warning  |
+| Inconsistent field names across records                     | Warning  |
+| SOQL syntax issues (`==`, unbalanced parens, double quotes) | Warning  |
 
 ## Tier 2: Code deployment (metadata_create, metadata_update, tooling_api_dml)
 
 Full scoring when the payload contains Apex or Flow metadata. Delegates to:
 
-| Metadata Type | Validator | Max Score |
-|---|---|---|
-| ApexClass / ApexTrigger | ApexValidator | 150 |
-| Flow / FlowDefinition | EnhancedFlowValidator | 110 |
-| Other | (skipped) | — |
+| Metadata Type           | Validator             | Max Score |
+| ----------------------- | --------------------- | --------- |
+| ApexClass / ApexTrigger | ApexValidator         | 150       |
+| Flow / FlowDefinition   | EnhancedFlowValidator | 110       |
+| Other                   | (skipped)             | —         |

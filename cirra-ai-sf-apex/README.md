@@ -83,12 +83,12 @@ Use [`/validate-apex`](#validate-apex-command) for on-demand checks at any time.
 
 Defined in `skills/cirra-ai-sf-apex/SKILL.md` frontmatter as a **skill-scoped PreToolUse hook**. Fires before every `metadata_create`, `metadata_update`, and `tooling_api_dml` call while the Apex skill is active.
 
-| Result | Action |
-|---|---|
+| Result                                              | Action                                       |
+| --------------------------------------------------- | -------------------------------------------- |
 | Critical/High issues (SOQL/DML in loops, injection) | Blocks deployment, surfaces issues to Claude |
-| Score < 67% | Allows deployment with advisory warning |
-| Pass | Allows deployment with score summary |
-| Non-Apex type (Flow, CustomObject, etc.) | Passes through silently |
+| Score < 67%                                         | Allows deployment with advisory warning      |
+| Pass                                                | Allows deployment with score summary         |
+| Non-Apex type (Flow, CustomObject, etc.)            | Passes through silently                      |
 
 ### Hook 2: `post-tool-validate.py` — post-write (advisory)
 
@@ -96,16 +96,16 @@ Triggered by `hooks/hooks.json` on `PostToolUse` for `Write|Edit`. Runs a two-ph
 
 **Phase 1 — `validate_apex.py`: 150-point static analysis**
 
-| Category | Points | What it checks |
-|---|---|---|
-| Bulkification | 25 | SOQL/DML inside loops |
-| Security | 25 | Sharing keywords, SOQL injection risk |
-| Testing | 25 | Test methods, assertions, coverage patterns |
-| Architecture | 20 | SOLID principles, separation of concerns |
-| Clean Code | 20 | PascalCase classes, camelCase methods |
-| Error Handling | 15 | Empty catch blocks, exception patterns |
-| Performance | 10 | Async patterns, governor limit awareness |
-| Documentation | 10 | ApexDoc on public methods |
+| Category       | Points | What it checks                              |
+| -------------- | ------ | ------------------------------------------- |
+| Bulkification  | 25     | SOQL/DML inside loops                       |
+| Security       | 25     | Sharing keywords, SOQL injection risk       |
+| Testing        | 25     | Test methods, assertions, coverage patterns |
+| Architecture   | 20     | SOLID principles, separation of concerns    |
+| Clean Code     | 20     | PascalCase classes, camelCase methods       |
+| Error Handling | 15     | Empty catch blocks, exception patterns      |
+| Performance    | 10     | Async patterns, governor limit awareness    |
+| Documentation  | 10     | ApexDoc on public methods                   |
 
 **Phase 1.5 — `llm_pattern_validator.py`: LLM anti-pattern detection**
 
@@ -124,23 +124,23 @@ Score is mapped to a 1–5 star rating (Excellent / Very Good / Good / Needs Wor
 
 On-demand validation command. Accepts a class name, local file path, comma-separated list, or `--all`:
 
-| Invocation | What happens |
-|---|---|
-| `/validate-apex MyClass` | Fetches `MyClass` body from org via `tooling_api_query`, validates |
-| `/validate-apex path/to/MyClass.cls` | Reads local file, validates |
-| `/validate-apex MyClass,OtherClass` | Validates each in sequence, shows summary table |
-| `/validate-apex --all` | Validates all ApexClass records in the org, summary sorted by score |
+| Invocation                           | What happens                                                        |
+| ------------------------------------ | ------------------------------------------------------------------- |
+| `/validate-apex MyClass`             | Fetches `MyClass` body from org via `tooling_api_query`, validates  |
+| `/validate-apex path/to/MyClass.cls` | Reads local file, validates                                         |
+| `/validate-apex MyClass,OtherClass`  | Validates each in sequence, shows summary table                     |
+| `/validate-apex --all`               | Validates all ApexClass records in the org, summary sorted by score |
 
 The command uses `validate_apex_cli.py` under the hood — the same 150-point + LLM anti-pattern pipeline as the hooks.
 
 ### Other scripts
 
-| Script | Purpose |
-|---|---|
-| `validate_apex_cli.py` | Standalone CLI used by `/validate-apex` — takes a file path argument |
-| `pre-mcp-validate.py` | PreToolUse hook adapter — translates hook stdin to mcp_validator format |
-| `post-write-validate.py` | Legacy hook (Write only, no LLM check). Not wired in hooks.json |
-| `mcp_validator_cli.py` | Manual pre-flight check for MCP metadata deployment calls |
+| Script                   | Purpose                                                                 |
+| ------------------------ | ----------------------------------------------------------------------- |
+| `validate_apex_cli.py`   | Standalone CLI used by `/validate-apex` — takes a file path argument    |
+| `pre-mcp-validate.py`    | PreToolUse hook adapter — translates hook stdin to mcp_validator format |
+| `post-write-validate.py` | Legacy hook (Write only, no LLM check). Not wired in hooks.json         |
+| `mcp_validator_cli.py`   | Manual pre-flight check for MCP metadata deployment calls               |
 
 **Manual MCP pre-flight** — validate an Apex deployment payload before calling the MCP tool:
 
@@ -151,12 +151,12 @@ echo '{"tool":"metadata_create","params":{"type":"ApexClass","metadata":[{"fullN
 
 ## Cross-Skill Integration
 
-| Related Skill | When to Use                                 |
-| ------------- | ------------------------------------------- |
-| cirra-ai-sf-flow       | Create Flow to call @InvocableMethod        |
-| cirra-ai-sf-lwc        | Create LWC to call @AuraEnabled controllers |
-| cirra-ai-sf-testing    | Run tests and analyze coverage              |
-| cirra-ai-sf-deploy     | Deploy Apex to org                          |
+| Related Skill       | When to Use                                 |
+| ------------------- | ------------------------------------------- |
+| cirra-ai-sf-flow    | Create Flow to call @InvocableMethod        |
+| cirra-ai-sf-lwc     | Create LWC to call @AuraEnabled controllers |
+| cirra-ai-sf-testing | Run tests and analyze coverage              |
+| cirra-ai-sf-deploy  | Deploy Apex to org                          |
 
 ## Documentation
 

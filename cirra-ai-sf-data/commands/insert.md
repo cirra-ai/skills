@@ -10,6 +10,7 @@ Perform a DML operation (insert, update, upsert, or delete) against a Salesforce
 The argument should describe the operation: `/insert 50 test Accounts in Technology industry`
 
 If no argument is given, ask the user:
+
 - Which object
 - Which DML operation (insert, update, upsert, delete)
 - What records or criteria
@@ -45,6 +46,7 @@ python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/mcp_validator_cli.py" --format repo
 ```
 
 Where `input.json` contains:
+
 ```json
 {
   "tool": "sobject_dml",

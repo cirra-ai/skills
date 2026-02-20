@@ -110,51 +110,76 @@ class ApexValidator:
             "issues": self.issues,
         }
 
-    def _check_soql_in_loops(self):
-        """Check for SOQL queries inside loops (critical anti-pattern)."""
-        loop_patterns = [r"\bfor\s*\(", r"\bwhile\s*\(", r"\bdo\s*\{"]
-        soql_pattern = r"\[\s*SELECT\s+"
-        # for-each over SOQL result: for (Type var : [SELECT...]) — the SOQL is the
-        # iterable, not inside the body; this is the correct bulkified pattern
-        foreach_soql_pattern = r"\bfor\s*\([^:]+:\s*\["
+    def _build_loop_line_map(self) -> list[tuple[bool, int]]:
+        """Build loop context for every line in the file.
 
-        # Stack-based brace tracking: ('loop', line) or ('other', line) per open brace.
-        # Only braces that open a loop body are tagged 'loop'; class/method/if braces
-        # are tagged 'other' and do not inflate the loop depth.
-        brace_stack = []
-        pending_loop = False  # True after a loop header, waiting for the opening '{'
+        Returns a list (one entry per line, 1-based index → result[i-1]) of
+        (in_loop, loop_start_line) tuples.
+
+        Fixes the pending_loop leak that occurs with braceless single-statement
+        loop bodies (e.g. ``for (...) doSomething();``): pending_loop is cleared
+        when a semicolon is encountered at parenthesis depth 0, preventing the
+        next unrelated opening brace from being mis-tagged as a loop body.
+        """
+        loop_patterns = [r"\bfor\s*\(", r"\bwhile\s*\(", r"\bdo\s*\{"]
+        # Stack entries: ('loop', start_line) or ('other', start_line)
+        brace_stack: list[tuple[str, int]] = []
+        pending_loop = False
         loop_header_line = 0
+        paren_depth = 0
+        result = []
 
         for i, line in enumerate(self.lines, 1):
-            # Skip comment lines
+            stripped = line.strip()
+            is_comment = stripped.startswith("//") or stripped.startswith("*") or stripped.startswith("/*")
+
+            if not is_comment:
+                if any(re.search(p, line, re.IGNORECASE) for p in loop_patterns):
+                    pending_loop = True
+                    loop_header_line = i
+                    paren_depth = 0  # reset for this loop header
+
+                for char in line:
+                    if char == "(":
+                        paren_depth += 1
+                    elif char == ")":
+                        paren_depth = max(0, paren_depth - 1)
+                    elif char == "{":
+                        if pending_loop:
+                            brace_stack.append(("loop", loop_header_line))
+                            pending_loop = False
+                        else:
+                            brace_stack.append(("other", i))
+                    elif char == "}":
+                        if brace_stack:
+                            brace_stack.pop()
+                    elif char == ";" and paren_depth == 0 and pending_loop:
+                        # Semicolon outside parens while waiting for loop body brace
+                        # means this is a braceless single-statement body — clear flag.
+                        pending_loop = False
+
+            in_loop = any(t == "loop" for t, _ in brace_stack)
+            loop_start = next((ln for t, ln in brace_stack if t == "loop"), 0)
+            result.append((in_loop, loop_start))
+
+        return result
+
+    def _check_soql_in_loops(self):
+        """Check for SOQL queries inside loops (critical anti-pattern)."""
+        soql_pattern = r"\[\s*SELECT\s+"
+        # for-each over SOQL result: for (Type var : [SELECT...]) — the SOQL is the
+        # iterable, not inside the body; this is the correct bulkified pattern.
+        foreach_soql_pattern = r"\bfor\s*\([^:]+:\s*\["
+        loop_map = self._build_loop_line_map()
+
+        for i, line in enumerate(self.lines, 1):
             stripped = line.strip()
             if stripped.startswith("//") or stripped.startswith("*") or stripped.startswith("/*"):
                 continue
-
-            is_loop_line = any(re.search(p, line, re.IGNORECASE) for p in loop_patterns)
-            if is_loop_line:
-                pending_loop = True
-                loop_header_line = i
-
-            # Walk each character to track brace depth accurately
-            for char in line:
-                if char == "{":
-                    if pending_loop:
-                        brace_stack.append(("loop", loop_header_line))
-                        pending_loop = False
-                    else:
-                        brace_stack.append(("other", i))
-                elif char == "}":
-                    if brace_stack:
-                        brace_stack.pop()
-
-            in_loop = any(t == "loop" for t, _ in brace_stack)
-
+            in_loop, loop_start = loop_map[i - 1]
             if in_loop and re.search(soql_pattern, line, re.IGNORECASE):
-                # for-each over a SOQL result is not a violation
                 if re.search(foreach_soql_pattern, line, re.IGNORECASE):
                     continue
-                loop_start = next(ln for t, ln in brace_stack if t == "loop")
                 self.issues.append(
                     {
                         "severity": "CRITICAL",
@@ -168,7 +193,6 @@ class ApexValidator:
 
     def _check_dml_in_loops(self):
         """Check for DML operations inside loops (critical anti-pattern)."""
-        loop_patterns = [r"\bfor\s*\(", r"\bwhile\s*\(", r"\bdo\s*\{"]
         dml_patterns = [
             r"\binsert\s+",
             r"\bupdate\s+",
@@ -177,39 +201,17 @@ class ApexValidator:
             r"\bundelete\s+",
             r"Database\.(insert|update|delete|upsert)",
         ]
-
-        brace_stack = []
-        pending_loop = False
-        loop_header_line = 0
+        loop_map = self._build_loop_line_map()
 
         for i, line in enumerate(self.lines, 1):
             # Skip comment lines (avoids false positives from words like "update" in JavaDoc)
             stripped = line.strip()
             if stripped.startswith("//") or stripped.startswith("*") or stripped.startswith("/*"):
                 continue
-
-            is_loop_line = any(re.search(p, line, re.IGNORECASE) for p in loop_patterns)
-            if is_loop_line:
-                pending_loop = True
-                loop_header_line = i
-
-            for char in line:
-                if char == "{":
-                    if pending_loop:
-                        brace_stack.append(("loop", loop_header_line))
-                        pending_loop = False
-                    else:
-                        brace_stack.append(("other", i))
-                elif char == "}":
-                    if brace_stack:
-                        brace_stack.pop()
-
-            in_loop = any(t == "loop" for t, _ in brace_stack)
-
+            in_loop, loop_start = loop_map[i - 1]
             if in_loop:
                 for dml_pattern in dml_patterns:
                     if re.search(dml_pattern, line, re.IGNORECASE):
-                        loop_start = next(ln for t, ln in brace_stack if t == "loop")
                         self.issues.append(
                             {
                                 "severity": "CRITICAL",

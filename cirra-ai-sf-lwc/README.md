@@ -100,16 +100,16 @@ Triggered by `hooks/hooks.json` on `PostToolUse` for `Write|Edit`. Runs a two-ph
 
 **Phase 1 — `validate_slds.py`: SLDS 2 static analysis**
 
-| Category | Points | What it checks |
-|---|---|---|
-| SLDS Class Usage | 25 | Valid `slds-*` class names, proper utility usage |
-| Accessibility | 25 | ARIA labels/roles, alt-text, keyboard navigation |
-| Dark Mode Readiness | 25 | No hardcoded hex/RGB colors, CSS variables only |
-| SLDS Migration | 20 | No deprecated SLDS 1 patterns or tokens |
-| Styling Hooks | 20 | Proper `--slds-g-*` variable usage with fallbacks |
-| Component Structure | 15 | Use of `lightning-*` base components |
-| Performance | 10 | Efficient selectors, no `!important` |
-| PICKLES Compliance | 25 | Architecture methodology adherence (optional) |
+| Category            | Points | What it checks                                    |
+| ------------------- | ------ | ------------------------------------------------- |
+| SLDS Class Usage    | 25     | Valid `slds-*` class names, proper utility usage  |
+| Accessibility       | 25     | ARIA labels/roles, alt-text, keyboard navigation  |
+| Dark Mode Readiness | 25     | No hardcoded hex/RGB colors, CSS variables only   |
+| SLDS Migration      | 20     | No deprecated SLDS 1 patterns or tokens           |
+| Styling Hooks       | 20     | Proper `--slds-g-*` variable usage with fallbacks |
+| Component Structure | 15     | Use of `lightning-*` base components              |
+| Performance         | 10     | Efficient selectors, no `!important`              |
+| PICKLES Compliance  | 25     | Architecture methodology adherence (optional)     |
 
 **Phase 2 — `template_validator.py`: LWC template anti-pattern detection**
 
@@ -125,19 +125,19 @@ Catches mistakes AI models commonly make when generating LWC templates:
 
 ### Other scripts
 
-| Script | Purpose |
-|---|---|
+| Script                   | Purpose                                                     |
+| ------------------------ | ----------------------------------------------------------- |
 | `slds_linter_wrapper.py` | Wraps `@salesforce-ux/slds-linter` npm package if installed |
-| `lwc-lsp-validate.py` | LWC Language Server protocol validation |
+| `lwc-lsp-validate.py`    | LWC Language Server protocol validation                     |
 
 ## Cross-Skill Integration
 
-| Related Skill          | When to Use                               |
-| ---------------------- | ----------------------------------------- |
-| cirra-ai-sf-apex       | Create @AuraEnabled controllers           |
-| cirra-ai-sf-flow       | Embed components in Flow screens          |
-| cirra-ai-sf-metadata   | Create Lightning Message Channels         |
-| cirra-ai-sf-deploy     | Deploy component to org                   |
+| Related Skill        | When to Use                       |
+| -------------------- | --------------------------------- |
+| cirra-ai-sf-apex     | Create @AuraEnabled controllers   |
+| cirra-ai-sf-flow     | Embed components in Flow screens  |
+| cirra-ai-sf-metadata | Create Lightning Message Channels |
+| cirra-ai-sf-deploy   | Deploy component to org           |
 
 ## Spring '26 Features (API 66.0)
 

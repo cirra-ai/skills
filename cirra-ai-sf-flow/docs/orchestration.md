@@ -142,27 +142,27 @@ actions:
 
 ### 3. Common Integration Errors
 
-| Error                       | Cause                    | Fix                                              |
-| --------------------------- | ------------------------ | ------------------------------------------------ |
-| "Internal Error" on publish | Variable name mismatch   | Match Flow var names exactly                     |
+| Error                       | Cause                    | Fix                                                 |
+| --------------------------- | ------------------------ | --------------------------------------------------- |
+| "Internal Error" on publish | Variable name mismatch   | Match Flow var names exactly                        |
 | "Flow not found"            | Flow not deployed        | cirra-ai-sf-deploy before cirra-ai-sf-ai-agentforce |
-| Agent can't read output     | Missing `isOutput: true` | Add output flag to Flow variable                 |
+| Agent can't read output     | Missing `isOutput: true` | Add output flag to Flow variable                    |
 
 ---
 
 ## Cross-Skill Integration Table
 
-| From Skill                  | To cirra-ai-sf-flow | When                                        |
-| --------------------------- | ------------------- | ------------------------------------------- |
-| cirra-ai-sf-ai-agentforce   | → cirra-ai-sf-flow  | "Create Autolaunched Flow for agent action" |
-| cirra-ai-sf-apex            | → cirra-ai-sf-flow  | "Create Flow wrapper for Apex logic"        |
-| cirra-ai-sf-integration     | → cirra-ai-sf-flow  | "Create HTTP Callout Flow"                  |
+| From Skill                | To cirra-ai-sf-flow | When                                        |
+| ------------------------- | ------------------- | ------------------------------------------- |
+| cirra-ai-sf-ai-agentforce | → cirra-ai-sf-flow  | "Create Autolaunched Flow for agent action" |
+| cirra-ai-sf-apex          | → cirra-ai-sf-flow  | "Create Flow wrapper for Apex logic"        |
+| cirra-ai-sf-integration   | → cirra-ai-sf-flow  | "Create HTTP Callout Flow"                  |
 
-| From cirra-ai-sf-flow | To Skill                  | When                                                |
-| --------------------- | ------------------------- | --------------------------------------------------- |
-| cirra-ai-sf-flow      | → cirra-ai-sf-metadata    | "Describe Invoice\_\_c" (verify fields before flow) |
-| cirra-ai-sf-flow      | → cirra-ai-sf-deploy      | "Deploy flow with checkOnly"                        |
-| cirra-ai-sf-flow      | → cirra-ai-sf-data        | "Create 200 test Accounts" (after deploy)           |
+| From cirra-ai-sf-flow | To Skill               | When                                                |
+| --------------------- | ---------------------- | --------------------------------------------------- |
+| cirra-ai-sf-flow      | → cirra-ai-sf-metadata | "Describe Invoice\_\_c" (verify fields before flow) |
+| cirra-ai-sf-flow      | → cirra-ai-sf-deploy   | "Deploy flow with checkOnly"                        |
+| cirra-ai-sf-flow      | → cirra-ai-sf-data     | "Create 200 test Accounts" (after deploy)           |
 
 ---
 
@@ -195,9 +195,9 @@ When deploying Flows that reference Apex or LWC:
 
 ## Related Documentation
 
-| Topic                               | Location                                          |
-| ----------------------------------- | -------------------------------------------------- |
-| Triangle pattern (Flow perspective) | `cirra-ai-sf-flow/docs/triangle-pattern.md`       |
-| LWC integration                     | `cirra-ai-sf-flow/docs/lwc-integration-guide.md`  |
+| Topic                               | Location                                              |
+| ----------------------------------- | ----------------------------------------------------- |
+| Triangle pattern (Flow perspective) | `cirra-ai-sf-flow/docs/triangle-pattern.md`           |
+| LWC integration                     | `cirra-ai-sf-flow/docs/lwc-integration-guide.md`      |
 | Apex action template                | `cirra-ai-sf-flow/templates/apex-action-template.xml` |
-| cirra-ai-sf-ai-agentforce           | `cirra-ai-sf-ai-agentforce/SKILL.md`              |
+| cirra-ai-sf-ai-agentforce           | `cirra-ai-sf-ai-agentforce/SKILL.md`                  |

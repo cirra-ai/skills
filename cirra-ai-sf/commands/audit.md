@@ -30,17 +30,17 @@ If the user doesn't specify `--output-dir`, default to `./audit_output` and tell
 
 ## Audit phases
 
-| Phase | Description |
-|---|---|
-| 0 | Plugin discovery |
-| 1 | Initialize Cirra AI (`cirra_ai_init()`) |
-| 2 | Count components |
-| 3 | Collect Apex data (paginated) |
-| 4 | Collect Flow data |
-| 5 | Score Apex classes (150-pt rubric) |
-| 6 | Score Flows (110-pt rubric) |
-| 7–9 | Generate Word, Excel, and HTML reports |
-| 10 | Validate reports |
+| Phase | Description                             |
+| ----- | --------------------------------------- |
+| 0     | Plugin discovery                        |
+| 1     | Initialize Cirra AI (`cirra_ai_init()`) |
+| 2     | Count components                        |
+| 3     | Collect Apex data (paginated)           |
+| 4     | Collect Flow data                       |
+| 5     | Score Apex classes (150-pt rubric)      |
+| 6     | Score Flows (110-pt rubric)             |
+| 7–9   | Generate Word, Excel, and HTML reports  |
+| 10    | Validate reports                        |
 
 ## Output layout
 

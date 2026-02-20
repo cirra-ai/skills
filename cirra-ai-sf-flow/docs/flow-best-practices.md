@@ -873,12 +873,12 @@ HARD-CODED PATTERN AUDIT
 
 CMDT records are **metadata**, not data. This has important implications:
 
-| Aspect                   | Custom Metadata Type                        | Custom Object / Custom Setting         |
-| ------------------------ | ------------------------------------------- | -------------------------------------- |
-| **Move between orgs**    | Change Sets, Metadata API, metadata_create  | Data Loader, sobject_dml               |
-| **Update in production** | Setup → Custom Metadata Types               | Data operations (update records)       |
-| **Included in packages** | ✅ Yes (managed/unmanaged)                  | ❌ No (data must be seeded separately) |
-| **Test context access**  | ✅ Accessible without `@TestSetup`          | Requires test data creation            |
+| Aspect                   | Custom Metadata Type                       | Custom Object / Custom Setting         |
+| ------------------------ | ------------------------------------------ | -------------------------------------- |
+| **Move between orgs**    | Change Sets, Metadata API, metadata_create | Data Loader, sobject_dml               |
+| **Update in production** | Setup → Custom Metadata Types              | Data operations (update records)       |
+| **Included in packages** | ✅ Yes (managed/unmanaged)                 | ❌ No (data must be seeded separately) |
+| **Test context access**  | ✅ Accessible without `@TestSetup`         | Requires test data creation            |
 
 > **Common Mistake**: Trying to use Data Loader to update CMDT values. CMDT records are deployed as metadata—use Change Sets, Metadata API (`metadata_create` via Cirra AI MCP Server), or Setup UI to modify values between environments.
 
