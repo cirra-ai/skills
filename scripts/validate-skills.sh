@@ -93,7 +93,9 @@ if [[ $STAGED_ONLY -eq 1 ]]; then
     done
   done < <(git diff --cached --name-only)
   # Deduplicate
-  IFS=$'\n' read -r -d '' -a skill_dirs < <(printf '%s\n' "${skill_dirs[@]}" | sort -u && printf '\0') || true
+  if [[ ${#skill_dirs[@]} -gt 0 ]]; then
+    IFS=$'\n' read -r -d '' -a skill_dirs < <(printf '%s\n' "${skill_dirs[@]}" | sort -u && printf '\0') || true
+  fi
 else
   skill_dirs=("${all_skill_dirs[@]}")
 fi
