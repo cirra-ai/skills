@@ -1,11 +1,24 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Package Cirra AI plugins as zip files for distribution.
-# Outputs individual plugin zips + an all-in-one bundle to install/plugins/.
+# Package all Cirra AI plugins and skills for distribution.
+# Outputs individual plugin zips to install/plugins/ and skill zips to install/skills/.
+#
+# Usage:
+#   scripts/package-all.sh          # warn on skill issues, fail on errors
+#   scripts/package-all.sh --strict # also fail on skill warnings
 
-REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 PLUGINS_DIR="$REPO_ROOT/install/plugins"
+STRICT=0
+
+for arg in "$@"; do
+  case "$arg" in
+    --strict) STRICT=1 ;;
+    *) echo "unknown argument: $arg" >&2; exit 1 ;;
+  esac
+done
 
 rm -rf "$PLUGINS_DIR"
 mkdir -p "$PLUGINS_DIR"
@@ -34,7 +47,6 @@ echo ""
 
 # Find all plugin directories (contain .claude-plugin/plugin.json)
 PLUGIN_COUNT=0
-PLUGIN_DIRS=()
 
 for plugin_json in "$REPO_ROOT"/*/.claude-plugin/plugin.json; do
   plugin_dir="$(dirname "$(dirname "$plugin_json")")"
@@ -46,7 +58,6 @@ for plugin_json in "$REPO_ROOT"/*/.claude-plugin/plugin.json; do
     continue
   fi
 
-  PLUGIN_DIRS+=("$plugin_dir")
   PLUGIN_COUNT=$((PLUGIN_COUNT + 1))
 
   echo "  Packaging $plugin_name..."
@@ -55,22 +66,15 @@ done
 
 echo ""
 echo "  Packaged $PLUGIN_COUNT individual plugins"
-
-# Create all-in-one bundle
-echo ""
-echo "  Packaging cirra-ai-sf-skills.zip (all-in-one bundle)..."
-
-BUNDLE_ARGS=()
-for plugin_dir in "${PLUGIN_DIRS[@]}"; do
-  BUNDLE_ARGS+=("$(basename "$plugin_dir")")
-done
-# Include the root marketplace.json
-BUNDLE_ARGS+=(".claude-plugin")
-
-(cd "$REPO_ROOT" && zip -r -q "$PLUGINS_DIR/cirra-ai-sf-skills.zip" "${BUNDLE_ARGS[@]}" $EXCLUDE_ARGS)
-
 echo ""
 echo "=== Done ==="
 echo ""
 echo "Output in $PLUGINS_DIR/:"
 ls -lh "$PLUGINS_DIR"/*.zip
+
+echo ""
+
+# Package skills
+skills_args=()
+[[ $STRICT -eq 1 ]] && skills_args+=(--strict)
+"$SCRIPT_DIR/package-skills.sh" "${skills_args[@]}"

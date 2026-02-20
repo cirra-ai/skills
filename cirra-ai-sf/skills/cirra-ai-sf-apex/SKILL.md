@@ -5,13 +5,6 @@ description: >
   scoring using Cirra AI MCP Server metadata API. Use when writing Apex classes, triggers,
   test classes, batch jobs, or reviewing existing Apex code for bulkification, security,
   and SOLID principles.
-hooks:
-  PreToolUse:
-    - matcher: 'mcp__.*__metadata_create|mcp__.*__metadata_update|mcp__.*__tooling_api_dml'
-      hooks:
-        - type: command
-          command: 'python3 ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/pre-mcp-validate.py'
-          timeout: 30
 ---
 
 # cirra-ai-sf-apex: Salesforce Apex Code Generation and Review with Cirra AI

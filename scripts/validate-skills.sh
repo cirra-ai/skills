@@ -4,6 +4,7 @@
 # Usage:
 #   scripts/validate-skills.sh           # validate all skills
 #   scripts/validate-skills.sh --staged  # validate only skills with staged changes (pre-commit)
+#   scripts/validate-skills.sh --strict  # treat warnings as errors
 
 set -uo pipefail
 
@@ -11,10 +12,12 @@ REPO_ROOT="$(git rev-parse --show-toplevel)"
 SKILLS_REF_PKG="git+https://github.com/agentskills/agentskills.git#subdirectory=skills-ref"
 MIN_PYTHON_MINOR=11  # skills-ref requires Python >= 3.11
 STAGED_ONLY=0
+STRICT=0
 
 for arg in "$@"; do
   case "$arg" in
     --staged) STAGED_ONLY=1 ;;
+    --strict) STRICT=1 ;;
     *) echo "unknown argument: $arg" >&2; exit 1 ;;
   esac
 done
@@ -102,30 +105,89 @@ fi
 
 [[ ${#skill_dirs[@]} -eq 0 ]] && exit 0
 
+# ── Custom checks ─────────────────────────────────────────────────────────────
+
+# Returns warnings for a skill dir (one per line, no trailing newline).
+custom_checks() {
+  local dir="$1"
+  local skill_md="$dir/SKILL.md"
+
+  # Missing LICENSE
+  if [[ ! -f "$dir/LICENSE" ]]; then
+    echo "missing LICENSE file"
+  fi
+
+  # Hooks in SKILL.md frontmatter — hooks belong in the plugin's hooks/hooks.json,
+  # not in individual skill files, so they work correctly when installed standalone.
+  if python3 - "$skill_md" <<'PYEOF' 2>/dev/null; then
+import sys
+content = open(sys.argv[1]).read()
+if content.startswith('---\n'):
+    end = content.index('\n---\n', 4)
+    keys = [l.split(':')[0].strip() for l in content[4:end].split('\n')
+            if l and not l[0].isspace()]
+    sys.exit(0 if 'hooks' not in keys else 1)
+PYEOF
+    :
+  else
+    echo "hooks key in SKILL.md frontmatter (move to plugin hooks/hooks.json)"
+  fi
+}
+
 # ── Validate ─────────────────────────────────────────────────────────────────
 
 errors=0
+warnings=0
+
 for dir in "${skill_dirs[@]}"; do
   rel="${dir#"$REPO_ROOT"/}"
-  output=$("$SKILLS_REF" validate "$dir" 2>&1)
-  rc=$?
 
-  if [[ $rc -eq 0 ]]; then
+  # Run skills-ref validator
+  ref_output=$("$SKILLS_REF" validate "$dir" 2>&1)
+  ref_rc=$?
+
+  ref_errors=""
+  if [[ $ref_rc -ne 0 ]]; then
+    ref_errors=$(printf '%s\n' "$ref_output" | grep "^  - ")
+  fi
+
+  # Run custom checks
+  skill_warnings=$(custom_checks "$dir")
+
+  if [[ -z "$ref_errors" && -z "$skill_warnings" ]]; then
     echo "✓  $rel"
     continue
   fi
 
-  # Filter known false-positive: 'hooks' is a Claude Code frontmatter extension
-  # not in the agentskills spec. Error format: "  - Unexpected fields in frontmatter: hooks. Only ..."
-  real_errors=$(printf '%s\n' "$output" | grep "^  - " | grep -v "Unexpected fields in frontmatter: hooks\.")
+  echo "✗  $rel"
 
-  if [[ -z "$real_errors" ]]; then
-    echo "✓  $rel"
-  else
-    echo "✗  $rel"
-    printf '%s\n' "$real_errors" | sed 's/^  - /   /'
+  if [[ -n "$ref_errors" ]]; then
+    printf '%s\n' "$ref_errors" | sed 's/^  - /   error: /'
     errors=$((errors + 1))
+  fi
+
+  if [[ -n "$skill_warnings" ]]; then
+    printf '%s\n' "$skill_warnings" | sed 's/^/   warn:  /'
+    warnings=$((warnings + 1))
   fi
 done
 
-exit $errors
+if [[ $warnings -gt 0 ]]; then
+  echo ""
+  echo "  $warnings skill(s) with warnings"
+fi
+
+if [[ $errors -gt 0 ]]; then
+  echo ""
+  echo "  $errors skill(s) with errors"
+fi
+
+if [[ $errors -gt 0 ]]; then
+  exit 1
+fi
+
+if [[ $STRICT -eq 1 && $warnings -gt 0 ]]; then
+  exit 1
+fi
+
+exit 0

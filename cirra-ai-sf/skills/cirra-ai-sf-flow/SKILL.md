@@ -4,13 +4,6 @@ description: >
   Creates and validates Salesforce flows with 110-point scoring and Winter '26
   best practices using Cirra AI MCP Server. Use when building record-triggered flows,
   screen flows, autolaunched flows, scheduled flows, or reviewing existing flow performance.
-hooks:
-  PreToolUse:
-    - matcher: 'mcp__.*__metadata_create|mcp__.*__metadata_update|mcp__.*__tooling_api_dml'
-      hooks:
-        - type: command
-          command: 'python3 ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/pre-mcp-validate.py'
-          timeout: 30
 ---
 
 # cirra-ai-sf-flow: Salesforce Flow Creation and Validation (Cirra AI)
