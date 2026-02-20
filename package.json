@@ -11,5 +11,8 @@
   },
   "devDependencies": {
     "prettier": "^3.5.3"
+  },
+  "dependencies": {
+    "sharp": "^0.34.5"
   }
 }
