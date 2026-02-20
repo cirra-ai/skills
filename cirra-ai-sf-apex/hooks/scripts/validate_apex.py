@@ -112,34 +112,54 @@ class ApexValidator:
 
     def _check_soql_in_loops(self):
         """Check for SOQL queries inside loops (critical anti-pattern)."""
-        loop_depth = 0
-        loop_start_line = 0
-
-        # Patterns for loops
         loop_patterns = [r"\bfor\s*\(", r"\bwhile\s*\(", r"\bdo\s*\{"]
-
-        # Pattern for SOQL
         soql_pattern = r"\[\s*SELECT\s+"
+        # for-each over SOQL result: for (Type var : [SELECT...]) — the SOQL is the
+        # iterable, not inside the body; this is the correct bulkified pattern
+        foreach_soql_pattern = r"\bfor\s*\([^:]+:\s*\["
+
+        # Stack-based brace tracking: ('loop', line) or ('other', line) per open brace.
+        # Only braces that open a loop body are tagged 'loop'; class/method/if braces
+        # are tagged 'other' and do not inflate the loop depth.
+        brace_stack = []
+        pending_loop = False  # True after a loop header, waiting for the opening '{'
+        loop_header_line = 0
 
         for i, line in enumerate(self.lines, 1):
-            # Check for loop start
-            for pattern in loop_patterns:
-                if re.search(pattern, line, re.IGNORECASE):
-                    if loop_depth == 0:
-                        loop_start_line = i
-                    loop_depth += 1
+            # Skip comment lines
+            stripped = line.strip()
+            if stripped.startswith("//") or stripped.startswith("*") or stripped.startswith("/*"):
+                continue
 
-            # Check for loop end (simplified - counts braces)
-            loop_depth += line.count("{") - line.count("}")
-            loop_depth = max(0, loop_depth)
+            is_loop_line = any(re.search(p, line, re.IGNORECASE) for p in loop_patterns)
+            if is_loop_line:
+                pending_loop = True
+                loop_header_line = i
 
-            # Check for SOQL inside loop
-            if loop_depth > 0 and re.search(soql_pattern, line, re.IGNORECASE):
+            # Walk each character to track brace depth accurately
+            for char in line:
+                if char == "{":
+                    if pending_loop:
+                        brace_stack.append(("loop", loop_header_line))
+                        pending_loop = False
+                    else:
+                        brace_stack.append(("other", i))
+                elif char == "}":
+                    if brace_stack:
+                        brace_stack.pop()
+
+            in_loop = any(t == "loop" for t, _ in brace_stack)
+
+            if in_loop and re.search(soql_pattern, line, re.IGNORECASE):
+                # for-each over a SOQL result is not a violation
+                if re.search(foreach_soql_pattern, line, re.IGNORECASE):
+                    continue
+                loop_start = next(ln for t, ln in brace_stack if t == "loop")
                 self.issues.append(
                     {
                         "severity": "CRITICAL",
                         "category": "bulkification",
-                        "message": f"SOQL query inside loop (loop started line {loop_start_line})",
+                        "message": f"SOQL query inside loop (loop started line {loop_start})",
                         "line": i,
                         "fix": "Move SOQL before loop, query all needed records, filter in loop",
                     }
@@ -148,11 +168,7 @@ class ApexValidator:
 
     def _check_dml_in_loops(self):
         """Check for DML operations inside loops (critical anti-pattern)."""
-        loop_depth = 0
-        loop_start_line = 0
-
         loop_patterns = [r"\bfor\s*\(", r"\bwhile\s*\(", r"\bdo\s*\{"]
-
         dml_patterns = [
             r"\binsert\s+",
             r"\bupdate\s+",
@@ -162,24 +178,43 @@ class ApexValidator:
             r"Database\.(insert|update|delete|upsert)",
         ]
 
+        brace_stack = []
+        pending_loop = False
+        loop_header_line = 0
+
         for i, line in enumerate(self.lines, 1):
-            for pattern in loop_patterns:
-                if re.search(pattern, line, re.IGNORECASE):
-                    if loop_depth == 0:
-                        loop_start_line = i
-                    loop_depth += 1
+            # Skip comment lines (avoids false positives from words like "update" in JavaDoc)
+            stripped = line.strip()
+            if stripped.startswith("//") or stripped.startswith("*") or stripped.startswith("/*"):
+                continue
 
-            loop_depth += line.count("{") - line.count("}")
-            loop_depth = max(0, loop_depth)
+            is_loop_line = any(re.search(p, line, re.IGNORECASE) for p in loop_patterns)
+            if is_loop_line:
+                pending_loop = True
+                loop_header_line = i
 
-            if loop_depth > 0:
+            for char in line:
+                if char == "{":
+                    if pending_loop:
+                        brace_stack.append(("loop", loop_header_line))
+                        pending_loop = False
+                    else:
+                        brace_stack.append(("other", i))
+                elif char == "}":
+                    if brace_stack:
+                        brace_stack.pop()
+
+            in_loop = any(t == "loop" for t, _ in brace_stack)
+
+            if in_loop:
                 for dml_pattern in dml_patterns:
                     if re.search(dml_pattern, line, re.IGNORECASE):
+                        loop_start = next(ln for t, ln in brace_stack if t == "loop")
                         self.issues.append(
                             {
                                 "severity": "CRITICAL",
                                 "category": "bulkification",
-                                "message": f"DML inside loop (loop started line {loop_start_line})",
+                                "message": f"DML inside loop (loop started line {loop_start})",
                                 "line": i,
                                 "fix": "Collect records in loop, perform single DML after loop",
                             }
@@ -188,42 +223,62 @@ class ApexValidator:
 
     def _check_security_patterns(self):
         """Check for security-related patterns."""
-        # Check class-level sharing
-        class_pattern = r"(public|private|global)\s+(class|interface)\s+\w+"
-        sharing_pattern = r"(with sharing|without sharing|inherited sharing)"
+        # Pattern handles optional modifiers (e.g. "with sharing", "virtual", "abstract")
+        # between the access modifier and the "class" keyword.
+        class_decl_pattern = r"\b(public|private|global)\b.*?\bclass\s+\w+"
+        sharing_pattern = r"\b(with\s+sharing|without\s+sharing|inherited\s+sharing)\b"
 
-        has_class = False
-        has_sharing = False
+        # Collect all class declarations: (line_num, has_sharing, is_without_sharing)
+        class_declarations = []
 
         for i, line in enumerate(self.lines, 1):
-            if re.search(class_pattern, line, re.IGNORECASE):
-                has_class = True
-                if re.search(sharing_pattern, line, re.IGNORECASE):
-                    has_sharing = True
-                    # Check for without sharing (warning)
-                    if "without sharing" in line.lower():
-                        self.issues.append(
-                            {
-                                "severity": "WARNING",
-                                "category": "security",
-                                "message": 'Class uses "without sharing" - ensure this is intentional',
-                                "line": i,
-                                "fix": 'Use "with sharing" by default, "inherited sharing" for utilities',
-                            }
-                        )
-                        self.scores["security"] -= 5
+            stripped = line.strip()
+            if stripped.startswith("//") or stripped.startswith("*") or stripped.startswith("/*"):
+                continue
+            if re.search(class_decl_pattern, line, re.IGNORECASE):
+                has_sharing = bool(re.search(sharing_pattern, line, re.IGNORECASE))
+                is_without = bool(re.search(r"\bwithout\s+sharing\b", line, re.IGNORECASE))
+                class_declarations.append((i, has_sharing, is_without))
 
-        if has_class and not has_sharing:
-            self.issues.append(
-                {
-                    "severity": "WARNING",
-                    "category": "security",
-                    "message": "Class missing explicit sharing declaration",
-                    "line": 1,
-                    "fix": 'Add "with sharing" (recommended) or "inherited sharing" to class declaration',
-                }
-            )
-            self.scores["security"] -= 5
+        if class_declarations:
+            # Outer class (first declaration) must have an explicit sharing keyword
+            outer_line, outer_has_sharing, outer_is_without = class_declarations[0]
+            if not outer_has_sharing:
+                self.issues.append(
+                    {
+                        "severity": "WARNING",
+                        "category": "security",
+                        "message": "Class missing explicit sharing declaration",
+                        "line": outer_line,
+                        "fix": 'Add "with sharing" (recommended) or "inherited sharing" to class declaration',
+                    }
+                )
+                self.scores["security"] -= 5
+            elif outer_is_without:
+                self.issues.append(
+                    {
+                        "severity": "WARNING",
+                        "category": "security",
+                        "message": 'Class uses "without sharing" - ensure this is intentional',
+                        "line": outer_line,
+                        "fix": 'Use "with sharing" by default, "inherited sharing" for utilities',
+                    }
+                )
+                self.scores["security"] -= 5
+
+            # Inner classes inherit sharing from the outer class — only flag "without sharing"
+            for line_num, has_sharing, is_without in class_declarations[1:]:
+                if is_without:
+                    self.issues.append(
+                        {
+                            "severity": "WARNING",
+                            "category": "security",
+                            "message": 'Inner class uses "without sharing" - ensure this is intentional',
+                            "line": line_num,
+                            "fix": "Inner classes inherit sharing from the outer class by default",
+                        }
+                    )
+                    self.scores["security"] -= 5
 
         # Check for SOQL injection vulnerability
         dynamic_soql_pattern = r"Database\.query\s*\("

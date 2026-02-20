@@ -760,7 +760,4 @@ Make components discoverable by Agentforce agents:
 
 ## License
 
-MIT License. See [LICENSE](LICENSE) file.
-Copyright (c) 2024-2025 Jag Valaiyapathy
-
-**Refactored for Cirra AI MCP Server by Claude Agent (2025)**
+See [LICENSE](LICENSE)

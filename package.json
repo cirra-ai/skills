@@ -4,6 +4,7 @@
   "description": "Cirra AI skill plugins for Claude Code and Claude Cowork",
   "license": "MIT",
   "scripts": {
+    "prepare": "git config core.hooksPath scripts/hooks",
     "lint": "prettier --check . && ruff check .",
     "lint:fix": "prettier --write . && ruff check --fix .",
     "format": "prettier --write . && ruff format ."
