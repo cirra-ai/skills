@@ -109,7 +109,7 @@ class LLMPatternValidator:
             "String.toCharArray() does not exist. Use split('') to get List<String>.",
         ),
         (r"\.getBytes\s*\(\)", "String.getBytes() does not exist. Use Blob.valueOf(str) instead."),
-        (r"\.matches\s*\(", "String.matches() does not exist. Use Pattern.matches(regex, input)."),
+        (r"(?<!Pattern)\.matches\s*\(", "String.matches() does not exist. Use Pattern.matches(regex, input)."),
         # List/Collection methods from Java
         (
             r"\.addAll\s*\(\s*\d+\s*,",

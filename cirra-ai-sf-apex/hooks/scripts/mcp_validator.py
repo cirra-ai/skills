@@ -234,7 +234,7 @@ def validate_apex_deployment(input_data: Dict[str, Any]) -> Dict[str, Any]:
         }
 
     # Write to temp file and validate
-    ext = ".cls" if "class" in body.lower()[:200] else ".trigger"
+    ext = ".trigger" if metadata_type == "ApexTrigger" else ".cls"
     tmp_name = f"validate_{full_name or 'unnamed'}{ext}"
     tmp_path = os.path.join(tempfile.gettempdir(), tmp_name)
 
