@@ -5,3 +5,7 @@ __MACOSX/
 *.pyc
 __pycache__/
 .ruff_cache/
+.venv/
+*.egg-info/
+dist/
+.pytest_cache/
