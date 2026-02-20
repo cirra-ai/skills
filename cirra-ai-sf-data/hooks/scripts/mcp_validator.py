@@ -22,7 +22,7 @@ Input format:
 """
 
 import re
-from typing import Any, Dict, List
+from typing import Any
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -44,7 +44,7 @@ PII_PATTERNS = {
 }
 
 
-def validate_data_params(input_data: Dict[str, Any]) -> Dict[str, Any]:
+def validate_data_params(input_data: dict[str, Any]) -> dict[str, Any]:
     """Validate soql_query or sobject_dml parameters.
 
     Returns a simple pass/fail with lists of errors and warnings.
@@ -65,8 +65,8 @@ def validate_data_params(input_data: Dict[str, Any]) -> Dict[str, Any]:
     tool = input_data.get("tool", "")
     params = input_data.get("params", {})
 
-    errors: List[Dict[str, str]] = []
-    warnings: List[Dict[str, str]] = []
+    errors: list[dict[str, str]] = []
+    warnings: list[dict[str, str]] = []
 
     # ── Shared checks ───────────────────────────────────────────────
     if not params.get("sObject"):
@@ -171,7 +171,7 @@ def validate_data_params(input_data: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-def _check_where_syntax(where: str, warnings: List[Dict[str, str]]):
+def _check_where_syntax(where: str, warnings: list[dict[str, str]]):
     """Check for common SOQL syntax mistakes in whereClause."""
     if re.search(r"==", where):
         warnings.append({
@@ -187,9 +187,9 @@ def _check_where_syntax(where: str, warnings: List[Dict[str, str]]):
         })
 
 
-def _check_pii(records: list, warnings: List[Dict[str, str]]):
+def _check_pii(records: list, warnings: list[dict[str, str]]):
     """Scan record values for PII patterns."""
-    pii_found: Dict[str, List[str]] = {}
+    pii_found: dict[str, list[str]] = {}
 
     for i, record in enumerate(records):
         if not isinstance(record, dict):
@@ -225,7 +225,7 @@ class MCPDataValidator:
         result = validator.validate({"tool": "soql_query", "params": {...}})
     """
 
-    def validate(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
+    def validate(self, input_data: dict[str, Any]) -> dict[str, Any]:
         """Validate data operation parameters.
 
         Args:

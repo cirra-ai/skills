@@ -1,6 +1,5 @@
 """Tests for cirra-ai-sf-lwc/hooks/scripts/template_validator.py"""
 
-import pytest
 from conftest import load_script
 
 mod = load_script("cirra-ai-sf-lwc/hooks/scripts/template_validator.py")

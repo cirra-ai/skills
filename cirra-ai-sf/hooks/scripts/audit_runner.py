@@ -13,12 +13,9 @@ Designed to work with Cirra AI MCP Server for data collection.
 """
 
 import json
-import os
-import sys
 import argparse
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, Optional
 
 
 # ============================================================================
@@ -75,19 +72,19 @@ class AuditOutputManager:
             json.dump(data, f, indent=2)
         return path
 
-    def load_json(self, filename: str, subdir: str = 'intermediate') -> Optional[dict]:
+    def load_json(self, filename: str, subdir: str = 'intermediate') -> dict | None:
         path = self.path(filename, subdir)
         if path.exists():
-            with open(path, 'r') as f:
+            with open(path) as f:
                 return json.load(f)
         return None
 
-    def save_state(self, state: Dict) -> None:
+    def save_state(self, state: dict) -> None:
         """Save audit state for resume capability."""
         state['last_updated'] = datetime.now().isoformat()
         self.save_json(state, 'audit_state.json')
 
-    def load_state(self) -> Optional[Dict]:
+    def load_state(self) -> dict | None:
         """Load audit state for resume."""
         return self.load_json('audit_state.json')
 
@@ -104,7 +101,7 @@ class AuditState:
         self.state = self._load_or_create()
 
     @staticmethod
-    def _default_state() -> Dict:
+    def _default_state() -> dict:
         return {
             'version': AUDIT_VERSION,
             'started': datetime.now().isoformat(),
@@ -114,7 +111,7 @@ class AuditState:
             'counts': {'apex_classes': 0, 'flows': 0},
         }
 
-    def _load_or_create(self) -> Dict:
+    def _load_or_create(self) -> dict:
         existing = self.output.load_state()
         return existing if existing else self._default_state()
 
@@ -130,7 +127,7 @@ class AuditState:
 # MCP DATA COLLECTION HELPERS
 # ============================================================================
 
-def build_mcp_collection_queries(batch_size: int = 200) -> Dict:
+def build_mcp_collection_queries(batch_size: int = 200) -> dict:
     """
     Generate the MCP tooling_api_query parameters needed for data collection.
     Returns query configurations that can be passed to Cirra AI MCP tools.
@@ -278,27 +275,23 @@ Examples:
     # Provide guidance
     print("\n📋 USAGE GUIDE:")
     print("=" * 70)
-    print("""
+    print(f"""
 This orchestrator manages audit state and file organization.
 Data collection and scoring should be run through Claude with Cirra AI MCP.
 
 Workflow:
   1. Run this script with --generate-queries to get MCP query configs
   2. Use Claude + Cirra AI MCP to execute queries and save results
-  3. All intermediate files should be saved to: {intermediate}
-  4. Run score_apex_classes.py --output-dir {root} to score Apex classes
-  5. Run score_flows.py --output-dir {root} to score Flows
-  6. Use Claude to generate Word/Excel/HTML reports in {root}
+  3. All intermediate files should be saved to: {output.intermediate}
+  4. Run score_apex_classes.py --output-dir {output.root} to score Apex classes
+  5. Run score_flows.py --output-dir {output.root} to score Flows
+  6. Use Claude to generate Word/Excel/HTML reports in {output.root}
 
 Key Principle: ALL files go to the output directory.
-  - Intermediate data: {intermediate}/
-  - Scripts: {scripts}/
-  - Final reports: {root}/
-""".format(
-        intermediate=output.intermediate,
-        root=output.root,
-        scripts=output.scripts,
-    ))
+  - Intermediate data: {output.intermediate}/
+  - Scripts: {output.scripts}/
+  - Final reports: {output.root}/
+""")
 
 
 if __name__ == '__main__':

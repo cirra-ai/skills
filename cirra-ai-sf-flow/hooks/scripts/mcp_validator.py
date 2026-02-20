@@ -22,10 +22,9 @@ Input format:
 """
 
 import os
-import re
 import sys
 import tempfile
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 # ═══════════════════════════════════════════════════════════════════════
 # Constants
@@ -41,7 +40,7 @@ _SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 # Code body extraction
 # ═══════════════════════════════════════════════════════════════════════
 
-def _extract_flow_body(tool: str, params: Dict[str, Any]) -> Tuple[str, str, str]:
+def _extract_flow_body(tool: str, params: dict[str, Any]) -> tuple[str, str, str]:
     """Extract metadata type, Flow XML body, and fullName from tool params.
 
     Returns:
@@ -85,7 +84,7 @@ def _extract_flow_body(tool: str, params: Dict[str, Any]) -> Tuple[str, str, str
 # EnhancedFlowValidator delegation
 # ═══════════════════════════════════════════════════════════════════════
 
-def _run_flow_validator(file_path: str) -> Optional[Dict[str, Any]]:
+def _run_flow_validator(file_path: str) -> dict[str, Any] | None:
     """Import and run the local EnhancedFlowValidator. Returns None if import fails."""
     try:
         if _SCRIPT_DIR not in sys.path:
@@ -97,9 +96,9 @@ def _run_flow_validator(file_path: str) -> Optional[Dict[str, Any]]:
         return None
 
 
-def _basic_flow_check(body: str, full_name: str) -> Dict[str, Any]:
+def _basic_flow_check(body: str, full_name: str) -> dict[str, Any]:
     """Fallback: basic XML structural checks if EnhancedFlowValidator is not importable."""
-    issues: List[Dict[str, Any]] = []
+    issues: list[dict[str, Any]] = []
     score = 110  # Start from Flow validator's max
 
     # Check for description
@@ -161,7 +160,7 @@ def _rating(score: int, max_score: int) -> str:
 # Main validation
 # ═══════════════════════════════════════════════════════════════════════
 
-def validate_flow_deployment(input_data: Dict[str, Any]) -> Dict[str, Any]:
+def validate_flow_deployment(input_data: dict[str, Any]) -> dict[str, Any]:
     """Validate Flow metadata being deployed via MCP metadata tools.
 
     Extracts the Flow XML body from the metadata payload, writes it to a
@@ -251,7 +250,7 @@ class FlowMCPValidator:
         result = validator.validate({"tool": "metadata_create", "params": {...}})
     """
 
-    def validate(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
+    def validate(self, input_data: dict[str, Any]) -> dict[str, Any]:
         """Validate Flow deployment parameters.
 
         Args:

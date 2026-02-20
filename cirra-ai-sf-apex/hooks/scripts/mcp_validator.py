@@ -25,7 +25,7 @@ import os
 import re
 import sys
 import tempfile
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 # ═══════════════════════════════════════════════════════════════════════
 # Constants
@@ -41,7 +41,7 @@ _SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 # Code body extraction
 # ═══════════════════════════════════════════════════════════════════════
 
-def _extract_code_body(tool: str, params: Dict[str, Any]) -> Tuple[str, str, str]:
+def _extract_code_body(tool: str, params: dict[str, Any]) -> tuple[str, str, str]:
     """Extract metadata type, code body, and fullName from tool params.
 
     Returns:
@@ -81,7 +81,7 @@ def _extract_code_body(tool: str, params: Dict[str, Any]) -> Tuple[str, str, str
 # ApexValidator delegation
 # ═══════════════════════════════════════════════════════════════════════
 
-def _run_apex_validator(file_path: str) -> Optional[Dict[str, Any]]:
+def _run_apex_validator(file_path: str) -> dict[str, Any] | None:
     """Import and run the local ApexValidator. Returns None if import fails."""
     try:
         if _SCRIPT_DIR not in sys.path:
@@ -93,9 +93,9 @@ def _run_apex_validator(file_path: str) -> Optional[Dict[str, Any]]:
         return None
 
 
-def _basic_apex_check(body: str, full_name: str) -> Dict[str, Any]:
+def _basic_apex_check(body: str, full_name: str) -> dict[str, Any]:
     """Fallback: basic structural checks if ApexValidator is not importable."""
-    issues: List[Dict[str, Any]] = []
+    issues: list[dict[str, Any]] = []
     score = 150  # Start from ApexValidator's max
 
     # Check sharing keyword
@@ -176,7 +176,7 @@ def _rating(score: int, max_score: int) -> str:
 # Main validation
 # ═══════════════════════════════════════════════════════════════════════
 
-def validate_apex_deployment(input_data: Dict[str, Any]) -> Dict[str, Any]:
+def validate_apex_deployment(input_data: dict[str, Any]) -> dict[str, Any]:
     """Validate Apex code being deployed via MCP metadata tools.
 
     Extracts the Apex body from the metadata payload, writes it to a temp
@@ -267,7 +267,7 @@ class ApexMCPValidator:
         result = validator.validate({"tool": "metadata_create", "params": {...}})
     """
 
-    def validate(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
+    def validate(self, input_data: dict[str, Any]) -> dict[str, Any]:
         """Validate Apex deployment parameters.
 
         Args:

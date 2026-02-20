@@ -1,6 +1,5 @@
 """Tests for cirra-ai-sf-data/hooks/scripts/soql_validator.py"""
 
-import pytest
 from conftest import load_script
 
 mod = load_script("cirra-ai-sf-data/hooks/scripts/soql_validator.py")

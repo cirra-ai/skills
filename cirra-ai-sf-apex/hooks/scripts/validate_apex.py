@@ -269,7 +269,7 @@ class ApexValidator:
                 self.scores["security"] -= 5
 
             # Inner classes inherit sharing from the outer class — only flag "without sharing"
-            for line_num, has_sharing, is_without in class_declarations[1:]:
+            for line_num, _has_sharing, is_without in class_declarations[1:]:
                 if is_without:
                     self.issues.append(
                         {
