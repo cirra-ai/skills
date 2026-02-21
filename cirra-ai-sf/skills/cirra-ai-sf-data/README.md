@@ -1,6 +1,6 @@
 # cirra-ai-sf-data
 
-Salesforce data operations skill for Claude Code. Provides SOQL expertise, test data factories, bulk operations, and pre-flight validation for data operations.
+Salesforce data operations skill for Claude Cowork and Claude Code. Provides SOQL expertise, test data factories, bulk operations, and pre-flight validation for data operations.
 
 ## Features
 
@@ -13,20 +13,25 @@ Salesforce data operations skill for Claude Code. Provides SOQL expertise, test 
 
 ## Installation
 
-```bash
-# Install standalone
-claude /plugin install github:cirra-ai/skills/cirra-ai-sf-data
-
-# Or install the complete Cirra AI skills suite
-claude /plugin install github:cirra-ai/skills
-```
+For full installation instructions (Claude Cowork, OpenAI, browser), see the [root README](../../../../README.md).
 
 ## Usage
+
+#### In Claude Cowork or Claude Code
+
+Use one of the pre-built commands
+
+```
+/insert-data
+/query-data
+```
+
+#### In other tools
 
 Invoke the skill:
 
 ```
-Skill(skill="cirra-ai-sf-data")
+Skill: cirra-ai-sf-data
 Request: "Create 251 test Account records with varying Industries for trigger testing in my dev sandbox"
 ```
 

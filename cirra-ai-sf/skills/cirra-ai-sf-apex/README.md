@@ -12,17 +12,23 @@ Generates and reviews Salesforce Apex code with 2025 best practices and 150-poin
 
 ## Installation
 
-```bash
-# Install standalone
-claude /plugin install github:cirra-ai/skills/cirra-ai-sf-apex
-
-# Or install the complete Cirra AI skills suite
-claude /plugin install github:cirra-ai/skills
-```
+For full installation instructions (Claude Cowork, OpenAI, browser), see the [root README](../../../../README.md).
 
 ## Quick Start
 
 ### 1. Invoke the skill
+
+#### In Claude Cowork or Claude Code
+
+Use one of the pre-built commands
+
+```
+/create-apex
+/update-apex
+/validate-apex
+```
+
+#### In other tools
 
 ```
 Skill: cirra-ai-sf-apex
@@ -160,11 +166,11 @@ echo '{"tool":"metadata_create","params":{"type":"ApexClass","metadata":[{"fullN
 
 ## Documentation
 
-- [Naming Conventions](docs/naming-conventions.md)
-- [Best Practices](docs/best-practices.md)
-- [Testing Guide](docs/testing-guide.md)
-- [Flow Integration](docs/flow-integration.md)
-- [Design Patterns](docs/design-patterns.md)
+- [Naming Conventions](references/naming-conventions.md)
+- [Best Practices](references/best-practices.md)
+- [Testing Guide](references/testing-guide.md)
+- [Flow Integration](references/flow-integration.md)
+- [Design Patterns](references/design-patterns.md)
 
 ## Requirements
 

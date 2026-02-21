@@ -14,17 +14,23 @@ Lightning Web Components development skill with PICKLES architecture methodology
 
 ## Installation
 
-```bash
-# Install standalone
-claude /plugin install github:cirra-ai/skills/cirra-ai-sf-lwc
-
-# Or install the complete Cirra AI skills suite
-claude /plugin install github:cirra-ai/skills
-```
+For full installation instructions (Claude Cowork, OpenAI, browser), see the [root README](../../../../README.md).
 
 ## Quick Start
 
 ### 1. Invoke the skill
+
+#### In Claude Cowork or Claude Code
+
+Use one of the pre-built commands
+
+```
+/create-lwc
+/update-lwc
+/validate-flow
+```
+
+#### In other tools
 
 ```
 Skill: cirra-ai-sf-lwc
@@ -149,15 +155,15 @@ Catches mistakes AI models commonly make when generating LWC templates:
 
 ## Documentation
 
-- [Component Patterns](resources/component-patterns.md) — Wire, GraphQL, Modal, Navigation, TypeScript
-- [LMS Guide](resources/lms-guide.md) — Lightning Message Service deep dive
-- [Jest Testing](resources/jest-testing.md) — Advanced testing patterns
-- [Accessibility Guide](resources/accessibility-guide.md) — WCAG, ARIA, focus management
-- [Performance Guide](resources/performance-guide.md) — Dark mode, lazy loading, optimization
-- [LWC Best Practices](docs/lwc-best-practices.md)
-- [Flow Integration](docs/flow-integration-guide.md)
-- [State Management](docs/state-management.md)
-- [Template Anti-Patterns](docs/template-anti-patterns.md)
+- [Component Patterns](references/component-patterns.md) — Wire, GraphQL, Modal, Navigation, TypeScript
+- [LMS Guide](references/lms-guide.md) — Lightning Message Service deep dive
+- [Jest Testing](references/jest-testing.md) — Advanced testing patterns
+- [Accessibility Guide](references/accessibility-guide.md) — WCAG, ARIA, focus management
+- [Performance Guide](references/performance-guide.md) — Dark mode, lazy loading, optimization
+- [LWC Best Practices](assets/lwc-best-practices.md)
+- [Flow Integration](assets/flow-integration-guide.md)
+- [State Management](assets/state-management.md)
+- [Template Anti-Patterns](assets/template-anti-patterns.md)
 
 ## Requirements
 

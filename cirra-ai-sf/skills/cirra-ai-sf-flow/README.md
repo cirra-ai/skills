@@ -14,17 +14,23 @@ Creates and validates Salesforce Flows with 110-point scoring and Winter '26 bes
 
 ## Installation
 
-```bash
-# Install standalone
-claude /plugin install github:cirra-ai/skills/cirra-ai-sf-flow
-
-# Or install the complete Cirra AI skills suite
-claude /plugin install github:cirra-ai/skills
-```
+For full installation instructions (Claude Cowork, OpenAI, browser), see the [root README](../../../../README.md).
 
 ## Quick Start
 
 ### 1. Invoke the skill
+
+#### In Claude Cowork or Claude Code
+
+Use one of the pre-built commands
+
+```
+/create-flow
+/update-flow
+/validate-flow
+```
+
+#### In other tools
 
 ```
 Skill: cirra-ai-sf-flow
@@ -101,12 +107,11 @@ Always deploy custom objects/fields BEFORE flows that reference them.
 
 ## Documentation
 
-- [Transform vs Loop Guide](docs/transform-vs-loop-guide.md) - When to use each element
-- [Flow Quick Reference](docs/flow-quick-reference.md) - Comprehensive cheat sheet
-- [Flow Best Practices](docs/flow-best-practices.md) - Performance and design patterns
-- [LWC Integration](docs/lwc-integration-guide.md) - Screen components
-- [Wait Patterns](docs/wait-patterns.md) - Delay and scheduling
-- [Testing Guide](docs/testing-guide.md) - Validation strategies
+- [Transform vs Loop Guide](references/transform-vs-loop-guide.md) - When to use each element
+- [Flow Quick Reference](references/flow-quick-reference.md) - Comprehensive cheat sheet
+- [Flow Best Practices](references/flow-best-practices.md) - Performance and design patterns
+- [LWC Integration](references/lwc-integration-guide.md) - Screen components
+- [Testing Guide](references/testing-guide.md) - Validation strategies
 
 ## Validation Hooks
 
