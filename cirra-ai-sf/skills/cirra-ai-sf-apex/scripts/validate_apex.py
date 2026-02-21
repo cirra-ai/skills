@@ -142,7 +142,11 @@ class ApexValidator:
             braceless_body_line = False  # set when ';' ends a braceless loop body
 
             if not is_comment:
-                if any(re.search(p, line, re.IGNORECASE) for p in loop_patterns):
+                # Strip inline comments before checking loop patterns to avoid false
+                # positives when comment text contains loop keywords (e.g. "// do this").
+                line_for_patterns = re.sub(r"//.*$", "", line)
+                line_for_patterns = re.sub(r"/\*.*?\*/", "", line_for_patterns)
+                if any(re.search(p, line_for_patterns, re.IGNORECASE) for p in loop_patterns):
                     pending_loop = True
                     loop_header_line = i
                     paren_depth = 0  # reset for this loop header

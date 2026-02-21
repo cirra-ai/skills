@@ -5,6 +5,7 @@
   "license": "MIT",
   "scripts": {
     "prepare": "git config core.hooksPath scripts/hooks",
+    "test": "python3 -m pytest tests/ -v",
     "lint": "prettier --check . && ruff check .",
     "lint:fix": "prettier --write . && ruff check --fix .",
     "format": "prettier --write . && ruff format ."
