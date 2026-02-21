@@ -34,7 +34,7 @@ Request: "Create 251 test Account records with varying Industries for trigger te
 
 | Operation   | Example Request                                         |
 | ----------- | ------------------------------------------------------- |
-| Query       | "Query all Accounts with related Contacts"   |
+| Query       | "Query all Accounts with related Contacts"              |
 | Create      | "Create 10 test Opportunities at various stages"        |
 | Bulk Insert | "Insert 500 accounts from accounts.csv"                 |
 | Update      | "Update Account 001xxx with new Industry"               |
@@ -43,11 +43,11 @@ Request: "Create 251 test Account records with varying Industries for trigger te
 
 ## Related Skills
 
-| Skill                | When to Use                                                         |
-| -------------------- | ------------------------------------------------------------------- |
-| cirra-ai-sf-apex     | Create and validate Apex code, triggers, test classes               |
-| cirra-ai-sf-flow     | Create and validate Salesforce Flows                                |
-| cirra-ai-sf-metadata | Describe objects, fields, permission sets, profiles etc.            |
+| Skill                | When to Use                                              |
+| -------------------- | -------------------------------------------------------- |
+| cirra-ai-sf-apex     | Create and validate Apex code, triggers, test classes    |
+| cirra-ai-sf-flow     | Create and validate Salesforce Flows                     |
+| cirra-ai-sf-metadata | Describe objects, fields, permission sets, profiles etc. |
 
 ## Cirra AI MCP Tools
 
