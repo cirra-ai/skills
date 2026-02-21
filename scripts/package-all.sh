@@ -77,4 +77,4 @@ echo ""
 # Package skills
 skills_args=()
 [[ $STRICT -eq 1 ]] && skills_args+=(--strict)
-"$SCRIPT_DIR/package-skills.sh" "${skills_args[@]}"
+"$SCRIPT_DIR/package-skills.sh" ${skills_args[@]+"${skills_args[@]}"}

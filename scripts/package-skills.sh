@@ -34,7 +34,7 @@ echo ""
 validate_args=()
 [[ $STRICT -eq 1 ]] && validate_args+=(--strict)
 
-if ! "$SCRIPT_DIR/validate-skills.sh" "${validate_args[@]}"; then
+if ! "$SCRIPT_DIR/validate-skills.sh" ${validate_args[@]+"${validate_args[@]}"}; then
   echo ""
   echo "Packaging aborted due to validation failures." >&2
   exit 1
