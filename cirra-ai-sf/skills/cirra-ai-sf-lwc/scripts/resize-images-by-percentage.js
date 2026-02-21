@@ -18,7 +18,7 @@ function getAllImgTags(content) {
   while ((match = IMG_TAG_REGEX.exec(content)) !== null) {
     matches.push({
       src: match[1],
-      percent: parseInt(match[2], 10)
+      percent: parseInt(match[2], 10),
     });
   }
   return matches;

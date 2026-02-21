@@ -1,64 +1,92 @@
 ---
 name: audit-org
-description: Run a full Salesforce org audit across Apex, Flows, and data. Coordinates collection, scoring, and report generation using audit_runner.py.
+description: Run a full Salesforce org audit across Apex and Flows. Scores all components against quality rubrics and generates Word, Excel, and HTML reports.
 ---
 
-Run a full Salesforce org audit using the `audit_runner.py` orchestrator script.
-
-## Locating the script
-
-```python
-import os
-plugin_root = os.environ.get("CLAUDE_PLUGIN_ROOT", ".")
-script = f"{plugin_root}/hooks/scripts/audit_runner.py"
-```
-
-## Running the audit
-
-```bash
-# Start (or resume) a full audit
-python3 audit_runner.py --output-dir ./audit_output --generate-queries
-
-# Check progress on a running audit
-python3 audit_runner.py --output-dir ./audit_output --status
-
-# Reset and start over
-python3 audit_runner.py --output-dir ./audit_output --reset
-```
-
-If the user doesn't specify `--output-dir`, default to `./audit_output` and tell them where output will be written.
-
-## Audit phases
-
-| Phase | Description                             |
-| ----- | --------------------------------------- |
-| 0     | Plugin discovery                        |
-| 1     | Initialize Cirra AI (`cirra_ai_init()`) |
-| 2     | Count components                        |
-| 3     | Collect Apex data (paginated)           |
-| 4     | Collect Flow data                       |
-| 5     | Score Apex classes (150-pt rubric)      |
-| 6     | Score Flows (110-pt rubric)             |
-| 7–9   | Generate Word, Excel, and HTML reports  |
-| 10    | Validate reports                        |
-
-## Output layout
-
-All files go under `--output-dir` — never scatter files into the working directory.
-
-```
-{output_dir}/
-├── intermediate/          # Batch data, progress checkpoints, raw scores
-│   ├── apex_batch_*.json
-│   ├── flow_batch_*.json
-│   ├── apex_scoring_progress.json
-│   └── flow_scoring_progress.json
-├── scripts/               # Audit scripts copied here for portability
-├── Salesforce_Org_Audit_Report.docx
-├── Salesforce_Org_Audit_Scores.xlsx
-└── Salesforce_Org_Audit_Report.html
-```
+Run a complete Salesforce org audit. Follow these phases in order.
 
 ## Prerequisites
 
-Call `cirra_ai_init()` before starting. The script handles this in Phase 1, but confirm the org is accessible first.
+Call `cirra_ai_init()` first if not already done this session.
+
+## Phase 1 — Count components
+
+Query how many Apex classes and active Flows exist so the user knows the scope:
+
+```
+tooling_api_query: ApexClass WHERE NamespacePrefix = null → COUNT
+tooling_api_query: FlowDefinition WHERE ActiveVersionId != null AND NamespacePrefix = null → COUNT
+```
+
+Tell the user: "Found X Apex classes and Y active Flows. Starting audit..."
+
+## Phase 2 — Collect and score Apex
+
+For each Apex class (paginate in batches of 200 using Id cursor):
+
+1. Fetch `Id`, `Name`, `LengthWithoutComments`, `ApiVersion` via `tooling_api_query`
+2. Fetch `Body` for each class individually (one at a time to avoid size limits)
+3. Score against the 150-point rubric from the `cirra-ai-sf-apex` skill:
+   - Bulkification (25 pts), Security (25 pts), Testing (25 pts), Architecture (20 pts),
+     Clean Code (20 pts), Error Handling (15 pts), Performance (10 pts), Documentation (10 pts)
+4. Track: class name, score, key issues found
+
+## Phase 3 — Collect and score Flows
+
+For each active Flow (paginate using Id cursor):
+
+1. Fetch `Id`, `DeveloperName`, `MasterLabel`, `ActiveVersionId` via `tooling_api_query`
+2. Fetch Flow XML via `metadata_read` (one at a time)
+3. Score against the 110-point rubric from the `cirra-ai-sf-flow` skill
+4. Track: flow name, score, key issues found
+
+## Phase 4 — Generate reports
+
+Produce three report files in `./audit_output/` (create the directory if needed).
+Never scatter files into the working directory root.
+
+### Word report (`Salesforce_Org_Audit_Report.docx`)
+
+- Executive summary: org name, date, total components audited
+- Apex section: scores ranked lowest to highest, top issues per class
+- Flow section: same structure
+- Recommendations: top 5 highest-impact improvements
+
+### Excel report (`Salesforce_Org_Audit_Scores.xlsx`)
+
+- Sheet 1 — Apex: columns Name, Score, Category Breakdown, Top Issues
+- Sheet 2 — Flows: same structure
+- Sheet 3 — Summary: overall health score, component counts
+
+### HTML report (`Salesforce_Org_Audit_Report.html`)
+
+- Same content as Word, formatted for browser viewing
+- Include a score distribution chart if possible
+
+## Phase 5 — Summarise
+
+Tell the user:
+
+- Overall org health score (average across all components)
+- Number of components scoring below 70 (needs attention)
+- Top 3 most common issues
+- Where report files were saved
+
+## Routing reference
+
+When the user asks about a specific domain during or after the audit:
+
+| Request                     | Skill                  |
+| --------------------------- | ---------------------- |
+| Fix or review an Apex class | `cirra-ai-sf-apex`     |
+| Fix or review a Flow        | `cirra-ai-sf-flow`     |
+| Query or update data        | `cirra-ai-sf-data`     |
+| Create objects or fields    | `cirra-ai-sf-metadata` |
+
+## Build order (when fixing issues)
+
+If the audit reveals work to be done, recommend this deployment order:
+
+1. **Metadata** — create/update custom objects and fields first
+2. **Apex + Flows** — deploy in parallel if independent; Apex before Flows if Flows invoke Apex
+3. **Data** — load test data and verify with SOQL after code is deployed
