@@ -22,7 +22,7 @@ on:
     branches: [main]
     paths:
       - 'docs/**'
-      - 'cirra-ai-*/.claude-plugin/plugin.json'
+      - '*/.claude-plugin/plugin.json'
       - 'scripts/generate-pages.py'
       - 'scripts/generate-pages.sh'
   workflow_dispatch:

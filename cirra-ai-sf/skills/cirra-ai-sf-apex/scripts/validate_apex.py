@@ -77,6 +77,9 @@ class ApexValidator:
                 "issues": self.issues,
             }
 
+        # Build loop map once; reused by both loop checks
+        self._loop_map = self._build_loop_line_map()
+
         # Run all checks
         self._check_soql_in_loops()
         self._check_dml_in_loops()
@@ -121,7 +124,10 @@ class ApexValidator:
         when a semicolon is encountered at parenthesis depth 0, preventing the
         next unrelated opening brace from being mis-tagged as a loop body.
         """
-        loop_patterns = [r"\bfor\s*\(", r"\bwhile\s*\(", r"\bdo\s*\{"]
+        # for/while set pending_loop on the keyword line and wait for a {.
+        # do is included here too — do { ... } while (...) — the { may be on the
+        # next line, so we treat it like for/while rather than matching do\s*{ inline.
+        loop_patterns = [r"\bfor\s*\(", r"\bwhile\s*\(", r"\bdo\b"]
         # Stack entries: ('loop', start_line) or ('other', start_line)
         brace_stack: list[tuple[str, int]] = []
         pending_loop = False
@@ -132,6 +138,8 @@ class ApexValidator:
         for i, line in enumerate(self.lines, 1):
             stripped = line.strip()
             is_comment = stripped.startswith("//") or stripped.startswith("*") or stripped.startswith("/*")
+
+            braceless_body_line = False  # set when ';' ends a braceless loop body
 
             if not is_comment:
                 if any(re.search(p, line, re.IGNORECASE) for p in loop_patterns):
@@ -154,12 +162,13 @@ class ApexValidator:
                         if brace_stack:
                             brace_stack.pop()
                     elif char == ";" and paren_depth == 0 and pending_loop:
-                        # Semicolon outside parens while waiting for loop body brace
-                        # means this is a braceless single-statement body — clear flag.
+                        # Semicolon outside parens while waiting for loop body brace:
+                        # braceless single-statement body — this line IS inside the loop.
+                        braceless_body_line = True
                         pending_loop = False
 
-            in_loop = any(t == "loop" for t, _ in brace_stack)
-            loop_start = next((ln for t, ln in brace_stack if t == "loop"), 0)
+            in_loop = any(t == "loop" for t, _ in brace_stack) or braceless_body_line
+            loop_start = next((ln for t, ln in brace_stack if t == "loop"), loop_header_line if braceless_body_line else 0)
             result.append((in_loop, loop_start))
 
         return result
@@ -170,7 +179,7 @@ class ApexValidator:
         # for-each over SOQL result: for (Type var : [SELECT...]) — the SOQL is the
         # iterable, not inside the body; this is the correct bulkified pattern.
         foreach_soql_pattern = r"\bfor\s*\([^:]+:\s*\["
-        loop_map = self._build_loop_line_map()
+        loop_map = self._loop_map
 
         for i, line in enumerate(self.lines, 1):
             stripped = line.strip()
@@ -201,7 +210,7 @@ class ApexValidator:
             r"\bundelete\s+",
             r"Database\.(insert|update|delete|upsert)",
         ]
-        loop_map = self._build_loop_line_map()
+        loop_map = self._loop_map
 
         for i, line in enumerate(self.lines, 1):
             # Skip comment lines (avoids false positives from words like "update" in JavaDoc)

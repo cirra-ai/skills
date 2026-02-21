@@ -77,7 +77,7 @@ def find_plugins() -> list[dict]:
             {
                 "name": data.get("name", plugin_name),
                 "version": data.get("version", ""),
-                "description": data.get("description", ""),
+                "description": data.get("description") or "",
                 "keywords": keywords,
                 "has_skills": has_skills,
                 "is_orchestrator": is_orchestrator,
@@ -90,8 +90,14 @@ def find_plugins() -> list[dict]:
 
 
 def esc(text: str) -> str:
-    """Minimal HTML escaping for text content."""
-    return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    """HTML escaping for both text content and attribute values."""
+    return (
+        text.replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace('"', "&quot;")
+        .replace("'", "&#39;")
+    )
 
 
 def render_tags(keywords: list[str], version: str) -> str:

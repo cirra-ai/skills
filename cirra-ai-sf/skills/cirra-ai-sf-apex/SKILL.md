@@ -115,18 +115,18 @@ If ANY of these patterns would be generated, **STOP and ask the user**:
 > A) Refactor to use [correct pattern]
 > B) Proceed anyway (not recommended)"
 
-| Anti-Pattern                 | Detection                                    | Impact                            |
-| ---------------------------- | -------------------------------------------- | --------------------------------- |
-| SOQL inside loop             | `for(...) { [SELECT...] }`                   | Governor limit failure (100 SOQL) |
-| DML inside loop              | `for(...) { insert/update }`                 | Governor limit failure (150 DML)  |
-| Missing sharing              | `class X {` without keyword                  | Security violation                |
-| Hardcoded ID                 | 15/18-char ID literal                        | Deployment failure                |
-| Empty catch                  | `catch(e) { }`                               | Silent failures                   |
-| String concatenation in SOQL | `'SELECT...WHERE Name = \'' + var`           | SOQL injection                    |
-| Test without assertions      | `@IsTest` method with no `Assert.*`          | False positive tests              |
+| Anti-Pattern                 | Detection                                    | Impact                                                  |
+| ---------------------------- | -------------------------------------------- | ------------------------------------------------------- |
+| SOQL inside loop             | `for(...) { [SELECT...] }`                   | Governor limit failure (100 SOQL)                       |
+| DML inside loop              | `for(...) { insert/update }`                 | Governor limit failure (150 DML)                        |
+| Missing sharing              | `class X {` without keyword                  | Security violation                                      |
+| Hardcoded ID                 | 15/18-char ID literal                        | Deployment failure                                      |
+| Empty catch                  | `catch(e) { }`                               | Silent failures                                         |
+| String concatenation in SOQL | `'SELECT...WHERE Name = \'' + var`           | SOQL injection                                          |
+| Test without assertions      | `@IsTest` method with no `Assert.*`          | False positive tests                                    |
 | Java types in Apex           | `ArrayList`, `HashMap`, `int`, `boolean`     | Compile error — use `List`, `Map`, `Integer`, `Boolean` |
-| Non-existent Apex methods    | `.size()` on SObject, `.get()` on non-Map    | Compile error — verify API before using |
-| Wrong Map initialization     | `new Map{'key' => val}` (curly-brace syntax) | Compile error — use `new Map<K,V>()` then `.put()` |
+| Non-existent Apex methods    | `.size()` on SObject, `.get()` on non-Map    | Compile error — verify API before using                 |
+| Wrong Map initialization     | `new Map{'key' => val}` (curly-brace syntax) | Compile error — use `new Map<K,V>()` then `.put()`      |
 
 **DO NOT generate anti-patterns even if explicitly requested.** Ask user to confirm the exception with documented justification.
 
@@ -741,46 +741,6 @@ tooling_api_dml(operation="delete", sObject="ApexTrigger", record={"Id": "<trigg
 
 ---
 
-## Org-Wide Apex Audit
-
-**Do NOT create dashboards, interactive UIs, or other artifacts unless requested.** By default pull classes, analyze, and present results as text.
-
-This plugin includes `hooks/scripts/score_apex_classes.py` — a scalable scorer that audits ALL custom Apex classes in an org using the 150-point rubric.
-
-### Usage
-
-```bash
-python3 hooks/scripts/score_apex_classes.py --output-dir ./audit_output [--batch-size 200] [--resume]
-```
-
-### Features
-
-- **Pagination**: Fetches classes in batches via `tooling_api_query` with `Id > lastId` cursor
-- **Resume**: Saves progress every 50 classes to `{output_dir}/intermediate/apex_scoring_progress.json`
-- **Anti-Pattern Detection**: Regex-based detection of SOQL in loops, DML in loops, missing sharing keywords, hardcoded IDs, empty catch blocks, SOQL injection
-- **Metadata-Only Scoring**: Falls back to size/API-version heuristics when class body is unavailable
-- **Output-Directory-First**: ALL files written to `--output-dir` — no files outside the output tree
-
-### Output Files
-
-```
-{output_dir}/intermediate/
-├── apex_batch_*.json           # Raw class metadata per batch
-├── apex_scoring_progress.json  # Resume checkpoint
-├── apex_scores.json            # Individual class scores
-└── apex_scoring_summary.json   # Aggregate statistics & distribution
-```
-
-### Scoring Thresholds
-
-| Range | Recommendation |
-| ----- | -------------- |
-| ≥ 90  | ✅ Deploy      |
-| 67-89 | ⚠️ Review      |
-| < 67  | ❌ Block       |
-
----
-
 ## Notes
 
 - **API Version**: Deploy with 65.0 by default. If the org runs an older release, match the org's API version: `soql_query(sObject="Organization", fields=["ApiVersion"])`
@@ -789,5 +749,5 @@ python3 hooks/scripts/score_apex_classes.py --output-dir ./audit_output [--batch
 - **MCP Initialization**: ALWAYS call `cirra_ai_init` first
 - **Code as String**: Generate all Apex as strings, deploy via metadata_create/update
 - **No Local Files**: Apex code is NOT saved to local file system - lives only in Salesforce org via Metadata API
-- **Audit Output**: All audit intermediate files go to `--output-dir` by default
+- **Org-wide audit**: Use the `/audit-org` command in the `cirra-ai-sf` plugin for a full org audit
 - **Validation hook**: scope-limited to this skill — only active when cirra-ai-sf-apex skill is in use; use `/validate-apex` for on-demand checks
