@@ -325,26 +325,3 @@ aura/MyComponent/
 | LWC | `.js-meta.xml` |
 | Aura | `.cmp-meta.xml` |
 
----
-
-## sf CLI Metadata Commands
-
-```bash
-# List metadata types
-sf org list metadata-types --target-org [alias]
-
-# List specific metadata
-sf org list metadata --metadata-type CustomObject --target-org [alias]
-
-# Describe object
-sf sobject describe --sobject Account --target-org [alias]
-
-# Retrieve metadata
-sf project retrieve start --metadata CustomObject:Account
-
-# Deploy metadata
-sf project deploy start --source-dir force-app
-
-# Generate package.xml
-sf project generate manifest --source-dir force-app
-```

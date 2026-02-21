@@ -1,4 +1,4 @@
-<!-- Parent: sf-soql/SKILL.md -->
+<!-- Parent: sf-data/SKILL.md -->
 # SOQL Anti-Patterns: What to Avoid
 
 A catalog of common SOQL mistakes and their solutions. Avoiding these patterns will help you stay within governor limits, improve query performance, and write more maintainable code.
@@ -340,11 +340,4 @@ Before deploying SOQL to production:
 4. [ ] Verify query count stays under 100 per transaction
 5. [ ] Check heap usage for large result sets
 
-```bash
-# CLI Query Plan
-sf data query \
-  --query "SELECT Id FROM Account WHERE Name = 'Test'" \
-  --target-org my-org \
-  --use-tooling-api \
-  --plan
-```
+Use the Developer Console Query Plan tool to verify selectivity.

@@ -34,8 +34,8 @@ Objects with **>2M records** should display an LDV indicator to highlight potent
 
 ### Query Record Count
 
-```bash
-sf data query --query "SELECT COUNT() FROM Account" --target-org myorg --json
+```python
+soql_query(sObject="Account", fields=["COUNT()"])
 ```
 
 ### In Diagram
@@ -219,8 +219,8 @@ python3 ~/.claude/plugins/marketplaces/sf-skills/sf-diagram-mermaid/scripts/quer
 ### Manual Queries
 
 **Record Count (LDV)**:
-```bash
-sf data query --query "SELECT COUNT() FROM Account" --target-org myorg --json
+```python
+soql_query(sObject="Account", fields=["COUNT()"])
 ```
 
 **OWD Setting**:

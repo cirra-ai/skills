@@ -1,4 +1,4 @@
-<!-- Parent: sf-soql/SKILL.md -->
+<!-- Parent: sf-data/SKILL.md -->
 
 # Query Optimization & Governor Limits
 
@@ -45,21 +45,17 @@ SELECT Id FROM Account WHERE Name LIKE 'Acme%'
 
 ## Query Plan Analysis
 
-```bash
-# Get query plan
-sf data query \
-  --query "SELECT Id FROM Account WHERE Name = 'Test'" \
-  --target-org my-org \
-  --use-tooling-api \
-  --plan
-```
+Use the Developer Console to analyze query plans:
+
+1. Open Developer Console
+2. Check **Help > Preferences > Enable Query Plan**
+3. Run query in Query Editor → click **Query Plan**
 
 **Plan Output Interpretation**:
 - `Cardinality`: Estimated rows returned
 - `Cost`: Relative query cost (lower is better)
 - `Fields`: Index fields used
 - `LeadingOperationType`: How the query starts (Index vs TableScan)
-
 ---
 
 ## Governor Limits

@@ -1,4 +1,4 @@
-<!-- Parent: sf-soql/SKILL.md -->
+<!-- Parent: sf-data/SKILL.md -->
 
 # SOQL Syntax Reference
 

@@ -1,4 +1,4 @@
-<!-- Parent: sf-soql/SKILL.md -->
+<!-- Parent: sf-data/SKILL.md -->
 # SOQL Quick Reference
 
 ## Query Structure
@@ -205,23 +205,3 @@ SELECT Id, (SELECT Id FROM Children__r) FROM Parent__c
 - Or uses an indexed field with < 1M matching records
 - Non-selective queries on large tables fail
 
----
-
-## CLI Commands
-
-```bash
-# Basic query
-sf data query --query "SELECT Id, Name FROM Account LIMIT 10" --target-org my-org
-
-# JSON output
-sf data query --query "SELECT Id, Name FROM Account" --target-org my-org --json
-
-# CSV output
-sf data query --query "SELECT Id, Name FROM Account" --result-format csv --target-org my-org
-
-# Bulk export (for large results, > 2,000 records)
-sf data export bulk --query "SELECT Id, Name FROM Account" --target-org my-org --output-file accounts.csv
-
-# Query plan
-sf data query --query "SELECT Id FROM Account WHERE Name = 'Test'" --use-tooling-api --plan --target-org my-org
-```

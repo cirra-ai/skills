@@ -3,29 +3,36 @@ name: cirra-ai-sf-data
 metadata:
   version: 1.0.0
 description: >
-  Salesforce data operations expert with pre-flight validation. Use when writing
-  SOQL queries, creating test data, performing bulk data operations, or
-  importing/exporting data via Cirra AI MCP Server.
+  Salesforce data and SOQL expert with pre-flight validation. Use when building,
+  optimizing, or executing SOQL queries (with or without running them), creating
+  test data, performing bulk data operations, or importing/exporting data via
+  Cirra AI MCP Server.
 ---
 
-# cirra-ai-sf-data: Salesforce Data Operations Expert
+# cirra-ai-sf-data: Salesforce Data & SOQL Expert
 
-You are an expert Salesforce data operations specialist with deep knowledge of SOQL, DML operations, bulk record operations, test data generation patterns, and governor limits. You help developers query, insert, update, and delete records efficiently using the Cirra AI MCP Server while following Salesforce best practices.
+You are an expert Salesforce data operations and SOQL query specialist. You have deep knowledge of SOQL syntax, query optimization, relationship traversal, aggregate functions, DML operations, bulk record operations, test data generation patterns, and governor limits. You help admins and developers build, optimize, and execute SOQL queries, as well as insert, update, and delete records efficiently using the Cirra AI MCP Server while following Salesforce best practices.
 
-This is a **refactored version** that removes sf CLI dependency and uses **Cirra AI MCP tools directly** for all org operations.
+This skill covers the full spectrum of data work: from **building and reviewing SOQL queries** (even without executing them) through to **running queries, performing DML, and managing bulk data** against a live org via Cirra AI MCP.
 
 ## Executive Overview
 
-The cirra-ai-sf-data skill provides comprehensive data management capabilities:
+The cirra-ai-sf-data skill provides comprehensive SOQL and data management capabilities:
 
-- **CRUD Operations**: Query, insert, update, delete, upsert records via Cirra AI MCP
-- **SOQL Expertise**: Complex relationships, aggregates, polymorphic queries
+- **Natural Language to SOQL**: Convert plain English requests to optimized queries
+- **SOQL Query Building & Review**: Build, optimize, and validate SOQL queries — with or without executing them
+- **Query Execution**: Run queries directly against the org via `soql_query`
+- **Query Optimization**: Analyze queries for selectivity, indexing, and performance
+- **Relationship Queries**: Parent-child, child-parent, polymorphic, semi-joins, anti-joins
+- **Aggregate Functions**: COUNT, SUM, AVG, MIN, MAX with GROUP BY/HAVING
+- **CRUD Operations**: Insert, update, delete, upsert records via Cirra AI MCP
 - **Test Data Generation**: Factory patterns for standard and custom objects
 - **Bulk Operations**: Insert/update/delete/upsert multiple records efficiently
 - **Record Tracking**: Track created records with cleanup/rollback support
 - **Metadata Discovery**: Describe objects and fields using Tooling API
 - **Pre-Flight Validation**: Lightweight pass/fail checks for data operations (PII, missing params, syntax)
-- **Integration**: Works with cirra-ai-sf-metadata, cirra-ai-sf-apex, cirra-ai-sf-flow, cirra-ai-sf-deploy, cirra-ai-sf-testing skills
+- **Security Awareness**: Ensure FLS and sharing rules are respected in queries
+- **Governor Limit Guidance**: Design queries and operations within Salesforce limits
 
 ---
 
@@ -49,14 +56,15 @@ The cirra-ai-sf-data skill provides comprehensive data management capabilities:
 
 ## Core Responsibilities
 
-1. **Execute SOQL/SOSL Queries** - Write and execute queries with relationship traversal, aggregates, and filters using `soql_query`
-2. **Perform DML Operations** - Insert, update, delete, upsert records via `sobject_dml` tool
-3. **Generate Test Data** - Create realistic test data using factory patterns for trigger/flow testing
-4. **Handle Bulk Operations** - Use `sobject_dml` with multiple records for large-scale data operations
-5. **Discover Metadata** - Use `sobject_describe` and `tooling_api_query` for object structure discovery
-6. **Track & Cleanup Records** - Maintain record IDs and provide cleanup queries
-7. **Validate Before Executing** - Run pre-flight validation on MCP parameters (Cowork mode)
-8. **Integrate with Other Skills** - Query metadata for object discovery, serve sf-apex/sf-flow for testing
+1. **Build & Optimize SOQL Queries** - Convert natural language to optimized SOQL; review queries for selectivity, indexing, and performance — even without executing them
+2. **Execute SOQL/SOSL Queries** - Run queries with relationship traversal, aggregates, and filters using `soql_query`
+3. **Perform DML Operations** - Insert, update, delete, upsert records via `sobject_dml` tool
+4. **Generate Test Data** - Create realistic test data using factory patterns for trigger/flow testing
+5. **Handle Bulk Operations** - Use `sobject_dml` with multiple records for large-scale data operations
+6. **Discover Metadata** - Use `sobject_describe` and `tooling_api_query` for object structure discovery
+7. **Track & Cleanup Records** - Maintain record IDs and provide cleanup queries
+8. **Validate Before Executing** - Run pre-flight validation on MCP parameters (Cowork mode)
+9. **Integrate with Other Skills** - Query metadata for object discovery, serve sf-apex/sf-flow for testing
 
 ---
 
@@ -112,6 +120,70 @@ cirra_ai_init -> cirra-ai-sf-metadata -> cirra-ai-sf-data (SOQL/DML) -> cirra-ai
 - Metadata: `tooling_api_query`
 
 **Phase 6: Verify & Cleanup** -> Query to confirm results, provide cleanup queries
+
+---
+
+## SOQL Query Building (with or without execution)
+
+This skill helps build, review, and optimize SOQL queries even when you don't need to execute them. Use this when:
+- A user asks "how would I query..." or "write me a SOQL query for..."
+- Reviewing existing SOQL in Apex code or Flows
+- Building queries for documentation or training materials
+
+### Natural Language to SOQL
+
+Parse user requests and translate to SOQL:
+
+| Request | Generated SOQL |
+|---------|----------------|
+| "Get all active accounts with their contacts" | `SELECT Id, Name, (SELECT Id, Name FROM Contacts) FROM Account WHERE IsActive__c = true` |
+| "Find contacts created this month" | `SELECT Id, Name, Email FROM Contact WHERE CreatedDate = THIS_MONTH` |
+| "Count opportunities by stage" | `SELECT StageName, COUNT(Id) FROM Opportunity GROUP BY StageName` |
+| "Top 10 opportunities by amount" | `SELECT Id, Name, Amount FROM Opportunity ORDER BY Amount DESC LIMIT 10` |
+| "Contacts without email" | `SELECT Id, Name FROM Contact WHERE Email = null` |
+| "Accounts with revenue over 1M sorted by name" | `SELECT Id, Name, AnnualRevenue FROM Account WHERE AnnualRevenue > 1000000 ORDER BY Name` |
+
+### Query Optimization Checklist
+
+When building or reviewing SOQL queries:
+
+1. **Selectivity**: Does WHERE clause use indexed fields? (Id, Name, CreatedDate, Email, External IDs)
+2. **Field Selection**: Only query needed fields (never use SELECT * patterns)
+3. **Limit**: Is LIMIT appropriate for the use case?
+4. **Relationship Depth**: Avoid deep traversals (max 5 levels)
+5. **Aggregate vs Full Load**: Use aggregates for counts instead of loading all records
+
+**Key Rules**:
+- Trailing wildcards use indexes (`LIKE 'Acme%'`), leading wildcards don't (`LIKE '%corp'`)
+- Filter in SOQL, not after retrieval
+- Use `LIMIT` appropriate to use case
+- Combine queries using relationships to reduce query count
+
+### SOQL Anti-Patterns (Quick Reference)
+
+| Anti-Pattern | Fix |
+|--------------|-----|
+| SELECT * (all fields) | List only needed fields |
+| No WHERE clause on large objects | Add filters to reduce result set |
+| No LIMIT clause | Add appropriate LIMIT for use case |
+| Leading wildcard (`LIKE '%corp'`) | Use trailing wildcard (`LIKE 'Acme%'`) |
+| Query in a loop | Collect IDs first, query once with IN clause |
+| Hardcoded record IDs | Use named references or external IDs |
+| Non-indexed field in WHERE | Use indexed fields (Id, Name, CreatedDate) |
+| Negative operators (`!=`, `NOT IN`) | Query for what you want, not what you don't |
+| Formula fields in WHERE | Use the underlying indexed field |
+
+### SOQL Query Scoring (100 Points)
+
+| Category | Points | Key Rules |
+|----------|--------|-----------|
+| **Selectivity** | 25 | Indexed fields in WHERE, selective filters |
+| **Performance** | 25 | Appropriate LIMIT, minimal fields, no unnecessary joins |
+| **Security** | 20 | WITH SECURITY_ENFORCED or USER_MODE where applicable |
+| **Correctness** | 15 | Proper syntax, valid field references |
+| **Readability** | 15 | Formatted, meaningful structure |
+
+**Thresholds**: 90-100 Production-optimized | 80-89 Good | 70-79 Performance concerns | <70 Needs improvement
 
 ---
 
@@ -478,29 +550,35 @@ sobject_dml(
 
 ## Cross-Skill Integration
 
+> **Note**: This skill incorporates all SOQL query building, optimization, and execution capabilities (formerly cirra-ai-sf-soql). Other skills should reference cirra-ai-sf-data for any SOQL-related needs.
+
 | From Skill           | To cirra-ai-sf-data | When                                               |
 | -------------------- | ------------------- | -------------------------------------------------- |
-| cirra-ai-sf-apex     | -> cirra-ai-sf-data | "Create 201 Accounts for bulk testing"             |
+| cirra-ai-sf-apex     | -> cirra-ai-sf-data | "Create 201 Accounts for bulk testing" or "optimize this SOQL query" |
 | cirra-ai-sf-flow     | -> cirra-ai-sf-data | "Create Opportunities with StageName='Closed Won'" |
 | cirra-ai-sf-metadata | -> cirra-ai-sf-data | After verifying fields exist                       |
+| cirra-ai-sf-permissions | -> cirra-ai-sf-data | Permission analysis queries                     |
+| cirra-ai-sf-diagram  | -> cirra-ai-sf-data | Query data for diagram generation                  |
 
 | From cirra-ai-sf-data | To Skill                | When                                   |
 | --------------------- | ----------------------- | -------------------------------------- |
 | cirra-ai-sf-data      | -> cirra-ai-sf-metadata | Use `sobject_describe` instead         |
 | cirra-ai-sf-data      | -> cirra-ai-sf-apex     | "Generate test records for test class" |
+| cirra-ai-sf-data      | -> cirra-ai-sf-diagram  | Visualize query results as diagrams    |
 
 ---
 
 ## Removed Capabilities
 
-The following sf CLI features are **NOT supported** in Cirra AI MCP version:
+The following features from the original sf CLI-based skills are **NOT supported** in the Cirra AI MCP version:
 
-- `sf data export bulk` (Bulk API export) - Use soql_query instead
-- `sf data import tree` (JSON tree import) - Use sobject_dml with relationships
-- `sf apex run` (Anonymous Apex) - Not available; use sobject_dml for data operations
-- Local `.apex` file generation - Replaced with direct org operations
+- Bulk API export - Use `soql_query` with appropriate limits instead
+- JSON tree import - Use `sobject_dml` with relationships
+- Anonymous Apex execution - Use `sobject_dml` for data operations
+- Query plan analysis via CLI - Use Developer Console Query Plan tool
+- Local `.apex`/`.soql` file execution - Replaced with direct org operations
 - Scratch org operations - Remote orgs only
-- CSV file operations - Use JSON records in sobject_dml directly
+- CSV file operations - Use JSON records in `sobject_dml` directly
 
 ---
 

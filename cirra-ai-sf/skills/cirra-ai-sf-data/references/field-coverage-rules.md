@@ -1,4 +1,4 @@
-<!-- Parent: sf-soql/SKILL.md -->
+<!-- Parent: sf-data/SKILL.md -->
 # SOQL Field Coverage Rules
 
 This guide documents field coverage validation rules for SOQL queries—ensuring that all fields accessed in Apex code are actually queried. This is a common source of runtime errors, especially in LLM-generated code.

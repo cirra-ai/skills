@@ -39,10 +39,8 @@ sf project deploy start --source-dir force-app/main/default/permissionsets/Agent
 When an Agentforce Employee Agent is deployed but not visible to users:
 
 ### Step 1: Verify Agent Status
-```bash
-sf org open -p "/lightning/setup/EinsteinAgentforce/home" -o TARGET_ORG
-# Agent should show Status: Active
-```
+Navigate to Setup > Agentforce in your Salesforce org
+- Agent should show Status: Active
 
 ### Step 2: Check for Agent Access Permission
 ```bash
