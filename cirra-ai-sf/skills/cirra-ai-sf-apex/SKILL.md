@@ -1,5 +1,7 @@
 ---
 name: cirra-ai-sf-apex
+metadata:
+  version: 1.0.0
 description: >
   Generates and reviews Salesforce Apex code with 2025 best practices and 150-point
   scoring using Cirra AI MCP Server metadata API. Use when writing Apex classes, triggers,

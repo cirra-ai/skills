@@ -1,5 +1,7 @@
 ---
 name: cirra-ai-sf-flow
+metadata:
+  version: 1.0.0
 description: >
   Creates and validates Salesforce flows with 110-point scoring and Winter '26
   best practices using Cirra AI MCP Server. Use when building record-triggered flows,

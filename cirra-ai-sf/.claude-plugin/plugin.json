@@ -1,6 +1,6 @@
 {
   "name": "cirra-ai-sf",
-  "version": "2.0.0",
+  "version": "1.0.2",
   "description": "Salesforce admin plugin for use with the Cirra AI MCP Server.",
   "author": {
     "name": "Cirra AI",
@@ -9,7 +9,7 @@
   "repository": "https://github.com/cirra-ai/skills",
   "license": "MIT",
   "keywords": ["salesforce", "apex", "flow", "data", "orchestration", "audit", "cirra-ai"],
-  "agents": "./agents",
+  "commands": "./commands",
   "skills": "./skills",
   "mcpServers": {
     "cirra-ai": {

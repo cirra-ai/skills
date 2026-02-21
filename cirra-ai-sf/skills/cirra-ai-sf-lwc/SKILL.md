@@ -1,5 +1,7 @@
 ---
 name: cirra-ai-sf-lwc
+metadata:
+  version: 1.0.0
 description: >
   Lightning Web Components development skill with PICKLES architecture methodology,
   component scaffolding, wire service patterns, event handling, Apex integration,

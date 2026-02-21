@@ -1,5 +1,7 @@
 ---
 name: cirra-ai-sf-data
+metadata:
+  version: 1.0.0
 description: >
   Salesforce data operations expert with pre-flight validation. Use when writing
   SOQL queries, creating test data, performing bulk data operations, or
