@@ -27,7 +27,7 @@ Use one of the pre-built commands
 ```
 /create-lwc
 /update-lwc
-/validate-flow
+/validate-lwc
 ```
 
 #### In other tools
