@@ -27,14 +27,14 @@ Invoke the skill:
 
 ```
 Skill(skill="cirra-ai-sf-data")
-Request: "Create 251 test Account records with varying Industries for trigger testing in org dev"
+Request: "Create 251 test Account records with varying Industries for trigger testing in my dev sandbox"
 ```
 
 ### Common Operations
 
 | Operation   | Example Request                                         |
 | ----------- | ------------------------------------------------------- |
-| Query       | "Query all Accounts with related Contacts in org dev"   |
+| Query       | "Query all Accounts with related Contacts"   |
 | Create      | "Create 10 test Opportunities at various stages"        |
 | Bulk Insert | "Insert 500 accounts from accounts.csv"                 |
 | Update      | "Update Account 001xxx with new Industry"               |
@@ -45,9 +45,9 @@ Request: "Create 251 test Account records with varying Industries for trigger te
 
 | Skill                | When to Use                                                         |
 | -------------------- | ------------------------------------------------------------------- |
-| cirra-ai-sf-apex     | Generate Apex code, triggers, test classes (with 150-point scoring) |
-| cirra-ai-sf-flow     | Create and validate Salesforce Flows (with 110-point scoring)       |
-| cirra-ai-sf-metadata | Describe objects, create custom fields, Permission Sets             |
+| cirra-ai-sf-apex     | Create and validate Apex code, triggers, test classes               |
+| cirra-ai-sf-flow     | Create and validate Salesforce Flows                                |
+| cirra-ai-sf-metadata | Describe objects, fields, permission sets, profiles etc.            |
 
 ## Cirra AI MCP Tools
 
