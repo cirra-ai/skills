@@ -140,10 +140,16 @@ class ApexValidator:
             is_comment = stripped.startswith("//") or stripped.startswith("*") or stripped.startswith("/*")
 
             braceless_body_line = False  # set when ';' ends a braceless loop body
+            # Capture outer loop context BEFORE this line potentially starts a new loop.
+            # Used to distinguish a standalone for-each (outer_loop_active=False) from
+            # one that is nested inside an enclosing loop (outer_loop_active=True).
+            outer_loop_active = any(t == "loop" for t, _ in brace_stack)
 
             if not is_comment:
-                # Strip inline comments before checking loop patterns to avoid false
-                # positives when comment text contains loop keywords (e.g. "// do this").
+                # Strip inline comments before checking loop patterns AND before
+                # brace/paren tracking.  Using the raw line for tracking would cause
+                # `}` characters inside comments (e.g. `for (...) { // }`) to pop real
+                # entries from brace_stack and prematurely end loop scope.
                 line_for_patterns = re.sub(r"//.*$", "", line)
                 line_for_patterns = re.sub(r"/\*.*?\*/", "", line_for_patterns)
                 if any(re.search(p, line_for_patterns, re.IGNORECASE) for p in loop_patterns):
@@ -151,7 +157,7 @@ class ApexValidator:
                     loop_header_line = i
                     paren_depth = 0  # reset for this loop header
 
-                for char in line:
+                for char in line_for_patterns:
                     if char == "(":
                         paren_depth += 1
                     elif char == ")":
@@ -173,7 +179,7 @@ class ApexValidator:
 
             in_loop = any(t == "loop" for t, _ in brace_stack) or braceless_body_line
             loop_start = next((ln for t, ln in brace_stack if t == "loop"), loop_header_line if braceless_body_line else 0)
-            result.append((in_loop, loop_start))
+            result.append((in_loop, loop_start, outer_loop_active))
 
         return result
 
@@ -189,9 +195,13 @@ class ApexValidator:
             stripped = line.strip()
             if stripped.startswith("//") or stripped.startswith("*") or stripped.startswith("/*"):
                 continue
-            in_loop, loop_start = loop_map[i - 1]
+            in_loop, loop_start, outer_loop_active = loop_map[i - 1]
             if in_loop and re.search(soql_pattern, line, re.IGNORECASE):
-                if re.search(foreach_soql_pattern, line, re.IGNORECASE):
+                # Exempt standalone for-each-over-SOQL only when NOT nested in an outer
+                # loop. When outer_loop_active is True, the for-each is inside an
+                # enclosing loop, so the SOQL IS executed per outer iteration — a real
+                # governor-limit risk that must not be silently skipped.
+                if re.search(foreach_soql_pattern, line, re.IGNORECASE) and not outer_loop_active:
                     continue
                 self.issues.append(
                     {
@@ -221,7 +231,7 @@ class ApexValidator:
             stripped = line.strip()
             if stripped.startswith("//") or stripped.startswith("*") or stripped.startswith("/*"):
                 continue
-            in_loop, loop_start = loop_map[i - 1]
+            in_loop, loop_start, _outer = loop_map[i - 1]
             if in_loop:
                 for dml_pattern in dml_patterns:
                     if re.search(dml_pattern, line, re.IGNORECASE):
