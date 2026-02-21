@@ -16,11 +16,8 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Package plugins
-        run: ./scripts/package.sh
-
-      - name: Package skills
-        run: ./scripts/package-skills.sh
+      - name: Package plugins and skills
+        run: ./scripts/package-all.sh
 
       - name: Upload plugin artifacts
         uses: actions/upload-artifact@v6

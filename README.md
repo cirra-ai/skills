@@ -1,73 +1,123 @@
-# Cirra AI Salesforce Plugins
+# Cirra AI Salesforce Skills
 
+[![Author](https://img.shields.io/badge/Author-Cirra_AI-blue?logo=github)](https://github.com/cirra-ai)
 ![CI](https://github.com/cirra-ai/skills/actions/workflows/ci.yml/badge.svg)
 ![Package](https://github.com/cirra-ai/skills/actions/workflows/package-plugins.yml/badge.svg)
 
-This repositoiry contains a collection of Salesforce admin plugins specifically designed for use with [Claude Cowork](https://docs.anthropic.com/en/docs/cowork)
-and the [Cirra AI MCP Server](https://cirra.ai).
+## Overview
 
-Each plugin adds domain-specific skills, templates, and validation hooks powered that let you perform complex, time-consuming admin tasks from a simple prompt.
+This repository contains a collection of Salesforce admin skills for use with the [Cirra AI MCP Server](https://cirra.ai).
 
-The plugins will also work with [Claude Code](https://docs.anthropic.com/en/docs/claude-code). Skills packaging for use with Claude Web is coming soon.
+These skills serve two purposes:
 
-You may also be able to adapt the plugins for use with other AI tools.
+- Increase the capabilities of the Cirra AI MCP Server by providing detailed guidance,
+  examples and validation scripts
 
-These plugins were adapted from corresponding skills in the https://github.com/Jaganpro/sf-skills/ repository maintained by Jag Valaiyapathy
+  For example: detailed quality scoring for APEX classes and flows
 
-## Available Plugins
+- Help your AI client perform complex, multi-step and long-running Salesforce admin tasks.
 
-| Plugin | Description |
-| --- | --- |
-| [cirra-ai-sf](cirra-ai-sf/) | Orchestrator — coordinates the plugins below into a unified Salesforce suite |
-| [cirra-ai-sf-apex](cirra-ai-sf-apex/) | Apex code generation, review, and 150-point scoring |
-| [cirra-ai-sf-flow](cirra-ai-sf-flow/) | Flow creation, validation, and 110-point scoring |
-| [cirra-ai-sf-data](cirra-ai-sf-data/) | SOQL queries, DML operations, test data factories, and 130-point validation |
+  Instead of entering prompts one at a time, describe an outcome, step away, and come back to finished work — formatted documents, organized files, and more.
 
-More plugins (LWC, metadata, SOQL, permissions, Agent Script, and others) are being released incrementally
+Examples:
+
+- 'Generate a comprehensive report of my org and highlight possible improvements'
+- 'Audit my APEX, LWC and flows to ensure they meet best practices'
+- 'Fix the top priority issues found in the report you just generated'
+- 'Generate descriptions and help texts for all the custom fields'
+- 'Analyze all my profiles and permission sets and recommend security fixes and cleanup'
+
+These skills work best with the following tools:
+
+- [Claude Cowork](https://support.claude.com/en/articles/10065433-installing-claude-desktop)
+- [OpenAI Codex](https://openai.com/codex/)
+- Claude in [desktop](https://claude.com/download) or [browser](https://claude.ai/)
+- [ChatGPT](https://chatgpt.com/) (partial support)
+
+These tools do not require developer skills (no IDE, CLI, GitHub repo or sfdx project is needed).
+
+However, you can also use the skills with developer-focused tools like [Claude Code](https://code.claude.com/docs/en/overview)
+and a growing collection of other [AI development tools](https://agentskills.io/home#adoption)
+
+The following skills are available or planned:
+
+| Skill                                                             | Description                                                                             |
+| ----------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| [cirra-ai-sf-apex](cirra-ai-sf/skills/cirra-ai-sf-apex/README.md) | Create, update and review Apex classes and triggers                                     |
+| [cirra-ai-sf-flow](cirra-ai-sf/skills/cirra-ai-sf-flow/README.md) | Create, update and review flows. Includes porting from Process Builders                 |
+| [cirra-ai-sf-data](cirra-ai-sf/skills/cirra-ai-sf-data/README.md) | SOQL queries, DML operations, test data factories, and pre-flight SOQL validation       |
+| [cirra-ai-sf-lwc](cirra-ai-sf/skills/cirra-ai-sf-lwc/README.md)   | Lightning Web Components development skill                                              |
+| sf-soql                                                           | Natural language → SOQL, query optimization                                             |
+| sf-metadata                                                       | Metadata gen & org queries                                                              |
+| sf-permissions                                                    | Permission Set analysis, "Who has X?"                                                   |
+| [cirra-ai-sf-kugamon](cirra-ai-sf-kugamon/)                       | Easily create opportunities, orders and quotes with [Kugamon](https://www.kugamon.com/) |
+
+The skills can either be installed individually, or as a bundle. See details for each AI platform below.
+
+To learn more about skills see [What are skills?](https://support.claude.com/en/articles/12512176-what-are-skills)
 
 ## Installation
 
+First, sign up for a free trial of the [Cirra AI MCP Server](https://cirra.ai/free-trial/) if you have not already.
+
+Then follow the instructions below for your platform of choice.
+
 ### Claude Cowork
 
-1. Make sure you have [Claude Cowork](https://claude.com/product/cowork) installed.
-2. Open **Plugins** in the left sidebar and click **Browse plugins**
-3. From the dropdown, select **Add marketplace from GitHub**
-4. Enter `cirra-ai/skills` and confirm
-5. Browse the Cirra AI marketplace and install the plugins you need
+To install the plugin that wraps all the Cirra AI skills:
 
-Alternatively, download a plugin zip from the [latest release](https://github.com/cirra-ai/skills/releases) and use **Upload plugin** to install it manually.
+1. Click [here](https://claude.com/product/cowork) to install **Claude Cowork** if you haven't already.
+2. Open the Claude Desktop app.
+3. Navigate to the Cowork tab.
+4. Click “Plugins” in the left sidebar.
+5. Click **Personal** and then the **+** icon
+6. From the dropdown, select **Add marketplace from GitHub**
+7. Enter `cirra-ai/skills` and click **Sync**
+8. The end result should look something like this:
 
-See the [Cowork plugins docs](https://docs.anthropic.com/en/docs/cowork/plugins) for more details.
+   <img src="docs/images/plugins-chooser.png" alt="Select a plugin" width="100%">
+
+   <br/>
+
+9. You should also see a set of custom commands appear when you hit `/` and navigate to `Plugins/Cirra Ai Sf`
+
+<img src="docs/images/claude-cowork-commands-smaller.png" alt="Slash commands" width="100%">
+
+If you prefer to install the plugin or individual skills as zip files, you can download them from https://cirra-ai.github.io/skills/
+
+For more details on **Claude Cowork**, see [Getting started with Cowork](https://support.claude.com/en/articles/13345190-getting-started-with-cowork)
+
+And to learn more about skills in Claude, see https://claude.com/skills
+
+### OpenAI Codex
+
+Install individual skills from https://cirra-ai.github.io/skills/
+
+### Claude web (desktop or browser)
+
+To install individual skill into Claude on the web:
+
+1. Go to [Settings -> Capabilities](https://claude.ai/settings/capabilities)
+2. Scroll down to **Skills**
+3. Click **+ Add** to add a skill
+4. Upload one of the skills zip files found at https://cirra-ai.github.io/skills/
 
 ### Claude Code
 
-First, make sure you have [Claude Code](https://claude.com/product/claude-code) installed.
+Claude Code in the desktop app has a Local mode that works very similarly to Claude Cowork.
 
-See the [Claude Code plugins docs](https://docs.anthropic.com/en/docs/claude-code/plugins) for general setup, then:
+To install the plugins in the IDE or CLI products, follow the instructions [here](https://code.claude.com/docs/en/discover-plugins).
 
-```bash
-# Add the marketplace (one-time)
-/plugin marketplace add cirra-ai/skills
+To install individual skills the steps are [here](https://code.claude.com/docs/en/skills)
 
-# Install the complete suite
-/plugin install cirra-ai-sf-skills@cirra-ai
-
-# Or install individual plugins
-/plugin install cirra-ai-sf-apex@cirra-ai
-```
-
-## Requirements
-
-- Cirra AI MCP Server
-- Target Salesforce org (sandbox or production)
-- [Claude Cowork](https://claude.com/product/cowork) or [Claude Code](https://claude.com/product/claude-code)
+The Cirra AI marketplace is `cirra-ai/skills`
 
 ## Contributing
 
-We welcome contributions! Please read [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md) for how to file issues, open pull requests, and run tests locally.
+We welcome contributions! Please read [CONTRIBUTING.md](./CONTRIBUTING.md) for how to file issues, open pull requests, and run tests locally.
 
 ## License
 
-MIT License — see [LICENSE](LICENSE) for details.
+See [LICENSE](LICENSE)
 
 The plugins in this repository are designed for use with Cirra AI, a commercial product developed by Cirra AI, Inc. This repository and its contents are provided independently and are not part of the Cirra AI product itself. Use of Cirra AI is subject to its own separate terms and conditions.

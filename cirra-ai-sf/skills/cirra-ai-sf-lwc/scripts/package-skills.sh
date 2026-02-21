@@ -3,46 +3,16 @@ set -euo pipefail
 
 # Package Cirra AI skills as standalone zip files for distribution.
 #
-# Each skill zip contains all files from the skill directory, with SKILL.md
-# processed to strip plugin-only frontmatter keys and append a License section.
-# LICENSE falls back to the parent plugin or repo root if not present in the skill dir.
-#
-# Usage:
-#   scripts/package-skills.sh          # warn on issues, fail on errors
-#   scripts/package-skills.sh --strict # also fail on warnings
+# Each skill zip contains:
+#   SKILL.md      — the skill file with a License section appended
+#   LICENSE       — MIT license (copied from parent plugin, falls back to repo root)
+#   CREDITS.md    — attribution file (copied from parent plugin, if present)
 #
 # Output: install/skills/<skill-name>-skill.zip
 # The "-skill" suffix distinguishes these from the full plugin zips in install/plugins/.
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SKILLS_DIR="$REPO_ROOT/install/skills"
-STRICT=0
-
-for arg in "$@"; do
-  case "$arg" in
-    --strict) STRICT=1 ;;
-    *) echo "unknown argument: $arg" >&2; exit 1 ;;
-  esac
-done
-
-# ── Validate all skills first ─────────────────────────────────────────────────
-
-echo "=== Validating Skills ==="
-echo ""
-
-validate_args=()
-[[ $STRICT -eq 1 ]] && validate_args+=(--strict)
-
-if ! "$SCRIPT_DIR/validate-skills.sh" ${validate_args[@]+"${validate_args[@]}"}; then
-  echo ""
-  echo "Packaging aborted due to validation failures." >&2
-  exit 1
-fi
-
-echo ""
-
-# ── Package ───────────────────────────────────────────────────────────────────
 
 rm -rf "$SKILLS_DIR"
 mkdir -p "$SKILLS_DIR"
@@ -86,9 +56,6 @@ for skill_md in "$REPO_ROOT"/*/skills/*/SKILL.md; do
 
   tmp_dir="$(mktemp -d)"
 
-  # Copy everything from the skill directory into the tmp dir
-  cp -r "$skill_dir/." "$tmp_dir/"
-
   # SKILL.md — strip frontmatter keys not allowed in standalone skills,
   # then append License section.
   # Allowed keys: name, description, license, allowed-tools, compatibility, metadata
@@ -123,24 +90,22 @@ if content.startswith('---\n'):
 
 open(dst, 'w').write(content)
 PYEOF
-
-  # LICENSE — use what's in the skill dir, fall back to plugin-level or repo root
-  if [[ ! -f "$tmp_dir/LICENSE" ]]; then
-    if [[ -f "$plugin_dir/LICENSE" ]]; then
-      cp "$plugin_dir/LICENSE" "$tmp_dir/LICENSE"
-    elif [[ -f "$REPO_ROOT/LICENSE" ]]; then
-      cp "$REPO_ROOT/LICENSE" "$tmp_dir/LICENSE"
-    fi
+  # LICENSE — prefer plugin-level copy, fall back to repo root
+  if [[ -f "$plugin_dir/LICENSE" ]]; then
+    cp "$plugin_dir/LICENSE" "$tmp_dir/LICENSE"
+  elif [[ -f "$REPO_ROOT/LICENSE" ]]; then
+    cp "$REPO_ROOT/LICENSE" "$tmp_dir/LICENSE"
   fi
 
-  # Append License section to SKILL.md
-  if [[ -f "$tmp_dir/CREDITS.md" ]]; then
+  # CREDITS.md — only present in some plugins; append reference only if present
+  if [[ -f "$plugin_dir/CREDITS.md" ]]; then
+    cp "$plugin_dir/CREDITS.md" "$tmp_dir/CREDITS.md"
     printf '\n%s%s\n' "$LICENSE_SECTION_BASE" "$LICENSE_SECTION_CREDITS" >> "$tmp_dir/SKILL.md"
   else
     printf '\n%s\n' "$LICENSE_SECTION_BASE" >> "$tmp_dir/SKILL.md"
   fi
 
-  # Zip contents (preserving subdirectory structure)
+  # Zip contents flat (files at root, not in a subdirectory)
   (cd "$tmp_dir" && zip -r -q "$SKILLS_DIR/${skill_name}-skill.zip" .)
 
   rm -rf "$tmp_dir"
