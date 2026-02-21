@@ -9,6 +9,7 @@
   "repository": "https://github.com/cirra-ai/skills",
   "license": "MIT",
   "keywords": ["salesforce", "apex", "flow", "data", "orchestration", "audit", "cirra-ai"],
+  "agents": "./agents",
   "skills": "./skills",
   "mcpServers": {
     "cirra-ai": {
