@@ -7,13 +7,13 @@ Validate one or more Lightning Web Components using the SLDS 2 static analysis p
 
 ## Parsing the request
 
-| Input after `/validate-lwc`                        | Interpretation                                       |
-| -------------------------------------------------- | ---------------------------------------------------- |
-| `accountDashboard`                                 | Component name — fetch bundle from org, validate     |
-| `force-app/.../accountDashboard.html` (ends `.html`, `.css`, or `.js`) | Local file — validate directly   |
-| `accountDashboard,contactCard`                     | Comma-separated list — bulk fetch, validate each     |
-| `--all`                                            | All LightningComponentBundle records in the org      |
-| _(no argument)_                                    | Ask the user what to validate                        |
+| Input after `/validate-lwc`                                            | Interpretation                                   |
+| ---------------------------------------------------------------------- | ------------------------------------------------ |
+| `accountDashboard`                                                     | Component name — fetch bundle from org, validate |
+| `force-app/.../accountDashboard.html` (ends `.html`, `.css`, or `.js`) | Local file — validate directly                   |
+| `accountDashboard,contactCard`                                         | Comma-separated list — bulk fetch, validate each |
+| `--all`                                                                | All LightningComponentBundle records in the org  |
+| _(no argument)_                                                        | Ask the user what to validate                    |
 
 ## Validation script
 
@@ -75,10 +75,10 @@ metadata_read(type="LightningComponentBundle", fullNames=["c/<Name2>"])
 
 Validate each bundle (write → validate → delete). After all are validated, show a summary table sorted by score ascending (worst first):
 
-| Component        | HTML    | CSS    | JS     | Combined | Status             |
-| ---------------- | ------- | ------ | ------ | -------- | ------------------ |
-| weakDashboard    | 45/165  | 60/165 | 55/165 | avg 53%  | ❌ Below threshold |
-| accountCard      | 140/165 | 155/165| 148/165| avg 90%  | ✅ Pass            |
+| Component     | HTML    | CSS     | JS      | Combined | Status             |
+| ------------- | ------- | ------- | ------- | -------- | ------------------ |
+| weakDashboard | 45/165  | 60/165  | 55/165  | avg 53%  | ❌ Below threshold |
+| accountCard   | 140/165 | 155/165 | 148/165 | avg 90%  | ✅ Pass            |
 
 ### --all
 
