@@ -115,15 +115,18 @@ If ANY of these patterns would be generated, **STOP and ask the user**:
 > A) Refactor to use [correct pattern]
 > B) Proceed anyway (not recommended)"
 
-| Anti-Pattern                 | Detection                           | Impact                            |
-| ---------------------------- | ----------------------------------- | --------------------------------- |
-| SOQL inside loop             | `for(...) { [SELECT...] }`          | Governor limit failure (100 SOQL) |
-| DML inside loop              | `for(...) { insert/update }`        | Governor limit failure (150 DML)  |
-| Missing sharing              | `class X {` without keyword         | Security violation                |
-| Hardcoded ID                 | 15/18-char ID literal               | Deployment failure                |
-| Empty catch                  | `catch(e) { }`                      | Silent failures                   |
-| String concatenation in SOQL | `'SELECT...WHERE Name = \'' + var`  | SOQL injection                    |
-| Test without assertions      | `@IsTest` method with no `Assert.*` | False positive tests              |
+| Anti-Pattern                 | Detection                                    | Impact                            |
+| ---------------------------- | -------------------------------------------- | --------------------------------- |
+| SOQL inside loop             | `for(...) { [SELECT...] }`                   | Governor limit failure (100 SOQL) |
+| DML inside loop              | `for(...) { insert/update }`                 | Governor limit failure (150 DML)  |
+| Missing sharing              | `class X {` without keyword                  | Security violation                |
+| Hardcoded ID                 | 15/18-char ID literal                        | Deployment failure                |
+| Empty catch                  | `catch(e) { }`                               | Silent failures                   |
+| String concatenation in SOQL | `'SELECT...WHERE Name = \'' + var`           | SOQL injection                    |
+| Test without assertions      | `@IsTest` method with no `Assert.*`          | False positive tests              |
+| Java types in Apex           | `ArrayList`, `HashMap`, `int`, `boolean`     | Compile error — use `List`, `Map`, `Integer`, `Boolean` |
+| Non-existent Apex methods    | `.size()` on SObject, `.get()` on non-Map    | Compile error — verify API before using |
+| Wrong Map initialization     | `new Map{'key' => val}` (curly-brace syntax) | Compile error — use `new Map<K,V>()` then `.put()` |
 
 **DO NOT generate anti-patterns even if explicitly requested.** Ask user to confirm the exception with documented justification.
 
@@ -387,7 +390,8 @@ static void testNegative() {
         insert new Account(); // Missing Name
         Assert.fail('Expected DmlException');
     } catch (DmlException e) {
-        Assert.isTrue(e.getMessage().contains('REQUIRED_FIELD_MISSING'));
+        Assert.isTrue(e.getMessage().contains('REQUIRED_FIELD_MISSING'),
+            'Expected REQUIRED_FIELD_MISSING but got: ' + e.getMessage());
     }
 }
 
@@ -779,7 +783,7 @@ python3 hooks/scripts/score_apex_classes.py --output-dir ./audit_output [--batch
 
 ## Notes
 
-- **API Version**: 65.0 required
+- **API Version**: Deploy with 65.0 by default. If the org runs an older release, match the org's API version: `soql_query(sObject="Organization", fields=["ApiVersion"])`
 - **TAF Optional**: Prefer TAF when package is installed, use standard trigger pattern as fallback
 - **Scoring**: Block deployment if score < 67
 - **MCP Initialization**: ALWAYS call `cirra_ai_init` first
