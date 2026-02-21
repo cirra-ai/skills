@@ -41,15 +41,15 @@ and a growing collection of other [AI development tools](https://agentskills.io/
 
 The following skills are available or planned:
 
-| Skill                                                             | Description                                                                            |
-| ----------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| [cirra-ai-sf-apex](cirra-ai-sf/skills/cirra-ai-sf-apex/README.md) | Create, update and review Apex classes and triggers                                    |
-| [cirra-ai-sf-flow](cirra-ai-sf/skills/cirra-ai-sf-flow/README.md) | Create, update and review flows. Includes porting from Process Builders                |
-| [cirra-ai-sf-data](cirra-ai-sf/skills/cirra-ai-sf-data/README.md) | SOQL queries, DML operations, test data factories, and pre-flight SOQL validation      |
-| [cirra-ai-sf-lwc](cirra-ai-sf/skills/cirra-ai-sf-lwc/README.md)   | Lightning Web Components development skill                                             |
-| sf-soql                                                           | Natural language → SOQL, query optimization                                            |
-| sf-metadata                                                       | Metadata gen & org queries                                                             |
-| sf-permissions                                                    | Permission Set analysis, "Who has X?"                                                  |
+| Skill                                                             | Description                                                                             |
+| ----------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| [cirra-ai-sf-apex](cirra-ai-sf/skills/cirra-ai-sf-apex/README.md) | Create, update and review Apex classes and triggers                                     |
+| [cirra-ai-sf-flow](cirra-ai-sf/skills/cirra-ai-sf-flow/README.md) | Create, update and review flows. Includes porting from Process Builders                 |
+| [cirra-ai-sf-data](cirra-ai-sf/skills/cirra-ai-sf-data/README.md) | SOQL queries, DML operations, test data factories, and pre-flight SOQL validation       |
+| [cirra-ai-sf-lwc](cirra-ai-sf/skills/cirra-ai-sf-lwc/README.md)   | Lightning Web Components development skill                                              |
+| sf-soql                                                           | Natural language → SOQL, query optimization                                             |
+| sf-metadata                                                       | Metadata gen & org queries                                                              |
+| sf-permissions                                                    | Permission Set analysis, "Who has X?"                                                   |
 | [cirra-ai-sf-kugamon](cirra-ai-sf-kugamon/)                       | Easily create opportunities, orders and quotes with [Kugamon](https://www.kugamon.com/) |
 
 The skills can either be installed individually, or as a bundle. See details for each AI platform below.
