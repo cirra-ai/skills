@@ -142,20 +142,20 @@ actions:
 
 ### 3. Common Integration Errors
 
-| Error                       | Cause                    | Fix                                                 |
-| --------------------------- | ------------------------ | --------------------------------------------------- |
-| "Internal Error" on publish | Variable name mismatch   | Match Flow var names exactly                        |
-| "Flow not found"            | Flow not deployed        | Deploy flow with cirra-ai-sf-deploy first           |
-| Agent can't read output     | Missing `isOutput: true` | Add output flag to Flow variable                    |
+| Error                       | Cause                    | Fix                                       |
+| --------------------------- | ------------------------ | ----------------------------------------- |
+| "Internal Error" on publish | Variable name mismatch   | Match Flow var names exactly              |
+| "Flow not found"            | Flow not deployed        | Deploy flow with cirra-ai-sf-deploy first |
+| Agent can't read output     | Missing `isOutput: true` | Add output flag to Flow variable          |
 
 ---
 
 ## Cross-Skill Integration Table
 
-| From Skill                | To cirra-ai-sf-flow | When                                        |
-| ------------------------- | ------------------- | ------------------------------------------- |
-| cirra-ai-sf-apex          | → cirra-ai-sf-flow  | "Create Flow wrapper for Apex logic"        |
-| cirra-ai-sf-integration   | → cirra-ai-sf-flow  | "Create HTTP Callout Flow"                  |
+| From Skill              | To cirra-ai-sf-flow | When                                 |
+| ----------------------- | ------------------- | ------------------------------------ |
+| cirra-ai-sf-apex        | → cirra-ai-sf-flow  | "Create Flow wrapper for Apex logic" |
+| cirra-ai-sf-integration | → cirra-ai-sf-flow  | "Create HTTP Callout Flow"           |
 
 | From cirra-ai-sf-flow | To Skill               | When                                                |
 | --------------------- | ---------------------- | --------------------------------------------------- |

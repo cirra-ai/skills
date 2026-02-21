@@ -608,10 +608,10 @@ tooling_api_query(
 
 ## Cross-Skill Integration
 
-| From Skill                 | To cirra-ai-sf-flow | When                                        |
-| -------------------------- | ------------------- | ------------------------------------------- |
-| cirra-ai-sf-apex           | → cirra-ai-sf-flow  | "Create Flow wrapper for Apex logic"        |
-| cirra-ai-sf-integration    | → cirra-ai-sf-flow  | "Create HTTP Callout Flow"                  |
+| From Skill              | To cirra-ai-sf-flow | When                                 |
+| ----------------------- | ------------------- | ------------------------------------ |
+| cirra-ai-sf-apex        | → cirra-ai-sf-flow  | "Create Flow wrapper for Apex logic" |
+| cirra-ai-sf-integration | → cirra-ai-sf-flow  | "Create HTTP Callout Flow"           |
 
 | From cirra-ai-sf-flow | To Skill               | When                                                |
 | --------------------- | ---------------------- | --------------------------------------------------- |
@@ -762,11 +762,11 @@ Flow Created  →  Deployed to Org  →  Action Definition Created  →  Agent C
 
 **Why This Matters**: The Action Definition is what exposes the Flow to the agent runtime with proper input/output schema mapping. Without it, `@actions.FlowName` will fail with `ValidationError: Tool target 'FlowName' is not an action definition`.
 
-| Direction                                     | Pattern                                                                         |
-| --------------------------------------------- | ------------------------------------------------------------------------------- |
-| cirra-ai-sf-flow → cirra-ai-sf-metadata       | "Describe Invoice\_\_c" (verify fields before flow)                             |
-| cirra-ai-sf-flow → Cirra AI                   | Deploy with validation via metadata_create                                      |
-| cirra-ai-sf-flow → cirra-ai-sf-data           | "Create 200 test Accounts" (test data after deploy)                             |
+| Direction                               | Pattern                                             |
+| --------------------------------------- | --------------------------------------------------- |
+| cirra-ai-sf-flow → cirra-ai-sf-metadata | "Describe Invoice\_\_c" (verify fields before flow) |
+| cirra-ai-sf-flow → Cirra AI             | Deploy with validation via metadata_create          |
+| cirra-ai-sf-flow → cirra-ai-sf-data     | "Create 200 test Accounts" (test data after deploy) |
 
 ## Notes
 
