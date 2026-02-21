@@ -610,7 +610,6 @@ tooling_api_query(
 
 | From Skill                 | To cirra-ai-sf-flow | When                                        |
 | -------------------------- | ------------------- | ------------------------------------------- |
-| cirra-ai-sf-ai-agentscript | → cirra-ai-sf-flow  | "Create Autolaunched Flow for agent action" |
 | cirra-ai-sf-apex           | → cirra-ai-sf-flow  | "Create Flow wrapper for Apex logic"        |
 | cirra-ai-sf-integration    | → cirra-ai-sf-flow  | "Create HTTP Callout Flow"                  |
 
@@ -697,15 +696,14 @@ Call Apex `@InvocableMethod` classes from Flow for complex business logic.
 | Apex @InvocableMethod Guide | [cirra-ai-sf-apex/docs/flow-integration.md](../cirra-ai-sf-apex/docs/flow-integration.md) |
 | Triangle Architecture       | [docs/triangle-pattern.md](docs/triangle-pattern.md)                                      |
 
-### ⚠️ Flows for cirra-ai-sf-ai-agentscript
+### ⚠️ Flows for Agentforce
 
-**When cirra-ai-sf-ai-agentscript requests a Flow:**
+**When creating Flows for Agentforce agents:**
 
-- cirra-ai-sf-ai-agentscript will invoke cirra-ai-sf-flow (this skill) to create Flows
-- cirra-ai-sf-flow creates the validated Flow XML
+- cirra-ai-sf-flow (this skill) creates the validated Flow XML
 - cirra-ai-sf-flow deploys via Cirra AI metadata_create tool
 - **Action Definition registration required** (see below)
-- Only THEN can cirra-ai-sf-ai-agentscript use `flow://FlowName` targets
+- Only THEN can agents use `flow://FlowName` targets
 
 **Variable Name Matching**: When creating Flows for Agentforce agents:
 
@@ -769,7 +767,6 @@ Flow Created  →  Deployed to Org  →  Action Definition Created  →  Agent C
 | cirra-ai-sf-flow → cirra-ai-sf-metadata       | "Describe Invoice\_\_c" (verify fields before flow)                             |
 | cirra-ai-sf-flow → Cirra AI                   | Deploy with validation via metadata_create                                      |
 | cirra-ai-sf-flow → cirra-ai-sf-data           | "Create 200 test Accounts" (test data after deploy)                             |
-| cirra-ai-sf-ai-agentscript → cirra-ai-sf-flow | "Create Autolaunched Flow for agent action" - **cirra-ai-sf-flow is MANDATORY** |
 
 ## Notes
 

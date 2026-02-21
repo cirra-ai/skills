@@ -94,7 +94,7 @@ When building agents with Flow actions:
 │  6. cirra-ai-sf-deploy                                                      │
 │     └── Deploy all metadata                                                 │
 │                                                                             │
-│  7. cirra-ai-sf-ai-agentforce                                               │
+│  7. Agentforce Agent                                                        │
 │     └── Create agent with flow:// target                                    │
 │                                                                             │
 │  8. cirra-ai-sf-deploy                                                      │
@@ -145,7 +145,7 @@ actions:
 | Error                       | Cause                    | Fix                                                 |
 | --------------------------- | ------------------------ | --------------------------------------------------- |
 | "Internal Error" on publish | Variable name mismatch   | Match Flow var names exactly                        |
-| "Flow not found"            | Flow not deployed        | cirra-ai-sf-deploy before cirra-ai-sf-ai-agentforce |
+| "Flow not found"            | Flow not deployed        | Deploy flow with cirra-ai-sf-deploy first           |
 | Agent can't read output     | Missing `isOutput: true` | Add output flag to Flow variable                    |
 
 ---
@@ -154,7 +154,6 @@ actions:
 
 | From Skill                | To cirra-ai-sf-flow | When                                        |
 | ------------------------- | ------------------- | ------------------------------------------- |
-| cirra-ai-sf-ai-agentforce | → cirra-ai-sf-flow  | "Create Autolaunched Flow for agent action" |
 | cirra-ai-sf-apex          | → cirra-ai-sf-flow  | "Create Flow wrapper for Apex logic"        |
 | cirra-ai-sf-integration   | → cirra-ai-sf-flow  | "Create HTTP Callout Flow"                  |
 
@@ -200,4 +199,3 @@ When deploying Flows that reference Apex or LWC:
 | Triangle pattern (Flow perspective) | `cirra-ai-sf-flow/docs/triangle-pattern.md`           |
 | LWC integration                     | `cirra-ai-sf-flow/docs/lwc-integration-guide.md`      |
 | Apex action template                | `cirra-ai-sf-flow/templates/apex-action-template.xml` |
-| cirra-ai-sf-ai-agentforce           | `cirra-ai-sf-ai-agentforce/SKILL.md`                  |
