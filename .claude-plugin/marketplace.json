@@ -19,8 +19,8 @@
         "url": "https://github.com/cirra-ai"
       },
       "category": "salesforce",
-      "tags": ["salesforce", "orchestration", "apex", "flow", "data", "audit"],
-      "keywords": ["salesforce", "suite", "orchestration", "audit"]
+      "tags": ["salesforce", "orchestration", "apex", "flow", "data", "metadata", "permissions", "soql", "diagram", "audit"],
+      "keywords": ["salesforce", "suite", "orchestration", "metadata", "permissions", "soql", "diagram", "audit"]
     }
   ]
 }
