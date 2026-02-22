@@ -89,6 +89,15 @@ for skill_md in "$REPO_ROOT"/*/skills/*/SKILL.md; do
   # Copy everything from the skill directory into the tmp dir
   cp -r "$skill_dir/." "$tmp_dir/"
 
+  # Copy shared icons from plugin-level assets into the skill's assets dir
+  plugin_assets_dir="$plugin_dir/assets"
+  if [[ -d "$plugin_assets_dir" ]]; then
+    mkdir -p "$tmp_dir/assets"
+    for icon in "$plugin_assets_dir"/icon-*.png; do
+      [[ -f "$icon" ]] && cp "$icon" "$tmp_dir/assets/"
+    done
+  fi
+
   # SKILL.md — strip frontmatter keys not allowed in standalone skills,
   # then append License section.
   # Allowed keys: name, description, license, allowed-tools, compatibility, metadata
