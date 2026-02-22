@@ -53,9 +53,17 @@ class SecurityValidator:
         Returns:
             Dictionary containing validation results
         """
+        # Reset side-effect lists so validate() is idempotent (safe to call multiple times)
+        self.warnings = []
+        self.recommendations = []
+
+        # Call _check_running_mode() exactly once; pass result to _check_sensitive_fields()
+        # so it doesn't need to call it again (each call has warning-append side effects).
+        running_mode = self._check_running_mode()
+
         results = {
-            'running_mode': self._check_running_mode(),
-            'sensitive_fields': self._check_sensitive_fields(),
+            'running_mode': running_mode,
+            'sensitive_fields': self._check_sensitive_fields(running_mode),
             'object_access': self._check_object_access(),
             'warnings': self.warnings,
             'recommendations': self.recommendations,
@@ -113,14 +121,22 @@ class SecurityValidator:
             'warning': None
         }
 
-    def _check_sensitive_fields(self) -> List[Dict[str, str]]:
+    def _check_sensitive_fields(self, mode_info: Dict[str, any] = None) -> List[Dict[str, str]]:
         """
         Check if flow accesses sensitive fields.
+
+        Args:
+            mode_info: Pre-computed running mode dict (from _check_running_mode()).
+                       If not provided, _check_running_mode() is called — but callers
+                       should pass it in to avoid duplicate side-effect appends.
 
         Returns:
             List of sensitive field accesses with warnings
         """
         sensitive_fields_found = []
+
+        if mode_info is None:
+            mode_info = self._check_running_mode()
 
         # Check all field references in the flow
         field_elements = [
@@ -135,12 +151,10 @@ class SecurityValidator:
                 if field_elem is not None:
                     field_name = field_elem.text
 
-                    # Check against sensitive patterns
+                    # Check against sensitive patterns — break after first match so a
+                    # field matching multiple patterns is only reported once.
                     for pattern in SENSITIVE_FIELD_PATTERNS:
                         if re.match(pattern, field_name, re.IGNORECASE):
-                            # Check if running in system mode
-                            mode_info = self._check_running_mode()
-
                             if mode_info['bypasses_permissions']:
                                 warning_msg = (
                                     f"ℹ️ ADVISORY: Sensitive field '{field_name}' accessed in System mode. "
@@ -176,6 +190,8 @@ class SecurityValidator:
                             self.recommendations.append(
                                 f"Test field access for '{field_name}' with restricted user profiles"
                             )
+
+                            break  # Report each field at most once
 
         return sensitive_fields_found
 
@@ -317,8 +333,8 @@ def validate_flow_security(flow_xml_path: str) -> Tuple[Dict, str]:
         Tuple of (results dict, formatted report)
     """
     validator = SecurityValidator(flow_xml_path)
-    results = validator.validate()
-    report = validator.generate_report()
+    report = validator.generate_report()  # generate_report() calls validate() internally
+    results = validator.validate()        # second call is idempotent (lists are reset)
 
     return results, report
 

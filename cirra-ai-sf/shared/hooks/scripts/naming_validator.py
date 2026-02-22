@@ -75,6 +75,10 @@ class NamingValidator:
         Returns:
             Dictionary containing validation results
         """
+        # Reset side-effect lists so validate() is idempotent (safe to call multiple times)
+        self.suggestions = []
+        self.warnings = []
+
         flow_label = self._get_flow_label()
         flow_type = self._get_flow_type()
         is_record_triggered = self._is_record_triggered()
@@ -454,8 +458,8 @@ def validate_flow_naming(flow_xml_path: str) -> Tuple[Dict, str]:
         Tuple of (results dict, formatted report)
     """
     validator = NamingValidator(flow_xml_path)
-    results = validator.validate()
-    report = validator.generate_report()
+    report = validator.generate_report()  # generate_report() calls validate() internally
+    results = validator.validate()        # second call is idempotent (lists are reset)
 
     return results, report
 
