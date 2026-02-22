@@ -31,7 +31,7 @@ echo "Native MCP transport not detected (web session)."
 echo ""
 
 if mcporter_available; then
-  echo "MCPorter is available. Cirra AI MCP tools can be called via the mcporter-bridge."
+  echo "MCPorter is available."
 else
   echo "MCPorter is not installed. Installing..."
   if npm install -g mcporter &>/dev/null 2>&1; then
@@ -43,12 +43,19 @@ else
 fi
 
 echo ""
-echo "IMPORTANT: When native MCP tools (mcp__*) are unavailable, use the Bash tool"
+if [ -n "${CIRRA_AI_TOKEN:-}" ]; then
+  echo "CIRRA_AI_TOKEN is set. The MCPorter bridge will use token-based auth (no browser needed)."
+else
+  echo "CIRRA_AI_TOKEN is not set. MCPorter will attempt OAuth (requires browser)."
+  echo "For headless web sessions, set CIRRA_AI_TOKEN with a valid Cirra AI API token:"
+  echo ""
+  echo "  export CIRRA_AI_TOKEN=\"your-token\""
+  echo ""
+fi
+
+echo "When native MCP tools (mcp__*) are unavailable, use the Bash tool"
 echo "with the mcporter-bridge script to call Cirra AI MCP Server tools:"
 echo ""
 echo "  ${PLUGIN_ROOT}/scripts/mcporter-bridge.sh <tool_name> '<json_params>'"
-echo ""
-echo "On first use, MCPorter will open a browser for OAuth authentication."
-echo "Tokens are cached under ~/.mcporter/cirra-ai/ for subsequent calls."
 echo ""
 echo "See the cirra-ai-mcp-bridge skill for the full tool reference."

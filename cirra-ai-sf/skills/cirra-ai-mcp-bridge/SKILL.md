@@ -35,39 +35,36 @@ The script:
 
 ## Authentication
 
-On first use, MCPorter opens a browser for OAuth authentication with the Cirra AI
-server. It starts a local callback server, completes the OAuth flow, and persists
-tokens under `~/.mcporter/cirra-ai/` for subsequent calls.
+The bridge script automatically selects the right auth mode:
 
-### Headless environments (no browser)
+| `CIRRA_AI_TOKEN` env var | Auth mode | Browser needed? |
+| --- | --- | --- |
+| Set | Bearer token via header | No |
+| Not set | MCPorter OAuth flow | Yes |
 
-MCPorter's OAuth flow requires a browser. If you're in a headless environment
-(cloud sandbox, SSH, CI), authenticate on a machine with a browser first:
+### Recommended: Token-based auth (web sessions)
 
-1. Run `npx mcporter auth cirra-ai` on your local machine (with browser access)
-2. Complete the OAuth flow in the browser
-3. Copy `~/.mcporter/cirra-ai/` to the headless environment
+Set `CIRRA_AI_TOKEN` with a valid Cirra AI API token before starting a session.
+The bridge script picks it up automatically — no browser, no OAuth flow:
 
-Alternatively, you can pass a pre-obtained token via the `.mcp.json` headers
-using environment variable expansion:
-
-```json
-{
-  "mcpServers": {
-    "cirra-ai": {
-      "type": "http",
-      "url": "https://mcp.cirra.ai/mcp",
-      "headers": {
-        "Authorization": "Bearer ${CIRRA_AI_TOKEN}"
-      }
-    }
-  }
-}
+```bash
+export CIRRA_AI_TOKEN="your-cirra-ai-token"
 ```
 
+The token is passed as a `Bearer` header to `https://mcp.cirra.ai/mcp` via
+a separate config file (`scripts/mcporter-token.mcp.json`). The plugin's
+main `.mcp.json` (used by native MCP in CLI/desktop) is not modified.
+
+### Fallback: OAuth (CLI or environments with browser access)
+
+If `CIRRA_AI_TOKEN` is not set, MCPorter falls back to its standard OAuth flow:
+it launches a browser, completes the OAuth handshake, and caches tokens under
+`~/.mcporter/cirra-ai/`.
+
 > **Note**: Headless MCP authentication is [an open discussion](https://github.com/modelcontextprotocol/modelcontextprotocol/discussions/298)
-> at the MCP spec level. Device authorization flow and CIBA are proposed but
-> not yet standardized. The token-copy workaround above is unofficial.
+> at the MCP spec level. If you need OAuth in a headless environment,
+> authenticate locally with `npx mcporter auth cirra-ai` and copy
+> `~/.mcporter/cirra-ai/` to the target machine. This is unofficial.
 
 ## Tool Reference
 
@@ -250,11 +247,11 @@ python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/mcp_validator_cli.py" --format repo
 
 - **First-call latency**: MCPorter via `npx` has cold-start overhead. Install
   globally (`npm install -g mcporter`) to avoid this.
-- **OAuth requires a browser**: MCPorter's OAuth flow launches a browser. In
-  headless environments, pre-authenticate on a machine with a browser and copy
-  `~/.mcporter/cirra-ai/` to the target, or use header-based token auth (see
-  Authentication section). Headless auth is not yet standardized in the MCP spec.
+- **Token management**: When using `CIRRA_AI_TOKEN`, you are responsible for
+  token rotation and expiry. If calls start failing with auth errors, refresh
+  the token.
 - **No tool auto-discovery**: Claude does not automatically see MCPorter tools.
   Use this skill's reference to know which tools are available.
-- **OAuth timeout**: Browser handshakes have a 60s default. Override with
-  `--oauth-timeout <ms>` or `export MCPORTER_OAUTH_TIMEOUT_MS=<ms>`.
+- **OAuth timeout**: If using OAuth fallback, browser handshakes have a 60s
+  default. Override with `--oauth-timeout <ms>` or
+  `export MCPORTER_OAUTH_TIMEOUT_MS=<ms>`.

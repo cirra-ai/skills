@@ -2,6 +2,10 @@
 # MCPorter bridge for Cirra AI MCP Server
 # Routes MCP tool calls through MCPorter when native MCP is unavailable (e.g., web sessions).
 #
+# Auth modes (checked in order):
+#   1. CIRRA_AI_TOKEN env var set → uses header-based Bearer token (no browser needed)
+#   2. Otherwise → falls back to MCPorter's OAuth flow (requires browser)
+#
 # Usage:
 #   ./mcporter-bridge.sh <tool_name> '<json_params>'
 #
@@ -14,21 +18,28 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PLUGIN_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-MCP_CONFIG="$PLUGIN_ROOT/.mcp.json"
 SERVER_NAME="cirra-ai"
 
 TOOL_NAME="${1:?Usage: mcporter-bridge.sh <tool_name> '<json_params>'}"
 JSON_PARAMS="${2:-{\}}"
 
+# Select MCP config based on auth mode.
+# If CIRRA_AI_TOKEN is set, use the token-based config (header auth, no browser).
+# Otherwise, use the standard config (OAuth via browser).
+if [ -n "${CIRRA_AI_TOKEN:-}" ]; then
+  MCP_CONFIG="$PLUGIN_ROOT/scripts/mcporter-token.mcp.json"
+else
+  MCP_CONFIG="$PLUGIN_ROOT/.mcp.json"
+fi
+
 # Ensure mcporter is available
-if ! command -v mcporter &>/dev/null; then
-  if ! npx mcporter --version &>/dev/null 2>&1; then
-    echo "Error: mcporter is not installed. Install with: npm install -g mcporter" >&2
-    exit 1
-  fi
+if command -v mcporter &>/dev/null; then
+  MCPORTER="mcporter"
+elif npx mcporter --version &>/dev/null 2>&1; then
   MCPORTER="npx mcporter"
 else
-  MCPORTER="mcporter"
+  echo "Error: mcporter is not installed. Install with: npm install -g mcporter" >&2
+  exit 1
 fi
 
 # Build the mcporter call expression from JSON params
