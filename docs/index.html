@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cirra AI Salesforce Plugins — Downloads</title>
+    <title>Cirra AI Salesforce Plugin — Downloads</title>
     <style>
       *,
       *::before,
@@ -19,8 +19,8 @@
         --border: #2a2d3a;
         --accent: #5b8ef0;
         --accent2: #38c78a;
-        --text: #e2e8f0;
-        --muted: #8892a4;
+        --text: #f0f4f8;
+        --muted: #ccd4de;
         --tag-bg: #1e2535;
         --tag-text: #7aa2f7;
       }
@@ -61,7 +61,8 @@
       }
       .site-header .sub {
         color: var(--muted);
-        font-size: 0.9rem;
+        font-size: 1.1rem;
+        font-weight: 600;
         margin-top: 0.4rem;
       }
       .badge {
@@ -328,55 +329,86 @@
               </linearGradient>
             </defs>
           </svg>
-          <div class="sub">Claude Code &amp; Claude Cowork plugins for Salesforce development</div>
+          <div class="sub">Skills for Salesforce administration with your favorite AI tools</div>
         </div>
       </header>
 
       <!-- Intro -->
       <p class="intro">
-        Download and install AI plugins for Salesforce development in
-        <strong>Claude Code</strong> or <strong>Claude Cowork</strong>. Each package includes
-        everything needed to generate Apex code, build Flows, query data, and more — powered by the
-        Cirra AI MCP Server.
+        This repository contains Salesforce admin skills for use with the
+        <a href="https://cirra.ai/products/salesforce-admin-mcp/" target="_blank">Cirra AI MCP Server</a>.
       </p>
-
+      <p class="intro" style="margin-bottom: 0.5rem;">These skills help your AI client:</p>
+      <ol class="intro" style="padding-left: 1.5rem; margin-bottom: 1.25rem;">
+        <li>Perform complex Salesforce admin tasks more reliably with detailed guidance, examples and validation scripts</li>
+        <li>Perform multi-step and long-running Salesforce admin tasks independently. Instead of entering prompts one at a time, describe an outcome, step away, and come back to finished work — formatted documents, organized files, and more.</li>
+      </ol>
+      <p class="intro" style="margin-bottom: 0.5rem;">Examples:</p>
+      <ul class="intro" style="padding-left: 1.5rem; margin-bottom: 1.25rem; list-style: disc;">
+        <li>&#8216;Generate a comprehensive report of my org and highlight possible improvements&#8217;</li>
+        <li>&#8216;Audit my Apex, LWC and flows to ensure they meet best practices&#8217;</li>
+        <li>&#8216;Fix the top priority issues found in the report you just generated&#8217;</li>
+        <li>&#8216;Generate descriptions and help texts for all the custom fields&#8217;</li>
+        <li>&#8216;Analyze all my profiles and permission sets and recommend security fixes and cleanup&#8217;</li>
+      </ul>
+      <p class="intro" style="margin-bottom: 0.5rem;">
+        To learn more about skills see <a href="https://agentskills.io/home#adoption" target="_blank">agentskills.io</a> and <a href="https://support.claude.com/en/articles/12512176-what-are-skills" target="_blank">What are skills?</a>
+      </p>
       <div class="callout">
-        <strong>What should I download?</strong> — If you&#8217;re not sure, grab the
-        <strong>All-in-One Plugin Bundle</strong> below. It installs all 5 plugins at once.
-        Individual plugins and skill-only files are also available for leaner installs.
+        <strong>Recommended installation</strong>
+        <ul style="padding-left: 1.25rem; margin: 0.5rem 0 0.5rem;">
+          <li><a href="https://support.claude.com/en/articles/10065433-installing-claude-desktop" target="_blank">Claude Cowork</a>: Install the plugin via the marketplace at <code>cirra-ai/skills</code> (no download needed)</li>
+          <li><a href="https://openai.com/codex/" target="_blank">OpenAI Codex</a>: Just prompt Codex to &#8220;Install the skills from the <code>cirra-ai/skills</code> GitHub repo&#8221;</li>
+        </ul>
+        More details and instructions for other platforms <a href="#how-to-install">below &#8595;</a>
       </div>
 
-      <!-- ── Plugin Packages ── -->
-      <h2>Plugin Packages <span class="badge badge-blue">Recommended</span></h2>
+      <!-- ── Plugin Package ── -->
+      <h2>Plugin Package <span class="badge badge-blue">Recommended for Claude Cowork and Claude Code</span></h2>
       <p style="color: var(--muted); font-size: 0.875rem; margin-bottom: 1.25rem">
-        Full packages with skills, commands, hooks, templates, and MCP server configuration. Install
-        via the plugin manager or by uploading the zip in Claude Cowork.
+        Complete Salesforce admin plugin for Claude Cowork, Claude Code and other AI clients that understand the <a href="https://code.claude.com/docs/en/plugins" target="_blank">plugin format</a>.
+      </p>
+      <p style="color: var(--muted); font-size: 0.875rem; margin-bottom: 1.25rem">
+        The plugin includes all the skills listed below, as well as a collection of 'slash' commands for quick access to common tasks.
+      </p>
+      <p style="color: var(--muted); font-size: 0.875rem; margin-bottom: 1.25rem">
+        Install for Claude Cowork and Claude Code via the marketplace at <code>cirra-ai/skills</code> (no download needed).<br/>
+        See <a href="#how-to-install">below &#8595;</a> for install instructions on other platforms.
       </p>
 
-      <!-- All-in-one bundle (featured) -->
+      <!-- cirra-ai-sf (featured) -->
       <div class="card featured">
         <div class="card-body">
-          <div class="card-title">All-in-One Plugin Bundle</div>
+          <div class="card-title">cirra-ai-sf</div>
           <div class="card-desc">
-            All 5 Salesforce plugins in one zip. The easiest way to get started.
+            Complete Salesforce admin plugin for Claude. Includes all the skills listed below, as well as a collection of 'slash' commands for quick access to common tasks.
           </div>
           <div class="card-tags">
+            <span class="tag">v1.0.2</span>
             <span class="tag">apex</span>
-            <span class="tag">data</span>
             <span class="tag">flow</span>
+            <span class="tag">data</span>
             <span class="tag">lwc</span>
-            <span class="tag">sf</span>
+            <span class="tag">audit</span>
           </div>
         </div>
         <a
-          class="btn btn-secondary"
-          href="https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf-skills.zip"
+          class="btn btn-outline"
+          href="https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf.zip"
         >
-          &#11015; Download Bundle
+          &#11015; Download
         </a>
       </div>
 
-      <!-- Individual plugin cards (auto-generated from plugin.json files) -->
+      <!-- ── Skill-Only Files ── -->
+      <h2>Skill-Only Files <span class="badge badge-green">Lightweight</span></h2>
+      <p style="color: var(--muted); font-size: 0.875rem; margin-bottom: 1.25rem">
+        If you prefer to install individual skills use the downloads below. Each package includes the <code>SKILL.md</code> file and all supporting assets and scripts.
+      </p>
+      <p style="color: var(--muted); font-size: 0.875rem; margin-bottom: 1.25rem">
+        See <a href="#how-to-install">below &#8595;</a> for detailed install instructions.
+      </p>
+
       <div class="card">
         <div class="card-body">
           <div class="card-title">cirra-ai-sf-apex</div>
@@ -385,129 +417,6 @@
             scoring using the Cirra AI MCP Server. Use when writing Apex classes, triggers, test
             classes, batch jobs, or reviewing existing Apex code for bulkification, security, and
             SOLID principles.
-          </div>
-          <div class="card-tags">
-            <span class="tag">v2.0.0</span>
-            <span class="tag">apex</span>
-            <span class="tag">trigger</span>
-            <span class="tag">testing</span>
-            <span class="tag">metadata-api</span>
-          </div>
-        </div>
-        <a
-          class="btn btn-primary"
-          href="https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf-apex.zip"
-          >&#11015; Download</a
-        >
-      </div>
-
-      <div class="card">
-        <div class="card-body">
-          <div class="card-title">cirra-ai-sf-data</div>
-          <div class="card-desc">
-            Salesforce data operations expert using Cirra AI MCP Server. Use when writing SOQL
-            queries, creating test data, performing bulk data operations, or importing/exporting
-            data. Includes pre-flight validation for data operations.
-          </div>
-          <div class="card-tags">
-            <span class="tag">v3.0.0</span>
-            <span class="tag">soql</span>
-            <span class="tag">dml</span>
-            <span class="tag">test-data</span>
-            <span class="tag">bulk-operations</span>
-          </div>
-        </div>
-        <a
-          class="btn btn-primary"
-          href="https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf-data.zip"
-          >&#11015; Download</a
-        >
-      </div>
-
-      <div class="card">
-        <div class="card-body">
-          <div class="card-title">cirra-ai-sf-flow</div>
-          <div class="card-desc">
-            Creates and validates Salesforce flows with 110-point scoring and Winter '26 best
-            practices using Cirra AI MCP Server. Use when building record-triggered flows, screen
-            flows, autolaunched flows, scheduled flows, or reviewing existing flow performance.
-          </div>
-          <div class="card-tags">
-            <span class="tag">v2.1.0</span>
-            <span class="tag">flow</span>
-            <span class="tag">automation</span>
-            <span class="tag">screen-flow</span>
-          </div>
-        </div>
-        <a
-          class="btn btn-primary"
-          href="https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf-flow.zip"
-          >&#11015; Download</a
-        >
-      </div>
-
-      <div class="card">
-        <div class="card-body">
-          <div class="card-title">cirra-ai-sf-lwc</div>
-          <div class="card-desc">
-            Lightning Web Components development skill with PICKLES architecture methodology,
-            component scaffolding, wire service patterns, event handling, Apex integration, GraphQL
-            support, and Jest test generation. Build modern Salesforce UIs with proper reactivity,
-            accessibility, dark mode compatibility, and performance patterns.
-          </div>
-          <div class="card-tags">
-            <span class="tag">v1.0.0</span>
-            <span class="tag">lwc</span>
-            <span class="tag">lightning-web-components</span>
-            <span class="tag">slds</span>
-            <span class="tag">frontend</span>
-          </div>
-        </div>
-        <a
-          class="btn btn-primary"
-          href="https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf-lwc.zip"
-          >&#11015; Download</a
-        >
-      </div>
-
-      <div class="card">
-        <div class="card-body">
-          <div class="card-title">cirra-ai-sf</div>
-          <div class="card-desc">
-            Salesforce development suite — orchestrates Apex, Flow, and Data plugins with Cirra AI
-            MCP Server. Includes /audit command for full org audits. Install this to get all three
-            core Salesforce development skills working together.
-          </div>
-          <div class="card-tags">
-            <span class="tag">v1.1.0</span>
-            <span class="tag">apex</span>
-            <span class="tag">flow</span>
-            <span class="tag">data</span>
-            <span class="tag">orchestration</span>
-            <span class="tag">audit</span>
-          </div>
-        </div>
-        <a
-          class="btn btn-primary"
-          href="https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf.zip"
-          >&#11015; Download</a
-        >
-      </div>
-
-      <!-- ── Skill-Only Files ── -->
-      <h2>Skill-Only Files <span class="badge badge-green">Lightweight</span></h2>
-      <p style="color: var(--muted); font-size: 0.875rem; margin-bottom: 1.25rem">
-        Just the <code>SKILL.md</code> instruction file, plus <code>LICENSE</code> and
-        <code>CREDITS.md</code>. Use these if you only want the AI instructions without hooks,
-        commands, or templates. Each file includes a self-contained license section.
-      </p>
-
-      <div class="card">
-        <div class="card-body">
-          <div class="card-title">cirra-ai-sf-apex — Skill Only</div>
-          <div class="card-desc">
-            Generates and reviews Salesforce Apex code with 2025 best practices and 150-point
-            scoring using the Cirra AI MCP Server. Use when writing Apex clas…
           </div>
           <div class="card-tags">
             <span class="tag">apex</span>
@@ -524,10 +433,11 @@
 
       <div class="card">
         <div class="card-body">
-          <div class="card-title">cirra-ai-sf-data — Skill Only</div>
+          <div class="card-title">cirra-ai-sf-data</div>
           <div class="card-desc">
-            Salesforce data operations expert using Cirra AI MCP Server. Use when writing SOQL
-            queries, creating test data, performing bulk data operations, or…
+            Salesforce data operations expert with pre-flight validation. Use when writing SOQL
+            queries, creating test data, performing bulk data operations, or importing/exporting data
+            via the Cirra AI MCP Server.
           </div>
           <div class="card-tags">
             <span class="tag">soql</span>
@@ -544,10 +454,11 @@
 
       <div class="card">
         <div class="card-body">
-          <div class="card-title">cirra-ai-sf-flow — Skill Only</div>
+          <div class="card-title">cirra-ai-sf-flow</div>
           <div class="card-desc">
-            Creates and validates Salesforce flows with 110-point scoring and Winter '26 best
-            practices using Cirra AI MCP Server. Use when building record-tri…
+            Creates and validates Salesforce flows with 110-point scoring and Winter &#8217;26 best
+            practices using the Cirra AI MCP Server. Use when building record-triggered flows, screen
+            flows, autolaunched flows, scheduled flows, or reviewing existing flow performance.
           </div>
           <div class="card-tags">
             <span class="tag">flow</span>
@@ -564,10 +475,12 @@
 
       <div class="card">
         <div class="card-body">
-          <div class="card-title">cirra-ai-sf-lwc — Skill Only</div>
+          <div class="card-title">cirra-ai-sf-lwc</div>
           <div class="card-desc">
             Lightning Web Components development skill with PICKLES architecture methodology,
-            component scaffolding, wire service patterns, event handling, Ape…
+            component scaffolding, wire service patterns, event handling, Apex integration, GraphQL
+            support, and Jest test generation. Build modern Salesforce UIs with proper reactivity,
+            accessibility, dark mode compatibility, and performance patterns.
           </div>
           <div class="card-tags">
             <span class="tag">lwc</span>
@@ -582,61 +495,80 @@
         >
       </div>
 
-      <div class="card">
-        <div class="card-body">
-          <div class="card-title">cirra-ai-sf — Skill Only</div>
-          <div class="card-desc">
-            Salesforce development suite — orchestrates Apex, Flow, and Data plugins with Cirra AI
-            MCP Server. Includes /audit command for full org audits. Ins…
-          </div>
-          <div class="card-tags">
-            <span class="tag">apex</span>
-            <span class="tag">flow</span>
-            <span class="tag">skill-only</span>
-          </div>
-        </div>
-        <a
-          class="btn btn-outline"
-          href="https://github.com/cirra-ai/skills/releases/latest/download/cirra-ai-sf-skill.zip"
-          >&#11015; Download</a
-        >
-      </div>
-
       <!-- ── How to Install ── -->
-      <h2>How to Install</h2>
+      <h2 id="how-to-install">How to Install</h2>
+      <ul style="margin-bottom: 1.5rem; padding-left: 1.25rem; color: var(--muted); font-size: 0.95rem;">
+        <li><a href="#claude-cowork">Claude Cowork</a></li>
+        <li><a href="#openai-codex">OpenAI Codex</a></li>
+        <li><a href="#claude-web-or-desktop">Claude web or desktop</a></li>
+        <li><a href="#chatgpt">ChatGPT</a></li>
+        <li><a href="#claude-code-cli">Claude Code (CLI)</a></li>
+      </ul>
+      <div class="install-box">
+        <h3 id="claude-cowork">Claude Cowork or Claude Code (desktop)</h3>
+        <ol>
+          <li>Install <a href="https://claude.com/product/cowork">Claude Cowork</a> if you haven't already.</li>
+          <li>Open the Claude Desktop app and select the <strong>Cowork</strong> tab</li>
+          <li>Click <strong>Plugins</strong> in the left sidebar</li>
+          <li>Click <strong>Personal</strong> and then the <strong>+</strong> icon</li>
+          <li>Select <strong>Add marketplace from GitHub</strong></li>
+          <li>
+            Enter <code>cirra-ai/skills</code> and click <strong>Sync</strong> — then install
+            <strong>cirra-ai-sf</strong>
+          </li>
+          <li>You may need to restart the app to see the skills</li>
+        </ol>
+        <p>
+          You can also upload the plugin zip directly, or install individual skills.
+        </p>
+      </div>
 
       <div class="install-box">
-        <h3>Claude Cowork (browser)</h3>
+        <h3 id="openai-codex">OpenAI Codex</h3>
         <ol>
-          <li>Download a plugin zip from above</li>
-          <li>Open Claude Cowork and click <strong>Plugins</strong> in the left sidebar</li>
-          <li>Click <strong>Upload Plugin</strong> and select the downloaded zip</li>
-          <li>The plugin activates immediately in your current session</li>
+          <li>Install <a href="https://openai.com/codex/">OpenAI Codex</a> if you haven't already.</li>
+          <li>In a new thread, say "Install the skills from the <code>cirra-ai/skills</code> GitHub repo"</li>
+          <li>This will use the built-in <code>skill-installer</code> skill to download the latest skills and install them for you</li>
+          <li>You may need to restart the app to see the skills</li>
         </ol>
       </div>
 
       <div class="install-box">
-        <h3>Claude Code (CLI)</h3>
+        <h3 id="claude-web-or-desktop">Claude web or desktop</h3>
         <ol>
-          <li>Download a plugin zip and note the path</li>
-          <li>Run: <code>/plugin install path/to/cirra-ai-sf-apex.zip</code></li>
+          <li>Download the skill zip you want to install</li>
+          <li>Go to <a href="https://claude.ai/settings/capabilities" target="_blank">Settings &rarr; Capabilities</a></li>
+          <li>Scroll down to <strong>Skills</strong></li>
+          <li>Click <strong>+ Add</strong> to add a skill</li>
+          <li>Upload the skill zip you downloaded</li>
+        </ol>
+      </div>
+
+      <div class="install-box">
+        <h3 id="chatgpt">ChatGPT</h3>
+        <p>ChatGPT does not support skills directly. We recommend you use Codex instead.</p>
+        <p>However, if you only have access to ChatGPT you can still use the skills as follows:</p>
+        <ol>
+          <li>Download the individual skill zip file using the links above</li>
+          <li>Add the skill to a chat that has the <strong>Cirra AI</strong> app enabled.</li>
+        </ol>
+        <p>
+          Note that (unfortunately) neither Agent mode nor Custom GPTs support custom MCP apps at this time.
+        </p>
+      </div>
+
+      <div class="install-box">
+        <h3 id="claude-code-cli">Claude Code (CLI)</h3>
+        <ol>
           <li>
-            Or install directly from the marketplace:<br />
+            Install from the marketplace:<br />
             <code>/plugin marketplace add cirra-ai/skills</code><br />
-            <code>/plugin install cirra-ai-sf-apex@cirra-ai</code>
+            <code>/plugin install cirra-ai-sf@cirra-ai</code>
           </li>
-        </ol>
-      </div>
-
-      <div class="install-box">
-        <h3>Skill-Only Files</h3>
-        <ol>
-          <li>Download a skill zip and extract it</li>
           <li>
-            Place <code>SKILL.md</code> in your project&#8217;s
-            <code>.claude/skills/</code> directory
+            Or install from a downloaded plugin zip:<br />
+            <code>/plugin install path/to/plugin.zip</code>. See <a href="https://code.claude.com/docs/en/discover-plugins" target="_blank">discover-plugins</a> for details
           </li>
-          <li>Claude will pick up the skill automatically in that project</li>
         </ol>
       </div>
 
