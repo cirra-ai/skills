@@ -7,14 +7,14 @@ Analyze permission structures in a Salesforce org.
 
 ## Parsing the request
 
-| Input after `/analyze-permissions` | Interpretation |
-| ---------------------------------- | ------------------------------------------------------------ |
-| `Account` | Find all PS with Account access |
-| `Account.AnnualRevenue` | Find all PS with access to that field |
-| `john@company.com` | Show all permissions for that user |
-| `hierarchy` | Show the full PS/PSG hierarchy |
-| `ModifyAllData` | Find PS with that system permission |
-| _(no argument)_ | Ask the user what to analyze |
+| Input after `/analyze-permissions` | Interpretation                        |
+| ---------------------------------- | ------------------------------------- |
+| `Account`                          | Find all PS with Account access       |
+| `Account.AnnualRevenue`            | Find all PS with access to that field |
+| `john@company.com`                 | Show all permissions for that user    |
+| `hierarchy`                        | Show the full PS/PSG hierarchy        |
+| `ModifyAllData`                    | Find PS with that system permission   |
+| _(no argument)_                    | Ask the user what to analyze          |
 
 ## Workflow
 
@@ -67,6 +67,7 @@ soql_query(sObject="PermissionSet", fields=["Name", "Label", "PermissionsModifyA
 ### 3. Present results
 
 Format results as clear tables showing:
+
 - Permission Set/Group names
 - What access they grant
 - How many users are assigned (where applicable)
@@ -75,6 +76,7 @@ Format results as clear tables showing:
 ### 4. Recommend improvements
 
 Based on the analysis, suggest:
+
 - Consolidating overlapping PS into PSGs
 - Removing overly broad permissions
 - Creating missing PS for proper access control

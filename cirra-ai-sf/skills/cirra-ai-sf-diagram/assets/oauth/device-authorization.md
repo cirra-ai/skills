@@ -3,6 +3,7 @@
 OAuth 2.0 Device Authorization Grant for input-constrained devices without browsers.
 
 ## When to Use
+
 - CLI tools (like Salesforce CLI)
 - Smart TVs and streaming devices
 - IoT devices
@@ -153,6 +154,7 @@ curl -X POST https://login.salesforce.com/services/oauth2/device/code \
 ```
 
 ### Response
+
 ```json
 {
   "device_code": "aDEvhqZjZ2FwcAA6y...",
@@ -189,6 +191,7 @@ curl -X POST https://login.salesforce.com/services/oauth2/token \
 ### Possible Responses
 
 **Authorization Pending:**
+
 ```json
 {
   "error": "authorization_pending",
@@ -197,6 +200,7 @@ curl -X POST https://login.salesforce.com/services/oauth2/token \
 ```
 
 **Slow Down (polling too fast):**
+
 ```json
 {
   "error": "slow_down",
@@ -205,6 +209,7 @@ curl -X POST https://login.salesforce.com/services/oauth2/token \
 ```
 
 **Success:**
+
 ```json
 {
   "access_token": "00D5g000001ABC...!ARcAQNlBrLGj...",
@@ -265,20 +270,20 @@ access_token = token_response['access_token']
 
 ## Key Characteristics
 
-| Aspect | Value |
-|--------|-------|
-| User Interaction | On separate device |
+| Aspect           | Value                 |
+| ---------------- | --------------------- |
+| User Interaction | On separate device    |
 | Polling Required | Yes (every N seconds) |
-| Refresh Token | Yes, returned |
-| Best For | CLI tools, IoT, TVs |
+| Refresh Token    | Yes, returned         |
+| Best For         | CLI tools, IoT, TVs   |
 | User Code Format | Short, human-readable |
 
 ## Timing Parameters
 
-| Parameter | Value | Purpose |
-|-----------|-------|---------|
-| `expires_in` | 600 (10 min) | How long codes are valid |
-| `interval` | 5 (seconds) | Minimum time between polls |
+| Parameter    | Value        | Purpose                    |
+| ------------ | ------------ | -------------------------- |
+| `expires_in` | 600 (10 min) | How long codes are valid   |
+| `interval`   | 5 (seconds)  | Minimum time between polls |
 
 ## Security Considerations
 
@@ -290,6 +295,7 @@ access_token = token_response['access_token']
 ## Customization Points
 
 Replace these placeholders:
+
 - `CONSUMER_KEY` → Your Connected App's Consumer Key
 - `DEVICE_CODE` → Device code from initial response
 - `login.salesforce.com` → Or `test.salesforce.com` for sandbox

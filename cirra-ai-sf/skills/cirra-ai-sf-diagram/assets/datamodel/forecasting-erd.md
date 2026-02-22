@@ -4,15 +4,15 @@ Pre-built data model for Salesforce Collaborative Forecasts using `flowchart LR`
 
 ## Objects Included
 
-| Object | Type | Description |
-|--------|------|-------------|
-| ForecastingType | STD | Forecast configuration |
-| ForecastingItem | STD | Individual forecasts |
-| ForecastingQuota | STD | User quotas |
-| ForecastingAdjustment | STD | Manager adjustments |
-| Opportunity | STD | Source opportunities |
-| OpportunitySplit | STD | Revenue splits |
-| User | STD | Forecast owners |
+| Object                | Type | Description            |
+| --------------------- | ---- | ---------------------- |
+| ForecastingType       | STD  | Forecast configuration |
+| ForecastingItem       | STD  | Individual forecasts   |
+| ForecastingQuota      | STD  | User quotas            |
+| ForecastingAdjustment | STD  | Manager adjustments    |
+| Opportunity           | STD  | Source opportunities   |
+| OpportunitySplit      | STD  | Revenue splits         |
+| User                  | STD  | Forecast owners        |
 
 ---
 
@@ -96,24 +96,27 @@ flowchart LR
 ## Key Concepts
 
 ### Forecasting Types
-| Type | Source Field | Description |
-|------|--------------|-------------|
-| **Opportunity Revenue** | Amount | Standard opportunity forecasting |
-| **Opportunity Quantity** | Quantity | Unit-based forecasting |
-| **Product Family** | Product2.Family | By product category |
-| **Opportunity Splits** | Split Amount | Team selling |
-| **Custom Measure** | Custom field | Custom currency/number |
+
+| Type                     | Source Field    | Description                      |
+| ------------------------ | --------------- | -------------------------------- |
+| **Opportunity Revenue**  | Amount          | Standard opportunity forecasting |
+| **Opportunity Quantity** | Quantity        | Unit-based forecasting           |
+| **Product Family**       | Product2.Family | By product category              |
+| **Opportunity Splits**   | Split Amount    | Team selling                     |
+| **Custom Measure**       | Custom field    | Custom currency/number           |
 
 ### Forecast Categories
-| Category | Stage Mapping |
-|----------|---------------|
-| Pipeline | Early stages |
-| Best Case | High probability |
-| Commit | Committed deals |
-| Closed | Won deals |
-| Omitted | Excluded from forecast |
+
+| Category  | Stage Mapping          |
+| --------- | ---------------------- |
+| Pipeline  | Early stages           |
+| Best Case | High probability       |
+| Commit    | Committed deals        |
+| Closed    | Won deals              |
+| Omitted   | Excluded from forecast |
 
 ### Forecast Rollup Hierarchy
+
 ```
 CEO
  └── VP Sales
@@ -216,38 +219,38 @@ flowchart LR
 
 ## Key Relationships Summary
 
-| Parent | Child | Type | Behavior |
-|--------|-------|------|----------|
-| ForecastingType | ForecastingItem | LK | Type configuration |
-| ForecastingType | ForecastingQuota | LK | Type configuration |
-| User | ForecastingItem | LK | Forecast owner |
-| User | ForecastingQuota | LK | Quota owner |
-| Period | ForecastingItem | LK | Time period |
-| Period | ForecastingQuota | LK | Time period |
-| Opportunity | ForecastingItem | LK | Source opportunity |
-| Opportunity | OpportunitySplit | MD | Cascade delete |
-| User | OpportunitySplit | LK | Split owner |
+| Parent          | Child            | Type | Behavior           |
+| --------------- | ---------------- | ---- | ------------------ |
+| ForecastingType | ForecastingItem  | LK   | Type configuration |
+| ForecastingType | ForecastingQuota | LK   | Type configuration |
+| User            | ForecastingItem  | LK   | Forecast owner     |
+| User            | ForecastingQuota | LK   | Quota owner        |
+| Period          | ForecastingItem  | LK   | Time period        |
+| Period          | ForecastingQuota | LK   | Time period        |
+| Opportunity     | ForecastingItem  | LK   | Source opportunity |
+| Opportunity     | OpportunitySplit | MD   | Cascade delete     |
+| User            | OpportunitySplit | LK   | Split owner        |
 
 ---
 
 ## Limits & Considerations
 
-| Limit | Value |
-|-------|-------|
-| Forecasting types | 4 (standard) + 4 (custom) |
-| Forecast hierarchy levels | Role hierarchy depth |
-| Splits per opportunity | Unlimited |
-| Quota periods | Fiscal periods |
-| Adjustment history | 12 months |
+| Limit                     | Value                     |
+| ------------------------- | ------------------------- |
+| Forecasting types         | 4 (standard) + 4 (custom) |
+| Forecast hierarchy levels | Role hierarchy depth      |
+| Splits per opportunity    | Unlimited                 |
+| Quota periods             | Fiscal periods            |
+| Adjustment history        | 12 months                 |
 
 ---
 
 ## Forecast Hierarchy vs Role Hierarchy
 
-| Option | Use Case |
-|--------|----------|
-| **Role Hierarchy** | Forecasts follow org chart |
-| **Forecast Hierarchy** | Custom forecast rollup path |
+| Option                  | Use Case                    |
+| ----------------------- | --------------------------- |
+| **Role Hierarchy**      | Forecasts follow org chart  |
+| **Forecast Hierarchy**  | Custom forecast rollup path |
 | **Territory Hierarchy** | Territory-based forecasting |
 
 ---

@@ -1,4 +1,5 @@
 <!-- Parent: sf-metadata/SKILL.md -->
+
 # Salesforce Field Types Guide
 
 ## Overview
@@ -44,9 +45,11 @@ What kind of data?
 ## Text Fields
 
 ### Text (Standard)
+
 **Use When:** Short text values up to 255 characters
 **Max Length:** 255 characters
 **Features:**
+
 - Can be unique
 - Can be external ID
 - Searchable
@@ -62,9 +65,11 @@ What kind of data?
 ---
 
 ### Long Text Area
+
 **Use When:** Multi-line text over 255 characters
 **Max Length:** 131,072 characters
 **Limitations:**
+
 - NOT searchable
 - NOT filterable
 - Cannot be unique
@@ -81,9 +86,11 @@ What kind of data?
 ---
 
 ### Rich Text Area
+
 **Use When:** Formatted text with HTML
 **Max Length:** 131,072 characters
 **Features:**
+
 - Bold, italic, underline
 - Lists, links, images
 - Same limitations as Long Text Area
@@ -101,15 +108,18 @@ What kind of data?
 ## Picklist Fields
 
 ### Picklist (Single-Select)
+
 **Use When:** Predefined single choice
 **Max Values:** 1,000 (recommended < 200)
 **Features:**
+
 - Filterable
 - Reportable
 - Can have default value
 - Restricted option available
 
 **Best Practices:**
+
 - Use Global Value Sets for reusable values
 - Enable restricted picklist for data quality
 - Consider dependent picklists for hierarchies
@@ -132,9 +142,11 @@ What kind of data?
 ---
 
 ### Multi-Select Picklist
+
 **Use When:** Multiple predefined choices
 **Max Values:** 500
 **Limitations:**
+
 - Cannot be unique
 - Cannot be used in roll-ups
 - Stored as semicolon-separated string
@@ -151,11 +163,13 @@ What kind of data?
 ## Numeric Fields
 
 ### Number
+
 **Use When:** Numeric values (integers or decimals)
 **Max Precision:** 18 digits total
 **Max Scale:** 17 decimal places
 
 **Configuration:**
+
 - `precision`: Total digits (1-18)
 - `scale`: Decimal places (0-17)
 
@@ -175,8 +189,10 @@ What kind of data?
 ---
 
 ### Currency
+
 **Use When:** Monetary values
 **Features:**
+
 - Displays with org currency symbol
 - Multi-currency support
 - Respects locale formatting
@@ -192,6 +208,7 @@ What kind of data?
 ---
 
 ### Percent
+
 **Use When:** Percentage values
 **Storage:** Stored as decimal (50 = 50%)
 **Display:** Shows with % symbol
@@ -207,9 +224,11 @@ What kind of data?
 ## Date/Time Fields
 
 ### Date
+
 **Use When:** Calendar dates without time
 **Format:** YYYY-MM-DD (internal)
 **Features:**
+
 - Date picker in UI
 - Timezone neutral
 - Can use TODAY() in formulas
@@ -221,9 +240,11 @@ What kind of data?
 ---
 
 ### DateTime
+
 **Use When:** Timestamps with time component
 **Format:** ISO 8601 with timezone
 **Features:**
+
 - Date and time picker
 - Timezone aware
 - Can use NOW() in formulas
@@ -237,8 +258,10 @@ What kind of data?
 ## Boolean Fields
 
 ### Checkbox
+
 **Use When:** True/False values
 **Features:**
+
 - Always has a value (never null)
 - Default value required
 - Filterable
@@ -255,8 +278,10 @@ What kind of data?
 ## Relationship Fields
 
 ### Lookup
+
 **Use When:** Optional relationship to another record
 **Features:**
+
 - Can be empty (null)
 - No cascade delete (configurable)
 - No roll-up summaries
@@ -280,14 +305,17 @@ What kind of data?
 ---
 
 ### Master-Detail
+
 **Use When:** Required parent relationship
 **Features:**
+
 - Cannot be empty
 - Cascade delete
 - Supports roll-up summaries
 - Child sharing = parent sharing
 
 **Limitations:**
+
 - Max 2 per object
 - Cannot convert to Lookup after creation
 - Child object must be empty to create
@@ -305,13 +333,16 @@ What kind of data?
 ## Calculated Fields
 
 ### Formula
+
 **Use When:** Derived value from same record
 **Return Types:** Text, Number, Currency, Percent, Date, DateTime, Checkbox
 **Limits:**
+
 - 5,000 compiled character limit
 - Can reference up to 10 relationships
 
 **Examples:**
+
 ```
 // Text concatenation
 FirstName & " " & LastName
@@ -331,11 +362,13 @@ Account.Industry
 ---
 
 ### Roll-Up Summary
+
 **Use When:** Aggregate child records
 **Requires:** Master-Detail relationship
 **Operations:** COUNT, SUM, MIN, MAX
 
 **Limitations:**
+
 - Only on Master-Detail parent
 - Cannot summarize formula fields
 - Cannot summarize Long Text or Multi-Select
@@ -352,26 +385,31 @@ Account.Industry
 ## Special Fields
 
 ### Email
+
 - Max 80 characters
 - Format validation
 - Click-to-email in Lightning
 
 ### Phone
+
 - Max 40 characters
 - Click-to-dial support
 - No format validation
 
 ### URL
+
 - Max 255 characters
 - Clickable link
 - Opens in new tab
 
 ### Geolocation
+
 - Latitude/Longitude
 - Distance formulas
 - Map integration
 
 ### Encrypted Text
+
 - PII protection
 - Mask characters
 - Limited functionality
@@ -380,17 +418,17 @@ Account.Industry
 
 ## Field Type Comparison
 
-| Feature | Text | Long Text | Picklist | Number | Lookup | Formula |
-|---------|------|-----------|----------|--------|--------|---------|
-| Searchable | ✅ | ❌ | ✅ | ✅ | ✅ | ✅* |
-| Filterable | ✅ | ❌ | ✅ | ✅ | ✅ | ✅* |
-| Reportable | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Unique | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
-| External ID | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
-| Roll-up | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
-| Editable | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| Feature     | Text | Long Text | Picklist | Number | Lookup | Formula |
+| ----------- | ---- | --------- | -------- | ------ | ------ | ------- |
+| Searchable  | ✅   | ❌        | ✅       | ✅     | ✅     | ✅\*    |
+| Filterable  | ✅   | ❌        | ✅       | ✅     | ✅     | ✅\*    |
+| Reportable  | ✅   | ✅        | ✅       | ✅     | ✅     | ✅      |
+| Unique      | ✅   | ❌        | ❌       | ✅     | ❌     | ❌      |
+| External ID | ✅   | ❌        | ❌       | ✅     | ❌     | ❌      |
+| Roll-up     | ✅   | ❌        | ❌       | ✅     | ❌     | ❌      |
+| Editable    | ✅   | ✅        | ✅       | ✅     | ✅     | ❌      |
 
-*Formula fields inherit searchability/filterability from return type
+\*Formula fields inherit searchability/filterability from return type
 
 ---
 

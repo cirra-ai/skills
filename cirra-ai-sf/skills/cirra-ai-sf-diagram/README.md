@@ -36,29 +36,29 @@ Request: "Create a JWT Bearer OAuth flow diagram"
 
 ### Common Operations
 
-| Operation | Example Request |
-| --------- | ------------------------------------------------------- |
-| OAuth Flow | "Create a JWT Bearer OAuth flow diagram" |
-| ERD | "Create an ERD for Account, Contact, and Opportunity" |
-| Integration | "Diagram our Salesforce to SAP integration" |
-| Landscape | "Create a system architecture diagram" |
-| Hierarchy | "Visualize our role hierarchy" |
-| Agentforce | "Create flow diagram for FAQ Agent" |
+| Operation   | Example Request                                       |
+| ----------- | ----------------------------------------------------- |
+| OAuth Flow  | "Create a JWT Bearer OAuth flow diagram"              |
+| ERD         | "Create an ERD for Account, Contact, and Opportunity" |
+| Integration | "Diagram our Salesforce to SAP integration"           |
+| Landscape   | "Create a system architecture diagram"                |
+| Hierarchy   | "Visualize our role hierarchy"                        |
+| Agentforce  | "Create flow diagram for FAQ Agent"                   |
 
 ## Related Skills
 
-| Skill | When to Use |
-| -------------------- | -------------------------------------------------------- |
-| cirra-ai-sf-metadata | Get real object/field definitions for ERD diagrams |
-| cirra-ai-sf-permissions | Get permission data for hierarchy visualizations |
+| Skill                   | When to Use                                        |
+| ----------------------- | -------------------------------------------------- |
+| cirra-ai-sf-metadata    | Get real object/field definitions for ERD diagrams |
+| cirra-ai-sf-permissions | Get permission data for hierarchy visualizations   |
 
 ## Cirra AI MCP Tools (for org discovery)
 
-| Operation | MCP Tool |
-| --------- | ------------------------------------------ |
-| Describe Object | `sobject_describe(sObject)` |
-| Record Counts | `soql_query(fields=["COUNT(Id)"])` |
-| Custom Objects | `tooling_api_query(sObject="CustomObject")` |
+| Operation       | MCP Tool                                    |
+| --------------- | ------------------------------------------- |
+| Describe Object | `sobject_describe(sObject)`                 |
+| Record Counts   | `soql_query(fields=["COUNT(Id)"])`          |
+| Custom Objects  | `tooling_api_query(sObject="CustomObject")` |
 
 ## Requirements
 

@@ -3,6 +3,7 @@
 OAuth 2.0 User-Agent flow combined with Social Sign-On (OIDC), where Salesforce acts as both the Authorization Provider (for the client) and the Relying Party (to the external OIDC Provider like Facebook, Google, etc.).
 
 ## When to Use
+
 - Mobile apps or SPAs requiring social login (Google, Facebook, etc.)
 - When Salesforce is an intermediary between your app and social identity providers
 - User-Agent flow (implicit-like) with external OIDC authentication
@@ -193,21 +194,21 @@ sequenceDiagram
 
 ### Dual Role of Salesforce
 
-| Role | Context | Responsibility |
-|------|---------|----------------|
-| **Authorization Provider** | OAuth flow with Client | Issues access tokens to your app |
-| **Relying Party (RP)** | OIDC flow with Social Provider | Consumes ID tokens from Google/Facebook |
+| Role                       | Context                        | Responsibility                          |
+| -------------------------- | ------------------------------ | --------------------------------------- |
+| **Authorization Provider** | OAuth flow with Client         | Issues access tokens to your app        |
+| **Relying Party (RP)**     | OIDC flow with Social Provider | Consumes ID tokens from Google/Facebook |
 
 ### Authentication Endpoints
 
-| System | Endpoint | Purpose |
-|--------|----------|---------|
-| Salesforce Auth | `/services/oauth2/authorize` | Start User-Agent flow |
-| Salesforce Callback | `/services/authglobalcallback` | Receive OP auth code |
-| Salesforce Token | `/services/oauth2/token` | (Not used in User-Agent) |
-| OP Authorization | Provider-specific | `/authorize` endpoint |
-| OP Token | Provider-specific | Exchange code for tokens |
-| OP UserInfo | Provider-specific | Get user profile claims |
+| System              | Endpoint                       | Purpose                  |
+| ------------------- | ------------------------------ | ------------------------ |
+| Salesforce Auth     | `/services/oauth2/authorize`   | Start User-Agent flow    |
+| Salesforce Callback | `/services/authglobalcallback` | Receive OP auth code     |
+| Salesforce Token    | `/services/oauth2/token`       | (Not used in User-Agent) |
+| OP Authorization    | Provider-specific              | `/authorize` endpoint    |
+| OP Token            | Provider-specific              | Exchange code for tokens |
+| OP UserInfo         | Provider-specific              | Get user profile claims  |
 
 ## Security Considerations
 
@@ -258,17 +259,18 @@ public class SocialLoginHandler implements Auth.RegistrationHandler {
 
 ## Token Types
 
-| Token | Issued By | Purpose |
-|-------|-----------|---------|
-| OP Auth Code | OIDC Provider | Short-lived, exchanged by SF |
-| OP ID Token | OIDC Provider | JWT with user identity claims |
-| OP Access Token | OIDC Provider | Used by SF to call OP UserInfo |
-| SF Access Token | Salesforce | Used by Client to call SF APIs |
-| SF Refresh Token | Salesforce | Long-lived, refresh SF access |
+| Token            | Issued By     | Purpose                        |
+| ---------------- | ------------- | ------------------------------ |
+| OP Auth Code     | OIDC Provider | Short-lived, exchanged by SF   |
+| OP ID Token      | OIDC Provider | JWT with user identity claims  |
+| OP Access Token  | OIDC Provider | Used by SF to call OP UserInfo |
+| SF Access Token  | Salesforce    | Used by Client to call SF APIs |
+| SF Refresh Token | Salesforce    | Long-lived, refresh SF access  |
 
 ## Customization Points
 
 Replace these placeholders:
+
 - `CLIENT_ID` → Your Connected App's Consumer Key
 - `CALLBACK_URL` → Your registered callback URL
 - `OP_CLIENT_ID` → Consumer Key from Social Provider

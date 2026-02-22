@@ -4,17 +4,17 @@ Pre-built data model for Salesforce Scheduler (Lightning Scheduler) using `flowc
 
 ## Objects Included
 
-| Object | Type | Description |
-|--------|------|-------------|
-| ServiceAppointment | STD | Scheduled appointments |
-| ServiceResource | STD | People/equipment |
-| ServiceTerritory | STD | Service locations |
-| ServiceTerritoryMember | STD | Resource assignments |
-| WorkType | STD | Service types |
-| WorkTypeGroup | STD | Grouped work types |
-| AssignedResource | STD | Appointment assignments |
-| ResourceAbsence | STD | Time off/unavailability |
-| TimeSlot | STD | Available time slots |
+| Object                 | Type | Description             |
+| ---------------------- | ---- | ----------------------- |
+| ServiceAppointment     | STD  | Scheduled appointments  |
+| ServiceResource        | STD  | People/equipment        |
+| ServiceTerritory       | STD  | Service locations       |
+| ServiceTerritoryMember | STD  | Resource assignments    |
+| WorkType               | STD  | Service types           |
+| WorkTypeGroup          | STD  | Grouped work types      |
+| AssignedResource       | STD  | Appointment assignments |
+| ResourceAbsence        | STD  | Time off/unavailability |
+| TimeSlot               | STD  | Available time slots    |
 
 ---
 
@@ -112,6 +112,7 @@ flowchart LR
 ## Key Concepts
 
 ### Scheduling Flow
+
 ```
 Customer (Contact) → WorkType → ServiceAppointment ← ServiceResource
                                         ↓
@@ -119,20 +120,22 @@ Customer (Contact) → WorkType → ServiceAppointment ← ServiceResource
 ```
 
 ### Resource Availability
-| Object | Purpose |
-|--------|---------|
-| OperatingHours | Business hours definition |
-| TimeSlot | Available booking slots |
-| ResourceAbsence | Time off, breaks |
+
+| Object                 | Purpose                      |
+| ---------------------- | ---------------------------- |
+| OperatingHours         | Business hours definition    |
+| TimeSlot               | Available booking slots      |
+| ResourceAbsence        | Time off, breaks             |
 | ServiceTerritoryMember | Territory assignment + hours |
 
 ### ServiceResource Types
-| Type | Description |
-|------|-------------|
-| Technician | Field service worker |
+
+| Type       | Description            |
+| ---------- | ---------------------- |
+| Technician | Field service worker   |
 | Dispatcher | Scheduling coordinator |
-| Crew | Group of resources |
-| Asset | Equipment, vehicles |
+| Crew       | Group of resources     |
+| Asset      | Equipment, vehicles    |
 
 ---
 
@@ -227,43 +230,43 @@ flowchart LR
 
 ## Key Relationships Summary
 
-| Parent | Child | Type | Behavior |
-|--------|-------|------|----------|
-| ServiceTerritory | ServiceTerritoryMember | MD | Cascade delete |
-| ServiceResource | ServiceTerritoryMember | LK | Resource reference |
-| ServiceAppointment | AssignedResource | MD | Cascade delete |
-| ServiceResource | AssignedResource | LK | Resource reference |
-| ServiceResource | ResourceAbsence | MD | Cascade delete |
-| WorkTypeGroup | WorkTypeGroupMember | MD | Cascade delete |
-| WorkType | WorkTypeGroupMember | LK | Work type reference |
-| Account | ServiceAppointment | LK | Customer |
-| Contact | ServiceAppointment | LK | Contact person |
-| ServiceTerritory | ServiceAppointment | LK | Service location |
-| WorkType | ServiceAppointment | LK | Appointment type |
+| Parent             | Child                  | Type | Behavior            |
+| ------------------ | ---------------------- | ---- | ------------------- |
+| ServiceTerritory   | ServiceTerritoryMember | MD   | Cascade delete      |
+| ServiceResource    | ServiceTerritoryMember | LK   | Resource reference  |
+| ServiceAppointment | AssignedResource       | MD   | Cascade delete      |
+| ServiceResource    | AssignedResource       | LK   | Resource reference  |
+| ServiceResource    | ResourceAbsence        | MD   | Cascade delete      |
+| WorkTypeGroup      | WorkTypeGroupMember    | MD   | Cascade delete      |
+| WorkType           | WorkTypeGroupMember    | LK   | Work type reference |
+| Account            | ServiceAppointment     | LK   | Customer            |
+| Contact            | ServiceAppointment     | LK   | Contact person      |
+| ServiceTerritory   | ServiceAppointment     | LK   | Service location    |
+| WorkType           | ServiceAppointment     | LK   | Appointment type    |
 
 ---
 
 ## Limits & Considerations
 
-| Limit | Value |
-|-------|-------|
-| Resources per territory | Unlimited |
-| Territories per resource | Unlimited |
-| Appointments per day | Performance consideration |
-| Operating hours slots | 24 per day max |
-| Time slot duration | Configurable (minutes) |
+| Limit                    | Value                     |
+| ------------------------ | ------------------------- |
+| Resources per territory  | Unlimited                 |
+| Territories per resource | Unlimited                 |
+| Appointments per day     | Performance consideration |
+| Operating hours slots    | 24 per day max            |
+| Time slot duration       | Configurable (minutes)    |
 
 ---
 
 ## Scheduler vs Field Service
 
-| Feature | Scheduler | Field Service |
-|---------|-----------|---------------|
-| Focus | Appointments | Work orders |
-| Optimization | Basic | Advanced (FSL) |
-| Gantt | No | Yes |
-| Dispatch | Manual | Automated |
-| Mobile | Standard app | FSL Mobile |
+| Feature      | Scheduler    | Field Service  |
+| ------------ | ------------ | -------------- |
+| Focus        | Appointments | Work orders    |
+| Optimization | Basic        | Advanced (FSL) |
+| Gantt        | No           | Yes            |
+| Dispatch     | Manual       | Automated      |
+| Mobile       | Standard app | FSL Mobile     |
 
 ---
 

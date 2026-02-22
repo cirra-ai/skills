@@ -19,14 +19,14 @@ AskUserQuestion:
 
 ## Generation Rules
 
-| Field Type | Include in Permission Set? | Notes |
-|------------|---------------------------|-------|
-| Required fields | NO | Auto-visible, Salesforce rejects in Permission Set |
-| Optional fields | YES | Include with `editable: true, readable: true` |
-| Formula fields | YES | Include with `editable: false, readable: true` |
-| Roll-Up Summary | YES | Include with `editable: false, readable: true` |
-| Master-Detail | NO | Controlled by parent object permissions |
-| Name field | NO | Always visible, cannot be in Permission Set |
+| Field Type      | Include in Permission Set? | Notes                                              |
+| --------------- | -------------------------- | -------------------------------------------------- |
+| Required fields | NO                         | Auto-visible, Salesforce rejects in Permission Set |
+| Optional fields | YES                        | Include with `editable: true, readable: true`      |
+| Formula fields  | YES                        | Include with `editable: false, readable: true`     |
+| Roll-Up Summary | YES                        | Include with `editable: false, readable: true`     |
+| Master-Detail   | NO                         | Controlled by parent object permissions            |
+| Name field      | NO                         | Always visible, cannot be in Permission Set        |
 
 ## Workflow
 

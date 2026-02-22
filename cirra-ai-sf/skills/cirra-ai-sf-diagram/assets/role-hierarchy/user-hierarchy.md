@@ -3,6 +3,7 @@
 Flowchart template for visualizing Salesforce role hierarchies and permission structures.
 
 ## When to Use
+
 - Documenting org security model
 - Planning role hierarchy changes
 - Explaining data access patterns
@@ -260,23 +261,23 @@ flowchart TB
 
 ## Security Components
 
-| Component | Purpose | Shape |
-|-----------|---------|-------|
-| Role | Data visibility hierarchy | Rectangle |
-| Profile | Base object/field access | Rounded |
-| Permission Set | Additive permissions | Hexagon |
-| Permission Set Group | Bundle of perm sets | Hexagon (orange) |
+| Component            | Purpose                   | Shape            |
+| -------------------- | ------------------------- | ---------------- |
+| Role                 | Data visibility hierarchy | Rectangle        |
+| Profile              | Base object/field access  | Rounded          |
+| Permission Set       | Additive permissions      | Hexagon          |
+| Permission Set Group | Bundle of perm sets       | Hexagon (orange) |
 
 ## Data Access Patterns
 
 ### OWD (Organization-Wide Defaults)
 
-| Setting | Meaning |
-|---------|---------|
-| Private | Owner + hierarchy above |
-| Public Read Only | All can view |
-| Public Read/Write | All can edit |
-| Controlled by Parent | Inherits from master |
+| Setting              | Meaning                 |
+| -------------------- | ----------------------- |
+| Private              | Owner + hierarchy above |
+| Public Read Only     | All can view            |
+| Public Read/Write    | All can edit            |
+| Controlled by Parent | Inherits from master    |
 
 ### Sharing Rules
 

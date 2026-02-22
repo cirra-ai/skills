@@ -1,4 +1,5 @@
 <!-- Parent: sf-diagram-mermaid/SKILL.md -->
+
 # sf-diagram Usage Examples
 
 Real-world examples of using the sf-diagram skill.
@@ -8,6 +9,7 @@ Real-world examples of using the sf-diagram skill.
 ## Example 1: OAuth Flow Diagram
 
 ### Request
+
 ```
 "Create a JWT Bearer OAuth flow diagram for our CI/CD pipeline integration"
 ```
@@ -15,6 +17,7 @@ Real-world examples of using the sf-diagram skill.
 ### Generated Output
 
 #### Mermaid Diagram
+
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': {
   'actorBkg': '#ddd6fe',
@@ -60,6 +63,7 @@ sequenceDiagram
 ```
 
 #### ASCII Fallback
+
 ```
 ┌───────────────────────┐     ┌────────────────────┐
 │   GitHub Actions      │     │     Salesforce     │
@@ -81,6 +85,7 @@ sequenceDiagram
 ```
 
 ### Score
+
 ```
 Score: 72/80 ⭐⭐⭐⭐⭐ Excellent
 ├─ Accuracy: 20/20     ✓ All JWT Bearer steps correct
@@ -95,6 +100,7 @@ Score: 72/80 ⭐⭐⭐⭐⭐ Excellent
 ## Example 2: Data Model ERD
 
 ### Request
+
 ```
 "Create an ERD for our custom Invoice system with Invoice__c, Invoice_Line_Item__c, and relationships to Account and Product"
 ```
@@ -102,6 +108,7 @@ Score: 72/80 ⭐⭐⭐⭐⭐ Excellent
 ### Generated Output
 
 #### Mermaid Diagram
+
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': {
   'primaryColor': '#a5f3fc',
@@ -168,6 +175,7 @@ erDiagram
 ```
 
 #### ASCII Fallback
+
 ```
 ┌─────────────────────────┐       ┌─────────────────────────┐
 │        ACCOUNT          │       │        CONTACT          │
@@ -214,6 +222,7 @@ erDiagram
 ```
 
 ### Score
+
 ```
 Score: 74/80 ⭐⭐⭐⭐⭐ Excellent
 ├─ Accuracy: 20/20     ✓ All relationships correct
@@ -228,6 +237,7 @@ Score: 74/80 ⭐⭐⭐⭐⭐ Excellent
 ## Example 3: Integration Sequence
 
 ### Request
+
 ```
 "Diagram our real-time Order sync from Salesforce to SAP using Platform Events"
 ```
@@ -235,6 +245,7 @@ Score: 74/80 ⭐⭐⭐⭐⭐ Excellent
 ### Generated Output
 
 #### Mermaid Diagram
+
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': {
   'actorBkg': '#ddd6fe',
@@ -302,6 +313,7 @@ sequenceDiagram
 ```
 
 ### Score
+
 ```
 Score: 70/80 ⭐⭐⭐⭐ Very Good
 ├─ Accuracy: 19/20     ✓ Platform Event pattern correct
@@ -316,6 +328,7 @@ Score: 70/80 ⭐⭐⭐⭐ Very Good
 ## Example 4: Combined Request
 
 ### Request
+
 ```
 "I need to document our partner portal authentication.
 Create: 1) The OAuth flow for partner login, 2) The data model showing Partner Account, Portal User, and Opportunities they can see"

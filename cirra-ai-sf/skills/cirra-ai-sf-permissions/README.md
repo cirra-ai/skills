@@ -35,30 +35,30 @@ Request: "Who has delete access to the Account object?"
 
 ### Common Operations
 
-| Operation | Example Request |
-| --------- | ------------------------------------------------------- |
-| Hierarchy | "Show the permission set hierarchy in my org" |
-| Who Has X? | "Who has edit access to Account.AnnualRevenue?" |
-| User Analysis | "What permissions does john@company.com have?" |
-| Security Audit | "Find all permission sets with ModifyAllData" |
-| PS Creation | "Create a read-only permission set for contractors" |
+| Operation      | Example Request                                     |
+| -------------- | --------------------------------------------------- |
+| Hierarchy      | "Show the permission set hierarchy in my org"       |
+| Who Has X?     | "Who has edit access to Account.AnnualRevenue?"     |
+| User Analysis  | "What permissions does john@company.com have?"      |
+| Security Audit | "Find all permission sets with ModifyAllData"       |
+| PS Creation    | "Create a read-only permission set for contractors" |
 
 ## Related Skills
 
-| Skill | When to Use |
-| -------------------- | -------------------------------------------------------- |
-| cirra-ai-sf-metadata | Create permission sets and manage metadata |
-| cirra-ai-sf-diagram | Visualize permission hierarchies as Mermaid diagrams |
-| cirra-ai-sf-data | Query user assignments in bulk |
+| Skill                | When to Use                                          |
+| -------------------- | ---------------------------------------------------- |
+| cirra-ai-sf-metadata | Create permission sets and manage metadata           |
+| cirra-ai-sf-diagram  | Visualize permission hierarchies as Mermaid diagrams |
+| cirra-ai-sf-data     | Query user assignments in bulk                       |
 
 ## Cirra AI MCP Tools
 
-| Operation | MCP Tool |
-| --------- | ------------------------------------------ |
-| Query PS/PSG | `soql_query(sObject="PermissionSet")` |
+| Operation         | MCP Tool                                  |
+| ----------------- | ----------------------------------------- |
+| Query PS/PSG      | `soql_query(sObject="PermissionSet")`     |
 | Query Permissions | `soql_query(sObject="ObjectPermissions")` |
-| Tooling Queries | `tooling_api_query(sObject, fields)` |
-| Create PS | `metadata_create(type="PermissionSet")` |
+| Tooling Queries   | `tooling_api_query(sObject, fields)`      |
+| Create PS         | `metadata_create(type="PermissionSet")`   |
 
 ## Requirements
 

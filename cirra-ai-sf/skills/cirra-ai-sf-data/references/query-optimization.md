@@ -5,11 +5,13 @@
 ## Indexing Strategy
 
 **Indexed Fields** (Always Selective):
+
 - Id, Name, OwnerId, CreatedDate, LastModifiedDate, RecordTypeId
 - External ID fields, Master-Detail relationship fields
 - Lookup fields (when unique)
 
 **Standard Indexed Fields by Object**:
+
 - Account: AccountNumber, Site
 - Contact: Email
 - Lead: Email
@@ -52,20 +54,22 @@ Use the Developer Console to analyze query plans:
 3. Run query in Query Editor → click **Query Plan**
 
 **Plan Output Interpretation**:
+
 - `Cardinality`: Estimated rows returned
 - `Cost`: Relative query cost (lower is better)
 - `Fields`: Index fields used
 - `LeadingOperationType`: How the query starts (Index vs TableScan)
+
 ---
 
 ## Governor Limits
 
-| Limit | Synchronous | Asynchronous |
-|-------|-------------|--------------|
-| Total SOQL Queries | 100 | 200 |
-| Records Retrieved | 50,000 | 50,000 |
-| Query Rows (queryMore) | 2,000 | 2,000 |
-| Query Locator Rows | 10 million | 10 million |
+| Limit                  | Synchronous | Asynchronous |
+| ---------------------- | ----------- | ------------ |
+| Total SOQL Queries     | 100         | 200          |
+| Records Retrieved      | 50,000      | 50,000       |
+| Query Rows (queryMore) | 2,000       | 2,000        |
+| Query Locator Rows     | 10 million  | 10 million   |
 
 ### Efficient Patterns
 

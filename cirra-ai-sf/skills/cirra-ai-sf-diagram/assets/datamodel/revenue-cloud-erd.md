@@ -4,16 +4,16 @@ Pre-built data model for Salesforce Revenue Cloud (CPQ, Billing, Subscription Ma
 
 ## Objects Included
 
-| Object | Type | Description |
-|--------|------|-------------|
-| ProductCatalog | STD | Product catalogs |
-| ProductCategory | STD | Category hierarchy |
-| ProductSellingModel | STD | Selling configurations |
-| ProductSellingModelOption | STD | Model options |
-| PriceAdjustmentSchedule | STD | Discount schedules |
-| PriceAdjustmentTier | STD | Discount tiers |
-| ProductAttribute | STD | Product attributes |
-| ProductAttributeSet | STD | Attribute groupings |
+| Object                    | Type | Description            |
+| ------------------------- | ---- | ---------------------- |
+| ProductCatalog            | STD  | Product catalogs       |
+| ProductCategory           | STD  | Category hierarchy     |
+| ProductSellingModel       | STD  | Selling configurations |
+| ProductSellingModelOption | STD  | Model options          |
+| PriceAdjustmentSchedule   | STD  | Discount schedules     |
+| PriceAdjustmentTier       | STD  | Discount tiers         |
+| ProductAttribute          | STD  | Product attributes     |
+| ProductAttributeSet       | STD  | Attribute groupings    |
 
 ---
 
@@ -101,14 +101,16 @@ flowchart LR
 ## Key Concepts
 
 ### Revenue Cloud Components
-| Component | Purpose |
-|-----------|---------|
-| **Industries CPQ** | Configure-Price-Quote |
-| **Subscription Management** | Recurring billing |
-| **Revenue Lifecycle** | Rev rec, forecasting |
-| **Dynamic Revenue Orchestration** | Guided selling |
+
+| Component                         | Purpose               |
+| --------------------------------- | --------------------- |
+| **Industries CPQ**                | Configure-Price-Quote |
+| **Subscription Management**       | Recurring billing     |
+| **Revenue Lifecycle**             | Rev rec, forecasting  |
+| **Dynamic Revenue Orchestration** | Guided selling        |
 
 ### Product Hierarchy
+
 ```
 ProductCatalog
     └── ProductCategory (Hierarchy)
@@ -119,21 +121,23 @@ ProductCatalog
 ```
 
 ### Selling Model Types
-| Type | Description |
-|------|-------------|
-| One-Time | Single purchase |
-| Subscription | Recurring billing |
-| Usage-Based | Consumption pricing |
-| Evergreen | Auto-renewing |
-| Term | Fixed duration |
+
+| Type         | Description         |
+| ------------ | ------------------- |
+| One-Time     | Single purchase     |
+| Subscription | Recurring billing   |
+| Usage-Based  | Consumption pricing |
+| Evergreen    | Auto-renewing       |
+| Term         | Fixed duration      |
 
 ### Price Adjustment Schedules
-| Schedule Type | Use Case |
-|---------------|----------|
-| Volume Discount | Quantity-based tiers |
-| Contract Discount | Agreement discounts |
-| Promotional | Time-limited offers |
-| Bundled | Package pricing |
+
+| Schedule Type     | Use Case             |
+| ----------------- | -------------------- |
+| Volume Discount   | Quantity-based tiers |
+| Contract Discount | Agreement discounts  |
+| Promotional       | Time-limited offers  |
+| Bundled           | Package pricing      |
 
 ---
 
@@ -293,44 +297,44 @@ flowchart LR
 
 ## Key Relationships Summary
 
-| Parent | Child | Type | Behavior |
-|--------|-------|------|----------|
-| ProductCatalog | ProductCategory | MD | Cascade delete |
-| ProductCategory | ProductCategory | LK | Parent (hierarchy) |
-| ProductCategory | Product2 | LK | Product classification |
-| Product2 | ProductSellingModel | LK | Selling configuration |
-| ProductSellingModel | ProductSellingModelOption | MD | Model options |
-| PriceAdjustmentSchedule | PriceAdjustmentTier | MD | Discount tiers |
-| Pricebook2 | PricebookEntry | MD | Product prices |
-| Product2 | PricebookEntry | LK | Product reference |
-| ProductAttributeSet | ProductAttributeSetItem | MD | Attribute membership |
-| ProductAttribute | ProductAttributeSetItem | LK | Attribute reference |
+| Parent                  | Child                     | Type | Behavior               |
+| ----------------------- | ------------------------- | ---- | ---------------------- |
+| ProductCatalog          | ProductCategory           | MD   | Cascade delete         |
+| ProductCategory         | ProductCategory           | LK   | Parent (hierarchy)     |
+| ProductCategory         | Product2                  | LK   | Product classification |
+| Product2                | ProductSellingModel       | LK   | Selling configuration  |
+| ProductSellingModel     | ProductSellingModelOption | MD   | Model options          |
+| PriceAdjustmentSchedule | PriceAdjustmentTier       | MD   | Discount tiers         |
+| Pricebook2              | PricebookEntry            | MD   | Product prices         |
+| Product2                | PricebookEntry            | LK   | Product reference      |
+| ProductAttributeSet     | ProductAttributeSetItem   | MD   | Attribute membership   |
+| ProductAttribute        | ProductAttributeSetItem   | LK   | Attribute reference    |
 
 ---
 
 ## Limits & Considerations
 
-| Limit | Value |
-|-------|-------|
-| Product categories depth | 10 levels |
-| Products per catalog | Unlimited (LDV) |
-| Selling models per product | Multiple |
-| Discount tiers per schedule | Unlimited |
-| Attributes per product | Unlimited |
-| Pricebooks per org | Unlimited |
+| Limit                       | Value           |
+| --------------------------- | --------------- |
+| Product categories depth    | 10 levels       |
+| Products per catalog        | Unlimited (LDV) |
+| Selling models per product  | Multiple        |
+| Discount tiers per schedule | Unlimited       |
+| Attributes per product      | Unlimited       |
+| Pricebooks per org          | Unlimited       |
 
 ---
 
 ## Revenue Cloud vs Salesforce CPQ
 
-| Feature | Revenue Cloud | Salesforce CPQ |
-|---------|---------------|----------------|
-| Platform | Industries | Core |
-| Bundles | Dynamic | Static |
-| Attributes | Dynamic | Limited |
-| Selling Models | Native | Custom |
-| Subscription | Native | Requires add-on |
-| Target | Industry-specific | General |
+| Feature        | Revenue Cloud     | Salesforce CPQ  |
+| -------------- | ----------------- | --------------- |
+| Platform       | Industries        | Core            |
+| Bundles        | Dynamic           | Static          |
+| Attributes     | Dynamic           | Limited         |
+| Selling Models | Native            | Custom          |
+| Subscription   | Native            | Requires add-on |
+| Target         | Industry-specific | General         |
 
 ---
 

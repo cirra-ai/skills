@@ -1,4 +1,5 @@
 <!-- Parent: sf-diagram-mermaid/SKILL.md -->
+
 # Diagram Conventions
 
 Consistency guidelines for all sf-diagram generated diagrams.
@@ -16,27 +17,27 @@ Consistency guidelines for all sf-diagram generated diagrams.
 
 ### Actor Naming
 
-| System | Display Name | Icon |
-|--------|--------------|------|
-| End User | User | 👤 |
-| Web Browser | Browser | 🌐 |
-| Mobile App | Mobile App | 📱 |
-| Backend Server | App Server | 🖥️ |
-| Salesforce Auth | Salesforce<br/>Authorization Server | ☁️ |
-| Salesforce API | Salesforce<br/>REST API | 📊 |
-| External API | [System Name]<br/>API | 🏭 |
-| Middleware | [Name]<br/>(MuleSoft, etc.) | 🔄 |
-| Database | Database / Data Lake | 💾 |
+| System          | Display Name                        | Icon |
+| --------------- | ----------------------------------- | ---- |
+| End User        | User                                | 👤   |
+| Web Browser     | Browser                             | 🌐   |
+| Mobile App      | Mobile App                          | 📱   |
+| Backend Server  | App Server                          | 🖥️   |
+| Salesforce Auth | Salesforce<br/>Authorization Server | ☁️   |
+| Salesforce API  | Salesforce<br/>REST API             | 📊   |
+| External API    | [System Name]<br/>API               | 🏭   |
+| Middleware      | [Name]<br/>(MuleSoft, etc.)         | 🔄   |
+| Database        | Database / Data Lake                | 💾   |
 
 ### Arrow Usage
 
-| Scenario | Arrow | Example |
-|----------|-------|---------|
-| HTTP Request | `->>` | `Client->>Server: GET /api` |
-| HTTP Response | `-->>` | `Server-->>Client: 200 OK` |
-| Async (fire-forget) | `-)` | `Trigger-)Queue: Enqueue job` |
-| Internal call | `->` | `Service->Service: Process` |
-| Failed/Error | `-x` | `Client-x Server: 500 Error` |
+| Scenario            | Arrow  | Example                       |
+| ------------------- | ------ | ----------------------------- |
+| HTTP Request        | `->>`  | `Client->>Server: GET /api`   |
+| HTTP Response       | `-->>` | `Server-->>Client: 200 OK`    |
+| Async (fire-forget) | `-)`   | `Trigger-)Queue: Enqueue job` |
+| Internal call       | `->`   | `Service->Service: Process`   |
+| Failed/Error        | `-x`   | `Client-x Server: 500 Error`  |
 
 ### Standard Sections
 
@@ -93,35 +94,35 @@ OBJECT {
 
 **Type Mapping:**
 
-| Salesforce Type | ERD Type |
-|-----------------|----------|
-| Id | Id |
-| Text, String | Text |
-| Number, Integer | Number |
-| Decimal, Double | Decimal |
-| Currency | Currency |
-| Percent | Percent |
-| Checkbox | Checkbox |
-| Date | Date |
-| DateTime | DateTime |
-| Picklist | Picklist |
+| Salesforce Type       | ERD Type      |
+| --------------------- | ------------- |
+| Id                    | Id            |
+| Text, String          | Text          |
+| Number, Integer       | Number        |
+| Decimal, Double       | Decimal       |
+| Currency              | Currency      |
+| Percent               | Percent       |
+| Checkbox              | Checkbox      |
+| Date                  | Date          |
+| DateTime              | DateTime      |
+| Picklist              | Picklist      |
 | Multi-Select Picklist | MultiPicklist |
-| Lookup | Lookup |
-| Master-Detail | MasterDetail |
-| Formula | Formula |
-| Roll-Up Summary | RollUp |
-| Email | Email |
-| Phone | Phone |
-| URL | URL |
-| Auto Number | AutoNumber |
+| Lookup                | Lookup        |
+| Master-Detail         | MasterDetail  |
+| Formula               | Formula       |
+| Roll-Up Summary       | RollUp        |
+| Email                 | Email         |
+| Phone                 | Phone         |
+| URL                   | URL           |
+| Auto Number           | AutoNumber    |
 
 **Annotations:**
 
-| Annotation | Meaning |
-|------------|---------|
-| PK | Primary Key (Id field) |
-| FK | Foreign Key (Lookup/Master-Detail) |
-| UK | Unique Key (External ID) |
+| Annotation | Meaning                            |
+| ---------- | ---------------------------------- |
+| PK         | Primary Key (Id field)             |
+| FK         | Foreign Key (Lookup/Master-Detail) |
+| UK         | Unique Key (External ID)           |
 
 **Comments:**
 
@@ -131,12 +132,12 @@ OBJECT {
 
 ### Relationship Lines
 
-| Relationship | Line | Salesforce Equivalent |
-|--------------|------|----------------------|
-| One-to-Many | `\|\|--o{` | Parent Lookup |
-| Many-to-Many | `}o--o{` | Junction Object |
-| One-to-One | `\|\|--\|\|` | Rare, use Lookup |
-| Master-Detail | `\|\|--\|{` | MD (cascade delete) |
+| Relationship  | Line         | Salesforce Equivalent |
+| ------------- | ------------ | --------------------- |
+| One-to-Many   | `\|\|--o{`   | Parent Lookup         |
+| Many-to-Many  | `}o--o{`     | Junction Object       |
+| One-to-One    | `\|\|--\|\|` | Rare, use Lookup      |
+| Master-Detail | `\|\|--\|{`  | MD (cascade delete)   |
 
 ### Layout Guidelines
 
@@ -151,23 +152,23 @@ OBJECT {
 
 ### Direction
 
-| Use Case | Direction |
-|----------|-----------|
-| Process flow | `TB` (Top to Bottom) |
+| Use Case           | Direction            |
+| ------------------ | -------------------- |
+| Process flow       | `TB` (Top to Bottom) |
 | System integration | `LR` (Left to Right) |
-| Hierarchy | `TB` |
-| Timeline | `LR` |
+| Hierarchy          | `TB`                 |
+| Timeline           | `LR`                 |
 
 ### Node Shapes
 
-| Concept | Shape | Syntax |
-|---------|-------|--------|
-| Start/End | Stadium | `([Start])` |
-| Process/Action | Rectangle | `[Process]` |
-| Decision | Diamond | `{Decision?}` |
-| Database | Cylinder | `[(Database)]` |
-| External System | Parallelogram | `[/External/]` |
-| Subprocess | Double Rectangle | `[[Subprocess]]` |
+| Concept         | Shape            | Syntax           |
+| --------------- | ---------------- | ---------------- |
+| Start/End       | Stadium          | `([Start])`      |
+| Process/Action  | Rectangle        | `[Process]`      |
+| Decision        | Diamond          | `{Decision?}`    |
+| Database        | Cylinder         | `[(Database)]`   |
+| External System | Parallelogram    | `[/External/]`   |
+| Subprocess      | Double Rectangle | `[[Subprocess]]` |
 
 ### Subgraph Usage
 
@@ -212,19 +213,19 @@ Rounded corners (optional):
 
 ### Line Characters
 
-| Character | Unicode | Usage |
-|-----------|---------|-------|
-| `─` | U+2500 | Horizontal line |
-| `│` | U+2502 | Vertical line |
-| `┌` | U+250C | Top-left corner |
-| `┐` | U+2510 | Top-right corner |
-| `└` | U+2514 | Bottom-left corner |
-| `┘` | U+2518 | Bottom-right corner |
-| `├` | U+251C | Left T-junction |
-| `┤` | U+2524 | Right T-junction |
-| `┬` | U+252C | Top T-junction |
-| `┴` | U+2534 | Bottom T-junction |
-| `┼` | U+253C | Cross junction |
+| Character | Unicode | Usage               |
+| --------- | ------- | ------------------- |
+| `─`       | U+2500  | Horizontal line     |
+| `│`       | U+2502  | Vertical line       |
+| `┌`       | U+250C  | Top-left corner     |
+| `┐`       | U+2510  | Top-right corner    |
+| `└`       | U+2514  | Bottom-left corner  |
+| `┘`       | U+2518  | Bottom-right corner |
+| `├`       | U+251C  | Left T-junction     |
+| `┤`       | U+2524  | Right T-junction    |
+| `┬`       | U+252C  | Top T-junction      |
+| `┴`       | U+2534  | Bottom T-junction   |
+| `┼`       | U+253C  | Cross junction      |
 
 ### Arrow Characters
 
@@ -267,30 +268,35 @@ Bidirectional: <──>
 ## Scoring Criteria
 
 ### Accuracy (20 points)
+
 - Correct actors/entities
 - Accurate flow sequence
 - Proper relationships (ERD)
 - Valid syntax
 
 ### Clarity (20 points)
+
 - Readable labels
 - Logical layout
 - Appropriate detail level
 - Good spacing
 
 ### Completeness (15 points)
+
 - All key steps included
 - Error paths shown (where applicable)
 - Annotations for context
 - Legend if needed
 
 ### Styling (15 points)
+
 - Consistent colors
 - Proper theming
 - Icons where helpful
 - Professional appearance
 
 ### Best Practices (10 points)
+
 - UML/notation conventions
 - Accessibility considerations
 - Dual format output

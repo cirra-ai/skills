@@ -4,18 +4,18 @@ Pre-built data model for Salesforce Consent Management (GDPR/Privacy) using `flo
 
 ## Objects Included
 
-| Object | Type | Description |
-|--------|------|-------------|
-| Individual | STD | Privacy identity |
-| Contact | STD | Contact record |
-| Lead | STD | Lead record |
-| ContactPointEmail | STD | Email contact points |
-| ContactPointPhone | STD | Phone contact points |
-| ContactPointAddress | STD | Address contact points |
-| DataUsePurpose | STD | Purpose definitions |
-| ContactPointConsent | STD | Consent per contact point |
-| CommSubscription | STD | Communication subscriptions |
-| CommSubscriptionConsent | STD | Subscription consent |
+| Object                  | Type | Description                 |
+| ----------------------- | ---- | --------------------------- |
+| Individual              | STD  | Privacy identity            |
+| Contact                 | STD  | Contact record              |
+| Lead                    | STD  | Lead record                 |
+| ContactPointEmail       | STD  | Email contact points        |
+| ContactPointPhone       | STD  | Phone contact points        |
+| ContactPointAddress     | STD  | Address contact points      |
+| DataUsePurpose          | STD  | Purpose definitions         |
+| ContactPointConsent     | STD  | Consent per contact point   |
+| CommSubscription        | STD  | Communication subscriptions |
+| CommSubscriptionConsent | STD  | Subscription consent        |
 
 ---
 
@@ -98,33 +98,37 @@ flowchart LR
 ## Key Concepts
 
 ### Individual Object
+
 - **Privacy identity** that links to Contact/Lead/User
 - Required for consent tracking
 - Can be auto-created when Contact/Lead created
 - Stores global privacy preferences
 
 ### Contact Points
-| Object | Purpose |
-|--------|---------|
-| ContactPointEmail | Email addresses |
-| ContactPointPhone | Phone numbers |
-| ContactPointAddress | Physical addresses |
-| ContactPointSocialHandle | Social media IDs |
+
+| Object                   | Purpose            |
+| ------------------------ | ------------------ |
+| ContactPointEmail        | Email addresses    |
+| ContactPointPhone        | Phone numbers      |
+| ContactPointAddress      | Physical addresses |
+| ContactPointSocialHandle | Social media IDs   |
 
 Each contact point links to an Individual.
 
 ### Consent Model
+
 ```
 DataUsePurpose  →  ContactPointConsent  ←  ContactPoint
 (e.g., Marketing)        (Opt-In/Out)        (Email/Phone)
 ```
 
 ### Consent Values
-| Value | Meaning |
-|-------|---------|
-| **OptIn** | Consent given |
-| **OptOut** | Consent withdrawn |
-| **Seen** | Notice displayed |
+
+| Value       | Meaning              |
+| ----------- | -------------------- |
+| **OptIn**   | Consent given        |
+| **OptOut**  | Consent withdrawn    |
+| **Seen**    | Notice displayed     |
 | **NotSeen** | Notice not yet shown |
 
 ---
@@ -215,41 +219,41 @@ flowchart LR
 
 ## Key Relationships Summary
 
-| Parent | Child | Type | Behavior |
-|--------|-------|------|----------|
-| Individual | Contact | LK | Privacy identity |
-| Individual | Lead | LK | Privacy identity |
-| Individual | ContactPointEmail | MD | Cascade delete |
-| Individual | ContactPointPhone | MD | Cascade delete |
-| Individual | ContactPointAddress | MD | Cascade delete |
-| ContactPointEmail | ContactPointConsent | LK | Email consent |
-| ContactPointPhone | ContactPointConsent | LK | Phone consent |
-| DataUsePurpose | ContactPointConsent | LK | Purpose reference |
-| CommSubscription | CommSubscriptionConsent | MD | Cascade delete |
-| Contact | CommSubscriptionConsent | LK | Subscriber |
+| Parent            | Child                   | Type | Behavior          |
+| ----------------- | ----------------------- | ---- | ----------------- |
+| Individual        | Contact                 | LK   | Privacy identity  |
+| Individual        | Lead                    | LK   | Privacy identity  |
+| Individual        | ContactPointEmail       | MD   | Cascade delete    |
+| Individual        | ContactPointPhone       | MD   | Cascade delete    |
+| Individual        | ContactPointAddress     | MD   | Cascade delete    |
+| ContactPointEmail | ContactPointConsent     | LK   | Email consent     |
+| ContactPointPhone | ContactPointConsent     | LK   | Phone consent     |
+| DataUsePurpose    | ContactPointConsent     | LK   | Purpose reference |
+| CommSubscription  | CommSubscriptionConsent | MD   | Cascade delete    |
+| Contact           | CommSubscriptionConsent | LK   | Subscriber        |
 
 ---
 
 ## GDPR Compliance Considerations
 
-| Right | Implementation |
-|-------|----------------|
-| **Right to Access** | Query Individual + Contact Points |
-| **Right to Rectification** | Update Contact Points |
-| **Right to Erasure** | Delete Individual (cascades) |
-| **Right to Restrict** | Set ConsentCaptureSource |
-| **Right to Object** | ContactPointConsent = OptOut |
+| Right                      | Implementation                    |
+| -------------------------- | --------------------------------- |
+| **Right to Access**        | Query Individual + Contact Points |
+| **Right to Rectification** | Update Contact Points             |
+| **Right to Erasure**       | Delete Individual (cascades)      |
+| **Right to Restrict**      | Set ConsentCaptureSource          |
+| **Right to Object**        | ContactPointConsent = OptOut      |
 
 ---
 
 ## Limits & Considerations
 
-| Limit | Value |
-|-------|-------|
-| Contact Points per Individual | Unlimited |
-| Data Use Purposes | Unlimited |
-| Consent records | LDV consideration |
-| Audit trail retention | Configurable |
+| Limit                         | Value             |
+| ----------------------------- | ----------------- |
+| Contact Points per Individual | Unlimited         |
+| Data Use Purposes             | Unlimited         |
+| Consent records               | LDV consideration |
+| Audit trail retention         | Configurable      |
 
 ---
 

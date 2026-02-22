@@ -31,14 +31,14 @@ The cirra-ai-sf-diagram skill provides comprehensive diagramming capabilities:
 
 ## Supported Diagram Types
 
-| Type | Mermaid Syntax | Use Case |
-|------|---------------|----------|
-| OAuth Flows | `sequenceDiagram` | Authorization Code, JWT Bearer, PKCE, Device Flow |
-| Data Models | `flowchart LR` | Object relationships with color coding (preferred) |
-| Integration Sequences | `sequenceDiagram` | API callouts, event-driven flows |
-| System Landscapes | `flowchart` | High-level architecture, component diagrams |
-| Role Hierarchies | `flowchart` | User hierarchies, profile/permission structures |
-| Agentforce Flows | `flowchart` | Agent -> Topic -> Action flows |
+| Type                  | Mermaid Syntax    | Use Case                                           |
+| --------------------- | ----------------- | -------------------------------------------------- |
+| OAuth Flows           | `sequenceDiagram` | Authorization Code, JWT Bearer, PKCE, Device Flow  |
+| Data Models           | `flowchart LR`    | Object relationships with color coding (preferred) |
+| Integration Sequences | `sequenceDiagram` | API callouts, event-driven flows                   |
+| System Landscapes     | `flowchart`       | High-level architecture, component diagrams        |
+| Role Hierarchies      | `flowchart`       | User hierarchies, profile/permission structures    |
+| Agentforce Flows      | `flowchart`       | Agent -> Topic -> Action flows                     |
 
 ---
 
@@ -49,6 +49,7 @@ The cirra-ai-sf-diagram skill provides comprehensive diagramming capabilities:
 If the diagram requires org metadata (ERDs, permission hierarchies), call `cirra_ai_init()` first.
 
 **Ask the user** to gather:
+
 - Diagram type (OAuth, ERD, Integration, Landscape, Role Hierarchy, Agentforce)
 - Specific flow or scope (e.g., "JWT Bearer flow" or "Account-Contact-Opportunity model")
 - Output preference (Mermaid only, ASCII only, or Both)
@@ -58,29 +59,31 @@ If the diagram requires org metadata (ERDs, permission hierarchies), call `cirra
 
 Select the appropriate template from `assets/`:
 
-| Diagram Type | Template File |
-|--------------|---------------|
-| Authorization Code Flow | `oauth/authorization-code.md` |
+| Diagram Type              | Template File                      |
+| ------------------------- | ---------------------------------- |
+| Authorization Code Flow   | `oauth/authorization-code.md`      |
 | Authorization Code + PKCE | `oauth/authorization-code-pkce.md` |
-| JWT Bearer Flow | `oauth/jwt-bearer.md` |
-| Client Credentials Flow | `oauth/client-credentials.md` |
-| Device Authorization Flow | `oauth/device-authorization.md` |
-| Refresh Token Flow | `oauth/refresh-token.md` |
-| Data Model (ERD) | `datamodel/salesforce-erd.md` |
-| Sales Cloud ERD | `datamodel/sales-cloud-erd.md` |
-| Service Cloud ERD | `datamodel/service-cloud-erd.md` |
-| Integration Sequence | `integration/api-sequence.md` |
-| System Landscape | `architecture/system-landscape.md` |
-| Role Hierarchy | `role-hierarchy/user-hierarchy.md` |
-| Agentforce Flow | `agentforce/agent-flow.md` |
+| JWT Bearer Flow           | `oauth/jwt-bearer.md`              |
+| Client Credentials Flow   | `oauth/client-credentials.md`      |
+| Device Authorization Flow | `oauth/device-authorization.md`    |
+| Refresh Token Flow        | `oauth/refresh-token.md`           |
+| Data Model (ERD)          | `datamodel/salesforce-erd.md`      |
+| Sales Cloud ERD           | `datamodel/sales-cloud-erd.md`     |
+| Service Cloud ERD         | `datamodel/service-cloud-erd.md`   |
+| Integration Sequence      | `integration/api-sequence.md`      |
+| System Landscape          | `architecture/system-landscape.md` |
+| Role Hierarchy            | `role-hierarchy/user-hierarchy.md` |
+| Agentforce Flow           | `agentforce/agent-flow.md`         |
 
 ### Phase 3: Data Collection
 
 **For OAuth Diagrams**:
+
 - Use standard actors (Browser, Client App, Salesforce)
 - Include all protocol steps with numbered sequence
 
 **For ERD/Data Model Diagrams**:
+
 1. If org connected, query object metadata for accurate relationships:
 
 ```
@@ -105,6 +108,7 @@ soql_query(
 5. Generate `flowchart LR` with color coding
 
 **For Integration Diagrams**:
+
 - Identify all systems involved
 - Capture request/response patterns
 - Note async vs sync interactions
@@ -112,6 +116,7 @@ soql_query(
 ### Phase 4: Diagram Generation
 
 **Generate Mermaid code**:
+
 1. Apply color scheme (see Styling Guide below)
 2. Add annotations and notes where helpful
 3. Include `autonumber` for sequence diagrams
@@ -119,6 +124,7 @@ soql_query(
 5. Keep ERD objects simple - show object name and record count only (no fields)
 
 **Generate ASCII fallback**:
+
 1. Use box-drawing characters: `--- | +`
 2. Use arrows: `-->` `<--` `---`
 3. Keep width under 80 characters when possible
@@ -133,20 +139,24 @@ soql_query(
 ## [Diagram Title]
 
 ### Mermaid Diagram
+
 ```mermaid
 [Generated Mermaid code]
 ```
 
 ### ASCII Fallback
+
 ```
 [Generated ASCII diagram]
 ```
 
 ### Key Points
+
 - [Important note 1]
 - [Important note 2]
 
 ### Diagram Score
+
 [Validation results]
 ````
 
@@ -157,17 +167,18 @@ soql_query(
 ### Preferred Format: `flowchart LR`
 
 Use `flowchart LR` (left-to-right) for data model diagrams. This format supports:
+
 - Individual node color coding by object type
 - Thick arrows (`==>`) for Master-Detail relationships
 - Left-to-right flow for readability
 
 ### Object Type Color Coding
 
-| Object Type | Color | Fill | Stroke |
-|-------------|-------|------|--------|
-| Standard Objects | Sky Blue | `#bae6fd` | `#0369a1` |
-| Custom Objects (`__c`) | Orange | `#fed7aa` | `#c2410c` |
-| External Objects (`__x`) | Green | `#a7f3d0` | `#047857` |
+| Object Type              | Color    | Fill      | Stroke    |
+| ------------------------ | -------- | --------- | --------- |
+| Standard Objects         | Sky Blue | `#bae6fd` | `#0369a1` |
+| Custom Objects (`__c`)   | Orange   | `#fed7aa` | `#c2410c` |
+| External Objects (`__x`) | Green    | `#a7f3d0` | `#047857` |
 
 ### Relationship Arrows
 
@@ -197,35 +208,35 @@ Display sharing model on entities: `OWD:Private`, `OWD:ReadWrite`, `OWD:Parent`
 
 ## Data Model Templates
 
-| Template | Objects | Asset Path |
-|----------|---------|------------|
-| **Core** | Account, Contact, Opportunity, Case | `datamodel/salesforce-erd.md` |
-| **Sales Cloud** | Account, Contact, Lead, Opportunity, Product, Campaign | `datamodel/sales-cloud-erd.md` |
-| **Service Cloud** | Case, Entitlement, Knowledge, ServiceContract | `datamodel/service-cloud-erd.md` |
-| **Campaigns** | Campaign, CampaignMember, CampaignInfluence | `datamodel/campaigns-erd.md` |
+| Template                 | Objects                                                | Asset Path                              |
+| ------------------------ | ------------------------------------------------------ | --------------------------------------- |
+| **Core**                 | Account, Contact, Opportunity, Case                    | `datamodel/salesforce-erd.md`           |
+| **Sales Cloud**          | Account, Contact, Lead, Opportunity, Product, Campaign | `datamodel/sales-cloud-erd.md`          |
+| **Service Cloud**        | Case, Entitlement, Knowledge, ServiceContract          | `datamodel/service-cloud-erd.md`        |
+| **Campaigns**            | Campaign, CampaignMember, CampaignInfluence            | `datamodel/campaigns-erd.md`            |
 | **Territory Management** | Territory2, Territory2Model, UserTerritory2Association | `datamodel/territory-management-erd.md` |
-| **Party Model** | AccountContactRelation, ContactContactRelation | `datamodel/party-model-erd.md` |
-| **Quote & Order** | Quote, QuoteLineItem, Order, OrderItem | `datamodel/quote-order-erd.md` |
-| **Forecasting** | ForecastingItem, ForecastingQuota, OpportunitySplit | `datamodel/forecasting-erd.md` |
-| **Consent (GDPR)** | Individual, ContactPointEmail, DataUsePurpose | `datamodel/consent-erd.md` |
-| **Files** | ContentDocument, ContentVersion, ContentDocumentLink | `datamodel/files-erd.md` |
-| **Scheduler** | ServiceAppointment, ServiceResource, ServiceTerritory | `datamodel/scheduler-erd.md` |
-| **Field Service** | WorkOrder, ServiceAppointment, TimeSheet | `datamodel/fsl-erd.md` |
-| **B2B Commerce** | WebStore, WebCart, BuyerGroup, BuyerAccount | `datamodel/b2b-commerce-erd.md` |
-| **Revenue Cloud** | ProductCatalog, ProductSellingModel, PriceAdjustment | `datamodel/revenue-cloud-erd.md` |
+| **Party Model**          | AccountContactRelation, ContactContactRelation         | `datamodel/party-model-erd.md`          |
+| **Quote & Order**        | Quote, QuoteLineItem, Order, OrderItem                 | `datamodel/quote-order-erd.md`          |
+| **Forecasting**          | ForecastingItem, ForecastingQuota, OpportunitySplit    | `datamodel/forecasting-erd.md`          |
+| **Consent (GDPR)**       | Individual, ContactPointEmail, DataUsePurpose          | `datamodel/consent-erd.md`              |
+| **Files**                | ContentDocument, ContentVersion, ContentDocumentLink   | `datamodel/files-erd.md`                |
+| **Scheduler**            | ServiceAppointment, ServiceResource, ServiceTerritory  | `datamodel/scheduler-erd.md`            |
+| **Field Service**        | WorkOrder, ServiceAppointment, TimeSheet               | `datamodel/fsl-erd.md`                  |
+| **B2B Commerce**         | WebStore, WebCart, BuyerGroup, BuyerAccount            | `datamodel/b2b-commerce-erd.md`         |
+| **Revenue Cloud**        | ProductCatalog, ProductSellingModel, PriceAdjustment   | `datamodel/revenue-cloud-erd.md`        |
 
 ---
 
 ## OAuth Flow Quick Reference
 
-| Flow | Use Case | Key Detail | Template |
-|------|----------|------------|----------|
-| **Authorization Code** | Web apps with backend | User -> Browser -> App -> SF | `oauth/authorization-code.md` |
-| **Auth Code + PKCE** | Mobile, SPAs, public clients | code_verifier + SHA256 challenge | `oauth/authorization-code-pkce.md` |
-| **JWT Bearer** | Server-to-server, CI/CD | Sign JWT with private key | `oauth/jwt-bearer.md` |
-| **Client Credentials** | Service accounts, background | No user context | `oauth/client-credentials.md` |
-| **Device Authorization** | CLI, IoT, Smart TVs | Poll for token after user auth | `oauth/device-authorization.md` |
-| **Refresh Token** | Extend access | Reuse existing tokens | `oauth/refresh-token.md` |
+| Flow                     | Use Case                     | Key Detail                       | Template                           |
+| ------------------------ | ---------------------------- | -------------------------------- | ---------------------------------- |
+| **Authorization Code**   | Web apps with backend        | User -> Browser -> App -> SF     | `oauth/authorization-code.md`      |
+| **Auth Code + PKCE**     | Mobile, SPAs, public clients | code_verifier + SHA256 challenge | `oauth/authorization-code-pkce.md` |
+| **JWT Bearer**           | Server-to-server, CI/CD      | Sign JWT with private key        | `oauth/jwt-bearer.md`              |
+| **Client Credentials**   | Service accounts, background | No user context                  | `oauth/client-credentials.md`      |
+| **Device Authorization** | CLI, IoT, Smart TVs          | Poll for token after user auth   | `oauth/device-authorization.md`    |
+| **Refresh Token**        | Extend access                | Reuse existing tokens            | `oauth/refresh-token.md`           |
 
 ---
 
@@ -240,15 +251,15 @@ style A fill:#fbcfe8,stroke:#be185d,color:#1f2937
 
 **Common Color Palette**:
 
-| Purpose | Fill | Stroke |
-|---------|------|--------|
-| Standard Object (Blue) | `#bae6fd` | `#0369a1` |
-| Custom Object (Orange) | `#fed7aa` | `#c2410c` |
+| Purpose                 | Fill      | Stroke    |
+| ----------------------- | --------- | --------- |
+| Standard Object (Blue)  | `#bae6fd` | `#0369a1` |
+| Custom Object (Orange)  | `#fed7aa` | `#c2410c` |
 | External Object (Green) | `#a7f3d0` | `#047857` |
-| Salesforce Cloud | `#ecfeff` | `#0e7490` |
-| External System | `#ecfdf5` | `#047857` |
-| Process/Action | `#c7d2fe` | `#4338ca` |
-| Error/Warning | `#fecaca` | `#b91c1c` |
+| Salesforce Cloud        | `#ecfeff` | `#0e7490` |
+| External System         | `#ecfdf5` | `#047857` |
+| Process/Action          | `#c7d2fe` | `#4338ca` |
+| Error/Warning           | `#fecaca` | `#b91c1c` |
 
 ---
 
@@ -270,6 +281,7 @@ Score: XX/80 - Rating
 ## Best Practices
 
 ### Sequence Diagrams
+
 - Use `autonumber` for OAuth flows (step tracking)
 - Use `->>` for requests, `-->>` for responses
 - Use `activate`/`deactivate` for long-running processes
@@ -277,6 +289,7 @@ Score: XX/80 - Rating
 - Add `Note over` for protocol details
 
 ### Data Model Diagrams
+
 - Use `flowchart LR` format (left-to-right flow)
 - Keep objects simple: name + record count only (no fields)
 - Color code by object type: Blue=Standard, Orange=Custom, Green=External
@@ -285,11 +298,13 @@ Score: XX/80 - Rating
 - Use API names, not labels
 
 ### Integration Diagrams
+
 - Show error paths with `alt`/`else` blocks
 - Include timeout handling for external calls
 - Mark async calls with `-)` notation
 
 ### ASCII Diagrams
+
 - Keep width <= 80 characters
 - Use consistent box sizes
 - Align arrows clearly
@@ -299,16 +314,16 @@ Score: XX/80 - Rating
 
 ## Cross-Skill Integration
 
-| From Skill | To cirra-ai-sf-diagram | When |
-|------------|------------------------|------|
-| cirra-ai-sf-metadata | -> cirra-ai-sf-diagram | Get real object/field definitions for ERD |
-| cirra-ai-sf-permissions | -> cirra-ai-sf-diagram | Visualize permission hierarchy |
-| cirra-ai-sf-flow | -> cirra-ai-sf-diagram | Document Flow logic as flowchart |
+| From Skill              | To cirra-ai-sf-diagram | When                                      |
+| ----------------------- | ---------------------- | ----------------------------------------- |
+| cirra-ai-sf-metadata    | -> cirra-ai-sf-diagram | Get real object/field definitions for ERD |
+| cirra-ai-sf-permissions | -> cirra-ai-sf-diagram | Visualize permission hierarchy            |
+| cirra-ai-sf-flow        | -> cirra-ai-sf-diagram | Document Flow logic as flowchart          |
 
-| From cirra-ai-sf-diagram | To Skill | When |
-|--------------------------|----------|------|
-| cirra-ai-sf-diagram | -> cirra-ai-sf-metadata | Need object structure for ERD |
-| cirra-ai-sf-diagram | -> cirra-ai-sf-permissions | Need permission data for hierarchy diagrams |
+| From cirra-ai-sf-diagram | To Skill                   | When                                        |
+| ------------------------ | -------------------------- | ------------------------------------------- |
+| cirra-ai-sf-diagram      | -> cirra-ai-sf-metadata    | Need object structure for ERD               |
+| cirra-ai-sf-diagram      | -> cirra-ai-sf-permissions | Need permission data for hierarchy diagrams |
 
 ---
 

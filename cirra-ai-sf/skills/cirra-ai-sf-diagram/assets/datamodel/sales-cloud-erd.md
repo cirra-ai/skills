@@ -4,16 +4,16 @@ Pre-built data model for Salesforce Sales Cloud using `flowchart LR` format with
 
 ## Objects Included
 
-| Object | Type | Description |
-|--------|------|-------------|
-| Account | STD | Companies and organizations |
-| Contact | STD | People associated with accounts |
-| Lead | STD | Potential customers |
-| Opportunity | STD | Sales deals and revenue |
-| OpportunityLineItem | STD | Products on opportunities |
-| Product2 | STD | Product catalog |
-| Campaign | STD | Marketing campaigns |
-| CampaignMember | STD | Campaign responses |
+| Object              | Type | Description                     |
+| ------------------- | ---- | ------------------------------- |
+| Account             | STD  | Companies and organizations     |
+| Contact             | STD  | People associated with accounts |
+| Lead                | STD  | Potential customers             |
+| Opportunity         | STD  | Sales deals and revenue         |
+| OpportunityLineItem | STD  | Products on opportunities       |
+| Product2            | STD  | Product catalog                 |
+| Campaign            | STD  | Marketing campaigns             |
+| CampaignMember      | STD  | Campaign responses              |
 
 ---
 
@@ -151,15 +151,15 @@ flowchart LR
 
 ## Key Relationships Summary
 
-| Parent | Child | Type | Behavior |
-|--------|-------|------|----------|
-| Account | Contact | LK | Optional parent |
-| Account | Opportunity | LK | Optional parent |
-| Opportunity | OpportunityLineItem | MD | Cascade delete |
-| Product2 | OpportunityLineItem | LK | Optional parent |
-| Campaign | CampaignMember | MD | Cascade delete |
-| Campaign | Opportunity | LK | Primary campaign source |
-| Lead | (converts to) | - | Account + Contact created |
+| Parent      | Child               | Type | Behavior                  |
+| ----------- | ------------------- | ---- | ------------------------- |
+| Account     | Contact             | LK   | Optional parent           |
+| Account     | Opportunity         | LK   | Optional parent           |
+| Opportunity | OpportunityLineItem | MD   | Cascade delete            |
+| Product2    | OpportunityLineItem | LK   | Optional parent           |
+| Campaign    | CampaignMember      | MD   | Cascade delete            |
+| Campaign    | Opportunity         | LK   | Primary campaign source   |
+| Lead        | (converts to)       | -    | Account + Contact created |
 
 ---
 

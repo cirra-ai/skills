@@ -30,13 +30,13 @@ The cirra-ai-sf-metadata skill provides comprehensive metadata management capabi
 
 **REMOTE-ONLY MODE**: Cirra AI MCP operates directly against Salesforce orgs.
 
-| Operation                | Tool                  | Org Required? | Output              |
-| ------------------------ | --------------------- | ------------- | ------------------- |
-| **Create Metadata**      | `metadata_create`     | Yes           | Metadata deployed   |
-| **Update Metadata**      | `metadata_update`     | Yes           | Metadata updated    |
-| **Describe Object**      | `sobject_describe`    | Yes           | Object structure    |
-| **Query Metadata**       | `tooling_api_query`   | Yes           | Metadata records    |
-| **Deploy Code Metadata** | `tooling_api_dml`     | Yes           | Code deployed       |
+| Operation                | Tool                | Org Required? | Output            |
+| ------------------------ | ------------------- | ------------- | ----------------- |
+| **Create Metadata**      | `metadata_create`   | Yes           | Metadata deployed |
+| **Update Metadata**      | `metadata_update`   | Yes           | Metadata updated  |
+| **Describe Object**      | `sobject_describe`  | Yes           | Object structure  |
+| **Query Metadata**       | `tooling_api_query` | Yes           | Metadata records  |
+| **Deploy Code Metadata** | `tooling_api_dml`   | Yes           | Code deployed     |
 
 **CRITICAL**: Always call `cirra_ai_init()` FIRST before any Cirra AI operations!
 
@@ -79,6 +79,7 @@ cirra-ai-sf-data requires objects deployed to org. Always deploy metadata BEFORE
 **First**: Call `cirra_ai_init()` with no parameters. If a default org is configured, confirm with the user before proceeding. If no default, ask for the Salesforce user/alias.
 
 **Then ask the user** to gather:
+
 - Operation type: **Create** metadata OR **Query/Describe** org metadata
 - If creating: Metadata type, target object, specific requirements
 - If querying: Object name, metadata type, what information is needed
@@ -110,13 +111,13 @@ tooling_api_query(
 
 Use the appropriate tool based on what the user needs:
 
-| Query Type | Tool | Example |
-|------------|------|---------|
-| Object structure | `sobject_describe` | Fields, relationships, record types |
-| Custom fields on object | `tooling_api_query` | `sObject="CustomField", whereClause="EntityDefinition.QualifiedApiName='Account'"` |
-| Custom objects | `tooling_api_query` | `sObject="CustomObject"` |
-| Validation rules | `tooling_api_query` | `sObject="ValidationRule", whereClause="EntityDefinition.QualifiedApiName='Account'"` |
-| Permission Sets | `tooling_api_query` | `sObject="PermissionSet", whereClause="IsOwnedByProfile = false"` |
+| Query Type              | Tool                | Example                                                                               |
+| ----------------------- | ------------------- | ------------------------------------------------------------------------------------- |
+| Object structure        | `sobject_describe`  | Fields, relationships, record types                                                   |
+| Custom fields on object | `tooling_api_query` | `sObject="CustomField", whereClause="EntityDefinition.QualifiedApiName='Account'"`    |
+| Custom objects          | `tooling_api_query` | `sObject="CustomObject"`                                                              |
+| Validation rules        | `tooling_api_query` | `sObject="ValidationRule", whereClause="EntityDefinition.QualifiedApiName='Account'"` |
+| Permission Sets         | `tooling_api_query` | `sObject="PermissionSet", whereClause="IsOwnedByProfile = false"`                     |
 
 ### Phase 3: Create / Modify Metadata
 
@@ -179,14 +180,14 @@ After creating Custom Objects or Fields, ALWAYS prompt the user for Permission S
 
 **Generation Rules**:
 
-| Field Type | Include in Permission Set? | Notes |
-|------------|---------------------------|-------|
-| Required fields | NO | Auto-visible, Salesforce rejects in Permission Set |
-| Optional fields | YES | Include with `editable: true, readable: true` |
-| Formula fields | YES | Include with `editable: false, readable: true` |
-| Roll-Up Summary | YES | Include with `editable: false, readable: true` |
-| Master-Detail | NO | Controlled by parent object permissions |
-| Name field | NO | Always visible, cannot be in Permission Set |
+| Field Type      | Include in Permission Set? | Notes                                              |
+| --------------- | -------------------------- | -------------------------------------------------- |
+| Required fields | NO                         | Auto-visible, Salesforce rejects in Permission Set |
+| Optional fields | YES                        | Include with `editable: true, readable: true`      |
+| Formula fields  | YES                        | Include with `editable: false, readable: true`     |
+| Roll-Up Summary | YES                        | Include with `editable: false, readable: true`     |
+| Master-Detail   | NO                         | Controlled by parent object permissions            |
+| Name field      | NO                         | Always visible, cannot be in Permission Set        |
 
 **Create Permission Set via MCP**:
 
@@ -220,6 +221,7 @@ metadata_create(
 Score the metadata operation against the 120-point rubric.
 
 **Validation Report Format**:
+
 ```
 Score: 105/120 - Very Good
 - Structure & Format:  20/20 (100%)
@@ -254,17 +256,20 @@ Check FLS by querying Permission Set assignments if needed.
 ### Category Details
 
 **Structure & Format** (20 points):
+
 - Valid metadata structure (-10 if invalid)
 - API version present and >= 65.0 (-5 if outdated)
 - Correct naming structure (-5 if wrong)
 
 **Naming Conventions** (20 points):
+
 - Custom objects/fields end with `__c` (-3 each violation)
 - Use PascalCase for API names: `Account_Status__c` not `account_status__c` (-2 each)
 - Meaningful labels (no abbreviations like `Acct`, `Sts`) (-2 each)
 - Relationship names follow pattern: `[ParentObject]_[ChildObjects]` (-3)
 
 **Data Integrity** (20 points):
+
 - Required fields have sensible defaults or validation (-5)
 - Number fields have appropriate precision/scale (-3)
 - Picklist values properly defined with labels (-3)
@@ -272,18 +277,21 @@ Check FLS by querying Permission Set assignments if needed.
 - Formula syntax valid (-5)
 
 **Security & FLS** (20 points):
+
 - Field-Level Security considered (-5 if sensitive field exposed)
 - Sensitive field types flagged (SSN, Credit Card patterns) (-10)
 - Object sharing model appropriate for data sensitivity (-5)
 - Permission Sets used over Profile modifications (advisory)
 
 **Documentation** (20 points):
+
 - Description present and meaningful on objects/fields (-5 if missing)
 - Help text for user-facing fields (-3 each)
 - Clear error messages for validation rules (-3)
 - Inline comments in complex formulas (-3)
 
 **Best Practices** (20 points):
+
 - Use Permission Sets over Profiles when possible (-3 if Profile-first)
 - Avoid hardcoded Record IDs in formulas (-5 if found)
 - Use Global Value Sets for reusable picklists (advisory)
@@ -356,66 +364,66 @@ Parameters:
 
 ## Supported Metadata Types
 
-| Metadata Type | `metadata_create` type | Common Operations |
-|---------------|----------------------|-------------------|
-| Custom Object | `CustomObject` | Create with label, name field, sharing model |
-| Custom Field | `CustomField` | Create with fullName as `Object.Field__c` |
-| Permission Set | `PermissionSet` | Object + field permissions |
-| Validation Rule | `ValidationRule` | Formula-based validation |
-| Record Type | `RecordType` | Picklist value assignments |
-| Page Layout | `Layout` | Section and field placement |
+| Metadata Type   | `metadata_create` type | Common Operations                            |
+| --------------- | ---------------------- | -------------------------------------------- |
+| Custom Object   | `CustomObject`         | Create with label, name field, sharing model |
+| Custom Field    | `CustomField`          | Create with fullName as `Object.Field__c`    |
+| Permission Set  | `PermissionSet`        | Object + field permissions                   |
+| Validation Rule | `ValidationRule`       | Formula-based validation                     |
+| Record Type     | `RecordType`           | Picklist value assignments                   |
+| Page Layout     | `Layout`               | Section and field placement                  |
 
 ---
 
 ## Metadata Anti-Patterns
 
-| Anti-Pattern | Fix |
-|--------------|-----|
-| Profile-based FLS | Use Permission Sets for granular access |
-| Hardcoded IDs in formulas | Use Custom Settings or Custom Metadata |
-| Validation rule without bypass | Add `$Permission.Bypass_Validation__c` check |
-| Too many picklist values (>200) | Consider Custom Object instead |
-| Auto-number without prefix | Add meaningful prefix: `INV-{0000}` |
-| No description on custom objects | Always document purpose |
+| Anti-Pattern                     | Fix                                          |
+| -------------------------------- | -------------------------------------------- |
+| Profile-based FLS                | Use Permission Sets for granular access      |
+| Hardcoded IDs in formulas        | Use Custom Settings or Custom Metadata       |
+| Validation rule without bypass   | Add `$Permission.Bypass_Validation__c` check |
+| Too many picklist values (>200)  | Consider Custom Object instead               |
+| Auto-number without prefix       | Add meaningful prefix: `INV-{0000}`          |
+| No description on custom objects | Always document purpose                      |
 
 ---
 
 ## Common Errors
 
-| Error | Fix |
-|-------|-----|
+| Error                             | Fix                                         |
+| --------------------------------- | ------------------------------------------- |
 | `Cannot deploy to required field` | Remove from fieldPermissions (auto-visible) |
-| `Field does not exist` | Create Permission Set with field access |
-| `SObject type 'X' not supported` | Deploy metadata first |
-| `Element X is duplicated` | Check for duplicate field names |
-| `cirra_ai_init not called` | Always call `cirra_ai_init()` FIRST |
+| `Field does not exist`            | Create Permission Set with field access     |
+| `SObject type 'X' not supported`  | Deploy metadata first                       |
+| `Element X is duplicated`         | Check for duplicate field names             |
+| `cirra_ai_init not called`        | Always call `cirra_ai_init()` FIRST         |
 
 ---
 
 ## Cross-Skill Integration
 
-| From Skill | To cirra-ai-sf-metadata | When |
-|------------|-------------------------|------|
-| cirra-ai-sf-apex | -> cirra-ai-sf-metadata | "Describe Invoice__c" (discover fields before coding) |
-| cirra-ai-sf-flow | -> cirra-ai-sf-metadata | "Describe object fields, record types, validation rules" |
-| cirra-ai-sf-data | -> cirra-ai-sf-metadata | "Describe Custom_Object__c fields" (discover structure) |
-| cirra-ai-sf-permissions | -> cirra-ai-sf-metadata | "Create Permission Set for new object" |
+| From Skill              | To cirra-ai-sf-metadata | When                                                      |
+| ----------------------- | ----------------------- | --------------------------------------------------------- |
+| cirra-ai-sf-apex        | -> cirra-ai-sf-metadata | "Describe Invoice\_\_c" (discover fields before coding)   |
+| cirra-ai-sf-flow        | -> cirra-ai-sf-metadata | "Describe object fields, record types, validation rules"  |
+| cirra-ai-sf-data        | -> cirra-ai-sf-metadata | "Describe Custom_Object\_\_c fields" (discover structure) |
+| cirra-ai-sf-permissions | -> cirra-ai-sf-metadata | "Create Permission Set for new object"                    |
 
-| From cirra-ai-sf-metadata | To Skill | When |
-|---------------------------|----------|------|
-| cirra-ai-sf-metadata | -> cirra-ai-sf-flow | After creating objects/fields that Flow will reference |
-| cirra-ai-sf-metadata | -> cirra-ai-sf-data | After deploying metadata, create test data |
-| cirra-ai-sf-metadata | -> cirra-ai-sf-permissions | Analyze permission sets in the org |
+| From cirra-ai-sf-metadata | To Skill                   | When                                                   |
+| ------------------------- | -------------------------- | ------------------------------------------------------ |
+| cirra-ai-sf-metadata      | -> cirra-ai-sf-flow        | After creating objects/fields that Flow will reference |
+| cirra-ai-sf-metadata      | -> cirra-ai-sf-data        | After deploying metadata, create test data             |
+| cirra-ai-sf-metadata      | -> cirra-ai-sf-permissions | Analyze permission sets in the org                     |
 
 ---
 
 ## Key Insights
 
-| Insight | Issue | Fix |
-|---------|-------|-----|
-| FLS is the Silent Killer | Deployed fields invisible without FLS | Always prompt for Permission Set generation |
-| Required Fields != Permission Sets | Salesforce rejects required fields in PS | Filter out required fields from fieldPermissions |
-| Orchestration Order | cirra-ai-sf-data fails if objects not deployed | metadata first, then data |
+| Insight                            | Issue                                          | Fix                                              |
+| ---------------------------------- | ---------------------------------------------- | ------------------------------------------------ |
+| FLS is the Silent Killer           | Deployed fields invisible without FLS          | Always prompt for Permission Set generation      |
+| Required Fields != Permission Sets | Salesforce rejects required fields in PS       | Filter out required fields from fieldPermissions |
+| Orchestration Order                | cirra-ai-sf-data fails if objects not deployed | metadata first, then data                        |
 
 ---
 

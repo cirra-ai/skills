@@ -7,11 +7,11 @@ Describe a Salesforce object and display its metadata structure.
 
 ## Parsing the request
 
-| Input after `/describe-object` | Interpretation |
-| ------------------------------ | ------------------------------------------------------------ |
-| `Account` | Object name - describe it directly |
-| `all custom objects` | List all custom objects first, then describe selected ones |
-| _(no argument)_ | Ask the user which object to describe |
+| Input after `/describe-object` | Interpretation                                             |
+| ------------------------------ | ---------------------------------------------------------- |
+| `Account`                      | Object name - describe it directly                         |
+| `all custom objects`           | List all custom objects first, then describe selected ones |
+| _(no argument)_                | Ask the user which object to describe                      |
 
 ## Workflow
 
@@ -31,6 +31,7 @@ Present the object metadata in a structured format:
 **Object Overview**: Label, API name, key settings (sharing model, etc.)
 
 **Fields**: Display as a table with:
+
 - API Name
 - Label
 - Type
@@ -66,6 +67,7 @@ tooling_api_query(
 ### 4. Offer follow-up actions
 
 Based on what was discovered, suggest relevant next steps:
+
 - "Create a new field on this object" -> `/create-metadata`
 - "Query records from this object" -> `/query`
 - "Analyze permissions for this object" -> `/analyze-permissions`

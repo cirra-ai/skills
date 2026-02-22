@@ -3,6 +3,7 @@
 Flowchart template for visualizing Agentforce agent architecture and conversation flows.
 
 ## When to Use
+
 - Documenting Agentforce agent structure
 - Planning agent topics and actions
 - Visualizing conversation flows
@@ -263,36 +264,39 @@ flowchart TD
 
 ## Agent Components
 
-| Component | Description | Example |
-|-----------|-------------|---------|
-| Agent | The AI assistant container | Service Agent, SDR Agent |
-| Topic | Conversation category | Order Status, Returns |
-| Action | Executable capability | Apex method, Flow |
-| Instruction | Behavioral guideline | "Always verify identity" |
-| Scope | Topic boundaries | What's in/out of scope |
+| Component   | Description                | Example                  |
+| ----------- | -------------------------- | ------------------------ |
+| Agent       | The AI assistant container | Service Agent, SDR Agent |
+| Topic       | Conversation category      | Order Status, Returns    |
+| Action      | Executable capability      | Apex method, Flow        |
+| Instruction | Behavioral guideline       | "Always verify identity" |
+| Scope       | Topic boundaries           | What's in/out of scope   |
 
 ## Action Types
 
-| Type | Icon | Use Case |
-|------|------|----------|
-| Apex Invocable | ⚡ | Complex logic, callouts |
-| Flow | 🔄 | Record creation, updates |
-| Standard | 📚 | Knowledge search, case creation |
-| Prompt Template | 💬 | Dynamic response generation |
+| Type            | Icon | Use Case                        |
+| --------------- | ---- | ------------------------------- |
+| Apex Invocable  | ⚡   | Complex logic, callouts         |
+| Flow            | 🔄   | Record creation, updates        |
+| Standard        | 📚   | Knowledge search, case creation |
+| Prompt Template | 💬   | Dynamic response generation     |
 
 ## Conversation Flow Patterns
 
 ### 1. Linear Flow
+
 ```
 Start → Topic → Action → Response → End
 ```
 
 ### 2. Branching Flow
+
 ```
 Start → Classify → [Topic A | Topic B | Escalate]
 ```
 
 ### 3. Loop Back
+
 ```
 Start → Topic → Action → Validate → [Success | Retry]
 ```

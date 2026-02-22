@@ -4,17 +4,17 @@ Pre-built data model for Salesforce Service Cloud using `flowchart LR` format wi
 
 ## Objects Included
 
-| Object | Type | Description |
-|--------|------|-------------|
-| Account | STD | Customer accounts |
-| Contact | STD | Customer contacts |
-| Case | STD | Support cases/tickets |
-| CaseComment | STD | Case comments |
-| Entitlement | STD | Support entitlements |
-| ServiceContract | STD | Service agreements |
-| ContractLineItem | STD | Contract products |
-| Asset | STD | Customer installed products |
-| KnowledgeArticle | STD | Knowledge base articles |
+| Object           | Type | Description                 |
+| ---------------- | ---- | --------------------------- |
+| Account          | STD  | Customer accounts           |
+| Contact          | STD  | Customer contacts           |
+| Case             | STD  | Support cases/tickets       |
+| CaseComment      | STD  | Case comments               |
+| Entitlement      | STD  | Support entitlements        |
+| ServiceContract  | STD  | Service agreements          |
+| ContractLineItem | STD  | Contract products           |
+| Asset            | STD  | Customer installed products |
+| KnowledgeArticle | STD  | Knowledge base articles     |
 
 ---
 
@@ -155,24 +155,25 @@ flowchart LR
 
 ## Key Relationships Summary
 
-| Parent | Child | Type | Behavior |
-|--------|-------|------|----------|
-| Account | Contact | LK | Customer contacts |
-| Account | Case | LK | Customer cases |
-| Contact | Case | LK | Reporter/requestor |
-| Case | CaseComment | MD | Cascade delete |
-| Entitlement | Case | LK | SLA coverage |
-| Account | Entitlement | LK | Customer entitlements |
-| ServiceContract | Entitlement | LK | Contract includes entitlements |
-| ServiceContract | ContractLineItem | MD | Cascade delete |
-| Account | Asset | LK | Customer installed products |
-| Asset | Case | LK | Asset-related cases |
+| Parent          | Child            | Type | Behavior                       |
+| --------------- | ---------------- | ---- | ------------------------------ |
+| Account         | Contact          | LK   | Customer contacts              |
+| Account         | Case             | LK   | Customer cases                 |
+| Contact         | Case             | LK   | Reporter/requestor             |
+| Case            | CaseComment      | MD   | Cascade delete                 |
+| Entitlement     | Case             | LK   | SLA coverage                   |
+| Account         | Entitlement      | LK   | Customer entitlements          |
+| ServiceContract | Entitlement      | LK   | Contract includes entitlements |
+| ServiceContract | ContractLineItem | MD   | Cascade delete                 |
+| Account         | Asset            | LK   | Customer installed products    |
+| Asset           | Case             | LK   | Asset-related cases            |
 
 ---
 
 ## Service Cloud Patterns
 
 ### Case Flow
+
 ```
 Customer → Contact → Case → CaseComment
               ↓
@@ -180,6 +181,7 @@ Customer → Contact → Case → CaseComment
 ```
 
 ### Entitlement Coverage
+
 ```
 Account → ServiceContract → Entitlement → Case
     └─────────────────────────────────────┘

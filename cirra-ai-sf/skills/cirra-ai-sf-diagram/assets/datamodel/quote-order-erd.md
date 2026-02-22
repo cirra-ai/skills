@@ -4,17 +4,17 @@ Pre-built data model for Salesforce Quotes and Orders using `flowchart LR` forma
 
 ## Objects Included
 
-| Object | Type | Description |
-|--------|------|-------------|
-| Opportunity | STD | Sales deals |
-| Quote | STD | Price quotes |
-| QuoteLineItem | STD | Quote products |
-| Order | STD | Customer orders |
-| OrderItem | STD | Order products |
-| Product2 | STD | Product catalog |
-| PricebookEntry | STD | Product prices |
-| Pricebook2 | STD | Price lists |
-| Contract | STD | Customer contracts |
+| Object         | Type | Description        |
+| -------------- | ---- | ------------------ |
+| Opportunity    | STD  | Sales deals        |
+| Quote          | STD  | Price quotes       |
+| QuoteLineItem  | STD  | Quote products     |
+| Order          | STD  | Customer orders    |
+| OrderItem      | STD  | Order products     |
+| Product2       | STD  | Product catalog    |
+| PricebookEntry | STD  | Product prices     |
+| Pricebook2     | STD  | Price lists        |
+| Contract       | STD  | Customer contracts |
 
 ---
 
@@ -102,6 +102,7 @@ flowchart LR
 ## Key Concepts
 
 ### Quote-to-Cash Flow
+
 ```
 Opportunity → Quote → Order → Invoice → Payment
       ↓          ↓        ↓
@@ -109,18 +110,21 @@ Opportunity → Quote → Order → Invoice → Payment
 ```
 
 ### Synced Quote
+
 - One Quote per Opportunity can be marked as **Synced**
 - Synced Quote copies line items to OpportunityLineItems
 - `IsSyncing = true` on Synced Quote
 
 ### Quote to Order Conversion
-| Action | Result |
-|--------|--------|
-| Create Order from Quote | Creates Order + OrderItems |
-| Quote.OrderId | Links Quote to created Order |
-| Reduction Orders | Negative quantity adjustments |
+
+| Action                  | Result                        |
+| ----------------------- | ----------------------------- |
+| Create Order from Quote | Creates Order + OrderItems    |
+| Quote.OrderId           | Links Quote to created Order  |
+| Reduction Orders        | Negative quantity adjustments |
 
 ### Pricebook Structure
+
 ```
 Pricebook2 (Standard + Custom)
     ↓
@@ -216,31 +220,31 @@ flowchart LR
 
 ## Key Relationships Summary
 
-| Parent | Child | Type | Behavior |
-|--------|-------|------|----------|
-| Opportunity | Quote | MD | Cascade delete |
-| Quote | QuoteLineItem | MD | Cascade delete |
-| Order | OrderItem | MD | Cascade delete |
-| Pricebook2 | PricebookEntry | MD | Cascade delete |
-| Product2 | PricebookEntry | LK | Product reference |
-| PricebookEntry | QuoteLineItem | LK | Price reference |
-| PricebookEntry | OrderItem | LK | Price reference |
-| Account | Order | LK | Customer |
-| Contract | Order | LK | Contract reference |
-| Quote | Order | LK | Source quote |
+| Parent         | Child          | Type | Behavior           |
+| -------------- | -------------- | ---- | ------------------ |
+| Opportunity    | Quote          | MD   | Cascade delete     |
+| Quote          | QuoteLineItem  | MD   | Cascade delete     |
+| Order          | OrderItem      | MD   | Cascade delete     |
+| Pricebook2     | PricebookEntry | MD   | Cascade delete     |
+| Product2       | PricebookEntry | LK   | Product reference  |
+| PricebookEntry | QuoteLineItem  | LK   | Price reference    |
+| PricebookEntry | OrderItem      | LK   | Price reference    |
+| Account        | Order          | LK   | Customer           |
+| Contract       | Order          | LK   | Contract reference |
+| Quote          | Order          | LK   | Source quote       |
 
 ---
 
 ## Limits & Considerations
 
-| Limit | Value |
-|-------|-------|
-| Quotes per Opportunity | Unlimited (1 synced) |
-| QuoteLineItems per Quote | 200 (configurable) |
-| Orders per Account | Unlimited |
-| OrderItems per Order | 200 (configurable) |
-| Custom Pricebooks | Unlimited |
-| Products | 5 million (LDV) |
+| Limit                    | Value                |
+| ------------------------ | -------------------- |
+| Quotes per Opportunity   | Unlimited (1 synced) |
+| QuoteLineItems per Quote | 200 (configurable)   |
+| Orders per Account       | Unlimited            |
+| OrderItems per Order     | 200 (configurable)   |
+| Custom Pricebooks        | Unlimited            |
+| Products                 | 5 million (LDV)      |
 
 ---
 

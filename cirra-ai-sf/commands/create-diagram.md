@@ -7,13 +7,13 @@ Create a Salesforce architecture diagram in Mermaid format with ASCII fallback.
 
 ## Parsing the request
 
-| Input after `/create-diagram` | Interpretation |
-| ----------------------------- | ------------------------------------------------------------ |
-| `JWT Bearer` | OAuth flow diagram - JWT Bearer |
-| `Account Contact Opportunity` | ERD with those objects |
-| `integration with SAP` | Integration sequence diagram |
-| `role hierarchy` | Role/permission hierarchy |
-| _(no argument)_ | Ask what type of diagram to create |
+| Input after `/create-diagram` | Interpretation                     |
+| ----------------------------- | ---------------------------------- |
+| `JWT Bearer`                  | OAuth flow diagram - JWT Bearer    |
+| `Account Contact Opportunity` | ERD with those objects             |
+| `integration with SAP`        | Integration sequence diagram       |
+| `role hierarchy`              | Role/permission hierarchy          |
+| _(no argument)_               | Ask what type of diagram to create |
 
 ## Workflow
 
@@ -51,6 +51,7 @@ Read the appropriate template from the skill's `assets/` directory to use as a s
 ### 4. Generate the diagram
 
 **Mermaid**:
+
 - Apply the color scheme (Standard=Blue `#bae6fd`, Custom=Orange `#fed7aa`, External=Green `#a7f3d0`)
 - Use `autonumber` for sequence diagrams
 - For ERDs: Use `flowchart LR` with object-type color coding
@@ -58,6 +59,7 @@ Read the appropriate template from the skill's `assets/` directory to use as a s
 - Use `-->` for Lookup, `==>` for Master-Detail relationships
 
 **ASCII**:
+
 - Use box-drawing characters for terminal compatibility
 - Keep width under 80 characters
 - Add step numbers for sequences
@@ -65,6 +67,7 @@ Read the appropriate template from the skill's `assets/` directory to use as a s
 ### 5. Score and deliver
 
 Score the diagram against the 80-point rubric:
+
 - Accuracy (20): Correct actors, flow steps, relationships
 - Clarity (20): Easy to read, proper labeling
 - Completeness (15): All relevant steps/entities included

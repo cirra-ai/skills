@@ -3,6 +3,7 @@
 OAuth 2.0 Client Credentials Grant for server-to-server authentication using client_id and client_secret.
 
 ## When to Use
+
 - Service accounts
 - Background processes
 - System-to-system integrations
@@ -10,6 +11,7 @@ OAuth 2.0 Client Credentials Grant for server-to-server authentication using cli
 - External Client Apps (ECAs) with client credentials enabled
 
 ## Prerequisites
+
 1. Connected App or External Client App configured
 2. Client Credentials flow enabled
 3. Execution user assigned via Permission Set (for ECAs)
@@ -131,6 +133,7 @@ curl -X POST https://login.salesforce.com/services/oauth2/token \
 ## Code Examples
 
 ### Python
+
 ```python
 import requests
 
@@ -156,6 +159,7 @@ api_response = requests.get(
 ```
 
 ### Node.js
+
 ```javascript
 const axios = require('axios');
 
@@ -164,47 +168,48 @@ const response = await axios.post(
   new URLSearchParams({
     grant_type: 'client_credentials',
     client_id: 'YOUR_CONSUMER_KEY',
-    client_secret: 'YOUR_CONSUMER_SECRET'
+    client_secret: 'YOUR_CONSUMER_SECRET',
   })
 );
 
 const { access_token, instance_url } = response.data;
 
 // Make API call
-const apiResponse = await axios.get(
-  `${instance_url}/services/data/v59.0/sobjects/Account`,
-  { headers: { Authorization: `Bearer ${access_token}` } }
-);
+const apiResponse = await axios.get(`${instance_url}/services/data/v59.0/sobjects/Account`, {
+  headers: { Authorization: `Bearer ${access_token}` },
+});
 ```
 
 ## Connected App vs External Client App
 
-| Feature | Connected App | External Client App (ECA) |
-|---------|--------------|--------------------------|
-| Secret Management | Manual rotation | Automatic rotation supported |
-| User Assignment | "Run As" user | Permission Set assignment |
-| Configuration | Setup → App Manager | Setup → External Client Apps |
-| Recommended | Legacy integrations | New integrations (2024+) |
+| Feature           | Connected App       | External Client App (ECA)    |
+| ----------------- | ------------------- | ---------------------------- |
+| Secret Management | Manual rotation     | Automatic rotation supported |
+| User Assignment   | "Run As" user       | Permission Set assignment    |
+| Configuration     | Setup → App Manager | Setup → External Client Apps |
+| Recommended       | Legacy integrations | New integrations (2024+)     |
 
 ## Key Characteristics
 
-| Aspect | Value |
-|--------|-------|
-| User Interaction | None required |
-| Refresh Token | **Not returned** - re-authenticate |
-| User Context | Runs as execution/service user |
-| Scopes | Limited to service account permissions |
-| Best For | System integrations, batch jobs |
+| Aspect           | Value                                  |
+| ---------------- | -------------------------------------- |
+| User Interaction | None required                          |
+| Refresh Token    | **Not returned** - re-authenticate     |
+| User Context     | Runs as execution/service user         |
+| Scopes           | Limited to service account permissions |
+| Best For         | System integrations, batch jobs        |
 
 ## Enabling Client Credentials
 
 ### For Connected App
+
 1. Setup → App Manager → Edit Connected App
 2. Enable OAuth Settings
 3. Enable "Client Credentials Flow"
 4. Set "Run As" user
 
 ### For External Client App
+
 1. Setup → External Client Apps → New
 2. Configure OAuth Settings
 3. Enable `isClientCredentialsEnabled`
@@ -228,6 +233,7 @@ const apiResponse = await axios.get(
 ## Customization Points
 
 Replace these placeholders:
+
 - `CONSUMER_KEY` → Your Connected App's Consumer Key
 - `CONSUMER_SECRET` → Your Connected App's Consumer Secret
 - `login.salesforce.com` → Or `test.salesforce.com` for sandbox

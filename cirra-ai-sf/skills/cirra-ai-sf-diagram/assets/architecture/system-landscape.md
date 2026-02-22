@@ -3,6 +3,7 @@
 Flowchart template for visualizing high-level Salesforce system architecture using the sf-skills standard styling.
 
 ## When to Use
+
 - Architecture overview presentations
 - Integration landscape documentation
 - System inventory
@@ -324,24 +325,24 @@ flowchart TB
 
 ## Component Types (Tailwind 200-level)
 
-| Category | Examples | Icon | Fill (200) | Stroke (700+) |
-|----------|----------|------|------------|---------------|
-| Users | Sales, Service, Partners | 👥 | `#ddd6fe` | `#6d28d9` |
-| Salesforce Clouds | Sales, Service, Marketing | ☁️ | `#a5f3fc` | `#0e7490` |
-| Automation | Flow, Apex, Events | ⚡ | `#c7d2fe` | `#4338ca` |
-| AI/Analytics | Einstein, Tableau, CRM Analytics | 🤖 | `#fbcfe8` | `#be185d` |
-| Integration | MuleSoft, API Gateway | 🔗 | `#fed7aa` | `#c2410c` |
-| External Systems | ERP, Marketing, Data | 🏢 | `#a7f3d0` | `#047857` |
-| Storage | Database, Data Lake, Files | 💾 | `#fde68a` | `#b45309` |
+| Category          | Examples                         | Icon | Fill (200) | Stroke (700+) |
+| ----------------- | -------------------------------- | ---- | ---------- | ------------- |
+| Users             | Sales, Service, Partners         | 👥   | `#ddd6fe`  | `#6d28d9`     |
+| Salesforce Clouds | Sales, Service, Marketing        | ☁️   | `#a5f3fc`  | `#0e7490`     |
+| Automation        | Flow, Apex, Events               | ⚡   | `#c7d2fe`  | `#4338ca`     |
+| AI/Analytics      | Einstein, Tableau, CRM Analytics | 🤖   | `#fbcfe8`  | `#be185d`     |
+| Integration       | MuleSoft, API Gateway            | 🔗   | `#fed7aa`  | `#c2410c`     |
+| External Systems  | ERP, Marketing, Data             | 🏢   | `#a7f3d0`  | `#047857`     |
+| Storage           | Database, Data Lake, Files       | 💾   | `#fde68a`  | `#b45309`     |
 
 ## Connection Types
 
-| Pattern | Description | Arrow |
-|---------|-------------|-------|
-| Sync Request/Response | REST API call | `<-->` |
-| Async (Event-based) | Platform Events, CDC | `-->` |
-| Batch/ETL | Scheduled data load | `-->` (dashed) |
-| Real-time streaming | CometD, Pub/Sub | `==>` |
+| Pattern               | Description          | Arrow          |
+| --------------------- | -------------------- | -------------- |
+| Sync Request/Response | REST API call        | `<-->`         |
+| Async (Event-based)   | Platform Events, CDC | `-->`          |
+| Batch/ETL             | Scheduled data load  | `-->` (dashed) |
+| Real-time streaming   | CometD, Pub/Sub      | `==>`          |
 
 ## Customization Points
 

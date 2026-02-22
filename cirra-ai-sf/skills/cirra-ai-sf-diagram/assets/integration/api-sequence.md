@@ -3,6 +3,7 @@
 Sequence diagram template for visualizing Salesforce integration patterns with external systems.
 
 ## When to Use
+
 - Documenting API integrations
 - Planning data sync flows
 - Designing event-driven architectures
@@ -252,6 +253,7 @@ sequenceDiagram
 ## Common Integration Patterns
 
 ### 1. Request-Response (Sync)
+
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': {
   'actorBkg': '#ddd6fe',
@@ -267,6 +269,7 @@ sequenceDiagram
 ```
 
 ### 2. Fire-and-Forget (Async)
+
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': {
   'actorBkg': '#ddd6fe',
@@ -283,6 +286,7 @@ sequenceDiagram
 ```
 
 ### 3. Pub/Sub (Event-Driven)
+
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': {
   'actorBkg': '#ddd6fe',
@@ -299,6 +303,7 @@ sequenceDiagram
 ```
 
 ### 4. Batch Sync
+
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': {
   'actorBkg': '#ddd6fe',
@@ -318,13 +323,13 @@ sequenceDiagram
 
 ## HTTP Method Reference
 
-| Method | Purpose | Salesforce Use |
-|--------|---------|----------------|
-| GET | Retrieve data | Query external API |
-| POST | Create resource | Send new records |
-| PUT | Replace resource | Full record update |
-| PATCH | Partial update | Update specific fields |
-| DELETE | Remove resource | Delete external record |
+| Method | Purpose          | Salesforce Use         |
+| ------ | ---------------- | ---------------------- |
+| GET    | Retrieve data    | Query external API     |
+| POST   | Create resource  | Send new records       |
+| PUT    | Replace resource | Full record update     |
+| PATCH  | Partial update   | Update specific fields |
+| DELETE | Remove resource  | Delete external record |
 
 ## Error Handling Patterns
 
@@ -360,15 +365,15 @@ sequenceDiagram
 
 ## Salesforce Integration Components
 
-| Component | Purpose | When to Use |
-|-----------|---------|-------------|
-| Named Credential | Auth management | OAuth, Certificate, Basic Auth |
-| External Service | Auto-generate Apex | OpenAPI/Swagger specs |
-| Platform Event | Async messaging | Event-driven integration |
-| Change Data Capture | Track changes | Real-time replication |
-| Outbound Message | Declarative callout | Simple workflow integrations |
-| Apex REST | Inbound API | Custom REST endpoints |
-| SOAP API | Inbound SOAP | Legacy systems |
+| Component           | Purpose             | When to Use                    |
+| ------------------- | ------------------- | ------------------------------ |
+| Named Credential    | Auth management     | OAuth, Certificate, Basic Auth |
+| External Service    | Auto-generate Apex  | OpenAPI/Swagger specs          |
+| Platform Event      | Async messaging     | Event-driven integration       |
+| Change Data Capture | Track changes       | Real-time replication          |
+| Outbound Message    | Declarative callout | Simple workflow integrations   |
+| Apex REST           | Inbound API         | Custom REST endpoints          |
+| SOAP API            | Inbound SOAP        | Legacy systems                 |
 
 ## Best Practices
 

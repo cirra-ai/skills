@@ -4,14 +4,14 @@ Pre-built data model for Salesforce Enterprise Territory Management (Territory2)
 
 ## Objects Included
 
-| Object | Type | Description |
-|--------|------|-------------|
-| Territory2Model | STD | Territory model container |
-| Territory2 | STD | Individual territories |
-| Territory2Type | STD | Territory classification |
-| UserTerritory2Association | STD | User-to-territory assignments |
-| ObjectTerritory2Association | STD | Account-to-territory assignments |
-| RuleTerritory2Association | STD | Assignment rule linkage |
+| Object                      | Type | Description                      |
+| --------------------------- | ---- | -------------------------------- |
+| Territory2Model             | STD  | Territory model container        |
+| Territory2                  | STD  | Individual territories           |
+| Territory2Type              | STD  | Territory classification         |
+| UserTerritory2Association   | STD  | User-to-territory assignments    |
+| ObjectTerritory2Association | STD  | Account-to-territory assignments |
+| RuleTerritory2Association   | STD  | Assignment rule linkage          |
 
 ---
 
@@ -91,25 +91,28 @@ flowchart LR
 ## Key Concepts
 
 ### Territory2Model States
-| State | Description |
-|-------|-------------|
+
+| State        | Description                         |
+| ------------ | ----------------------------------- |
 | **Planning** | Model being configured (not active) |
-| **Active** | Live model in use |
-| **Archived** | Historical model (read-only) |
+| **Active**   | Live model in use                   |
+| **Archived** | Historical model (read-only)        |
 
 Only **one model can be Active** at a time.
 
 ### Territory Hierarchy
+
 - Territories support **ParentTerritory2Id** self-lookup
 - Creates hierarchy within a model
 - Opportunity access rolls up through hierarchy
 
 ### Assignment Types
-| Object | Purpose |
-|--------|---------|
-| **UserTerritory2Association** | Assigns users to territories |
-| **ObjectTerritory2Association** | Assigns accounts to territories |
-| **RuleTerritory2Association** | Links assignment rules to territories |
+
+| Object                          | Purpose                               |
+| ------------------------------- | ------------------------------------- |
+| **UserTerritory2Association**   | Assigns users to territories          |
+| **ObjectTerritory2Association** | Assigns accounts to territories       |
+| **RuleTerritory2Association**   | Links assignment rules to territories |
 
 ---
 
@@ -205,30 +208,30 @@ flowchart LR
 
 ## Key Relationships Summary
 
-| Parent | Child | Type | Behavior |
-|--------|-------|------|----------|
-| Territory2Model | Territory2 | MD | Cascade delete |
-| Territory2Model | Territory2Type | MD | Cascade delete |
-| Territory2Type | Territory2 | LK | Type classification |
-| Territory2 | Territory2 | LK | Parent (hierarchy) |
-| Territory2 | UserTerritory2Association | MD | Cascade delete |
-| Territory2 | ObjectTerritory2Association | MD | Cascade delete |
-| Territory2 | RuleTerritory2Association | MD | Cascade delete |
-| User | UserTerritory2Association | LK | User assignment |
-| Account | ObjectTerritory2Association | LK | Account assignment |
+| Parent          | Child                       | Type | Behavior            |
+| --------------- | --------------------------- | ---- | ------------------- |
+| Territory2Model | Territory2                  | MD   | Cascade delete      |
+| Territory2Model | Territory2Type              | MD   | Cascade delete      |
+| Territory2Type  | Territory2                  | LK   | Type classification |
+| Territory2      | Territory2                  | LK   | Parent (hierarchy)  |
+| Territory2      | UserTerritory2Association   | MD   | Cascade delete      |
+| Territory2      | ObjectTerritory2Association | MD   | Cascade delete      |
+| Territory2      | RuleTerritory2Association   | MD   | Cascade delete      |
+| User            | UserTerritory2Association   | LK   | User assignment     |
+| Account         | ObjectTerritory2Association | LK   | Account assignment  |
 
 ---
 
 ## Limits & Considerations
 
-| Limit | Value |
-|-------|-------|
-| Territory models (total) | Unlimited (1 active) |
-| Territories per model | 1,000 |
-| Territory hierarchy levels | 10 |
-| Users per territory | No hard limit |
-| Accounts per territory | No hard limit |
-| Assignment rules | 15 per model |
+| Limit                      | Value                |
+| -------------------------- | -------------------- |
+| Territory models (total)   | Unlimited (1 active) |
+| Territories per model      | 1,000                |
+| Territory hierarchy levels | 10                   |
+| Users per territory        | No hard limit        |
+| Accounts per territory     | No hard limit        |
+| Assignment rules           | 15 per model         |
 
 ---
 

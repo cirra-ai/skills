@@ -7,12 +7,12 @@ Build and run an optimized SOQL query via the Cirra AI MCP Server.
 
 ## Parsing the request
 
-| Input after `/build-query` | Interpretation |
-| --------------------------------- | ------------------------------------------------------------ |
-| `SELECT Id, Name FROM Account LIMIT 10` | Raw SOQL - execute directly |
-| `Account` | Object name - discover fields, ask what to query |
-| `open opportunities over $1M` | Natural language - translate to SOQL, confirm before running |
-| _(no argument)_ | Ask the user what to query |
+| Input after `/build-query`              | Interpretation                                               |
+| --------------------------------------- | ------------------------------------------------------------ |
+| `SELECT Id, Name FROM Account LIMIT 10` | Raw SOQL - execute directly                                  |
+| `Account`                               | Object name - discover fields, ask what to query             |
+| `open opportunities over $1M`           | Natural language - translate to SOQL, confirm before running |
+| _(no argument)_                         | Ask the user what to query                                   |
 
 ## Workflow
 
@@ -31,7 +31,7 @@ Use field names and types from the response to build an accurate SOQL query.
 
 ### 2. Construct the query
 
-- Use explicit field lists - avoid SELECT * patterns
+- Use explicit field lists - avoid SELECT \* patterns
 - Add appropriate `WHERE` clauses to filter results
 - Add `LIMIT` to avoid returning excessive rows
 - Use relationship traversal where it simplifies the query (e.g., `Account.Name` from Contact)

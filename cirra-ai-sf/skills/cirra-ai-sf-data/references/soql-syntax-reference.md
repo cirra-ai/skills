@@ -28,31 +28,31 @@ SELECT FIELDS(STANDARD) FROM Account
 
 ### WHERE Clause Operators
 
-| Operator | Example | Notes |
-|----------|---------|-------|
-| `=` | `Name = 'Acme'` | Exact match |
-| `!=` | `Status != 'Closed'` | Not equal |
-| `<`, `>`, `<=`, `>=` | `Amount > 1000` | Comparison |
-| `LIKE` | `Name LIKE 'Acme%'` | Wildcard match |
-| `IN` | `Status IN ('New', 'Open')` | Multiple values |
-| `NOT IN` | `Type NOT IN ('Other')` | Exclude values |
-| `INCLUDES` | `Interests__c INCLUDES ('Golf')` | Multi-select picklist |
-| `EXCLUDES` | `Interests__c EXCLUDES ('Golf')` | Multi-select exclude |
+| Operator             | Example                          | Notes                 |
+| -------------------- | -------------------------------- | --------------------- |
+| `=`                  | `Name = 'Acme'`                  | Exact match           |
+| `!=`                 | `Status != 'Closed'`             | Not equal             |
+| `<`, `>`, `<=`, `>=` | `Amount > 1000`                  | Comparison            |
+| `LIKE`               | `Name LIKE 'Acme%'`              | Wildcard match        |
+| `IN`                 | `Status IN ('New', 'Open')`      | Multiple values       |
+| `NOT IN`             | `Type NOT IN ('Other')`          | Exclude values        |
+| `INCLUDES`           | `Interests__c INCLUDES ('Golf')` | Multi-select picklist |
+| `EXCLUDES`           | `Interests__c EXCLUDES ('Golf')` | Multi-select exclude  |
 
 ### Date Literals
 
-| Literal | Meaning |
-|---------|---------|
-| `TODAY` | Current day |
-| `YESTERDAY` | Previous day |
-| `THIS_WEEK` | Current week (Sun-Sat) |
-| `LAST_WEEK` | Previous week |
-| `THIS_MONTH` | Current month |
-| `LAST_MONTH` | Previous month |
-| `THIS_QUARTER` | Current quarter |
-| `THIS_YEAR` | Current year |
-| `LAST_N_DAYS:n` | Last n days |
-| `NEXT_N_DAYS:n` | Next n days |
+| Literal         | Meaning                |
+| --------------- | ---------------------- |
+| `TODAY`         | Current day            |
+| `YESTERDAY`     | Previous day           |
+| `THIS_WEEK`     | Current week (Sun-Sat) |
+| `LAST_WEEK`     | Previous week          |
+| `THIS_MONTH`    | Current month          |
+| `LAST_MONTH`    | Previous month         |
+| `THIS_QUARTER`  | Current quarter        |
+| `THIS_YEAR`     | Current year           |
+| `LAST_N_DAYS:n` | Last n days            |
+| `NEXT_N_DAYS:n` | Next n days            |
 
 ```sql
 -- Created in last 30 days
@@ -92,12 +92,12 @@ WHERE Industry = 'Technology'
 
 ### Standard Relationship Names
 
-| Object | Relationship Name | Example |
-|--------|-------------------|---------|
-| Account → Contacts | `Contacts` | `(SELECT Id FROM Contacts)` |
-| Account → Opportunities | `Opportunities` | `(SELECT Id FROM Opportunities)` |
-| Account → Cases | `Cases` | `(SELECT Id FROM Cases)` |
-| Contact → Cases | `Cases` | `(SELECT Id FROM Cases)` |
+| Object                             | Relationship Name      | Example                                 |
+| ---------------------------------- | ---------------------- | --------------------------------------- |
+| Account → Contacts                 | `Contacts`             | `(SELECT Id FROM Contacts)`             |
+| Account → Opportunities            | `Opportunities`        | `(SELECT Id FROM Opportunities)`        |
+| Account → Cases                    | `Cases`                | `(SELECT Id FROM Cases)`                |
+| Contact → Cases                    | `Cases`                | `(SELECT Id FROM Cases)`                |
 | Opportunity → OpportunityLineItems | `OpportunityLineItems` | `(SELECT Id FROM OpportunityLineItems)` |
 
 ### Custom Object Relationships

@@ -32,14 +32,14 @@ The cirra-ai-sf-permissions skill provides comprehensive permission analysis:
 
 **REMOTE-ONLY MODE**: Cirra AI MCP operates directly against Salesforce orgs.
 
-| Operation                    | Tool               | Org Required? | Output                 |
-| ---------------------------- | ------------------- | ------------- | ---------------------- |
-| **Query Permission Sets**    | `soql_query`        | Yes           | PS/PSG records         |
-| **Query Object Permissions** | `soql_query`        | Yes           | CRUD access per object |
-| **Query Field Permissions**  | `soql_query`        | Yes           | FLS per field          |
-| **Query Setup Entity**       | `soql_query`        | Yes           | Apex/VF/Flow access    |
+| Operation                    | Tool                | Org Required? | Output                     |
+| ---------------------------- | ------------------- | ------------- | -------------------------- |
+| **Query Permission Sets**    | `soql_query`        | Yes           | PS/PSG records             |
+| **Query Object Permissions** | `soql_query`        | Yes           | CRUD access per object     |
+| **Query Field Permissions**  | `soql_query`        | Yes           | FLS per field              |
+| **Query Setup Entity**       | `soql_query`        | Yes           | Apex/VF/Flow access        |
 | **Query via Tooling API**    | `tooling_api_query` | Yes           | Tab settings, system perms |
-| **Create Permission Set**    | `metadata_create`   | Yes           | PS deployed to org     |
+| **Create Permission Set**    | `metadata_create`   | Yes           | PS deployed to org         |
 
 **CRITICAL**: Always call `cirra_ai_init()` FIRST before any Cirra AI operations!
 
@@ -64,14 +64,14 @@ The cirra-ai-sf-permissions skill provides comprehensive permission analysis:
 
 **Then determine the capability needed**:
 
-| User Says | Capability | Approach |
-|-----------|------------|----------|
-| "Show permission hierarchy" | Hierarchy Viewer | Query PermissionSet, PermissionSetGroup, PermissionSetGroupComponent |
-| "Who has access to Account?" | Permission Detector | Query ObjectPermissions with SobjectType filter |
-| "What permissions does John have?" | User Analyzer | Query PermissionSetAssignment for user |
-| "Find PS with ModifyAllData" | Security Audit | Query PermissionSet for system permissions |
-| "Create a PS for contractors" | PS Creation | Use metadata_create |
-| "Export Sales_Manager PS" | Documentation | Query all permission types for the PS |
+| User Says                          | Capability          | Approach                                                             |
+| ---------------------------------- | ------------------- | -------------------------------------------------------------------- |
+| "Show permission hierarchy"        | Hierarchy Viewer    | Query PermissionSet, PermissionSetGroup, PermissionSetGroupComponent |
+| "Who has access to Account?"       | Permission Detector | Query ObjectPermissions with SobjectType filter                      |
+| "What permissions does John have?" | User Analyzer       | Query PermissionSetAssignment for user                               |
+| "Find PS with ModifyAllData"       | Security Audit      | Query PermissionSet for system permissions                           |
+| "Create a PS for contractors"      | PS Creation         | Use metadata_create                                                  |
+| "Export Sales_Manager PS"          | Documentation       | Query all permission types for the PS                                |
 
 ### Phase 2: Query Permissions
 
@@ -161,6 +161,7 @@ For each capability, process the query results:
 **User Analyzer**: Aggregate all permissions from the user's PS/PSG assignments.
 
 **Security Audit**: Flag concerning patterns:
+
 - PS with `PermissionsModifyAllData = true` (non-admin)
 - PS with `PermissionsViewAllData = true` on sensitive objects
 - Orphaned PS (no assigned users)
@@ -204,6 +205,7 @@ Who can DELETE Account? (3 Permission Sets found)
 ### Phase 5: Recommend Actions
 
 Based on the analysis, recommend improvements:
+
 - Consolidate overlapping PS into PSGs
 - Remove overly broad permissions
 - Create missing PS for proper access control
@@ -228,15 +230,15 @@ USER
 
 ### Permission Types
 
-| Type | Description | Query Object |
-|------|-------------|--------------|
-| Object CRUD | Create, Read, Edit, Delete | `ObjectPermissions` |
-| Field-Level Security | Read, Edit per field | `FieldPermissions` |
-| Apex Class Access | Access to Apex classes | `SetupEntityAccess` |
-| VF Page Access | Access to Visualforce pages | `SetupEntityAccess` |
-| Flow Access | Access to Flows | `SetupEntityAccess` |
-| Custom Permissions | Feature flags | `SetupEntityAccess` |
-| System Permissions | ViewSetup, ModifyAllData, etc. | `PermissionSet` fields |
+| Type                 | Description                    | Query Object           |
+| -------------------- | ------------------------------ | ---------------------- |
+| Object CRUD          | Create, Read, Edit, Delete     | `ObjectPermissions`    |
+| Field-Level Security | Read, Edit per field           | `FieldPermissions`     |
+| Apex Class Access    | Access to Apex classes         | `SetupEntityAccess`    |
+| VF Page Access       | Access to Visualforce pages    | `SetupEntityAccess`    |
+| Flow Access          | Access to Flows                | `SetupEntityAccess`    |
+| Custom Permissions   | Feature flags                  | `SetupEntityAccess`    |
+| System Permissions   | ViewSetup, ModifyAllData, etc. | `PermissionSet` fields |
 
 ---
 
@@ -319,23 +321,27 @@ tooling_api_query(
 ## Common Workflows
 
 ### Audit: "Who can delete Accounts?"
+
 1. Query ObjectPermissions for Account with PermissionsDelete = true
 2. For each PS found, query PSG membership
 3. Count assigned users per PS/PSG
 4. Display results in table format
 
 ### Troubleshoot: "Why can't John edit Opportunities?"
+
 1. Query PermissionSetAssignment for John's user ID
 2. For each assigned PS, query ObjectPermissions for Opportunity
 3. Check if any PS grants Opportunity edit
 4. If not, suggest which PS/PSG to assign
 
 ### Security Review: "Find all PS with ModifyAllData"
+
 1. Query PermissionSet for PermissionsModifyAllData = true
 2. List PS names and assigned user counts
 3. Flag any non-admin PS with this powerful permission
 
 ### Full Org Audit
+
 1. Query all PS and PSG to show hierarchy
 2. Identify PSGs with "Outdated" status
 3. Count users per PS
@@ -359,28 +365,28 @@ Examples:
 
 ## Cross-Skill Integration
 
-| From Skill | To cirra-ai-sf-permissions | When |
-|------------|----------------------------|------|
-| cirra-ai-sf-metadata | -> cirra-ai-sf-permissions | "Create Permission Set for new object" |
-| cirra-ai-sf-apex | -> cirra-ai-sf-permissions | "Grant access to Apex class" |
-| cirra-ai-sf-data | -> cirra-ai-sf-permissions | "Query user assignments in bulk" |
-| cirra-ai-sf-diagram | -> cirra-ai-sf-permissions | "Visualize permission hierarchy as Mermaid" |
+| From Skill           | To cirra-ai-sf-permissions | When                                        |
+| -------------------- | -------------------------- | ------------------------------------------- |
+| cirra-ai-sf-metadata | -> cirra-ai-sf-permissions | "Create Permission Set for new object"      |
+| cirra-ai-sf-apex     | -> cirra-ai-sf-permissions | "Grant access to Apex class"                |
+| cirra-ai-sf-data     | -> cirra-ai-sf-permissions | "Query user assignments in bulk"            |
+| cirra-ai-sf-diagram  | -> cirra-ai-sf-permissions | "Visualize permission hierarchy as Mermaid" |
 
-| From cirra-ai-sf-permissions | To Skill | When |
-|------------------------------|----------|------|
-| cirra-ai-sf-permissions | -> cirra-ai-sf-metadata | Generate Permission Set XML |
-| cirra-ai-sf-permissions | -> cirra-ai-sf-diagram | Create hierarchy visualization |
+| From cirra-ai-sf-permissions | To Skill                | When                           |
+| ---------------------------- | ----------------------- | ------------------------------ |
+| cirra-ai-sf-permissions      | -> cirra-ai-sf-metadata | Generate Permission Set XML    |
+| cirra-ai-sf-permissions      | -> cirra-ai-sf-diagram  | Create hierarchy visualization |
 
 ---
 
 ## Troubleshooting
 
-| Issue | Solution |
-|-------|----------|
+| Issue                           | Solution                                 |
+| ------------------------------- | ---------------------------------------- |
 | No results for permission query | Check if PS exists; use correct API name |
-| Missing field permissions | FLS may be controlled at Profile level |
-| PSG shows "Outdated" | PSG needs to be recalculated in Setup |
-| Can't find user's permissions | Check both direct PS and PSG assignments |
+| Missing field permissions       | FLS may be controlled at Profile level   |
+| PSG shows "Outdated"            | PSG needs to be recalculated in Setup    |
+| Can't find user's permissions   | Check both direct PS and PSG assignments |
 
 ---
 

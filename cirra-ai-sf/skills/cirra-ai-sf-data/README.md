@@ -43,17 +43,17 @@ Request: "Create 251 test Account records with varying Industries for trigger te
 
 ### Common Operations
 
-| Operation        | Example Request                                                     |
-| ---------------- | ------------------------------------------------------------------- |
-| Build Query      | "Write a SOQL query to get accounts with their contacts"            |
-| Optimize Query   | "Optimize this SOQL query for performance"                          |
-| Natural Language | "Who are our top 10 customers by revenue?"                          |
-| Execute Query    | "Query all Accounts with related Contacts"                          |
-| Create           | "Create 10 test Opportunities at various stages"                    |
-| Bulk Insert      | "Insert 500 accounts from accounts.csv"                             |
-| Update           | "Update Account 001xxx with new Industry"                           |
-| Delete           | "Delete all test records with Name LIKE 'Test%'"                    |
-| Cleanup          | "Generate cleanup script for all records created today"             |
+| Operation        | Example Request                                          |
+| ---------------- | -------------------------------------------------------- |
+| Build Query      | "Write a SOQL query to get accounts with their contacts" |
+| Optimize Query   | "Optimize this SOQL query for performance"               |
+| Natural Language | "Who are our top 10 customers by revenue?"               |
+| Execute Query    | "Query all Accounts with related Contacts"               |
+| Create           | "Create 10 test Opportunities at various stages"         |
+| Bulk Insert      | "Insert 500 accounts from accounts.csv"                  |
+| Update           | "Update Account 001xxx with new Industry"                |
+| Delete           | "Delete all test records with Name LIKE 'Test%'"         |
+| Cleanup          | "Generate cleanup script for all records created today"  |
 
 ## Related Skills
 
@@ -83,13 +83,13 @@ This skill ships Python validation scripts in `scripts/` for SOQL and data opera
 
 ### Available Scripts
 
-| Script                       | Purpose                                              |
-| ---------------------------- | ---------------------------------------------------- |
+| Script                       | Purpose                                                        |
+| ---------------------------- | -------------------------------------------------------------- |
 | `soql_validator.py`          | SOQL syntax validation, selectivity checks, optimization hints |
-| `validate_data_operation.py` | 130-point data operation scoring across 7 categories |
-| `mcp_validator.py`           | MCP parameter validation (Tier 1 data, Tier 2 code) |
-| `mcp_validator_cli.py`       | CLI wrapper for manual pre-flight checks             |
-| `post-write-validate.py`     | Post-write hook for local file validation            |
+| `validate_data_operation.py` | 130-point data operation scoring across 7 categories           |
+| `mcp_validator.py`           | MCP parameter validation (Tier 1 data, Tier 2 code)            |
+| `mcp_validator_cli.py`       | CLI wrapper for manual pre-flight checks                       |
+| `post-write-validate.py`     | Post-write hook for local file validation                      |
 
 ### SOQL Validator Checks
 

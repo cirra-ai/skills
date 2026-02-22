@@ -3,6 +3,7 @@
 OAuth 2.0 Authorization Code flow with Proof Key for Code Exchange (PKCE) for public clients.
 
 ## When to Use
+
 - Single Page Applications (SPAs)
 - Mobile native applications
 - Desktop applications
@@ -137,6 +138,7 @@ sequenceDiagram
 ## PKCE Parameter Generation
 
 ### JavaScript/TypeScript
+
 ```javascript
 // Generate code_verifier (43-128 characters)
 const codeVerifier = base64URLEncode(crypto.getRandomValues(new Uint8Array(32)));
@@ -156,6 +158,7 @@ function base64URLEncode(buffer) {
 ```
 
 ### Python
+
 ```python
 import hashlib
 import base64
@@ -172,13 +175,13 @@ code_challenge = base64.urlsafe_b64encode(
 
 ## Key Differences from Standard Auth Code
 
-| Aspect | Standard | PKCE |
-|--------|----------|------|
-| Client Secret | Required | Not required |
-| code_challenge | Not used | Required in /authorize |
-| code_verifier | Not used | Required in /token |
-| Security | Secret-based | Cryptographic proof |
-| Client Type | Confidential | Public |
+| Aspect         | Standard     | PKCE                   |
+| -------------- | ------------ | ---------------------- |
+| Client Secret  | Required     | Not required           |
+| code_challenge | Not used     | Required in /authorize |
+| code_verifier  | Not used     | Required in /token     |
+| Security       | Secret-based | Cryptographic proof    |
+| Client Type    | Confidential | Public                 |
 
 ## Security Considerations
 
@@ -191,6 +194,7 @@ code_challenge = base64.urlsafe_b64encode(
 ## Customization Points
 
 Replace these placeholders:
+
 - `CONSUMER_KEY` → Your Connected App's Consumer Key
 - `CALLBACK_URL` → Your registered callback URL (custom scheme for mobile)
 - `CODE_VERIFIER` → Generated 43-128 character random string

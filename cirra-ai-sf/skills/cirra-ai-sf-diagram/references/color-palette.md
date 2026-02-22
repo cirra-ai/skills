@@ -1,4 +1,5 @@
 <!-- Parent: sf-diagram-mermaid/SKILL.md -->
+
 # sf-diagram Color Palette
 
 Soft pastel color palette (Tailwind 200-level) with dark borders for clear definition.
@@ -38,6 +39,7 @@ Soft pastel color palette (Tailwind 200-level) with dark borders for clear defin
 ```
 
 **Design Philosophy**:
+
 - **Node fills**: Tailwind 200-level for visible but soft pastels
 - **Subgraph fills**: Tailwind 50-level for subtle background grouping
 - **Dark strokes**: Tailwind 700-800 level for clear definition
@@ -105,10 +107,10 @@ style ext fill:#ecfdf5,stroke:#047857,stroke-dasharray:5
 
 ### Relationship Arrow Colors
 
-| Relationship | Style | Notes |
-|--------------|-------|-------|
-| Lookup | `-->` (default) | Single-line arrow |
-| Master-Detail | `==>` | Thick double-line arrow |
+| Relationship  | Style           | Notes                   |
+| ------------- | --------------- | ----------------------- |
+| Lookup        | `-->` (default) | Single-line arrow       |
+| Master-Detail | `==>`           | Thick double-line arrow |
 
 **Note**: Mermaid does not support individual line coloring in erDiagram. Use thick arrows (`==>`) for Master-Detail distinction in flowchart format.
 
@@ -138,13 +140,13 @@ Mermaid supports custom fonts via `%%{init}`:
 
 ### Available Font Options
 
-| Font | Configuration | Best For |
-|------|---------------|----------|
-| **Default** | `"trebuchet ms", verdana, arial` | General use (Mermaid default) |
-| **Modern** | `"Inter", sans-serif` | Clean, professional diagrams |
-| **System** | `-apple-system, "Segoe UI", sans-serif` | Native OS appearance |
-| **Monospace** | `"Fira Code", "Consolas", monospace` | Code-focused diagrams |
-| **Serif** | `"Georgia", serif` | Document-style diagrams |
+| Font          | Configuration                           | Best For                      |
+| ------------- | --------------------------------------- | ----------------------------- |
+| **Default**   | `"trebuchet ms", verdana, arial`        | General use (Mermaid default) |
+| **Modern**    | `"Inter", sans-serif`                   | Clean, professional diagrams  |
+| **System**    | `-apple-system, "Segoe UI", sans-serif` | Native OS appearance          |
+| **Monospace** | `"Fira Code", "Consolas", monospace`    | Code-focused diagrams         |
+| **Serif**     | `"Georgia", serif`                      | Document-style diagrams       |
 
 ### Usage Example
 
@@ -168,20 +170,20 @@ Control diagram density with `%%{init}` configuration:
 
 ### Available Spacing Options
 
-| Option | Default | Recommended | Effect |
-|--------|---------|-------------|--------|
-| `nodeSpacing` | 50 | 80 | Horizontal gap between nodes |
-| `rankSpacing` | 50 | 70 | Vertical gap between levels |
-| `diagramPadding` | 20 | 20-30 | Padding around entire diagram |
-| `padding` | 15 | 15 | Padding between label and shape |
+| Option           | Default | Recommended | Effect                          |
+| ---------------- | ------- | ----------- | ------------------------------- |
+| `nodeSpacing`    | 50      | 80          | Horizontal gap between nodes    |
+| `rankSpacing`    | 50      | 70          | Vertical gap between levels     |
+| `diagramPadding` | 20      | 20-30       | Padding around entire diagram   |
+| `padding`        | 15      | 15          | Padding between label and shape |
 
 ### Curve Styles
 
-| Style | Effect | Best For |
-|-------|--------|----------|
-| `"basis"` | Smooth curves (default) | Organic, flowing diagrams |
-| `"linear"` | Straight lines | Technical, clean diagrams |
-| `"stepBefore"` | Step/staircase lines | Very structured diagrams |
+| Style          | Effect                  | Best For                  |
+| -------------- | ----------------------- | ------------------------- |
+| `"basis"`      | Smooth curves (default) | Organic, flowing diagrams |
+| `"linear"`     | Straight lines          | Technical, clean diagrams |
+| `"stepBefore"` | Step/staircase lines    | Very structured diagrams  |
 
 ### Recommended Configuration
 
@@ -192,6 +194,7 @@ For clean, readable diagrams:
 ```
 
 **Why these values?**
+
 - **nodeSpacing: 80** — 60% more horizontal space than default
 - **rankSpacing: 70** — 40% more vertical space than default
 - **curve: basis** — Default smooth curves (omit to use default)
@@ -320,11 +323,11 @@ flowchart TB
 
 ### Label Guidelines
 
-| ✅ DO | ❌ DON'T |
-|-------|---------|
-| `["🤖 sf-ai-agentforce"]` | `["🤖 sf-ai-agentforce<br/><small>Agent Script</small>"]` |
-| `["⚡ sf-apex"]` | `["⚡ sf-apex<br/>Triggers, Services"]` |
-| Short edge labels: `"schema"` | Long labels: `"queries schema for validation"` |
+| ✅ DO                         | ❌ DON'T                                                  |
+| ----------------------------- | --------------------------------------------------------- |
+| `["🤖 sf-ai-agentforce"]`     | `["🤖 sf-ai-agentforce<br/><small>Agent Script</small>"]` |
+| `["⚡ sf-apex"]`              | `["⚡ sf-apex<br/>Triggers, Services"]`                   |
+| Short edge labels: `"schema"` | Long labels: `"queries schema for validation"`            |
 
 **Why?** Multi-line labels with `<br/>` and `<small>` tags render inconsistently across GitHub, VS Code, and other Mermaid viewers, often causing text cutoff.
 
@@ -334,16 +337,17 @@ flowchart TB
 
 ### Recommendation Summary
 
-| Context | Casing | Example |
-|---------|--------|---------|
-| **Node Labels** | lowercase | `sf-apex`, `sf-flow` |
-| **Subgraph Titles** | UPPERCASE | `AI & AGENTS`, `INTEGRATION & SECURITY` |
-| **Edge Labels** | lowercase | `schema`, `deploys`, `flow actions` |
-| **ASCII Diagrams** | UPPERCASE | `SALESFORCE PLATFORM`, `EXTERNAL SYSTEMS` |
+| Context             | Casing    | Example                                   |
+| ------------------- | --------- | ----------------------------------------- |
+| **Node Labels**     | lowercase | `sf-apex`, `sf-flow`                      |
+| **Subgraph Titles** | UPPERCASE | `AI & AGENTS`, `INTEGRATION & SECURITY`   |
+| **Edge Labels**     | lowercase | `schema`, `deploys`, `flow actions`       |
+| **ASCII Diagrams**  | UPPERCASE | `SALESFORCE PLATFORM`, `EXTERNAL SYSTEMS` |
 
 ### Detailed Guidelines
 
 #### Node Labels: lowercase (Recommended)
+
 ```
 ["🤖 sf-ai-agentforce"]    ✅ Preferred
 ["🤖 SF-AI-AGENTFORCE"]    ❌ Avoid
@@ -351,12 +355,14 @@ flowchart TB
 ```
 
 **Why lowercase?**
+
 - Matches the actual skill/package naming convention
 - Cleaner, more modern aesthetic
 - Consistent with CLI tool naming (npm, pip, etc.)
 - Easier to read in compact diagram nodes
 
 #### Subgraph Titles: UPPERCASE
+
 ```
 subgraph ai["🤖 AI & AGENTS"]           ✅ UPPERCASE
 subgraph ai["🤖 ai & agents"]           ❌ lowercase
@@ -364,12 +370,14 @@ subgraph ai["🤖 Ai & Agents"]           ❌ Title Case
 ```
 
 **Why UPPERCASE?**
+
 - Creates strong visual hierarchy with lowercase node labels
 - Subgraphs represent major categories/groups
 - Consistent with ASCII diagram headers
 - Maximum contrast between group titles and contents
 
 #### Edge Labels: lowercase
+
 ```
 -->|"schema"|              ✅ lowercase
 -->|"Schema"|              ❌ Title Case
@@ -377,11 +385,13 @@ subgraph ai["🤖 Ai & Agents"]           ❌ Title Case
 ```
 
 **Why lowercase?**
+
 - Edge labels describe relationships/actions
 - Should be subtle, not prominent
 - Consistent with node label style
 
 #### ASCII Diagrams: UPPERCASE for Headers
+
 ```
 ┌─────────────────────────────────────┐
 │         SYSTEM LANDSCAPE            │   ✅ UPPERCASE header
@@ -391,40 +401,41 @@ subgraph ai["🤖 Ai & Agents"]           ❌ Title Case
 ```
 
 **Why UPPERCASE for ASCII?**
+
 - ASCII has limited styling options (no bold, color)
 - UPPERCASE creates visual hierarchy
 - Traditional technical documentation style
 
 ### Special Cases
 
-| Element | Convention | Example |
-|---------|------------|---------|
-| Salesforce products | Official casing | `Sales Cloud`, `Service Cloud` |
-| Acronyms in nodes | lowercase | `sf-ai-agentforce` (not `SF-AI`) |
-| Acronyms in subgraphs | UPPERCASE | `AI & Agents`, `API Gateway` |
-| Technical terms | lowercase | `apex`, `flow`, `metadata` |
+| Element               | Convention      | Example                          |
+| --------------------- | --------------- | -------------------------------- |
+| Salesforce products   | Official casing | `Sales Cloud`, `Service Cloud`   |
+| Acronyms in nodes     | lowercase       | `sf-ai-agentforce` (not `SF-AI`) |
+| Acronyms in subgraphs | UPPERCASE       | `AI & Agents`, `API Gateway`     |
+| Technical terms       | lowercase       | `apex`, `flow`, `metadata`       |
 
 ---
 
 ## Icon Reference
 
-| Category | Icon | Unicode | Usage |
-|----------|------|---------|-------|
-| AI/Agents | 🤖 | U+1F916 | Agentforce, AI features |
-| Apex | ⚡ | U+26A1 | Code, triggers, services |
-| Flow | 🔄 | U+1F504 | Automation, flows |
-| Metadata | 📋 | U+1F4CB | Objects, fields |
-| Data | 💾 | U+1F4BE | SOQL, records |
-| Deploy | 🚀 | U+1F680 | CI/CD, deployment |
-| Connected Apps | 🔐 | U+1F510 | OAuth, security |
-| Integration | 🔗 | U+1F517 | Named Creds, callouts |
-| Diagram | 📊 | U+1F4CA | Documentation |
-| Tooling | 🛠️ | U+1F6E0 | Utilities |
-| User | 👤 | U+1F464 | End users |
-| Browser | 🌐 | U+1F310 | Web apps |
-| Cloud | ☁️ | U+2601 | Salesforce platform |
-| External | 🏭 | U+1F3ED | External systems |
-| Database | 💾 | U+1F4BE | Data storage |
+| Category       | Icon | Unicode | Usage                    |
+| -------------- | ---- | ------- | ------------------------ |
+| AI/Agents      | 🤖   | U+1F916 | Agentforce, AI features  |
+| Apex           | ⚡   | U+26A1  | Code, triggers, services |
+| Flow           | 🔄   | U+1F504 | Automation, flows        |
+| Metadata       | 📋   | U+1F4CB | Objects, fields          |
+| Data           | 💾   | U+1F4BE | SOQL, records            |
+| Deploy         | 🚀   | U+1F680 | CI/CD, deployment        |
+| Connected Apps | 🔐   | U+1F510 | OAuth, security          |
+| Integration    | 🔗   | U+1F517 | Named Creds, callouts    |
+| Diagram        | 📊   | U+1F4CA | Documentation            |
+| Tooling        | 🛠️   | U+1F6E0 | Utilities                |
+| User           | 👤   | U+1F464 | End users                |
+| Browser        | 🌐   | U+1F310 | Web apps                 |
+| Cloud          | ☁️   | U+2601  | Salesforce platform      |
+| External       | 🏭   | U+1F3ED | External systems         |
+| Database       | 💾   | U+1F4BE | Data storage             |
 
 ---
 
@@ -432,11 +443,11 @@ subgraph ai["🤖 Ai & Agents"]           ❌ Title Case
 
 This palette maintains distinguishability for common color blindness:
 
-| Condition | Our Approach |
-|-----------|--------------|
-| Protanopia | Pink vs Teal have different luminance |
-| Deuteranopia | Orange vs Cyan are well separated |
-| Tritanopia | Icons + dark text supplement colors |
+| Condition    | Our Approach                          |
+| ------------ | ------------------------------------- |
+| Protanopia   | Pink vs Teal have different luminance |
+| Deuteranopia | Orange vs Cyan are well separated     |
+| Tritanopia   | Icons + dark text supplement colors   |
 
 ### Key Principles
 
@@ -450,6 +461,7 @@ This palette maintains distinguishability for common color blindness:
 ## Light/Dark Mode Support
 
 The pastel style works best on **light backgrounds**. For dark mode contexts:
+
 - 200-level fills remain visible
 - Dark strokes provide clear definition
 - 50-level subgraph fills adapt reasonably

@@ -4,16 +4,16 @@ Pre-built data model for Salesforce B2B Commerce using `flowchart LR` format wit
 
 ## Objects Included
 
-| Object | Type | Description |
-|--------|------|-------------|
-| WebStore | STD | Online storefront |
-| WebCart | STD | Shopping cart |
-| CartItem | STD | Cart products |
-| BuyerGroup | STD | Customer groups |
-| BuyerAccount | STD | B2B customers |
-| ProductCatalog | STD | Product catalog |
-| CommerceEntitlementPolicy | STD | Access policies |
-| CartCheckoutSession | STD | Checkout process |
+| Object                    | Type | Description       |
+| ------------------------- | ---- | ----------------- |
+| WebStore                  | STD  | Online storefront |
+| WebCart                   | STD  | Shopping cart     |
+| CartItem                  | STD  | Cart products     |
+| BuyerGroup                | STD  | Customer groups   |
+| BuyerAccount              | STD  | B2B customers     |
+| ProductCatalog            | STD  | Product catalog   |
+| CommerceEntitlementPolicy | STD  | Access policies   |
+| CartCheckoutSession       | STD  | Checkout process  |
 
 ---
 
@@ -107,6 +107,7 @@ flowchart LR
 ## Key Concepts
 
 ### B2B Commerce Flow
+
 ```
 WebStore → ProductCatalog → Product2
     ↓           ↓
@@ -116,13 +117,15 @@ BuyerGroup → Entitlements (What they can see/buy)
 ```
 
 ### Buyer vs Account
-| Object | Purpose |
-|--------|---------|
-| Account | Standard CRM account |
-| BuyerAccount | Commerce-enabled account |
-| BuyerGroup | Pricing/entitlement grouping |
+
+| Object       | Purpose                      |
+| ------------ | ---------------------------- |
+| Account      | Standard CRM account         |
+| BuyerAccount | Commerce-enabled account     |
+| BuyerGroup   | Pricing/entitlement grouping |
 
 ### Entitlement Model
+
 ```
 CommerceEntitlementPolicy
     ├── CommerceEntitlementProduct (What products)
@@ -132,12 +135,13 @@ CommerceEntitlementPolicy
 Controls which products each BuyerGroup can view and purchase.
 
 ### Cart States
-| Status | Description |
-|--------|-------------|
-| Active | Current shopping cart |
-| Checkout | In checkout process |
-| Closed | Converted to Order |
-| Abandoned | Inactive cart |
+
+| Status    | Description           |
+| --------- | --------------------- |
+| Active    | Current shopping cart |
+| Checkout  | In checkout process   |
+| Closed    | Converted to Order    |
+| Abandoned | Inactive cart         |
 
 ---
 
@@ -268,43 +272,43 @@ flowchart LR
 
 ## Key Relationships Summary
 
-| Parent | Child | Type | Behavior |
-|--------|-------|------|----------|
-| WebStore | ProductCatalog | LK | Store products |
-| WebStore | BuyerAccount | LK | Store customers |
-| WebStore | WebCart | LK | Shopping carts |
-| ProductCatalog | Product2 | MD | Catalog products |
-| BuyerGroup | BuyerGroupMember | MD | Group members |
-| Account | BuyerAccount | LK | Commerce enablement |
-| WebCart | CartItem | MD | Cart products |
-| WebCart | CartCheckoutSession | LK | Checkout |
-| CommerceEntitlementPolicy | CommerceEntitlementProduct | MD | Product access |
-| CommerceEntitlementPolicy | CommerceEntitlementBuyerGroup | MD | Group access |
+| Parent                    | Child                         | Type | Behavior            |
+| ------------------------- | ----------------------------- | ---- | ------------------- |
+| WebStore                  | ProductCatalog                | LK   | Store products      |
+| WebStore                  | BuyerAccount                  | LK   | Store customers     |
+| WebStore                  | WebCart                       | LK   | Shopping carts      |
+| ProductCatalog            | Product2                      | MD   | Catalog products    |
+| BuyerGroup                | BuyerGroupMember              | MD   | Group members       |
+| Account                   | BuyerAccount                  | LK   | Commerce enablement |
+| WebCart                   | CartItem                      | MD   | Cart products       |
+| WebCart                   | CartCheckoutSession           | LK   | Checkout            |
+| CommerceEntitlementPolicy | CommerceEntitlementProduct    | MD   | Product access      |
+| CommerceEntitlementPolicy | CommerceEntitlementBuyerGroup | MD   | Group access        |
 
 ---
 
 ## Limits & Considerations
 
-| Limit | Value |
-|-------|-------|
-| Products per store | Unlimited (LDV) |
-| Buyer accounts per store | Unlimited |
-| Cart items per cart | 500 |
-| Active carts per buyer | 1 |
-| Price books per buyer group | Multiple |
-| Entitlement policies | Unlimited |
+| Limit                       | Value           |
+| --------------------------- | --------------- |
+| Products per store          | Unlimited (LDV) |
+| Buyer accounts per store    | Unlimited       |
+| Cart items per cart         | 500             |
+| Active carts per buyer      | 1               |
+| Price books per buyer group | Multiple        |
+| Entitlement policies        | Unlimited       |
 
 ---
 
 ## B2B vs B2C Commerce
 
-| Feature | B2B Commerce | B2C Commerce |
-|---------|--------------|--------------|
-| Customer | Business (Account) | Consumer (Contact) |
-| Pricing | Contract/negotiated | List price |
-| Catalog | Entitlement-based | Public |
-| Checkout | Quote/approval | Immediate |
-| Platform | LWR/Aura | LWR/Headless |
+| Feature  | B2B Commerce        | B2C Commerce       |
+| -------- | ------------------- | ------------------ |
+| Customer | Business (Account)  | Consumer (Contact) |
+| Pricing  | Contract/negotiated | List price         |
+| Catalog  | Entitlement-based   | Public             |
+| Checkout | Quote/approval      | Immediate          |
+| Platform | LWR/Aura            | LWR/Headless       |
 
 ---
 

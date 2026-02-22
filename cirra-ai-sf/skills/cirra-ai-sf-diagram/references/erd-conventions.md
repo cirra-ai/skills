@@ -1,15 +1,16 @@
 <!-- Parent: sf-diagram-mermaid/SKILL.md -->
+
 # ERD Conventions for sf-diagram
 
 Standardized conventions for Salesforce data model diagrams with object type indicators, LDV markers, OWD annotations, and relationship type labels.
 
 ## Object Type Indicators
 
-| Indicator | Object Type | Color (Flowchart) | Fill | Stroke | API Suffix |
-|-----------|-------------|-------------------|------|--------|------------|
-| `[STD]` | Standard Object | Sky Blue | `#bae6fd` | `#0369a1` | None |
-| `[CUST]` | Custom Object | Orange | `#fed7aa` | `#c2410c` | `__c` |
-| `[EXT]` | External Object | Green | `#a7f3d0` | `#047857` | `__x` |
+| Indicator | Object Type     | Color (Flowchart) | Fill      | Stroke    | API Suffix |
+| --------- | --------------- | ----------------- | --------- | --------- | ---------- |
+| `[STD]`   | Standard Object | Sky Blue          | `#bae6fd` | `#0369a1` | None       |
+| `[CUST]`  | Custom Object   | Orange            | `#fed7aa` | `#c2410c` | `__c`      |
+| `[EXT]`   | External Object | Green             | `#a7f3d0` | `#047857` | `__x`      |
 
 ### Examples
 
@@ -25,12 +26,12 @@ SAP_Product__x [EXT]  → External object via Salesforce Connect
 
 Objects with **>2M records** should display an LDV indicator to highlight potential performance considerations.
 
-| Record Count | Display Format | Example |
-|--------------|----------------|---------|
-| < 2,000,000 | (none) | Account |
-| 2M - 10M | `LDV[~XM]` | `LDV[~4M]` |
-| 10M - 100M | `LDV[~XXM]` | `LDV[~15M]` |
-| > 100M | `LDV[~XXXM]` | `LDV[~250M]` |
+| Record Count | Display Format | Example      |
+| ------------ | -------------- | ------------ |
+| < 2,000,000  | (none)         | Account      |
+| 2M - 10M     | `LDV[~XM]`     | `LDV[~4M]`   |
+| 10M - 100M   | `LDV[~XXM]`    | `LDV[~15M]`  |
+| > 100M       | `LDV[~XXXM]`   | `LDV[~250M]` |
 
 ### Query Record Count
 
@@ -41,6 +42,7 @@ soql_query(sObject="Account", fields=["COUNT()"])
 ### In Diagram
 
 **erDiagram format** (in entity description):
+
 ```mermaid
 Account {
     Id Id PK "[STD] LDV[~4M]"
@@ -49,6 +51,7 @@ Account {
 ```
 
 **Flowchart format** (in node label):
+
 ```mermaid
 Account["Account<br/>LDV[~4M]"]
 ```
@@ -59,14 +62,14 @@ Account["Account<br/>LDV[~4M]"]
 
 Display sharing model on entities to show default record access levels.
 
-| OWD Setting | Display | Meaning |
-|-------------|---------|---------|
-| Private | `OWD:Private` | Owner + role hierarchy only |
-| PublicRead | `OWD:Read` | All users can view |
-| PublicReadWrite | `OWD:ReadWrite` | All users can view and edit |
-| PublicReadWriteTransfer | `OWD:Full` | All users have full access |
-| ControlledByParent | `OWD:Parent` | Inherits from master object |
-| FullAccess | `OWD:Full` | Full access to all |
+| OWD Setting             | Display         | Meaning                     |
+| ----------------------- | --------------- | --------------------------- |
+| Private                 | `OWD:Private`   | Owner + role hierarchy only |
+| PublicRead              | `OWD:Read`      | All users can view          |
+| PublicReadWrite         | `OWD:ReadWrite` | All users can view and edit |
+| PublicReadWriteTransfer | `OWD:Full`      | All users have full access  |
+| ControlledByParent      | `OWD:Parent`    | Inherits from master object |
+| FullAccess              | `OWD:Full`      | Full access to all          |
 
 ### Query OWD
 
@@ -76,13 +79,13 @@ sf sobject describe --sobject Account --target-org myorg --json | jq '.result.sh
 
 ### Common OWD Patterns
 
-| Object | Typical OWD | Notes |
-|--------|-------------|-------|
-| Account | Private | Most orgs restrict account access |
-| Contact | ControlledByParent | Usually follows Account OWD |
-| Opportunity | Private | Sales data is sensitive |
-| Case | Private or Public Read | Depends on support model |
-| Lead | Public Read/Write | Often shared across sales |
+| Object      | Typical OWD            | Notes                             |
+| ----------- | ---------------------- | --------------------------------- |
+| Account     | Private                | Most orgs restrict account access |
+| Contact     | ControlledByParent     | Usually follows Account OWD       |
+| Opportunity | Private                | Sales data is sensitive           |
+| Case        | Private or Public Read | Depends on support model          |
+| Lead        | Public Read/Write      | Often shared across sales         |
 
 ---
 
@@ -90,10 +93,10 @@ sf sobject describe --sobject Account --target-org myorg --json | jq '.result.sh
 
 Distinguish between Lookup and Master-Detail relationships for understanding data dependencies.
 
-| Label | Relationship | Cascade Delete | Roll-Up | Required Parent |
-|-------|--------------|----------------|---------|-----------------|
-| `LK` | Lookup | No | No | No |
-| `MD` | Master-Detail | Yes | Yes | Yes |
+| Label | Relationship  | Cascade Delete | Roll-Up | Required Parent |
+| ----- | ------------- | -------------- | ------- | --------------- |
+| `LK`  | Lookup        | No             | No      | No              |
+| `MD`  | Master-Detail | Yes            | Yes     | Yes             |
 
 ### In erDiagram Syntax
 
@@ -105,9 +108,9 @@ erDiagram
 
 ### In Flowchart Syntax
 
-| Type | Arrow | Visual |
-|------|-------|--------|
-| Lookup | `-->` | Single arrow |
+| Type          | Arrow | Visual             |
+| ------------- | ----- | ------------------ |
+| Lookup        | `-->` | Single arrow       |
 | Master-Detail | `==>` | Thick double arrow |
 
 ```mermaid
@@ -122,12 +125,12 @@ flowchart TB
 
 Standard ERD cardinality symbols:
 
-| Symbol | Meaning | Description |
-|--------|---------|-------------|
-| `\|\|` | Exactly one | One and only one |
-| `\|o` | Zero or one | Optional, at most one |
-| `o{` | Zero or many | Optional, any number |
-| `\|{` | One or many | Required, at least one |
+| Symbol | Meaning      | Description            |
+| ------ | ------------ | ---------------------- |
+| `\|\|` | Exactly one  | One and only one       |
+| `\|o`  | Zero or one  | Optional, at most one  |
+| `o{`   | Zero or many | Optional, any number   |
+| `\|{`  | One or many  | Required, at least one |
 
 ### Common Salesforce Patterns
 
@@ -170,20 +173,20 @@ erDiagram
 
 ### Entity Colors (for Flowchart ERD)
 
-| Object Type | Fill | Stroke | Text |
-|-------------|------|--------|------|
-| Standard | `#bae6fd` | `#0369a1` | `#1f2937` |
-| Custom | `#fed7aa` | `#c2410c` | `#1f2937` |
-| External | `#a7f3d0` | `#047857` | `#1f2937` |
+| Object Type | Fill      | Stroke    | Text      |
+| ----------- | --------- | --------- | --------- |
+| Standard    | `#bae6fd` | `#0369a1` | `#1f2937` |
+| Custom      | `#fed7aa` | `#c2410c` | `#1f2937` |
+| External    | `#a7f3d0` | `#047857` | `#1f2937` |
 
 ### Subgraph Colors (for Grouping)
 
-| Category | Fill | Stroke | Style |
-|----------|------|--------|-------|
+| Category       | Fill      | Stroke    | Style  |
+| -------------- | --------- | --------- | ------ |
 | Standard Group | `#f0f9ff` | `#0369a1` | dashed |
-| Custom Group | `#fff7ed` | `#c2410c` | dashed |
+| Custom Group   | `#fff7ed` | `#c2410c` | dashed |
 | External Group | `#ecfdf5` | `#047857` | dashed |
-| Legend | `#f8fafc` | `#334155` | dashed |
+| Legend         | `#f8fafc` | `#334155` | dashed |
 
 ### Style Declarations
 
@@ -219,16 +222,19 @@ python3 ~/.claude/plugins/marketplaces/sf-skills/sf-diagram-mermaid/scripts/quer
 ### Manual Queries
 
 **Record Count (LDV)**:
+
 ```python
 soql_query(sObject="Account", fields=["COUNT()"])
 ```
 
 **OWD Setting**:
+
 ```bash
 sf sobject describe --sobject Account --target-org myorg --json | jq '.result.sharingModel'
 ```
 
 **Object Type Check**:
+
 ```bash
 sf sobject describe --sobject Invoice__c --target-org myorg --json | jq '.result.custom'
 ```

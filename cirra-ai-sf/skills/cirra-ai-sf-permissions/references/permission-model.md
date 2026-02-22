@@ -1,4 +1,5 @@
 <!-- Parent: sf-permissions/SKILL.md -->
+
 # Salesforce Permission Model
 
 A guide to understanding how permissions work in Salesforce.
@@ -56,21 +57,21 @@ Salesforce uses a layered permission model:
 
 ### Object Permissions
 
-| Permission | Description |
-|------------|-------------|
-| Create | Insert new records |
-| Read | View records |
-| Edit | Update existing records |
-| Delete | Remove records |
-| View All | Read all records regardless of sharing |
-| Modify All | Full access regardless of sharing |
+| Permission | Description                            |
+| ---------- | -------------------------------------- |
+| Create     | Insert new records                     |
+| Read       | View records                           |
+| Edit       | Update existing records                |
+| Delete     | Remove records                         |
+| View All   | Read all records regardless of sharing |
+| Modify All | Full access regardless of sharing      |
 
 ### Field-Level Security (FLS)
 
-| Permission | Description |
-|------------|-------------|
-| Read | View field value |
-| Edit | Modify field value |
+| Permission | Description        |
+| ---------- | ------------------ |
+| Read       | View field value   |
+| Edit       | Modify field value |
 
 Note: Edit includes Read access.
 
@@ -78,11 +79,11 @@ Note: Edit includes Read access.
 
 Access to programmatic components:
 
-| Entity Type | Examples |
-|-------------|----------|
-| ApexClass | Controller classes, utility classes |
-| ApexPage | Visualforce pages |
-| Flow | Screen flows, autolaunched flows |
+| Entity Type      | Examples                              |
+| ---------------- | ------------------------------------- |
+| ApexClass        | Controller classes, utility classes   |
+| ApexPage         | Visualforce pages                     |
+| Flow             | Screen flows, autolaunched flows      |
 | CustomPermission | Feature flags, custom access controls |
 
 ### System Permissions
@@ -138,12 +139,14 @@ Grant only the permissions users actually need.
 ### 2. Use Permission Set Groups
 
 Group related PS into PSGs for easier management:
+
 - `Sales_Cloud_User` (PSG) instead of 5 individual PS
 - `Service_Cloud_User` (PSG) for case management
 
 ### 3. Audit Regularly
 
 Use sf-permissions to:
+
 - Find PS with overly broad access (ModifyAllData)
 - Identify unused PS
 - Document permission structures
@@ -163,6 +166,7 @@ Examples:
 ### 5. Document Custom Permissions
 
 Custom Permissions should have clear names:
+
 - `Can_Approve_Expenses`
 - `View_Salary_Data`
 - `Export_Customer_Data`

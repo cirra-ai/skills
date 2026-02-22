@@ -4,19 +4,19 @@ Pre-built data model for Salesforce Field Service (formerly Field Service Lightn
 
 ## Objects Included
 
-| Object | Type | Description |
-|--------|------|-------------|
-| WorkOrder | STD | Service jobs |
-| WorkOrderLineItem | STD | Job tasks |
-| ServiceAppointment | STD | Scheduled visits |
-| ServiceResource | STD | Technicians/assets |
-| ServiceTerritory | STD | Service areas |
-| AssignedResource | STD | Appointment assignments |
-| Shift | STD | Resource schedules |
-| TimeSheet | STD | Time tracking |
-| TimeSheetEntry | STD | Time details |
-| ProductConsumed | STD | Parts used |
-| ProductRequired | STD | Parts needed |
+| Object             | Type | Description             |
+| ------------------ | ---- | ----------------------- |
+| WorkOrder          | STD  | Service jobs            |
+| WorkOrderLineItem  | STD  | Job tasks               |
+| ServiceAppointment | STD  | Scheduled visits        |
+| ServiceResource    | STD  | Technicians/assets      |
+| ServiceTerritory   | STD  | Service areas           |
+| AssignedResource   | STD  | Appointment assignments |
+| Shift              | STD  | Resource schedules      |
+| TimeSheet          | STD  | Time tracking           |
+| TimeSheetEntry     | STD  | Time details            |
+| ProductConsumed    | STD  | Parts used              |
+| ProductRequired    | STD  | Parts needed            |
 
 ---
 
@@ -127,6 +127,7 @@ flowchart LR
 ## Key Concepts
 
 ### FSL Object Hierarchy
+
 ```
 Case/Asset → WorkOrder → WorkOrderLineItem → ServiceAppointment
                    ↓              ↓                    ↓
@@ -136,29 +137,32 @@ Case/Asset → WorkOrder → WorkOrderLineItem → ServiceAppointment
 ```
 
 ### Work Order vs Service Appointment
-| Object | Purpose |
-|--------|---------|
-| WorkOrder | What needs to be done (job definition) |
+
+| Object             | Purpose                                 |
+| ------------------ | --------------------------------------- |
+| WorkOrder          | What needs to be done (job definition)  |
 | ServiceAppointment | When/where it will be done (scheduling) |
 
 One WorkOrder can have multiple ServiceAppointments (multi-day jobs).
 
 ### Resource Types
-| Type | Description |
-|------|-------------|
+
+| Type       | Description               |
+| ---------- | ------------------------- |
 | Technician | Field worker (User-based) |
-| Crew | Group of technicians |
-| Dispatcher | Scheduling coordinator |
-| Tool | Equipment (Asset-based) |
-| Contractor | External resource |
+| Crew       | Group of technicians      |
+| Dispatcher | Scheduling coordinator    |
+| Tool       | Equipment (Asset-based)   |
+| Contractor | External resource         |
 
 ### Scheduling Policies
-| Policy | Purpose |
-|--------|---------|
-| Customer First | Minimize customer wait |
-| High Intensity | Maximize utilization |
-| Soft Boundaries | Flexible territories |
-| Emergency | Override normal rules |
+
+| Policy          | Purpose                |
+| --------------- | ---------------------- |
+| Customer First  | Minimize customer wait |
+| High Intensity  | Maximize utilization   |
+| Soft Boundaries | Flexible territories   |
+| Emergency       | Override normal rules  |
 
 ---
 
@@ -282,44 +286,44 @@ flowchart LR
 
 ## Key Relationships Summary
 
-| Parent | Child | Type | Behavior |
-|--------|-------|------|----------|
-| WorkOrder | WorkOrderLineItem | MD | Cascade delete |
-| WorkOrder | ServiceAppointment | LK | Scheduling |
-| ServiceAppointment | AssignedResource | MD | Cascade delete |
-| ServiceResource | AssignedResource | LK | Resource reference |
-| ServiceTerritory | ServiceTerritoryMember | MD | Cascade delete |
-| ServiceResource | Shift | MD | Cascade delete |
-| ServiceResource | TimeSheet | LK | Time owner |
-| TimeSheet | TimeSheetEntry | MD | Cascade delete |
-| WorkOrder | ProductConsumed | MD | Parts used |
-| WorkOrder | ProductRequired | MD | Parts needed |
-| Case | WorkOrder | LK | Source case |
-| Asset | WorkOrder | LK | Serviced asset |
+| Parent             | Child                  | Type | Behavior           |
+| ------------------ | ---------------------- | ---- | ------------------ |
+| WorkOrder          | WorkOrderLineItem      | MD   | Cascade delete     |
+| WorkOrder          | ServiceAppointment     | LK   | Scheduling         |
+| ServiceAppointment | AssignedResource       | MD   | Cascade delete     |
+| ServiceResource    | AssignedResource       | LK   | Resource reference |
+| ServiceTerritory   | ServiceTerritoryMember | MD   | Cascade delete     |
+| ServiceResource    | Shift                  | MD   | Cascade delete     |
+| ServiceResource    | TimeSheet              | LK   | Time owner         |
+| TimeSheet          | TimeSheetEntry         | MD   | Cascade delete     |
+| WorkOrder          | ProductConsumed        | MD   | Parts used         |
+| WorkOrder          | ProductRequired        | MD   | Parts needed       |
+| Case               | WorkOrder              | LK   | Source case        |
+| Asset              | WorkOrder              | LK   | Serviced asset     |
 
 ---
 
 ## Limits & Considerations
 
-| Limit | Value |
-|-------|-------|
-| Work Order Line Items per WO | 200 (default) |
-| Appointments per Work Order | Unlimited |
-| Resources per Territory | Unlimited |
-| Optimization batch size | 50 appointments |
-| Shift duration | Max 24 hours |
-| Service History retention | Configurable |
+| Limit                        | Value           |
+| ---------------------------- | --------------- |
+| Work Order Line Items per WO | 200 (default)   |
+| Appointments per Work Order  | Unlimited       |
+| Resources per Territory      | Unlimited       |
+| Optimization batch size      | 50 appointments |
+| Shift duration               | Max 24 hours    |
+| Service History retention    | Configurable    |
 
 ---
 
 ## FSL Managed Package Objects
 
-| Object | Purpose |
-|--------|---------|
-| FSL__Scheduling_Policy__c | Optimization rules |
-| FSL__Service_Goal__c | SLA definitions |
-| FSL__Resource_Preference__c | Customer preferences |
-| FSL__Time_Dependency__c | Appointment sequences |
+| Object                      | Purpose               |
+| --------------------------- | --------------------- |
+| FSL**Scheduling_Policy**c   | Optimization rules    |
+| FSL**Service_Goal**c        | SLA definitions       |
+| FSL**Resource_Preference**c | Customer preferences  |
+| FSL**Time_Dependency**c     | Appointment sequences |
 
 ---
 

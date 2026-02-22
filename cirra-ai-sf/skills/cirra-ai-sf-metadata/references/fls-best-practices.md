@@ -1,4 +1,5 @@
 <!-- Parent: sf-metadata/SKILL.md -->
+
 # Field-Level Security (FLS) Best Practices
 
 ## Overview
@@ -10,10 +11,12 @@ Field-Level Security (FLS) controls which users can view and edit specific field
 ## Understanding FLS
 
 ### Two Levels of Field Access
+
 1. **Readable**: User can see the field value
 2. **Editable**: User can modify the field value (implies readable)
 
 ### FLS vs Object Permissions
+
 ```
 User Access = Object Permissions + Field-Level Security + Record Access
 
@@ -23,6 +26,7 @@ Record Access: Can user access specific records?
 ```
 
 ### Where FLS is Configured
+
 - Profiles (base access)
 - Permission Sets (additive access)
 - Permission Set Groups (combined sets)
@@ -34,17 +38,20 @@ Record Access: Can user access specific records?
 ### 1. Use Permission Sets Over Profiles
 
 **Why:**
+
 - Profiles are monolithic and hard to maintain
 - Permission Sets are additive and composable
 - Easier to manage feature-based access
 
 **Pattern:**
+
 ```
 Profile: Base access (read-only on most fields)
 Permission Set: Feature-specific edit access
 ```
 
 **Example:**
+
 ```xml
 <!-- Permission Set for Invoice Editors -->
 <PermissionSet>
@@ -69,12 +76,14 @@ Permission Set: Feature-specific edit access
 **Rule:** Grant minimum access needed for the job function
 
 **Steps:**
+
 1. Start with no access
 2. Add read access where needed
 3. Add edit access only where required
 4. Review periodically
 
 **Anti-Pattern:**
+
 ```xml
 <!-- DON'T: Grant edit on everything -->
 <fieldPermissions>
@@ -85,6 +94,7 @@ Permission Set: Feature-specific edit access
 ```
 
 **Better:**
+
 ```xml
 <!-- DO: Grant read-only unless edit is required -->
 <fieldPermissions>
@@ -99,17 +109,19 @@ Permission Set: Feature-specific edit access
 ### 3. Protect Sensitive Fields
 
 #### Identify Sensitive Fields
-| Category | Examples |
-|----------|----------|
-| PII | SSN, Date of Birth, Driver's License |
-| Financial | Bank Account, Credit Card, Salary |
-| Health | Medical conditions, Insurance |
-| Security | Password, Token, API Key |
-| Business | Trade secrets, Pricing formulas |
+
+| Category  | Examples                             |
+| --------- | ------------------------------------ |
+| PII       | SSN, Date of Birth, Driver's License |
+| Financial | Bank Account, Credit Card, Salary    |
+| Health    | Medical conditions, Insurance        |
+| Security  | Password, Token, API Key             |
+| Business  | Trade secrets, Pricing formulas      |
 
 #### Protection Strategies
 
 1. **Restrict to Specific Permission Sets**
+
 ```xml
 <PermissionSet>
     <label>PII_Access</label>
@@ -123,11 +135,13 @@ Permission Set: Feature-specific edit access
 ```
 
 2. **Use Shield Platform Encryption**
+
 - Encrypts data at rest
 - Searchable with deterministic encryption
 - Requires Shield license
 
 3. **Use Classic Encryption (Encrypted Text Field)**
+
 - Masks display (shows last 4 characters)
 - Limited functionality
 - No additional license needed
@@ -139,6 +153,7 @@ Permission Set: Feature-specific edit access
 #### Always Check FLS in Apex
 
 **With SOQL:**
+
 ```apex
 // Good: Respects FLS
 List<Account> accounts = [
@@ -157,6 +172,7 @@ List<Account> safeAccounts = decision.getRecords();
 ```
 
 **With DML:**
+
 ```apex
 // Good: Respects FLS
 Database.insert(accounts, AccessLevel.USER_MODE);
@@ -172,6 +188,7 @@ if (Schema.sObjectType.Account.fields.Industry.isUpdateable()) {
 ### 5. Organize Permission Sets by Function
 
 **Pattern:**
+
 ```
 [Object]_[AccessLevel]
 [Feature]_[Role]
@@ -179,6 +196,7 @@ if (Schema.sObjectType.Account.fields.Industry.isUpdateable()) {
 ```
 
 **Example Structure:**
+
 ```
 Permission Sets/
 ├── Account_Read_Only.permissionset-meta.xml
@@ -194,11 +212,13 @@ Permission Sets/
 ### 6. Use Permission Set Groups
 
 **Why:**
+
 - Combine related permission sets
 - Easier role-based assignment
 - Single assignment per user role
 
 **Example:**
+
 ```
 Permission Set Group: Sales_Representative
 ├── Account_Full_Access
@@ -230,12 +250,14 @@ User needs READ access to:
 ### 8. Document FLS Decisions
 
 **For each sensitive field, document:**
+
 - Why it exists
 - Who should have access
 - Which permission sets grant access
 - Review date
 
 **Example:**
+
 ```xml
 <CustomField>
     <fullName>SSN__c</fullName>
@@ -252,30 +274,35 @@ User needs READ access to:
 ## Common Mistakes
 
 ### 1. Relying on Page Layout for Security
+
 ```
 ❌ "Users can't see it because it's not on the layout"
 ✅ FLS controls true visibility; layouts are UX only
 ```
 
 ### 2. Granting Edit Without Business Need
+
 ```
 ❌ "Give them edit just in case they need it"
 ✅ Start read-only, add edit when requested
 ```
 
 ### 3. Not Checking FLS in Apex
+
 ```
 ❌ Assuming controller/trigger runs as system
 ✅ Always use WITH USER_MODE or Security.stripInaccessible
 ```
 
 ### 4. Over-Using System Administrator
+
 ```
 ❌ "Just use System Admin profile"
 ✅ Create specific permission sets for each function
 ```
 
 ### 5. Not Testing FLS Changes
+
 ```
 ❌ Deploy FLS changes without testing
 ✅ Test with actual user profiles before deploy
@@ -313,23 +340,26 @@ User needs READ access to:
 ## Quick Reference
 
 ### SOQL FLS Modes
-| Mode | Behavior |
-|------|----------|
-| `WITH USER_MODE` | Enforces FLS and sharing |
+
+| Mode               | Behavior                     |
+| ------------------ | ---------------------------- |
+| `WITH USER_MODE`   | Enforces FLS and sharing     |
 | `WITH SYSTEM_MODE` | Bypasses FLS (use carefully) |
-| Default (no mode) | Depends on context |
+| Default (no mode)  | Depends on context           |
 
 ### Schema Methods
-| Method | Purpose |
-|--------|---------|
-| `isAccessible()` | Can user read field? |
-| `isUpdateable()` | Can user edit field? |
+
+| Method           | Purpose                 |
+| ---------------- | ----------------------- |
+| `isAccessible()` | Can user read field?    |
+| `isUpdateable()` | Can user edit field?    |
 | `isCreateable()` | Can user set on create? |
 
 ### Security.stripInaccessible
-| AccessType | Strips Fields Not... |
-|------------|----------------------|
-| `READABLE` | Readable by user |
-| `CREATABLE` | Creatable by user |
-| `UPDATABLE` | Updatable by user |
+
+| AccessType   | Strips Fields Not...   |
+| ------------ | ---------------------- |
+| `READABLE`   | Readable by user       |
+| `CREATABLE`  | Creatable by user      |
+| `UPDATABLE`  | Updatable by user      |
 | `UPSERTABLE` | Creatable or updatable |

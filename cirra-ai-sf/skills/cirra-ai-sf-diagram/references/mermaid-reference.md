@@ -1,4 +1,5 @@
 <!-- Parent: sf-diagram-mermaid/SKILL.md -->
+
 # Mermaid Quick Reference
 
 Quick reference guide for Mermaid diagram syntax used in sf-diagram.
@@ -18,16 +19,16 @@ sequenceDiagram
 
 ### Arrow Types
 
-| Arrow | Meaning | Usage |
-|-------|---------|-------|
-| `->` | Solid line, no head | Internal processing |
-| `-->` | Dotted line, no head | Optional/weak connection |
-| `->>` | Solid line, arrowhead | Request/Call |
-| `-->>` | Dotted line, arrowhead | Response/Return |
-| `-x` | Solid line, X end | Failed/Cancelled |
-| `--x` | Dotted line, X end | Failed response |
-| `-)` | Solid, open arrow | Async (fire-and-forget) |
-| `--)` | Dotted, open arrow | Async response |
+| Arrow  | Meaning                | Usage                    |
+| ------ | ---------------------- | ------------------------ |
+| `->`   | Solid line, no head    | Internal processing      |
+| `-->`  | Dotted line, no head   | Optional/weak connection |
+| `->>`  | Solid line, arrowhead  | Request/Call             |
+| `-->>` | Dotted line, arrowhead | Response/Return          |
+| `-x`   | Solid line, X end      | Failed/Cancelled         |
+| `--x`  | Dotted line, X end     | Failed response          |
+| `-)`   | Solid, open arrow      | Async (fire-and-forget)  |
+| `--)`  | Dotted, open arrow     | Async response           |
 
 ### Participants and Actors
 
@@ -163,12 +164,12 @@ erDiagram
 
 ### Cardinality Notation
 
-| Symbol | Meaning |
-|--------|---------|
-| `\|o` | Zero or one |
-| `\|\|` | Exactly one |
-| `}o` | Zero or many |
-| `}\|` | One or many |
+| Symbol | Meaning      |
+| ------ | ------------ |
+| `\|o`  | Zero or one  |
+| `\|\|` | Exactly one  |
+| `}o`   | Zero or many |
+| `}\|`  | One or many  |
 
 ### Full Cardinality Examples
 
@@ -195,11 +196,11 @@ erDiagram
 
 ### Attribute Keys
 
-| Key | Meaning |
-|-----|---------|
-| PK | Primary Key |
-| FK | Foreign Key |
-| UK | Unique Key |
+| Key | Meaning     |
+| --- | ----------- |
+| PK  | Primary Key |
+| FK  | Foreign Key |
+| UK  | Unique Key  |
 
 ---
 
@@ -225,12 +226,12 @@ flowchart LR
 
 ### Direction
 
-| Code | Direction |
-|------|-----------|
+| Code        | Direction     |
+| ----------- | ------------- |
 | `TB` / `TD` | Top to Bottom |
-| `BT` | Bottom to Top |
-| `LR` | Left to Right |
-| `RL` | Right to Left |
+| `BT`        | Bottom to Top |
+| `LR`        | Left to Right |
+| `RL`        | Right to Left |
 
 ### Node Shapes
 
@@ -263,12 +264,12 @@ flowchart LR
     A ---|text| G
 ```
 
-| Link | Description |
-|------|-------------|
-| `-->` | Arrow |
-| `---` | Line (no arrow) |
-| `-.->` | Dotted arrow |
-| `==>` | Thick arrow |
+| Link        | Description     |
+| ----------- | --------------- |
+| `-->`       | Arrow           |
+| `---`       | Line (no arrow) |
+| `-.->`      | Dotted arrow    |
+| `==>`       | Thick arrow     |
 | `--text-->` | Arrow with text |
 
 ### Subgraphs
@@ -302,6 +303,7 @@ flowchart TB
 ### Init Directive
 
 For spacing configuration (recommended):
+
 ```mermaid
 %%{init: {"flowchart": {"nodeSpacing": 80, "rankSpacing": 70}} }%%
 flowchart LR
@@ -312,6 +314,7 @@ flowchart LR
 ```
 
 For theme variables (legacy - prefer individual `style` declarations):
+
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': {
   'primaryColor': '#00A1E0',
@@ -324,28 +327,31 @@ flowchart LR
 
 ### Available Themes
 
-| Theme | Description |
-|-------|-------------|
-| `default` | Standard theme |
-| `base` | Base for customization |
-| `dark` | Dark mode |
-| `forest` | Green tones |
-| `neutral` | Grayscale |
+| Theme     | Description            |
+| --------- | ---------------------- |
+| `default` | Standard theme         |
+| `base`    | Base for customization |
+| `dark`    | Dark mode              |
+| `forest`  | Green tones            |
+| `neutral` | Grayscale              |
 
 ### Common Theme Variables
 
 **Sequence Diagrams:**
+
 - `actorBkg`, `actorTextColor`, `actorBorder`
 - `signalColor`, `signalTextColor`
 - `labelBoxBkgColor`, `labelTextColor`
 - `noteBkgColor`, `noteTextColor`
 
 **ER Diagrams:**
+
 - `primaryColor`, `primaryTextColor`
 - `lineColor`
 - `attributeBackgroundColorOdd/Even`
 
 **Flowcharts:**
+
 - `primaryColor`, `primaryTextColor`
 - `lineColor`, `nodeBorder`
 - `mainBkg`, `clusterBkg`
@@ -358,13 +364,13 @@ flowchart LR
 
 Use `#` codes for special characters:
 
-| Code | Character |
-|------|-----------|
-| `#quot;` | " |
-| `#amp;` | & |
-| `#lt;` | < |
-| `#gt;` | > |
-| `#59;` | ; |
+| Code     | Character |
+| -------- | --------- |
+| `#quot;` | "         |
+| `#amp;`  | &         |
+| `#lt;`   | <         |
+| `#gt;`   | >         |
+| `#59;`   | ;         |
 
 ### Line Breaks in Text
 
@@ -397,6 +403,7 @@ sequenceDiagram
 ### 3. Styling Individual Nodes
 
 Using `style` declarations (sf-skills standard):
+
 ```mermaid
 %%{init: {"flowchart": {"nodeSpacing": 80, "rankSpacing": 70}} }%%
 flowchart LR
@@ -407,6 +414,7 @@ flowchart LR
 ```
 
 Using `classDef` (alternative approach):
+
 ```mermaid
 flowchart LR
     A:::success --> B:::error

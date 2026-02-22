@@ -1,4 +1,5 @@
 <!-- Parent: sf-data/SKILL.md -->
+
 # SOQL Anti-Patterns: What to Avoid
 
 A catalog of common SOQL mistakes and their solutions. Avoiding these patterns will help you stay within governor limits, improve query performance, and write more maintainable code.
@@ -72,6 +73,7 @@ AND OwnerId = :UserInfo.getUserId()
 ```
 
 **Indexed Fields** (Always use these in WHERE):
+
 - `Id`, `Name`, `OwnerId`, `CreatedDate`, `LastModifiedDate`
 - `RecordTypeId`, External ID fields, Master-Detail fields
 - Standard indexed fields: `Account.AccountNumber`, `Contact.Email`, `Case.CaseNumber`
@@ -162,7 +164,7 @@ SELECT Id FROM Contact WHERE HasEmail__c = false
 
 ---
 
-## Anti-Pattern #6: SELECT * (All Fields)
+## Anti-Pattern #6: SELECT \* (All Fields)
 
 **The Problem**: Querying all fields wastes resources and can hit heap limits.
 
@@ -319,10 +321,12 @@ A filter is SELECTIVE when:
 ```
 
 **Always Indexed Fields**:
+
 - `Id`, `Name`, `OwnerId`, `CreatedDate`, `LastModifiedDate`
 - `RecordTypeId`, External ID fields, Master-Detail relationship fields
 
 **Request Custom Index**: Contact Salesforce Support with:
+
 - Object name and field API name
 - Sample SOQL query
 - Cardinality (unique values count)

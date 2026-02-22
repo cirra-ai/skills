@@ -3,6 +3,7 @@
 OAuth 2.0 JWT Bearer assertion flow for server-to-server authentication without user interaction.
 
 ## When to Use
+
 - Server-to-server integrations
 - CI/CD pipelines
 - Scheduled jobs and automation
@@ -10,6 +11,7 @@ OAuth 2.0 JWT Bearer assertion flow for server-to-server authentication without 
 - Any headless authentication scenario
 
 ## Prerequisites
+
 1. X.509 Certificate uploaded to Salesforce Connected App
 2. Pre-authorized user via Permission Set
 3. Private key securely stored on server
@@ -127,6 +129,7 @@ sequenceDiagram
 ## JWT Structure
 
 ### Header
+
 ```json
 {
   "alg": "RS256",
@@ -135,16 +138,18 @@ sequenceDiagram
 ```
 
 ### Payload (Claims)
+
 ```json
 {
-  "iss": "3MVG9...",          // Consumer Key from Connected App
-  "sub": "user@company.com",   // Pre-authorized username
-  "aud": "https://login.salesforce.com",  // Or test.salesforce.com for sandbox
-  "exp": 1702123456            // Expiration (current time + 5 min max)
+  "iss": "3MVG9...", // Consumer Key from Connected App
+  "sub": "user@company.com", // Pre-authorized username
+  "aud": "https://login.salesforce.com", // Or test.salesforce.com for sandbox
+  "exp": 1702123456 // Expiration (current time + 5 min max)
 }
 ```
 
 ### Signature
+
 ```
 RS256(
   base64URLEncode(header) + "." + base64URLEncode(payload),
@@ -163,6 +168,7 @@ curl -X POST https://login.salesforce.com/services/oauth2/token \
 ## Code Examples
 
 ### Python
+
 ```python
 import jwt
 import time
@@ -192,6 +198,7 @@ instance_url = response.json()['instance_url']
 ```
 
 ### Node.js
+
 ```javascript
 const jwt = require('jsonwebtoken');
 const axios = require('axios');
@@ -204,7 +211,7 @@ const token = jwt.sign(
     iss: 'YOUR_CONSUMER_KEY',
     sub: 'user@company.com',
     aud: 'https://login.salesforce.com',
-    exp: Math.floor(Date.now() / 1000) + 300
+    exp: Math.floor(Date.now() / 1000) + 300,
   },
   privateKey,
   { algorithm: 'RS256' }
@@ -214,7 +221,7 @@ const response = await axios.post(
   'https://login.salesforce.com/services/oauth2/token',
   new URLSearchParams({
     grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-    assertion: token
+    assertion: token,
   })
 );
 
@@ -223,13 +230,13 @@ const { access_token, instance_url } = response.data;
 
 ## Key Characteristics
 
-| Aspect | Value |
-|--------|-------|
-| User Interaction | None required |
-| Refresh Token | **Not returned** - re-authenticate with new JWT |
-| Token Lifetime | Default ~2 hours (configurable) |
-| Security Model | Certificate-based (asymmetric) |
-| Audience | `login.salesforce.com` or `test.salesforce.com` |
+| Aspect           | Value                                           |
+| ---------------- | ----------------------------------------------- |
+| User Interaction | None required                                   |
+| Refresh Token    | **Not returned** - re-authenticate with new JWT |
+| Token Lifetime   | Default ~2 hours (configurable)                 |
+| Security Model   | Certificate-based (asymmetric)                  |
+| Audience         | `login.salesforce.com` or `test.salesforce.com` |
 
 ## Security Considerations
 
@@ -241,16 +248,17 @@ const { access_token, instance_url } = response.data;
 
 ## Troubleshooting
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `invalid_grant` | JWT expired or invalid | Check exp claim, verify signature |
-| `invalid_client` | Consumer key mismatch | Verify iss matches Connected App |
-| `user_not_authorized` | User not pre-approved | Assign Permission Set to user |
-| `invalid_assertion` | Signature verification failed | Verify certificate upload |
+| Error                 | Cause                         | Solution                          |
+| --------------------- | ----------------------------- | --------------------------------- |
+| `invalid_grant`       | JWT expired or invalid        | Check exp claim, verify signature |
+| `invalid_client`      | Consumer key mismatch         | Verify iss matches Connected App  |
+| `user_not_authorized` | User not pre-approved         | Assign Permission Set to user     |
+| `invalid_assertion`   | Signature verification failed | Verify certificate upload         |
 
 ## Customization Points
 
 Replace these placeholders:
+
 - `CONSUMER_KEY` → Your Connected App's Consumer Key
 - `user@company.com` → Pre-authorized Salesforce username
 - `login.salesforce.com` → Or `test.salesforce.com` for sandbox

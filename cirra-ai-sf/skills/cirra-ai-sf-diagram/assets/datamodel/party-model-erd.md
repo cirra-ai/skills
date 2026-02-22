@@ -4,12 +4,12 @@ Pre-built data model for Salesforce Party Model used in Industry Clouds (Financi
 
 ## Objects Included
 
-| Object | Type | Description |
-|--------|------|-------------|
-| Account | STD | Person or Business accounts |
-| Contact | STD | Individual contacts |
-| AccountContactRelation | STD | Account-Contact junction (ACR) |
-| AccountContactRole | STD | Role-based relationship |
+| Object                 | Type    | Description                      |
+| ---------------------- | ------- | -------------------------------- |
+| Account                | STD     | Person or Business accounts      |
+| Contact                | STD     | Individual contacts              |
+| AccountContactRelation | STD     | Account-Contact junction (ACR)   |
+| AccountContactRole     | STD     | Role-based relationship          |
 | ContactContactRelation | Managed | Contact-to-Contact relationships |
 | AccountAccountRelation | Managed | Account-to-Account relationships |
 
@@ -83,26 +83,29 @@ flowchart LR
 ## Key Concepts
 
 ### Person Accounts vs Business Accounts
-| Type | RecordType | IsPersonAccount |
-|------|------------|-----------------|
-| Business | Business_Account | false |
-| Person | Person_Account | true |
+
+| Type     | RecordType       | IsPersonAccount |
+| -------- | ---------------- | --------------- |
+| Business | Business_Account | false           |
+| Person   | Person_Account   | true            |
 
 Person Accounts merge Account + Contact into single record.
 
 ### AccountContactRelation (ACR)
+
 - **Indirect relationship** between Account and Contact
 - Enables **many-to-many** Account↔Contact
 - Has `Roles` multi-select picklist
 - `IsDirect` flag indicates primary relationship
 
 ### Industry Cloud Extensions
-| Object | Cloud | Purpose |
-|--------|-------|---------|
-| ContactContactRelation | FSC, Health | Family/household relationships |
-| AccountAccountRelation | FSC, Health | Business relationships |
-| FinancialAccount | FSC | Financial accounts |
-| HealthCloudGA__EhrPatient__c | Health | Patient records |
+
+| Object                       | Cloud       | Purpose                        |
+| ---------------------------- | ----------- | ------------------------------ |
+| ContactContactRelation       | FSC, Health | Family/household relationships |
+| AccountAccountRelation       | FSC, Health | Business relationships         |
+| FinancialAccount             | FSC         | Financial accounts             |
+| HealthCloudGA**EhrPatient**c | Health      | Patient records                |
 
 ---
 
@@ -194,37 +197,37 @@ flowchart LR
 
 ## Key Relationships Summary
 
-| Parent | Child | Type | Behavior |
-|--------|-------|------|----------|
-| Account | Contact | LK | Primary account |
-| Account | AccountContactRelation | LK | Indirect relationships |
-| Contact | AccountContactRelation | LK | Indirect relationships |
-| Account | AccountContactRole | LK | Opportunity roles |
-| Contact | AccountContactRole | LK | Opportunity roles |
-| Contact | ContactContactRelation | LK | Person-to-person |
-| Account | AccountAccountRelation | LK | Business-to-business |
+| Parent  | Child                  | Type | Behavior               |
+| ------- | ---------------------- | ---- | ---------------------- |
+| Account | Contact                | LK   | Primary account        |
+| Account | AccountContactRelation | LK   | Indirect relationships |
+| Contact | AccountContactRelation | LK   | Indirect relationships |
+| Account | AccountContactRole     | LK   | Opportunity roles      |
+| Contact | AccountContactRole     | LK   | Opportunity roles      |
+| Contact | ContactContactRelation | LK   | Person-to-person       |
+| Account | AccountAccountRelation | LK   | Business-to-business   |
 
 ---
 
 ## Limits & Considerations
 
-| Limit | Value |
-|-------|-------|
-| ACR per Account | No hard limit |
-| ACR per Contact | No hard limit |
-| Roles per ACR | Multi-select (limited by picklist size) |
-| Person Account fields | Merged Account + Contact fields |
+| Limit                 | Value                                   |
+| --------------------- | --------------------------------------- |
+| ACR per Account       | No hard limit                           |
+| ACR per Contact       | No hard limit                           |
+| Roles per ACR         | Multi-select (limited by picklist size) |
+| Person Account fields | Merged Account + Contact fields         |
 
 ---
 
 ## Industry Cloud Packages
 
-| Cloud | Key Objects |
-|-------|-------------|
+| Cloud                  | Key Objects                                                  |
+| ---------------------- | ------------------------------------------------------------ |
 | **Financial Services** | FinancialAccount, FinancialAccountRole, Securities, Holdings |
-| **Health Cloud** | CarePlan, CareProgram, EhrPatient, Medication |
-| **Manufacturing** | SalesAgreement, RebateProgram, VisitPlan |
-| **Consumer Goods** | RetailStore, StoreProduct, Promotion |
+| **Health Cloud**       | CarePlan, CareProgram, EhrPatient, Medication                |
+| **Manufacturing**      | SalesAgreement, RebateProgram, VisitPlan                     |
+| **Consumer Goods**     | RetailStore, StoreProduct, Promotion                         |
 
 ---
 

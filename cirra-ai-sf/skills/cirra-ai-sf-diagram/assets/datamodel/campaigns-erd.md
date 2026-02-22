@@ -4,15 +4,15 @@ Pre-built data model for Salesforce Campaigns using `flowchart LR` format with c
 
 ## Objects Included
 
-| Object | Type | Description |
-|--------|------|-------------|
-| Campaign | STD | Marketing campaigns |
-| CampaignMember | STD | Campaign responses (Lead/Contact) |
-| CampaignMemberStatus | STD | Status values per campaign |
-| CampaignInfluence | STD | Attribution to opportunities |
-| Lead | STD | Potential customers |
-| Contact | STD | Existing contacts |
-| Opportunity | STD | Influenced deals |
+| Object               | Type | Description                       |
+| -------------------- | ---- | --------------------------------- |
+| Campaign             | STD  | Marketing campaigns               |
+| CampaignMember       | STD  | Campaign responses (Lead/Contact) |
+| CampaignMemberStatus | STD  | Status values per campaign        |
+| CampaignInfluence    | STD  | Attribution to opportunities      |
+| Lead                 | STD  | Potential customers               |
+| Contact              | STD  | Existing contacts                 |
+| Opportunity          | STD  | Influenced deals                  |
 
 ---
 
@@ -86,21 +86,24 @@ flowchart LR
 ## Key Concepts
 
 ### Campaign Hierarchy
+
 - Campaigns support **Parent Campaign** self-lookup
 - Enables rollup reporting across campaign groups
 - Max hierarchy depth: 5 levels
 
 ### CampaignMember Polymorphism
+
 - CampaignMember links to **either** Lead OR Contact (not both)
 - Uses `LeadId` or `ContactId` lookup fields
 - Status tracked via CampaignMemberStatus
 
 ### Campaign Influence Models
-| Model | Description |
-|-------|-------------|
-| **Primary Campaign Source** | First-touch attribution (Opportunity.CampaignId) |
-| **Campaign Influence 1.0** | Manual influence records |
-| **Customizable Campaign Influence** | Multi-touch with weighted attribution |
+
+| Model                               | Description                                      |
+| ----------------------------------- | ------------------------------------------------ |
+| **Primary Campaign Source**         | First-touch attribution (Opportunity.CampaignId) |
+| **Campaign Influence 1.0**          | Manual influence records                         |
+| **Customizable Campaign Influence** | Multi-touch with weighted attribution            |
 
 ---
 
@@ -164,25 +167,25 @@ flowchart LR
 
 ## Key Relationships Summary
 
-| Parent | Child | Type | Behavior |
-|--------|-------|------|----------|
-| Campaign | CampaignMember | MD | Cascade delete |
-| Campaign | CampaignMemberStatus | MD | Cascade delete |
-| Lead | CampaignMember | LK | Optional (polymorphic) |
-| Contact | CampaignMember | LK | Optional (polymorphic) |
-| Campaign | CampaignInfluence | LK | Attribution link |
-| Campaign | Opportunity | LK | Primary Campaign Source |
-| Campaign | Campaign | LK | Parent Campaign (hierarchy) |
+| Parent   | Child                | Type | Behavior                    |
+| -------- | -------------------- | ---- | --------------------------- |
+| Campaign | CampaignMember       | MD   | Cascade delete              |
+| Campaign | CampaignMemberStatus | MD   | Cascade delete              |
+| Lead     | CampaignMember       | LK   | Optional (polymorphic)      |
+| Contact  | CampaignMember       | LK   | Optional (polymorphic)      |
+| Campaign | CampaignInfluence    | LK   | Attribution link            |
+| Campaign | Opportunity          | LK   | Primary Campaign Source     |
+| Campaign | Campaign             | LK   | Parent Campaign (hierarchy) |
 
 ---
 
 ## Limits & Considerations
 
-| Limit | Value |
-|-------|-------|
-| Campaign hierarchy depth | 5 levels |
+| Limit                        | Value                             |
+| ---------------------------- | --------------------------------- |
+| Campaign hierarchy depth     | 5 levels                          |
 | CampaignMembers per campaign | No hard limit (LDV consideration) |
-| CampaignInfluence records | Depends on attribution model |
+| CampaignInfluence records    | Depends on attribution model      |
 
 ---
 

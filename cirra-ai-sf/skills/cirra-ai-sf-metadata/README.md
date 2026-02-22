@@ -35,31 +35,31 @@ Request: "Create a custom object called Invoice__c with Amount, Status, and Due 
 
 ### Common Operations
 
-| Operation | Example Request |
-| --------- | ------------------------------------------------------- |
-| Create Object | "Create a custom object called Inspection__c" |
-| Create Field | "Add a Currency field called Amount__c to Invoice__c" |
-| Create Validation | "Add a validation rule requiring Close Date when Status is Closed" |
-| Describe Object | "Describe the Account object and show all fields" |
-| Create Permission Set | "Generate a Permission Set for the Invoice__c object" |
+| Operation             | Example Request                                                    |
+| --------------------- | ------------------------------------------------------------------ |
+| Create Object         | "Create a custom object called Inspection\_\_c"                    |
+| Create Field          | "Add a Currency field called Amount**c to Invoice**c"              |
+| Create Validation     | "Add a validation rule requiring Close Date when Status is Closed" |
+| Describe Object       | "Describe the Account object and show all fields"                  |
+| Create Permission Set | "Generate a Permission Set for the Invoice\_\_c object"            |
 
 ## Related Skills
 
-| Skill | When to Use |
-| -------------------- | -------------------------------------------------------- |
-| cirra-ai-sf-data | Query, create records, build/optimize SOQL queries |
-| cirra-ai-sf-permissions | Analyze and audit permission sets |
-| cirra-ai-sf-apex | Create Apex classes and triggers |
-| cirra-ai-sf-flow | Create and validate Flows |
+| Skill                   | When to Use                                        |
+| ----------------------- | -------------------------------------------------- |
+| cirra-ai-sf-data        | Query, create records, build/optimize SOQL queries |
+| cirra-ai-sf-permissions | Analyze and audit permission sets                  |
+| cirra-ai-sf-apex        | Create Apex classes and triggers                   |
+| cirra-ai-sf-flow        | Create and validate Flows                          |
 
 ## Cirra AI MCP Tools
 
-| Operation | MCP Tool |
-| --------- | ------------------------------------------ |
-| Create Metadata | `metadata_create(type, metadata)` |
-| Update Metadata | `metadata_update(type, metadata)` |
-| Describe Object | `sobject_describe(sObject)` |
-| Query Metadata | `tooling_api_query(sObject, fields)` |
+| Operation       | MCP Tool                             |
+| --------------- | ------------------------------------ |
+| Create Metadata | `metadata_create(type, metadata)`    |
+| Update Metadata | `metadata_update(type, metadata)`    |
+| Describe Object | `sobject_describe(sObject)`          |
+| Query Metadata  | `tooling_api_query(sObject, fields)` |
 
 ## Requirements
 

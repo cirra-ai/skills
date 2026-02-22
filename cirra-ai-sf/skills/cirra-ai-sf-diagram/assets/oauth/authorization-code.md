@@ -3,6 +3,7 @@
 Standard OAuth 2.0 Authorization Code flow for web applications with backend servers.
 
 ## When to Use
+
 - Web applications with secure backend servers
 - Confidential clients that can protect client_secret
 - When you need refresh tokens for long-lived access
@@ -131,10 +132,10 @@ sequenceDiagram
 
 ## Key Endpoints
 
-| Endpoint | URL | Purpose |
-|----------|-----|---------|
-| Authorization | `https://login.salesforce.com/services/oauth2/authorize` | Start OAuth flow |
-| Token | `https://login.salesforce.com/services/oauth2/token` | Exchange code for tokens |
+| Endpoint      | URL                                                      | Purpose                  |
+| ------------- | -------------------------------------------------------- | ------------------------ |
+| Authorization | `https://login.salesforce.com/services/oauth2/authorize` | Start OAuth flow         |
+| Token         | `https://login.salesforce.com/services/oauth2/token`     | Exchange code for tokens |
 
 ## Security Considerations
 
@@ -146,6 +147,7 @@ sequenceDiagram
 ## Customization Points
 
 Replace these placeholders:
+
 - `CONSUMER_KEY` → Your Connected App's Consumer Key
 - `CONSUMER_SECRET` → Your Connected App's Consumer Secret
 - `CALLBACK_URL` → Your registered callback URL

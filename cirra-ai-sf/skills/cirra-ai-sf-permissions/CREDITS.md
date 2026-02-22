@@ -38,10 +38,11 @@ This skill is a clean-room reimplementation of PSLab's concepts using Cirra AI M
 ## Other Resources
 
 ### Salesforce Documentation
+
 - [Permission Sets Developer Guide](https://developer.salesforce.com/docs/atlas.en-us.securityImplGuide.meta/securityImplGuide/perm_sets_overview.htm)
 - [Permission Set Groups](https://help.salesforce.com/s/articleView?id=sf.perm_set_groups.htm)
 - [SetupEntityAccess Object](https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/sforce_api_objects_setupentityaccess.htm)
 
 ---
 
-*If we've missed anyone whose work influenced this skill, please let us know so we can add proper attribution.*
+_If we've missed anyone whose work influenced this skill, please let us know so we can add proper attribution._

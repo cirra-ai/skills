@@ -3,6 +3,7 @@
 Data model diagram template using `flowchart LR` for visualizing Salesforce object relationships with color coding, LDV markers, and relationship type labels.
 
 ## When to Use
+
 - Documenting object relationships
 - Planning data model changes
 - Understanding existing schema
@@ -11,12 +12,14 @@ Data model diagram template using `flowchart LR` for visualizing Salesforce obje
 ## Cloud-Specific Templates
 
 For pre-built cloud diagrams, see:
+
 - **[Sales Cloud ERD](sales-cloud-erd.md)** - Account, Contact, Opportunity, Lead, Product, Campaign
 - **[Service Cloud ERD](service-cloud-erd.md)** - Case, Entitlement, Knowledge, ServiceContract
 
 ## Preferred Format: `flowchart LR`
 
 Use `flowchart LR` (left-to-right) for data model diagrams. This format supports:
+
 - Individual node color coding by object type
 - Thick arrows (`==>`) for Master-Detail relationships
 - Left-to-right flow for readability
@@ -28,26 +31,26 @@ Use `flowchart LR` (left-to-right) for data model diagrams. This format supports
 
 ### Object Type Colors
 
-| Type | Fill | Stroke | Example |
-|------|------|--------|---------|
-| Standard | `#bae6fd` | `#0369a1` | Account, Contact |
-| Custom (`__c`) | `#fed7aa` | `#c2410c` | Invoice__c |
-| External (`__x`) | `#a7f3d0` | `#047857` | SAP_Order__x |
+| Type             | Fill      | Stroke    | Example          |
+| ---------------- | --------- | --------- | ---------------- |
+| Standard         | `#bae6fd` | `#0369a1` | Account, Contact |
+| Custom (`__c`)   | `#fed7aa` | `#c2410c` | Invoice\_\_c     |
+| External (`__x`) | `#a7f3d0` | `#047857` | SAP_Order\_\_x   |
 
 ### Relationship Arrows
 
-| Arrow | Type | Meaning |
-|-------|------|---------|
-| `-->` | Lookup (LK) | Optional parent, no cascade delete |
-| `==>` | Master-Detail (MD) | Required parent, cascade delete |
-| `-.->` | Special | Conversion, indirect relationship |
+| Arrow  | Type               | Meaning                            |
+| ------ | ------------------ | ---------------------------------- |
+| `-->`  | Lookup (LK)        | Optional parent, no cascade delete |
+| `==>`  | Master-Detail (MD) | Required parent, cascade delete    |
+| `-.->` | Special            | Conversion, indirect relationship  |
 
 ### Metadata Annotations
 
-| Annotation | When to Use |
-|------------|-------------|
+| Annotation | When to Use      |
+| ---------- | ---------------- |
 | `LDV[~4M]` | Record count >2M |
-| `(317)` | Record count <2M |
+| `(317)`    | Record count <2M |
 
 ---
 

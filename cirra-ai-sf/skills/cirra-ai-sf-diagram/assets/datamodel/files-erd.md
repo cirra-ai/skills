@@ -4,15 +4,15 @@ Pre-built data model for Salesforce Files (Content) using `flowchart LR` format 
 
 ## Objects Included
 
-| Object | Type | Description |
-|--------|------|-------------|
-| ContentDocument | STD | File container |
-| ContentVersion | STD | File versions |
-| ContentDocumentLink | STD | Links files to records |
-| ContentWorkspace | STD | Content libraries |
-| ContentWorkspaceDoc | STD | Library membership |
-| ContentFolder | STD | Folder structure |
-| ContentAsset | STD | Asset files |
+| Object              | Type | Description            |
+| ------------------- | ---- | ---------------------- |
+| ContentDocument     | STD  | File container         |
+| ContentVersion      | STD  | File versions          |
+| ContentDocumentLink | STD  | Links files to records |
+| ContentWorkspace    | STD  | Content libraries      |
+| ContentWorkspaceDoc | STD  | Library membership     |
+| ContentFolder       | STD  | Folder structure       |
+| ContentAsset        | STD  | Asset files            |
 
 ---
 
@@ -86,6 +86,7 @@ flowchart LR
 ## Key Concepts
 
 ### Content Architecture
+
 ```
 ContentDocument (Container)
     ├── ContentVersion (Current + History)
@@ -94,30 +95,33 @@ ContentDocument (Container)
 ```
 
 ### ContentDocument vs ContentVersion
-| Object | Purpose |
-|--------|---------|
+
+| Object          | Purpose                                |
+| --------------- | -------------------------------------- |
 | ContentDocument | File metadata container (one per file) |
-| ContentVersion | Actual file data + versions |
+| ContentVersion  | Actual file data + versions            |
 
 **Key**: Always query ContentVersion for file data. ContentDocument is just the container.
 
 ### ContentDocumentLink (CDL)
+
 - Links ContentDocument to **any Salesforce record**
 - `LinkedEntityId` is polymorphic (Account, Case, User, etc.)
 - Controls visibility/sharing
 
-| ShareType | Visibility |
-|-----------|------------|
-| V | Viewer |
-| C | Collaborator |
-| I | Inferred |
+| ShareType | Visibility   |
+| --------- | ------------ |
+| V         | Viewer       |
+| C         | Collaborator |
+| I         | Inferred     |
 
 ### File Visibility
-| Visibility | Access |
-|------------|--------|
-| AllUsers | All internal users |
+
+| Visibility    | Access                   |
+| ------------- | ------------------------ |
+| AllUsers      | All internal users       |
 | InternalUsers | Users with record access |
-| SharedUsers | Explicitly shared users |
+| SharedUsers   | Explicitly shared users  |
 
 ---
 
@@ -214,33 +218,34 @@ flowchart LR
 
 ## Key Relationships Summary
 
-| Parent | Child | Type | Behavior |
-|--------|-------|------|----------|
-| ContentDocument | ContentVersion | MD | Cascade delete |
-| ContentDocument | ContentDocumentLink | LK | Sharing links |
-| ContentWorkspace | ContentWorkspaceDoc | MD | Library files |
-| ContentWorkspace | ContentFolder | MD | Library folders |
-| ContentWorkspace | ContentWorkspaceMember | MD | Library members |
-| ContentDocument | ContentWorkspaceDoc | LK | File in library |
-| ContentDocument | ContentAsset | LK | Asset reference |
+| Parent           | Child                  | Type | Behavior        |
+| ---------------- | ---------------------- | ---- | --------------- |
+| ContentDocument  | ContentVersion         | MD   | Cascade delete  |
+| ContentDocument  | ContentDocumentLink    | LK   | Sharing links   |
+| ContentWorkspace | ContentWorkspaceDoc    | MD   | Library files   |
+| ContentWorkspace | ContentFolder          | MD   | Library folders |
+| ContentWorkspace | ContentWorkspaceMember | MD   | Library members |
+| ContentDocument  | ContentWorkspaceDoc    | LK   | File in library |
+| ContentDocument  | ContentAsset           | LK   | Asset reference |
 
 ---
 
 ## Limits & Considerations
 
-| Limit | Value |
-|-------|-------|
-| File size | 2 GB (max) |
+| Limit             | Value                      |
+| ----------------- | -------------------------- |
+| File size         | 2 GB (max)                 |
 | Versions per file | 20 (default, configurable) |
-| Libraries per org | Varies by edition |
-| CDL per file | No hard limit (LDV) |
-| Files storage | Org storage limit |
+| Libraries per org | Varies by edition          |
+| CDL per file      | No hard limit (LDV)        |
+| Files storage     | Org storage limit          |
 
 ---
 
 ## Common Queries
 
 ### Files attached to a record
+
 ```sql
 SELECT ContentDocumentId, ContentDocument.Title
 FROM ContentDocumentLink
@@ -248,6 +253,7 @@ WHERE LinkedEntityId = '001xxx'
 ```
 
 ### Latest version of a file
+
 ```sql
 SELECT Id, Title, VersionData
 FROM ContentVersion

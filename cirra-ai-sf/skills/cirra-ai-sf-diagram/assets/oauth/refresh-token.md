@@ -3,6 +3,7 @@
 OAuth 2.0 Refresh Token Grant for obtaining new access tokens without user interaction.
 
 ## When to Use
+
 - Access token has expired
 - Extending session without re-authentication
 - Background token renewal
@@ -201,12 +202,12 @@ response = client.api_request('sobjects/Account')
 
 ### Connected App Settings
 
-| Policy | Description |
-|--------|-------------|
-| `Refresh token is valid until revoked` | Never expires (default) |
-| `Immediately expire refresh token` | Single use |
-| `Expire refresh token if not used for N` | Idle timeout |
-| `Expire refresh token after N` | Absolute timeout |
+| Policy                                   | Description             |
+| ---------------------------------------- | ----------------------- |
+| `Refresh token is valid until revoked`   | Never expires (default) |
+| `Immediately expire refresh token`       | Single use              |
+| `Expire refresh token if not used for N` | Idle timeout            |
+| `Expire refresh token after N`           | Absolute timeout        |
 
 ### Token Rotation
 
@@ -220,20 +221,20 @@ if 'refresh_token' in response:
 
 ## Error Responses
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `invalid_grant` | Refresh token revoked or expired | Re-authenticate user |
-| `invalid_client` | Client credentials invalid | Check client_id/secret |
-| `invalid_request` | Missing required parameter | Check request format |
+| Error             | Cause                            | Solution               |
+| ----------------- | -------------------------------- | ---------------------- |
+| `invalid_grant`   | Refresh token revoked or expired | Re-authenticate user   |
+| `invalid_client`  | Client credentials invalid       | Check client_id/secret |
+| `invalid_request` | Missing required parameter       | Check request format   |
 
 ## Key Characteristics
 
-| Aspect | Value |
-|--------|-------|
-| User Interaction | None required |
-| Token Rotation | May occur (check response) |
-| Best Practice | Refresh proactively before expiration |
-| Storage | Securely store refresh token |
+| Aspect           | Value                                 |
+| ---------------- | ------------------------------------- |
+| User Interaction | None required                         |
+| Token Rotation   | May occur (check response)            |
+| Best Practice    | Refresh proactively before expiration |
+| Storage          | Securely store refresh token          |
 
 ## Proactive Refresh Strategy
 
@@ -276,6 +277,7 @@ curl -X POST https://login.salesforce.com/services/oauth2/revoke \
 ## Customization Points
 
 Replace these placeholders:
+
 - `CONSUMER_KEY` → Your Connected App's Consumer Key
 - `CONSUMER_SECRET` → Your Connected App's Consumer Secret
 - `REFRESH_TOKEN` → The refresh token from initial authorization

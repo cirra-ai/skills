@@ -19,7 +19,9 @@ This skill was built upon the collective wisdom of the technical documentation a
 ## Diagramming Tools & Libraries
 
 ### Mermaid
+
 **[mermaid.js.org](https://mermaid.js.org/)**
+
 - **License**: MIT
 - **Authors**: Knut Sveidqvist and contributors
 - Primary diagramming syntax for ERD, sequence, and flowchart diagrams
@@ -29,15 +31,18 @@ This skill was built upon the collective wisdom of the technical documentation a
 ## Salesforce Documentation
 
 ### Official Resources
+
 - **Schema Reference**: https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/
 - **Relationship Types**: https://help.salesforce.com/s/articleView?id=sf.overview_of_custom_object_relationships.htm
 - **Data Modeling Guide**: https://architect.salesforce.com/design/decision-guides/data-modeling
 
 ### Salesforce Architects
+
 **[architect.salesforce.com](https://architect.salesforce.com/)**
+
 - Data model design patterns
 - Integration architecture diagrams
 
 ---
 
-*If we've missed anyone whose work influenced this skill, please let us know so we can add proper attribution.*
+_If we've missed anyone whose work influenced this skill, please let us know so we can add proper attribution._
