@@ -77,7 +77,7 @@ SKILLS_REF="$(find_skills_ref || install_skills_ref)" || exit 1
 
 # ── Find skill directories ────────────────────────────────────────────────────
 
-# All skill dirs: parent of every SKILL.md matching */skills/*/SKILL.md
+# All skill dirs: parent of every SKILL.md found under cirra-ai-* plugin dirs
 all_skill_dirs=()
 while IFS= read -r skill_md; do
   all_skill_dirs+=("$(dirname "$skill_md")")
