@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Apex Validation CLI
+Apex Validation script
 
 Standalone on-demand validation of a local Apex file.
 Runs the same 150-point + LLM anti-pattern pipeline as the PostToolUse hook

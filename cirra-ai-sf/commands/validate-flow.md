@@ -1,6 +1,6 @@
 ---
 name: validate-flow
-description: Validate a Salesforce Flow with 110-point scoring. Accepts a flow API name (fetched from org), a local file path, a comma-separated list of flow names, or --all for org-wide audit.
+description: Validate a Salesforce Flow with 110-point scoring. Accepts a flow API name (fetched from org), a local file path, a comma-separated list of flow names, or All for org-wide audit.
 ---
 
 Validate one or more Flows using the 110-point static analysis pipeline and return a scored report.
@@ -12,7 +12,7 @@ Validate one or more Flows using the 110-point static analysis pipeline and retu
 | `Auto_Lead_Assignment`                                                               | Flow API name — fetch XML from org, validate     |
 | `force-app/.../Auto_Lead_Assignment.flow-meta.xml` (ends `.flow-meta.xml` or `.xml`) | Local file — validate directly                   |
 | `Auto_Lead_Assignment,Screen_Case_Intake`                                            | Comma-separated list — bulk fetch, validate each |
-| `--all`                                                                              | All Flow records in the org                      |
+| `All`                                                                                | All Flow records in the org                      |
 | _(no argument)_                                                                      | Ask the user what to validate                    |
 
 ## Validation script
@@ -80,7 +80,7 @@ Validate each flow body (write → validate → delete). After all flows are val
 | Before_Opportunity_Validate | 72/110 | 65% | ❌ Below threshold |
 | Auto_Lead_Assignment        | 98/110 | 89% | ✅ Pass            |
 
-### --all
+### All
 
 1. Fetch all flow names:
 

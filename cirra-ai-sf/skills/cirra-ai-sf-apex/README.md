@@ -128,14 +128,14 @@ Score is mapped to a 1–5 star rating (Excellent / Very Good / Good / Needs Wor
 
 ## /validate-apex Command
 
-On-demand validation command. Accepts a class name, local file path, comma-separated list, or `--all`:
+On-demand validation command. Accepts a class name, local file path, comma-separated list, or `All`:
 
 | Invocation                           | What happens                                                        |
 | ------------------------------------ | ------------------------------------------------------------------- |
 | `/validate-apex MyClass`             | Fetches `MyClass` body from org via `tooling_api_query`, validates  |
 | `/validate-apex path/to/MyClass.cls` | Reads local file, validates                                         |
 | `/validate-apex MyClass,OtherClass`  | Validates each in sequence, shows summary table                     |
-| `/validate-apex --all`               | Validates all ApexClass records in the org, summary sorted by score |
+| `/validate-apex All`                 | Validates all ApexClass records in the org, summary sorted by score |
 
 The command uses `validate_apex_cli.py` under the hood — the same 150-point + LLM anti-pattern pipeline as the hooks.
 
@@ -143,7 +143,7 @@ The command uses `validate_apex_cli.py` under the hood — the same 150-point + 
 
 | Script                   | Purpose                                                                 |
 | ------------------------ | ----------------------------------------------------------------------- |
-| `validate_apex_cli.py`   | Standalone CLI used by `/validate-apex` — takes a file path argument    |
+| `validate_apex_cli.py`   | Standalone script used by `/validate-apex` — takes a file path argument |
 | `pre-mcp-validate.py`    | PreToolUse hook adapter — translates hook stdin to mcp_validator format |
 | `post-write-validate.py` | Legacy hook (Write only, no LLM check). Not wired in hooks.json         |
 | `mcp_validator_cli.py`   | Manual pre-flight check for MCP metadata deployment calls               |

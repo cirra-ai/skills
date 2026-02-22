@@ -57,16 +57,6 @@ This initializes your Salesforce org connection. It must be called once per sess
 - `sobject_describe` (verify objects/fields)
 - `soql_query` (query org data)
 
-**Cirra AI Tool Mapping** (replaces SF CLI):
-| SF CLI Command | Cirra AI Tool | Purpose |
-|---|---|---|
-| `sf data query` | `soql_query` | Query org data |
-| `sf data query --use-tooling-api` | `tooling_api_query` | Query FlowDefinition metadata |
-| `sf project deploy` | `metadata_create` | Deploy Flow XML to org |
-| `sf project retrieve` | `metadata_read` | Retrieve Flow XML from org |
-| `sf org list metadata --metadata-type Flow` | `metadata_list` | List existing flows |
-| `sf sobject describe Account` | `sobject_describe` | Verify object/field structure |
-
 ---
 
 ## ⚠️ CRITICAL: Orchestration Order
@@ -208,7 +198,7 @@ metadata_create(
 **For Review** — validate an existing flow from the org or a local file before modifying:
 
 - `/validate-flow <FlowApiName>` — fetch and validate a single flow from the org
-- `/validate-flow --all` — full org audit sorted by score
+- `/validate-flow All` — full org audit sorted by score
 
 **Validation (STRICT MODE)**:
 
