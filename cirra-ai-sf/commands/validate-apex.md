@@ -1,6 +1,6 @@
 ---
 name: validate-apex
-description: Validate Salesforce Apex code with 150-point scoring. Accepts a class or trigger name (fetched from org), a local file path, a comma-separated list of names, or --all for org-wide audit of both classes and triggers.
+description: Validate Salesforce Apex code with 150-point scoring. Accepts a class or trigger name (fetched from org), a local file path, a comma-separated list of names, or All for org-wide audit of both classes and triggers.
 ---
 
 Validate one or more Apex classes or triggers using the 150-point static analysis pipeline and return a scored report.
@@ -13,7 +13,7 @@ Validate one or more Apex classes or triggers using the 150-point static analysi
 | `<path>/MyClass.cls` (ends `.cls`)           | Local class file — validate directly                  |
 | `<path>/MyTrigger.trigger` (ends `.trigger`) | Local trigger file — validate directly                |
 | `MyClass,AccountTrigger,OtherClass`          | Comma-separated list — bulk fetch, validate each      |
-| `--all`                                      | All ApexClass **and** ApexTrigger records in the org  |
+| `All`                                        | All ApexClass **and** ApexTrigger records in the org  |
 | _(no argument)_                              | Ask the user what to validate                         |
 
 ## Validation script
@@ -109,7 +109,7 @@ Validate each body (write → validate → delete), using `.cls` for classes and
 | AccountTrigger | Trigger | 102/150 | 68% | ✅ Pass            |
 | MyClass        | Class   | 125/150 | 83% | ✅ Pass            |
 
-### --all
+### All
 
 1. Fetch all class names and all trigger names in parallel:
 

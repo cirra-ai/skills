@@ -87,7 +87,7 @@ Do **not** ask for org details before calling `cirra_ai_init()`.
 1. Use `/validate-apex <ClassName>` to fetch and score existing code from the org in one step
 2. Or query manually: `tooling_api_query(sObject="ApexClass", fields=["Id","FullName","Name","Body","Metadata"], whereClause="Id = '<classId>'")`
 3. Analyze against best practices and generate improvement report with specific fixes
-4. For bulk audit: `/validate-apex --all` or `/validate-apex Class1,Class2,Class3`
+4. For bulk audit: `/validate-apex All` or `/validate-apex Class1,Class2,Class3`
 
 **Run Validation**:
 

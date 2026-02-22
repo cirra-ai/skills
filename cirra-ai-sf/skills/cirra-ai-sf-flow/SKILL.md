@@ -198,7 +198,7 @@ metadata_create(
 **For Review** — validate an existing flow from the org or a local file before modifying:
 
 - `/validate-flow <FlowApiName>` — fetch and validate a single flow from the org
-- `/validate-flow --all` — full org audit sorted by score
+- `/validate-flow All` — full org audit sorted by score
 
 **Validation (STRICT MODE)**:
 

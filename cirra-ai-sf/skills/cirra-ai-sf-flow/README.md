@@ -149,14 +149,14 @@ Triggered by `hooks/hooks.json` on `PostToolUse` for `Write|Edit`. Runs `Enhance
 
 ## /validate-flow Command
 
-On-demand validation command. Accepts a flow API name, local file path, comma-separated list, or `--all`:
+On-demand validation command. Accepts a flow API name, local file path, comma-separated list, or `All`:
 
 | Invocation                                                        | What happens                                                               |
 | ----------------------------------------------------------------- | -------------------------------------------------------------------------- |
 | `/validate-flow Auto_Lead_Assignment`                             | Fetches `Auto_Lead_Assignment` XML from org via `metadata_read`, validates |
 | `/validate-flow force-app/.../Auto_Lead_Assignment.flow-meta.xml` | Reads local file, validates                                                |
 | `/validate-flow Auto_Lead_Assignment,Screen_Case_Intake`          | Validates each in sequence, shows summary table                            |
-| `/validate-flow --all`                                            | Validates all Flow records in the org, summary sorted by score             |
+| `/validate-flow All`                                              | Validates all Flow records in the org, summary sorted by score             |
 
 The command uses `validate_flow_cli.py` under the hood — the same 110-point pipeline as the hooks.
 
