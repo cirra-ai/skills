@@ -29,12 +29,12 @@ To learn more about skills see [What are skills?](https://support.claude.com/en/
 
 All skills are bundled in the `cirra-ai-sf` plugin. They can also be installed individually as skill-only zip files.
 
-| Skill | Description |
-| ----- | ----------- |
-| [cirra-ai-sf-apex](cirra-ai-sf/skills/cirra-ai-sf-apex/README.md) | Create, update and review Apex classes and triggers |
-| [cirra-ai-sf-flow](cirra-ai-sf/skills/cirra-ai-sf-flow/README.md) | Create, update and review flows. Includes porting from Process Builders |
+| Skill                                                             | Description                                                                       |
+| ----------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| [cirra-ai-sf-apex](cirra-ai-sf/skills/cirra-ai-sf-apex/README.md) | Create, update and review Apex classes and triggers                               |
+| [cirra-ai-sf-flow](cirra-ai-sf/skills/cirra-ai-sf-flow/README.md) | Create, update and review flows. Includes porting from Process Builders           |
 | [cirra-ai-sf-data](cirra-ai-sf/skills/cirra-ai-sf-data/README.md) | SOQL queries, DML operations, test data factories, and pre-flight SOQL validation |
-| [cirra-ai-sf-lwc](cirra-ai-sf/skills/cirra-ai-sf-lwc/README.md) | Lightning Web Components development |
+| [cirra-ai-sf-lwc](cirra-ai-sf/skills/cirra-ai-sf-lwc/README.md)   | Lightning Web Components development                                              |
 
 ## Installation
 

@@ -143,7 +143,7 @@ The command uses `validate_apex_cli.py` under the hood — the same 150-point + 
 
 | Script                   | Purpose                                                                 |
 | ------------------------ | ----------------------------------------------------------------------- |
-| `validate_apex_cli.py`   | Standalone script used by `/validate-apex` — takes a file path argument    |
+| `validate_apex_cli.py`   | Standalone script used by `/validate-apex` — takes a file path argument |
 | `pre-mcp-validate.py`    | PreToolUse hook adapter — translates hook stdin to mcp_validator format |
 | `post-write-validate.py` | Legacy hook (Write only, no LLM check). Not wired in hooks.json         |
 | `mcp_validator_cli.py`   | Manual pre-flight check for MCP metadata deployment calls               |
