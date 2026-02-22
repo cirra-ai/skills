@@ -13,7 +13,6 @@ All checks are ADVISORY - they provide warnings but do not block deployment.
 
 import re
 import xml.etree.ElementTree as ET
-from typing import List, Dict, Tuple
 
 # Sensitive field patterns (regex)
 SENSITIVE_FIELD_PATTERNS = [
@@ -46,7 +45,7 @@ class SecurityValidator:
         self.warnings = []
         self.recommendations = []
 
-    def validate(self) -> Dict[str, any]:
+    def validate(self) -> dict[str, any]:
         """
         Run all security validations.
 
@@ -72,7 +71,7 @@ class SecurityValidator:
 
         return results
 
-    def _check_running_mode(self) -> Dict[str, any]:
+    def _check_running_mode(self) -> dict[str, any]:
         """
         Check if flow runs in System mode (bypasses FLS/CRUD).
 
@@ -121,7 +120,7 @@ class SecurityValidator:
             'warning': None
         }
 
-    def _check_sensitive_fields(self, mode_info: Dict[str, any] = None) -> List[Dict[str, str]]:
+    def _check_sensitive_fields(self, mode_info: dict[str, any] = None) -> list[dict[str, str]]:
         """
         Check if flow accesses sensitive fields.
 
@@ -195,7 +194,7 @@ class SecurityValidator:
 
         return sensitive_fields_found
 
-    def _check_object_access(self) -> List[Dict[str, str]]:
+    def _check_object_access(self) -> list[dict[str, str]]:
         """
         Check which objects the flow accesses and recommend security testing.
 
@@ -322,7 +321,7 @@ class SecurityValidator:
         return "\n".join(report)
 
 
-def validate_flow_security(flow_xml_path: str) -> Tuple[Dict, str]:
+def validate_flow_security(flow_xml_path: str) -> tuple[dict, str]:
     """
     Validate security aspects of a flow and return results.
 

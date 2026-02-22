@@ -25,7 +25,6 @@ Button Naming Convention (v2.0.0):
 
 import re
 import xml.etree.ElementTree as ET
-from typing import Dict, List, Tuple
 
 class NamingValidator:
     """Validates flow naming conventions."""
@@ -68,7 +67,7 @@ class NamingValidator:
         self.suggestions = []
         self.warnings = []
 
-    def validate(self) -> Dict[str, any]:
+    def validate(self) -> dict[str, any]:
         """
         Run all naming validations.
 
@@ -180,7 +179,7 @@ class NamingValidator:
 
         return False
 
-    def _suggest_record_triggered_names(self) -> List[str]:
+    def _suggest_record_triggered_names(self) -> list[str]:
         """Suggest proper names for record-triggered flows."""
         # Try to extract object name from trigger
         obj_elem = self.root.find('.//sf:start/sf:object', self.namespace)
@@ -208,7 +207,7 @@ class NamingValidator:
 
         return suggestions
 
-    def _suggest_standard_names(self, flow_type: str) -> List[str]:
+    def _suggest_standard_names(self, flow_type: str) -> list[str]:
         """Suggest proper names for standard flows."""
         if flow_type not in self.NAMING_PATTERNS:
             return []
@@ -231,7 +230,7 @@ class NamingValidator:
 
         return suggestions
 
-    def _check_element_naming(self) -> List[Dict[str, str]]:
+    def _check_element_naming(self) -> list[dict[str, str]]:
         """Check if flow elements have meaningful names (not default names)."""
         issues = []
 
@@ -262,7 +261,7 @@ class NamingValidator:
 
         return issues
 
-    def _check_variable_naming(self) -> List[Dict[str, str]]:
+    def _check_variable_naming(self) -> list[dict[str, str]]:
         """
         Check if variables follow naming conventions (v2.0.0 prefixes).
 
@@ -344,7 +343,7 @@ class NamingValidator:
 
         return issues
 
-    def _check_button_naming(self) -> List[Dict[str, str]]:
+    def _check_button_naming(self) -> list[dict[str, str]]:
         """
         Check if screen buttons/actions follow naming convention (v2.0.0).
 
@@ -412,7 +411,7 @@ class NamingValidator:
         else:
             report.append("   ℹ️  ADVISORY: Doesn't follow naming convention")
             if results['suggested_names']:
-                report.append(f"\n   💡 Suggested names:")
+                report.append("\n   💡 Suggested names:")
                 for name in results['suggested_names'][:3]:
                     report.append(f"      - {name}")
 
@@ -436,7 +435,7 @@ class NamingValidator:
 
         # Suggestions
         if results['suggestions']:
-            report.append(f"\n💡 Suggestions for Improvement:")
+            report.append("\n💡 Suggestions for Improvement:")
             for i, suggestion in enumerate(results['suggestions'][:5], 1):
                 report.append(f"   {i}. {suggestion}")
 
@@ -447,7 +446,7 @@ class NamingValidator:
         return "\n".join(report)
 
 
-def validate_flow_naming(flow_xml_path: str) -> Tuple[Dict, str]:
+def validate_flow_naming(flow_xml_path: str) -> tuple[dict, str]:
     """
     Validate flow naming conventions and return results.
 
