@@ -120,5 +120,6 @@ public with sharing class CirraTest_SmokeCheck {
 
 Record the gate decision here before continuing:
 
-**Gate decision:** **********************\_\_\_**********************
-**Blocked phases (if any):** ****************\_\_\_\_****************
+**Gate decision:** \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+
+**Blocked phases (if any):** \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
