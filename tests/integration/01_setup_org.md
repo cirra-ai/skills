@@ -11,10 +11,10 @@ execute and the expected result. Record actual results in the **Result** column.
 cirra_ai_init()
 ```
 
-| Check | Expected | Result |
-|-------|----------|--------|
-| Connection established | Success message with org alias | |
-| Default org confirmed | User prompted to confirm or select | |
+| Check                  | Expected                           | Result |
+| ---------------------- | ---------------------------------- | ------ |
+| Connection established | Success message with org alias     |        |
+| Default org confirmed  | User prompted to confirm or select |        |
 
 ---
 
@@ -32,11 +32,11 @@ sobject_describe(sObject="Task")
 sobject_describe(sObject="Event")
 ```
 
-| Check | Expected | Result |
-|-------|----------|--------|
-| All 7 objects described | Metadata returned for each | |
-| Required fields identified | Name (Account), LastName (Contact), StageName+CloseDate (Opp), etc. | |
-| Field types confirmed | Industry=Picklist, AnnualRevenue=Currency, etc. | |
+| Check                      | Expected                                                            | Result |
+| -------------------------- | ------------------------------------------------------------------- | ------ |
+| All 7 objects described    | Metadata returned for each                                          |        |
+| Required fields identified | Name (Account), LastName (Contact), StageName+CloseDate (Opp), etc. |        |
+| Field types confirmed      | Industry=Picklist, AnnualRevenue=Currency, etc.                     |        |
 
 ---
 
@@ -49,18 +49,19 @@ the Description field with a summary of Industry and BillingCity, and defaults
 Rating to "Warm" when not set.
 
 Expected artifacts:
+
 - `CirraTest_AccountTrigger` (thin trigger using MetadataTriggerHandler)
 - `TA_CirraTest_Account_SetDefaults` (trigger action class)
 - `TA_CirraTest_Account_SetDefaultsTest` (test class)
 
-| Check | Expected | Result |
-|-------|----------|--------|
-| Trigger created | MetadataTriggerHandler.run() pattern | |
-| Action class created | Implements TriggerAction.BeforeInsert | |
-| Test class created | PNB pattern, 201+ bulk test | |
-| No SOQL/DML in trigger body | Body delegates to MetadataTriggerHandler only | |
-| Validation score | >= 90/150 | |
-| Deployment successful | tooling_api_dml returns success | |
+| Check                       | Expected                                      | Result |
+| --------------------------- | --------------------------------------------- | ------ |
+| Trigger created             | MetadataTriggerHandler.run() pattern          |        |
+| Action class created        | Implements TriggerAction.BeforeInsert         |        |
+| Test class created          | PNB pattern, 201+ bulk test                   |        |
+| No SOQL/DML in trigger body | Body delegates to MetadataTriggerHandler only |        |
+| Validation score            | >= 90/150                                     |        |
+| Deployment successful       | tooling_api_dml returns success               |        |
 
 ---
 
@@ -74,18 +75,19 @@ account annual revenue in bulk, and (4) transfer account ownership. Include a
 corresponding test class.
 
 Expected artifacts:
+
 - `CirraTest_AccountService`
 - `CirraTest_AccountServiceTest`
 
-| Check | Expected | Result |
-|-------|----------|--------|
-| Service class has `with sharing` | Yes | |
-| Uses USER_MODE in SOQL | Yes | |
-| Bulkified (Map-based lookups) | Yes | |
-| Test class has @TestSetup | Yes | |
-| Positive, negative, bulk tests | 3+ test methods | |
-| Validation score | >= 90/150 | |
-| Deployment successful | tooling_api_dml returns success | |
+| Check                            | Expected                        | Result |
+| -------------------------------- | ------------------------------- | ------ |
+| Service class has `with sharing` | Yes                             |        |
+| Uses USER_MODE in SOQL           | Yes                             |        |
+| Bulkified (Map-based lookups)    | Yes                             |        |
+| Test class has @TestSetup        | Yes                             |        |
+| Positive, negative, bulk tests   | 3+ test methods                 |        |
+| Validation score                 | >= 90/150                       |        |
+| Deployment successful            | tooling_api_dml returns success |        |
 
 ---
 
@@ -98,16 +100,17 @@ selectByIndustry, selectActive, selectByRevenueRange, and countByIndustry.
 Include test class.
 
 Expected artifacts:
+
 - `CirraTest_AccountSelector`
 - `CirraTest_AccountSelectorTest`
 
-| Check | Expected | Result |
-|-------|----------|--------|
-| Uses `with sharing` | Yes | |
-| All queries use USER_MODE or SECURITY_ENFORCED | Yes | |
-| selectByIdWithContacts uses subquery | Yes | |
-| countByIndustry uses GROUP BY | Yes | |
-| Validation score | >= 90/150 | |
+| Check                                          | Expected  | Result |
+| ---------------------------------------------- | --------- | ------ |
+| Uses `with sharing`                            | Yes       |        |
+| All queries use USER_MODE or SECURITY_ENFORCED | Yes       |        |
+| selectByIdWithContacts uses subquery           | Yes       |        |
+| countByIndustry uses GROUP BY                  | Yes       |        |
+| Validation score                               | >= 90/150 |        |
 
 ---
 
@@ -121,17 +124,18 @@ Include Stateful tracking of processed/failed counts and email notification
 on finish. Include test class.
 
 Expected artifacts:
+
 - `CirraTest_AccountRevenueBatch`
 - `CirraTest_AccountRevenueBatchTest`
 
-| Check | Expected | Result |
-|-------|----------|--------|
-| Implements Database.Batchable<SObject>, Database.Stateful | Yes | |
-| start() returns QueryLocator | Yes | |
-| execute() uses Database.update with allOrNone=false | Yes | |
-| finish() sends email summary | Yes | |
-| Test covers batch execution | Test.startTest/stopTest pattern | |
-| Validation score | >= 90/150 | |
+| Check                                                     | Expected                        | Result |
+| --------------------------------------------------------- | ------------------------------- | ------ |
+| Implements Database.Batchable<SObject>, Database.Stateful | Yes                             |        |
+| start() returns QueryLocator                              | Yes                             |        |
+| execute() uses Database.update with allOrNone=false       | Yes                             |        |
+| finish() sends email summary                              | Yes                             |        |
+| Test covers batch execution                               | Test.startTest/stopTest pattern |        |
+| Validation score                                          | >= 90/150                       |        |
 
 ---
 
@@ -144,16 +148,17 @@ queries their related Contacts, and creates a Task for each Contact
 that has no open Tasks. Include test class.
 
 Expected artifacts:
+
 - `CirraTest_ContactTaskCreator`
 - `CirraTest_ContactTaskCreatorTest`
 
-| Check | Expected | Result |
-|-------|----------|--------|
-| Implements Queueable | Yes | |
-| Constructor accepts List<Id> | Yes | |
-| Bulkified Task creation | Single DML for all Tasks | |
-| Test uses Test.startTest/stopTest | Yes | |
-| Validation score | >= 90/150 | |
+| Check                             | Expected                 | Result |
+| --------------------------------- | ------------------------ | ------ |
+| Implements Queueable              | Yes                      |        |
+| Constructor accepts List<Id>      | Yes                      |        |
+| Bulkified Task creation           | Single DML for all Tasks |        |
+| Test uses Test.startTest/stopTest | Yes                      |        |
+| Validation score                  | >= 90/150                |        |
 
 ---
 
@@ -167,16 +172,17 @@ Account has at least one Closed Won Opportunity. Use Request/Response wrapper
 pattern.
 
 Expected artifacts:
+
 - `CirraTest_AccountWinChecker`
 - `CirraTest_AccountWinCheckerTest`
 
-| Check | Expected | Result |
-|-------|----------|--------|
-| @InvocableMethod annotation present | With label, description, category | |
-| Request class has @InvocableVariable | Yes | |
-| Bulkified (single SOQL for all IDs) | Yes | |
-| Response has success/error factory methods | Yes | |
-| Validation score | >= 90/150 | |
+| Check                                      | Expected                          | Result |
+| ------------------------------------------ | --------------------------------- | ------ |
+| @InvocableMethod annotation present        | With label, description, category |        |
+| Request class has @InvocableVariable       | Yes                               |        |
+| Bulkified (single SOQL for all IDs)        | Yes                               |        |
+| Response has success/error factory methods | Yes                               |        |
+| Validation score                           | >= 90/150                         |        |
 
 ---
 
@@ -192,15 +198,15 @@ set by user.
 
 Expected artifact: `CirraTest_Account_Before_Save`
 
-| Check | Expected | Result |
-|-------|----------|--------|
-| processType = AutoLaunchedFlow | Yes | |
-| triggerType = RecordBeforeSave | Yes | |
-| Uses $Record for field assignment | Yes (no DML element) | |
-| Entry conditions present | Yes | |
-| Decision element with 2+ outcomes | Yes | |
-| API version >= 65.0 | Yes | |
-| Validation score | >= 88/110 | |
+| Check                             | Expected             | Result |
+| --------------------------------- | -------------------- | ------ |
+| processType = AutoLaunchedFlow    | Yes                  |        |
+| triggerType = RecordBeforeSave    | Yes                  |        |
+| Uses $Record for field assignment | Yes (no DML element) |        |
+| Entry conditions present          | Yes                  |        |
+| Decision element with 2+ outcomes | Yes                  |        |
+| API version >= 65.0               | Yes                  |        |
+| Validation score                  | >= 88/110            |        |
 
 ---
 
@@ -215,14 +221,14 @@ Account to get the OwnerId. Include fault handling.
 
 Expected artifact: `CirraTest_Opp_After_Save_Task`
 
-| Check | Expected | Result |
-|-------|----------|--------|
-| triggerType = RecordAfterSave | Yes | |
-| Entry criteria check StageName change | $Record.StageName = 'Closed Won' | |
-| Get Records for Account | With fault path | |
-| Create Records for Task | With fault path | |
-| Fault connectors on all DML elements | Yes | |
-| Validation score | >= 88/110 | |
+| Check                                 | Expected                         | Result |
+| ------------------------------------- | -------------------------------- | ------ |
+| triggerType = RecordAfterSave         | Yes                              |        |
+| Entry criteria check StageName change | $Record.StageName = 'Closed Won' |        |
+| Get Records for Account               | With fault path                  |        |
+| Create Records for Task               | With fault path                  |        |
+| Fault connectors on all DML elements  | Yes                              |        |
+| Validation score                      | >= 88/110                        |        |
 
 ---
 
@@ -237,14 +243,14 @@ error handling for the Create Records element.
 
 Expected artifact: `CirraTest_Case_Intake_Screen`
 
-| Check | Expected | Result |
-|-------|----------|--------|
-| processType = Flow (Screen Flow) | Yes | |
-| 3 screen elements | Welcome, Input, Confirmation | |
-| Create Records with fault path | Yes | |
-| Input validation on required fields | Yes | |
-| Navigation between screens | Yes | |
-| Validation score | >= 88/110 | |
+| Check                               | Expected                     | Result |
+| ----------------------------------- | ---------------------------- | ------ |
+| processType = Flow (Screen Flow)    | Yes                          |        |
+| 3 screen elements                   | Welcome, Input, Confirmation |        |
+| Create Records with fault path      | Yes                          |        |
+| Input validation on required fields | Yes                          |        |
+| Navigation between screens          | Yes                          |        |
+| Validation score                    | >= 88/110                    |        |
 
 ---
 
@@ -259,15 +265,15 @@ bulk DML after the loop. Include isInput/isOutput on variables.
 
 Expected artifact: `CirraTest_VIP_Contact_Tasks`
 
-| Check | Expected | Result |
-|-------|----------|--------|
-| processType = AutoLaunchedFlow | Yes | |
-| Input variable with isInput=true | Yes | |
-| Output variable with isOutput=true | Yes | |
-| Get Records for Contacts | With fault path | |
-| Loop + collection variable + DML after loop | Yes | |
-| No DML inside the loop | Yes | |
-| Validation score | >= 88/110 | |
+| Check                                       | Expected        | Result |
+| ------------------------------------------- | --------------- | ------ |
+| processType = AutoLaunchedFlow              | Yes             |        |
+| Input variable with isInput=true            | Yes             |        |
+| Output variable with isOutput=true          | Yes             |        |
+| Get Records for Contacts                    | With fault path |        |
+| Loop + collection variable + DML after loop | Yes             |        |
+| No DML inside the loop                      | Yes             |        |
+| Validation score                            | >= 88/110       |        |
 
 ---
 
@@ -282,14 +288,14 @@ a limit of 2000 records.
 
 Expected artifact: `CirraTest_Stale_Opp_Cleanup`
 
-| Check | Expected | Result |
-|-------|----------|--------|
-| processType = AutoLaunchedFlow | Yes | |
-| start element has schedule | Yes | |
-| Get Records with date filter | CloseDate < TODAY | |
-| Update Records element | With fault path | |
-| LIMIT applied to query | Yes | |
-| Validation score | >= 88/110 | |
+| Check                          | Expected          | Result |
+| ------------------------------ | ----------------- | ------ |
+| processType = AutoLaunchedFlow | Yes               |        |
+| start element has schedule     | Yes               |        |
+| Get Records with date filter   | CloseDate < TODAY |        |
+| Update Records element         | With fault path   |        |
+| LIMIT applied to query         | Yes               |        |
+| Validation score               | >= 88/110         |        |
 
 ---
 
@@ -298,19 +304,19 @@ Expected artifact: `CirraTest_Stale_Opp_Cleanup`
 **Command**: `/create-flow`
 
 **Prompt**: Create a platform event-triggered flow that listens for
-Order_Event__e. When received, create an Account note Task with the event
+Order_Event\_\_e. When received, create an Account note Task with the event
 payload data. Include decision logic to handle different event types. Include
 error logging via a subflow.
 
 Expected artifact: `CirraTest_Order_Event_Handler`
 
-| Check | Expected | Result |
-|-------|----------|--------|
-| processType = AutoLaunchedFlow | Yes | |
-| triggerType = PlatformEvent | Yes | |
-| Decision element for event type routing | Yes | |
-| Create Records with fault path | Yes | |
-| Validation score | >= 88/110 | |
+| Check                                   | Expected  | Result |
+| --------------------------------------- | --------- | ------ |
+| processType = AutoLaunchedFlow          | Yes       |        |
+| triggerType = PlatformEvent             | Yes       |        |
+| Decision element for event type routing | Yes       |        |
+| Create Records with fault path          | Yes       |        |
+| Validation score                        | >= 88/110 |        |
 
 ---
 
@@ -325,22 +331,23 @@ inline editing on Rating. Use @wire with an Apex controller. Include dark
 mode support and WCAG accessibility. Target: Lightning App Page.
 
 Expected artifacts:
+
 - `cirraTestAccountDashboard.html`
 - `cirraTestAccountDashboard.js`
 - `cirraTestAccountDashboard.css`
 - `cirraTestAccountDashboard.js-meta.xml`
 
-| Check | Expected | Result |
-|-------|----------|--------|
-| Uses @wire decorator | Yes | |
-| lightning-datatable with columns | 5 columns | |
-| Sorting handler | Yes | |
-| Row selection handler | Yes | |
-| Inline edit with save handler | Yes | |
-| SLDS 2 CSS (styling hooks, no hardcoded colors) | Yes | |
-| ARIA labels on datatable | Yes | |
-| meta.xml target: lightning__AppPage | Yes | |
-| Validation score | >= 100/165 | |
+| Check                                           | Expected   | Result |
+| ----------------------------------------------- | ---------- | ------ |
+| Uses @wire decorator                            | Yes        |        |
+| lightning-datatable with columns                | 5 columns  |        |
+| Sorting handler                                 | Yes        |        |
+| Row selection handler                           | Yes        |        |
+| Inline edit with save handler                   | Yes        |        |
+| SLDS 2 CSS (styling hooks, no hardcoded colors) | Yes        |        |
+| ARIA labels on datatable                        | Yes        |        |
+| meta.xml target: lightning\_\_AppPage           | Yes        |        |
+| Validation score                                | >= 100/165 |        |
 
 ---
 
@@ -355,21 +362,22 @@ Include custom validation (AnnualRevenue > 0), toast notifications on
 success/error, and navigation to the created record. Target: Lightning Record Page.
 
 Expected artifacts:
+
 - `cirraTestAccountForm.html`
 - `cirraTestAccountForm.js`
 - `cirraTestAccountForm.css`
 - `cirraTestAccountForm.js-meta.xml`
 
-| Check | Expected | Result |
-|-------|----------|--------|
-| lightning-record-edit-form | Yes | |
-| Custom validation logic | AnnualRevenue > 0 | |
-| Toast notification on success | ShowToastEvent | |
-| NavigationMixin for redirect | Yes | |
-| Error state handling | Yes | |
-| SLDS 2 CSS | Yes | |
-| meta.xml target: lightning__RecordPage | Yes | |
-| Validation score | >= 100/165 | |
+| Check                                    | Expected          | Result |
+| ---------------------------------------- | ----------------- | ------ |
+| lightning-record-edit-form               | Yes               |        |
+| Custom validation logic                  | AnnualRevenue > 0 |        |
+| Toast notification on success            | ShowToastEvent    |        |
+| NavigationMixin for redirect             | Yes               |        |
+| Error state handling                     | Yes               |        |
+| SLDS 2 CSS                               | Yes               |        |
+| meta.xml target: lightning\_\_RecordPage | Yes               |        |
+| Validation score                         | >= 100/165        |        |
 
 ---
 
@@ -384,19 +392,20 @@ with the selected record ID. Support FlowNavigationNextEvent for advancing.
 Target: Flow Screen.
 
 Expected artifacts:
+
 - `cirraTestRecordSelector.html`
 - `cirraTestRecordSelector.js`
 - `cirraTestRecordSelector.css`
 - `cirraTestRecordSelector.js-meta.xml`
 
-| Check | Expected | Result |
-|-------|----------|--------|
-| @api property for objectApiName | Yes | |
-| @api property for selectedRecordId | Yes | |
-| FlowAttributeChangeEvent dispatched | Yes | |
-| FlowNavigationNextEvent or finish | Yes | |
-| meta.xml target: lightning__FlowScreen | Yes | |
-| Validation score | >= 100/165 | |
+| Check                                    | Expected   | Result |
+| ---------------------------------------- | ---------- | ------ |
+| @api property for objectApiName          | Yes        |        |
+| @api property for selectedRecordId       | Yes        |        |
+| FlowAttributeChangeEvent dispatched      | Yes        |        |
+| FlowNavigationNextEvent or finish        | Yes        |        |
+| meta.xml target: lightning\_\_FlowScreen | Yes        |        |
+| Validation score                         | >= 100/165 |        |
 
 ---
 
@@ -411,21 +420,22 @@ keyboard escape handling, and ARIA attributes for accessibility.
 Target: Lightning App Page.
 
 Expected artifacts:
+
 - `cirraTestConfirmModal.html`
 - `cirraTestConfirmModal.js`
 - `cirraTestConfirmModal.css`
 - `cirraTestConfirmModal.js-meta.xml`
 
-| Check | Expected | Result |
-|-------|----------|--------|
-| @api open property to show/hide | Yes | |
-| Focus trap (first/last focusable) | Yes | |
-| Escape key closes modal | Yes | |
-| Custom events: confirm, cancel | Yes | |
-| ARIA: role=dialog, aria-modal, aria-labelledby | Yes | |
-| Backdrop overlay | Yes | |
-| SLDS modal classes | Yes | |
-| Validation score | >= 100/165 | |
+| Check                                          | Expected   | Result |
+| ---------------------------------------------- | ---------- | ------ |
+| @api open property to show/hide                | Yes        |        |
+| Focus trap (first/last focusable)              | Yes        |        |
+| Escape key closes modal                        | Yes        |        |
+| Custom events: confirm, cancel                 | Yes        |        |
+| ARIA: role=dialog, aria-modal, aria-labelledby | Yes        |        |
+| Backdrop overlay                               | Yes        |        |
+| SLDS modal classes                             | Yes        |        |
+| Validation score                               | >= 100/165 |        |
 
 ---
 
@@ -439,21 +449,22 @@ Account.Name. Display in a formatted list with loading and error states.
 Target: Lightning Record Page (Account).
 
 Expected artifacts:
+
 - `cirraTestContactList.html`
 - `cirraTestContactList.js`
 - `cirraTestContactList.css`
 - `cirraTestContactList.js-meta.xml`
 
-| Check | Expected | Result |
-|-------|----------|--------|
-| import { graphql, gql } from 'lightning/uiGraphQLApi' | Yes | |
-| @wire with graphql adapter | Yes | |
-| Loading state | Yes | |
-| Error state | Yes | |
-| Empty state | Yes | |
-| Displays Account.Name (relationship) | Yes | |
-| meta.xml target: lightning__RecordPage | Yes | |
-| Validation score | >= 100/165 | |
+| Check                                                 | Expected   | Result |
+| ----------------------------------------------------- | ---------- | ------ |
+| import { graphql, gql } from 'lightning/uiGraphQLApi' | Yes        |        |
+| @wire with graphql adapter                            | Yes        |        |
+| Loading state                                         | Yes        |        |
+| Error state                                           | Yes        |        |
+| Empty state                                           | Yes        |        |
+| Displays Account.Name (relationship)                  | Yes        |        |
+| meta.xml target: lightning\_\_RecordPage              | Yes        |        |
+| Validation score                                      | >= 100/165 |        |
 
 ---
 
@@ -463,7 +474,7 @@ Expected artifacts:
 
 **Prompt**: Insert 10 Account records with varied Industries (Technology,
 Healthcare, Finance, Manufacturing, Retail), AnnualRevenue ($500K–$10M),
-and BillingCity. Use naming pattern CirraTest_Account_001 through _010.
+and BillingCity. Use naming pattern CirraTest_Account_001 through \_010.
 
 ```
 sobject_dml(
@@ -484,11 +495,11 @@ sobject_dml(
 )
 ```
 
-| Check | Expected | Result |
-|-------|----------|--------|
-| 10 Account IDs returned | Yes | |
-| No errors | Success for all 10 | |
-| Record IDs saved for later steps | Yes | |
+| Check                            | Expected           | Result |
+| -------------------------------- | ------------------ | ------ |
+| 10 Account IDs returned          | Yes                |        |
+| No errors                        | Success for all 10 |        |
+| Record IDs saved for later steps | Yes                |        |
 
 ---
 
@@ -499,11 +510,11 @@ sobject_dml(
 **Prompt**: Insert 20 Contact records — 2 per Account — with varied Titles
 (CEO, CTO, CFO, VP Sales, VP Marketing, Director Engineering, etc.) and Departments.
 
-| Check | Expected | Result |
-|-------|----------|--------|
-| 20 Contact IDs returned | Yes | |
-| Each Contact linked to correct Account | Verify via AccountId | |
-| Varied titles across contacts | Yes | |
+| Check                                  | Expected             | Result |
+| -------------------------------------- | -------------------- | ------ |
+| 20 Contact IDs returned                | Yes                  |        |
+| Each Contact linked to correct Account | Verify via AccountId |        |
+| Varied titles across contacts          | Yes                  |        |
 
 ---
 
@@ -515,12 +526,12 @@ sobject_dml(
 Stages (Prospecting, Qualification, Proposal, Negotiation, Closed Won, Closed Lost),
 Amounts ($30K–$500K), and CloseDates spanning next 6 months.
 
-| Check | Expected | Result |
-|-------|----------|--------|
-| 15 Opportunity IDs returned | Yes | |
-| Varied stages | At least 4 different stages | |
-| Future close dates | Yes | |
-| Amounts in expected range | $30K–$500K | |
+| Check                       | Expected                    | Result |
+| --------------------------- | --------------------------- | ------ |
+| 15 Opportunity IDs returned | Yes                         |        |
+| Varied stages               | At least 4 different stages |        |
+| Future close dates          | Yes                         |        |
+| Amounts in expected range   | $30K–$500K                  |        |
 
 ---
 
@@ -532,11 +543,11 @@ Amounts ($30K–$500K), and CloseDates spanning next 6 months.
 Working, Escalated), Priority (Low, Medium, High), and Type (Question, Problem,
 Feature Request).
 
-| Check | Expected | Result |
-|-------|----------|--------|
-| 10 Case IDs returned | Yes | |
-| Linked to Accounts and Contacts | Yes | |
-| Varied priorities and statuses | Yes | |
+| Check                           | Expected | Result |
+| ------------------------------- | -------- | ------ |
+| 10 Case IDs returned            | Yes      |        |
+| Linked to Accounts and Contacts | Yes      |        |
+| Varied priorities and statuses  | Yes      |        |
 
 ---
 
@@ -547,11 +558,11 @@ Feature Request).
 **Prompt**: Insert 10 Lead records with varied LeadSource (Web, Phone, Email,
 Partner Referral, Trade Show), Status (Open, Working, Qualified), and Industries.
 
-| Check | Expected | Result |
-|-------|----------|--------|
-| 10 Lead IDs returned | Yes | |
-| Varied lead sources | At least 4 different | |
-| Varied statuses | Yes | |
+| Check                | Expected             | Result |
+| -------------------- | -------------------- | ------ |
+| 10 Lead IDs returned | Yes                  |        |
+| Varied lead sources  | At least 4 different |        |
+| Varied statuses      | Yes                  |        |
 
 ---
 
@@ -563,12 +574,12 @@ Partner Referral, Trade Show), Status (Open, Working, Qualified), and Industries
 and statuses. Insert 5 Events linked to Contacts with varied subjects and
 durations.
 
-| Check | Expected | Result |
-|-------|----------|--------|
-| 10 Task IDs returned | Yes | |
-| 5 Event IDs returned | Yes | |
-| Tasks linked to WhoId (Contact) and WhatId (Account) | Yes | |
-| Events linked to WhoId (Contact) | Yes | |
+| Check                                                | Expected | Result |
+| ---------------------------------------------------- | -------- | ------ |
+| 10 Task IDs returned                                 | Yes      |        |
+| 5 Event IDs returned                                 | Yes      |        |
+| Tasks linked to WhoId (Contact) and WhatId (Account) | Yes      |        |
+| Events linked to WhoId (Contact)                     | Yes      |        |
 
 ---
 
@@ -576,16 +587,16 @@ durations.
 
 **Command**: `/insert-data`
 
-**Prompt**: Insert 251 Account records named CirraTest_Bulk_001 through _251
+**Prompt**: Insert 251 Account records named CirraTest_Bulk_001 through \_251
 with varied Industries to test the 200-record batch boundary. Use a single
 sobject_dml call.
 
-| Check | Expected | Result |
-|-------|----------|--------|
-| 251 Account IDs returned | Yes | |
-| Single DML call used | Yes (not 251 separate calls) | |
-| Batch boundary crossed | Records span 2+ batches | |
-| All records created successfully | 251 successes | |
+| Check                            | Expected                     | Result |
+| -------------------------------- | ---------------------------- | ------ |
+| 251 Account IDs returned         | Yes                          |        |
+| Single DML call used             | Yes (not 251 separate calls) |        |
+| Batch boundary crossed           | Records span 2+ batches      |        |
+| All records created successfully | 251 successes                |        |
 
 ---
 
@@ -596,28 +607,28 @@ sobject_dml call.
 **Prompt**: Create a 3-level hierarchy: 5 parent Accounts, each with 3 Contacts,
 2 Opportunities, and 1 Case. Use the hierarchy factory pattern.
 
-| Check | Expected | Result |
-|-------|----------|--------|
-| 5 Accounts created | Yes | |
-| 15 Contacts (3 per Account) | Yes | |
-| 10 Opportunities (2 per Account) | Yes | |
-| 5 Cases (1 per Account) | Yes | |
-| All relationships valid | Contacts/Opps/Cases → correct parent | |
+| Check                            | Expected                             | Result |
+| -------------------------------- | ------------------------------------ | ------ |
+| 5 Accounts created               | Yes                                  |        |
+| 15 Contacts (3 per Account)      | Yes                                  |        |
+| 10 Opportunities (2 per Account) | Yes                                  |        |
+| 5 Cases (1 per Account)          | Yes                                  |        |
+| All relationships valid          | Contacts/Opps/Cases → correct parent |        |
 
 ---
 
 ## Phase 1 Summary
 
-| Category | Artifact Count | Expected |
-|----------|---------------|----------|
-| Apex Classes | 10 (5 classes + 5 tests) | All deployed |
-| Apex Triggers | 1 | Deployed |
-| Flows | 6 | All deployed |
-| LWC Components | 5 | All deployed |
-| Account Records | 261+ (10 + 251 bulk) | All inserted |
-| Contact Records | 35+ | All inserted |
-| Opportunity Records | 25+ | All inserted |
-| Case Records | 15+ | All inserted |
-| Lead Records | 10 | All inserted |
-| Task Records | 10+ | All inserted |
-| Event Records | 5+ | All inserted |
+| Category            | Artifact Count           | Expected     |
+| ------------------- | ------------------------ | ------------ |
+| Apex Classes        | 10 (5 classes + 5 tests) | All deployed |
+| Apex Triggers       | 1                        | Deployed     |
+| Flows               | 6                        | All deployed |
+| LWC Components      | 5                        | All deployed |
+| Account Records     | 261+ (10 + 251 bulk)     | All inserted |
+| Contact Records     | 35+                      | All inserted |
+| Opportunity Records | 25+                      | All inserted |
+| Case Records        | 15+                      | All inserted |
+| Lead Records        | 10                       | All inserted |
+| Task Records        | 10+                      | All inserted |
+| Event Records       | 5+                       | All inserted |
