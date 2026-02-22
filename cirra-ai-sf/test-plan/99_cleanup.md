@@ -33,9 +33,11 @@ Delete in dependency order: Activities → Children → Parents.
 ### 1.1 — Delete Tasks
 
 **Command:** `/query-data` then `/insert-data` (delete operation):
+
 ```sql
 SELECT Id FROM Task WHERE Subject LIKE 'CirraTest_%'
 ```
+
 Then delete all returned IDs.
 
 **Expected:** 0–5 records deleted (or 0 if Tasks were never created)
@@ -47,6 +49,7 @@ Then delete all returned IDs.
 ```sql
 SELECT Id FROM Event WHERE Subject LIKE 'CirraTest_%'
 ```
+
 Then delete all returned IDs.
 
 **Expected:** 0–3 records deleted
@@ -58,6 +61,7 @@ Then delete all returned IDs.
 ```sql
 SELECT Id FROM Case WHERE Subject LIKE 'CirraTest_%'
 ```
+
 Then delete all returned IDs.
 
 **Expected:** 0–5 records deleted
@@ -69,6 +73,7 @@ Then delete all returned IDs.
 ```sql
 SELECT Id FROM Opportunity WHERE Name LIKE 'CirraTest_%'
 ```
+
 Then delete all returned IDs.
 
 **Expected:** 0–10 records deleted
@@ -80,6 +85,7 @@ Then delete all returned IDs.
 ```sql
 SELECT Id FROM Contact WHERE LastName LIKE 'CirraTest_%'
 ```
+
 Then delete all returned IDs.
 
 **Expected:** 0–10 records deleted
@@ -91,6 +97,7 @@ Then delete all returned IDs.
 ```sql
 SELECT Id FROM Lead WHERE LastName LIKE 'CirraTest_%'
 ```
+
 Then delete all returned IDs.
 
 **Expected:** 0–5 records deleted
@@ -105,6 +112,7 @@ Delete Accounts last — they are parents of Contacts, Opportunities, and Cases.
 SELECT Id FROM Account
 WHERE Name LIKE 'CirraTest_%'
 ```
+
 Then delete all returned IDs.
 
 **Expected:** 0–206 records deleted (5 named + 200 bulk + 1 smoke test)
@@ -114,6 +122,7 @@ Then delete all returned IDs.
 ### 1.8 — Verify data cleanup
 
 **Command:** `/query-data` — run each count query:
+
 ```sql
 SELECT COUNT() FROM Account WHERE Name LIKE 'CirraTest_%'
 SELECT COUNT() FROM Contact WHERE LastName LIKE 'CirraTest_%'
@@ -123,6 +132,7 @@ SELECT COUNT() FROM Lead WHERE LastName LIKE 'CirraTest_%'
 SELECT COUNT() FROM Task WHERE Subject LIKE 'CirraTest_%'
 SELECT COUNT() FROM Event WHERE Subject LIKE 'CirraTest_%'
 ```
+
 **Expected:** All counts return 0
 
 ---
@@ -133,7 +143,8 @@ SELECT COUNT() FROM Event WHERE Subject LIKE 'CirraTest_%'
 
 ### 2.1 — Delete Apex Classes and Triggers
 
-Query for CirraTest_ Apex components:
+Query for CirraTest\_ Apex components:
+
 ```
 tooling_api_query(
   sObject="ApexClass",
@@ -143,6 +154,7 @@ tooling_api_query(
 ```
 
 For each returned class, delete:
+
 ```
 tooling_api_dml(
   operation="delete",
@@ -152,6 +164,7 @@ tooling_api_dml(
 ```
 
 Then delete the trigger:
+
 ```
 tooling_api_query(
   sObject="ApexTrigger",
@@ -159,9 +172,11 @@ tooling_api_query(
   fields=["Id", "Name"]
 )
 ```
+
 Delete each returned trigger the same way.
 
 **Expected components to find:**
+
 - CirraTest_AccountService (class)
 - CirraTest_AccountServiceTest (class)
 - CirraTest_AccountTriggerHandler (class)
@@ -183,6 +198,7 @@ metadata_list(type="Flow")
 ```
 
 For each Flow with API name matching `CirraTest_%`:
+
 ```
 metadata_delete(
   type="Flow",
@@ -191,6 +207,7 @@ metadata_delete(
 ```
 
 **Expected flows to find:**
+
 - CirraTest_Account_Create_Task
 - CirraTest_Case_Intake_Screen
 
@@ -207,6 +224,7 @@ tooling_api_query(
 ```
 
 For each returned component:
+
 ```
 metadata_delete(
   type="LightningComponentBundle",
@@ -215,6 +233,7 @@ metadata_delete(
 ```
 
 **Expected components to find:**
+
 - cirraTestDashboard
 - cirraTestContactCard
 
@@ -222,7 +241,7 @@ metadata_delete(
 
 ### 2.4 — Verify metadata cleanup
 
-Re-run the queries from 2.1–2.3 to confirm all CirraTest_ metadata is gone.
+Re-run the queries from 2.1–2.3 to confirm all CirraTest\_ metadata is gone.
 
 **Expected:** All queries return 0 results.
 
@@ -240,17 +259,17 @@ rm -rf ./audit_output/
 
 ## Cleanup Summary
 
-| Category | Records/Components Deleted | Verified Clean |
-|----------|---------------------------|----------------|
-| Tasks | | |
-| Events | | |
-| Cases | | |
-| Opportunities | | |
-| Contacts | | |
-| Leads | | |
-| Accounts | | |
-| Apex Classes | | |
-| Apex Triggers | | |
-| Flows | | |
-| LWC Components | | |
-| Local files | | |
+| Category       | Records/Components Deleted | Verified Clean |
+| -------------- | -------------------------- | -------------- |
+| Tasks          |                            |                |
+| Events         |                            |                |
+| Cases          |                            |                |
+| Opportunities  |                            |                |
+| Contacts       |                            |                |
+| Leads          |                            |                |
+| Accounts       |                            |                |
+| Apex Classes   |                            |                |
+| Apex Triggers  |                            |                |
+| Flows          |                            |                |
+| LWC Components |                            |                |
+| Local files    |                            |                |

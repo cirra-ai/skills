@@ -20,13 +20,13 @@
 
 This plan exercises every slash command exposed by the cirra-ai-sf plugin:
 
-| Category | Commands |
-|----------|----------|
-| **Data** | `/insert-data`, `/query-data`, `/validate-data` |
-| **Apex** | `/create-apex`, `/update-apex`, `/validate-apex` |
-| **Flow** | `/create-flow`, `/update-flow`, `/validate-flow` |
-| **LWC** | `/create-lwc`, `/update-lwc`, `/validate-lwc` |
-| **Audit** | `/audit-org` |
+| Category  | Commands                                         |
+| --------- | ------------------------------------------------ |
+| **Data**  | `/insert-data`, `/query-data`, `/validate-data`  |
+| **Apex**  | `/create-apex`, `/update-apex`, `/validate-apex` |
+| **Flow**  | `/create-flow`, `/update-flow`, `/validate-flow` |
+| **LWC**   | `/create-lwc`, `/update-lwc`, `/validate-lwc`    |
+| **Audit** | `/audit-org`                                     |
 
 All test records use the `CirraTest_` prefix so cleanup is pattern-based and
 idempotent (see `99_cleanup.md`).
@@ -37,14 +37,14 @@ idempotent (see `99_cleanup.md`).
 
 Every test case has a unique ID: **TC-NNN**
 
-| Range | Phase |
-|-------|-------|
-| TC-001 – TC-010 | 00 — Smoke tests |
-| TC-011 – TC-049 | 01a — Data setup |
-| TC-050 – TC-079 | 01b — Metadata setup |
+| Range           | Phase                   |
+| --------------- | ----------------------- |
+| TC-001 – TC-010 | 00 — Smoke tests        |
+| TC-011 – TC-049 | 01a — Data setup        |
+| TC-050 – TC-079 | 01b — Metadata setup    |
 | TC-080 – TC-119 | 02 — Validate artifacts |
-| TC-120 – TC-159 | 03 — Update artifacts |
-| TC-160 – TC-179 | 04 — Audit and report |
+| TC-120 – TC-159 | 03 — Update artifacts   |
+| TC-160 – TC-179 | 04 — Audit and report   |
 
 ---
 
@@ -116,20 +116,21 @@ Every test case uses this format:
 
 **Command:** `/command-name` — what to do
 **Expected:**
+
 - Success case description
 - Alternative outcome for org variants (if applicable)
-**Known limitation:** (if any — org-specific, field-specific, etc.)
-**SKIP condition:** (if the test cannot run in some orgs)
-**On unexpected failure:** See BUG_INVESTIGATION_GUIDE.md § Section Name
+  **Known limitation:** (if any — org-specific, field-specific, etc.)
+  **SKIP condition:** (if the test cannot run in some orgs)
+  **On unexpected failure:** See BUG_INVESTIGATION_GUIDE.md § Section Name
 ```
 
 Result recording per test:
 
-| Field | Description |
-|-------|-------------|
-| **Status** | PASS / FAIL / SKIP / BLOCKED |
+| Field        | Description                                      |
+| ------------ | ------------------------------------------------ |
+| **Status**   | PASS / FAIL / SKIP / BLOCKED                     |
 | **Evidence** | Return value, record IDs, error message verbatim |
-| **Notes** | Any deviation from expected outcome |
+| **Notes**    | Any deviation from expected outcome              |
 
 ---
 
@@ -158,15 +159,15 @@ Use `REPORT_TEMPLATE.md` to produce the final report. Required sections:
 
 ## Files in This Directory
 
-| File | Purpose |
-|------|---------|
-| `TEST_PLAN.md` | This file — scope, principles, execution flow |
-| `00_smoke_test.md` | 3 smoke tests, ~2 min, hard gate before Phase 1 |
-| `01a_setup_data.md` | Data record insertion (always runnable) |
-| `01b_setup_metadata.md` | Apex/Flow/LWC creation (gated on smoke test) |
-| `02_validate_artifacts.md` | Query, validate, and verify all artifacts |
-| `03_update_artifacts.md` | Update, upsert, bulk modify, and delete |
-| `04_audit_and_report.md` | Full org audit via `/audit-org` |
-| `99_cleanup.md` | Pattern-based idempotent cleanup |
-| `BUG_INVESTIGATION_GUIDE.md` | Decision trees for failure diagnosis |
-| `REPORT_TEMPLATE.md` | Structured template for the final test report |
+| File                         | Purpose                                         |
+| ---------------------------- | ----------------------------------------------- |
+| `TEST_PLAN.md`               | This file — scope, principles, execution flow   |
+| `00_smoke_test.md`           | 3 smoke tests, ~2 min, hard gate before Phase 1 |
+| `01a_setup_data.md`          | Data record insertion (always runnable)         |
+| `01b_setup_metadata.md`      | Apex/Flow/LWC creation (gated on smoke test)    |
+| `02_validate_artifacts.md`   | Query, validate, and verify all artifacts       |
+| `03_update_artifacts.md`     | Update, upsert, bulk modify, and delete         |
+| `04_audit_and_report.md`     | Full org audit via `/audit-org`                 |
+| `99_cleanup.md`              | Pattern-based idempotent cleanup                |
+| `BUG_INVESTIGATION_GUIDE.md` | Decision trees for failure diagnosis            |
+| `REPORT_TEMPLATE.md`         | Structured template for the final test report   |

@@ -28,6 +28,7 @@ scored reports across Apex, Flows, and LWC components.
 
 **Command:** `/audit-org`
 **Expected:**
+
 1. `cirra_ai_init()` called (or confirmed already initialized)
 2. Component counts displayed:
    - X Apex classes, Y active Flows, Z LWC components
@@ -48,15 +49,15 @@ scored reports across Apex, Flows, and LWC components.
 
 **Result:**
 
-| Field | Value |
-|-------|-------|
-| Status | |
-| Apex classes audited | |
-| Flows audited | |
-| LWC components audited | |
-| Overall health score | |
-| Report files generated | |
-| Notes | |
+| Field                  | Value |
+| ---------------------- | ----- |
+| Status                 |       |
+| Apex classes audited   |       |
+| Flows audited          |       |
+| LWC components audited |       |
+| Overall health score   |       |
+| Report files generated |       |
+| Notes                  |       |
 
 ---
 
@@ -64,23 +65,24 @@ scored reports across Apex, Flows, and LWC components.
 
 **Command:** Review the audit output from TC-160.
 **Expected:**
+
 - CirraTest_AccountService, CirraTest_AccountBatch, CirraTest_AccountTrigger
   appear in the Apex section
 - CirraTest_Account_Create_Task, CirraTest_Case_Intake_Screen appear in the
   Flow section
 - cirraTestDashboard, cirraTestContactCard appear in the LWC section
-- Scores for CirraTest_ components should be reasonably high (they were just
+- Scores for CirraTest\_ components should be reasonably high (they were just
   created/validated by the plugin)
 
 **Result:**
 
-| Field | Value |
-|-------|-------|
-| Status | |
-| CirraTest Apex found | |
-| CirraTest Flows found | |
-| CirraTest LWC found | |
-| Notes | |
+| Field                 | Value |
+| --------------------- | ----- |
+| Status                |       |
+| CirraTest Apex found  |       |
+| CirraTest Flows found |       |
+| CirraTest LWC found   |       |
+| Notes                 |       |
 
 ---
 
@@ -88,6 +90,7 @@ scored reports across Apex, Flows, and LWC components.
 
 **Command:** Check the generated report files.
 **Expected:**
+
 - Word report has executive summary, per-domain sections, recommendations
 - Excel report has separate sheets for Apex, Flows, LWC, and Summary
 - HTML report is viewable and contains score data
@@ -95,20 +98,20 @@ scored reports across Apex, Flows, and LWC components.
 
 **Result:**
 
-| Field | Value |
-|-------|-------|
-| Status | |
-| Word report valid | |
-| Excel report valid | |
-| HTML report valid | |
-| Notes | |
+| Field              | Value |
+| ------------------ | ----- |
+| Status             |       |
+| Word report valid  |       |
+| Excel report valid |       |
+| HTML report valid  |       |
+| Notes              |       |
 
 ---
 
 ## Phase 4 Summary
 
-| TC | Description | Status |
-|----|-------------|--------|
-| TC-160 | Full org audit | |
-| TC-161 | CirraTest components in audit | |
-| TC-162 | Report file contents | |
+| TC     | Description                   | Status |
+| ------ | ----------------------------- | ------ |
+| TC-160 | Full org audit                |        |
+| TC-161 | CirraTest components in audit |        |
+| TC-162 | Report file contents          |        |
