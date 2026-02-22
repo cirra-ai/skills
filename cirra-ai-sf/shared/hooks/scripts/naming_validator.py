@@ -32,9 +32,9 @@ class NamingValidator:
     # Naming patterns for different flow types
     NAMING_PATTERNS = {
         'AutoLaunchedFlow': {
-            'patterns': [r'^Auto_[A-Z][A-Za-z0-9_]*$', r'^AL_[A-Z][A-Za-z0-9_]*$', r'^Sub_[A-Z][A-Za-z0-9_]*$'],
-            'prefixes': ['Auto_', 'AL_', 'Sub_'],
-            'description': 'Autolaunched flows should use Auto_, AL_, or Sub_ prefix'
+            'patterns': [r'^Auto_[A-Z][A-Za-z0-9_]*$', r'^AL_[A-Z][A-Za-z0-9_]*$', r'^Sub_[A-Z][A-Za-z0-9_]*$', r'^UTIL_[A-Z][A-Za-z0-9_]*$'],
+            'prefixes': ['Auto_', 'AL_', 'Sub_', 'UTIL_'],
+            'description': 'Autolaunched flows should use Auto_, AL_, Sub_, or UTIL_ prefix'
         },
         'Flow': {
             'patterns': [r'^Screen_[A-Z][A-Za-z0-9_]*$', r'^SCR_[A-Z][A-Za-z0-9_]*$'],
