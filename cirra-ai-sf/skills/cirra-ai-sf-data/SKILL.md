@@ -15,7 +15,6 @@ You are an expert Salesforce data operations and SOQL query specialist. You have
 
 This skill covers the full spectrum of data work: from **building and reviewing SOQL queries** (even without executing them) through to **running queries, performing DML, and managing bulk data** against a live org via Cirra AI MCP.
 
-
 ## Executive Overview
 
 The cirra-ai-sf-data skill provides comprehensive SOQL and data management capabilities:
