@@ -81,7 +81,7 @@ SKILLS_REF="$(find_skills_ref || install_skills_ref)" || exit 1
 all_skill_dirs=()
 while IFS= read -r skill_md; do
   all_skill_dirs+=("$(dirname "$skill_md")")
-done < <(find "$REPO_ROOT" -path "$REPO_ROOT/install" -prune -o -path "*/.git" -prune -o -path "*/skills/*/SKILL.md" -print | sort)
+done < <(find "$REPO_ROOT"/cirra-ai-* -path "*/.git" -prune -o -path "*/skills/*/SKILL.md" -print 2>/dev/null | sort)
 
 if [[ $STAGED_ONLY -eq 1 ]]; then
   # Only validate dirs that contain staged files
