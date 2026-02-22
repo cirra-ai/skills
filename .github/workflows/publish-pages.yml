@@ -2,27 +2,29 @@ name: Publish Downloads Page
 
 # Deploy docs/ to GitHub Pages on every push to main.
 #
-# The downloads page is generated dynamically from plugin.json files so it
-# always reflects the current set of plugins without manual edits.
+# docs/index.template.html is the page template: static content is maintained
+# directly in that file; plugin and skill download cards are injected at build
+# time from plugin.json files and skill README descriptions. The generated
+# docs/index.html is gitignored and only exists after the workflow runs.
 #
 # Triggers when:
-#   - Any plugin's plugin.json is added or changed (new/updated plugin)
+#   - docs/index.template.html (template) or other static assets change
+#   - A plugin.json is added or changed (new/updated plugin)
+#   - A skill README changes (updated description)
 #   - The page generator script changes
-#   - Static assets in docs/ change
 #   - Manually via workflow_dispatch
 #
 # One-time setup (repo owner):
 #   Settings → Pages → Source: GitHub Actions → Save
-#
-# After enabling, the page will be live at:
-#   https://cirra-ai.github.io/skills/
 
 on:
   push:
     branches: [main]
     paths:
-      - 'docs/**'
+      - 'docs/index.template.html'
+      - 'docs/images/**'
       - '*/.claude-plugin/plugin.json'
+      - '*/skills/*/README.md'
       - 'scripts/generate-pages.py'
       - 'scripts/generate-pages.sh'
   workflow_dispatch:
@@ -52,7 +54,7 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: docs
 

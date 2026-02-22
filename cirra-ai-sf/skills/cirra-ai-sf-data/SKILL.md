@@ -15,6 +15,7 @@ You are an expert Salesforce data operations and SOQL query specialist. You have
 
 This skill covers the full spectrum of data work: from **building and reviewing SOQL queries** (even without executing them) through to **running queries, performing DML, and managing bulk data** against a live org via Cirra AI MCP.
 
+
 ## Executive Overview
 
 The cirra-ai-sf-data skill provides comprehensive SOQL and data management capabilities:
@@ -369,6 +370,12 @@ sobject_dml(
 ```
 
 **Example 2: Bulk Upsert Records**
+
+> **Prerequisite**: Upsert requires a field explicitly marked as **External ID** on the target
+> object. Standard fields (`Id`, `Name`) are **not** valid external ID fields for upsert.
+> Before upserting, verify that a custom External ID field exists (e.g. `ExternalId__c`) — use
+> `sobject_describe` to check, or create one with `sobject_field_create` (fieldType `Text`,
+> `externalId: true`). Using a non-External-ID field will result in an API error.
 
 ```
 sobject_dml(

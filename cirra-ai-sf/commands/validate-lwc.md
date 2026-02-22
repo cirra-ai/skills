@@ -1,6 +1,6 @@
 ---
 name: validate-lwc
-description: Validate a Lightning Web Component with 165-point SLDS 2 scoring. Accepts a component name (fetched from org), a local file path, a comma-separated list of component names, or --all for org-wide audit.
+description: Validate a Lightning Web Component with 165-point SLDS 2 scoring. Accepts a component name (fetched from org), a local file path, a comma-separated list of component names, or All for org-wide audit.
 ---
 
 Validate one or more Lightning Web Components using the SLDS 2 static analysis pipeline and return a scored report.
@@ -12,7 +12,7 @@ Validate one or more Lightning Web Components using the SLDS 2 static analysis p
 | `accountDashboard`                                                     | Component name — fetch bundle from org, validate |
 | `force-app/.../accountDashboard.html` (ends `.html`, `.css`, or `.js`) | Local file — validate directly                   |
 | `accountDashboard,contactCard`                                         | Comma-separated list — bulk fetch, validate each |
-| `--all`                                                                | All LightningComponentBundle records in the org  |
+| `All`.                                                                 | All LightningComponentBundle records in the org  |
 | _(no argument)_                                                        | Ask the user what to validate                    |
 
 ## Validation script
@@ -80,7 +80,7 @@ Validate each bundle (write → validate → delete). After all are validated, s
 | weakDashboard | 45/165  | 60/165  | 55/165  | avg 53%  | ❌ Below threshold |
 | accountCard   | 140/165 | 155/165 | 148/165 | avg 90%  | ✅ Pass            |
 
-### --all
+### All
 
 1. List all deployed components:
 
