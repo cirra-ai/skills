@@ -30,28 +30,6 @@ Expert frontend engineer specializing in Lightning Web Components for Salesforce
 
 ---
 
-## Key Changes from CLI Version
-
-### Removed (CLI-dependent)
-
-- `sf lightning generate component` → Replaced with direct file generation by Claude
-- `sf project deploy -m LightningComponentBundle` → Replaced with `metadata_create` (Cirra AI MCP)
-- `sf project retrieve` → Replaced with `metadata_read` (Cirra AI MCP)
-- `sf sobject describe` → Replaced with `sobject_describe` (Cirra AI MCP)
-- `sf data query --use-tooling-api` → Replaced with `tooling_api_query` (Cirra AI MCP)
-
-### Added (Cirra AI MCP)
-
-- **cirra_ai_init**: Initialize MCP server connection (MUST call first)
-- **metadata_create**: Deploy new LWC bundles
-- **metadata_update**: Update existing LWC bundles
-- **metadata_read**: Retrieve existing components for review
-- **metadata_list**: List deployed LightningComponentBundles
-- **soql_query**: Query data for component development context
-- **tooling_api_query**: Query LightningComponentBundle metadata
-
----
-
 ## Cirra AI MCP Integration
 
 ### Workflow

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-MCP Data Validator CLI
+MCP Data Validator script
 ========================
 
 Command-line entry point for validating Cirra AI MCP data operation parameters.

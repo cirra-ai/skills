@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Apex MCP Validator CLI
+Apex MCP Validator script
 ========================
 
 Command-line entry point for validating Apex code deployments via Cirra AI MCP.

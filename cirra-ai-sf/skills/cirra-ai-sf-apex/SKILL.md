@@ -453,17 +453,17 @@ This initializes the connection to Cirra AI MCP Server and provides access to al
 
 ### MCP Tools Mapping
 
-| Operation           | CLI Command                       | MCP Tool            | Example                                                                                                                         |
-| ------------------- | --------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| Query Apex code     | `sf data query`                   | `soql_query`        | `soql_query(sObject="ApexClass", whereClause="Name = 'AccountService'")`                                                        |
-| Query metadata      | `sf data query --use-tooling-api` | `tooling_api_query` | `tooling_api_query(sObject="ApexClass")`                                                                                        |
-| Deploy class        | `sf project deploy`               | `tooling_api_dml`   | `tooling_api_dml(operation="insert", sObject="ApexClass", record={"Name":"MyClass","Body":"...","Status":"Active"})`            |
-| Update class        | `sf project deploy` (existing)    | `tooling_api_dml`   | `tooling_api_dml(operation="update", sObject="ApexClass", record={"Id":"...","Name":"MyClass","Body":"...","Status":"Active"})` |
-| List classes        | `sf project retrieve`             | `tooling_api_query` | `tooling_api_query(sObject="ApexClass", whereClause="Name = 'AccountService'")`                                                 |
-| Retrieve class body | `sf project retrieve`             | `tooling_api_query` | `tooling_api_query(sObject="ApexClass", fields=["Id","FullName","Name","Body","Metadata"], whereClause="Id = '<classId>'")`     |
-| Describe object     | `sf sobject describe`             | `sobject_describe`  | `sobject_describe(sObject="Account")`                                                                                           |
-| Delete class        | `sf project delete`               | `tooling_api_dml`   | `tooling_api_dml(operation="delete", sObject="ApexClass", record={"Id":"<classId>"})`                                           |
-| Test results        | `sf apex test run` (query)        | `tooling_api_query` | `tooling_api_query(sObject="ApexTestResult")`                                                                                   |
+| Operation           | MCP Tool            | Example                                                                                                                         |
+| ------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Query Apex code     | `soql_query`        | `soql_query(sObject="ApexClass", whereClause="Name = 'AccountService'")`                                                        |
+| Query metadata      | `tooling_api_query` | `tooling_api_query(sObject="ApexClass")`                                                                                        |
+| Deploy class        | `tooling_api_dml`   | `tooling_api_dml(operation="insert", sObject="ApexClass", record={"Name":"MyClass","Body":"...","Status":"Active"})`            |
+| Update class        | `tooling_api_dml`   | `tooling_api_dml(operation="update", sObject="ApexClass", record={"Id":"...","Name":"MyClass","Body":"...","Status":"Active"})` |
+| List classes        | `tooling_api_query` | `tooling_api_query(sObject="ApexClass", whereClause="Name = 'AccountService'")`                                                 |
+| Retrieve class body | `tooling_api_query` | `tooling_api_query(sObject="ApexClass", fields=["Id","FullName","Name","Body","Metadata"], whereClause="Id = '<classId>'")`     |
+| Describe object     | `sobject_describe`  | `sobject_describe(sObject="Account")`                                                                                           |
+| Delete class        | `tooling_api_dml`   | `tooling_api_dml(operation="delete", sObject="ApexClass", record={"Id":"<classId>"})`                                           |
+| Test results        | `tooling_api_query` | `tooling_api_query(sObject="ApexTestResult")`                                                                                   |
 
 ### Apex Class / Trigger DML Format
 
@@ -617,17 +617,6 @@ accounts = (List<Account>) Security.stripInaccessible(AccessType.READABLE, accou
 ```
 
 ---
-
-## Limitations & Workarounds
-
-| Feature                  | CLI Support               | MCP Support                              | Workaround                                         |
-| ------------------------ | ------------------------- | ---------------------------------------- | -------------------------------------------------- |
-| Anonymous Apex execution | `sf apex run`             | ❌ Not available                         | Generate test class and deploy via metadata_create |
-| Automatic file sync      | `force-app/main/default/` | ❌ Not available                         | Generate strings, deploy via metadata API          |
-| Local templates          | Template file system      | ✅ Reference only (no file access)       | Generate code from patterns in this doc            |
-| Metadata deployment      | `sf project deploy`       | ✅ `metadata_create` / `metadata_update` | Full support via MCP                               |
-| Code retrieval           | `sf project retrieve`     | ✅ `metadata_read`                       | Full support via MCP                               |
-| Test execution           | `sf apex test run`        | Partial - query via `tooling_api_query`  | Query ApexTestResult after deployment              |
 
 ---
 
