@@ -1,0 +1,33 @@
+<template>
+    <lightning-card title="Account Dashboard" icon-name="standard:account">
+        <div class="slds-var-m-around_medium">
+            <template lwc:if={isLoading}>
+                <lightning-spinner alternative-text="Loading accounts" size="medium"></lightning-spinner>
+            </template>
+            <template lwc:if={error}>
+                <div class="slds-text-color_error" role="alert">
+                    <p>{error}</p>
+                </div>
+            </template>
+            <template lwc:if={hasData}>
+                <lightning-datatable
+                    key-field="Id"
+                    data={accounts}
+                    columns={columns}
+                    sorted-by={sortedBy}
+                    sorted-direction={sortedDirection}
+                    onsort={handleSort}
+                    onrowselection={handleRowSelection}
+                    onrowaction={handleRowAction}
+                    show-row-number-column
+                    aria-label="Account data table"
+                ></lightning-datatable>
+            </template>
+            <template lwc:if={isEmpty}>
+                <div class="slds-align_absolute-center slds-var-p-around_large">
+                    <p class="slds-text-body_regular">No accounts found.</p>
+                </div>
+            </template>
+        </div>
+    </lightning-card>
+</template>

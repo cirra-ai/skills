@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>62.0</apiVersion>
+    <description>Before-save record-triggered flow on Account. Sets Rating and Description based on Industry and AnnualRevenue.</description>
+    <interviewLabel>CirraTest Account Before Save {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>CirraTest Account Before Save</label>
+    <processType>AutoLaunchedFlow</processType>
+    <status>Active</status>
+    <triggerType>RecordBeforeSave</triggerType>
+    <triggerOrder>1</triggerOrder>
+    <recordTriggerType>CreateAndUpdate</recordTriggerType>
+    <objectType>Account</objectType>
+
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Decision_Industry_Rating</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Rating</field>
+            <operator>IsNull</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <object>Account</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+    </start>
+
+    <decisions>
+        <name>Decision_Industry_Rating</name>
+        <label>Check Industry and Revenue</label>
+        <locationX>176</locationX>
+        <locationY>200</locationY>
+        <defaultConnector>
+            <targetReference>Assignment_Healthcare</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default</defaultConnectorLabel>
+        <rules>
+            <name>Technology_High_Revenue</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Industry</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Technology</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.AnnualRevenue</leftValueReference>
+                <operator>GreaterThan</operator>
+                <rightValue>
+                    <numberValue>1000000</numberValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assignment_Hot_Rating</targetReference>
+            </connector>
+            <label>Technology High Revenue</label>
+        </rules>
+        <rules>
+            <name>Healthcare_Industry</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Industry</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Healthcare</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assignment_Healthcare</targetReference>
+            </connector>
+            <label>Healthcare Industry</label>
+        </rules>
+    </decisions>
+
+    <assignments>
+        <name>Assignment_Hot_Rating</name>
+        <label>Set Hot Rating</label>
+        <locationX>176</locationX>
+        <locationY>400</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Rating</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Hot</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+
+    <assignments>
+        <name>Assignment_Healthcare</name>
+        <label>Set Healthcare Description</label>
+        <locationX>376</locationX>
+        <locationY>400</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Description</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Healthcare partner</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+</Flow>

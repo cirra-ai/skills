@@ -1,0 +1,25 @@
+:host {
+    --slds-c-card-heading-font-size: var(--slds-g-font-size-5);
+}
+
+.slds-var-m-around_medium {
+    margin: var(--slds-g-spacing-4);
+}
+
+.slds-var-p-around_large {
+    padding: var(--slds-g-spacing-6);
+}
+
+.slds-text-color_error {
+    color: var(--slds-g-color-error-1);
+}
+
+.slds-text-body_regular {
+    color: var(--slds-g-color-neutral-1);
+}
+
+.slds-align_absolute-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
