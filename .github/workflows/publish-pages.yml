@@ -2,12 +2,13 @@ name: Publish Downloads Page
 
 # Deploy docs/ to GitHub Pages on every push to main.
 #
-# docs/index.html is the page template: static content is maintained directly
-# in that file; plugin and skill download cards are injected at build time from
-# plugin.json files and skill README descriptions.
+# docs/index.template.html is the page template: static content is maintained
+# directly in that file; plugin and skill download cards are injected at build
+# time from plugin.json files and skill README descriptions. The generated
+# docs/index.html is gitignored and only exists after the workflow runs.
 #
 # Triggers when:
-#   - docs/index.html (template) or other static assets change
+#   - docs/index.template.html (template) or other static assets change
 #   - A plugin.json is added or changed (new/updated plugin)
 #   - A skill README changes (updated description)
 #   - The page generator script changes
@@ -20,7 +21,8 @@ on:
   push:
     branches: [main]
     paths:
-      - 'docs/**'
+      - 'docs/index.template.html'
+      - 'docs/images/**'
       - '*/.claude-plugin/plugin.json'
       - '*/skills/*/README.md'
       - 'scripts/generate-pages.py'

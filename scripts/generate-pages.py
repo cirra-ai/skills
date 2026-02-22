@@ -179,7 +179,7 @@ def _skill_card(skill: dict) -> str:
 # ---------------------------------------------------------------------------
 
 def generate() -> str:
-    template_path = REPO_ROOT / "docs" / "index.html"
+    template_path = REPO_ROOT / "docs" / "index.template.html"
     template = template_path.read_text()
 
     plugins = find_plugins()

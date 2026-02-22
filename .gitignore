@@ -11,3 +11,6 @@ dist/
 .pytest_cache/
 working-docs/
 internal-docs/
+
+# Generated downloads page (built from docs/index.template.html by generate-pages.sh)
+docs/index.html
