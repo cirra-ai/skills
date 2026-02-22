@@ -27,7 +27,8 @@ import webbrowser
 import tempfile
 from pathlib import Path
 
-REPO_ROOT = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path.cwd()
+_positional = [a for a in sys.argv[1:] if not a.startswith("--")]
+REPO_ROOT = Path(_positional[0]).resolve() if _positional else Path.cwd()
 PREVIEW = "--preview" in sys.argv
 
 SUPPRESS_KEYWORDS = {"cirra-ai", "salesforce", "orchestration"}
