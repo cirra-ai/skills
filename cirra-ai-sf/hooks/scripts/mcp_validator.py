@@ -111,10 +111,19 @@ def _basic_apex_check(body: str, full_name: str) -> dict[str, Any]:
 
     # Check SOQL in loops
     loop_depth = 0
+    pending_loop = False
     for i, line in enumerate(body.split("\n"), 1):
-        if re.search(r"\bfor\s*\(|\bwhile\s*\(|\bdo\s*\{", line, re.IGNORECASE):
-            loop_depth += 1
-        loop_depth += line.count("{") - line.count("}")
+        is_loop_line = bool(re.search(r"\bfor\s*\(|\bwhile\s*\(|\bdo\s*\{", line, re.IGNORECASE))
+        if is_loop_line:
+            pending_loop = True
+        open_braces = line.count("{")
+        close_braces = line.count("}")
+        if pending_loop and open_braces > 0:
+            # The opening { belongs to this loop — count it as loop entry, not extra brace.
+            loop_depth += 1 + (open_braces - 1) - close_braces
+            pending_loop = False
+        else:
+            loop_depth += open_braces - close_braces
         loop_depth = max(0, loop_depth)
         if loop_depth > 0 and re.search(r"\[\s*SELECT\s+", line, re.IGNORECASE):
             issues.append({
@@ -127,14 +136,22 @@ def _basic_apex_check(body: str, full_name: str) -> dict[str, Any]:
 
     # Check DML in loops
     loop_depth = 0
+    pending_loop = False
     dml_patterns = [
         r"\binsert\s+", r"\bupdate\s+", r"\bdelete\s+",
         r"\bupsert\s+", r"Database\.(insert|update|delete|upsert)",
     ]
     for i, line in enumerate(body.split("\n"), 1):
-        if re.search(r"\bfor\s*\(|\bwhile\s*\(|\bdo\s*\{", line, re.IGNORECASE):
-            loop_depth += 1
-        loop_depth += line.count("{") - line.count("}")
+        is_loop_line = bool(re.search(r"\bfor\s*\(|\bwhile\s*\(|\bdo\s*\{", line, re.IGNORECASE))
+        if is_loop_line:
+            pending_loop = True
+        open_braces = line.count("{")
+        close_braces = line.count("}")
+        if pending_loop and open_braces > 0:
+            loop_depth += 1 + (open_braces - 1) - close_braces
+            pending_loop = False
+        else:
+            loop_depth += open_braces - close_braces
         loop_depth = max(0, loop_depth)
         if loop_depth > 0:
             for dp in dml_patterns:

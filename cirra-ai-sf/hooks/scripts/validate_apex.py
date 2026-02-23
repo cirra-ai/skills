@@ -152,6 +152,7 @@ class ApexValidator:
                 # entries from brace_stack and prematurely end loop scope.
                 line_for_patterns = re.sub(r"//.*$", "", line)
                 line_for_patterns = re.sub(r"/\*.*?\*/", "", line_for_patterns)
+                line_for_patterns = re.sub(r"'(?:[^'\\]|\\.)*'", "''", line_for_patterns)
                 if any(re.search(p, line_for_patterns, re.IGNORECASE) for p in loop_patterns):
                     pending_loop = True
                     loop_header_line = i
@@ -368,7 +369,7 @@ class ApexValidator:
             if match:
                 method_name = match.group(4)
                 # Skip constructors and test methods
-                if method_name[0].isupper() and "@isTest" not in self.content[:i]:
+                if method_name[0].isupper() and "@isTest" not in "\n".join(self.lines[:i - 1]):
                     if method_name not in [
                         m.group(1) for m in re.finditer(class_pattern, self.content)
                     ]:
