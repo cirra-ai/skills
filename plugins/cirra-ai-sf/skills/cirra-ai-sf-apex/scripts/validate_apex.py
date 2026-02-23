@@ -130,11 +130,11 @@ class ApexValidator:
         loop_patterns = [r"\bfor\s*\(", r"\bwhile\s*\(", r"\bdo\b"]
         # do-while closing lines: K&R `} while (cond);` and Allman `while (cond);`
         # (brace already closed on the previous line). Prevent these from being
-        # treated as new loop starts. The Allman alternative uses a balanced-paren
-        # group anchored to end-of-line so it won't match a real while loop with an
-        # inline body (e.g. `while (x) stmt;`).
+        # treated as new loop starts. The Allman alternative uses a non-backtracking
+        # balanced-paren group anchored to end-of-line so it won't match a real
+        # while loop with an inline body (e.g. `while (x) stmt;`).
         DO_WHILE_CLOSE_RE = re.compile(
-            r"\}\s*while\s*\(|\bwhile\s*\((?:[^()]*|\([^()]*\))*\)\s*;\s*$",
+            r"\}\s*while\s*\(|\bwhile\s*\([^()]*(?:\([^()]*\)[^()]*)*\)\s*;\s*$",
             re.IGNORECASE | re.MULTILINE,
         )
         # Stack entries: ('loop', start_line) or ('other', start_line)
