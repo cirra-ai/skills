@@ -22,7 +22,7 @@
     "cirra-ai"
   ],
   "commands": "./commands",
-  "skills": "../../skills",
+  "skills": "./skills",
   "mcpServers": {
     "cirra-ai": {
       "type": "http",

@@ -3,9 +3,11 @@ set -euo pipefail
 
 # Package all Cirra AI plugins and skills for distribution.
 #
-# Plugin zips are built directly from plugins/<name>/, which contains symlinks
-# in skills/ pointing to the top-level skills/ source directories.
-# zip dereferences symlinks by default, so each zip contains the full skill content.
+# Each plugin's plugin.json references skills via "./skills". At packaging time,
+# this script copies the matching top-level skills/ directories into each plugin
+# so the zip is fully self-contained. The copied skills are gitignored and
+# cleaned up after packaging.
+#
 # Skill zips are packaged individually from skills/.
 #
 # Usage:
@@ -76,10 +78,27 @@ for plugin_json in "$REPO_ROOT"/plugins/*/.claude-plugin/plugin.json; do
 
   echo "  Packaging $plugin_name..."
 
-  # Zip the plugin directory directly. Skills are symlinks in plugins/<name>/skills/
-  # that point to the top-level skills/ directories. zip dereferences symlinks by
-  # default, so the archive contains the full skill content (not symlinks).
+  # ── Copy matching skills into plugin ──────────────────────────────────────
+  # Skills whose name starts with the plugin name (e.g. cirra-ai-sf-apex for
+  # plugin cirra-ai-sf) are copied into plugins/<name>/skills/ so the zip is
+  # fully self-contained.
+  skills_dest="$plugin_dir/skills"
+  rm -rf "$skills_dest"
+  mkdir -p "$skills_dest"
+
+  skill_count=0
+  for skill_dir in "$REPO_ROOT"/skills/"${plugin_name}"-*; do
+    [[ -d "$skill_dir" ]] || continue
+    cp -R "$skill_dir" "$skills_dest/"
+    skill_count=$((skill_count + 1))
+  done
+  echo "    Copied $skill_count skills into plugin"
+
+  # ── Zip the plugin ────────────────────────────────────────────────────────
   (cd "$REPO_ROOT/plugins" && zip -r -q "$PLUGINS_OUT_DIR/$plugin_name.zip" "$plugin_name" $EXCLUDE_ARGS)
+
+  # ── Clean up copied skills ────────────────────────────────────────────────
+  rm -rf "$skills_dest"
 done
 
 echo ""
