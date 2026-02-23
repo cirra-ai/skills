@@ -78,10 +78,20 @@ SKILLS_REF="$(find_skills_ref || install_skills_ref)" || exit 1
 # ── Find skill directories ────────────────────────────────────────────────────
 
 # All skill dirs: parent of every SKILL.md found under cirra-ai-* plugin dirs
+plugin_dirs=()
+for d in "$REPO_ROOT"/cirra-ai-*/; do
+  [[ -d "$d" ]] && plugin_dirs+=("$d")
+done
+
+if [[ ${#plugin_dirs[@]} -eq 0 ]]; then
+  echo "error: no cirra-ai-* plugin directories found in $REPO_ROOT" >&2
+  exit 1
+fi
+
 all_skill_dirs=()
 while IFS= read -r skill_md; do
   all_skill_dirs+=("$(dirname "$skill_md")")
-done < <(find "$REPO_ROOT"/cirra-ai-* -path "*/.git" -prune -o -path "*/skills/*/SKILL.md" -print 2>/dev/null | sort)
+done < <(find "${plugin_dirs[@]}" -path "*/.git" -prune -o -path "*/skills/*/SKILL.md" -print | sort)
 
 if [[ $STAGED_ONLY -eq 1 ]]; then
   # Only validate dirs that contain staged files

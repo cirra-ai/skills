@@ -68,7 +68,7 @@ echo ""
 SKILL_COUNT=0
 
 # Find all SKILL.md files at plugin/skills/skillname/SKILL.md
-for skill_md in "$REPO_ROOT"/*/skills/*/SKILL.md; do
+for skill_md in "$REPO_ROOT"/cirra-ai-*/skills/*/SKILL.md; do
   [[ -f "$skill_md" ]] || continue
 
   skill_dir="$(dirname "$skill_md")"
