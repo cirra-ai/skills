@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "cirra-ai": {
+      "type": "http",
+      "url": "https://mcp.cirra.ai/mcp",
+      "headers": {
+        "Authorization": "Bearer ${CIRRA_AI_TOKEN}"
+      }
+    }
+  }
+}
