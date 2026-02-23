@@ -1,28 +1,20 @@
 name: Build & Publish
 
-# Single workflow that handles packaging, releases, and page deployment.
-#
-# On push to main (also workflow_dispatch):
-#   - Packages plugins and skills
-#   - Updates the 'preview' pre-release with current zips
-#   - Deploys downloads page to preview.skills-cirra-ai.pages.dev
-#     (links point to the 'preview' pre-release assets)
-#
-# On push to any other branch:
-#   - Deploys downloads page to <branch>.skills-cirra-ai.pages.dev
-#     (links point to the 'preview' pre-release assets)
-#
 # On release published:
-#   - Packages and attaches zips to the published release
+#   - Packages plugins and skills
+#   - Attaches zips to the published release
 #   - Deploys downloads page to skills.cirra.ai (production)
-#     (links point to releases/latest/download/ — the newly published release)
+#     with links pointing to releases/latest/download/
+#
+# On push to any non-main branch:
+#   - Deploys downloads page to <branch>.skills-cirra-ai.pages.dev (preview)
+#     with links pointing to releases/latest/download/
 
 on:
   push:
     branches: ['**']
   release:
     types: [published]
-  workflow_dispatch:
 
 permissions:
   contents: write
@@ -33,46 +25,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # ── Package (main + manual only) ────────────────────────────────────────
+      # ── Package and attach zips (release only) ───────────────────────────────
 
-      - name: Package plugins and skills
-        if: (github.ref_name == 'main' || github.event_name == 'workflow_dispatch') && github.event_name != 'release'
-        run: ./scripts/package-all.sh
-
-      - name: Upload plugin artifacts
-        if: (github.ref_name == 'main' || github.event_name == 'workflow_dispatch') && github.event_name != 'release'
-        uses: actions/upload-artifact@v4
-        with:
-          name: plugin-zips
-          path: install/plugins/*.zip
-
-      - name: Upload skill artifacts
-        if: (github.ref_name == 'main' || github.event_name == 'workflow_dispatch') && github.event_name != 'release'
-        uses: actions/upload-artifact@v4
-        with:
-          name: skill-zips
-          path: install/skills/*.zip
-
-      # ── Releases (main + manual only) ──────────────────────────────────────
-
-      - name: Update preview pre-release
-        if: (github.ref_name == 'main' || github.event_name == 'workflow_dispatch') && github.event_name != 'release'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COMMIT_MSG: ${{ github.event.head_commit.message || 'manual trigger' }}
-        run: |
-          git tag -f preview
-          git push origin preview --force
-          gh release delete preview --yes 2>/dev/null || true
-          gh release create preview \
-            --title "Preview build" \
-            --notes "Latest build from \`main\` — ${COMMIT_MSG}" \
-            --prerelease \
-            install/plugins/*.zip install/skills/*.zip
-
-      # ── Attach zips to a published release ─────────────────────────────────
-
-      - name: Attach zips to published release
+      - name: Package and attach to release
         if: github.event_name == 'release'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -84,24 +39,16 @@ jobs:
           done
 
       # ── Deploy to Cloudflare Pages ───────────────────────────────────────────
-      # release published  → CF Pages branch 'main'  → skills.cirra.ai (production)
-      #                      links to releases/latest/download/ (newly published release)
-      # push to main       → CF Pages branch 'preview' → preview.skills-cirra-ai.pages.dev
-      #                      links to releases/download/preview/ (preview pre-release)
-      # push to any branch → CF Pages branch '<branch>' → <branch>.skills-cirra-ai.pages.dev
-      #                      links to releases/download/preview/ (preview pre-release)
+      # release published  → CF Pages branch 'main'    → skills.cirra.ai (production)
+      # push to non-main   → CF Pages branch '<branch>' → <branch>.skills-cirra-ai.pages.dev
+      # push to main       → skipped (production only updates on release)
 
       - name: Generate downloads page
-        env:
-          EVENT: ${{ github.event_name }}
-        run: |
-          if [[ "$EVENT" == "release" ]]; then
-            bash scripts/generate-pages.sh
-          else
-            bash scripts/generate-pages.sh --release-tag=preview
-          fi
+        if: github.event_name == 'release' || github.ref_name != 'main'
+        run: bash scripts/generate-pages.sh
 
       - name: Deploy to Cloudflare Pages
+        if: github.event_name == 'release' || github.ref_name != 'main'
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -110,8 +57,6 @@ jobs:
         run: |
           if [[ "$EVENT" == "release" ]]; then
             CF_BRANCH="main"
-          elif [[ "$BRANCH" == "main" ]]; then
-            CF_BRANCH="preview"
           else
             CF_BRANCH="$BRANCH"
           fi
