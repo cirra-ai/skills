@@ -62,10 +62,26 @@ jobs:
           else
             CF_BRANCH="$BRANCH"
           fi
+          # Run wrangler, streaming output live to the CI log via tee, and saving
+          # to a temp file so we can extract the alias URL afterwards.
+          # GitHub Actions uses pipefail by default, so a wrangler failure still
+          # aborts the step with a non-zero exit even through the pipe.
+          DEPLOY_TMP=$(mktemp)
           npx wrangler@4 pages deploy docs \
             --project-name skills-cirra-ai \
-            --branch "${CF_BRANCH}"
-          echo "CF_BRANCH=${CF_BRANCH}" >> "$GITHUB_ENV"
+            --branch "${CF_BRANCH}" 2>&1 | tee "$DEPLOY_TMP"
+          # Extract the branch alias URL from wrangler output (stable per-branch URL).
+          # Wrangler prints "Deployment alias URL: https://..." for the branch alias.
+          if [[ "$CF_BRANCH" == "main" ]]; then
+            DEPLOY_URL="https://skills.cirra.ai"
+          else
+            DEPLOY_URL=$(grep "Deployment alias URL:" "$DEPLOY_TMP" | grep -o 'https://[^ ]*' || true)
+            if [[ -z "$DEPLOY_URL" ]]; then
+              echo "::warning::Could not extract deployment alias URL from wrangler output"
+            fi
+          fi
+          rm -f "$DEPLOY_TMP"
+          echo "DEPLOY_URL=${DEPLOY_URL}" >> "$GITHUB_ENV"
 
       - name: Post deployment URL as commit status
         env:
@@ -73,17 +89,8 @@ jobs:
           GH_REPO: ${{ github.repository }}
           GH_SHA: ${{ github.sha }}
         run: |
-          # CF Pages sanitizes branch names: non-alphanumeric → hyphens, collapse
-          # runs, strip leading/trailing hyphens, lowercase
-          SANITIZED=$(echo "$CF_BRANCH" | tr '[:upper:]' '[:lower:]' \
-            | sed 's/[^a-z0-9-]/-/g' | sed 's/-\{2,\}/-/g' | sed 's/^-\|-$//g')
-          if [[ "$CF_BRANCH" == "main" ]]; then
-            URL="https://skills.cirra.ai"
-          else
-            URL="https://${SANITIZED}.skills-cirra-ai.pages.dev"
-          fi
           gh api "repos/${GH_REPO}/statuses/${GH_SHA}" \
             -f state=success \
-            -f target_url="$URL" \
+            -f target_url="$DEPLOY_URL" \
             -f description="Deployed to Cloudflare Pages" \
             -f context="cloudflare-pages/deployment"
