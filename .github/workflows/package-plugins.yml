@@ -70,6 +70,8 @@ jobs:
       - name: Post deployment URL as commit status
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          GH_SHA: ${{ github.sha }}
         run: |
           # CF Pages sanitizes branch names: non-alphanumeric → hyphens, collapse
           # runs, strip leading/trailing hyphens, lowercase
@@ -80,7 +82,7 @@ jobs:
           else
             URL="https://${SANITIZED}.skills-cirra-ai.pages.dev"
           fi
-          gh api "repos/cirra-ai/skills/statuses/${{ github.sha }}" \
+          gh api "repos/${GH_REPO}/statuses/${GH_SHA}" \
             -f state=success \
             -f target_url="$URL" \
             -f description="Deployed to Cloudflare Pages" \
