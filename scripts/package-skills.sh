@@ -5,7 +5,7 @@ set -euo pipefail
 #
 # Each skill zip contains all files from the skill directory, with SKILL.md
 # processed to strip plugin-only frontmatter keys and append a License section.
-# LICENSE falls back to the parent plugin or repo root if not present in the skill dir.
+# LICENSE falls back to the repo root if not present in the skill dir.
 #
 # Usage:
 #   scripts/package-skills.sh          # warn on issues, fail on errors
@@ -16,7 +16,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-SKILLS_DIR="$REPO_ROOT/install/skills"
+SKILLS_OUT_DIR="$REPO_ROOT/install/skills"
 STRICT=0
 
 for arg in "$@"; do
@@ -25,6 +25,13 @@ for arg in "$@"; do
     *) echo "unknown argument: $arg" >&2; exit 1 ;;
   esac
 done
+
+# ── Assemble shared content (idempotent — also called by package-all.sh) ──────
+
+echo "=== Assembling Shared Content ==="
+echo ""
+"$SCRIPT_DIR/assemble.sh"
+echo ""
 
 # ── Validate all skills first ─────────────────────────────────────────────────
 
@@ -44,8 +51,8 @@ echo ""
 
 # ── Package ───────────────────────────────────────────────────────────────────
 
-rm -rf "$SKILLS_DIR"
-mkdir -p "$SKILLS_DIR"
+rm -rf "$SKILLS_OUT_DIR"
+mkdir -p "$SKILLS_OUT_DIR"
 
 # Base license section appended to SKILL.md so each skill is self-contained.
 # A CREDITS line is appended conditionally below if CREDITS.md is present.
@@ -67,18 +74,16 @@ echo ""
 
 SKILL_COUNT=0
 
-# Find all SKILL.md files at plugin/skills/skillname/SKILL.md
-for skill_md in "$REPO_ROOT"/cirra-ai-*/skills/*/SKILL.md; do
+# Skills now live under the top-level skills/ directory
+for skill_md in "$REPO_ROOT"/skills/*/SKILL.md; do
   [[ -f "$skill_md" ]] || continue
 
   skill_dir="$(dirname "$skill_md")"
   skill_name="$(basename "$skill_dir")"
-  plugin_dir="$(dirname "$(dirname "$skill_dir")")"
-  plugin_name="$(basename "$plugin_dir")"
 
-  # Skip directories with spaces (e.g. "cirra-ai-sf-apex 2") — likely artifacts
-  if [[ "$plugin_name" == *" "* ]]; then
-    echo "  Skipping '$plugin_name' (contains spaces, likely artifact)"
+  # Skip directories with spaces — likely artifacts
+  if [[ "$skill_name" == *" "* ]]; then
+    echo "  Skipping '$skill_name' (contains spaces, likely artifact)"
     continue
   fi
 
@@ -89,14 +94,17 @@ for skill_md in "$REPO_ROOT"/cirra-ai-*/skills/*/SKILL.md; do
   # Copy everything from the skill directory into the tmp dir
   cp -r "$skill_dir/." "$tmp_dir/"
 
-  # Copy shared icons from plugin-level assets into the skill's assets dir
-  plugin_assets_dir="$plugin_dir/assets"
-  if [[ -d "$plugin_assets_dir" ]]; then
-    mkdir -p "$tmp_dir/assets"
-    for icon in "$plugin_assets_dir"/icon-*.png; do
-      [[ -f "$icon" ]] && cp "$icon" "$tmp_dir/assets/"
-    done
-  fi
+  # Copy shared icons from any plugin that references this skill
+  # Look for icons in plugins/*/assets/
+  for plugin_assets_dir in "$REPO_ROOT"/plugins/*/assets; do
+    if [[ -d "$plugin_assets_dir" ]]; then
+      mkdir -p "$tmp_dir/assets"
+      for icon in "$plugin_assets_dir"/icon-*.png; do
+        [[ -f "$icon" ]] && cp "$icon" "$tmp_dir/assets/"
+      done
+      break  # use the first plugin's icons
+    fi
+  done
 
   # SKILL.md — strip frontmatter keys not allowed in standalone skills,
   # then append License section.
@@ -133,11 +141,9 @@ if content.startswith('---\n'):
 open(dst, 'w').write(content)
 PYEOF
 
-  # LICENSE — use what's in the skill dir, fall back to plugin-level or repo root
+  # LICENSE — use what's in the skill dir, fall back to repo root
   if [[ ! -f "$tmp_dir/LICENSE" ]]; then
-    if [[ -f "$plugin_dir/LICENSE" ]]; then
-      cp "$plugin_dir/LICENSE" "$tmp_dir/LICENSE"
-    elif [[ -f "$REPO_ROOT/LICENSE" ]]; then
+    if [[ -f "$REPO_ROOT/LICENSE" ]]; then
       cp "$REPO_ROOT/LICENSE" "$tmp_dir/LICENSE"
     fi
   fi
@@ -150,7 +156,7 @@ PYEOF
   fi
 
   # Zip contents (preserving subdirectory structure)
-  (cd "$tmp_dir" && zip -r -q "$SKILLS_DIR/${skill_name}-skill.zip" .)
+  (cd "$tmp_dir" && zip -r -q "$SKILLS_OUT_DIR/${skill_name}-skill.zip" .)
 
   rm -rf "$tmp_dir"
   SKILL_COUNT=$((SKILL_COUNT + 1))
@@ -161,5 +167,5 @@ echo "  Packaged $SKILL_COUNT skills"
 echo ""
 echo "=== Done ==="
 echo ""
-echo "Output in $SKILLS_DIR/:"
-ls -lh "$SKILLS_DIR"/*.zip 2>/dev/null || echo "  (none)"
+echo "Output in $SKILLS_OUT_DIR/:"
+ls -lh "$SKILLS_OUT_DIR"/*.zip 2>/dev/null || echo "  (none)"
