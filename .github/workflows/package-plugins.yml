@@ -31,26 +31,11 @@ jobs:
           name: skill-zips
           path: install/skills/*.zip
 
-      # On every push to main: update the 'preview' pre-release so that
-      # skills.cirra.ai/preview/ always links to the current build.
-      - name: Update preview pre-release
-        if: github.event_name == 'push'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COMMIT_MSG: ${{ github.event.head_commit.message }}
-        run: |
-          git tag -f preview
-          git push origin preview --force
-          gh release delete preview --yes 2>/dev/null || true
-          gh release create preview \
-            --title "Preview build" \
-            --notes "Latest build from \`main\` — ${COMMIT_MSG}" \
-            --prerelease \
-            install/plugins/*.zip install/skills/*.zip
-
-      # On every push to main: create/replace a draft release so there is
-      # always a ready-to-publish draft. Rename the tag and publish it in
-      # the GitHub UI when you're happy with the preview.
+      # On every push to main: create/replace a draft release with the
+      # current build. This serves two purposes:
+      #   1. skills.cirra.ai/preview/ links here so you can verify before releasing
+      #   2. When you're happy, rename the tag (e.g. v1.0.0) and publish —
+      #      that triggers the main site to update.
       - name: Create draft release
         if: github.event_name == 'push'
         env:
@@ -62,7 +47,7 @@ jobs:
           gh release delete next --yes 2>/dev/null || true
           gh release create next \
             --title "Draft release" \
-            --notes "Packaged from \`main\` — ${COMMIT_MSG}\n\nTo publish: rename this tag to the target version (e.g. \`v1.0.0\`) and click Publish." \
+            --notes "Packaged from \`main\` — ${COMMIT_MSG}" \
             --draft \
             install/plugins/*.zip install/skills/*.zip
 
