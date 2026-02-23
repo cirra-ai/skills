@@ -31,11 +31,33 @@ jobs:
           name: skill-zips
           path: install/skills/*.zip
 
+      # On every push to main: create/replace a draft release with the
+      # current build. This serves two purposes:
+      #   1. skills.cirra.ai/preview/ links here so you can verify before releasing
+      #   2. When you're happy, rename the tag (e.g. v1.0.0) and publish —
+      #      that triggers the main site to update.
+      - name: Create draft release
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+        run: |
+          git tag -f next
+          git push origin next --force
+          gh release delete next --yes 2>/dev/null || true
+          gh release create next \
+            --title "Draft release" \
+            --notes "Packaged from \`main\` — ${COMMIT_MSG}" \
+            --draft \
+            install/plugins/*.zip install/skills/*.zip
+
+      # On explicit release creation: attach zips to the named release.
       - name: Attach to release
         if: github.event_name == 'release'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
           for zip in install/plugins/*.zip install/skills/*.zip; do
-            gh release upload "${{ github.event.release.tag_name }}" "$zip" --clobber
+            gh release upload "${RELEASE_TAG}" "$zip" --clobber
           done

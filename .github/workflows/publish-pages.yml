@@ -1,23 +1,32 @@
 name: Publish Downloads Page
 
-# Deploy docs/ to GitHub Pages on every push to main.
+# Deploy docs/ to GitHub Pages.
 #
 # docs/index.template.html is the page template: static content is maintained
 # directly in that file; plugin and skill download cards are injected at build
 # time from plugin.json files and skill README descriptions. The generated
 # docs/index.html is gitignored and only exists after the workflow runs.
 #
-# Triggers when:
-#   - docs/index.template.html (template) or other static assets change
-#   - A plugin.json is added or changed (new/updated plugin)
-#   - A skill README changes (updated description)
-#   - The page generator script changes
+# Two pages are deployed on every run:
+#   /              (docs/index.html)          — links to releases/latest/download/
+#   /preview/      (docs/preview/index.html)  — links to releases/download/next/
+#
+# Triggers:
+#   - After 'Package & Publish' succeeds on main (keeps /preview/ current)
+#   - When a release is published (updates / with the new official release)
+#   - When page content files change on main (template, plugin metadata, READMEs)
 #   - Manually via workflow_dispatch
 #
 # One-time setup (repo owner):
 #   Settings → Pages → Source: GitHub Actions → Save
 
 on:
+  workflow_run:
+    workflows: ["Package & Publish"]
+    types: [completed]
+    branches: [main]
+  release:
+    types: [published]
   push:
     branches: [main]
     paths:
@@ -40,6 +49,8 @@ concurrency:
 
 jobs:
   deploy:
+    # Skip workflow_run triggers where the upstream workflow failed
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -47,8 +58,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Generate downloads page
+      - name: Generate root page (stable release links)
         run: bash scripts/generate-pages.sh
+
+      - name: Generate preview page (preview release links)
+        run: |
+          mkdir -p docs/preview
+          python3 scripts/generate-pages.py . --release-tag=next > docs/preview/index.html
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

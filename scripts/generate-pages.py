@@ -19,6 +19,9 @@ Usage:
 
   # stdout (for debugging or custom pipelines):
   python3 scripts/generate-pages.py [repo_root]
+
+  # Generate with download links pointing to a specific release tag (e.g. "preview"):
+  python3 scripts/generate-pages.py . --release-tag=next
 """
 
 import json
@@ -30,6 +33,16 @@ from pathlib import Path
 _positional = [a for a in sys.argv[1:] if not a.startswith("--")]
 REPO_ROOT = Path(_positional[0]).resolve() if _positional else Path.cwd()
 PREVIEW = "--preview" in sys.argv
+_release_tag_args = [a[len("--release-tag="):] for a in sys.argv if a.startswith("--release-tag=")]
+RELEASE_TAG: str | None = _release_tag_args[0] if _release_tag_args else None
+
+# Base URL for download links. When RELEASE_TAG is set (e.g. "preview"), links point to
+# that specific release; otherwise they resolve to the most recent non-prerelease via /latest/.
+DL_BASE = (
+    f"https://github.com/cirra-ai/skills/releases/download/{RELEASE_TAG}"
+    if RELEASE_TAG
+    else "https://github.com/cirra-ai/skills/releases/latest/download"
+)
 
 SUPPRESS_KEYWORDS = {"cirra-ai", "salesforce", "orchestration"}
 
@@ -136,7 +149,7 @@ def _plugin_card(plugin: dict) -> str:
     name = _esc(plugin["name"])
     desc = _esc(plugin["description"])
     tags = _tags_html(plugin["keywords"], plugin["version"])
-    dl_url = f"https://github.com/cirra-ai/skills/releases/latest/download/{plugin['name']}.zip"
+    dl_url = f"{DL_BASE}/{plugin['name']}.zip"
     cls = "card featured" if plugin["is_featured"] else "card"
     return f"""\
       <div class="{cls}">
@@ -158,10 +171,7 @@ def _skill_card(skill: dict) -> str:
         desc = desc[:197].rstrip() + "\u2026"
     desc = _esc(desc)
     tags = _tags_html(skill["keywords"], extra=["skill-only"])
-    dl_url = (
-        f"https://github.com/cirra-ai/skills/releases/latest/download/"
-        f"{skill['name']}-skill.zip"
-    )
+    dl_url = f"{DL_BASE}/{skill['name']}-skill.zip"
     return f"""\
       <div class="card">
         <div class="card-body">
