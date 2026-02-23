@@ -122,6 +122,11 @@ def _basic_apex_check(body: str, full_name: str) -> dict[str, Any]:
             # The opening { belongs to this loop — count it as loop entry, not extra brace.
             loop_depth += 1 + (open_braces - 1) - close_braces
             pending_loop = False
+        elif pending_loop and ";" in line and open_braces == 0:
+            # Braceless single-statement body (e.g. `for (...)\n    stmt;`).
+            # The statement ends here; clear pending so unrelated later braces
+            # are not mis-tagged as loop bodies.
+            pending_loop = False
         else:
             loop_depth += open_braces - close_braces
         loop_depth = max(0, loop_depth)
@@ -149,6 +154,8 @@ def _basic_apex_check(body: str, full_name: str) -> dict[str, Any]:
         close_braces = line.count("}")
         if pending_loop and open_braces > 0:
             loop_depth += 1 + (open_braces - 1) - close_braces
+            pending_loop = False
+        elif pending_loop and ";" in line and open_braces == 0:
             pending_loop = False
         else:
             loop_depth += open_braces - close_braces
