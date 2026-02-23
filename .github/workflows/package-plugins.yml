@@ -31,6 +31,25 @@ jobs:
           name: skill-zips
           path: install/skills/*.zip
 
+      - name: Publish to rolling latest release
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+        run: |
+          # Re-create the 'latest' tag pointing at HEAD so that
+          # https://github.com/cirra-ai/skills/releases/latest/download/*.zip
+          # always serves the current build.
+          git tag -f latest
+          git push origin latest --force
+          # Recreate the release so the assets are replaced atomically
+          gh release delete latest --yes 2>/dev/null || true
+          gh release create latest \
+            --title "Latest build" \
+            --notes "Auto-published from \`main\` — ${COMMIT_MSG}" \
+            --latest \
+            install/plugins/*.zip install/skills/*.zip
+
       - name: Attach to release
         if: github.event_name == 'release'
         env:
