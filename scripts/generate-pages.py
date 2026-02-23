@@ -31,9 +31,7 @@ _positional = [a for a in sys.argv[1:] if not a.startswith("--")]
 REPO_ROOT = Path(_positional[0]).resolve() if _positional else Path.cwd()
 PREVIEW = "--preview" in sys.argv
 _dl_base_args = [a[len("--dl-base="):] for a in sys.argv if a.startswith("--dl-base=")]
-if not _dl_base_args:
-    raise SystemExit("error: --dl-base=<url> is required (e.g. --dl-base=.)")
-DL_BASE = _dl_base_args[0]
+DL_BASE = _dl_base_args[0] if _dl_base_args else "."
 
 SUPPRESS_KEYWORDS = {"cirra-ai", "salesforce", "orchestration"}
 
