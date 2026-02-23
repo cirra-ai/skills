@@ -113,11 +113,11 @@ class ApexValidator:
             "issues": self.issues,
         }
 
-    def _build_loop_line_map(self) -> list[tuple[bool, int]]:
+    def _build_loop_line_map(self) -> list[tuple[bool, int, bool]]:
         """Build loop context for every line in the file.
 
         Returns a list (one entry per line, 1-based index → result[i-1]) of
-        (in_loop, loop_start_line) tuples.
+        (in_loop, loop_start_line, outer_loop_active) tuples.
 
         Fixes the pending_loop leak that occurs with braceless single-statement
         loop bodies (e.g. ``for (...) doSomething();``): pending_loop is cleared
@@ -128,6 +128,10 @@ class ApexValidator:
         # do is included here too — do { ... } while (...) — the { may be on the
         # next line, so we treat it like for/while rather than matching do\s*{ inline.
         loop_patterns = [r"\bfor\s*\(", r"\bwhile\s*\(", r"\bdo\b"]
+        # do-while closing lines: K&R `} while (cond);` and Allman `while (cond);`
+        # (brace already closed on the previous line). Prevent these from being
+        # treated as new loop starts.
+        DO_WHILE_CLOSE_RE = re.compile(r"\}\s*while\s*\(|\bwhile\s*\(.*\)\s*;", re.IGNORECASE)
         # Stack entries: ('loop', start_line) or ('other', start_line)
         brace_stack: list[tuple[str, int]] = []
         pending_loop = False
@@ -153,7 +157,8 @@ class ApexValidator:
                 line_for_patterns = re.sub(r"'(?:[^'\\]|\\.)*'", "''", line)
                 line_for_patterns = re.sub(r"//.*$", "", line_for_patterns)
                 line_for_patterns = re.sub(r"/\*.*?\*/", "", line_for_patterns)
-                if any(re.search(p, line_for_patterns, re.IGNORECASE) for p in loop_patterns):
+                if (not DO_WHILE_CLOSE_RE.search(line_for_patterns) and
+                        any(re.search(p, line_for_patterns, re.IGNORECASE) for p in loop_patterns)):
                     pending_loop = True
                     loop_header_line = i
                     paren_depth = 0  # reset for this loop header
