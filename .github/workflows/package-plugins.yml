@@ -1,41 +1,96 @@
-name: Package & Publish
+name: Build & Publish
+
+# Every push and every release trigger the same core steps:
+#   - Package plugins and skills
+#   - Copy zips into docs/ alongside the HTML page
+#   - Generate downloads page with relative links (zips served from CF Pages)
+#   - Deploy to Cloudflare Pages
+#   - Post deployment URL as a commit status (visible on PRs)
+#
+# The CF Pages branch determines the URL:
+#   release published → branch 'main'    → skills.cirra.ai        (production)
+#   push to main      → branch 'preview' → preview.skills-cirra-ai.pages.dev
+#   push to <branch>  → branch '<branch>' → <branch>.skills-cirra-ai.pages.dev
+#
+# On release, zips are also attached to the GitHub release for the release record.
 
 on:
   push:
-    branches: [main]
+    branches: ['**']
   release:
-    types: [created]
-  workflow_dispatch:
+    types: [published]
 
 permissions:
   contents: write
+  statuses: write
 
 jobs:
-  package:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
       - name: Package plugins and skills
         run: ./scripts/package-all.sh
 
-      - name: Upload plugin artifacts
-        uses: actions/upload-artifact@v6
-        with:
-          name: plugin-zips
-          path: install/plugins/*.zip
-
-      - name: Upload skill artifacts
-        uses: actions/upload-artifact@v6
-        with:
-          name: skill-zips
-          path: install/skills/*.zip
-
-      - name: Attach to release
+      - name: Attach zips to published release
         if: github.event_name == 'release'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
           for zip in install/plugins/*.zip install/skills/*.zip; do
-            gh release upload "${{ github.event.release.tag_name }}" "$zip" --clobber
+            gh release upload "${RELEASE_TAG}" "$zip" --clobber
           done
+
+      - name: Generate downloads page
+        run: |
+          cp install/plugins/*.zip install/skills/*.zip docs/
+          bash scripts/generate-pages.sh --dl-base=.
+
+      - name: Deploy to Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          BRANCH: ${{ github.ref_name }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          if [[ "$EVENT" == "release" ]]; then
+            CF_BRANCH="main"
+          elif [[ "$BRANCH" == "main" ]]; then
+            CF_BRANCH="preview"
+          else
+            CF_BRANCH="$BRANCH"
+          fi
+          # Run wrangler, streaming output live to the CI log via tee, and saving
+          # to a temp file so we can extract the alias URL afterwards.
+          # GitHub Actions uses pipefail by default, so a wrangler failure still
+          # aborts the step with a non-zero exit even through the pipe.
+          DEPLOY_TMP=$(mktemp)
+          npx wrangler@4 pages deploy docs \
+            --project-name skills-cirra-ai \
+            --branch "${CF_BRANCH}" 2>&1 | tee "$DEPLOY_TMP"
+          # Extract the branch alias URL from wrangler output (stable per-branch URL).
+          # Wrangler prints "Deployment alias URL: https://..." for the branch alias.
+          if [[ "$CF_BRANCH" == "main" ]]; then
+            DEPLOY_URL="https://skills.cirra.ai"
+          else
+            DEPLOY_URL=$(grep "Deployment alias URL:" "$DEPLOY_TMP" | grep -o 'https://[^ ]*' || true)
+            if [[ -z "$DEPLOY_URL" ]]; then
+              echo "::warning::Could not extract deployment alias URL from wrangler output"
+            fi
+          fi
+          rm -f "$DEPLOY_TMP"
+          echo "DEPLOY_URL=${DEPLOY_URL}" >> "$GITHUB_ENV"
+
+      - name: Post deployment URL as commit status
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          GH_SHA: ${{ github.sha }}
+        run: |
+          gh api "repos/${GH_REPO}/statuses/${GH_SHA}" \
+            -f state=success \
+            -f target_url="$DEPLOY_URL" \
+            -f description="Deployed to Cloudflare Pages" \
+            -f context="cloudflare-pages/deployment"

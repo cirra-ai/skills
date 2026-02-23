@@ -18,7 +18,7 @@ Usage:
   python3 scripts/generate-pages.py . --preview
 
   # stdout (for debugging or custom pipelines):
-  python3 scripts/generate-pages.py [repo_root]
+  python3 scripts/generate-pages.py [repo_root] --dl-base=.
 """
 
 import json
@@ -30,6 +30,8 @@ from pathlib import Path
 _positional = [a for a in sys.argv[1:] if not a.startswith("--")]
 REPO_ROOT = Path(_positional[0]).resolve() if _positional else Path.cwd()
 PREVIEW = "--preview" in sys.argv
+_dl_base_args = [a[len("--dl-base="):] for a in sys.argv if a.startswith("--dl-base=")]
+DL_BASE = _dl_base_args[0] if _dl_base_args else "."
 
 SUPPRESS_KEYWORDS = {"cirra-ai", "salesforce", "orchestration"}
 
@@ -136,7 +138,7 @@ def _plugin_card(plugin: dict) -> str:
     name = _esc(plugin["name"])
     desc = _esc(plugin["description"])
     tags = _tags_html(plugin["keywords"], plugin["version"])
-    dl_url = f"https://github.com/cirra-ai/skills/releases/latest/download/{plugin['name']}.zip"
+    dl_url = f"{DL_BASE}/{plugin['name']}.zip"
     cls = "card featured" if plugin["is_featured"] else "card"
     return f"""\
       <div class="{cls}">
@@ -158,10 +160,7 @@ def _skill_card(skill: dict) -> str:
         desc = desc[:197].rstrip() + "\u2026"
     desc = _esc(desc)
     tags = _tags_html(skill["keywords"], extra=["skill-only"])
-    dl_url = (
-        f"https://github.com/cirra-ai/skills/releases/latest/download/"
-        f"{skill['name']}-skill.zip"
-    )
+    dl_url = f"{DL_BASE}/{skill['name']}-skill.zip"
     return f"""\
       <div class="card">
         <div class="card-body">
