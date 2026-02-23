@@ -146,13 +146,13 @@ class ApexValidator:
             outer_loop_active = any(t == "loop" for t, _ in brace_stack)
 
             if not is_comment:
-                # Strip inline comments before checking loop patterns AND before
-                # brace/paren tracking.  Using the raw line for tracking would cause
-                # `}` characters inside comments (e.g. `for (...) { // }`) to pop real
-                # entries from brace_stack and prematurely end loop scope.
-                line_for_patterns = re.sub(r"//.*$", "", line)
+                # Strip string literals first so that // inside strings (e.g.
+                # 'https://api.com') is not mis-treated as a comment marker.
+                # Then strip inline comments so that } inside comments (e.g.
+                # `for (...) { // }`) cannot prematurely pop brace_stack.
+                line_for_patterns = re.sub(r"'(?:[^'\\]|\\.)*'", "''", line)
+                line_for_patterns = re.sub(r"//.*$", "", line_for_patterns)
                 line_for_patterns = re.sub(r"/\*.*?\*/", "", line_for_patterns)
-                line_for_patterns = re.sub(r"'(?:[^'\\]|\\.)*'", "''", line_for_patterns)
                 if any(re.search(p, line_for_patterns, re.IGNORECASE) for p in loop_patterns):
                     pending_loop = True
                     loop_header_line = i
@@ -325,17 +325,8 @@ class ApexValidator:
 
     def _check_null_checks(self):
         """Check for missing null checks before method calls."""
-        # Look for patterns like variable.method() without prior null check
-        # This is a simplified check
-        null_check_pattern = r"(\w+)\s*!=\s*null"
-
-        checked_vars = set()
-        for line in self.lines:
-            matches = re.findall(null_check_pattern, line)
-            checked_vars.update(matches)
-
-        # Check if method calls are on unchecked variables (simplified)
-        # This is advisory only since full analysis requires AST
+        # Full static analysis requires an AST; this is a placeholder for
+        # future implementation.
         pass
 
     def _check_naming_conventions(self):
