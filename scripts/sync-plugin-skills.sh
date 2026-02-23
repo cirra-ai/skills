@@ -8,6 +8,10 @@ set -euo pipefail
 # (which clone the repo directly) can find them. This script keeps those
 # copies in sync.
 #
+# Additionally, shared assets (icons from shared/assets/) are copied into
+# each skill's assets/ directory so they're available in Codex and other
+# platforms that consume standalone skills.
+#
 # Matching convention: skills whose name starts with the plugin name are
 # copied into that plugin. E.g. cirra-ai-sf-apex → plugins/cirra-ai-sf/skills/
 #
@@ -17,6 +21,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+SHARED_ASSETS="$REPO_ROOT/shared/assets"
 CHECK_ONLY=0
 
 for arg in "$@"; do
@@ -25,6 +30,45 @@ for arg in "$@"; do
     *) echo "unknown argument: $arg" >&2; exit 1 ;;
   esac
 done
+
+# ── Copy shared assets into each skill ────────────────────────────────────────
+# Icons etc. from shared/assets/ are copied into skills/<name>/assets/ so each
+# skill is self-contained for Codex and standalone distribution.
+
+ASSETS_SYNCED=0
+ASSETS_STALE=0
+
+if [[ -d "$SHARED_ASSETS" ]]; then
+  for skill_dir in "$REPO_ROOT"/skills/*/; do
+    [[ -d "$skill_dir" ]] || continue
+    skill_assets="$skill_dir/assets"
+    mkdir -p "$skill_assets"
+
+    for asset in "$SHARED_ASSETS"/*; do
+      [[ -f "$asset" ]] || continue
+      asset_name="$(basename "$asset")"
+      dest="$skill_assets/$asset_name"
+
+      if [[ -f "$dest" ]] && cmp -s "$asset" "$dest"; then
+        continue
+      fi
+
+      if [[ $CHECK_ONLY -eq 1 ]]; then
+        echo "  STALE ASSET: skills/$(basename "$skill_dir")/assets/$asset_name"
+        ASSETS_STALE=$((ASSETS_STALE + 1))
+      else
+        cp "$asset" "$dest"
+        ASSETS_SYNCED=$((ASSETS_SYNCED + 1))
+      fi
+    done
+  done
+fi
+
+if [[ $CHECK_ONLY -eq 0 ]] && [[ $ASSETS_SYNCED -gt 0 ]]; then
+  echo "  Copied $ASSETS_SYNCED shared asset(s) into skills"
+fi
+
+# ── Sync skills into plugins ─────────────────────────────────────────────────
 
 SYNCED=0
 STALE=0
@@ -63,16 +107,17 @@ for plugin_json in "$REPO_ROOT"/plugins/*/.claude-plugin/plugin.json; do
 done
 
 if [[ $CHECK_ONLY -eq 1 ]]; then
-  if [[ $STALE -gt 0 ]]; then
+  total_stale=$((ASSETS_STALE + STALE))
+  if [[ $total_stale -gt 0 ]]; then
     echo ""
-    echo "$STALE skill(s) out of sync. Run 'scripts/sync-plugin-skills.sh' to fix."
+    echo "$total_stale item(s) out of sync. Run 'scripts/sync-plugin-skills.sh' to fix."
     exit 1
   else
-    echo "All plugin skills are in sync."
+    echo "All plugin skills and shared assets are in sync."
   fi
 else
   if [[ $SYNCED -gt 0 ]]; then
-    echo "Synced $SYNCED skill(s)."
+    echo "  Synced $SYNCED skill(s) into plugin(s)."
   else
     echo "All plugin skills already in sync."
   fi
