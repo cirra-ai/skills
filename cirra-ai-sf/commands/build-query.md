@@ -1,9 +1,9 @@
 ---
 name: build-query
-description: Build and execute an optimized SOQL query. Accepts natural language, a SOQL string, or an object name. Discovers fields, optimizes the query, and displays results.
+description: Build a performance-optimized SOQL query with selectivity analysis and query tuning. Use /query for quick query execution without optimization guidance.
 ---
 
-Build and run an optimized SOQL query via the Cirra AI MCP Server.
+Build an optimized SOQL query via the Cirra AI MCP Server, with an explicit optimization pass for indexed field selection, limit sizing, wildcard patterns, and relationship consolidation. Use `/query` if you just need to run a query quickly without optimization guidance.
 
 ## Parsing the request
 
