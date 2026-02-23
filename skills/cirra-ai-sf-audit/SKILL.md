@@ -19,7 +19,6 @@ Do not invent your own criteria.
 
 Call `cirra_ai_init()` first if not already done this session.
 
-<!-- AUTO-GENERATED FROM shared/audit-phases.md — DO NOT EDIT BELOW THIS LINE -->
 ## Phase 1 — Count components
 
 Query how many components exist so the user knows the scope:

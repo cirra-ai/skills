@@ -12,7 +12,7 @@
     {
       "name": "cirra-ai-sf",
       "description": "Salesforce admin suite",
-      "source": "./cirra-ai-sf",
+      "source": "./plugins/cirra-ai-sf",
       "version": "1.0.2",
       "author": {
         "name": "Cirra AI",

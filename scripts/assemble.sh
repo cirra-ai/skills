@@ -3,17 +3,16 @@ set -euo pipefail
 
 # Assemble markdown files by inlining shared content.
 #
-# Finds all .md files under plugin directories that contain an auto-generated
-# marker comment, then replaces everything below the marker with the contents
-# of the referenced shared file.
+# Finds all .md files under plugin and skill directories that contain an
+# auto-generated marker comment, then replaces everything below the marker
+# with the contents of the referenced shared file.
 #
 # Marker format (HTML comment, invisible to markdown renderers):
 #   <!-- AUTO-GENERATED FROM shared/audit-phases.md — DO NOT EDIT BELOW THIS LINE -->
 #
 # The path after "AUTO-GENERATED FROM" is resolved relative to the plugin
-# directory containing the target file. For example, if the marker is in
-# cirra-ai-sf/commands/audit-org.md and references shared/audit-phases.md,
-# the shared file is read from cirra-ai-sf/shared/audit-phases.md.
+# directory containing the target file. For files under skills/, the path is
+# resolved relative to the skill directory itself.
 #
 # Usage:
 #   scripts/assemble.sh           # assemble all files
@@ -34,8 +33,11 @@ MARKER_PATTERN='<!-- AUTO-GENERATED FROM '
 UPDATED=0
 STALE=0
 
-# Search all .md files in plugin directories (one level deep from repo root)
-for md_file in $(grep -rl "$MARKER_PATTERN" "$REPO_ROOT"/*/commands/*.md "$REPO_ROOT"/*/skills/*/SKILL.md 2>/dev/null); do
+# Search .md files in plugin commands and in skill directories
+for md_file in $(grep -rl "$MARKER_PATTERN" \
+    "$REPO_ROOT"/plugins/*/commands/*.md \
+    "$REPO_ROOT"/skills/*/SKILL.md \
+    2>/dev/null); do
   [[ -f "$md_file" ]] || continue
 
   # Extract the shared file path from the marker line
@@ -48,16 +50,18 @@ for md_file in $(grep -rl "$MARKER_PATTERN" "$REPO_ROOT"/*/commands/*.md "$REPO_
     continue
   fi
 
-  # Find the plugin directory (parent of commands/ or grandparent of skills/name/)
+  # Determine the base directory for resolving the shared path.
+  # Plugin commands: plugins/cirra-ai-sf/commands/foo.md → base is plugins/cirra-ai-sf
+  # Skills: skills/cirra-ai-sf-audit/SKILL.md → base is skills/cirra-ai-sf-audit
   md_dir="$(dirname "$md_file")"
   if [[ "$(basename "$md_dir")" == "commands" ]]; then
-    plugin_dir="$(dirname "$md_dir")"
+    base_dir="$(dirname "$md_dir")"
   else
-    # skills/cirra-ai-sf-audit/SKILL.md → plugin_dir is two levels up
-    plugin_dir="$(dirname "$(dirname "$md_dir")")"
+    # SKILL.md sits directly in the skill directory
+    base_dir="$md_dir"
   fi
 
-  shared_file="$plugin_dir/$shared_rel"
+  shared_file="$base_dir/$shared_rel"
 
   if [[ ! -f "$shared_file" ]]; then
     echo "  ERROR: Shared file not found: $shared_file (referenced from $md_file)" >&2

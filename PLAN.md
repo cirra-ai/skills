@@ -122,7 +122,7 @@ Add a call to `scripts/assemble.sh` before the packaging loop, so SKILL.md files
 Add the new audit skill to the skills table:
 
 ```markdown
-| [cirra-ai-sf-audit](cirra-ai-sf/skills/cirra-ai-sf-audit/README.md) | Full org audit across Apex, Flows, and LWC with scored reports |
+| [cirra-ai-sf-audit](skills/cirra-ai-sf-audit/README.md) | Full org audit across Apex, Flows, and LWC with scored reports |
 ```
 
 ## Summary of Changes
@@ -130,10 +130,10 @@ Add the new audit skill to the skills table:
 | File | Action | Purpose |
 |------|--------|---------|
 | `cirra-ai-sf/shared/audit-phases.md` | **Create** | Single source of truth for audit workflow |
-| `cirra-ai-sf/skills/cirra-ai-sf-audit/SKILL.md` | **Create** | Audit skill for Codex (assembled from shared content) |
-| `cirra-ai-sf/skills/cirra-ai-sf-audit/README.md` | **Create** | Skill documentation |
-| `cirra-ai-sf/skills/cirra-ai-sf-audit/CREDITS.md` | **Create** | Attribution |
-| `cirra-ai-sf/skills/cirra-ai-sf-audit/agents/openai.yaml` | **Create** | Codex agent UI config |
+| `skills/cirra-ai-sf-audit/SKILL.md` | **Create** | Audit skill for Codex (assembled from shared content) |
+| `skills/cirra-ai-sf-audit/README.md` | **Create** | Skill documentation |
+| `skills/cirra-ai-sf-audit/CREDITS.md` | **Create** | Attribution |
+| `skills/cirra-ai-sf-audit/agents/openai.yaml` | **Create** | Codex agent UI config |
 | `cirra-ai-sf/commands/audit-org.md` | **Modify** | Refactor to use shared content with auto-generated marker |
 | `scripts/assemble.sh` | **Create** | Build script to inline shared content |
 | `scripts/package-skills.sh` | **Modify** | Call assemble.sh before packaging |

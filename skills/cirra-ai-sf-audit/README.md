@@ -11,7 +11,7 @@ Run a full Salesforce org audit across Apex, Flows, and LWC. Scores all componen
 
 ## Installation
 
-For full installation instructions (Claude Cowork, OpenAI Codex, browser), see the [root README](../../../../README.md).
+For full installation instructions (Claude Cowork, OpenAI Codex, browser), see the [root README](../../README.md).
 
 ## Quick Start
 
