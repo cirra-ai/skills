@@ -31,11 +31,48 @@ jobs:
           name: skill-zips
           path: install/skills/*.zip
 
+      # On every push to main: update the 'preview' pre-release so that
+      # skills.cirra.ai/preview/ always links to the current build.
+      - name: Update preview pre-release
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+        run: |
+          git tag -f preview
+          git push origin preview --force
+          gh release delete preview --yes 2>/dev/null || true
+          gh release create preview \
+            --title "Preview build" \
+            --notes "Latest build from \`main\` — ${COMMIT_MSG}" \
+            --prerelease \
+            install/plugins/*.zip install/skills/*.zip
+
+      # On every push to main: create/replace a draft release so there is
+      # always a ready-to-publish draft. Rename the tag and publish it in
+      # the GitHub UI when you're happy with the preview.
+      - name: Create draft release
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+        run: |
+          git tag -f next
+          git push origin next --force
+          gh release delete next --yes 2>/dev/null || true
+          gh release create next \
+            --title "Draft release" \
+            --notes "Packaged from \`main\` — ${COMMIT_MSG}\n\nTo publish: rename this tag to the target version (e.g. \`v1.0.0\`) and click Publish." \
+            --draft \
+            install/plugins/*.zip install/skills/*.zip
+
+      # On explicit release creation: attach zips to the named release.
       - name: Attach to release
         if: github.event_name == 'release'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
           for zip in install/plugins/*.zip install/skills/*.zip; do
-            gh release upload "${{ github.event.release.tag_name }}" "$zip" --clobber
+            gh release upload "${RELEASE_TAG}" "$zip" --clobber
           done
