@@ -5,6 +5,7 @@ name: Build & Publish
 #   - Copy zips into docs/ alongside the HTML page
 #   - Generate downloads page with relative links (zips served from CF Pages)
 #   - Deploy to Cloudflare Pages
+#   - Post deployment URL as a commit status (visible on PRs)
 #
 # The CF Pages branch determines the URL:
 #   release published → branch 'main'    → skills.cirra.ai        (production)
@@ -21,6 +22,7 @@ on:
 
 permissions:
   contents: write
+  statuses: write
 
 jobs:
   build:
@@ -63,3 +65,25 @@ jobs:
           npx wrangler@4 pages deploy docs \
             --project-name skills-cirra-ai \
             --branch "${CF_BRANCH}"
+          echo "CF_BRANCH=${CF_BRANCH}" >> "$GITHUB_ENV"
+
+      - name: Post deployment URL as commit status
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          GH_SHA: ${{ github.sha }}
+        run: |
+          # CF Pages sanitizes branch names: non-alphanumeric → hyphens, collapse
+          # runs, strip leading/trailing hyphens, lowercase
+          SANITIZED=$(echo "$CF_BRANCH" | tr '[:upper:]' '[:lower:]' \
+            | sed 's/[^a-z0-9-]/-/g' | sed 's/-\{2,\}/-/g' | sed 's/^-\|-$//g')
+          if [[ "$CF_BRANCH" == "main" ]]; then
+            URL="https://skills.cirra.ai"
+          else
+            URL="https://${SANITIZED}.skills-cirra-ai.pages.dev"
+          fi
+          gh api "repos/${GH_REPO}/statuses/${GH_SHA}" \
+            -f state=success \
+            -f target_url="$URL" \
+            -f description="Deployed to Cloudflare Pages" \
+            -f context="cloudflare-pages/deployment"
