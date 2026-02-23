@@ -85,8 +85,11 @@ for plugin_json in "$REPO_ROOT"/plugins/*/.claude-plugin/plugin.json; do
     skill_name="$(basename "$skill_dir")"
     dest="$skills_dest/$skill_name"
 
-    # Compare using diff (ignoring .DS_Store etc.)
-    if [[ -d "$dest" ]] && diff -rq --exclude='.DS_Store' "$skill_dir" "$dest" >/dev/null 2>&1; then
+    # Plugin copies are Claude-only: exclude shared icons (Codex-only) and
+    # agents/ (OpenAI-only) when comparing and copying.
+    EXCLUDE_ARGS=(--exclude='.DS_Store' --exclude='icon-large.png' --exclude='icon-small.png' --exclude='agents')
+
+    if [[ -d "$dest" ]] && diff -rq "${EXCLUDE_ARGS[@]}" "$skill_dir" "$dest" >/dev/null 2>&1; then
       continue
     fi
 
@@ -99,7 +102,7 @@ for plugin_json in "$REPO_ROOT"/plugins/*/.claude-plugin/plugin.json; do
       STALE=$((STALE + 1))
     else
       rm -rf "$dest"
-      cp -R "$skill_dir" "$dest"
+      rsync -a --exclude='.DS_Store' --exclude='icon-large.png' --exclude='icon-small.png' --exclude='agents' "$skill_dir/" "$dest/"
       echo "  Synced: $plugin_name/skills/$skill_name"
       SYNCED=$((SYNCED + 1))
     fi
