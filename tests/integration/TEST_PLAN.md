@@ -5,16 +5,25 @@
 This test plan exercises **all 4 skills** and **all 13 commands** in the `cirra-ai-sf`
 plugin end-to-end against a live Salesforce org via the Cirra AI MCP Server.
 
-The plan is divided into four phases that must run in order:
+The plan is divided into phases that must run in order:
 
-| Phase        | Script                     | Purpose                                                                  |
-| ------------ | -------------------------- | ------------------------------------------------------------------------ |
-| 1 — Setup    | `01_setup_org.md`          | Populate org with metadata, Apex, Flows, LWC, and test data              |
-| 2 — Validate | `02_validate_artifacts.md` | Run every `/validate-*` command and `/query-data` to confirm correctness |
-| 3 — Update   | `03_update_artifacts.md`   | Modify every artifact type and re-validate                               |
-| 4 — Audit    | `04_audit_and_report.md`   | Run `/audit-org`, generate reports, check completeness                   |
+| Phase          | Script                     | Purpose                                                                  |
+| -------------- | -------------------------- | ------------------------------------------------------------------------ |
+| 0 — Smoke      | `00_smoke_test.md`         | 2-minute gate: verify MCP, data path, and metadata path are functional   |
+| 1a — Data      | `01a_setup_data.md`        | Insert all test data records (runs even if metadata path failed)         |
+| 1b — Metadata  | `01b_setup_metadata.md`    | Create Apex, Flows, and LWC (gated on Phase 0 TC-003 passing)            |
+| 2 — Validate   | `02_validate_artifacts.md` | Run every `/validate-*` command and `/query-data` to confirm correctness |
+| 3 — Update     | `03_update_artifacts.md`   | Modify every artifact type and re-validate                               |
+| 4 — Audit      | `04_audit_and_report.md`   | Run `/audit-org`, generate reports, check completeness                   |
 
 A cleanup script (`99_cleanup.md`) tears down all test artifacts.
+
+> **Smoke test gate:** If TC-003 (metadata path) fails, skip Phase 1b entirely and
+> mark all metadata tests in Phases 2, 3, and 4 as BLOCKED. Data tests (1a, 2 data
+> section, 3 data section) can still proceed.
+
+See `BUG_INVESTIGATION_GUIDE.md` when a test produces an unexpected failure.
+Use `REPORT_TEMPLATE.md` to record results.
 
 ---
 
