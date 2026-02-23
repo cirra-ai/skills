@@ -19,8 +19,10 @@ _PLUGIN_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Map metadata types to their validator script (relative to _PLUGIN_ROOT).
 # Add new entries here as sub-skills gain their own pre-deploy validators.
 _DELEGATES: dict[str, str] = {
-    "ApexClass":   "skills/cirra-ai-sf-apex/scripts/pre-mcp-validate.py",
-    "ApexTrigger": "skills/cirra-ai-sf-apex/scripts/pre-mcp-validate.py",
+    "ApexClass":      "skills/cirra-ai-sf-apex/scripts/pre-mcp-validate.py",
+    "ApexTrigger":    "skills/cirra-ai-sf-apex/scripts/pre-mcp-validate.py",
+    "Flow":           "skills/cirra-ai-sf-flow/scripts/pre-mcp-validate.py",
+    "FlowDefinition": "skills/cirra-ai-sf-flow/scripts/pre-mcp-validate.py",
 }
 
 
