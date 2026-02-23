@@ -76,6 +76,9 @@ jobs:
             DEPLOY_URL="https://skills.cirra.ai"
           else
             DEPLOY_URL=$(grep "Deployment alias URL:" "$DEPLOY_TMP" | grep -o 'https://[^ ]*')
+            if [[ -z "$DEPLOY_URL" ]]; then
+              echo "::warning::Could not extract deployment alias URL from wrangler output"
+            fi
           fi
           rm -f "$DEPLOY_TMP"
           echo "DEPLOY_URL=${DEPLOY_URL}" >> "$GITHUB_ENV"
