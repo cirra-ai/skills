@@ -62,10 +62,19 @@ jobs:
           else
             CF_BRANCH="$BRANCH"
           fi
-          npx wrangler@4 pages deploy docs \
+          # Capture wrangler output to extract the actual alias URL CF Pages assigned
+          DEPLOY_OUT=$(npx wrangler@4 pages deploy docs \
             --project-name skills-cirra-ai \
-            --branch "${CF_BRANCH}"
-          echo "CF_BRANCH=${CF_BRANCH}" >> "$GITHUB_ENV"
+            --branch "${CF_BRANCH}" 2>&1)
+          echo "$DEPLOY_OUT"
+          # Extract the branch alias URL from wrangler output (stable per-branch URL).
+          # Wrangler prints "Deployment alias URL: https://..." for the branch alias.
+          if [[ "$CF_BRANCH" == "main" ]]; then
+            DEPLOY_URL="https://skills.cirra.ai"
+          else
+            DEPLOY_URL=$(echo "$DEPLOY_OUT" | grep "Deployment alias URL:" | grep -o 'https://[^ ]*')
+          fi
+          echo "DEPLOY_URL=${DEPLOY_URL}" >> "$GITHUB_ENV"
 
       - name: Post deployment URL as commit status
         env:
@@ -73,17 +82,8 @@ jobs:
           GH_REPO: ${{ github.repository }}
           GH_SHA: ${{ github.sha }}
         run: |
-          # CF Pages sanitizes branch names: non-alphanumeric → hyphens, collapse
-          # runs, strip leading/trailing hyphens, lowercase
-          SANITIZED=$(echo "$CF_BRANCH" | tr '[:upper:]' '[:lower:]' \
-            | sed 's/[^a-z0-9-]/-/g' | sed 's/-\{2,\}/-/g' | sed 's/^-\|-$//g')
-          if [[ "$CF_BRANCH" == "main" ]]; then
-            URL="https://skills.cirra.ai"
-          else
-            URL="https://${SANITIZED}.skills-cirra-ai.pages.dev"
-          fi
           gh api "repos/${GH_REPO}/statuses/${GH_SHA}" \
             -f state=success \
-            -f target_url="$URL" \
+            -f target_url="$DEPLOY_URL" \
             -f description="Deployed to Cloudflare Pages" \
             -f context="cloudflare-pages/deployment"
