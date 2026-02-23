@@ -34,11 +34,11 @@ sobject_describe(sObject="Task")
 sobject_describe(sObject="Event")
 ```
 
-| Check                      | Expected                                                             | Result |
-| -------------------------- | -------------------------------------------------------------------- | ------ |
-| All 7 objects described    | Metadata returned for each                                           |        |
+| Check                      | Expected                                                            | Result |
+| -------------------------- | ------------------------------------------------------------------- | ------ |
+| All 7 objects described    | Metadata returned for each                                          |        |
 | Required fields identified | Name (Account), LastName (Contact), StageName+CloseDate (Opp), etc. |        |
-| Field types confirmed      | Industry=Picklist, AnnualRevenue=Currency, etc.                      |        |
+| Field types confirmed      | Industry=Picklist, AnnualRevenue=Currency, etc.                     |        |
 
 ---
 
@@ -48,7 +48,7 @@ sobject_describe(sObject="Event")
 
 **Prompt**: Insert 10 Account records with varied Industries (Technology,
 Healthcare, Finance, Manufacturing, Retail), AnnualRevenue ($500K–$10M),
-and BillingCity. Use naming pattern CirraTest_Account_001 through _010.
+and BillingCity. Use naming pattern CirraTest_Account_001 through \_010.
 
 ```
 sobject_dml(
@@ -161,7 +161,7 @@ durations.
 
 **Command**: `/insert-data`
 
-**Prompt**: Insert 251 Account records named CirraTest_Bulk_001 through _251
+**Prompt**: Insert 251 Account records named CirraTest_Bulk_001 through \_251
 with varied Industries to test the 200-record batch boundary. Use a single
 sobject_dml call.
 
@@ -179,7 +179,7 @@ sobject_dml call.
 **Command**: `/insert-data`
 
 **Prompt**: Create a 3-level hierarchy: 5 parent Accounts (named CirraTest_Hierarchy_001
-through _005), each with 3 Contacts, 2 Opportunities, and 1 Case. Use the hierarchy
+through \_005), each with 3 Contacts, 2 Opportunities, and 1 Case. Use the hierarchy
 factory pattern.
 
 | Check                            | Expected                             | Result |

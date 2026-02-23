@@ -264,7 +264,7 @@ Expected artifact: `CirraTest_Stale_Opp_Cleanup`
 **Command**: `/create-flow`
 
 **Prompt**: Create a platform event-triggered flow that listens for
-Order_Event__e. When received, create an Account note Task with the event
+Order_Event\_\_e. When received, create an Account note Task with the event
 payload data. Include decision logic to handle different event types. Include
 error logging via a subflow.
 
@@ -303,7 +303,7 @@ Expected artifacts: `cirraTestAccountDashboard.html/js/css/js-meta.xml`
 | Inline edit with save handler                   | Yes        |        |
 | SLDS 2 CSS (styling hooks, no hardcoded colors) | Yes        |        |
 | ARIA labels on datatable                        | Yes        |        |
-| meta.xml target: lightning__AppPage             | Yes        |        |
+| meta.xml target: lightning\_\_AppPage           | Yes        |        |
 | Validation score                                | >= 100/165 |        |
 
 ---
@@ -328,7 +328,7 @@ Expected artifacts: `cirraTestAccountForm.html/js/css/js-meta.xml`
 | NavigationMixin for redirect             | Yes               |        |
 | Error state handling                     | Yes               |        |
 | SLDS 2 CSS                               | Yes               |        |
-| meta.xml target: lightning__RecordPage   | Yes               |        |
+| meta.xml target: lightning\_\_RecordPage | Yes               |        |
 | Validation score                         | >= 100/165        |        |
 
 ---
@@ -351,7 +351,7 @@ Expected artifacts: `cirraTestRecordSelector.html/js/css/js-meta.xml`
 | @api property for selectedRecordId       | Yes        |        |
 | FlowAttributeChangeEvent dispatched      | Yes        |        |
 | FlowNavigationNextEvent or finish        | Yes        |        |
-| meta.xml target: lightning__FlowScreen   | Yes        |        |
+| meta.xml target: lightning\_\_FlowScreen | Yes        |        |
 | Validation score                         | >= 100/165 |        |
 
 ---
@@ -400,18 +400,18 @@ Expected artifacts: `cirraTestContactList.html/js/css/js-meta.xml`
 | Error state                                           | Yes        |        |
 | Empty state                                           | Yes        |        |
 | Displays Account.Name (relationship)                  | Yes        |        |
-| meta.xml target: lightning__RecordPage                | Yes        |        |
+| meta.xml target: lightning\_\_RecordPage              | Yes        |        |
 | Validation score                                      | >= 100/165 |        |
 
 ---
 
 ## Phase 1b Summary
 
-| Category       | Artifacts                                                                                                             | Count | Status |
-| -------------- | --------------------------------------------------------------------------------------------------------------------- | ----- | ------ |
-| Apex Classes   | AccountService, AccountSelector, AccountRevenueBatch, ContactTaskCreator, AccountWinChecker (+ test classes)          | 10    |        |
-| Apex Triggers  | CirraTest_AccountTrigger + TA_CirraTest_Account_SetDefaults                                                           | 2     |        |
-| Flows          | Account_Before_Save, Opp_After_Save_Task, Case_Intake_Screen, VIP_Contact_Tasks, Stale_Opp_Cleanup, Order_Event_Handler | 6   |        |
-| LWC Components | cirraTestAccountDashboard, cirraTestAccountForm, cirraTestRecordSelector, cirraTestConfirmModal, cirraTestContactList  | 5     |        |
+| Category       | Artifacts                                                                                                               | Count | Status |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------- | ----- | ------ |
+| Apex Classes   | AccountService, AccountSelector, AccountRevenueBatch, ContactTaskCreator, AccountWinChecker (+ test classes)            | 10    |        |
+| Apex Triggers  | CirraTest_AccountTrigger + TA_CirraTest_Account_SetDefaults                                                             | 2     |        |
+| Flows          | Account_Before_Save, Opp_After_Save_Task, Case_Intake_Screen, VIP_Contact_Tasks, Stale_Opp_Cleanup, Order_Event_Handler | 6     |        |
+| LWC Components | cirraTestAccountDashboard, cirraTestAccountForm, cirraTestRecordSelector, cirraTestConfirmModal, cirraTestContactList   | 5     |        |
 
 **Proceed to Phase 2** (validate all artifacts).
