@@ -26,6 +26,14 @@ done
 rm -rf "$PLUGINS_OUT_DIR"
 mkdir -p "$PLUGINS_OUT_DIR"
 
+# ── Assemble shared content into target files ─────────────────────────────────
+# Run before any packaging so both plugin and skill zips get assembled content.
+
+echo "=== Assembling Shared Content ==="
+echo ""
+"$SCRIPT_DIR/assemble.sh"
+echo ""
+
 # Directories to exclude from zips
 EXCLUDE_PATTERNS=(
   "*.DS_Store"

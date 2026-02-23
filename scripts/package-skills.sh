@@ -26,7 +26,7 @@ for arg in "$@"; do
   esac
 done
 
-# ── Assemble shared content into target files ─────────────────────────────────
+# ── Assemble shared content (idempotent — also called by package-all.sh) ──────
 
 echo "=== Assembling Shared Content ==="
 echo ""
