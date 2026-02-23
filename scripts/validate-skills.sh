@@ -103,7 +103,15 @@ else
   skill_dirs=("${all_skill_dirs[@]}")
 fi
 
-[[ ${#skill_dirs[@]} -eq 0 ]] && exit 0
+# In --staged mode, zero matching dirs is fine (no skill files were staged).
+# In full-validation mode, zero skills means something is misconfigured.
+if [[ ${#skill_dirs[@]} -eq 0 ]]; then
+  if [[ $STAGED_ONLY -eq 1 ]]; then
+    exit 0
+  fi
+  echo "error: no skills found under $REPO_ROOT/skills — expected at least one SKILL.md" >&2
+  exit 1
+fi
 
 # ── Custom checks ─────────────────────────────────────────────────────────────
 
