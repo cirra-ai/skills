@@ -3,10 +3,11 @@ set -euo pipefail
 
 # Package all Cirra AI plugins and skills for distribution.
 #
-# Plugin zips are built directly from plugins/<name>/, which contains symlinks
-# in skills/ pointing to the top-level skills/ source directories.
-# zip dereferences symlinks by default, so each zip contains the full skill content.
-# Skill zips are packaged individually from skills/.
+# Skills live at the repo root (skills/) and are copied into each plugin
+# (plugins/<name>/skills/) so marketplace installs work. This script syncs
+# them before zipping to ensure the zips are up to date.
+#
+# Skill zips are also packaged individually from skills/.
 #
 # Usage:
 #   scripts/package-all.sh          # warn on skill issues, fail on errors
@@ -33,6 +34,15 @@ mkdir -p "$PLUGINS_OUT_DIR"
 echo "=== Assembling Shared Content ==="
 echo ""
 "$SCRIPT_DIR/assemble.sh"
+echo ""
+
+# ── Sync skills into plugins ─────────────────────────────────────────────────
+# Ensures the committed copies in plugins/<name>/skills/ match the source of
+# truth in skills/.
+
+echo "=== Syncing Plugin Skills ==="
+echo ""
+"$SCRIPT_DIR/sync-plugin-skills.sh"
 echo ""
 
 # Directories to exclude from zips
@@ -76,9 +86,6 @@ for plugin_json in "$REPO_ROOT"/plugins/*/.claude-plugin/plugin.json; do
 
   echo "  Packaging $plugin_name..."
 
-  # Zip the plugin directory directly. Skills are symlinks in plugins/<name>/skills/
-  # that point to the top-level skills/ directories. zip dereferences symlinks by
-  # default, so the archive contains the full skill content (not symlinks).
   (cd "$REPO_ROOT/plugins" && zip -r -q "$PLUGINS_OUT_DIR/$plugin_name.zip" "$plugin_name" $EXCLUDE_ARGS)
 done
 
