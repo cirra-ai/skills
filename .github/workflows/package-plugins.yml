@@ -37,7 +37,7 @@ jobs:
       #   2. When you're happy, rename the tag (e.g. v1.0.0) and publish —
       #      that triggers the main site to update.
       - name: Create draft release
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COMMIT_MSG: ${{ github.event.head_commit.message }}
