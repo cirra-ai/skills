@@ -8,7 +8,11 @@ REPO_ROOT="$(git rev-parse --show-toplevel)"
 # Edits should be made there instead.
 
 staged_plugin_skills=$(git diff --cached --name-only -- 'plugins/*/skills/' || true)
-if [[ -n "$staged_plugin_skills" ]]; then
+staged_source_skills=$(git diff --cached --name-only -- 'skills/' || true)
+
+# Allow plugin skill changes when the source skills/ dir is also staged (sync workflow).
+# Block when only the plugin copies are changed (direct edit).
+if [[ -n "$staged_plugin_skills" ]] && [[ -z "$staged_source_skills" ]]; then
   echo "ERROR: Direct changes to plugin skill copies are not allowed."
   echo ""
   echo "The following files should be edited under skills/ instead:"

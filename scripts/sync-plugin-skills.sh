@@ -42,7 +42,6 @@ if [[ -d "$SHARED_ASSETS" ]]; then
   for skill_dir in "$REPO_ROOT"/skills/*/; do
     [[ -d "$skill_dir" ]] || continue
     skill_assets="$skill_dir/assets"
-    mkdir -p "$skill_assets"
 
     for asset in "$SHARED_ASSETS"/*; do
       [[ -f "$asset" ]] || continue
@@ -57,6 +56,7 @@ if [[ -d "$SHARED_ASSETS" ]]; then
         echo "  STALE ASSET: skills/$(basename "$skill_dir")/assets/$asset_name"
         ASSETS_STALE=$((ASSETS_STALE + 1))
       else
+        mkdir -p "$skill_assets"
         cp "$asset" "$dest"
         ASSETS_SYNCED=$((ASSETS_SYNCED + 1))
       fi
