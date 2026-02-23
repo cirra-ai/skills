@@ -9,7 +9,7 @@ name: Publish Downloads Page
 #
 # Two pages are deployed on every run:
 #   /              (docs/index.html)          — links to releases/latest/download/
-#   /preview/      (docs/preview/index.html)  — links to releases/download/next/
+#   /preview/      (docs/preview/index.html)  — links to releases/download/preview/
 #
 # Triggers:
 #   - After 'Package & Publish' succeeds on main (keeps /preview/ current)
@@ -64,7 +64,7 @@ jobs:
       - name: Generate preview page (preview release links)
         run: |
           mkdir -p docs/preview
-          python3 scripts/generate-pages.py . --release-tag=next > docs/preview/index.html
+          python3 scripts/generate-pages.py . --release-tag=preview > docs/preview/index.html
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

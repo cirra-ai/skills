@@ -31,11 +31,27 @@ jobs:
           name: skill-zips
           path: install/skills/*.zip
 
-      # On every push to main: create/replace a draft release with the
-      # current build. This serves two purposes:
-      #   1. skills.cirra.ai/preview/ links here so you can verify before releasing
-      #   2. When you're happy, rename the tag (e.g. v1.0.0) and publish —
-      #      that triggers the main site to update.
+      # On every push to main: update the 'preview' pre-release.
+      # Pre-releases have publicly accessible download URLs, which is required
+      # for skills.cirra.ai/preview/ download links to work. Draft release
+      # assets are not publicly accessible, so a pre-release is needed here.
+      - name: Update preview pre-release
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+        run: |
+          git tag -f preview
+          git push origin preview --force
+          gh release delete preview --yes 2>/dev/null || true
+          gh release create preview \
+            --title "Preview build" \
+            --notes "Latest build from \`main\` — ${COMMIT_MSG}" \
+            --prerelease \
+            install/plugins/*.zip install/skills/*.zip
+
+      # On every push to main: create/replace a draft release ready to be
+      # renamed and published as the official release.
       - name: Create draft release
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         env:
