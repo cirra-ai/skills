@@ -3,12 +3,11 @@ set -euo pipefail
 
 # Package all Cirra AI plugins and skills for distribution.
 #
-# Each plugin's plugin.json references skills via "./skills". At packaging time,
-# this script copies the matching top-level skills/ directories into each plugin
-# so the zip is fully self-contained. The copied skills are gitignored and
-# cleaned up after packaging.
+# Skills live at the repo root (skills/) and are copied into each plugin
+# (plugins/<name>/skills/) so marketplace installs work. This script syncs
+# them before zipping to ensure the zips are up to date.
 #
-# Skill zips are packaged individually from skills/.
+# Skill zips are also packaged individually from skills/.
 #
 # Usage:
 #   scripts/package-all.sh          # warn on skill issues, fail on errors
@@ -35,6 +34,15 @@ mkdir -p "$PLUGINS_OUT_DIR"
 echo "=== Assembling Shared Content ==="
 echo ""
 "$SCRIPT_DIR/assemble.sh"
+echo ""
+
+# ── Sync skills into plugins ─────────────────────────────────────────────────
+# Ensures the committed copies in plugins/<name>/skills/ match the source of
+# truth in skills/.
+
+echo "=== Syncing Plugin Skills ==="
+echo ""
+"$SCRIPT_DIR/sync-plugin-skills.sh"
 echo ""
 
 # Directories to exclude from zips
@@ -78,27 +86,7 @@ for plugin_json in "$REPO_ROOT"/plugins/*/.claude-plugin/plugin.json; do
 
   echo "  Packaging $plugin_name..."
 
-  # ── Copy matching skills into plugin ──────────────────────────────────────
-  # Skills whose name starts with the plugin name (e.g. cirra-ai-sf-apex for
-  # plugin cirra-ai-sf) are copied into plugins/<name>/skills/ so the zip is
-  # fully self-contained.
-  skills_dest="$plugin_dir/skills"
-  rm -rf "$skills_dest"
-  mkdir -p "$skills_dest"
-
-  skill_count=0
-  for skill_dir in "$REPO_ROOT"/skills/"${plugin_name}"-*; do
-    [[ -d "$skill_dir" ]] || continue
-    cp -R "$skill_dir" "$skills_dest/"
-    skill_count=$((skill_count + 1))
-  done
-  echo "    Copied $skill_count skills into plugin"
-
-  # ── Zip the plugin ────────────────────────────────────────────────────────
   (cd "$REPO_ROOT/plugins" && zip -r -q "$PLUGINS_OUT_DIR/$plugin_name.zip" "$plugin_name" $EXCLUDE_ARGS)
-
-  # ── Clean up copied skills ────────────────────────────────────────────────
-  rm -rf "$skills_dest"
 done
 
 echo ""

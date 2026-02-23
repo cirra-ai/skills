@@ -12,8 +12,6 @@ dist/
 working-docs/
 internal-docs/
 
-# Skills copied into plugins at packaging time (see scripts/package-all.sh)
-plugins/*/skills/
 
 # Generated downloads page and preview (built by generate-pages.sh / CI)
 docs/index.html
