@@ -4,14 +4,16 @@ name: Build & Publish
 #   - Packages plugins and skills
 #   - Attaches zips to the published release
 #   - Deploys downloads page to skills.cirra.ai (production)
+#     with links pointing to releases/latest/download/
 #
 # On push to main:
-#   - Deploys downloads page to preview.skills-cirra-ai.pages.dev
+#   - Packages plugins and skills
+#   - Deploys downloads page + zips to preview.skills-cirra-ai.pages.dev
+#     (zips are served directly from CF Pages, no GitHub release needed)
 #
 # On push to any other branch:
-#   - Deploys downloads page to <branch>.skills-cirra-ai.pages.dev
-#
-# All pages link to releases/latest/download/ (the last published release).
+#   - Packages plugins and skills
+#   - Deploys downloads page + zips to <branch>.skills-cirra-ai.pages.dev
 
 on:
   push:
@@ -28,26 +30,41 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # ── Package and attach zips (release only) ───────────────────────────────
+      # ── Package ──────────────────────────────────────────────────────────────
 
-      - name: Package and attach to release
+      - name: Package plugins and skills
+        run: ./scripts/package-all.sh
+
+      # ── Attach zips to published release ────────────────────────────────────
+
+      - name: Attach zips to published release
         if: github.event_name == 'release'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
-          ./scripts/package-all.sh
           for zip in install/plugins/*.zip install/skills/*.zip; do
             gh release upload "${RELEASE_TAG}" "$zip" --clobber
           done
 
       # ── Deploy to Cloudflare Pages ───────────────────────────────────────────
-      # release published → CF Pages branch 'main'    → skills.cirra.ai (production)
-      # push to main      → CF Pages branch 'preview' → preview.skills-cirra-ai.pages.dev
+      # release published → CF Pages branch 'main'     → skills.cirra.ai (production)
+      #                     download links: releases/latest/download/
+      # push to main      → CF Pages branch 'preview'  → preview.skills-cirra-ai.pages.dev
+      #                     download links: zips bundled in the CF Pages deployment
       # push to <branch>  → CF Pages branch '<branch>' → <branch>.skills-cirra-ai.pages.dev
+      #                     download links: zips bundled in the CF Pages deployment
 
       - name: Generate downloads page
-        run: bash scripts/generate-pages.sh
+        env:
+          EVENT: ${{ github.event_name }}
+        run: |
+          if [[ "$EVENT" == "release" ]]; then
+            bash scripts/generate-pages.sh
+          else
+            cp install/plugins/*.zip install/skills/*.zip docs/
+            bash scripts/generate-pages.sh --dl-base=.
+          fi
 
       - name: Deploy to Cloudflare Pages
         env:
