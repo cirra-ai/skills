@@ -101,11 +101,13 @@ def _basic_loop_map(body: str) -> list[bool]:
     - C-style for headers: for (int i = 0; i < 10; i++) — semicolons
       inside parens (paren_depth > 0) never trigger braceless-body logic
     - Braceless single-statement bodies: for (...)\n    stmt;
+    - do-while with brace on same or next line: `do {` or `do\n{`
+      `\bdo\b` is safe here because string literals are stripped first
     - do-while closing lines: } while (condition); — the closing }
       is counted normally; "while" on this line does NOT start a new loop
     - Non-loop braces (if/try/switch) are NOT counted as loop depth
     """
-    LOOP_RE = re.compile(r"\b(?:for|while)\s*\(|\bdo\s*\{", re.IGNORECASE)
+    LOOP_RE = re.compile(r"\b(?:for|while)\s*\(|\bdo\b", re.IGNORECASE)
     DO_WHILE_CLOSE_RE = re.compile(r"\}\s*while\s*\(", re.IGNORECASE)
 
     # Stack of booleans: True = this brace scope was opened by a loop keyword
