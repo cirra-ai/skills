@@ -18,10 +18,7 @@ Usage:
   python3 scripts/generate-pages.py . --preview
 
   # stdout (for debugging or custom pipelines):
-  python3 scripts/generate-pages.py [repo_root]
-
-  # Generate with download links pointing to a specific release tag (e.g. "preview"):
-  python3 scripts/generate-pages.py . --release-tag=next
+  python3 scripts/generate-pages.py [repo_root] --dl-base=.
 """
 
 import json
@@ -33,16 +30,8 @@ from pathlib import Path
 _positional = [a for a in sys.argv[1:] if not a.startswith("--")]
 REPO_ROOT = Path(_positional[0]).resolve() if _positional else Path.cwd()
 PREVIEW = "--preview" in sys.argv
-_release_tag_args = [a[len("--release-tag="):] for a in sys.argv if a.startswith("--release-tag=")]
-RELEASE_TAG: str | None = _release_tag_args[0] if _release_tag_args else None
-
-# Base URL for download links. When RELEASE_TAG is set (e.g. "preview"), links point to
-# that specific release; otherwise they resolve to the most recent non-prerelease via /latest/.
-DL_BASE = (
-    f"https://github.com/cirra-ai/skills/releases/download/{RELEASE_TAG}"
-    if RELEASE_TAG
-    else "https://github.com/cirra-ai/skills/releases/latest/download"
-)
+_dl_base_args = [a[len("--dl-base="):] for a in sys.argv if a.startswith("--dl-base=")]
+DL_BASE = _dl_base_args[0] if _dl_base_args else "."
 
 SUPPRESS_KEYWORDS = {"cirra-ai", "salesforce", "orchestration"}
 
