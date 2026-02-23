@@ -58,6 +58,7 @@ At dev time, the source files use a simple marker:
 The `package-skills.sh` script (and a new sibling for commands) resolves these markers at build time, inlining the shared content into the final SKILL.md and audit-org.md. For local development/testing, a pre-commit hook or a `scripts/assemble.sh` script can also resolve them.
 
 **Claude commands note**: Claude loads commands from the raw `.md` files at runtime — it doesn't go through the packaging pipeline. So `audit-org.md` needs to work as-is. Two options:
+
 - **Option 1**: `audit-org.md` is a generated file (checked into git, rebuilt by `scripts/assemble.sh`). The source of truth is `commands/audit-org.md.template`.
 - **Option 2**: `audit-org.md` stays as a plain file and the shared content is inlined into it by the assemble script, with a comment marker like `<!-- AUTO-GENERATED FROM shared/audit-phases.md — DO NOT EDIT BELOW THIS LINE -->`.
 
@@ -70,6 +71,7 @@ The `package-skills.sh` script (and a new sibling for commands) resolves these m
 Extract phases 1–6, the routing table, and the build-order section from the current `audit-org.md` into this file. This is pure audit workflow — no platform-specific framing, no frontmatter.
 
 Contents (~90 lines):
+
 - Phase 1: Count components (tooling API queries)
 - Phase 2: Collect and score Apex (150-point rubric from cirra-ai-sf-apex)
 - Phase 3: Collect and score Flows (110-point rubric from cirra-ai-sf-flow)
@@ -81,12 +83,12 @@ Contents (~90 lines):
 
 ### 2. Create `skills/cirra-ai-sf-audit/`
 
-| File | Contents |
-|------|----------|
-| `SKILL.md` | Frontmatter (name, description targeting "audit" triggers) + skill intro + shared phases (inlined at build time or checked in) |
-| `README.md` | Brief description of the audit skill |
-| `CREDITS.md` | Attribution (Cirra AI) |
-| `agents/openai.yaml` | Codex agent UI config (display_name, icon, default_prompt) |
+| File                 | Contents                                                                                                                       |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `SKILL.md`           | Frontmatter (name, description targeting "audit" triggers) + skill intro + shared phases (inlined at build time or checked in) |
+| `README.md`          | Brief description of the audit skill                                                                                           |
+| `CREDITS.md`         | Attribution (Cirra AI)                                                                                                         |
+| `agents/openai.yaml` | Codex agent UI config (display_name, icon, default_prompt)                                                                     |
 
 The `SKILL.md` description should trigger on prompts like: "audit my salesforce org", "review my org", "score my org", "org health check", "audit apex flows and lwc".
 
@@ -96,6 +98,7 @@ Replace the body (everything after the Prerequisites section) with:
 
 ```markdown
 <!-- AUTO-GENERATED FROM shared/audit-phases.md — DO NOT EDIT BELOW THIS LINE -->
+
 {contents of shared/audit-phases.md}
 ```
 
@@ -104,11 +107,13 @@ The file remains a valid markdown command that Claude loads directly.
 ### 4. Create `scripts/assemble.sh`
 
 A simple script that:
+
 1. Finds all `.md` files containing `{{include:...}}` markers OR `<!-- AUTO-GENERATED FROM ... -->` markers
 2. Resolves includes by inlining the referenced file content
 3. Writes the result back
 
 This runs:
+
 - Manually after editing `shared/audit-phases.md`
 - In CI (the `validate-skills.sh` step can check that assembled files are up to date)
 - Before packaging (`package-skills.sh` calls it)
@@ -127,26 +132,26 @@ Add the new audit skill to the skills table:
 
 ## Summary of Changes
 
-| File | Action | Purpose |
-|------|--------|---------|
-| `cirra-ai-sf/shared/audit-phases.md` | **Create** | Single source of truth for audit workflow |
-| `skills/cirra-ai-sf-audit/SKILL.md` | **Create** | Audit skill for Codex (assembled from shared content) |
-| `skills/cirra-ai-sf-audit/README.md` | **Create** | Skill documentation |
-| `skills/cirra-ai-sf-audit/CREDITS.md` | **Create** | Attribution |
-| `skills/cirra-ai-sf-audit/agents/openai.yaml` | **Create** | Codex agent UI config |
-| `cirra-ai-sf/commands/audit-org.md` | **Modify** | Refactor to use shared content with auto-generated marker |
-| `scripts/assemble.sh` | **Create** | Build script to inline shared content |
-| `scripts/package-skills.sh` | **Modify** | Call assemble.sh before packaging |
-| `README.md` | **Modify** | Add audit skill to skills table |
+| File                                          | Action     | Purpose                                                   |
+| --------------------------------------------- | ---------- | --------------------------------------------------------- |
+| `cirra-ai-sf/shared/audit-phases.md`          | **Create** | Single source of truth for audit workflow                 |
+| `skills/cirra-ai-sf-audit/SKILL.md`           | **Create** | Audit skill for Codex (assembled from shared content)     |
+| `skills/cirra-ai-sf-audit/README.md`          | **Create** | Skill documentation                                       |
+| `skills/cirra-ai-sf-audit/CREDITS.md`         | **Create** | Attribution                                               |
+| `skills/cirra-ai-sf-audit/agents/openai.yaml` | **Create** | Codex agent UI config                                     |
+| `cirra-ai-sf/commands/audit-org.md`           | **Modify** | Refactor to use shared content with auto-generated marker |
+| `scripts/assemble.sh`                         | **Create** | Build script to inline shared content                     |
+| `scripts/package-skills.sh`                   | **Modify** | Call assemble.sh before packaging                         |
+| `README.md`                                   | **Modify** | Add audit skill to skills table                           |
 
 ## Risks & Mitigations
 
-| Risk | Mitigation |
-|------|-----------|
-| Shared content gets edited but assemble isn't run | CI check validates assembled files match source |
-| Claude command breaks if marker format changes | Marker is a plain HTML comment — invisible to Claude's markdown parser |
-| New skill doesn't trigger in Codex | Write a rich description with multiple trigger phrases; test with Codex |
-| Packaging misses the new skill | Auto-discovered by existing `*/skills/*/SKILL.md` glob — no config needed |
+| Risk                                              | Mitigation                                                                |
+| ------------------------------------------------- | ------------------------------------------------------------------------- |
+| Shared content gets edited but assemble isn't run | CI check validates assembled files match source                           |
+| Claude command breaks if marker format changes    | Marker is a plain HTML comment — invisible to Claude's markdown parser    |
+| New skill doesn't trigger in Codex                | Write a rich description with multiple trigger phrases; test with Codex   |
+| Packaging misses the new skill                    | Auto-discovered by existing `*/skills/*/SKILL.md` glob — no config needed |
 
 ## Non-Goals
 

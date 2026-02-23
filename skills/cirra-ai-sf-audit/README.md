@@ -32,12 +32,12 @@ Request: "Audit my Salesforce org"
 
 ## Cross-Skill Integration
 
-| Related Skill    | When to Use                                   |
-| ---------------- | --------------------------------------------- |
-| cirra-ai-sf-apex | Fix or review Apex classes found in the audit  |
-| cirra-ai-sf-flow | Fix or review Flows found in the audit         |
+| Related Skill    | When to Use                                     |
+| ---------------- | ----------------------------------------------- |
+| cirra-ai-sf-apex | Fix or review Apex classes found in the audit   |
+| cirra-ai-sf-flow | Fix or review Flows found in the audit          |
 | cirra-ai-sf-lwc  | Fix or review LWC components found in the audit |
-| cirra-ai-sf-data | Query or update data after fixing issues       |
+| cirra-ai-sf-data | Query or update data after fixing issues        |
 
 ## Requirements
 
