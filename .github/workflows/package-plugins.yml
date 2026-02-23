@@ -57,7 +57,7 @@ jobs:
         if: (github.ref_name == 'main' || github.event_name == 'workflow_dispatch') && github.event_name != 'release'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COMMIT_MSG: ${{ github.event.head_commit.message }}
+          COMMIT_MSG: ${{ github.event.head_commit.message || 'manual trigger' }}
         run: |
           git tag -f preview
           git push origin preview --force
@@ -72,7 +72,7 @@ jobs:
         if: (github.ref_name == 'main' || github.event_name == 'workflow_dispatch') && github.event_name != 'release'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COMMIT_MSG: ${{ github.event.head_commit.message }}
+          COMMIT_MSG: ${{ github.event.head_commit.message || 'manual trigger' }}
         run: |
           git tag -f next
           git push origin next --force
@@ -96,11 +96,12 @@ jobs:
             gh release upload "${RELEASE_TAG}" "$zip" --clobber
           done
 
-      # ── Deploy to Cloudflare Pages (every push) ─────────────────────────────
+      # ── Deploy to Cloudflare Pages (push events only) ───────────────────────
       # main branch → production (skills.cirra.ai)
       # any other branch → preview URL (*.skills-cirra-ai.pages.dev)
 
       - name: Generate downloads page
+        if: github.event_name != 'release'
         env:
           BRANCH: ${{ github.ref_name }}
         run: |
@@ -111,6 +112,7 @@ jobs:
           fi
 
       - name: Deploy to Cloudflare Pages
+        if: github.event_name != 'release'
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
