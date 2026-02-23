@@ -111,7 +111,12 @@ def _basic_loop_map(body: str) -> list[bool]:
     LOOP_RE = re.compile(r"\b(?:for|while)\s*\(|\bdo\b", re.IGNORECASE)
     # Matches both K&R `} while (cond);` and Allman `while (cond);` (brace already
     # closed on the previous line). Both are do-while closings, not new loop starts.
-    DO_WHILE_CLOSE_RE = re.compile(r"\}\s*while\s*\(|\bwhile\s*\(.*\)\s*;", re.IGNORECASE)
+    # The Allman alternative uses a balanced-paren group anchored to end-of-line so
+    # it won't match a real while loop with an inline body (e.g. `while (x) stmt;`).
+    DO_WHILE_CLOSE_RE = re.compile(
+        r"\}\s*while\s*\(|\bwhile\s*\((?:[^()]*|\([^()]*\))*\)\s*;\s*$",
+        re.IGNORECASE | re.MULTILINE,
+    )
 
     # Stack of booleans: True = this brace scope was opened by a loop keyword
     brace_stack: list[bool] = []
