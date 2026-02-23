@@ -1,9 +1,9 @@
 ---
 name: query
-description: Execute a SOQL query against a Salesforce org. Accepts a natural language description, a SOQL string, or an object name to query. Guides through field discovery and displays paginated results.
+description: Execute a SOQL query against a Salesforce org. Accepts a natural language description, a SOQL string, or an object name to query. Use /build-query for query optimization and selectivity analysis.
 ---
 
-Run a SOQL query via the Cirra AI MCP Server and display the results.
+Run a SOQL query via the Cirra AI MCP Server and display the results. For performance-sensitive queries with selectivity analysis and optimization guidance, use `/build-query` instead.
 
 ## Parsing the request
 

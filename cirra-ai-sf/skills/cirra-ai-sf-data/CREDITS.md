@@ -2,9 +2,9 @@
 
 ## Modifications by Cirra AI (2026)
 
-This plugin was adapted from the [sf-data](https://github.com/Jaganpro/sf-skills/tree/main/sf-data) plugin published by Jag Valaiyapathy
+This plugin was adapted from the [sf-data](https://github.com/Jaganpro/sf-skills/tree/main/sf-data) and [sf-soql](https://github.com/Jaganpro/sf-skills/tree/main/skills/sf-soql) plugins published by Jag Valaiyapathy.
 
-It was modified from its original source primarily to work with the Cirra AI MCP Server in Claude Cowork.
+The two skills were merged under cirra-ai-sf-data and modified to work with the Cirra AI MCP Server in Claude Cowork.
 
 See below for original credits and attribution.
 

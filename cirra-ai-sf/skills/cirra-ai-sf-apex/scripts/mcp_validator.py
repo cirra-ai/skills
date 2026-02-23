@@ -93,6 +93,64 @@ def _run_apex_validator(file_path: str) -> dict[str, Any] | None:
         return None
 
 
+def _basic_loop_map(body: str) -> list[bool]:
+    """Return a per-line in-loop boolean list for _basic_apex_check.
+
+    Uses paren-depth-aware character scanning — the same approach as
+    validate_apex.py's _build_loop_line_map — so it correctly handles:
+    - C-style for headers: for (int i = 0; i < 10; i++) — semicolons
+      inside parens (paren_depth > 0) never trigger braceless-body logic
+    - Braceless single-statement bodies: for (...)\n    stmt;
+    - do-while with brace on same or next line: `do {` or `do\n{`
+      `\bdo\b` is safe here because string literals are stripped first
+    - do-while closing lines: } while (condition); — the closing }
+      is counted normally; "while" on this line does NOT start a new loop
+    - Non-loop braces (if/try/switch) are NOT counted as loop depth
+    """
+    LOOP_RE = re.compile(r"\b(?:for|while)\s*\(|\bdo\b", re.IGNORECASE)
+    DO_WHILE_CLOSE_RE = re.compile(r"\}\s*while\s*\(", re.IGNORECASE)
+
+    # Stack of booleans: True = this brace scope was opened by a loop keyword
+    brace_stack: list[bool] = []
+    pending_loop = False
+    paren_depth = 0
+    result: list[bool] = []
+
+    for line in body.split("\n"):
+        # Strip string literals and inline comments to avoid false matches
+        clean = re.sub(r"'(?:[^'\\]|\\.)*'", "''", line)
+        clean = re.sub(r"//.*$", "", clean)
+        clean = re.sub(r"/\*.*?\*/", "", clean)
+
+        # Detect loop keywords; skip the "while" in "} while (...)" which
+        # is the closing condition of a do-while, not a new loop start.
+        if not DO_WHILE_CLOSE_RE.search(clean) and LOOP_RE.search(clean):
+            pending_loop = True
+            paren_depth = 0  # reset paren tracking for this loop header
+
+        braceless_body = False
+        for ch in clean:
+            if ch == "(":
+                paren_depth += 1
+            elif ch == ")":
+                paren_depth = max(0, paren_depth - 1)
+            elif ch == "{":
+                brace_stack.append(bool(pending_loop))
+                pending_loop = False
+            elif ch == "}":
+                if brace_stack:
+                    brace_stack.pop()
+            elif ch == ";" and paren_depth == 0 and pending_loop:
+                # Semicolon at paren-depth 0 while waiting for loop body:
+                # this is a braceless single-statement body.
+                braceless_body = True
+                pending_loop = False
+
+        result.append(any(brace_stack) or braceless_body)
+
+    return result
+
+
 def _basic_apex_check(body: str, full_name: str) -> dict[str, Any]:
     """Fallback: basic structural checks if ApexValidator is not importable."""
     issues: list[dict[str, Any]] = []
@@ -109,14 +167,12 @@ def _basic_apex_check(body: str, full_name: str) -> dict[str, Any]:
             })
             score -= 5
 
+    # Build in-loop map once; shared by both SOQL and DML checks
+    in_loop = _basic_loop_map(body)
+
     # Check SOQL in loops
-    loop_depth = 0
     for i, line in enumerate(body.split("\n"), 1):
-        if re.search(r"\bfor\s*\(|\bwhile\s*\(|\bdo\s*\{", line, re.IGNORECASE):
-            loop_depth += 1
-        loop_depth += line.count("{") - line.count("}")
-        loop_depth = max(0, loop_depth)
-        if loop_depth > 0 and re.search(r"\[\s*SELECT\s+", line, re.IGNORECASE):
+        if in_loop[i - 1] and re.search(r"\[\s*SELECT\s+", line, re.IGNORECASE):
             issues.append({
                 "severity": "CRITICAL",
                 "category": "bulkification",
@@ -126,17 +182,12 @@ def _basic_apex_check(body: str, full_name: str) -> dict[str, Any]:
             score -= 10
 
     # Check DML in loops
-    loop_depth = 0
     dml_patterns = [
         r"\binsert\s+", r"\bupdate\s+", r"\bdelete\s+",
         r"\bupsert\s+", r"Database\.(insert|update|delete|upsert)",
     ]
     for i, line in enumerate(body.split("\n"), 1):
-        if re.search(r"\bfor\s*\(|\bwhile\s*\(|\bdo\s*\{", line, re.IGNORECASE):
-            loop_depth += 1
-        loop_depth += line.count("{") - line.count("}")
-        loop_depth = max(0, loop_depth)
-        if loop_depth > 0:
+        if in_loop[i - 1]:
             for dp in dml_patterns:
                 if re.search(dp, line, re.IGNORECASE):
                     issues.append({
