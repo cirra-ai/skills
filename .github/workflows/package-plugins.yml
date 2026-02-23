@@ -62,18 +62,22 @@ jobs:
           else
             CF_BRANCH="$BRANCH"
           fi
-          # Capture wrangler output to extract the actual alias URL CF Pages assigned
-          DEPLOY_OUT=$(npx wrangler@4 pages deploy docs \
+          # Run wrangler, streaming output live to the CI log via tee, and saving
+          # to a temp file so we can extract the alias URL afterwards.
+          # GitHub Actions uses pipefail by default, so a wrangler failure still
+          # aborts the step with a non-zero exit even through the pipe.
+          DEPLOY_TMP=$(mktemp)
+          npx wrangler@4 pages deploy docs \
             --project-name skills-cirra-ai \
-            --branch "${CF_BRANCH}" 2>&1)
-          echo "$DEPLOY_OUT"
+            --branch "${CF_BRANCH}" 2>&1 | tee "$DEPLOY_TMP"
           # Extract the branch alias URL from wrangler output (stable per-branch URL).
           # Wrangler prints "Deployment alias URL: https://..." for the branch alias.
           if [[ "$CF_BRANCH" == "main" ]]; then
             DEPLOY_URL="https://skills.cirra.ai"
           else
-            DEPLOY_URL=$(echo "$DEPLOY_OUT" | grep "Deployment alias URL:" | grep -o 'https://[^ ]*')
+            DEPLOY_URL=$(grep "Deployment alias URL:" "$DEPLOY_TMP" | grep -o 'https://[^ ]*')
           fi
+          rm -f "$DEPLOY_TMP"
           echo "DEPLOY_URL=${DEPLOY_URL}" >> "$GITHUB_ENV"
 
       - name: Post deployment URL as commit status
