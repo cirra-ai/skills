@@ -26,6 +26,13 @@ for arg in "$@"; do
   esac
 done
 
+# ── Assemble shared content into target files ─────────────────────────────────
+
+echo "=== Assembling Shared Content ==="
+echo ""
+"$SCRIPT_DIR/assemble.sh"
+echo ""
+
 # ── Validate all skills first ─────────────────────────────────────────────────
 
 echo "=== Validating Skills ==="

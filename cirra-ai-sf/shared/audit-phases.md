@@ -1,19 +1,3 @@
----
-name: audit-org
-description: Run a full Salesforce org audit across Apex, Flows, and LWC. Scores all components against quality rubrics and generates Word, Excel, and HTML reports.
----
-
-Run a complete Salesforce org audit. Follow these phases in order.
-
-**Scoring**: Use the rubrics from the `cirra-ai-sf-apex`, `cirra-ai-sf-flow`, and
-`cirra-ai-sf-lwc` skills, which are loaded in your context as part of this plugin.
-Do not invent your own criteria.
-
-## Prerequisites
-
-Call `cirra_ai_init()` first if not already done this session.
-
-<!-- AUTO-GENERATED FROM shared/audit-phases.md — DO NOT EDIT BELOW THIS LINE -->
 ## Phase 1 — Count components
 
 Query how many components exist so the user knows the scope:

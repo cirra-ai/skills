@@ -1,12 +1,18 @@
 ---
-name: audit-org
-description: Run a full Salesforce org audit across Apex, Flows, and LWC. Scores all components against quality rubrics and generates Word, Excel, and HTML reports.
+name: cirra-ai-sf-audit
+description: >
+  Run a full Salesforce org audit across Apex, Flows, and LWC. Scores all
+  components against quality rubrics and generates Word, Excel, and HTML reports.
+  Use when asked to audit a Salesforce org, review org health, score org quality,
+  run an org health check, or audit apex flows and lwc.
 ---
+
+# cirra-ai-sf-audit: Salesforce Org Audit
 
 Run a complete Salesforce org audit. Follow these phases in order.
 
 **Scoring**: Use the rubrics from the `cirra-ai-sf-apex`, `cirra-ai-sf-flow`, and
-`cirra-ai-sf-lwc` skills, which are loaded in your context as part of this plugin.
+`cirra-ai-sf-lwc` skills, which should be loaded in your context alongside this skill.
 Do not invent your own criteria.
 
 ## Prerequisites
