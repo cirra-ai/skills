@@ -21,7 +21,7 @@ Usage:
   python3 scripts/generate-pages.py [repo_root]
 
   # Generate with download links pointing to a specific release tag (e.g. "preview"):
-  python3 scripts/generate-pages.py . --release-tag=preview
+  python3 scripts/generate-pages.py . --release-tag=next
 """
 
 import json

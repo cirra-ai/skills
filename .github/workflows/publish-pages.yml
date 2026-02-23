@@ -9,7 +9,7 @@ name: Publish Downloads Page
 #
 # Two pages are deployed on every run:
 #   /              (docs/index.html)          — links to releases/latest/download/
-#   /preview/      (docs/preview/index.html)  — links to releases/download/preview/
+#   /preview/      (docs/preview/index.html)  — links to releases/download/next/
 #
 # Triggers:
 #   - After 'Package & Publish' succeeds on main (keeps /preview/ current)
