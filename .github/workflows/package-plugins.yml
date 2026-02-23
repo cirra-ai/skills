@@ -1,43 +1,75 @@
-name: Package & Publish
+name: Build & Publish
+
+# Single workflow that handles packaging, releases, and page deployment.
+#
+# On every push (any branch):
+#   - Generates the downloads page and deploys to Cloudflare Pages
+#   - main branch  → production (skills.cirra.ai), links to releases/latest/download/
+#   - other branch → preview URL (*.skills-cirra-ai.pages.dev), links to releases/download/preview/
+#
+# On push to main only (also workflow_dispatch):
+#   - Packages plugins and skills
+#   - Updates the 'preview' pre-release with current zips (so preview page links work)
+#   - Creates/replaces the 'next' draft release (rename tag + publish to do an official release)
+#
+# On release published:
+#   - Packages and attaches zips to the published release
 
 on:
   push:
-    branches: [main]
+    branches: ['**']
   release:
-    types: [created]
+    types: [published]
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  package:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
+
+      # ── Package (main + manual only) ────────────────────────────────────────
 
       - name: Package plugins and skills
+        if: (github.ref_name == 'main' || github.event_name == 'workflow_dispatch') && github.event_name != 'release'
         run: ./scripts/package-all.sh
 
       - name: Upload plugin artifacts
-        uses: actions/upload-artifact@v6
+        if: (github.ref_name == 'main' || github.event_name == 'workflow_dispatch') && github.event_name != 'release'
+        uses: actions/upload-artifact@v4
         with:
           name: plugin-zips
           path: install/plugins/*.zip
 
       - name: Upload skill artifacts
-        uses: actions/upload-artifact@v6
+        if: (github.ref_name == 'main' || github.event_name == 'workflow_dispatch') && github.event_name != 'release'
+        uses: actions/upload-artifact@v4
         with:
           name: skill-zips
           path: install/skills/*.zip
 
-      # On every push to main: create/replace a draft release with the
-      # current build. This serves two purposes:
-      #   1. skills.cirra.ai/preview/ links here so you can verify before releasing
-      #   2. When you're happy, rename the tag (e.g. v1.0.0) and publish —
-      #      that triggers the main site to update.
+      # ── Releases (main + manual only) ──────────────────────────────────────
+
+      - name: Update preview pre-release
+        if: (github.ref_name == 'main' || github.event_name == 'workflow_dispatch') && github.event_name != 'release'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+        run: |
+          git tag -f preview
+          git push origin preview --force
+          gh release delete preview --yes 2>/dev/null || true
+          gh release create preview \
+            --title "Preview build" \
+            --notes "Latest build from \`main\` — ${COMMIT_MSG}" \
+            --prerelease \
+            install/plugins/*.zip install/skills/*.zip
+
       - name: Create draft release
-        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        if: (github.ref_name == 'main' || github.event_name == 'workflow_dispatch') && github.event_name != 'release'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COMMIT_MSG: ${{ github.event.head_commit.message }}
@@ -51,13 +83,38 @@ jobs:
             --draft \
             install/plugins/*.zip install/skills/*.zip
 
-      # On explicit release creation: attach zips to the named release.
-      - name: Attach to release
+      # ── Attach zips to a published release ─────────────────────────────────
+
+      - name: Attach zips to published release
         if: github.event_name == 'release'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
+          ./scripts/package-all.sh
           for zip in install/plugins/*.zip install/skills/*.zip; do
             gh release upload "${RELEASE_TAG}" "$zip" --clobber
           done
+
+      # ── Deploy to Cloudflare Pages (every push) ─────────────────────────────
+      # main branch → production (skills.cirra.ai)
+      # any other branch → preview URL (*.skills-cirra-ai.pages.dev)
+
+      - name: Generate downloads page
+        env:
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          if [[ "$BRANCH" == "main" ]]; then
+            bash scripts/generate-pages.sh
+          else
+            bash scripts/generate-pages.sh --release-tag=preview
+          fi
+
+      - name: Deploy to Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          npx wrangler@4 pages deploy docs \
+            --project-name skills-cirra-ai \
+            --branch "${BRANCH}"
