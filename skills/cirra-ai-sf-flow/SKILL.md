@@ -184,12 +184,17 @@ Generate the complete Flow XML with:
 # Initialize connection (ONCE per session)
 cirra_ai_init(sf_user="your-username")
 
-# Create/deploy Flow XML
+# Create/deploy Flow as structured metadata (NOT raw XML — unlike ApexClass,
+# Flow metadata_create does not accept XML in a "content" field)
 metadata_create(
     type="Flow",
     metadata=[{
         "fullName": "Auto_Lead_Assignment",
-        "content": "[generated-flow-xml]"
+        "apiVersion": "65.0",
+        "label": "Auto Lead Assignment",
+        "processType": "AutoLaunchedFlow",
+        "status": "Draft",
+        # ... remaining Flow structure as JSON properties ...
     }],
     sf_user="your-username"
 )
@@ -272,7 +277,11 @@ metadata_create(
     type="Flow",
     metadata=[{
         "fullName": "Auto_Lead_Assignment",
-        "content": "[flow-xml-content]"
+        "apiVersion": "65.0",
+        "label": "Auto Lead Assignment",
+        "processType": "AutoLaunchedFlow",
+        "status": "Draft",
+        # ... Flow structure as JSON (NOT raw XML) ...
     }],
     sf_user="your-salesforce-username"
 )
@@ -494,16 +503,20 @@ Note: do **not** include `FullName` or `Metadata` in multi-record queries — on
 ### Create a new flow
 
 ```
-metadata_create(type="Flow", metadata=[{"fullName": "Flow_Name", "content": "[flow-xml]"}])
+metadata_create(type="Flow", metadata=[{"fullName": "Flow_Name", "apiVersion": "65.0", "label": "Flow Name", "processType": "AutoLaunchedFlow", "status": "Draft", ...}])
 ```
 
-### Update a flow (creates a new version)
+### Update a flow
 
-1. Retrieve current metadata: `metadata_read(type="Flow", fullNames=["Flow_Name"])`
-2. Apply changes to the metadata object
-3. Deploy: `metadata_update(type="Flow", metadata=[{...}], upsert=True)`
+> **Version behavior**: A new version is only created when the **latest version is Active**. If the latest version is already a **Draft**, the update **replaces it in-place** with no version history preserved. Always check the latest version status first with `tooling_api_query` on FlowDefinition.
+
+1. Check current status: `tooling_api_query(sObject="FlowDefinition", fields=["DeveloperName","LatestVersion.Status","LatestVersion.VersionNumber"], whereClause="DeveloperName='Flow_Name'")`
+2. Retrieve current metadata: `metadata_read(type="Flow", fullNames=["Flow_Name"])`
+3. Apply changes to the metadata object
+4. Deploy: `metadata_update(type="Flow", metadata=[{...}], upsert=True)`
    - **Do NOT change the `fullName`** — version numbers are managed automatically
    - In production: deploy as `status: Draft` and ask user to activate manually if you get an error
+   - If latest version is Draft, warn the user that the update will overwrite the existing Draft
 
 ### Activate / deactivate a flow version
 
@@ -559,12 +572,16 @@ metadata_list(
 ### Example 3: Deploy Generated Flow
 
 ```python
-# After generating Auto_Lead_Assignment.flow-meta.xml
+# Deploy flow as structured metadata (NOT raw XML in "content")
 metadata_create(
     type="Flow",
     metadata=[{
         "fullName": "Auto_Lead_Assignment",
-        "content": "<Flow ...>[full XML here]</Flow>"
+        "apiVersion": "65.0",
+        "label": "Auto Lead Assignment",
+        "processType": "AutoLaunchedFlow",
+        "status": "Draft",
+        # ... remaining Flow properties as JSON ...
     }],
     sf_user="prod-username"
 )

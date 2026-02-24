@@ -44,12 +44,12 @@ import xml.etree.ElementTree as ET
 import sys
 import os
 
-# Import validators from shared location
+# Import validators from local scripts directory (co-located for isolation).
+# These were previously imported from plugins/cirra-ai-sf/shared/hooks/scripts/
+# which only exists when all skills are installed together in the plugin bundle.
+# Keeping local copies ensures the flow skill works in isolation.
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PLUGIN_ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR))  # cirra-ai-sf-flow/
-SKILLS_ROOT = os.path.dirname(PLUGIN_ROOT)  # skills root
-SHARED_SCRIPTS = os.path.join(SKILLS_ROOT, "shared", "hooks", "scripts")
-sys.path.insert(0, SHARED_SCRIPTS)
+sys.path.insert(0, SCRIPT_DIR)
 from naming_validator import NamingValidator  # noqa: E402
 from security_validator import SecurityValidator  # noqa: E402
 
