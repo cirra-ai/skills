@@ -81,7 +81,7 @@ The skill generates:
 
 ## Validation Hooks
 
-This plugin ships Python validation scripts in `hooks/scripts/` that run automatically at two points. Validation is **skill-scoped** — the pre-deployment hook only registers while the cirra-ai-sf-apex skill is active, so there is no overhead when doing unrelated work.
+This plugin ships Python validation scripts in `scripts/` that run automatically at two points. Validation is **skill-scoped** — the pre-deployment hook only registers while the cirra-ai-sf-apex skill is active, so there is no overhead when doing unrelated work.
 
 Use [`/validate-apex`](#validate-apex-command) for on-demand checks at any time.
 
@@ -152,7 +152,7 @@ The command uses `validate_apex_cli.py` under the hood — the same 150-point + 
 
 ```bash
 echo '{"tool":"metadata_create","params":{"type":"ApexClass","metadata":[{"fullName":"MyClass","body":"public class MyClass {}"}]}}' \
-  | python hooks/scripts/mcp_validator_cli.py --format report
+  | python scripts/mcp_validator_cli.py --format report
 ```
 
 ## Cross-Skill Integration

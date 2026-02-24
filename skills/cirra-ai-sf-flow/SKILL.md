@@ -506,6 +506,10 @@ Note: do **not** include `FullName` or `Metadata` in multi-record queries — on
 metadata_create(type="Flow", metadata=[{"fullName": "Flow_Name", "apiVersion": "65.0", "label": "Flow Name", "processType": "AutoLaunchedFlow", "status": "Draft", ...}])
 ```
 
+> **API version**: Always specify `"apiVersion": "65.0"` (or current) explicitly. If omitted, `metadata_create` defaults to API v49.0, which lacks modern flow features.
+>
+> **InvalidDraft status**: Salesforce auto-classifies a Flow as `InvalidDraft` (not `Draft`) when it has `status: Draft` but no trigger configuration (no `start` element with `triggerType`, or no `processType` that implies auto-launch). This is expected Salesforce behavior — the flow becomes `Draft` once a valid trigger or entry condition is added.
+
 ### Update a flow
 
 > **Version behavior**: A new version is only created when the **latest version is Active**. If the latest version is already a **Draft**, the update **replaces it in-place** with no version history preserved. Always check the latest version status first with `tooling_api_query` on FlowDefinition.

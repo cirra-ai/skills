@@ -9,14 +9,21 @@ report to stdout.
 Usage:
   python3 validate_flow_cli.py path/to/Auto_Lead_Assignment.flow-meta.xml
   python3 validate_flow_cli.py path/to/MyFlow.xml
+  python3 validate_flow_cli.py path/to/flow_metadata.json
+
+Accepts both XML (.flow-meta.xml) and JSON (metadata_read output) formats.
+JSON files with a "processType" key are automatically converted to XML
+before validation.
 
 Exit codes:
   0  — validation passed (score >= 80%)
   1  — validation failed (score < 80%) or file not found
 """
 
+import json
 import os
 import sys
+import tempfile
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, SCRIPT_DIR)
@@ -25,17 +32,98 @@ THRESHOLD_PCT = 80
 MAX_SCORE = 110
 
 
+def _json_to_flow_xml(data: dict) -> str:
+    """Convert structured JSON Flow metadata to Flow XML.
+
+    Handles the output of metadata_read which returns Flow definitions as
+    JSON objects (with processType, start, etc.) rather than raw XML.
+    """
+    from xml.sax.saxutils import escape as xml_escape
+
+    lines = ['<?xml version="1.0" encoding="UTF-8"?>']
+    lines.append('<Flow xmlns="http://soap.sforce.com/2006/04/metadata">')
+
+    def _serialize(obj, tag, indent=1):
+        prefix = "    " * indent
+        result = []
+        if isinstance(obj, dict):
+            result.append(f"{prefix}<{tag}>")
+            for key, value in obj.items():
+                if isinstance(value, list):
+                    for item in value:
+                        result.extend(_serialize(item, key, indent + 1))
+                else:
+                    result.extend(_serialize(value, key, indent + 1))
+            result.append(f"{prefix}</{tag}>")
+        elif isinstance(obj, list):
+            for item in obj:
+                result.extend(_serialize(item, tag, indent))
+        elif isinstance(obj, bool):
+            result.append(f"{prefix}<{tag}>{'true' if obj else 'false'}</{tag}>")
+        elif obj is not None:
+            result.append(f"{prefix}<{tag}>{xml_escape(str(obj))}</{tag}>")
+        return result
+
+    for key, value in data.items():
+        # Skip wrapper keys that aren't part of Flow XML
+        if key in ("fullName", "fileName"):
+            continue
+        if isinstance(value, list):
+            for item in value:
+                lines.extend(_serialize(item, key))
+        else:
+            lines.extend(_serialize(value, key))
+
+    lines.append("</Flow>")
+    return "\n".join(lines)
+
+
+def _prepare_flow_file(file_path: str) -> str:
+    """Prepare a Flow file for validation, converting JSON to XML if needed.
+
+    Returns path to an XML file suitable for EnhancedFlowValidator.
+    The caller must clean up any temp file created.
+    """
+    with open(file_path, encoding="utf-8") as f:
+        content = f.read().strip()
+
+    # Detect JSON input (metadata_read returns JSON for Flows)
+    if content.startswith("{"):
+        try:
+            data = json.loads(content)
+            # Check if it looks like Flow metadata (has processType)
+            if "processType" in data:
+                xml_content = _json_to_flow_xml(data)
+                tmp_path = os.path.join(
+                    tempfile.gettempdir(),
+                    os.path.basename(file_path).rsplit(".", 1)[0] + ".flow-meta.xml",
+                )
+                with open(tmp_path, "w", encoding="utf-8") as f:
+                    f.write(xml_content)
+                return tmp_path
+        except (json.JSONDecodeError, KeyError):
+            pass  # Not valid JSON or not Flow metadata — try as XML
+
+    return file_path  # Already XML
+
+
 def run_validation(file_path: str) -> dict:
-    """Run full validation pipeline on a Flow file.
+    """Run full validation pipeline on a Flow file (XML or JSON).
 
     Returns a dict with keys: success, output, score, max_score, pct.
     """
     output_parts = []
+    converted_path = None
 
     try:
         from validate_flow import EnhancedFlowValidator
 
-        validator = EnhancedFlowValidator(file_path)
+        # Convert JSON to XML if needed
+        actual_path = _prepare_flow_file(file_path)
+        if actual_path != file_path:
+            converted_path = actual_path  # Track for cleanup
+
+        validator = EnhancedFlowValidator(actual_path)
         results = validator.validate()
 
         flow_name = results.get("flow_name", os.path.basename(file_path))
@@ -140,12 +228,19 @@ def run_validation(file_path: str) -> dict:
         return {"success": False, "output": f"⚠️  Validator not available: {e}", "pct": 0}
     except Exception as e:
         return {"success": False, "output": f"⚠️  Validation error: {e}", "pct": 0}
+    finally:
+        # Clean up temp file created by JSON→XML conversion
+        if converted_path:
+            try:
+                os.remove(converted_path)
+            except OSError:
+                pass
 
 
 def main() -> int:
     args = sys.argv[1:]
     if not args or args[0] in ("-h", "--help"):
-        print("Usage: validate_flow_cli.py <file.flow-meta.xml|file.xml>", file=sys.stderr)
+        print("Usage: validate_flow_cli.py <file.flow-meta.xml|file.xml|file.json>", file=sys.stderr)
         return 1
 
     file_path = args[0]

@@ -103,6 +103,8 @@ soql_query(
 )
 ```
 
+> **whereClause caveat**: Never pass an empty string `""` for `whereClause` — it generates malformed SQL (`WHERE ""`). Either omit `whereClause` entirely or use `"Id != null"` to select all records.
+
 3. Identify relationships (Lookup vs Master-Detail)
 4. Determine object types (Standard, Custom, External)
 5. Generate `flowchart LR` with color coding

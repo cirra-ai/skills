@@ -115,7 +115,7 @@ Always deploy custom objects/fields BEFORE flows that reference them.
 
 ## Validation Hooks
 
-This plugin ships Python validation scripts in `hooks/scripts/` that run automatically at two points. Validation is **skill-scoped** — the pre-deployment hook only registers while the cirra-ai-sf-flow skill is active, so there is no overhead when doing unrelated work.
+This plugin ships Python validation scripts in `scripts/` that run automatically at two points. Validation is **skill-scoped** — the pre-deployment hook only registers while the cirra-ai-sf-flow skill is active, so there is no overhead when doing unrelated work.
 
 Use [`/validate-flow`](#validate-flow-command) for on-demand checks at any time.
 
