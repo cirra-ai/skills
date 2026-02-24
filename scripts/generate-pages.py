@@ -41,9 +41,13 @@ SUPPRESS_KEYWORDS = {"cirra-ai", "salesforce", "orchestration"}
 # ---------------------------------------------------------------------------
 
 def find_plugins() -> list[dict]:
-    """Scan repo for plugins via */.claude-plugin/plugin.json."""
+    """Scan plugins/ directory for plugin manifests."""
     plugins = []
-    for plugin_json_path in sorted(REPO_ROOT.glob("*/.claude-plugin/plugin.json")):
+    plugins_dir = REPO_ROOT / "plugins"
+    if not plugins_dir.is_dir():
+        return plugins
+
+    for plugin_json_path in sorted(plugins_dir.glob("*/.claude-plugin/plugin.json")):
         plugin_dir = plugin_json_path.parent.parent
         if " " in plugin_dir.name:
             continue
@@ -62,7 +66,6 @@ def find_plugins() -> list[dict]:
             "description": data.get("description", ""),
             "keywords": keywords,
             "is_featured": is_featured,
-            "skills": find_skills(plugin_dir),
         })
 
     # Featured plugins first, then alphabetical
@@ -70,10 +73,14 @@ def find_plugins() -> list[dict]:
     return plugins
 
 
-def find_skills(plugin_dir: Path) -> list[dict]:
-    """Find all skills inside a plugin directory."""
+def find_skills() -> list[dict]:
+    """Find all skills in the top-level skills/ directory."""
     skills = []
-    for skill_md in sorted(plugin_dir.glob("skills/*/SKILL.md")):
+    skills_dir = REPO_ROOT / "skills"
+    if not skills_dir.is_dir():
+        return skills
+
+    for skill_md in sorted(skills_dir.glob("*/SKILL.md")):
         skill_dir = skill_md.parent
         name = skill_dir.name
         readme = skill_dir / "README.md"
@@ -187,7 +194,7 @@ def generate() -> str:
         print("Warning: no plugins found!", file=sys.stderr)
     print(f"Found {len(plugins)} plugin(s): {[p['name'] for p in plugins]}", file=sys.stderr)
 
-    all_skills = [s for p in plugins for s in p["skills"]]
+    all_skills = find_skills()
     print(f"Found {len(all_skills)} skill(s): {[s['name'] for s in all_skills]}", file=sys.stderr)
 
     plugin_cards = "\n\n".join(_plugin_card(p) for p in plugins)

@@ -1,2 +1,30 @@
 #!/usr/bin/env bash
-exec bash "$(git rev-parse --show-toplevel)/scripts/validate-skills.sh" --staged
+set -euo pipefail
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+
+# ── Reject direct edits to plugin skill copies ───────────────────────────────
+# Skills under plugins/*/skills/ are synced from the top-level skills/ directory.
+# Edits should be made there instead.
+
+staged_plugin_skills=$(git diff --cached --name-only -- 'plugins/*/skills/' || true)
+staged_source_skills=$(git diff --cached --name-only -- 'skills/' || true)
+
+# Allow plugin skill changes when the source skills/ dir is also staged (sync workflow).
+# Block when only the plugin copies are changed (direct edit).
+if [[ -n "$staged_plugin_skills" ]] && [[ -z "$staged_source_skills" ]]; then
+  echo "ERROR: Direct changes to plugin skill copies are not allowed."
+  echo ""
+  echo "The following files should be edited under skills/ instead:"
+  echo "$staged_plugin_skills" | head -20
+  count=$(echo "$staged_plugin_skills" | wc -l | tr -d ' ')
+  if [[ "$count" -gt 20 ]]; then
+    echo "  ... and $((count - 20)) more"
+  fi
+  echo ""
+  echo "After editing skills/, run: scripts/sync-plugin-skills.sh"
+  exit 1
+fi
+
+# ── Validate skills ──────────────────────────────────────────────────────────
+exec bash "$REPO_ROOT/scripts/validate-skills.sh" --staged

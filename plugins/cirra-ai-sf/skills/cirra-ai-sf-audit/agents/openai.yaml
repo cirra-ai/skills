@@ -1,7 +1,0 @@
-interface:
-  display_name: "Cirra AI Salesforce Audit"
-  short_description: "Run a full Salesforce org audit across Apex, Flows, and LWC"
-  icon_small: "./assets/icon-small.png"
-  icon_large: "./assets/icon-large.png"
-  brand_color: "#4068EB"
-  default_prompt: "Use $cirra-ai-sf-audit to audit a Salesforce org."
