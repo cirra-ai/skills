@@ -123,6 +123,85 @@ def test_upsert_as_user_not_flagged():
 # ── Inline-comment keyword false positives ───────────────────────────────────
 
 
+def test_do_while_knr_dml_in_loop_flagged():
+    """DML inside a K&R do-while loop must be flagged."""
+    result = _validate(
+        """public with sharing class Bad {
+    /** @description Bad */
+    public static void bad(List<Account> accs) {
+        do {
+            insert accs;
+        } while (accs.size() > 0);
+    }
+}"""
+    )
+    assert len(_bulk_criticals(result)) == 1
+
+
+def test_do_while_knr_dml_after_loop_not_flagged():
+    """DML after a K&R do-while loop must NOT be flagged."""
+    result = _validate(
+        """public with sharing class Good {
+    /** @description Good */
+    public static void good(List<Account> accs) {
+        do {
+            accs.remove(0);
+        } while (accs.size() > 0);
+        insert accs;
+    }
+}"""
+    )
+    assert _bulk_criticals(result) == []
+
+
+def test_do_while_allman_dml_in_loop_flagged():
+    """DML inside an Allman-style do-while loop must be flagged."""
+    result = _validate(
+        """public with sharing class Bad {
+    /** @description Bad */
+    public static void bad(List<Account> accs) {
+        do
+        {
+            insert accs;
+        }
+        while (accs.size() > 0);
+    }
+}"""
+    )
+    assert len(_bulk_criticals(result)) == 1
+
+
+def test_do_while_allman_dml_after_loop_not_flagged():
+    """DML after an Allman-style do-while loop must NOT be flagged."""
+    result = _validate(
+        """public with sharing class Good {
+    /** @description Good */
+    public static void good(List<Account> accs) {
+        do
+        {
+            accs.remove(0);
+        }
+        while (accs.size() > 0);
+        insert accs;
+    }
+}"""
+    )
+    assert _bulk_criticals(result) == []
+
+
+def test_while_loop_with_inline_body_dml_flagged():
+    """A real while loop with an inline body containing DML must be flagged."""
+    result = _validate(
+        """public with sharing class Bad {
+    /** @description Bad */
+    public static void bad(Iterator<Account> iter) {
+        while (iter.hasNext()) insert iter.next();
+    }
+}"""
+    )
+    assert len(_bulk_criticals(result)) == 1
+
+
 def test_inline_comment_do_keyword_not_flagged():
     """'do' inside an inline comment must not trigger the loop detector."""
     result = _validate(

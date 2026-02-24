@@ -103,12 +103,20 @@ def _basic_loop_map(body: str) -> list[bool]:
     - Braceless single-statement bodies: for (...)\n    stmt;
     - do-while with brace on same or next line: `do {` or `do\n{`
       `\bdo\b` is safe here because string literals are stripped first
-    - do-while closing lines: } while (condition); — the closing }
-      is counted normally; "while" on this line does NOT start a new loop
+    - do-while closing lines: K&R `} while (condition);` and Allman
+      `while (condition);` (brace already closed on previous line) —
+      the closing `}` is counted normally; "while" does NOT start a new loop
     - Non-loop braces (if/try/switch) are NOT counted as loop depth
     """
     LOOP_RE = re.compile(r"\b(?:for|while)\s*\(|\bdo\b", re.IGNORECASE)
-    DO_WHILE_CLOSE_RE = re.compile(r"\}\s*while\s*\(", re.IGNORECASE)
+    # Matches both K&R `} while (cond);` and Allman `while (cond);` (brace already
+    # closed on the previous line). Both are do-while closings, not new loop starts.
+    # The Allman alternative uses a non-backtracking balanced-paren group anchored to
+    # end-of-line so it won't match a real while loop with an inline body.
+    DO_WHILE_CLOSE_RE = re.compile(
+        r"\}\s*while\s*\(|\bwhile\s*\([^()]*(?:\([^()]*\)[^()]*)*\)\s*;\s*$",
+        re.IGNORECASE | re.MULTILINE,
+    )
 
     # Stack of booleans: True = this brace scope was opened by a loop keyword
     brace_stack: list[bool] = []
