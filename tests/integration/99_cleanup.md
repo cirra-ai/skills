@@ -1,7 +1,17 @@
 # Cleanup — Remove All Test Artifacts
 
-Run after all phases complete (or at any point to reset the org). Follows
-proper dependency order: children before parents, code after data.
+Run after all phases complete (or at any point to reset the org).
+
+## Design Principles
+
+1. **Pattern-based:** All queries use `LIKE 'CirraTest_%'` — no hardcoded IDs
+2. **Idempotent:** Deleting zero matches is safe — queries that match nothing
+   return empty results, and DML on an empty list is a no-op
+3. **Dependency-ordered:** Children are deleted before parents to avoid
+   relationship constraint errors
+4. **Soft delete:** All deletes go to the Salesforce Recycle Bin by default.
+   Salesforce may reject deleting a class that is referenced by a trigger —
+   delete test classes first, then handlers, then triggers
 
 ---
 
