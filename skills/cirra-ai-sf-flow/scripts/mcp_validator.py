@@ -41,7 +41,7 @@ _SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 # Code body extraction
 # ═══════════════════════════════════════════════════════════════════════
 
-def _json_metadata_to_xml(metadata: dict[str, Any], full_name: str = "") -> str:
+def _json_metadata_to_xml(metadata: dict[str, Any]) -> str:
     """Convert structured JSON Flow metadata to Flow XML.
 
     Tooling API and some metadata_create payloads send Flow definitions as
@@ -86,11 +86,13 @@ def _json_metadata_to_xml(metadata: dict[str, Any], full_name: str = "") -> str:
 
 
 def _is_structured_flow_metadata(obj: dict[str, Any]) -> bool:
-    """Check if a dict looks like structured Flow metadata (JSON), not a wrapper."""
-    flow_keys = {"processType", "start", "status", "apiVersion", "label",
-                 "decisions", "recordCreates", "recordUpdates", "recordLookups",
-                 "screens", "variables", "assignments", "loops", "formulas"}
-    return bool(flow_keys & set(obj.keys()))
+    """Check if a dict looks like structured Flow metadata (JSON), not a wrapper.
+
+    Requires ``processType`` (the key unique to Flow metadata) to avoid
+    false positives on generic metadata entries that happen to have
+    common keys like ``status`` or ``label``.
+    """
+    return "processType" in obj
 
 
 def _extract_flow_body(tool: str, params: dict[str, Any]) -> tuple[str, str, str]:
@@ -123,7 +125,6 @@ def _extract_flow_body(tool: str, params: dict[str, Any]) -> tuple[str, str, str
                 if not body and _is_structured_flow_metadata(first):
                     body = _json_metadata_to_xml(
                         {k: v for k, v in first.items() if k != "fullName"},
-                        full_name,
                     )
 
     elif tool == "tooling_api_dml":
@@ -147,7 +148,7 @@ def _extract_flow_body(tool: str, params: dict[str, Any]) -> tuple[str, str, str
                     # If Metadata is structured JSON (processType, start, etc.),
                     # convert to XML for validation
                     if not body and _is_structured_flow_metadata(metadata_inner):
-                        body = _json_metadata_to_xml(metadata_inner, full_name)
+                        body = _json_metadata_to_xml(metadata_inner)
 
     return metadata_type, body, full_name
 
