@@ -486,6 +486,8 @@ tooling_api_dml(
 
 **Update class** (Id, Name, Body, Status are all required):
 
+> **IMPORTANT**: The `Name` field is required in `tooling_api_dml` update payloads even though you are updating an existing record. Omitting it causes `Missing or invalid 'Name' field` error.
+
 ```
 tooling_api_dml(
   operation="update",

@@ -98,7 +98,7 @@ S → Security     │ Enforce permissions, FLS, and data protection
 
 ## Validation Hooks
 
-This plugin ships Python validation scripts in `hooks/scripts/` that run automatically after every `Write` or `Edit` tool call on LWC files (`.html`, `.css`, `.js`). All hooks are **advisory** — they provide feedback but never block operations.
+This plugin ships Python validation scripts in `scripts/` that run automatically after every `Write` or `Edit` tool call on LWC files (`.html`, `.css`, `.js`). All hooks are **advisory** — they provide feedback but never block operations.
 
 ### Active hook: `post-tool-validate.py`
 

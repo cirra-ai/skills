@@ -220,6 +220,17 @@ The cirra-ai-sf-lwc skill includes automated SLDS 2 validation that ensures dark
 ❌  <100 pts   → Needs significant SLDS 2 cleanup before deploy
 ```
 
+**CLI usage**: `validate_slds.py` validates a **single file** (not a directory):
+
+```bash
+python scripts/validate_slds.py path/to/component.html    # Human-readable report
+python scripts/validate_slds.py path/to/component.css      # CSS validation
+python scripts/validate_slds.py path/to/component.js       # JS validation
+python scripts/validate_slds.py path/to/component.html --json  # JSON output
+```
+
+> **Note**: The local SLDS validator catches styling and pattern issues but cannot detect server-side compile errors (e.g. invalid component references like `lightning-formatted-phone-number` or inaccessible schema imports). Always verify deployment succeeds after local validation passes.
+
 ---
 
 ## Dark Mode Readiness
@@ -423,22 +434,40 @@ Claude:
 
 ### Step 2: Deploy via metadata_create
 
+The `metadata_create` call requires a flat metadata structure with **Base64-encoded** sources in `lwcResources`:
+
 ```
 metadata_create(
   type="LightningComponentBundle",
   metadata=[{
-    "fullName": "c/accountDashboard",
+    "fullName": "accountDashboard",
     "apiVersion": "66.0",
     "isExposed": true,
     "masterLabel": "Account Dashboard",
     "description": "SLDS 2 compliant account metrics dashboard",
-    "source": "export default class AccountDashboard extends LightningElement { ... }",
-    "html": "<template><div class=\"slds-box\">...</div></template>",
-    "css": ":host { --slds-g-color-surface-1: var(--slds-c-card-color-background); }",
-    "meta": "<?xml version=\"1.0\"?><LightningComponentBundle>...</LightningComponentBundle>"
+    "lwcResources": {
+      "lwcResource": [
+        {
+          "filePath": "lwc/accountDashboard/accountDashboard.js",
+          "source": "<Base64-encoded JS source>"
+        },
+        {
+          "filePath": "lwc/accountDashboard/accountDashboard.html",
+          "source": "<Base64-encoded HTML source>"
+        },
+        {
+          "filePath": "lwc/accountDashboard/accountDashboard.css",
+          "source": "<Base64-encoded CSS source>"
+        }
+      ]
+    }
   }]
 )
 ```
+
+> **Encoding note**: `metadata_create` requires **Base64-encoded** source files.
+> When updating an existing component via `tooling_api_dml`, use **plain text** (not Base64) for the `Source` field.
+> This is an intentional Salesforce API difference between the Metadata API and Tooling API.
 
 ### Step 3: Verify Deployment
 

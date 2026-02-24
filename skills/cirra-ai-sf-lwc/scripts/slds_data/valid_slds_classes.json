@@ -275,7 +275,8 @@
     "slds-tile__detail",
     "slds-tile__title",
     "slds-item",
-    "slds-item_detail"
+    "slds-item_detail",
+    "slds-item_label"
   ],
   "positioning": [
     "slds-is-relative",

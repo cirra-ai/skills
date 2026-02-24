@@ -164,8 +164,9 @@ def _basic_apex_check(body: str, full_name: str) -> dict[str, Any]:
     issues: list[dict[str, Any]] = []
     score = 150  # Start from ApexValidator's max
 
-    # Check sharing keyword
-    if re.search(r"(public|global)\s+class", body, re.IGNORECASE):
+    # Check sharing keyword (@IsTest classes run in system mode — sharing is irrelevant)
+    is_test_class = bool(re.search(r"@istest\b", body, re.IGNORECASE))
+    if re.search(r"(public|global)\s+class", body, re.IGNORECASE) and not is_test_class:
         if not re.search(r"(with sharing|without sharing|inherited sharing)", body, re.IGNORECASE):
             issues.append({
                 "severity": "WARNING",

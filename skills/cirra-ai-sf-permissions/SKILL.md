@@ -128,6 +128,11 @@ soql_query(
 )
 ```
 
+> **Known caveats**:
+>
+> - `Parent.Name` returns hex IDs (e.g. `0PSV90000004CqU`) instead of human-readable PS API names. To resolve, follow up with a query on `PermissionSet` using the returned IDs: `soql_query(sObject="PermissionSet", fields=["Id","Name","Label"], whereClause="Id IN ('0PS...',...)")`.
+> - `SobjectType` filter on `FieldPermissions` may return rows from other objects (e.g. `Lead.AnnualRevenue` when filtering for `Account`). Always verify the `Field` column prefix matches the expected object.
+
 #### User's PS Assignments
 
 ```
