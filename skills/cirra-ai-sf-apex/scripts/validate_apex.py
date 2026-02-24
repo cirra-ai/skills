@@ -266,7 +266,7 @@ class ApexValidator:
 
         # @IsTest classes run in system mode and do not require sharing declarations.
         # Check if the file-level @IsTest annotation is present (before the first class).
-        is_test_class = bool(re.search(r"@[Ii]s[Tt]est\b", self.content))
+        is_test_class = bool(re.search(r"@istest\b", self.content, re.IGNORECASE))
 
         # Collect all class declarations: (line_num, has_sharing, is_without_sharing)
         class_declarations = []

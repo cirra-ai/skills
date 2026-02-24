@@ -32,52 +32,6 @@ THRESHOLD_PCT = 80
 MAX_SCORE = 110
 
 
-def _json_to_flow_xml(data: dict) -> str:
-    """Convert structured JSON Flow metadata to Flow XML.
-
-    Handles the output of metadata_read which returns Flow definitions as
-    JSON objects (with processType, start, etc.) rather than raw XML.
-    """
-    from xml.sax.saxutils import escape as xml_escape
-
-    lines = ['<?xml version="1.0" encoding="UTF-8"?>']
-    lines.append('<Flow xmlns="http://soap.sforce.com/2006/04/metadata">')
-
-    def _serialize(obj, tag, indent=1):
-        prefix = "    " * indent
-        result = []
-        if isinstance(obj, dict):
-            result.append(f"{prefix}<{tag}>")
-            for key, value in obj.items():
-                if isinstance(value, list):
-                    for item in value:
-                        result.extend(_serialize(item, key, indent + 1))
-                else:
-                    result.extend(_serialize(value, key, indent + 1))
-            result.append(f"{prefix}</{tag}>")
-        elif isinstance(obj, list):
-            for item in obj:
-                result.extend(_serialize(item, tag, indent))
-        elif isinstance(obj, bool):
-            result.append(f"{prefix}<{tag}>{'true' if obj else 'false'}</{tag}>")
-        elif obj is not None:
-            result.append(f"{prefix}<{tag}>{xml_escape(str(obj))}</{tag}>")
-        return result
-
-    for key, value in data.items():
-        # Skip wrapper keys that aren't part of Flow XML
-        if key in ("fullName", "fileName"):
-            continue
-        if isinstance(value, list):
-            for item in value:
-                lines.extend(_serialize(item, key))
-        else:
-            lines.extend(_serialize(value, key))
-
-    lines.append("</Flow>")
-    return "\n".join(lines)
-
-
 def _prepare_flow_file(file_path: str) -> str:
     """Prepare a Flow file for validation, converting JSON to XML if needed.
 
@@ -93,7 +47,11 @@ def _prepare_flow_file(file_path: str) -> str:
             data = json.loads(content)
             # Check if it looks like Flow metadata (has processType)
             if "processType" in data:
-                xml_content = _json_to_flow_xml(data)
+                from mcp_validator import _json_metadata_to_xml
+
+                # Strip wrapper keys that aren't part of Flow XML
+                flow_data = {k: v for k, v in data.items() if k not in ("fullName", "fileName")}
+                xml_content = _json_metadata_to_xml(flow_data)
                 tmp_path = os.path.join(
                     tempfile.gettempdir(),
                     os.path.basename(file_path).rsplit(".", 1)[0] + ".flow-meta.xml",
