@@ -1,6 +1,6 @@
 {
   "name": "cirra-ai-sf",
-  "version": "1.0.2",
+  "version": "1.0.0",
   "description": "Salesforce admin plugin for use with the Cirra AI MCP Server.",
   "author": {
     "name": "Cirra AI",

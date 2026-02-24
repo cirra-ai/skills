@@ -25,6 +25,7 @@ import os
 import sys
 import tempfile
 from typing import Any
+from xml.sax.saxutils import escape as xml_escape
 
 # ═══════════════════════════════════════════════════════════════════════
 # Constants
@@ -40,8 +41,68 @@ _SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 # Code body extraction
 # ═══════════════════════════════════════════════════════════════════════
 
+def _json_metadata_to_xml(metadata: dict[str, Any]) -> str:
+    """Convert structured JSON Flow metadata to Flow XML.
+
+    Tooling API and some metadata_create payloads send Flow definitions as
+    structured JSON (e.g. {"processType": "AutoLaunchedFlow", ...}) rather
+    than raw XML. This converts them to XML so EnhancedFlowValidator can
+    score the flow.
+    """
+    lines = ['<?xml version="1.0" encoding="UTF-8"?>']
+    lines.append('<Flow xmlns="http://soap.sforce.com/2006/04/metadata">')
+
+    # Recursively serialize JSON to XML elements
+    def _serialize(obj: Any, tag: str, indent: int = 1) -> list[str]:
+        prefix = "    " * indent
+        result = []
+        if isinstance(obj, dict):
+            result.append(f"{prefix}<{tag}>")
+            for key, value in obj.items():
+                if isinstance(value, list):
+                    for item in value:
+                        result.extend(_serialize(item, key, indent + 1))
+                else:
+                    result.extend(_serialize(value, key, indent + 1))
+            result.append(f"{prefix}</{tag}>")
+        elif isinstance(obj, list):
+            for item in obj:
+                result.extend(_serialize(item, tag, indent))
+        elif isinstance(obj, bool):
+            result.append(f"{prefix}<{tag}>{'true' if obj else 'false'}</{tag}>")
+        elif obj is not None:
+            result.append(f"{prefix}<{tag}>{xml_escape(str(obj))}</{tag}>")
+        return result
+
+    for key, value in metadata.items():
+        if isinstance(value, list):
+            for item in value:
+                lines.extend(_serialize(item, key))
+        else:
+            lines.extend(_serialize(value, key))
+
+    lines.append("</Flow>")
+    return "\n".join(lines)
+
+
+def _is_structured_flow_metadata(obj: dict[str, Any]) -> bool:
+    """Check if a dict looks like structured Flow metadata (JSON), not a wrapper.
+
+    Requires ``processType`` (the key unique to Flow metadata) to avoid
+    false positives on generic metadata entries that happen to have
+    common keys like ``status`` or ``label``.
+    """
+    return "processType" in obj
+
+
 def _extract_flow_body(tool: str, params: dict[str, Any]) -> tuple[str, str, str]:
     """Extract metadata type, Flow XML body, and fullName from tool params.
+
+    Handles three formats:
+    1. XML string in "body" or "content" key (metadata_create/update)
+    2. Structured JSON metadata dict (tooling_api_dml with Metadata field)
+    3. Structured JSON in metadata_create entries (no body/content, but has
+       Flow-specific keys like processType, start, etc.)
 
     Returns:
         (metadata_type, body, full_name) — any can be empty string if not found.
@@ -56,8 +117,15 @@ def _extract_flow_body(tool: str, params: dict[str, Any]) -> tuple[str, str, str
         if isinstance(metadata_list, list) and len(metadata_list) > 0:
             first = metadata_list[0]
             if isinstance(first, dict):
-                body = first.get("body", first.get("content", ""))
                 full_name = first.get("fullName", "")
+                # Try explicit body/content keys first
+                body = first.get("body", first.get("content", ""))
+                # If no XML string found, check if the entry itself is
+                # structured Flow metadata (JSON with processType, etc.)
+                if not body and _is_structured_flow_metadata(first):
+                    body = _json_metadata_to_xml(
+                        {k: v for k, v in first.items() if k != "fullName"},
+                    )
 
     elif tool == "tooling_api_dml":
         sobject = params.get("sObject", "")
@@ -75,7 +143,12 @@ def _extract_flow_body(tool: str, params: dict[str, Any]) -> tuple[str, str, str
             if not body:
                 metadata_inner = record.get("Metadata", record.get("metadata", {}))
                 if isinstance(metadata_inner, dict):
+                    # Try string body/content first
                     body = metadata_inner.get("body", metadata_inner.get("content", ""))
+                    # If Metadata is structured JSON (processType, start, etc.),
+                    # convert to XML for validation
+                    if not body and _is_structured_flow_metadata(metadata_inner):
+                        body = _json_metadata_to_xml(metadata_inner)
 
     return metadata_type, body, full_name
 
