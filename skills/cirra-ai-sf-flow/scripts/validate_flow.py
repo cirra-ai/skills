@@ -1757,7 +1757,7 @@ def validate_flow(flow_xml_path: str) -> dict:
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python enhanced_validator.py <path-to-flow.xml>")
+        print("Usage: python validate_flow.py <path-to-flow.xml>")
         sys.exit(1)
 
     flow_path = sys.argv[1]

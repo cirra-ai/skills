@@ -25,6 +25,7 @@ import os
 import sys
 import tempfile
 from typing import Any
+from xml.sax.saxutils import escape as xml_escape
 
 # ═══════════════════════════════════════════════════════════════════════
 # Constants
@@ -70,7 +71,7 @@ def _json_metadata_to_xml(metadata: dict[str, Any], full_name: str = "") -> str:
         elif isinstance(obj, bool):
             result.append(f"{prefix}<{tag}>{'true' if obj else 'false'}</{tag}>")
         elif obj is not None:
-            result.append(f"{prefix}<{tag}>{obj}</{tag}>")
+            result.append(f"{prefix}<{tag}>{xml_escape(str(obj))}</{tag}>")
         return result
 
     for key, value in metadata.items():

@@ -207,8 +207,8 @@ metadata_create(
 
 **Validation (STRICT MODE)**:
 
-- **BLOCK**: XML invalid, missing required fields (apiVersion/label/processType/status), API <65.0, broken refs, DML in loops
-- **WARN**: Element ordering, deprecated elements, non-zero coords, missing fault paths, unused vars, naming violations
+- **BLOCK** (CRITICAL — deployment denied): DML in loops, SOQL in loops, recursive after-update without entry conditions
+- **WARN** (score deduction): Missing required fields, API <65.0, element ordering, missing fault paths, unused vars, naming violations, non-zero coords
 
 **New v2.0.0 Validations**:
 
