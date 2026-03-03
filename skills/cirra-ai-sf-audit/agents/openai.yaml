@@ -1,6 +1,6 @@
 interface:
   display_name: "Cirra AI Salesforce Audit"
-  short_description: "Run a full Salesforce org audit across Apex, Flows, and LWC"
+  short_description: "Run a full Salesforce org audit across Apex, Flows, LWC, Permissions, and Metadata"
   icon_small: "./assets/icon-small.png"
   icon_large: "./assets/icon-large.png"
   brand_color: "#4068EB"
