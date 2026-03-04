@@ -1,15 +1,15 @@
 ---
 name: audit-org
-description: Run a full Salesforce org audit across Apex, Flows, LWC, Permissions, and Metadata. Scores components against quality rubrics, audits the permission model, evaluates the data model, and generates Word, Excel, and HTML reports.
+description: Run a comprehensive Salesforce org audit across Apex classes, triggers, Flows, Process Builders, Workflow Rules, LWC, custom objects, validation rules, Profiles, and Permission Sets. Generates Word, Excel, and HTML reports.
 ---
 
-Use the `cirra-ai-sf-audit` skill to run a complete Salesforce org audit.
+Use the `cirra-ai-sf-audit` skill to run a comprehensive Salesforce org audit.
 
-The skill scores every Apex class, active Flow, and LWC component using the
-rubrics from `cirra-ai-sf-apex`, `cirra-ai-sf-flow`, and `cirra-ai-sf-lwc`.
-It audits the permission model using `cirra-ai-sf-permissions` to find
-overly broad permissions, orphaned Permission Sets, and outdated Permission
-Set Groups. It evaluates custom objects against the metadata rubric from
-`cirra-ai-sf-metadata`. Results are compiled into Word, Excel, and HTML reports.
+The skill inventories and evaluates every major metadata category in the org:
+Apex classes and triggers (scored via `cirra-ai-sf-apex`), Flows and Process
+Builders (scored via `cirra-ai-sf-flow`), LWC components (scored via
+`cirra-ai-sf-lwc`), custom objects and fields (scored via `cirra-ai-sf-metadata`),
+validation rules, Workflow Rules, and Profiles and Permission Sets (audited via
+`cirra-ai-sf-permissions`). Results are compiled into Word, Excel, and HTML reports.
 
 Call `cirra_ai_init()` first if not already done this session.

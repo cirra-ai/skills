@@ -1,15 +1,19 @@
 # cirra-ai-sf-audit
 
-Run a full Salesforce org audit across Apex, Flows, LWC, Permissions, and Metadata. Scores all components against quality rubrics, audits the permission model for security risks, evaluates the data model against best practices, and generates Word, Excel, and HTML reports.
+Run a comprehensive Salesforce org audit that inventories and evaluates all major metadata categories: Apex classes, Apex triggers, Flows, Process Builders, Workflow Rules, LWC components, custom objects and fields, validation rules, Profiles, and Permission Sets. Generates Word, Excel, and HTML reports.
 
 ## Features
 
-- **Org-wide audit**: Collects and scores every Apex class, active Flow, and LWC component in the org
-- **Permission audit**: Inventories Permission Sets and Groups, detects overly broad permissions, orphaned PS, and outdated PSGs
-- **Data model audit**: Scores custom objects against a 120-point metadata rubric and flags cross-object issues
-- **Scoring rubrics**: 150-point Apex, 110-point Flow, 165-point LWC, and 120-point Metadata rubrics (from the domain skills)
-- **Report generation**: Word (.docx), Excel (.xlsx), and HTML reports with per-component scores and permission findings
-- **Actionable summary**: Overall health score, components needing attention, permission findings by severity, top issues per domain
+- **Complete org inventory**: Counts and catalogs every component across all metadata categories
+- **Code quality scoring**: 150-point Apex, 110-point Flow, 165-point LWC, and 120-point Metadata rubrics (from domain skills)
+- **Trigger review**: Inventories Apex triggers and flags anti-patterns (logic in trigger body, missing bulkification)
+- **Permission audit**: Inventories Profiles, Permission Sets, and PSGs; detects overly broad permissions, orphaned PS, and outdated PSGs
+- **Data model audit**: Scores custom objects against the metadata rubric and flags cross-object issues
+- **Validation rule review**: Inventories rules and flags missing descriptions, hardcoded IDs, and missing bypass mechanisms
+- **Legacy automation inventory**: Catalogs active Workflow Rules and Process Builders with migration priorities
+- **Automation overlap detection**: Identifies objects with multiple automation types active (triggers, flows, PBs, workflow rules)
+- **Report generation**: Word (.docx), Excel (.xlsx), and HTML reports with per-component scores and findings
+- **Actionable summary**: Overall health score, components needing attention, findings by severity, migration priorities
 
 ## Installation
 
@@ -34,15 +38,15 @@ Request: "Audit my Salesforce org"
 
 ## Cross-Skill Integration
 
-| Related Skill           | When to Use                                      |
-| ----------------------- | ------------------------------------------------ |
-| cirra-ai-sf-apex        | Fix or review Apex classes found in the audit    |
-| cirra-ai-sf-flow        | Fix or review Flows found in the audit           |
-| cirra-ai-sf-lwc         | Fix or review LWC components found in the audit  |
-| cirra-ai-sf-permissions | Fix permission issues found in the audit         |
-| cirra-ai-sf-metadata    | Fix data model issues found in the audit         |
-| cirra-ai-sf-data        | Query or update data after fixing issues         |
-| cirra-ai-sf-diagram     | Visualize architecture or permission hierarchies |
+| Related Skill           | When to Use                                         |
+| ----------------------- | --------------------------------------------------- |
+| cirra-ai-sf-apex        | Fix or review Apex classes/triggers in the audit    |
+| cirra-ai-sf-flow        | Fix or review Flows found in the audit              |
+| cirra-ai-sf-lwc         | Fix or review LWC components found in the audit     |
+| cirra-ai-sf-permissions | Fix permission or Profile issues found in the audit |
+| cirra-ai-sf-metadata    | Fix data model issues found in the audit            |
+| cirra-ai-sf-data        | Query or update data after fixing issues            |
+| cirra-ai-sf-diagram     | Visualize architecture or permission hierarchies    |
 
 ## Requirements
 
