@@ -8,7 +8,7 @@ description: >
   org health, generate an org inventory, run an org health check, audit
   permissions, review the data model, or audit apex flows and lwc.
 metadata:
-  version: 1.2.0
+  version: 1.3.0
 ---
 
 # cirra-ai-sf-audit: Salesforce Org Audit
@@ -31,46 +31,162 @@ findings and severity classifications instead.
 
 Call `cirra_ai_init()` first if not already done this session.
 
+## Environment detection (run once, before Phase 1)
+
+Determine execution mode automatically. The result controls whether bulk CLI
+commands are used (faster for large orgs) or everything runs through MCP
+(works in any environment).
+
+### Step 1 — Check for the Salesforce CLI
+
+```bash
+sf --version 2>/dev/null
+```
+
+- Exit code 0 → CLI binary is present. Continue to Step 2.
+- Non-zero or "command not found" → set `EXEC_MODE = cloud`. Skip to Phase 1.
+
+### Step 2 — Check for an authenticated org
+
+Cloud environments (containers, web-based IDEs, CI runners) typically cannot
+open a local browser, which means `sf org login web` will fail. Check whether
+an org is already authorized:
+
+```bash
+sf org list --json 2>/dev/null
+```
+
+- If the command succeeds and `.result.nonScratchOrgs` or `.result.scratchOrgs`
+  contains at least one entry → an org is authorized. Continue to Step 3.
+- If the list is empty or the command fails → the CLI is installed but has no
+  authorized org. Set `EXEC_MODE = cloud` and inform the user:
+  "Salesforce CLI is installed but no org is authorized. Running in cloud mode
+  (MCP only). To enable CLI mode in a future session, pre-authorize an org with
+  `sf org login web` (desktop) or `sf org login sfdx-url` / `sf org login jwt`
+  (headless)."
+
+### Step 3 — Verify org alignment
+
+The MCP server and the CLI may target different orgs. Confirm they match:
+
+```bash
+sf org display --target-org <alias-or-username> --json 2>/dev/null
+```
+
+Compare `.result.id` (the 18-char OrgId) against the OrgId returned by
+`cirra_ai_init()`.
+
+- OrgIds match → set `EXEC_MODE = local`.
+- OrgIds differ → set `EXEC_MODE = cloud` and warn the user:
+  "CLI default org (<CLI OrgId>) does not match the MCP org (<MCP OrgId>).
+  Running in cloud mode to avoid auditing the wrong org. Use
+  `sf config set target-org <correct-alias>` to fix this."
+
+### Step 4 — Optional tool check
+
+```bash
+jq --version 2>/dev/null
+```
+
+If available, use `jq` for post-processing CLI JSON exports. Otherwise parse
+JSON natively (Python, Node, etc.) or skip post-processing.
+
+### Mode summary
+
+| Mode    | When                                        | Bulk retrieval        | Queries & describes |
+| ------- | ------------------------------------------- | --------------------- | ------------------- |
+| `local` | CLI installed, org authorized, OrgIds match | `sf` CLI commands     | MCP tools           |
+| `cloud` | CLI absent, no auth, or OrgId mismatch      | MCP tools (paginated) | MCP tools           |
+
+In **both** modes, always use MCP tools (`soql_query`, `tooling_api_query`,
+`sobject_describe`) for queries and targeted lookups. The CLI is only preferred
+for **bulk metadata retrieval** (downloading all Apex bodies, Flow XML, LWC
+source, etc.) because it is significantly faster and avoids per-record API calls.
+
+## Known MCP limitations and required workarounds
+
+These apply in both modes for all MCP-based calls:
+
+1. **Response truncation** — `soql_query` / `tooling_api_query` may truncate
+   large responses. Workaround: cursor pagination (`ORDER BY Id` + `Id > '<lastId>'`)
+   with smaller `limit` values.
+2. **Single-row Flow metadata** — Tooling query on `Flow` including
+   `Metadata`/`FullName` returns only one row. Workaround: query active Flow
+   IDs first, then fetch one row per `Id`.
+3. **Relationship-heavy queries** — PermissionSet/PSG/Profile datasets may
+   exceed response limits. Workaround: split by `Id` cursor windows and
+   persist per-batch files.
+4. **API differences** — Some filters/operators differ between SOQL and
+   Tooling API. Workaround: validate fields first; fall back to broader query
+   plus local filtering.
+
+---
+
 ## Phase 1 — Inventory the org
 
-Query component counts across every category so the user knows the full scope:
+Query component counts across every category so the user knows the full scope.
+
+**Cloud mode** — use MCP:
 
 ```
-tooling_api_query: ApexClass WHERE NamespacePrefix = null → COUNT
-tooling_api_query: ApexTrigger WHERE NamespacePrefix = null → COUNT
-tooling_api_query: FlowDefinition WHERE ActiveVersionId != null AND NamespacePrefix = null → COUNT
-tooling_api_query: LightningComponentBundle WHERE NamespacePrefix = null → COUNT
-tooling_api_query: CustomObject WHERE NamespacePrefix = null → COUNT
-tooling_api_query: ValidationRule WHERE NamespacePrefix = null → COUNT
-tooling_api_query: WorkflowRule WHERE NamespacePrefix = null → COUNT
-soql_query: PermissionSet WHERE IsOwnedByProfile = false AND NamespacePrefix = null → COUNT
-soql_query: PermissionSetGroup → COUNT
-soql_query: Profile → COUNT
+tooling_api_query: SELECT COUNT(Id) FROM ApexClass WHERE NamespacePrefix = null
+tooling_api_query: SELECT COUNT(Id) FROM ApexTrigger WHERE NamespacePrefix = null
+tooling_api_query: SELECT COUNT(Id) FROM FlowDefinition WHERE ActiveVersionId != null AND NamespacePrefix = null
+tooling_api_query: SELECT COUNT(Id) FROM LightningComponentBundle WHERE NamespacePrefix = null
+tooling_api_query: SELECT COUNT(Id) FROM CustomObject WHERE NamespacePrefix = null
+tooling_api_query: SELECT COUNT(Id) FROM ValidationRule WHERE NamespacePrefix = null
+tooling_api_query: SELECT COUNT(Id) FROM WorkflowRule WHERE NamespacePrefix = null
+soql_query: SELECT COUNT(Id) FROM PermissionSet WHERE IsOwnedByProfile = false AND NamespacePrefix = null
+soql_query: SELECT COUNT(Id) FROM PermissionSetGroup
+soql_query: SELECT COUNT(Id) FROM Profile
+```
+
+**Local mode** — equivalent CLI queries (faster, avoids MCP truncation):
+
+```bash
+sf data query --use-tooling-api -q "SELECT COUNT(Id) total FROM ApexClass WHERE NamespacePrefix = null" --target-org <org> --json
+sf data query --use-tooling-api -q "SELECT COUNT(Id) total FROM ApexTrigger WHERE NamespacePrefix = null" --target-org <org> --json
+# ... same pattern for each metadata type
 ```
 
 Tell the user the full inventory, for example:
-"Found X Apex classes, T triggers, Y active Flows, Z LWC components, P custom objects, V validation rules, W workflow rules, N Permission Sets, M Permission Set Groups, and Q Profiles. Starting audit..."
+"Found X Apex classes, T triggers, Y active Flows, Z LWC components, P custom
+objects, V validation rules, W workflow rules, N Permission Sets, M Permission
+Set Groups, and Q Profiles. Starting audit..."
 
 ## Phase 2 — Collect and score Apex classes
 
-Paginate Apex class metadata in batches of 200 using an Id cursor:
+Paginate Apex class metadata in batches using an Id cursor:
 
-1. Fetch `Id`, `Name`, `LengthWithoutComments`, `ApiVersion` for each batch via `tooling_api_query`
-2. Fetch `Body` for each class individually (one at a time to avoid size limits)
-3. Write each class body to `./audit_output/intermediate/apex/<ClassName>.cls` before scoring
-4. Score using the 150-point rubric from the `cirra-ai-sf-apex` skill
-5. Track: class name, score, issues found
+1. Fetch `Id`, `Name`, `LengthWithoutComments`, `ApiVersion` for each batch.
+2. Fetch `Body` for each class:
+   - **Local**: bulk export all class bodies in one call:
+     ```bash
+     sf project retrieve start -m ApexClass --target-org <org> -o audit_output/intermediate/apex
+     ```
+     This writes each class to `audit_output/intermediate/apex/classes/<ClassName>.cls`.
+   - **Cloud**: fetch `Body` one class at a time via `tooling_api_query` to
+     avoid response-size limits. Write each to
+     `./audit_output/intermediate/apex/<ClassName>.cls`.
+3. Score using the 150-point rubric from the `cirra-ai-sf-apex` skill.
+4. Track: class name, score, issues found.
 
 ## Phase 3 — Collect and review Apex triggers
 
-Paginate Apex triggers in batches of 200 using an Id cursor:
+Paginate Apex triggers in batches using an Id cursor:
 
-1. Fetch `Id`, `Name`, `TableEnumOrId`, `ApiVersion`, `Status` via `tooling_api_query` on `ApexTrigger`
-2. Fetch `Body` for each trigger individually
-3. Write each trigger body to `./audit_output/intermediate/triggers/<TriggerName>.trigger`
-
-Score triggers using the `cirra-ai-sf-apex` skill's rubric where applicable (bulkification,
-security, error handling). Additionally flag these trigger-specific issues:
+1. Fetch `Id`, `Name`, `TableEnumOrId`, `ApiVersion`, `Status` via
+   `tooling_api_query` on `ApexTrigger`.
+2. Fetch `Body` for each trigger:
+   - **Local**: bulk export:
+     ```bash
+     sf project retrieve start -m ApexTrigger --target-org <org> -o audit_output/intermediate/triggers
+     ```
+   - **Cloud**: fetch `Body` one trigger at a time via `tooling_api_query`.
+     Write each to `./audit_output/intermediate/triggers/<TriggerName>.trigger`.
+3. Score triggers using the `cirra-ai-sf-apex` skill's rubric where applicable
+   (bulkification, security, error handling). Additionally flag these
+   trigger-specific issues:
 
 | Finding                                                                                    | Severity |
 | ------------------------------------------------------------------------------------------ | -------- |
@@ -80,27 +196,34 @@ security, error handling). Additionally flag these trigger-specific issues:
 | Missing `before`/`after` context checks                                                    | MEDIUM   |
 | Outdated API version (< 55.0)                                                              | LOW      |
 
-Track: trigger name, object, events, score/findings
+Track: trigger name, object, events, score/findings.
 
 ## Phase 4 — Collect and score Flows (including Process Builders)
 
-Paginate Flow metadata in batches of 200 using an Id cursor, then fetch XML in batches:
+Paginate Flow metadata in batches using an Id cursor, then fetch XML/metadata:
 
 1. Fetch `Id`, `DeveloperName`, `MasterLabel`, `ActiveVersionId`, `ProcessType`
-   for all active flows via `tooling_api_query` on `FlowDefinition`
+   for all active flows via `tooling_api_query` on `FlowDefinition`.
 2. Separate results by `ProcessType`:
-   - **Flow** (`AutoLaunchedFlow`, `Screen`, `RecordTriggeredFlow`, etc.) — score in this phase
-   - **Process Builder** (`Workflow`) — inventory in Phase 4b
-3. Fetch Flow XML via `metadata_read` in batches — start with 25 flows per call. If the response
-   is too large or an error is thrown, halve the batch size and retry.
-4. Write each flow XML to `./audit_output/intermediate/flows/<DeveloperName>.flow-meta.xml`
-5. Score Flows using the 110-point rubric from the `cirra-ai-sf-flow` skill
-6. Track: flow name, process type, score, issues found
+   - **Flow** (`AutoLaunchedFlow`, `Screen`, `RecordTriggeredFlow`, etc.) —
+     score in this phase.
+   - **Process Builder** (`Workflow`) — inventory in Phase 4b.
+3. Fetch flow definitions:
+   - **Local**: bulk export:
+     ```bash
+     sf project retrieve start -m Flow --target-org <org> -o audit_output/intermediate/flows
+     ```
+   - **Cloud**: fetch one Flow row per `Id` via `tooling_api_query` (required
+     due to single-row Metadata constraint). If using `metadata_read`, start
+     with batches of 25; halve the batch size on error and retry.
+4. Write each flow to `./audit_output/intermediate/flows/<DeveloperName>.flow-meta.xml`.
+5. Score Flows using the 110-point rubric from the `cirra-ai-sf-flow` skill.
+6. Track: flow name, process type, score, issues found.
 
 ### 4b. Process Builders
 
-Process Builders are legacy automation (`ProcessType = 'Workflow'`). Do not score them against
-the Flow rubric. Instead, produce an inventory and flag:
+Process Builders are legacy automation (`ProcessType = 'Workflow'`). Do not
+score them against the Flow rubric. Instead, produce an inventory and flag:
 
 | Finding                                                    | Severity |
 | ---------------------------------------------------------- | -------- |
@@ -110,25 +233,38 @@ the Flow rubric. Instead, produce an inventory and flag:
 | Multiple Process Builders on the same object               | HIGH     |
 
 Write inventory to `./audit_output/intermediate/process_builders/inventory.md`.
-Track: name, object, criteria node count, actions summary, migration priority
+Track: name, object, criteria node count, actions summary, migration priority.
 
 ## Phase 5 — Collect and score LWC
 
-Paginate LWC bundle metadata in batches of 200 using an Id cursor:
+Paginate LWC bundle metadata using an Id cursor:
 
-1. Fetch `Id`, `DeveloperName`, `MasterLabel`, `ApiVersion` for each batch via `tooling_api_query`
-   on `LightningComponentBundle`
-2. Fetch each component's source files via `metadata_read` (type `LightningComponentBundle`,
-   one component at a time)
-3. Write each component to `./audit_output/intermediate/lwc/<DeveloperName>/` before scoring
-4. Score using the rubric from the `cirra-ai-sf-lwc` skill
-5. Track: component name, score, issues found
+1. Fetch `Id`, `DeveloperName`, `MasterLabel`, `ApiVersion` for each batch via
+   `tooling_api_query` on `LightningComponentBundle`.
+2. Fetch component source files:
+   - **Local**: bulk export:
+     ```bash
+     sf project retrieve start -m LightningComponentBundle --target-org <org> -o audit_output/intermediate/lwc
+     ```
+   - **Cloud**: use `metadata_read` per component or paged Tooling query on
+     `LightningComponentResource` grouped by bundle Id.
+3. Write each component to `./audit_output/intermediate/lwc/<DeveloperName>/`
+   before scoring.
+4. Score using the rubric from the `cirra-ai-sf-lwc` skill.
+5. Track: component name, score, issues found.
 
 ## Phase 6 — Audit Profiles and Permissions
 
 Use the `cirra-ai-sf-permissions` skill's approach to evaluate the org's
 permission model. This phase produces both a complete inventory and a security
 findings report.
+
+> **Local mode note**: Prefer CLI file exports for PermissionSet / PSG / Profile /
+> assignment datasets because MCP responses are frequently truncated for these
+> objects in large orgs. Use `sf data query` with `--json` output piped to files.
+
+> **Cloud mode note**: Always paginate with `Id` cursor. Avoid requesting extra
+> columns not needed for scoring. Persist each batch and merge after retrieval.
 
 ### 6a. Inventory Profiles
 
@@ -210,6 +346,12 @@ Group by `PermissionSetId` to find:
 - Orphaned Permission Sets (0 assignments)
 - Overly popular Permission Sets (assigned to >50% of users)
 
+Also query active user count:
+
+```
+soql_query: SELECT COUNT(Id) FROM User WHERE IsActive = true
+```
+
 ### 6e. Check PSG health
 
 Flag any Permission Set Groups with `Status = 'Outdated'`.
@@ -225,7 +367,7 @@ For each finding, assign a severity:
 | MEDIUM   | Overlapping PS that should be consolidated into PSGs                                        |
 | LOW      | Missing descriptions on Permission Sets; unused Profiles                                    |
 
-Track: finding description, severity, affected Profile/PS/PSG
+Track: finding description, severity, affected Profile/PS/PSG.
 
 ## Phase 7 — Audit Metadata (Data Model & Validation Rules)
 
@@ -242,6 +384,12 @@ tooling_api_query(
 )
 ```
 
+If tooling columns differ in the target org/API version, fallback order:
+
+1. `tooling_api_query(CustomObject)` with minimal known-safe fields.
+2. `sobjects_list(customObjectsOnly=true)` to get API names.
+3. `sobject_describe` per object for detail.
+
 ### 7b. For each custom object, describe its structure
 
 ```
@@ -254,6 +402,10 @@ Write a summary to `./audit_output/intermediate/metadata/<ObjectApiName>.md` wit
 - Relationship count (Lookup vs Master-Detail)
 - Validation rule count
 - Record type count
+
+> **Local mode enhancement**: Supplement with bulk Tooling queries on
+> `CustomField` (group by `TableEnumOrId`), `ValidationRule`, and SOQL on
+> `RecordType` to enrich per-object summaries.
 
 ### 7c. Score against the 120-point metadata rubric
 
@@ -268,7 +420,7 @@ Evaluate each custom object using the six categories from the `cirra-ai-sf-metad
 | Documentation      | 20     | Descriptions present, help text on user-facing fields           |
 | Best Practices     | 20     | Permission Sets over Profiles, no hardcoded IDs                 |
 
-Track: object name, score, issues found
+Track: object name, score, issues found.
 
 ### 7d. Inventory and evaluate Validation Rules
 
@@ -292,7 +444,7 @@ Flag:
 | Inactive validation rules (cleanup candidates)                             | LOW      |
 | Object with > 20 active validation rules (complexity risk)                 | MEDIUM   |
 
-Track: rule name, object, active status, findings
+Track: rule name, object, active status, findings.
 
 ### 7e. Cross-object analysis
 
@@ -337,7 +489,7 @@ Flag:
 | Workflow Rule with outbound messages (integration dependency — migrate carefully)                  | MEDIUM   |
 | Multiple automation types on the same object (Workflow + Flow + Process Builder)                   | CRITICAL |
 
-Track: rule name, object, action types, migration priority
+Track: rule name, object, action types, migration priority.
 
 ## Phase 9 — Generate reports
 
@@ -358,6 +510,11 @@ Never scatter files into the working directory root.
 - **Workflow Rules section**: inventory with migration priorities
 - **Automation overlap analysis**: objects with multiple automation types (Workflow + PB + Flow + Trigger)
 - **Recommendations**: top 10 highest-impact improvements across all domains
+
+DOCX formatting requirement:
+
+- If direct HTML conversion is unreadable, regenerate DOCX with fixed-width bordered tables
+  and landscape layout (see `docx-report-formatting` skill).
 
 ### Excel report (`Salesforce_Org_Audit_Scores.xlsx`)
 
@@ -439,3 +596,8 @@ If the audit reveals work to be done, recommend this deployment order:
 
 - metadata_create
 - metadata_update
+
+### Local execution tools (used when `EXEC_MODE = local`)
+
+- Salesforce CLI (`sf`) — for bulk metadata retrieval
+- `jq` (recommended) — for post-processing CLI JSON exports
