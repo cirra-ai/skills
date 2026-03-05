@@ -210,7 +210,7 @@ def extract_types(wsdl_content, type_prefix):
     seed_names = {
         n
         for n in all_complex_types
-        if (n.startswith(type_prefix) or n == type_prefix)
+        if n.startswith(type_prefix)
         and not any(n.startswith(lp) for lp in longer_prefixes)
     }
     matched_types = _resolve_transitive_types(seed_names, all_complex_types)
