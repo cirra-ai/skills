@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://cirra.ai/schemas/salesforce-flow-metadata.json",
   "title": "Salesforce Flow Metadata",
-  "description": "Baseline JSON Schema for Salesforce Flow metadata. Covers core element types sufficient for structural validation of both XML and JSON flow representations. Refresh from a live org with: python scripts/pull_flow_schema.py",
+  "description": "Baseline JSON Schema for Salesforce Flow metadata. Covers core element types sufficient for structural validation of both XML and JSON flow representations. Refresh from a live org with: python scripts/pull_schema.py",
   "x-salesforce-api-version": "65.0",
   "x-schema-source": "baseline",
   "type": "object",

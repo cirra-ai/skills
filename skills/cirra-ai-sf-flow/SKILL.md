@@ -229,8 +229,9 @@ requirements. This applies to **both XML and JSON** output formats.
 > live org's WSDL (recommended after major Salesforce releases):
 >
 > ```bash
-> python scripts/pull_flow_schema.py                  # uses default org
-> python scripts/pull_flow_schema.py --target-org dev  # specific org
+> scripts/pull_schema.sh                    # Flow schema, default org
+> scripts/pull_schema.sh dev                # Flow schema, specific org
+> scripts/pull_schema.sh --type Flow dev    # equivalent to above
 > ```
 >
 > The script downloads the org's metadata WSDL, extracts only Flow-related

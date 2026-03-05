@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://cirra.ai/schemas/salesforce-customfield-metadata.json",
   "title": "Salesforce CustomField Metadata",
-  "description": "JSON Schema for Salesforce CustomField metadata (API v66.0). Auto-generated from the org's metadata WSDL by pull_flow_schema.py.",
+  "description": "JSON Schema for Salesforce CustomField metadata (API v66.0). Auto-generated from the org's metadata WSDL by pull_schema.py.",
   "type": "object",
   "x-salesforce-api-version": "66.0",
   "x-schema-source": "metadata-wsdl",

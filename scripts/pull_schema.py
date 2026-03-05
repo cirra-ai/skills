@@ -8,29 +8,29 @@ that can be used for offline validation (both XML and JSON representations).
 
 Usage:
     # Pull Flow schema (default):
-    python pull_flow_schema.py
+    python pull_schema.py
 
     # Pull a different metadata type:
-    python pull_flow_schema.py --type PermissionSet
-    python pull_flow_schema.py --type Profile
-    python pull_flow_schema.py --type Layout
-    python pull_flow_schema.py --type FlexiPage
-    python pull_flow_schema.py --type CustomObject
-    python pull_flow_schema.py --type CustomField
-    python pull_flow_schema.py --type ValidationRule
-    python pull_flow_schema.py --type RecordType
-    python pull_flow_schema.py --type QuickAction
-    python pull_flow_schema.py --type PermissionSetGroup
-    python pull_flow_schema.py --type SharingRules
+    python pull_schema.py --type PermissionSet
+    python pull_schema.py --type Profile
+    python pull_schema.py --type Layout
+    python pull_schema.py --type FlexiPage
+    python pull_schema.py --type CustomObject
+    python pull_schema.py --type CustomField
+    python pull_schema.py --type ValidationRule
+    python pull_schema.py --type RecordType
+    python pull_schema.py --type QuickAction
+    python pull_schema.py --type PermissionSetGroup
+    python pull_schema.py --type SharingRules
 
     # Specify a target org:
-    python pull_flow_schema.py --target-org myOrg
+    python pull_schema.py --target-org myOrg
 
     # Direct URL + token (advanced):
-    python pull_flow_schema.py --instance-url https://myorg.my.salesforce.com --access-token <token>
+    python pull_schema.py --instance-url https://myorg.my.salesforce.com --access-token <token>
 
 Output:
-    references/<type>-metadata-schema.json  (overwrites existing)
+    skills/<skill-dir>/references/<type>-metadata-schema.json  (overwrites existing)
 """
 
 import argparse
@@ -42,7 +42,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).parent
-SKILLS_DIR = SCRIPT_DIR.parent.parent  # skills/ root containing all skill dirs
+SKILLS_DIR = SCRIPT_DIR.parent / "skills"  # skills/ root containing all skill dirs
 
 XSD_NS = "http://www.w3.org/2001/XMLSchema"
 
@@ -305,7 +305,7 @@ def build_json_schema(matched_types, enum_types, root_type, api_version=None):
             f"JSON Schema for Salesforce {root_type} metadata"
             f" (API v{api_version}). " if api_version else f"JSON Schema for Salesforce {root_type} metadata. "
         )
-        + "Auto-generated from the org's metadata WSDL by pull_flow_schema.py.",
+        + "Auto-generated from the org's metadata WSDL by pull_schema.py.",
         "type": "object",
         "$defs": {},
     }
@@ -332,11 +332,20 @@ def main():
         choices=list(METADATA_TYPES.keys()),
         help="Metadata type to extract (default: Flow)",
     )
-    parser.add_argument("--target-org", help="sf CLI target org alias or username")
+    parser.add_argument(
+        "org",
+        nargs="?",
+        default=None,
+        help="sf CLI target org alias or username (uses default org if omitted)",
+    )
+    parser.add_argument("--target-org", help="sf CLI target org alias (alternative to positional arg)")
     parser.add_argument("--instance-url", help="Salesforce instance URL (direct mode)")
     parser.add_argument("--access-token", help="OAuth access token (direct mode)")
     parser.add_argument("--output", help="Output JSON Schema path (overrides default)")
     args = parser.parse_args()
+
+    # Positional org takes precedence, then --target-org
+    target_org = args.org or args.target_org
 
     type_prefix, root_type, skill_dir, default_filename = METADATA_TYPES[args.type]
 
@@ -345,7 +354,7 @@ def main():
         access_token = args.access_token
         api_version = None
     else:
-        instance_url, access_token, api_version = get_org_info(args.target_org)
+        instance_url, access_token, api_version = get_org_info(target_org)
         if not instance_url or not access_token:
             print(
                 "Could not get org credentials. Is sf CLI installed and authenticated?",

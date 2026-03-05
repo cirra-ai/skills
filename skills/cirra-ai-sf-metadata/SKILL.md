@@ -231,16 +231,17 @@ JSON Schemas in `references/`:
 These schemas validate required fields, valid enum values, correct nesting
 (e.g., Layout → LayoutSection → LayoutColumn → LayoutItem), and type shapes.
 
-To refresh any schema from a live org (requires sf CLI + `cirra-ai-sf-flow`
-scripts):
+To refresh any schema from a live org (requires sf CLI):
 
 ```bash
-python cirra-ai-sf-flow/scripts/pull_flow_schema.py --type Profile \
-  --output cirra-ai-sf-metadata/references/profile-metadata-schema.json
-python cirra-ai-sf-flow/scripts/pull_flow_schema.py --type Layout \
-  --output cirra-ai-sf-metadata/references/layout-metadata-schema.json
-python cirra-ai-sf-flow/scripts/pull_flow_schema.py --type FlexiPage \
-  --output cirra-ai-sf-metadata/references/flexipage-metadata-schema.json
+scripts/pull_schema.sh --type Profile          # default org
+scripts/pull_schema.sh --type Layout myOrg     # specific org
+scripts/pull_schema.sh --type FlexiPage
+scripts/pull_schema.sh --type CustomObject
+scripts/pull_schema.sh --type CustomField
+scripts/pull_schema.sh --type ValidationRule
+scripts/pull_schema.sh --type RecordType
+scripts/pull_schema.sh --type QuickAction
 ```
 
 ### Phase 4: Validation & Scoring

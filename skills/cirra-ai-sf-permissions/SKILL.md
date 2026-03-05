@@ -291,8 +291,10 @@ this schema to catch structural errors offline:
 To refresh the schema from a live org (requires sf CLI):
 
 ```bash
-python cirra-ai-sf-flow/scripts/pull_flow_schema.py --type PermissionSet \
-  --output cirra-ai-sf-permissions/references/permissionset-metadata-schema.json
+scripts/pull_schema.sh --type PermissionSet          # default org
+scripts/pull_schema.sh --type PermissionSet myOrg    # specific org
+scripts/pull_schema.sh --type PermissionSetGroup
+scripts/pull_schema.sh --type SharingRules
 ```
 
 ---
