@@ -224,17 +224,26 @@ metadata_create(
 Before deployment, validate the generated Flow against known structural
 requirements. This applies to **both XML and JSON** output formats.
 
-> **Why not a full XSD?** Salesforce publishes a metadata XSD/WSDL, but public
-> copies (e.g., [forcedotcom/idecore](https://github.com/forcedotcom/idecore/blob/master/com.salesforce.ide.api/schema/metadata.xsd))
-> are stuck at API v39.0 and miss modern flow elements. The only reliable
-> source is the org-specific WSDL (Setup > API > Generate Metadata WSDL),
-> which is impractical to fetch at skill runtime. The structural checks below
-> cover the issues that most commonly cause deployment failures.
+> **Schema source**: A baseline JSON Schema is bundled at
+> `references/flow-metadata-schema.json` (API v65.0). To refresh it from a
+> live org's WSDL (recommended after major Salesforce releases):
+>
+> ```bash
+> python scripts/pull_flow_schema.py                  # uses default org
+> python scripts/pull_flow_schema.py --target-org dev  # specific org
+> ```
+>
+> The script downloads the org's metadata WSDL, extracts only Flow-related
+> XSD types, and generates a JSON Schema usable for both XML and JSON
+> validation. The bundled baseline covers all core types; the pull script
+> ensures you match your org's exact API version.
 
-#### Tier 1 — Built-in structural checks (always run)
+#### Tier 1 — JSON Schema + structural checks (always run)
 
-These checks work on both XML and JSON representations and require no external
-tools. Run them before every `metadata_create` or `metadata_update` call.
+Validate against `references/flow-metadata-schema.json` first, then apply
+the structural checks below. The JSON Schema covers required fields, valid
+enums, type shapes, and connector structure for both XML-derived and JSON
+payloads.
 
 | Check                      | Applies to | What to validate                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | -------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -274,10 +283,11 @@ This validates:
 - API version compatibility
 - Dependency resolution (referenced Apex classes, subflows, etc.)
 
-For **JSON payloads** (used with `metadata_create`), there is no equivalent
-offline schema. Tier 1 checks cover structural validity; the MCP
-`metadata_create` call itself acts as the authoritative JSON validator — if
-the Metadata API rejects it, the error message identifies the invalid property.
+For **JSON payloads** (used with `metadata_create`), validate against
+`references/flow-metadata-schema.json` before calling the API. This catches
+type mismatches, missing required fields, and invalid enum values offline.
+The MCP `metadata_create` call remains the authoritative validator for
+org-specific constraints (field existence, object references, etc.).
 
 **Error handling**: If `sf project deploy validate` fails:
 

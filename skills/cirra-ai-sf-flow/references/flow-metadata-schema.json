@@ -1,0 +1,901 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cirra.ai/schemas/salesforce-flow-metadata.json",
+  "title": "Salesforce Flow Metadata",
+  "description": "Baseline JSON Schema for Salesforce Flow metadata. Covers core element types sufficient for structural validation of both XML and JSON flow representations. Refresh from a live org with: python scripts/pull_flow_schema.py",
+  "x-salesforce-api-version": "65.0",
+  "x-schema-source": "baseline",
+  "type": "object",
+  "$ref": "#/$defs/Flow",
+  "$defs": {
+    "Flow": {
+      "type": "object",
+      "required": ["apiVersion", "label", "processType", "status", "start"],
+      "properties": {
+        "fullName": { "type": "string" },
+        "apiVersion": {
+          "type": "number",
+          "minimum": 30.0,
+          "description": "Metadata API version. Recommend >= 55.0, warn < 55.0"
+        },
+        "label": { "type": "string", "minLength": 1 },
+        "description": { "type": "string" },
+        "processType": { "$ref": "#/$defs/FlowProcessType" },
+        "status": { "$ref": "#/$defs/FlowStatus" },
+        "runInMode": { "$ref": "#/$defs/FlowRunInMode" },
+        "triggerType": { "$ref": "#/$defs/FlowTriggerType" },
+        "environments": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowEnvironment" }
+        },
+        "interviewLabel": { "type": "string" },
+        "start": { "$ref": "#/$defs/FlowStart" },
+        "actionCalls": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowActionCall" }
+        },
+        "apexPluginCalls": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowApexPluginCall" }
+        },
+        "assignments": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowAssignment" }
+        },
+        "choices": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowChoice" }
+        },
+        "collectionProcessors": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowCollectionProcessor" }
+        },
+        "constants": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowConstant" }
+        },
+        "customErrors": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowCustomError" }
+        },
+        "decisions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowDecision" }
+        },
+        "dynamicChoiceSets": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowDynamicChoiceSet" }
+        },
+        "formulas": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowFormula" }
+        },
+        "loops": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowLoop" }
+        },
+        "orchestratedStages": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowOrchestratedStage" }
+        },
+        "recordCreates": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowRecordCreate" }
+        },
+        "recordDeletes": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowRecordDelete" }
+        },
+        "recordLookups": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowRecordLookup" }
+        },
+        "recordRollbacks": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowRecordRollback" }
+        },
+        "recordUpdates": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowRecordUpdate" }
+        },
+        "screens": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowScreen" }
+        },
+        "stages": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowStage" }
+        },
+        "steps": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowStep" }
+        },
+        "subflows": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowSubflow" }
+        },
+        "textTemplates": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowTextTemplate" }
+        },
+        "transforms": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowTransform" }
+        },
+        "variables": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowVariable" }
+        },
+        "waits": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowWait" }
+        }
+      },
+      "additionalProperties": true
+    },
+
+    "FlowProcessType": {
+      "type": "string",
+      "enum": [
+        "AutoLaunchedFlow",
+        "Screen",
+        "RecordTriggeredFlow",
+        "ScheduleTriggeredFlow",
+        "PlatformEvent",
+        "Workflow",
+        "CustomEvent",
+        "ActionPlan",
+        "CartAsyncFlow",
+        "CheckoutFlow",
+        "ContactRequestFlow",
+        "FieldServiceMobile",
+        "FieldServiceWeb",
+        "FSCLending",
+        "IndividualObject",
+        "InvocableProcess",
+        "Journey",
+        "LoginFlow",
+        "ManagedContentFlow",
+        "OrchestrationFlow",
+        "Orchestrator",
+        "SurveyEnrich",
+        "TransactionSecurityFlow",
+        "UserProvisioningFlow"
+      ]
+    },
+    "FlowStatus": {
+      "type": "string",
+      "enum": ["Draft", "Active", "Obsolete", "InvalidDraft"]
+    },
+    "FlowRunInMode": {
+      "type": "string",
+      "enum": ["DefaultMode", "SystemModeWithSharing", "SystemModeWithoutSharing"]
+    },
+    "FlowTriggerType": {
+      "type": "string",
+      "enum": [
+        "RecordBeforeSave",
+        "RecordAfterSave",
+        "RecordBeforeDelete",
+        "Scheduled",
+        "PlatformEvent",
+        "EventDrivenJourney"
+      ]
+    },
+    "FlowEnvironment": {
+      "type": "string",
+      "enum": ["Default", "Slack"]
+    },
+    "FlowDataType": {
+      "type": "string",
+      "enum": [
+        "String",
+        "Number",
+        "Currency",
+        "Boolean",
+        "Date",
+        "DateTime",
+        "Picklist",
+        "Multipicklist",
+        "SObject",
+        "Apex"
+      ]
+    },
+
+    "FlowConnector": {
+      "type": "object",
+      "required": ["targetReference"],
+      "properties": {
+        "targetReference": { "type": "string", "minLength": 1 },
+        "isGoTo": { "type": "boolean" }
+      }
+    },
+    "FlowElementReferenceOrValue": {
+      "type": "object",
+      "properties": {
+        "booleanValue": { "type": "boolean" },
+        "dateTimeValue": { "type": "string" },
+        "dateValue": { "type": "string" },
+        "elementReference": { "type": "string" },
+        "numberValue": { "type": "number" },
+        "stringValue": { "type": "string" }
+      }
+    },
+    "FlowInputFieldAssignment": {
+      "type": "object",
+      "required": ["field", "value"],
+      "properties": {
+        "field": { "type": "string" },
+        "value": { "$ref": "#/$defs/FlowElementReferenceOrValue" }
+      }
+    },
+    "FlowOutputFieldAssignment": {
+      "type": "object",
+      "required": ["assignToReference", "field"],
+      "properties": {
+        "assignToReference": { "type": "string" },
+        "field": { "type": "string" }
+      }
+    },
+    "FlowAssignmentItem": {
+      "type": "object",
+      "required": ["assignToReference", "operator"],
+      "properties": {
+        "assignToReference": { "type": "string" },
+        "operator": { "$ref": "#/$defs/FlowAssignmentOperator" },
+        "value": { "$ref": "#/$defs/FlowElementReferenceOrValue" }
+      }
+    },
+    "FlowAssignmentOperator": {
+      "type": "string",
+      "enum": [
+        "Assign",
+        "Add",
+        "Subtract",
+        "AddItem",
+        "RemoveFirst",
+        "RemoveAll",
+        "AddAtStart",
+        "RemoveAfterFirst",
+        "RemoveBeforeFirst",
+        "AssignCount",
+        "RemovePosition",
+        "RemoveUncommon"
+      ]
+    },
+    "FlowCondition": {
+      "type": "object",
+      "required": ["leftValueReference", "operator"],
+      "properties": {
+        "leftValueReference": { "type": "string" },
+        "operator": { "$ref": "#/$defs/FlowComparisonOperator" },
+        "rightValue": { "$ref": "#/$defs/FlowElementReferenceOrValue" }
+      }
+    },
+    "FlowComparisonOperator": {
+      "type": "string",
+      "enum": [
+        "EqualTo",
+        "NotEqualTo",
+        "GreaterThan",
+        "LessThan",
+        "GreaterThanOrEqualTo",
+        "LessThanOrEqualTo",
+        "StartsWith",
+        "EndsWith",
+        "Contains",
+        "IsNull",
+        "IsChanged",
+        "WasSet",
+        "In",
+        "NotIn"
+      ]
+    },
+    "FlowRecordFilter": {
+      "type": "object",
+      "required": ["field", "operator"],
+      "properties": {
+        "field": { "type": "string" },
+        "operator": { "$ref": "#/$defs/FlowComparisonOperator" },
+        "value": { "$ref": "#/$defs/FlowElementReferenceOrValue" }
+      }
+    },
+
+    "FlowStart": {
+      "type": "object",
+      "properties": {
+        "connector": { "$ref": "#/$defs/FlowConnector" },
+        "doesRequireRecordChangedToMeetCriteria": { "type": "boolean" },
+        "entryConditions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowCondition" }
+        },
+        "entryType": { "type": "string" },
+        "filterFormula": { "type": "string" },
+        "filterLogic": { "type": "string" },
+        "object": { "type": "string" },
+        "objectContainer": { "type": "string" },
+        "recordTriggerType": { "$ref": "#/$defs/FlowTriggerType" },
+        "schedule": { "$ref": "#/$defs/FlowSchedule" },
+        "scheduledPaths": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowScheduledPath" }
+        },
+        "triggerType": { "$ref": "#/$defs/FlowTriggerType" }
+      }
+    },
+    "FlowSchedule": {
+      "type": "object",
+      "properties": {
+        "frequency": { "type": "string", "enum": ["Once", "Daily", "Weekly"] },
+        "startDate": { "type": "string" },
+        "startTime": { "type": "string" }
+      }
+    },
+    "FlowScheduledPath": {
+      "type": "object",
+      "properties": {
+        "connector": { "$ref": "#/$defs/FlowConnector" },
+        "label": { "type": "string" },
+        "name": { "type": "string" },
+        "maxBatchSize": { "type": "integer" },
+        "offsetNumber": { "type": "integer" },
+        "offsetUnit": { "type": "string" },
+        "pathType": { "type": "string" },
+        "recordField": { "type": "string" },
+        "timeSource": { "type": "string" }
+      }
+    },
+
+    "FlowActionCall": {
+      "type": "object",
+      "required": ["name", "label", "actionName", "actionType"],
+      "properties": {
+        "name": { "type": "string" },
+        "label": { "type": "string" },
+        "description": { "type": "string" },
+        "actionName": { "type": "string" },
+        "actionType": { "type": "string" },
+        "connector": { "$ref": "#/$defs/FlowConnector" },
+        "faultConnector": { "$ref": "#/$defs/FlowConnector" },
+        "inputParameters": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowActionCallInputParameter" }
+        },
+        "outputParameters": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowActionCallOutputParameter" }
+        },
+        "storeOutputAutomatically": { "type": "boolean" }
+      }
+    },
+    "FlowActionCallInputParameter": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string" },
+        "value": { "$ref": "#/$defs/FlowElementReferenceOrValue" }
+      }
+    },
+    "FlowActionCallOutputParameter": {
+      "type": "object",
+      "required": ["assignToReference", "name"],
+      "properties": {
+        "assignToReference": { "type": "string" },
+        "name": { "type": "string" }
+      }
+    },
+
+    "FlowApexPluginCall": {
+      "type": "object",
+      "required": ["name", "label", "apexClass"],
+      "properties": {
+        "name": { "type": "string" },
+        "label": { "type": "string" },
+        "apexClass": { "type": "string" },
+        "connector": { "$ref": "#/$defs/FlowConnector" },
+        "faultConnector": { "$ref": "#/$defs/FlowConnector" }
+      }
+    },
+
+    "FlowAssignment": {
+      "type": "object",
+      "required": ["name", "label", "assignmentItems"],
+      "properties": {
+        "name": { "type": "string" },
+        "label": { "type": "string" },
+        "description": { "type": "string" },
+        "assignmentItems": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowAssignmentItem" },
+          "minItems": 1
+        },
+        "connector": { "$ref": "#/$defs/FlowConnector" }
+      }
+    },
+
+    "FlowChoice": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string" },
+        "choiceText": { "type": "string" },
+        "dataType": { "$ref": "#/$defs/FlowDataType" },
+        "value": { "$ref": "#/$defs/FlowElementReferenceOrValue" }
+      }
+    },
+
+    "FlowCollectionProcessor": {
+      "type": "object",
+      "required": ["name", "label"],
+      "properties": {
+        "name": { "type": "string" },
+        "label": { "type": "string" },
+        "collectionProcessorType": { "type": "string" },
+        "collectionReference": { "type": "string" },
+        "connector": { "$ref": "#/$defs/FlowConnector" },
+        "conditionLogic": { "type": "string" },
+        "conditions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowCondition" }
+        }
+      }
+    },
+
+    "FlowConstant": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string" },
+        "dataType": { "$ref": "#/$defs/FlowDataType" },
+        "value": { "$ref": "#/$defs/FlowElementReferenceOrValue" }
+      }
+    },
+
+    "FlowCustomError": {
+      "type": "object",
+      "required": ["name", "label"],
+      "properties": {
+        "name": { "type": "string" },
+        "label": { "type": "string" },
+        "description": { "type": "string" },
+        "connector": { "$ref": "#/$defs/FlowConnector" }
+      }
+    },
+
+    "FlowDecision": {
+      "type": "object",
+      "required": ["name", "label", "rules", "defaultConnector"],
+      "properties": {
+        "name": { "type": "string" },
+        "label": { "type": "string" },
+        "description": { "type": "string" },
+        "rules": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowRule" },
+          "minItems": 1
+        },
+        "defaultConnector": { "$ref": "#/$defs/FlowConnector" },
+        "defaultConnectorLabel": { "type": "string" }
+      }
+    },
+    "FlowRule": {
+      "type": "object",
+      "required": ["name", "label", "conditionLogic", "conditions"],
+      "properties": {
+        "name": { "type": "string" },
+        "label": { "type": "string" },
+        "conditionLogic": { "type": "string" },
+        "conditions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowCondition" },
+          "minItems": 1
+        },
+        "connector": { "$ref": "#/$defs/FlowConnector" },
+        "doesRequireRecordChangedToMeetCriteria": { "type": "boolean" }
+      }
+    },
+
+    "FlowDynamicChoiceSet": {
+      "type": "object",
+      "required": ["name", "dataType", "object"],
+      "properties": {
+        "name": { "type": "string" },
+        "dataType": { "$ref": "#/$defs/FlowDataType" },
+        "displayField": { "type": "string" },
+        "filterLogic": { "type": "string" },
+        "filters": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowRecordFilter" }
+        },
+        "limit": { "type": "integer" },
+        "object": { "type": "string" },
+        "outputAssignments": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowOutputFieldAssignment" }
+        },
+        "sortField": { "type": "string" },
+        "sortOrder": { "type": "string", "enum": ["Asc", "Desc"] },
+        "valueField": { "type": "string" }
+      }
+    },
+
+    "FlowFormula": {
+      "type": "object",
+      "required": ["name", "dataType", "expression"],
+      "properties": {
+        "name": { "type": "string" },
+        "dataType": { "$ref": "#/$defs/FlowDataType" },
+        "expression": { "type": "string" },
+        "scale": { "type": "integer" }
+      }
+    },
+
+    "FlowLoop": {
+      "type": "object",
+      "required": ["name", "label", "collectionReference"],
+      "properties": {
+        "name": { "type": "string" },
+        "label": { "type": "string" },
+        "description": { "type": "string" },
+        "assignNextValueToReference": { "type": "string" },
+        "collectionReference": { "type": "string" },
+        "connector": { "$ref": "#/$defs/FlowConnector" },
+        "iterationOrder": { "type": "string", "enum": ["Asc", "Desc"] },
+        "nextValueConnector": { "$ref": "#/$defs/FlowConnector" },
+        "noMoreValuesConnector": { "$ref": "#/$defs/FlowConnector" }
+      }
+    },
+
+    "FlowOrchestratedStage": {
+      "type": "object",
+      "required": ["name", "label"],
+      "properties": {
+        "name": { "type": "string" },
+        "label": { "type": "string" },
+        "connector": { "$ref": "#/$defs/FlowConnector" },
+        "exitConditionLogic": { "type": "string" },
+        "exitConditions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowCondition" }
+        },
+        "stageSteps": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowStageStep" }
+        }
+      }
+    },
+    "FlowStageStep": {
+      "type": "object",
+      "required": ["name", "label", "actionName", "actionType"],
+      "properties": {
+        "name": { "type": "string" },
+        "label": { "type": "string" },
+        "actionName": { "type": "string" },
+        "actionType": { "type": "string" },
+        "assignees": { "type": "array", "items": { "type": "object" } },
+        "entryConditionLogic": { "type": "string" },
+        "entryConditions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowCondition" }
+        },
+        "inputParameters": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowActionCallInputParameter" }
+        }
+      }
+    },
+
+    "FlowRecordCreate": {
+      "type": "object",
+      "required": ["name", "label"],
+      "properties": {
+        "name": { "type": "string" },
+        "label": { "type": "string" },
+        "description": { "type": "string" },
+        "connector": { "$ref": "#/$defs/FlowConnector" },
+        "faultConnector": { "$ref": "#/$defs/FlowConnector" },
+        "inputAssignments": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowInputFieldAssignment" }
+        },
+        "inputReference": { "type": "string" },
+        "object": { "type": "string" },
+        "storeOutputAutomatically": { "type": "boolean" },
+        "assignRecordIdToReference": { "type": "string" }
+      }
+    },
+
+    "FlowRecordDelete": {
+      "type": "object",
+      "required": ["name", "label"],
+      "properties": {
+        "name": { "type": "string" },
+        "label": { "type": "string" },
+        "description": { "type": "string" },
+        "connector": { "$ref": "#/$defs/FlowConnector" },
+        "faultConnector": { "$ref": "#/$defs/FlowConnector" },
+        "filterLogic": { "type": "string" },
+        "filters": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowRecordFilter" }
+        },
+        "inputReference": { "type": "string" },
+        "object": { "type": "string" }
+      }
+    },
+
+    "FlowRecordLookup": {
+      "type": "object",
+      "required": ["name", "label", "object"],
+      "properties": {
+        "name": { "type": "string" },
+        "label": { "type": "string" },
+        "description": { "type": "string" },
+        "connector": { "$ref": "#/$defs/FlowConnector" },
+        "faultConnector": { "$ref": "#/$defs/FlowConnector" },
+        "filterLogic": { "type": "string" },
+        "filters": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowRecordFilter" }
+        },
+        "getFirstRecordOnly": { "type": "boolean" },
+        "object": { "type": "string" },
+        "outputAssignments": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowOutputFieldAssignment" }
+        },
+        "outputReference": { "type": "string" },
+        "queriedFields": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "sortField": { "type": "string" },
+        "sortOrder": { "type": "string", "enum": ["Asc", "Desc"] },
+        "storeOutputAutomatically": { "type": "boolean" }
+      }
+    },
+
+    "FlowRecordRollback": {
+      "type": "object",
+      "required": ["name", "label"],
+      "properties": {
+        "name": { "type": "string" },
+        "label": { "type": "string" },
+        "connector": { "$ref": "#/$defs/FlowConnector" }
+      }
+    },
+
+    "FlowRecordUpdate": {
+      "type": "object",
+      "required": ["name", "label"],
+      "properties": {
+        "name": { "type": "string" },
+        "label": { "type": "string" },
+        "description": { "type": "string" },
+        "connector": { "$ref": "#/$defs/FlowConnector" },
+        "faultConnector": { "$ref": "#/$defs/FlowConnector" },
+        "filterLogic": { "type": "string" },
+        "filters": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowRecordFilter" }
+        },
+        "inputAssignments": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowInputFieldAssignment" }
+        },
+        "inputReference": { "type": "string" },
+        "object": { "type": "string" }
+      }
+    },
+
+    "FlowScreen": {
+      "type": "object",
+      "required": ["name", "label"],
+      "properties": {
+        "name": { "type": "string" },
+        "label": { "type": "string" },
+        "description": { "type": "string" },
+        "allowBack": { "type": "boolean" },
+        "allowFinish": { "type": "boolean" },
+        "allowPause": { "type": "boolean" },
+        "backButtonLabel": { "type": "string" },
+        "connector": { "$ref": "#/$defs/FlowConnector" },
+        "fields": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowScreenField" }
+        },
+        "nextOrFinishButtonLabel": { "type": "string" },
+        "pauseButtonLabel": { "type": "string" },
+        "pausedText": { "type": "string" },
+        "showFooter": { "type": "boolean" },
+        "showHeader": { "type": "boolean" }
+      }
+    },
+    "FlowScreenField": {
+      "type": "object",
+      "required": ["name", "fieldType"],
+      "properties": {
+        "name": { "type": "string" },
+        "choiceReferences": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "dataType": { "$ref": "#/$defs/FlowDataType" },
+        "defaultValue": { "$ref": "#/$defs/FlowElementReferenceOrValue" },
+        "extensionName": { "type": "string" },
+        "fieldText": { "type": "string" },
+        "fieldType": { "type": "string" },
+        "fields": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowScreenField" }
+        },
+        "helpText": { "type": "string" },
+        "inputParameters": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowActionCallInputParameter" }
+        },
+        "isRequired": { "type": "boolean" },
+        "isVisible": { "type": "boolean" },
+        "outputParameters": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowActionCallOutputParameter" }
+        },
+        "storeOutputAutomatically": { "type": "boolean" },
+        "visibilityRule": { "type": "object" }
+      }
+    },
+
+    "FlowStage": {
+      "type": "object",
+      "required": ["name", "label"],
+      "properties": {
+        "name": { "type": "string" },
+        "label": { "type": "string" },
+        "isActive": { "type": "boolean" },
+        "stageOrder": { "type": "integer" }
+      }
+    },
+
+    "FlowStep": {
+      "type": "object",
+      "required": ["name", "label"],
+      "properties": {
+        "name": { "type": "string" },
+        "label": { "type": "string" },
+        "connectors": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowConnector" }
+        }
+      }
+    },
+
+    "FlowSubflow": {
+      "type": "object",
+      "required": ["name", "label", "flowName"],
+      "properties": {
+        "name": { "type": "string" },
+        "label": { "type": "string" },
+        "description": { "type": "string" },
+        "connector": { "$ref": "#/$defs/FlowConnector" },
+        "faultConnector": { "$ref": "#/$defs/FlowConnector" },
+        "flowName": { "type": "string" },
+        "inputAssignments": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowSubflowInputAssignment" }
+        },
+        "outputAssignments": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowSubflowOutputAssignment" }
+        },
+        "storeOutputAutomatically": { "type": "boolean" }
+      }
+    },
+    "FlowSubflowInputAssignment": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string" },
+        "value": { "$ref": "#/$defs/FlowElementReferenceOrValue" }
+      }
+    },
+    "FlowSubflowOutputAssignment": {
+      "type": "object",
+      "required": ["assignToReference", "name"],
+      "properties": {
+        "assignToReference": { "type": "string" },
+        "name": { "type": "string" }
+      }
+    },
+
+    "FlowTextTemplate": {
+      "type": "object",
+      "required": ["name", "text"],
+      "properties": {
+        "name": { "type": "string" },
+        "isViewedAsPlainText": { "type": "boolean" },
+        "text": { "type": "string" }
+      }
+    },
+
+    "FlowTransform": {
+      "type": "object",
+      "required": ["name", "label"],
+      "properties": {
+        "name": { "type": "string" },
+        "label": { "type": "string" },
+        "description": { "type": "string" },
+        "connector": { "$ref": "#/$defs/FlowConnector" },
+        "transformValues": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowTransformValue" }
+        }
+      }
+    },
+    "FlowTransformValue": {
+      "type": "object",
+      "properties": {
+        "transformValueActions": {
+          "type": "array",
+          "items": { "type": "object" }
+        }
+      }
+    },
+
+    "FlowVariable": {
+      "type": "object",
+      "required": ["name", "dataType"],
+      "properties": {
+        "name": { "type": "string" },
+        "dataType": { "$ref": "#/$defs/FlowDataType" },
+        "isCollection": { "type": "boolean" },
+        "isInput": { "type": "boolean" },
+        "isOutput": { "type": "boolean" },
+        "objectType": { "type": "string" },
+        "scale": { "type": "integer" },
+        "value": { "$ref": "#/$defs/FlowElementReferenceOrValue" }
+      }
+    },
+
+    "FlowWait": {
+      "type": "object",
+      "required": ["name", "label"],
+      "properties": {
+        "name": { "type": "string" },
+        "label": { "type": "string" },
+        "description": { "type": "string" },
+        "connector": { "$ref": "#/$defs/FlowConnector" },
+        "defaultConnector": { "$ref": "#/$defs/FlowConnector" },
+        "defaultConnectorLabel": { "type": "string" },
+        "faultConnector": { "$ref": "#/$defs/FlowConnector" },
+        "waitEvents": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowWaitEvent" }
+        }
+      }
+    },
+    "FlowWaitEvent": {
+      "type": "object",
+      "required": ["name", "label"],
+      "properties": {
+        "name": { "type": "string" },
+        "label": { "type": "string" },
+        "conditionLogic": { "type": "string" },
+        "conditions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowCondition" }
+        },
+        "connector": { "$ref": "#/$defs/FlowConnector" },
+        "eventType": { "type": "string" },
+        "inputParameters": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowActionCallInputParameter" }
+        },
+        "outputParameters": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlowActionCallOutputParameter" }
+        }
+      }
+    }
+  }
+}
