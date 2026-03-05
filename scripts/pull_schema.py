@@ -7,30 +7,27 @@ definitions for a specified metadata type, and generates a JSON Schema file
 that can be used for offline validation (both XML and JSON representations).
 
 Usage:
+    # Pull all schemas at once:
+    python pull_schema.py --type all myOrg
+
     # Pull Flow schema (default):
     python pull_schema.py
 
     # Pull a different metadata type:
     python pull_schema.py --type PermissionSet
-    python pull_schema.py --type Profile
-    python pull_schema.py --type Layout
     python pull_schema.py --type FlexiPage
-    python pull_schema.py --type CustomObject
-    python pull_schema.py --type CustomField
-    python pull_schema.py --type ValidationRule
-    python pull_schema.py --type RecordType
-    python pull_schema.py --type QuickAction
-    python pull_schema.py --type PermissionSetGroup
-    python pull_schema.py --type SharingRules
 
     # Specify a target org:
-    python pull_schema.py --target-org myOrg
+    python pull_schema.py myOrg
 
     # Direct URL + token (advanced):
     python pull_schema.py --instance-url https://myorg.my.salesforce.com --access-token <token>
 
 Output:
     skills/<skill-dir>/references/<type>-metadata-schema.json  (overwrites existing)
+
+When an existing schema file is found, any hand-curated "description" fields on
+properties are preserved in the newly generated output.
 """
 
 import argparse
@@ -334,15 +331,78 @@ def build_json_schema(matched_types, enum_types, root_type, api_version=None):
     return schema
 
 
+def merge_descriptions(new_schema, existing_path):
+    """Carry over hand-curated description fields from an existing schema file.
+
+    Walks ``$defs`` → each type → ``properties`` → each property and copies
+    the ``description`` value from the existing file into the new schema when
+    the new property does not already have one.  Also preserves the top-level
+    ``description`` on each type definition.
+    """
+    if not existing_path.exists():
+        return
+
+    try:
+        with open(existing_path) as f:
+            old = json.load(f)
+    except (json.JSONDecodeError, OSError):
+        return
+
+    old_defs = old.get("$defs", {})
+    new_defs = new_schema.get("$defs", {})
+
+    for type_name, old_type in old_defs.items():
+        new_type = new_defs.get(type_name)
+        if new_type is None:
+            continue
+
+        # Preserve type-level description
+        if "description" in old_type and "description" not in new_type:
+            new_type["description"] = old_type["description"]
+
+        old_props = old_type.get("properties", {})
+        new_props = new_type.get("properties", {})
+        for prop_name, old_prop in old_props.items():
+            new_prop = new_props.get(prop_name)
+            if new_prop is None:
+                continue
+            if "description" in old_prop and "description" not in new_prop:
+                new_prop["description"] = old_prop["description"]
+
+
+def pull_one(type_key, wsdl_content, api_version, output_override=None):
+    """Pull a single metadata type schema from already-downloaded WSDL content."""
+    type_prefix, root_type, skill_dir, default_filename = METADATA_TYPES[type_key]
+
+    print(f"\nExtracting {type_key} types from WSDL...")
+    matched_types, enum_types = extract_types(wsdl_content, type_prefix)
+    print(f"Found {len(matched_types)} {type_key} complex types")
+
+    schema = build_json_schema(matched_types, enum_types, root_type, api_version)
+
+    default_refs_dir = SKILLS_DIR / skill_dir / "references"
+    output_path = Path(output_override) if output_override else default_refs_dir / default_filename
+
+    # Preserve hand-curated descriptions from the existing file
+    merge_descriptions(schema, output_path)
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w") as f:
+        json.dump(schema, f, indent=2)
+        f.write("\n")
+    print(f"Wrote {output_path}  ({len(schema.get('$defs', {}))} types)")
+
+
 def main():
+    all_choices = ["all"] + list(METADATA_TYPES.keys())
     parser = argparse.ArgumentParser(
         description="Pull metadata schema from Salesforce org"
     )
     parser.add_argument(
         "--type",
         default="Flow",
-        choices=list(METADATA_TYPES.keys()),
-        help="Metadata type to extract (default: Flow)",
+        choices=all_choices,
+        help="Metadata type to extract, or 'all' (default: Flow)",
     )
     parser.add_argument(
         "org",
@@ -353,13 +413,11 @@ def main():
     parser.add_argument("--target-org", help="sf CLI target org alias (alternative to positional arg)")
     parser.add_argument("--instance-url", help="Salesforce instance URL (direct mode)")
     parser.add_argument("--access-token", help="OAuth access token (direct mode)")
-    parser.add_argument("--output", help="Output JSON Schema path (overrides default)")
+    parser.add_argument("--output", help="Output JSON Schema path (overrides default, single-type only)")
     args = parser.parse_args()
 
     # Positional org takes precedence, then --target-org
     target_org = args.org or args.target_org
-
-    type_prefix, root_type, skill_dir, default_filename = METADATA_TYPES[args.type]
 
     if args.instance_url and args.access_token:
         instance_url = args.instance_url
@@ -376,21 +434,17 @@ def main():
 
     wsdl_content = download_wsdl(instance_url, access_token)
 
-    print(f"Extracting {args.type} types from WSDL...")
-    matched_types, enum_types = extract_types(wsdl_content, type_prefix)
-    print(f"Found {len(matched_types)} {args.type} complex types and {len(enum_types)} enum types")
+    if args.type == "all":
+        if args.output:
+            print("Warning: --output is ignored when using --type all", file=sys.stderr)
+        for type_key in METADATA_TYPES:
+            pull_one(type_key, wsdl_content, api_version)
+        print(f"\nDone — pulled {len(METADATA_TYPES)} schemas.")
+    else:
+        pull_one(args.type, wsdl_content, api_version, args.output)
 
-    schema = build_json_schema(matched_types, enum_types, root_type, api_version)
-
-    default_refs_dir = SKILLS_DIR / skill_dir / "references"
-    output_path = Path(args.output) if args.output else default_refs_dir / default_filename
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "w") as f:
-        json.dump(schema, f, indent=2)
-    print(f"Wrote JSON Schema to {output_path}")
-    print(f"  Types: {len(schema.get('$defs', {}))}")
     if api_version:
-        print(f"  API version: {api_version}")
+        print(f"API version: {api_version}")
 
 
 if __name__ == "__main__":
