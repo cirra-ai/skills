@@ -16,19 +16,16 @@ MCPorter bridge equivalent.
 
 ## When to Use This Skill
 
-Use this bridge **only when** native MCP tools are unavailable. Native MCP is
-the preferred transport on all platforms:
+Cirra AI MCP tools are available in every environment — either natively or via
+this bridge. Use the bridge **only when** native MCP tools are unavailable;
+prefer native MCP when it is connected.
 
-| Platform                             | Native MCP available?        | Bridge needed?            |
-| ------------------------------------ | ---------------------------- | ------------------------- |
-| Claude Code (CLI/Desktop)            | Yes — via plugin `.mcp.json` | No                        |
-| Codex / Cowork                       | Yes — via MCP server sidebar | No (and no outbound HTTP) |
-| Claude Web (no MCP configured)       | No                           | Yes                       |
-| Any environment with Bash + internet | Depends on config            | Fallback option           |
-
-**Important**: Codex/Cowork sandboxes have no outbound internet except through
-MCP. If MCP is not connected there, the bridge cannot reach the server either.
-Connect the Cirra AI MCP Server via the Cowork sidebar instead.
+| Platform                             | How Cirra AI tools work                                                                   |
+| ------------------------------------ | ----------------------------------------------------------------------------------------- |
+| Claude Code (CLI/Desktop)            | Native MCP via plugin `.mcp.json` — bridge not needed                                     |
+| Codex / Cowork                       | Native MCP via sidebar — connect the Cirra AI MCP Server and tools are available directly |
+| Claude Web (no MCP configured)       | Use this bridge — routes calls through MCPorter via Bash                                  |
+| Any environment with Bash + internet | Use this bridge as a fallback when native MCP is not configured                           |
 
 ## Bridge Script
 
@@ -270,6 +267,6 @@ python3 hooks/scripts/mcp_validator_cli.py --format report /tmp/operation.json
 - **OAuth timeout**: If using OAuth fallback, browser handshakes have a 60s
   default. Override with `--oauth-timeout <ms>` or
   `export MCPORTER_OAUTH_TIMEOUT_MS=<ms>`.
-- **Codex/Cowork**: The sandboxed environment has no outbound HTTP. If MCP is
-  not connected via the sidebar, the bridge cannot work. Use the native MCP
-  connection instead.
+- **Codex/Cowork**: Connect the Cirra AI MCP Server via the sidebar for native
+  MCP access. The bridge is not needed there — native MCP provides full tool
+  coverage directly.
