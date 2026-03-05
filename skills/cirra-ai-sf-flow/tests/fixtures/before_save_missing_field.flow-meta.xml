@@ -7,7 +7,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignmentItems>
-            <assignToReference>$Record.TEST_Priority__c</assignToReference>
+            <assignToReference>$Record.TEST_Invalid__c</assignToReference>
             <operator>Assign</operator>
             <value>
                 <stringValue>High</stringValue>
@@ -36,8 +36,8 @@
             <label>High Revenue</label>
         </rules>
     </decisions>
-    <description>Before-save flow that sets Lead priority based on annual revenue. Runs on create and update for Lead records with revenue over 1M. Requires TEST_Priority__c custom field on Lead.</description>
-    <label>Before Lead Priority Assignment</label>
+    <description>INVALID: Before-save flow referencing TEST_Invalid__c which does not exist on Lead. Used to test that pre-deployment prerequisite checks detect and advise about missing fields.</description>
+    <label>TEST Before Lead Missing Field</label>
     <processType>AutoLaunchedFlow</processType>
     <start>
         <locationX>0</locationX>

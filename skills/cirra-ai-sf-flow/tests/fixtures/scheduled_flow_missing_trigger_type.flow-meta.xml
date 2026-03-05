@@ -14,8 +14,8 @@
             </value>
         </assignmentItems>
     </assignments>
-    <description>Scheduled flow that runs daily to clean up stale draft Opportunities older than 90 days. Deletes them in bulk with proper error handling.</description>
-    <label>Sched Daily Stale Opportunity Cleanup</label>
+    <description>INVALID: Scheduled flow missing triggerType=Scheduled in start element. Will deploy but end up as InvalidDraft. Used to test that the integration test detects and resolves this.</description>
+    <label>TEST Sched Missing Trigger Type</label>
     <processType>AutoLaunchedFlow</processType>
     <recordDeletes>
         <name>Delete_Stale_Opportunities</name>
@@ -43,13 +43,6 @@
                 <stringValue>Prospecting</stringValue>
             </value>
         </filters>
-        <filters>
-            <field>CreatedDate</field>
-            <operator>LessThan</operator>
-            <value>
-                <elementReference>var_CutoffDate</elementReference>
-            </value>
-        </filters>
         <connector>
             <targetReference>Delete_Stale_Opportunities</targetReference>
         </connector>
@@ -60,7 +53,6 @@
         <connector>
             <targetReference>Get_Stale_Opportunities</targetReference>
         </connector>
-        <triggerType>Scheduled</triggerType>
         <schedule>
             <frequency>Daily</frequency>
             <startDate>2025-01-01</startDate>
@@ -75,13 +67,6 @@
         <isInput>false</isInput>
         <isOutput>false</isOutput>
         <objectType>Opportunity</objectType>
-    </variables>
-    <variables>
-        <name>var_CutoffDate</name>
-        <dataType>Date</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
     </variables>
     <variables>
         <name>var_ErrorMessage</name>
