@@ -1,0 +1,14 @@
+.caption {
+    display: block;
+    padding:0px 0px 20px 0px;
+    /* text-align: center; */
+    margin-left: auto;
+    margin-right: auto;
+    list-style-position: inside;
+}
+.slds-card{ 
+    border:none!important
+}
+.single{
+    padding-right:20px;
+    flex

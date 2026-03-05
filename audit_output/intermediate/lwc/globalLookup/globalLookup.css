@@ -1,0 +1,15 @@
+.iconClass {
+    margin-right:10px;
+}
+.slds-media__body{
+    font-size: 0.8rem;
+    margin-top:0.4rem;
+}
+.slds-combobox_container, .slds-dropdown_fluid {
+    max-width: 800px;
+}
+.slds-dropdown_fluid{
+    min-height: 35px;
+}
+.slds-spinner{
+  

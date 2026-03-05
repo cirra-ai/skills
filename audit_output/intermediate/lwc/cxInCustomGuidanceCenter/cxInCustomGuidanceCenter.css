@@ -1,0 +1,9 @@
+/****************************/
+/* Sidebar CSS Start */
+/****************************/
+.wrapper {
+  visibility: hidden;
+  background-color: var(--lwc-colorBackgroundAlt);
+  border: 1px solid var(--lwc-colorBorder);
+  width: var(--lwc-sizeLarge);
+  height: 

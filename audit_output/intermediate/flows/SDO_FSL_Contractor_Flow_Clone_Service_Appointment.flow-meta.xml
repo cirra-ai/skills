@@ -1,24 +1,389 @@
-{
-  "fullName": "SDO_FSL_Contractor_Flow_Clone_Service_Appointment",
-  "processType": "AutoLaunchedFlow",
-  "description": "Clone SA when assigned to contractor and accepted.",
-  "status": "Active",
-  "start": {
-    "connector": {}
-  },
-  "variables": [],
-  "assignments": [],
-  "decisions": [],
-  "loops": [],
-  "recordLookups": [],
-  "recordCreates": [],
-  "recordUpdates": [],
-  "recordDeletes": [],
-  "screens": [],
-  "subflows": [],
-  "actionCalls": [],
-  "constants": [],
-  "formulas": [],
-  "choices": [],
-  "textTemplates": []
-}
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>50.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <description>These are needed to fill our Service Appointment clone with the same values from the original Service Appointment</description>
+        <name>Assign_Service_Appointment_Values</name>
+        <label>Assign Service Appointment Values</label>
+        <locationX>50</locationX>
+        <locationY>613</locationY>
+        <assignmentItems>
+            <assignToReference>RVarSA.ParentRecordId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>ParentRecordId</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>RVarSA.ServiceTerritoryId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Get_Partner_Service_Territory.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>RVarSA.Status</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>None</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>RVarSA.StatusCategory</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>None</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>RVarSA.AccountId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.AccountId</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>RVarSA.ContactId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.ContactId</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>RVarSA.Subject</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Subject</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>RVarSA.Description</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Description</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>RVarSA.Requires_Contractor__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>True</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>RVarSA.EarliestStartTime</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.EarliestStartTime</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>RVarSA.DueDate</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.DueDate</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>RVarSA.Duration</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Duration</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>RVarSA.DurationType</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.DurationType</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>RVarSA.Street</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Street</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>RVarSA.PostalCode</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.PostalCode</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>RVarSA.City</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.City</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>RVarSA.State</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.State</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>RVarSA.Country</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Country</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Create_Service_Appointment_Clone</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <description>Decision element where contractor either accepts or rejects the work that was assigned</description>
+        <name>Contractor_Accepts_Rejects</name>
+        <label>Contractor Accepts/Rejects</label>
+        <locationX>314</locationX>
+        <locationY>253</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Accepted</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Work_Acceptance_Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Accept</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Get_Parent_Record_Id</targetReference>
+            </connector>
+            <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
+            <label>Accepted</label>
+        </rules>
+        <rules>
+            <name>Rejected</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Work_Acceptance_Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Reject</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Get_Parent_Record_Id_0</targetReference>
+            </connector>
+            <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
+            <label>Rejected</label>
+        </rules>
+    </decisions>
+    <description>When a Service Appointment is assigned to a contractor and is accepted, this flow will clone the original Service Appointment.</description>
+    <interviewLabel>SFS Contractor Flow - Clone Service Appointment {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>SFS Contractor Flow - Clone Service Appointment</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordCreates>
+        <description>Exclude the resource because he rejected this Service Appointment</description>
+        <name>Create_Resource_Preference</name>
+        <label>Create Resource Preference</label>
+        <locationX>314</locationX>
+        <locationY>613</locationY>
+        <inputAssignments>
+            <field>PreferenceType</field>
+            <value>
+                <stringValue>Excluded</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>RelatedRecordId</field>
+            <value>
+                <elementReference>ParentRecordId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>ServiceResourceId</field>
+            <value>
+                <elementReference>ServiceResourceId</elementReference>
+            </value>
+        </inputAssignments>
+        <object>ResourcePreference</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    <recordCreates>
+        <description>Create Service Appointment clone with values from the original Service Appointment</description>
+        <name>Create_Service_Appointment_Clone</name>
+        <label>Create Service Appointment Clone</label>
+        <locationX>50</locationX>
+        <locationY>733</locationY>
+        <inputReference>RVarSA</inputReference>
+    </recordCreates>
+    <recordLookups>
+        <description>Identify the assigned resource so we can exclude them in the next step</description>
+        <name>Get_Assigned_Resource</name>
+        <label>Get Assigned Resource</label>
+        <locationX>314</locationX>
+        <locationY>493</locationY>
+        <assignNullValuesIfNoRecordsFound>False</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Create_Resource_Preference</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>ServiceAppointmentId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <object>AssignedResource</object>
+        <outputAssignments>
+            <assignToReference>ServiceResourceId</assignToReference>
+            <field>ServiceResourceId</field>
+        </outputAssignments>
+    </recordLookups>
+    <recordLookups>
+        <description>Retrieve the Work Order Id from our original Service Appointment</description>
+        <name>Get_Parent_Record_Id</name>
+        <label>Get Parent Record Id</label>
+        <locationX>50</locationX>
+        <locationY>373</locationY>
+        <assignNullValuesIfNoRecordsFound>True</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Get_Partner_Service_Territory</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <object>ServiceAppointment</object>
+        <outputAssignments>
+            <assignToReference>ParentRecordId</assignToReference>
+            <field>ParentRecordId</field>
+        </outputAssignments>
+    </recordLookups>
+    <recordLookups>
+        <name>Get_Parent_Record_Id_0</name>
+        <label>Get Parent Record Id</label>
+        <locationX>314</locationX>
+        <locationY>373</locationY>
+        <assignNullValuesIfNoRecordsFound>True</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Get_Assigned_Resource</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <object>ServiceAppointment</object>
+        <outputAssignments>
+            <assignToReference>ParentRecordId</assignToReference>
+            <field>ParentRecordId</field>
+        </outputAssignments>
+    </recordLookups>
+    <recordLookups>
+        <description>We need this to make sure we assign the cloned Service Appointment to the right Partner Service Territory</description>
+        <name>Get_Partner_Service_Territory</name>
+        <label>Get Partner Service Territory</label>
+        <locationX>50</locationX>
+        <locationY>493</locationY>
+        <assignNullValuesIfNoRecordsFound>False</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Assign_Service_Appointment_Values</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>FSLDemoTools_Original_Name__c</field>
+            <operator>Contains</operator>
+            <value>
+                <stringValue>Acme</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>True</getFirstRecordOnly>
+        <object>ServiceTerritory</object>
+        <storeOutputAutomatically>True</storeOutputAutomatically>
+    </recordLookups>
+    <start>
+        <locationX>188</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Contractor_Accepts_Rejects</targetReference>
+        </connector>
+        <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
+        <filterLogic>1 AND (2 OR 3)</filterLogic>
+        <filters>
+            <field>Requires_Contractor__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>True</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Work_Acceptance_Status__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Accept</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Work_Acceptance_Status__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Reject</stringValue>
+            </value>
+        </filters>
+        <object>ServiceAppointment</object>
+        <recordTriggerType>Update</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    <variables>
+        <description>This variable holds the Work Order Id</description>
+        <name>ParentRecordId</name>
+        <dataType>String</dataType>
+        <isCollection>False</isCollection>
+        <isInput>False</isInput>
+        <isOutput>False</isOutput>
+    </variables>
+    <variables>
+        <description>Record variable to hold Service Appointment Values</description>
+        <name>RVarSA</name>
+        <dataType>SObject</dataType>
+        <isCollection>False</isCollection>
+        <isInput>False</isInput>
+        <isOutput>False</isOutput>
+        <objectType>ServiceAppointment</objectType>
+    </variables>
+    <variables>
+        <name>ServiceResourceId</name>
+        <dataType>String</dataType>
+        <isCollection>False</isCollection>
+        <isInput>False</isInput>
+        <isOutput>False</isOutput>
+    </variables>
+</Flow>

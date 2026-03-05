@@ -1,0 +1,6 @@
+<template>
+    <div class="wrapper">
+        <template for:each={fetchedArtcle} for:item="article">
+            <div class="single" key={article.Id}>
+                <template if:true={useOnlyImage}>
+                        <div class="articleImage" key={

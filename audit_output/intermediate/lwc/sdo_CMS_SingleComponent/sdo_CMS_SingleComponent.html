@@ -1,0 +1,6 @@
+<template>
+    <template if:true={TextOverLay}>
+        <template for:each={fetchedArtcle} for:item="article">
+            <div class="articleImage" key={article.Id} >
+                <img src={article.SDO_ImageURL__c}/>
+                <template if:true=

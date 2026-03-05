@@ -1,24 +1,182 @@
-{
-  "fullName": "SDO_FSL_TrackerBot_Check_Context",
-  "processType": "AutoLaunchedFlow",
-  "description": "",
-  "status": "Active",
-  "start": {
-    "connector": {}
-  },
-  "variables": [],
-  "assignments": [],
-  "decisions": [],
-  "loops": [],
-  "recordLookups": [],
-  "recordCreates": [],
-  "recordUpdates": [],
-  "recordDeletes": [],
-  "screens": [],
-  "subflows": [],
-  "actionCalls": [],
-  "constants": [],
-  "formulas": [],
-  "choices": [],
-  "textTemplates": []
-}
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>49.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>Assign_Out_to_In</name>
+        <label>Assign Out to In</label>
+        <locationX>276</locationX>
+        <locationY>525</locationY>
+        <assignmentItems>
+            <assignToReference>objSAout</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>objSAin</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <decisions>
+        <name>Context_Set</name>
+        <label>Context Set</label>
+        <locationX>436</locationX>
+        <locationY>319</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>ContextisSet</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>contextID</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>False</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Get_SA</targetReference>
+            </connector>
+            <label>Context Set</label>
+        </rules>
+        <rules>
+            <name>Context_Null_and_SAin_Set</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>objSAin</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>False</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>contextID</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>True</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Out_to_In</targetReference>
+            </connector>
+            <label>Context Null and SAin Set</label>
+        </rules>
+    </decisions>
+    <interviewLabel>Tracker - Check Context {!$Flow.CurrentDateTime}</interviewLabel>
+    <isTemplate>True</isTemplate>
+    <label>Tracker - Check Context</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>Get_Contact_Context</name>
+        <label>Get Contact Context</label>
+        <locationX>247</locationX>
+        <locationY>197</locationY>
+        <assignNullValuesIfNoRecordsFound>True</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Context_Set</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>objContact.Id</elementReference>
+            </value>
+        </filters>
+        <object>Contact</object>
+        <outputAssignments>
+            <assignToReference>contextID</assignToReference>
+            <field>SDO_SFS_Tracker_BotContext__c</field>
+        </outputAssignments>
+    </recordLookups>
+    <recordLookups>
+        <name>Get_SA</name>
+        <label>Get SA</label>
+        <locationX>632</locationX>
+        <locationY>411</locationY>
+        <assignNullValuesIfNoRecordsFound>True</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Clear_Contact</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>contextID</elementReference>
+            </value>
+        </filters>
+        <object>ServiceAppointment</object>
+        <outputReference>objSAout</outputReference>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Subject</queriedFields>
+        <queriedFields>Status</queriedFields>
+        <queriedFields>ParentRecordId</queriedFields>
+        <queriedFields>AppointmentNumber</queriedFields>
+        <queriedFields>SchedStartTime</queriedFields>
+        <queriedFields>SDO_SFS_Tracker_StartTime__c</queriedFields>
+    </recordLookups>
+    <recordUpdates>
+        <name>Clear_Contact</name>
+        <label>Clear Contact</label>
+        <locationX>494</locationX>
+        <locationY>588</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>objContact.Id</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>SDO_SFS_Tracker_BotContext__c</field>
+            <value>
+                <stringValue/>
+            </value>
+        </inputAssignments>
+        <object>Contact</object>
+    </recordUpdates>
+    <status>Active</status>
+    <variables>
+        <name>contextID</name>
+        <dataType>String</dataType>
+        <isCollection>False</isCollection>
+        <isInput>False</isInput>
+        <isOutput>False</isOutput>
+    </variables>
+    <variables>
+        <name>objContact</name>
+        <dataType>SObject</dataType>
+        <isCollection>False</isCollection>
+        <isInput>True</isInput>
+        <isOutput>False</isOutput>
+        <objectType>Contact</objectType>
+    </variables>
+    <variables>
+        <name>objSAin</name>
+        <dataType>SObject</dataType>
+        <isCollection>False</isCollection>
+        <isInput>True</isInput>
+        <isOutput>False</isOutput>
+        <objectType>ServiceAppointment</objectType>
+    </variables>
+    <variables>
+        <name>objSAout</name>
+        <dataType>SObject</dataType>
+        <isCollection>False</isCollection>
+        <isInput>False</isInput>
+        <isOutput>True</isOutput>
+        <objectType>ServiceAppointment</objectType>
+    </variables>
+    <startElementReference>Get_Contact_Context</startElementReference>
+</Flow>

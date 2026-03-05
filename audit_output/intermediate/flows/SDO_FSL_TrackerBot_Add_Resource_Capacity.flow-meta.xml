@@ -1,24 +1,315 @@
-{
-  "fullName": "SDO_FSL_TrackerBot_Add_Resource_Capacity",
-  "processType": "AutoLaunchedFlow",
-  "description": "",
-  "status": "Active",
-  "start": {
-    "connector": {}
-  },
-  "variables": [],
-  "assignments": [],
-  "decisions": [],
-  "loops": [],
-  "recordLookups": [],
-  "recordCreates": [],
-  "recordUpdates": [],
-  "recordDeletes": [],
-  "screens": [],
-  "subflows": [],
-  "actionCalls": [],
-  "constants": [],
-  "formulas": [],
-  "choices": [],
-  "textTemplates": []
-}
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>Get_First_and_Last_of_Month</name>
+        <label>Get First and Last of Month</label>
+        <locationX>680</locationX>
+        <locationY>339</locationY>
+        <actionName>SDO_SFS_Tracker_GetFirstLastMonth</actionName>
+        <actionType>apex</actionType>
+        <connector>
+            <targetReference>Create_Capacity</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Set_Fault</targetReference>
+        </faultConnector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <nameSegment>SDO_SFS_Tracker_GetFirstLastMonth</nameSegment>
+        <outputParameters>
+            <assignToReference>dtStartDate</assignToReference>
+            <name>firstofMonth</name>
+        </outputParameters>
+        <outputParameters>
+            <assignToReference>dtEndDate</assignToReference>
+            <name>lastofMonth</name>
+        </outputParameters>
+    </actionCalls>
+    <apiVersion>49.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>assignWeek</name>
+        <label>Week</label>
+        <locationX>235</locationX>
+        <locationY>327</locationY>
+        <assignmentItems>
+            <assignToReference>offset</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <numberValue>6</numberValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Create_Capacity</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Set_Error</name>
+        <label>Set Error</label>
+        <locationX>711</locationX>
+        <locationY>149</locationY>
+        <assignmentItems>
+            <assignToReference>strError</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Service Resource Not Found.</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <name>Set_Fault</name>
+        <label>Set Fault</label>
+        <locationX>678</locationX>
+        <locationY>582</locationY>
+        <assignmentItems>
+            <assignToReference>strError</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <decisions>
+        <name>Is_Resource_Found</name>
+        <label>Is Resource Found</label>
+        <locationX>419</locationX>
+        <locationY>130</locationY>
+        <defaultConnector>
+            <targetReference>Set_Error</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Resource_Found</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>strSRId</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue/>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Period_Type</targetReference>
+            </connector>
+            <label>Resource Found</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Period_Type</name>
+        <label>Period Type?</label>
+        <locationX>418</locationX>
+        <locationY>333</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Day</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>strCapacityPeriod</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Day</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Create_Capacity</targetReference>
+            </connector>
+            <label>Day</label>
+        </rules>
+        <rules>
+            <name>Week</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>strCapacityPeriod</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Week</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>assignWeek</targetReference>
+            </connector>
+            <label>Week</label>
+        </rules>
+        <rules>
+            <name>Month</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>strCapacityPeriod</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Month</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Get_First_and_Last_of_Month</targetReference>
+            </connector>
+            <label>Month</label>
+        </rules>
+    </decisions>
+    <formulas>
+        <name>fmEndDate</name>
+        <dataType>Date</dataType>
+        <expression>{!$Flow.CurrentDate} + {!offset}</expression>
+    </formulas>
+    <interviewLabel>Tracker - Add Resource Capacity {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Tracker - Add Resource Capacity</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordCreates>
+        <name>Create_Capacity</name>
+        <label>Create Capacity</label>
+        <locationX>349</locationX>
+        <locationY>537</locationY>
+        <faultConnector>
+            <targetReference>Set_Fault</targetReference>
+        </faultConnector>
+        <inputAssignments>
+            <field>CapacityInHours</field>
+            <value>
+                <elementReference>numHours</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>CapacityInWorkItems</field>
+            <value>
+                <elementReference>numWorkItems</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>EndDate</field>
+            <value>
+                <elementReference>dtEndDate</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>ServiceResourceId</field>
+            <value>
+                <elementReference>strSRId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>StartDate</field>
+            <value>
+                <elementReference>dtStartDate</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>TimePeriod</field>
+            <value>
+                <elementReference>strCapacityPeriod</elementReference>
+            </value>
+        </inputAssignments>
+        <object>ServiceResourceCapacity</object>
+    </recordCreates>
+    <recordLookups>
+        <name>Get_Service_Resource</name>
+        <label>Get Service Resource</label>
+        <locationX>205</locationX>
+        <locationY>137</locationY>
+        <assignNullValuesIfNoRecordsFound>True</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Is_Resource_Found</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>SDO_SFS_Tracker_Contact__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>objContact.Id</elementReference>
+            </value>
+        </filters>
+        <object>ServiceResource</object>
+        <outputAssignments>
+            <assignToReference>strSRId</assignToReference>
+            <field>Id</field>
+        </outputAssignments>
+    </recordLookups>
+    <status>Active</status>
+    <variables>
+        <name>dtEndDate</name>
+        <dataType>Date</dataType>
+        <isCollection>False</isCollection>
+        <isInput>False</isInput>
+        <isOutput>False</isOutput>
+        <value>
+            <elementReference>fmEndDate</elementReference>
+        </value>
+    </variables>
+    <variables>
+        <name>dtStartDate</name>
+        <dataType>Date</dataType>
+        <isCollection>False</isCollection>
+        <isInput>False</isInput>
+        <isOutput>False</isOutput>
+        <value>
+            <elementReference>$Flow.CurrentDate</elementReference>
+        </value>
+    </variables>
+    <variables>
+        <name>numHours</name>
+        <dataType>Number</dataType>
+        <isCollection>False</isCollection>
+        <isInput>True</isInput>
+        <isOutput>False</isOutput>
+        <scale>0</scale>
+    </variables>
+    <variables>
+        <name>numWorkItems</name>
+        <dataType>Number</dataType>
+        <isCollection>False</isCollection>
+        <isInput>True</isInput>
+        <isOutput>False</isOutput>
+        <scale>0</scale>
+    </variables>
+    <variables>
+        <name>objContact</name>
+        <dataType>SObject</dataType>
+        <isCollection>False</isCollection>
+        <isInput>True</isInput>
+        <isOutput>False</isOutput>
+        <objectType>Contact</objectType>
+    </variables>
+    <variables>
+        <name>offset</name>
+        <dataType>Number</dataType>
+        <isCollection>False</isCollection>
+        <isInput>False</isInput>
+        <isOutput>False</isOutput>
+        <scale>0</scale>
+        <value>
+            <numberValue>0</numberValue>
+        </value>
+    </variables>
+    <variables>
+        <name>strCapacityPeriod</name>
+        <dataType>String</dataType>
+        <isCollection>False</isCollection>
+        <isInput>True</isInput>
+        <isOutput>False</isOutput>
+    </variables>
+    <variables>
+        <name>strError</name>
+        <dataType>String</dataType>
+        <isCollection>False</isCollection>
+        <isInput>False</isInput>
+        <isOutput>True</isOutput>
+    </variables>
+    <variables>
+        <name>strSRId</name>
+        <dataType>String</dataType>
+        <isCollection>False</isCollection>
+        <isInput>False</isInput>
+        <isOutput>False</isOutput>
+    </variables>
+    <startElementReference>Get_Service_Resource</startElementReference>
+</Flow>

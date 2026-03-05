@@ -1,24 +1,234 @@
-{
-  "fullName": "SDO_Community_Get_Community_User_CRM_Data",
-  "processType": "AutoLaunchedFlow",
-  "description": "Returns User, Contact, and Account record of logged-in Community user.",
-  "status": "Active",
-  "start": {
-    "connector": {}
-  },
-  "variables": [],
-  "assignments": [],
-  "decisions": [],
-  "loops": [],
-  "recordLookups": [],
-  "recordCreates": [],
-  "recordUpdates": [],
-  "recordDeletes": [],
-  "screens": [],
-  "subflows": [],
-  "actionCalls": [],
-  "constants": [],
-  "formulas": [],
-  "choices": [],
-  "textTemplates": []
-}
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>49.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <description>Sets the return value of vIsExternalUser</description>
+        <name>Set_Internal_Flag_False</name>
+        <label>Set Internal Flag (False)</label>
+        <locationX>145</locationX>
+        <locationY>276</locationY>
+        <assignmentItems>
+            <assignToReference>vIsExternalUser</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>False</booleanValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <description>Sets the return value of vIsExternalUser</description>
+        <name>Set_Internal_Flag_True</name>
+        <label>Set Internal Flag (True)</label>
+        <locationX>375</locationX>
+        <locationY>150</locationY>
+        <assignmentItems>
+            <assignToReference>vIsExternalUser</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>True</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Get_Current_User_Contact</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <name>Check_for_Account_Id</name>
+        <label>Check for Account Id</label>
+        <locationX>376</locationX>
+        <locationY>384</locationY>
+        <defaultConnectorLabel>Standlone/Null Contact</defaultConnectorLabel>
+        <rules>
+            <name>Has_Account_Id</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>sCurrentUsersContact</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>False</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>sCurrentUsersContact.AccountId</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>False</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Get_Current_User_Account</targetReference>
+            </connector>
+            <label>Has Account Id</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Determines whether the currently logged-in user is an Externally-licensed user.</description>
+        <name>Is_External_User</name>
+        <label>Is External User</label>
+        <locationX>144</locationX>
+        <locationY>151</locationY>
+        <defaultConnector>
+            <targetReference>Set_Internal_Flag_False</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Has No Contact Id</defaultConnectorLabel>
+        <rules>
+            <name>Has_Contact_Id</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>sCurrentUser</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>False</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>sCurrentUser.ContactId</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>False</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Set_Internal_Flag_True</targetReference>
+            </connector>
+            <label>Has Contact Id</label>
+        </rules>
+    </decisions>
+    <description>Returns the User, Contact, and Account record of the currently logged-in Community user, if they exist.</description>
+    <formulas>
+        <description>Retrieves the currently logged-in user's ID.</description>
+        <name>fGetCurrentUserId</name>
+        <dataType>String</dataType>
+        <expression>{!$User.Id}</expression>
+    </formulas>
+    <interviewLabel>Get Community User CRM Data {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Get Community User CRM Data</label>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <description>Retrieves the User record of the currently logged-in user.</description>
+        <name>Get_Current_User</name>
+        <label>Get Current User</label>
+        <locationX>144</locationX>
+        <locationY>42</locationY>
+        <assignNullValuesIfNoRecordsFound>True</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Is_External_User</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>vCurrentUserId</elementReference>
+            </value>
+        </filters>
+        <object>User</object>
+        <outputReference>sCurrentUser</outputReference>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>ContactId</queriedFields>
+        <queriedFields>Username</queriedFields>
+        <queriedFields>Email</queriedFields>
+        <queriedFields>Name</queriedFields>
+    </recordLookups>
+    <recordLookups>
+        <description>Retrieves the Account record (if any) of the currently logged-in user.</description>
+        <name>Get_Current_User_Account</name>
+        <label>Get Current User's Account</label>
+        <locationX>667</locationX>
+        <locationY>384</locationY>
+        <assignNullValuesIfNoRecordsFound>True</assignNullValuesIfNoRecordsFound>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>sCurrentUsersContact.AccountId</elementReference>
+            </value>
+        </filters>
+        <object>Account</object>
+        <outputReference>sCurrentUsersAccount</outputReference>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Name</queriedFields>
+        <queriedFields>IsPartner</queriedFields>
+        <queriedFields>Phone</queriedFields>
+    </recordLookups>
+    <recordLookups>
+        <description>Retrieved the Contact record of the currently logged-in user, if any.</description>
+        <name>Get_Current_User_Contact</name>
+        <label>Get Current User Contact</label>
+        <locationX>372</locationX>
+        <locationY>278</locationY>
+        <assignNullValuesIfNoRecordsFound>True</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Check_for_Account_Id</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>sCurrentUser.ContactId</elementReference>
+            </value>
+        </filters>
+        <object>Contact</object>
+        <outputReference>sCurrentUsersContact</outputReference>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Name</queriedFields>
+        <queriedFields>AccountId</queriedFields>
+        <queriedFields>Email</queriedFields>
+        <queriedFields>FirstName</queriedFields>
+        <queriedFields>LastName</queriedFields>
+    </recordLookups>
+    <status>Active</status>
+    <variables>
+        <description>Represents the user record of the currently logged-in user.</description>
+        <name>sCurrentUser</name>
+        <dataType>SObject</dataType>
+        <isCollection>False</isCollection>
+        <isInput>False</isInput>
+        <isOutput>True</isOutput>
+        <objectType>User</objectType>
+    </variables>
+    <variables>
+        <description>Represents the Account record of the currently logged-in community user, if there is one. Returns null for internal (Sales Cloud, Service Cloud, Platform) users.</description>
+        <name>sCurrentUsersAccount</name>
+        <dataType>SObject</dataType>
+        <isCollection>False</isCollection>
+        <isInput>False</isInput>
+        <isOutput>True</isOutput>
+        <objectType>Account</objectType>
+    </variables>
+    <variables>
+        <description>Represents the Contact record of the currently logged-in community user, if there is one. Returns null for internal (Sales Cloud, Service Cloud, Platform) users.</description>
+        <name>sCurrentUsersContact</name>
+        <dataType>SObject</dataType>
+        <isCollection>False</isCollection>
+        <isInput>False</isInput>
+        <isOutput>True</isOutput>
+        <objectType>Contact</objectType>
+    </variables>
+    <variables>
+        <description>Salesforce ID of the currently logged-in user.</description>
+        <name>vCurrentUserId</name>
+        <dataType>String</dataType>
+        <isCollection>False</isCollection>
+        <isInput>False</isInput>
+        <isOutput>False</isOutput>
+        <value>
+            <elementReference>fGetCurrentUserId</elementReference>
+        </value>
+    </variables>
+    <variables>
+        <description>Returns TRUE when the currently logged in user is an external (Customer Community, Partner Community, Portal, External Identity) user.</description>
+        <name>vIsExternalUser</name>
+        <dataType>Boolean</dataType>
+        <isCollection>False</isCollection>
+        <isInput>False</isInput>
+        <isOutput>True</isOutput>
+        <value>
+            <booleanValue>False</booleanValue>
+        </value>
+    </variables>
+    <startElementReference>Get_Current_User</startElementReference>
+</Flow>

@@ -1,24 +1,278 @@
-{
-  "fullName": "SDO_FSL_TrackerBot_Create_Absence",
-  "processType": "AutoLaunchedFlow",
-  "description": "",
-  "status": "Active",
-  "start": {
-    "connector": {}
-  },
-  "variables": [],
-  "assignments": [],
-  "decisions": [],
-  "loops": [],
-  "recordLookups": [],
-  "recordCreates": [],
-  "recordUpdates": [],
-  "recordDeletes": [],
-  "screens": [],
-  "subflows": [],
-  "actionCalls": [],
-  "constants": [],
-  "formulas": [],
-  "choices": [],
-  "textTemplates": []
-}
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>Convert_End</name>
+        <label>Convert End</label>
+        <locationX>509</locationX>
+        <locationY>393</locationY>
+        <actionName>SDO_SFS_Tracker_ConvertDT</actionName>
+        <actionType>apex</actionType>
+        <connector>
+            <targetReference>Create_Absence</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Set_Error</targetReference>
+        </faultConnector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>inDT</name>
+            <value>
+                <elementReference>dtEnd</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>territoryId</name>
+            <value>
+                <elementReference>strTerritoryId</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>SDO_SFS_Tracker_ConvertDT</nameSegment>
+        <outputParameters>
+            <assignToReference>dtEnd</assignToReference>
+            <name>outDT</name>
+        </outputParameters>
+    </actionCalls>
+    <actionCalls>
+        <name>convert_start</name>
+        <label>Convert Start</label>
+        <locationX>354</locationX>
+        <locationY>392</locationY>
+        <actionName>SDO_SFS_Tracker_ConvertDT</actionName>
+        <actionType>apex</actionType>
+        <connector>
+            <targetReference>Convert_End</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Set_Error</targetReference>
+        </faultConnector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>inDT</name>
+            <value>
+                <elementReference>dtStart</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>territoryId</name>
+            <value>
+                <elementReference>strTerritoryId</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>SDO_SFS_Tracker_ConvertDT</nameSegment>
+        <outputParameters>
+            <assignToReference>strDisplay</assignToReference>
+            <name>displayText</name>
+        </outputParameters>
+        <outputParameters>
+            <assignToReference>dtStart</assignToReference>
+            <name>outDT</name>
+        </outputParameters>
+    </actionCalls>
+    <apiVersion>49.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>Set_Error</name>
+        <label>Set Error</label>
+        <locationX>448</locationX>
+        <locationY>86</locationY>
+        <assignmentItems>
+            <assignToReference>strError</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <interviewLabel>Tracker - Create Absence {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Tracker - Create Absence</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordCreates>
+        <name>Create_Absence</name>
+        <label>Create Absence</label>
+        <locationX>649</locationX>
+        <locationY>267</locationY>
+        <faultConnector>
+            <targetReference>Set_Error</targetReference>
+        </faultConnector>
+        <inputAssignments>
+            <field>Description</field>
+            <value>
+                <elementReference>strDisplay</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>End</field>
+            <value>
+                <elementReference>dtEnd</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>FSL__GanttLabel__c</field>
+            <value>
+                <elementReference>strLabel</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>ResourceId</field>
+            <value>
+                <elementReference>strSRId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Start</field>
+            <value>
+                <elementReference>dtStart</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Type</field>
+            <value>
+                <elementReference>strType</elementReference>
+            </value>
+        </inputAssignments>
+        <object>ResourceAbsence</object>
+    </recordCreates>
+    <recordLookups>
+        <name>Get_Service_Territory</name>
+        <label>Get Service Territory</label>
+        <locationX>193</locationX>
+        <locationY>398</locationY>
+        <assignNullValuesIfNoRecordsFound>True</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>convert_start</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Set_Error</targetReference>
+        </faultConnector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>ServiceResourceId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>strSRId</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>TerritoryType</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>P</stringValue>
+            </value>
+        </filters>
+        <object>ServiceTerritoryMember</object>
+        <outputAssignments>
+            <assignToReference>strTerritoryId</assignToReference>
+            <field>ServiceTerritoryId</field>
+        </outputAssignments>
+    </recordLookups>
+    <recordLookups>
+        <name>Get_SR</name>
+        <label>Get SR</label>
+        <locationX>193</locationX>
+        <locationY>228</locationY>
+        <assignNullValuesIfNoRecordsFound>True</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Get_Service_Territory</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Set_Error</targetReference>
+        </faultConnector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>SDO_SFS_Tracker_Contact__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>objContact.Id</elementReference>
+            </value>
+        </filters>
+        <object>ServiceResource</object>
+        <outputAssignments>
+            <assignToReference>strSRId</assignToReference>
+            <field>Id</field>
+        </outputAssignments>
+    </recordLookups>
+    <status>Active</status>
+    <variables>
+        <name>dtEnd</name>
+        <dataType>DateTime</dataType>
+        <isCollection>False</isCollection>
+        <isInput>True</isInput>
+        <isOutput>False</isOutput>
+        <value>
+            <elementReference>$Flow.CurrentDateTime</elementReference>
+        </value>
+    </variables>
+    <variables>
+        <name>dtStart</name>
+        <dataType>DateTime</dataType>
+        <isCollection>False</isCollection>
+        <isInput>True</isInput>
+        <isOutput>False</isOutput>
+        <value>
+            <elementReference>$Flow.CurrentDateTime</elementReference>
+        </value>
+    </variables>
+    <variables>
+        <name>objContact</name>
+        <dataType>SObject</dataType>
+        <isCollection>False</isCollection>
+        <isInput>True</isInput>
+        <isOutput>False</isOutput>
+        <objectType>Contact</objectType>
+    </variables>
+    <variables>
+        <name>strDisplay</name>
+        <dataType>String</dataType>
+        <isCollection>False</isCollection>
+        <isInput>False</isInput>
+        <isOutput>False</isOutput>
+    </variables>
+    <variables>
+        <name>strError</name>
+        <dataType>String</dataType>
+        <isCollection>False</isCollection>
+        <isInput>False</isInput>
+        <isOutput>True</isOutput>
+    </variables>
+    <variables>
+        <name>strLabel</name>
+        <dataType>String</dataType>
+        <isCollection>False</isCollection>
+        <isInput>True</isInput>
+        <isOutput>False</isOutput>
+    </variables>
+    <variables>
+        <name>strSRId</name>
+        <dataType>String</dataType>
+        <isCollection>False</isCollection>
+        <isInput>False</isInput>
+        <isOutput>False</isOutput>
+    </variables>
+    <variables>
+        <name>strTerritoryId</name>
+        <dataType>String</dataType>
+        <isCollection>False</isCollection>
+        <isInput>False</isInput>
+        <isOutput>False</isOutput>
+    </variables>
+    <variables>
+        <name>strType</name>
+        <dataType>String</dataType>
+        <isCollection>False</isCollection>
+        <isInput>True</isInput>
+        <isOutput>False</isOutput>
+    </variables>
+    <startElementReference>Get_SR</startElementReference>
+</Flow>

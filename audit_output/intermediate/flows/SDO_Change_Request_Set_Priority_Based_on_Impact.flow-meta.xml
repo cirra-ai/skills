@@ -1,24 +1,160 @@
-{
-  "fullName": "SDO_Change_Request_Set_Priority_Based_on_Impact",
-  "processType": "AutoLaunchedFlow",
-  "description": "Set Priority based on Impact for Change Requests",
-  "status": "Active",
-  "start": {
-    "connector": {}
-  },
-  "variables": [],
-  "assignments": [],
-  "decisions": [],
-  "loops": [],
-  "recordLookups": [],
-  "recordCreates": [],
-  "recordUpdates": [],
-  "recordDeletes": [],
-  "screens": [],
-  "subflows": [],
-  "actionCalls": [],
-  "constants": [],
-  "formulas": [],
-  "choices": [],
-  "textTemplates": []
-}
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>54.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <decisions>
+        <name>Evaluate_Impact</name>
+        <label>Evaluate Impact</label>
+        <locationX>446</locationX>
+        <locationY>431</locationY>
+        <defaultConnectorLabel>Everything Else</defaultConnectorLabel>
+        <rules>
+            <name>High_Impact</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Impact</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>High</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Set_Priority_to_High</targetReference>
+            </connector>
+            <label>High Impact</label>
+        </rules>
+        <rules>
+            <name>Moderate_Impact</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Impact</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Medium</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Set_Priority_to_Moderate</targetReference>
+            </connector>
+            <label>Moderate Impact</label>
+        </rules>
+        <rules>
+            <name>Low_Impact</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Impact</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Low</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Set_Priority_to_Low</targetReference>
+            </connector>
+            <label>Low Impact</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Used to evaluate the custom setting record to see if there is a custom setting record activated before moving forward</description>
+        <name>Evaluate_process_automation_settings</name>
+        <label>Evaluate process automation settings</label>
+        <locationX>776</locationX>
+        <locationY>311</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Fire_Process_Automation_True</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Setup.xDO_Tool_ProcessAutomationSwitch__c.xDO_Tool_ProcessAutomation__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>True</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Evaluate_Impact</targetReference>
+            </connector>
+            <label>Fire Process Automation = True</label>
+        </rules>
+    </decisions>
+    <description>Set Priority based on the selection of Impact for Change Requests</description>
+    <interviewLabel>Change Request Set Priority Based on Impact {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Change Request Set Priority Based on Impact</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Set_Priority_to_High</name>
+        <label>Set Priority to High</label>
+        <locationX>50</locationX>
+        <locationY>551</locationY>
+        <inputAssignments>
+            <field>Priority</field>
+            <value>
+                <stringValue>High</stringValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <name>Set_Priority_to_Low</name>
+        <label>Set Priority to Low</label>
+        <locationX>578</locationX>
+        <locationY>551</locationY>
+        <inputAssignments>
+            <field>Priority</field>
+            <value>
+                <stringValue>Low</stringValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <name>Set_Priority_to_Moderate</name>
+        <label>Set Priority to Moderate</label>
+        <locationX>314</locationX>
+        <locationY>551</locationY>
+        <inputAssignments>
+            <field>Priority</field>
+            <value>
+                <stringValue>Moderate</stringValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>650</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Evaluate_process_automation_settings</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Impact</field>
+            <operator>IsNull</operator>
+            <value>
+                <booleanValue>False</booleanValue>
+            </value>
+        </filters>
+        <object>ChangeRequest</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

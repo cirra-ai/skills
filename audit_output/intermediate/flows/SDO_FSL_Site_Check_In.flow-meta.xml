@@ -1,24 +1,179 @@
-{
-  "fullName": "SDO_FSL_Site_Check_In",
-  "processType": "FieldServiceMobile",
-  "description": "SFS Work Step Flow for Site Check In",
-  "status": "Active",
-  "start": {
-    "connector": {}
-  },
-  "variables": [],
-  "assignments": [],
-  "decisions": [],
-  "loops": [],
-  "recordLookups": [],
-  "recordCreates": [],
-  "recordUpdates": [],
-  "recordDeletes": [],
-  "screens": [],
-  "subflows": [],
-  "actionCalls": [],
-  "constants": [],
-  "formulas": [],
-  "choices": [],
-  "textTemplates": []
-}
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <description>SFS - Work Step Flow for Site Check In
+Rob Ballantyne
+September 2021</description>
+    <dynamicChoiceSets>
+        <name>SAStatus</name>
+        <dataType>Picklist</dataType>
+        <displayField/>
+        <object/>
+        <picklistField>Status</picklistField>
+        <picklistObject>ServiceAppointment</picklistObject>
+    </dynamicChoiceSets>
+    <interviewLabel>SFS - Site Check In {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>SFS - Site Check In</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>FieldServiceMobile</processType>
+    <recordLookups>
+        <description>retrieves work step so we can get the work order id</description>
+        <name>Get_Work_Step</name>
+        <label>Get Work Step</label>
+        <locationX>176</locationX>
+        <locationY>158</locationY>
+        <assignNullValuesIfNoRecordsFound>False</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>SFS_Check_In</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>Id</elementReference>
+            </value>
+        </filters>
+        <object>WorkStep</object>
+        <outputReference>CurrentWS</outputReference>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>WorkOrderId</queriedFields>
+    </recordLookups>
+    <recordUpdates>
+        <name>Update_SA</name>
+        <label>Update SA</label>
+        <locationX>176</locationX>
+        <locationY>518</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>ParentRecordId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>CurrentWS.WorkOrderId</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Status</field>
+            <value>
+                <elementReference>Status</elementReference>
+            </value>
+        </inputAssignments>
+        <object>ServiceAppointment</object>
+    </recordUpdates>
+    <recordUpdates>
+        <name>Update_WO_start_time</name>
+        <label>Update WO start time</label>
+        <locationX>176</locationX>
+        <locationY>398</locationY>
+        <connector>
+            <targetReference>Update_SA</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>CurrentWS.WorkOrderId</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Work_Start__c</field>
+            <value>
+                <elementReference>Work_Start</elementReference>
+            </value>
+        </inputAssignments>
+        <object>WorkOrder</object>
+    </recordUpdates>
+    <screens>
+        <name>SFS_Check_In</name>
+        <label>SFS Check In</label>
+        <locationX>176</locationX>
+        <locationY>278</locationY>
+        <allowBack>True</allowBack>
+        <allowFinish>True</allowFinish>
+        <allowPause>True</allowPause>
+        <connector>
+            <targetReference>Update_WO_start_time</targetReference>
+        </connector>
+        <fields>
+            <name>Status</name>
+            <choiceReferences>SAStatus</choiceReferences>
+            <dataType>String</dataType>
+            <defaultValue>
+                <stringValue>In Progress</stringValue>
+            </defaultValue>
+            <fieldText>Status</fieldText>
+            <fieldType>DropdownBox</fieldType>
+            <isRequired>False</isRequired>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <fields>
+            <name>Work_Start</name>
+            <dataType>DateTime</dataType>
+            <defaultValue>
+                <elementReference>$Flow.CurrentDateTime</elementReference>
+            </defaultValue>
+            <fieldText>Work Start</fieldText>
+            <fieldType>InputField</fieldType>
+            <isRequired>False</isRequired>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <showFooter>True</showFooter>
+        <showHeader>False</showHeader>
+    </screens>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Get_Work_Step</targetReference>
+        </connector>
+    </start>
+    <status>Active</status>
+    <variables>
+        <name>CurrentWS</name>
+        <dataType>SObject</dataType>
+        <isCollection>False</isCollection>
+        <isInput>False</isInput>
+        <isOutput>False</isOutput>
+        <objectType>WorkStep</objectType>
+    </variables>
+    <variables>
+        <description>work step id</description>
+        <name>Id</name>
+        <dataType>String</dataType>
+        <isCollection>False</isCollection>
+        <isInput>True</isInput>
+        <isOutput>False</isOutput>
+    </variables>
+</Flow>

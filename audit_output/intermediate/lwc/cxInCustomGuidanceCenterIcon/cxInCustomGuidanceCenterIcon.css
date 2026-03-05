@@ -1,0 +1,11 @@
+.thp-content-icon__container .thp-content-icon__checkmark {
+    border-width: 2px;
+}
+
+.thp-content-icon__checkmark {
+    display: inline-flex;
+    align-items: center;
+    text-align: center;
+    border: 3px solid #fff;
+    border-radius: 50%;
+    top: -5
