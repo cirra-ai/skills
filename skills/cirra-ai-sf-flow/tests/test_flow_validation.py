@@ -10,17 +10,13 @@ to a maximally complex flow stacked with every anti-pattern.
 """
 
 import os
-import sys
 
+from conftest import load_script
 
-# ── bootstrap ────────────────────────────────────────────────────────────────
+mod = load_script("skills/cirra-ai-sf-flow/scripts/validate_flow.py")
+EnhancedFlowValidator = mod.EnhancedFlowValidator
 
-TESTS_DIR = os.path.dirname(os.path.abspath(__file__))
-FIXTURES_DIR = os.path.join(TESTS_DIR, "fixtures")
-SCRIPTS_DIR = os.path.join(os.path.dirname(TESTS_DIR), "scripts")
-sys.path.insert(0, SCRIPTS_DIR)
-
-from validate_flow import EnhancedFlowValidator  # noqa: E402
+FIXTURES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures")
 
 
 # ── helpers ──────────────────────────────────────────────────────────────────
@@ -48,11 +44,6 @@ def _warning_messages(result: dict) -> list[str]:
 # 1. VALID FLOW CREATION — high scores, no critical issues
 # ═══════════════════════════════════════════════════════════════════════════════
 
-# ── TC-V1: Simple before-save flow ───────────────────────────────────────────
-# Prompt: "Create a before-save flow on Lead that sets Priority to High
-#          when AnnualRevenue > 1M."
-# Expected: Score ≥ 88 (80%), no critical issues, no DML needed.
-
 
 class TestValidFlowCreation:
     def test_before_save_scores_above_threshold(self):
@@ -69,11 +60,6 @@ class TestValidFlowCreation:
         r = _validate("perfect_before_save.flow-meta.xml")
         assert r["api_version"] == "65.0"
 
-    # ── TC-V2: After-save with error handling ────────────────────────────────
-    # Prompt: "Create an after-save flow on Opportunity that creates a follow-up
-    #          Task when StageName = Closed Won. Include fault handling."
-    # Expected: Score ≥ 88, fault path present, no critical issues.
-
     def test_after_save_scores_above_threshold(self):
         """TC-V2: After-save flow with fault handling scores ≥ 88/110."""
         assert _score("perfect_after_save.flow-meta.xml") >= 88
@@ -89,11 +75,6 @@ class TestValidFlowCreation:
         eh = r["categories"]["error_handling"]
         assert eh["score"] == eh["max_score"]
 
-    # ── TC-V3: Screen flow ───────────────────────────────────────────────────
-    # Prompt: "Create a screen flow for new Case intake with Subject/Description
-    #          inputs and a confirmation screen."
-    # Expected: Score ≥ 88, screens present, fault path on DML.
-
     def test_screen_flow_scores_above_threshold(self):
         """TC-V3: Screen flow scores ≥ 88/110."""
         assert _score("screen_flow_simple.flow-meta.xml") >= 88
@@ -103,11 +84,6 @@ class TestValidFlowCreation:
         r = _validate("screen_flow_simple.flow-meta.xml")
         assert len(r["critical_issues"]) == 0
 
-    # ── TC-V4: Scheduled flow ────────────────────────────────────────────────
-    # Prompt: "Create a scheduled daily flow that deletes stale draft
-    #          Opportunities older than 90 days."
-    # Expected: Score ≥ 88, no DML in loops.
-
     def test_scheduled_flow_scores_above_threshold(self):
         """TC-V4: Scheduled flow scores ≥ 88/110."""
         assert _score("scheduled_flow.flow-meta.xml") >= 88
@@ -116,12 +92,6 @@ class TestValidFlowCreation:
         """TC-V4: Scheduled flow has zero critical issues."""
         r = _validate("scheduled_flow.flow-meta.xml")
         assert len(r["critical_issues"]) == 0
-
-    # ── TC-V5: Complex multi-object flow ─────────────────────────────────────
-    # Prompt: "Create an after-save flow on Account that syncs BillingCity to all
-    #          related Contacts (bulk-safe: collect then DML), then creates a
-    #          follow-up Task. Include null checks and fault paths on all DML."
-    # Expected: Score ≥ 88, DML outside loop, multiple fault paths.
 
     def test_complex_flow_scores_above_threshold(self):
         """TC-V5: Complex multi-object flow scores ≥ 88/110."""
@@ -145,10 +115,6 @@ class TestValidFlowCreation:
 
 
 class TestIssueDetection:
-    # ── TC-I1: DML in loop ───────────────────────────────────────────────────
-    # Prompt: "Review this flow that updates contacts inside a loop."
-    # Expected: CRITICAL issue for DML in loop, score < 80%.
-
     def test_dml_in_loop_flagged_critical(self):
         """TC-I1: DML inside loop is flagged as CRITICAL."""
         r = _validate("dml_in_loop.flow-meta.xml")
@@ -165,11 +131,6 @@ class TestIssueDetection:
         perf = r["categories"]["performance_bulk"]
         assert perf["score"] < perf["max_score"]
 
-    # ── TC-I2: Missing fault paths ───────────────────────────────────────────
-    # Prompt: "Review this flow — it creates a Task and updates a Case but has
-    #          no error handling."
-    # Expected: Warning about missing fault paths, error_handling score = 0.
-
     def test_missing_faults_detected(self):
         """TC-I2: Missing fault paths are flagged as warnings."""
         r = _validate("missing_fault_paths.flow-meta.xml")
@@ -182,19 +143,11 @@ class TestIssueDetection:
         eh = r["categories"]["error_handling"]
         assert eh["score"] == 0
 
-    # ── TC-I3: Recursive after-save (infinite loop risk) ─────────────────────
-    # The missing_fault_paths fixture triggers this because it updates the same
-    # object as the trigger without entry conditions.
-
     def test_recursive_after_save_flagged(self):
         """TC-I3: After-save updating same object without entry conditions is CRITICAL."""
         r = _validate("missing_fault_paths.flow-meta.xml")
         crits = _critical_messages(r)
         assert any("infinite loop" in m.lower() or "recursive" in m.lower() for m in crits)
-
-    # ── TC-I4: Hardcoded Salesforce IDs ──────────────────────────────────────
-    # Prompt: "Review this flow that hardcodes an OwnerId."
-    # Expected: Warning about hardcoded ID.
 
     def test_hardcoded_id_flagged(self):
         """TC-I4: Hardcoded Salesforce ID is flagged as a warning."""
@@ -202,21 +155,11 @@ class TestIssueDetection:
         warns = _warning_messages(r)
         assert any("hardcoded" in m.lower() and "id" in m.lower() for m in warns)
 
-    # ── TC-I5: Old API version ───────────────────────────────────────────────
-    # Prompt: "Review this flow using API version 55.0."
-    # Expected: Advisory about outdated API, security deduction.
-
     def test_old_api_detected(self):
         """TC-I5: Old API version gets a lower security/governance score."""
         r = _validate("old_api_version.flow-meta.xml")
         sec = r["categories"]["security_governance"]
         assert sec["score"] < sec["max_score"]
-
-    # ── TC-I6: Maximum anti-patterns (stress test) ───────────────────────────
-    # Prompt: "Review this flow — it has DML in loop, SOQL in loop, hardcoded IDs,
-    #          storeOutputAutomatically, Copy_X naming, non-zero coordinates,
-    #          unused variables, missing description, missing fault paths."
-    # Expected: Multiple critical + warnings, score well below 50%.
 
     def test_max_anti_patterns_very_low_score(self):
         """TC-I6: Flow with every anti-pattern scores ≤ 50/110."""
@@ -329,8 +272,6 @@ class TestQualityScores:
         """Rating string is always populated."""
         r = _validate("perfect_before_save.flow-meta.xml")
         assert r["rating"] and len(r["rating"]) > 0
-
-    # ── Score ordering across fixtures ───────────────────────────────────────
 
     def test_perfect_scores_higher_than_flawed(self):
         """Well-built flows always score higher than anti-pattern flows."""

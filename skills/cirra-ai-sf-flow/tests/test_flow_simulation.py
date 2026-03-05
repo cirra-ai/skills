@@ -8,17 +8,13 @@ Covers:
 """
 
 import os
-import sys
 
+from conftest import load_script
 
-# ── bootstrap ────────────────────────────────────────────────────────────────
+mod = load_script("skills/cirra-ai-sf-flow/scripts/simulate_flow.py")
+FlowSimulator = mod.FlowSimulator
 
-TESTS_DIR = os.path.dirname(os.path.abspath(__file__))
-FIXTURES_DIR = os.path.join(TESTS_DIR, "fixtures")
-SCRIPTS_DIR = os.path.join(os.path.dirname(TESTS_DIR), "scripts")
-sys.path.insert(0, SCRIPTS_DIR)
-
-from simulate_flow import FlowSimulator  # noqa: E402
+FIXTURES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures")
 
 
 # ── helpers ──────────────────────────────────────────────────────────────────
@@ -33,9 +29,6 @@ def _simulate(fixture_name: str, num_records: int = 200) -> dict:
 # ═══════════════════════════════════════════════════════════════════════════════
 # 1. CLEAN FLOWS PASS SIMULATION
 # ═══════════════════════════════════════════════════════════════════════════════
-
-# Prompt: "Simulate this well-built flow with 200 records."
-# Expected: Status PASSED, no errors, metrics within governor limits.
 
 
 class TestCleanFlowSimulation:
@@ -55,7 +48,6 @@ class TestCleanFlowSimulation:
         """TC-S3: Complex multi-object flow passes (DML outside loop)."""
         r = _simulate("complex_multi_object.flow-meta.xml", 200)
         assert r["status"] in ("PASSED", "WARNING")
-        # Should not have governor limit errors
         governor_errors = [e for e in r["errors"] if "limit" in e.lower()]
         assert len(governor_errors) == 0
 
@@ -73,9 +65,6 @@ class TestCleanFlowSimulation:
 # ═══════════════════════════════════════════════════════════════════════════════
 # 2. ANTI-PATTERN FLOWS FAIL SIMULATION
 # ═══════════════════════════════════════════════════════════════════════════════
-
-# Prompt: "Simulate this flow that has DML inside a loop with 200 records."
-# Expected: Status FAILED, errors about governor limits.
 
 
 class TestAntiPatternSimulation:
@@ -121,8 +110,6 @@ class TestFlowTypeDetection:
     def test_scheduled_flow_detected(self):
         """TC-S11: Scheduled flow type is correctly identified."""
         r = _simulate("scheduled_flow.flow-meta.xml")
-        # Scheduled flows have a schedule element in start
-        # The simulator may detect this as Scheduled or Autolaunched
         assert r["flow_type"] in ("Scheduled Flow", "Autolaunched Flow")
 
 
@@ -145,14 +132,12 @@ class TestMetricsTracking:
         """TC-S13: Record-triggered flow metrics are per-transaction, not per-record."""
         r = _simulate("perfect_after_save.flow-meta.xml", 200)
         m = r["metrics"]
-        # After-save with 1 DML: should be 1 DML statement (not 200)
         assert m["dml_statements"] < 200
 
     def test_dml_in_loop_inflated_metrics(self):
         """TC-S14: DML-in-loop causes inflated DML statement count."""
         r = _simulate("dml_in_loop.flow-meta.xml", 200)
         m = r["metrics"]
-        # DML inside loop with estimated iterations → high count
         assert m["dml_statements"] > 10
 
     def test_bulk_boundary_test_251_records(self):

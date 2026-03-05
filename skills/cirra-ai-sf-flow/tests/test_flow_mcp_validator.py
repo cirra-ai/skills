@@ -12,17 +12,13 @@ is to validate that the LLM + MCP interaction requires minimal round-trips.
 """
 
 import os
-import sys
 
+from conftest import load_script
 
-# ── bootstrap ────────────────────────────────────────────────────────────────
+mod = load_script("skills/cirra-ai-sf-flow/scripts/mcp_validator.py")
+FlowMCPValidator = mod.FlowMCPValidator
 
-TESTS_DIR = os.path.dirname(os.path.abspath(__file__))
-FIXTURES_DIR = os.path.join(TESTS_DIR, "fixtures")
-SCRIPTS_DIR = os.path.join(os.path.dirname(TESTS_DIR), "scripts")
-sys.path.insert(0, SCRIPTS_DIR)
-
-from mcp_validator import FlowMCPValidator  # noqa: E402
+FIXTURES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures")
 
 
 # ── helpers ──────────────────────────────────────────────────────────────────
@@ -62,9 +58,6 @@ def _mcp_tooling_dml(sobject: str, body: str, full_name: str = "TestFlow") -> di
 # ═══════════════════════════════════════════════════════════════════════════════
 # 1. SINGLE-CALL DEPLOYMENT — valid flows pass in one shot
 # ═══════════════════════════════════════════════════════════════════════════════
-
-# Prompt: "Deploy this well-formed flow via metadata_create."
-# Expected: status=scored, score ≥ 88 → LLM gets green light in one call.
 
 
 class TestSingleCallDeployment:
@@ -113,9 +106,6 @@ class TestSingleCallDeployment:
 # 2. ANTI-PATTERN BLOCKING — bad flows are caught before deployment
 # ═══════════════════════════════════════════════════════════════════════════════
 
-# Prompt: "Deploy this flow that has DML in a loop."
-# Expected: status=scored, score < 88 → LLM told to fix before retrying.
-
 
 class TestAntiPatternBlocking:
     def test_dml_in_loop_low_score(self):
@@ -139,7 +129,6 @@ class TestAntiPatternBlocking:
         body = _read_fixture("missing_fault_paths.flow-meta.xml")
         r = _mcp_create("Auto_Case_Escalation", body)
         assert r["status"] == "scored"
-        # Check that warnings are surfaced
         warnings = r.get("warnings", [])
         assert len(warnings) > 0
 
