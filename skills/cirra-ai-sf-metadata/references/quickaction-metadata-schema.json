@@ -1,0 +1,259 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cirra.ai/schemas/salesforce-quickaction-metadata.json",
+  "title": "Salesforce QuickAction Metadata",
+  "description": "JSON Schema for Salesforce QuickAction metadata (API v66.0). Auto-generated from the org's metadata WSDL by pull_flow_schema.py.",
+  "type": "object",
+  "x-salesforce-api-version": "66.0",
+  "x-schema-source": "metadata-wsdl",
+  "$defs": {
+    "FieldOverride": {
+      "type": "object",
+      "properties": {
+        "field": {
+          "type": "string"
+        },
+        "formula": {
+          "type": "string"
+        },
+        "literalValue": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "required": ["field"]
+    },
+    "QuickAction": {
+      "type": "object",
+      "properties": {
+        "actionSubtype": {
+          "type": "string",
+          "enum": ["ScreenAction", "Action"]
+        },
+        "canvas": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "fieldOverrides": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FieldOverride"
+          }
+        },
+        "flowDefinition": {
+          "type": "string"
+        },
+        "height": {
+          "type": "integer"
+        },
+        "icon": {
+          "type": "string"
+        },
+        "isProtected": {
+          "type": "boolean"
+        },
+        "label": {
+          "type": "string"
+        },
+        "lightningComponent": {
+          "type": "string"
+        },
+        "lightningWebComponent": {
+          "type": "string"
+        },
+        "optionsCreateFeedItem": {
+          "type": "boolean"
+        },
+        "page": {
+          "type": "string"
+        },
+        "quickActionLayout": {
+          "$ref": "#/$defs/QuickActionLayout"
+        },
+        "quickActionParameters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/QuickActionParameters"
+          }
+        },
+        "quickActionSendEmailOptions": {
+          "$ref": "#/$defs/QuickActionSendEmailOptions"
+        },
+        "standardLabel": {
+          "type": "string",
+          "enum": [
+            "Custom",
+            "LogACall",
+            "LogANote",
+            "New",
+            "NewRecordType",
+            "Update",
+            "UpdateRecordType",
+            "NewChild",
+            "NewChildRecordType",
+            "CreateNew",
+            "CreateNewRecordType",
+            "SendEmail",
+            "QuickRecordType",
+            "Quick",
+            "EditDescription",
+            "Defer",
+            "ChangeDueDate",
+            "ChangePriority",
+            "ChangeStatus",
+            "SocialPost",
+            "Escalate",
+            "EscalateToRecord",
+            "OfferFeedback",
+            "RequestFeedback",
+            "AddRecord",
+            "AddMember",
+            "Reply",
+            "ReplyAll",
+            "Forward",
+            "ScheduleAppointment",
+            "EnrollInProgram",
+            "ModifyAppointment",
+            "PatientDetails",
+            "AcceptBroadcast",
+            "SelectCoverage",
+            "SummarizeCase",
+            "AssetHierarchy",
+            "PartReturnRequest",
+            "PerformCount",
+            "ViewCoverage",
+            "Quip",
+            "SendConversationMessage",
+            "NewQuote",
+            "LaunchDataCapture",
+            "RelocateAsset",
+            "ReplaceAsset",
+            "CloseCase"
+          ]
+        },
+        "successMessage": {
+          "type": "string"
+        },
+        "targetObject": {
+          "type": "string"
+        },
+        "targetParentField": {
+          "type": "string"
+        },
+        "targetRecordType": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "Create",
+            "VisualforcePage",
+            "Post",
+            "SendEmail",
+            "Email",
+            "LogACall",
+            "CaseComment",
+            "ChangeStatus",
+            "SocialPost",
+            "Canvas",
+            "Update",
+            "MobileSmartActions",
+            "MobileCreateFull",
+            "ChangePriority",
+            "ChangeDueDate",
+            "LightningComponent",
+            "LightningWebComponent",
+            "Flow",
+            "MobileExtension",
+            "Quip",
+            "SendConversationMessage",
+            "Copilot"
+          ]
+        },
+        "width": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": true,
+      "required": ["optionsCreateFeedItem", "type"]
+    },
+    "QuickActionLayout": {
+      "type": "object",
+      "properties": {
+        "layoutSectionStyle": {
+          "type": "string",
+          "enum": ["TwoColumnsTopToBottom", "TwoColumnsLeftToRight", "OneColumn", "CustomLinks"]
+        },
+        "quickActionLayoutColumns": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/QuickActionLayoutColumn"
+          }
+        }
+      },
+      "additionalProperties": true,
+      "required": ["layoutSectionStyle"]
+    },
+    "QuickActionLayoutColumn": {
+      "type": "object",
+      "properties": {
+        "quickActionLayoutItems": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/QuickActionLayoutItem"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "QuickActionLayoutItem": {
+      "type": "object",
+      "properties": {
+        "emptySpace": {
+          "type": "boolean"
+        },
+        "field": {
+          "type": "string"
+        },
+        "uiBehavior": {
+          "type": "string",
+          "enum": ["Edit", "Required", "Readonly"]
+        }
+      },
+      "additionalProperties": true
+    },
+    "QuickActionParameters": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["Input", "Output"]
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "required": ["name", "type"]
+    },
+    "QuickActionSendEmailOptions": {
+      "type": "object",
+      "properties": {
+        "defaultEmailTemplateName": {
+          "type": "string"
+        },
+        "ignoreDefaultEmailTemplateSubject": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true,
+      "required": ["ignoreDefaultEmailTemplateSubject"]
+    }
+  },
+  "$ref": "#/$defs/QuickAction"
+}

@@ -15,6 +15,13 @@ Usage:
     python pull_flow_schema.py --type Profile
     python pull_flow_schema.py --type Layout
     python pull_flow_schema.py --type FlexiPage
+    python pull_flow_schema.py --type CustomObject
+    python pull_flow_schema.py --type CustomField
+    python pull_flow_schema.py --type ValidationRule
+    python pull_flow_schema.py --type RecordType
+    python pull_flow_schema.py --type QuickAction
+    python pull_flow_schema.py --type PermissionSetGroup
+    python pull_flow_schema.py --type SharingRules
 
     # Specify a target org:
     python pull_flow_schema.py --target-org myOrg
@@ -56,6 +63,48 @@ METADATA_TYPES = {
         "FlexiPage",
         "cirra-ai-sf-metadata",
         "flexipage-metadata-schema.json",
+    ),
+    "CustomObject": (
+        "CustomObject",
+        "CustomObject",
+        "cirra-ai-sf-metadata",
+        "customobject-metadata-schema.json",
+    ),
+    "CustomField": (
+        "CustomField",
+        "CustomField",
+        "cirra-ai-sf-metadata",
+        "customfield-metadata-schema.json",
+    ),
+    "ValidationRule": (
+        "ValidationRule",
+        "ValidationRule",
+        "cirra-ai-sf-metadata",
+        "validationrule-metadata-schema.json",
+    ),
+    "RecordType": (
+        "RecordType",
+        "RecordType",
+        "cirra-ai-sf-metadata",
+        "recordtype-metadata-schema.json",
+    ),
+    "QuickAction": (
+        "QuickAction",
+        "QuickAction",
+        "cirra-ai-sf-metadata",
+        "quickaction-metadata-schema.json",
+    ),
+    "PermissionSetGroup": (
+        "PermissionSetGroup",
+        "PermissionSetGroup",
+        "cirra-ai-sf-permissions",
+        "permissionsetgroup-metadata-schema.json",
+    ),
+    "SharingRules": (
+        "SharingRules",
+        "SharingRules",
+        "cirra-ai-sf-permissions",
+        "sharingrules-metadata-schema.json",
     ),
 }
 
@@ -106,7 +155,12 @@ def download_wsdl(instance_url, access_token):
 
 
 def extract_types(wsdl_content, type_prefix):
-    """Extract XSD complex types matching a prefix from the WSDL."""
+    """Extract XSD complex types from the WSDL.
+
+    Starts with types matching ``type_prefix`` then transitively includes any
+    complex types referenced via element types or extension bases so that the
+    generated schema is self-contained.
+    """
     root = ET.fromstring(wsdl_content)
 
     # Find the <types> → <schema> section
@@ -117,7 +171,6 @@ def extract_types(wsdl_content, type_prefix):
     if types_el is None:
         raise ValueError("Could not find XSD schema in WSDL")
 
-    matched_types = {}
     enum_types = {}
 
     # Pass 1: collect all simpleType enums
@@ -129,17 +182,59 @@ def extract_types(wsdl_content, type_prefix):
             if enums:
                 enum_types[name] = enums
 
-    # Pass 2: collect complexTypes matching the prefix
+    # Index all complexTypes
+    all_complex_types = {}
     for complex_type in types_el.findall(f"{{{XSD_NS}}}complexType"):
         name = complex_type.get("name", "")
-        if name.startswith(type_prefix) or name == type_prefix:
-            matched_types[name] = complex_type
+        if name:
+            all_complex_types[name] = complex_type
+
+    # Pass 2: seed with prefix-matched types, then resolve transitive deps
+    seed_names = {
+        n for n in all_complex_types if n.startswith(type_prefix) or n == type_prefix
+    }
+    matched_types = _resolve_transitive_types(seed_names, all_complex_types)
 
     return matched_types, enum_types
 
 
-def xsd_type_to_json_schema(type_name, enum_types, type_prefix):
-    """Convert an XSD type reference to a JSON Schema type."""
+def _resolve_transitive_types(seed_names, all_complex_types):
+    """Walk extension bases and element type refs to collect all needed types."""
+    needed = set()
+    queue = list(seed_names)
+    while queue:
+        name = queue.pop()
+        if name in needed or name not in all_complex_types:
+            continue
+        needed.add(name)
+        ct = all_complex_types[name]
+
+        cc = ct.find(f"{{{XSD_NS}}}complexContent")
+        seq = None
+        if cc is not None:
+            ext = cc.find(f"{{{XSD_NS}}}extension")
+            if ext is not None:
+                base = re.sub(r"^tns:", "", ext.get("base", ""))
+                if base in all_complex_types and base != "Metadata":
+                    queue.append(base)
+                seq = ext.find(f"{{{XSD_NS}}}sequence")
+        else:
+            seq = ct.find(f"{{{XSD_NS}}}sequence")
+
+        if seq is not None:
+            for elem in seq.findall(f"{{{XSD_NS}}}element"):
+                etype = re.sub(r"^tns:", "", elem.get("type", ""))
+                if etype in all_complex_types:
+                    queue.append(etype)
+
+    return {n: all_complex_types[n] for n in needed}
+
+
+def xsd_type_to_json_schema(type_name, enum_types, known_types):
+    """Convert an XSD type reference to a JSON Schema type.
+
+    ``known_types`` is the set of complex type names included in ``$defs``.
+    """
     if type_name in XSD_TYPE_MAP:
         return {"type": XSD_TYPE_MAP[type_name]}
 
@@ -148,14 +243,17 @@ def xsd_type_to_json_schema(type_name, enum_types, type_prefix):
     if clean in enum_types:
         return {"type": "string", "enum": enum_types[clean]}
 
-    if clean.startswith(type_prefix):
+    if clean in known_types:
         return {"$ref": f"#/$defs/{clean}"}
 
     return {"type": "string", "description": f"Mapped from XSD type: {type_name}"}
 
 
-def complex_type_to_json_schema(ct_element, enum_types, type_prefix):
-    """Convert an XSD complexType element to a JSON Schema object definition."""
+def complex_type_to_json_schema(ct_element, enum_types, known_types):
+    """Convert an XSD complexType element to a JSON Schema object definition.
+
+    ``known_types`` is the set of complex type names included in ``$defs``.
+    """
     schema = {"type": "object", "properties": {}, "additionalProperties": True}
     required = []
 
@@ -165,7 +263,7 @@ def complex_type_to_json_schema(ct_element, enum_types, type_prefix):
         if extension is not None:
             base = extension.get("base", "")
             clean_base = re.sub(r"^tns:", "", base)
-            if clean_base.startswith(type_prefix):
+            if clean_base in known_types:
                 schema["allOf"] = [{"$ref": f"#/$defs/{clean_base}"}]
             sequence = extension.find(f"{{{XSD_NS}}}sequence")
         else:
@@ -180,7 +278,7 @@ def complex_type_to_json_schema(ct_element, enum_types, type_prefix):
             min_occurs = elem.get("minOccurs", "1")
             max_occurs = elem.get("maxOccurs", "1")
 
-            prop_schema = xsd_type_to_json_schema(elem_type, enum_types, type_prefix)
+            prop_schema = xsd_type_to_json_schema(elem_type, enum_types, known_types)
 
             if max_occurs == "unbounded":
                 prop_schema = {"type": "array", "items": prop_schema}
@@ -196,8 +294,9 @@ def complex_type_to_json_schema(ct_element, enum_types, type_prefix):
     return schema
 
 
-def build_json_schema(matched_types, enum_types, type_prefix, root_type, api_version=None):
+def build_json_schema(matched_types, enum_types, root_type, api_version=None):
     """Build a complete JSON Schema from extracted types."""
+    known_types = set(matched_types.keys())
     schema = {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "$id": f"https://cirra.ai/schemas/salesforce-{root_type.lower()}-metadata.json",
@@ -215,7 +314,7 @@ def build_json_schema(matched_types, enum_types, type_prefix, root_type, api_ver
         schema["x-salesforce-api-version"] = api_version
 
     for name, ct_element in sorted(matched_types.items()):
-        schema["$defs"][name] = complex_type_to_json_schema(ct_element, enum_types, type_prefix)
+        schema["$defs"][name] = complex_type_to_json_schema(ct_element, enum_types, known_types)
 
     if root_type in schema["$defs"]:
         schema["$ref"] = f"#/$defs/{root_type}"
@@ -260,7 +359,7 @@ def main():
     matched_types, enum_types = extract_types(wsdl_content, type_prefix)
     print(f"Found {len(matched_types)} {args.type} complex types and {len(enum_types)} enum types")
 
-    schema = build_json_schema(matched_types, enum_types, type_prefix, root_type, api_version)
+    schema = build_json_schema(matched_types, enum_types, root_type, api_version)
 
     default_refs_dir = SKILLS_DIR / skill_dir / "references"
     output_path = Path(args.output) if args.output else default_refs_dir / default_filename
