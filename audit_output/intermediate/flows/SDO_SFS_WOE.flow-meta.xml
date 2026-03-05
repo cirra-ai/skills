@@ -1,0 +1,1868 @@
+{
+  "fullName": "SDO_SFS_WOE",
+  "apiVersion": "63.0",
+  "areMetricsLoggedToDataCloud": "false",
+  "assignments": [
+    {
+      "name": "Assign_Labor_Discount",
+      "label": "Assign Labor Discount",
+      "locationX": 528,
+      "locationY": 1214,
+      "assignmentItems": [
+        {
+          "assignToReference": "AppliedDiscount",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "SelectAW.firstSelectedRow.LaborCovered"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "Get_Pricebook_Entry",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Assign_Part_Discount",
+      "label": "Assign Part Discount",
+      "locationX": 792,
+      "locationY": 1214,
+      "assignmentItems": [
+        {
+          "assignToReference": "AppliedDiscount",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "SelectAW.firstSelectedRow.PartsCovered"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "Get_Pricebook_Entry",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Assign_QLIs",
+      "label": "Assign QLIs",
+      "locationX": 462,
+      "locationY": 1706,
+      "assignmentItems": [
+        {
+          "assignToReference": "QLIs",
+          "operator": "Add",
+          "value": {
+            "elementReference": "quoteLine"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "Product_Item_Loop",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Quote_Line_Assignement",
+      "label": "Quote Line Assignement",
+      "locationX": 462,
+      "locationY": 1598,
+      "assignmentItems": [
+        {
+          "assignToReference": "quoteLine.Product2Id",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "Product_Item_Loop.Product2Id"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "quoteLine.QuoteId",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "varQuoteId"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "quoteLine.WorkTypeId",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "Work_Type.recordId"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "quoteLine.ListPrice",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "Get_Pricebook_Entry.UnitPrice"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "quoteLine.Discount",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "AppliedDiscount"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "quoteLine.PricebookEntryId",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "Get_Pricebook_Entry.Id"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "quoteLine.Quantity",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "Product_Item_Loop.QuantityRequired"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "quoteLine.UnitPrice",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "Get_Pricebook_Entry.UnitPrice"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "quoteLine.Description",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "Product_Item_Loop.ProductName"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "Assign_QLIs",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    }
+  ],
+  "choices": [
+    {
+      "name": "Contract",
+      "choiceText": "Contract",
+      "dataType": "String",
+      "value": {
+        "stringValue": "Contract"
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "No",
+      "choiceText": "No",
+      "dataType": "String",
+      "value": {
+        "stringValue": "No"
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Warranty",
+      "choiceText": "Warranty",
+      "dataType": "String",
+      "value": {
+        "stringValue": "Warranty"
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Yes",
+      "choiceText": "Yes",
+      "dataType": "String",
+      "value": {
+        "stringValue": "Yes"
+      },
+      "processMetadataValues": []
+    }
+  ],
+  "customProperties": {
+    "name": "ScreenProgressIndicator",
+    "value": {
+      "stringValue": "{\"location\":\"top\",\"type\":\"simple\"}"
+    }
+  },
+  "decisions": [
+    {
+      "name": "Check_Discounts",
+      "label": "Check Discounts",
+      "locationX": 462,
+      "locationY": 998,
+      "defaultConnector": {
+        "targetReference": "Check_Product_Type",
+        "processMetadataValues": []
+      },
+      "defaultConnectorLabel": "Default Outcome",
+      "rules": [
+        {
+          "name": "Discount_From_Contract",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "Discount_Applied_From",
+              "operator": "EqualTo",
+              "rightValue": {
+                "elementReference": "Contract"
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Get_Contract_Line_Items",
+            "processMetadataValues": []
+          },
+          "label": "Discount From Contract",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    },
+    {
+      "name": "Check_Product_Type",
+      "label": "Check Product Type",
+      "locationX": 660,
+      "locationY": 1106,
+      "defaultConnector": {
+        "targetReference": "Assign_Part_Discount",
+        "processMetadataValues": []
+      },
+      "defaultConnectorLabel": "Default Outcome",
+      "rules": [
+        {
+          "name": "Check_Labor",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "Product_Item_Loop.Product2.Family",
+              "operator": "EqualTo",
+              "rightValue": {
+                "stringValue": "Labor"
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Assign_Labor_Discount",
+            "processMetadataValues": []
+          },
+          "label": "Check Labor",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    }
+  ],
+  "description": "This is a Screen Flow.\nThis flow is used to create a work order estimation, including asset details, service contracts, warranties, and products required.",
+  "environments": "Default",
+  "formulas": [
+    {
+      "name": "QuoteName",
+      "dataType": "String",
+      "expression": "'Work Estimation For '+ {!Work_Type.recordName}",
+      "processMetadataValues": []
+    },
+    {
+      "name": "subTotal",
+      "dataType": "Currency",
+      "expression": "({!Get_Pricebook_Entry.UnitPrice} *{!AppliedDiscount})/100",
+      "scale": 2,
+      "processMetadataValues": []
+    }
+  ],
+  "interviewLabel": "SDO SFS WOE {!$Flow.CurrentDateTime}",
+  "label": "SDO SFS WOE",
+  "loops": [
+    {
+      "name": "Product_Item_Loop",
+      "label": "Product Item Loop",
+      "locationX": 176,
+      "locationY": 890,
+      "collectionReference": "Get_Product_Required",
+      "iterationOrder": "Asc",
+      "nextValueConnector": {
+        "targetReference": "Check_Discounts",
+        "processMetadataValues": []
+      },
+      "noMoreValuesConnector": {
+        "targetReference": "Create_Quote_Lines",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": [],
+      "assignNextValueToReference": ""
+    }
+  ],
+  "processMetadataValues": [
+    {
+      "name": "BuilderType",
+      "value": {
+        "stringValue": "LightningFlowBuilder"
+      }
+    },
+    {
+      "name": "CanvasMode",
+      "value": {
+        "stringValue": "AUTO_LAYOUT_CANVAS"
+      }
+    },
+    {
+      "name": "OriginBuilderType",
+      "value": {
+        "stringValue": "LightningFlowBuilder"
+      }
+    }
+  ],
+  "processType": "Flow",
+  "recordCreates": [
+    {
+      "name": "Create_Quote_Lines",
+      "label": "Create Quote Lines",
+      "locationX": 176,
+      "locationY": 1898,
+      "connector": {
+        "targetReference": "Get_Quote",
+        "processMetadataValues": []
+      },
+      "inputReference": "QLIs",
+      "processMetadataValues": [],
+      "inputAssignments": []
+    },
+    {
+      "name": "Quote_Creation",
+      "label": "Quote Creation",
+      "locationX": 176,
+      "locationY": 782,
+      "assignRecordIdToReference": "varQuoteId",
+      "connector": {
+        "targetReference": "Product_Item_Loop",
+        "processMetadataValues": []
+      },
+      "inputAssignments": [
+        {
+          "field": "BillingCity",
+          "value": {
+            "elementReference": "Address.city"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "BillingCountry",
+          "value": {
+            "elementReference": "Address.country"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "BillingName",
+          "value": {
+            "elementReference": "Get_Asset_Details.Contact.Name"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "BillingPostalCode",
+          "value": {
+            "elementReference": "Address.postalCode"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "BillingState",
+          "value": {
+            "elementReference": "Address.province"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "BillingStreet",
+          "value": {
+            "elementReference": "Address.street"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "ContactId",
+          "value": {
+            "elementReference": "Get_Asset_Details.ContactId"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "Email",
+          "value": {
+            "elementReference": "Get_Asset_Details.Contact.Email"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "Name",
+          "value": {
+            "elementReference": "QuoteName"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "Pricebook2Id",
+          "value": {
+            "elementReference": "PriceBook.recordId"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "Status",
+          "value": {
+            "stringValue": "Draft"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "object": "Quote",
+      "processMetadataValues": []
+    },
+    {
+      "name": "Work_Order_Creation",
+      "label": "Work Order Creation",
+      "locationX": 176,
+      "locationY": 2546,
+      "assignRecordIdToReference": "varWorkOrderId",
+      "connector": {
+        "targetReference": "Fetch_Work_Order",
+        "processMetadataValues": []
+      },
+      "inputAssignments": [
+        {
+          "field": "AccountId",
+          "value": {
+            "elementReference": "Get_Asset_Details.AccountId"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "AssetId",
+          "value": {
+            "elementReference": "Get_Asset_Details.Id"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "ContactId",
+          "value": {
+            "elementReference": "Get_Asset_Details.ContactId"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "Pricebook2Id",
+          "value": {
+            "elementReference": "PriceBook.recordId"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "ServiceTerritoryId",
+          "value": {
+            "elementReference": "Get_Service_Territory.Id"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "StartDate",
+          "value": {
+            "elementReference": "Start_Date"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "WorkTypeId",
+          "value": {
+            "elementReference": "Work_Type.recordId"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "object": "WorkOrder",
+      "processMetadataValues": []
+    }
+  ],
+  "recordLookups": [
+    {
+      "name": "Fetch_Work_Order",
+      "label": "Fetch Work Order",
+      "locationX": 176,
+      "locationY": 2654,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "Msg",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "Id",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "varWorkOrderId"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "getFirstRecordOnly": true,
+      "object": "WorkOrder",
+      "storeOutputAutomatically": true,
+      "processMetadataValues": [],
+      "outputAssignments": [],
+      "queriedFields": []
+    },
+    {
+      "name": "Get_Asset_Details",
+      "label": "Get Asset Details",
+      "locationX": 176,
+      "locationY": 134,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "Get_SC",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "Id",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "recordId"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "getFirstRecordOnly": true,
+      "object": "Asset",
+      "storeOutputAutomatically": true,
+      "processMetadataValues": [],
+      "outputAssignments": [],
+      "queriedFields": []
+    },
+    {
+      "name": "Get_Contract_Line_Items",
+      "label": "Get Contract Line Items",
+      "locationX": 264,
+      "locationY": 1106,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "Get_Pricebook_Entry",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "Product2Id",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "Product_Item_Loop.Product2Id"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "object": "ContractLineItem",
+      "outputAssignments": [
+        {
+          "assignToReference": "AppliedDiscount",
+          "field": "Discount",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": [],
+      "queriedFields": []
+    },
+    {
+      "name": "Get_Pricebook_Entry",
+      "label": "Get Pricebook Entry",
+      "locationX": 462,
+      "locationY": 1490,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "Quote_Line_Assignement",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "Product2Id",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "Product_Item_Loop.Product2Id"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "Pricebook2Id",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "PriceBook.recordId"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "getFirstRecordOnly": true,
+      "object": "PricebookEntry",
+      "storeOutputAutomatically": true,
+      "processMetadataValues": [],
+      "outputAssignments": [],
+      "queriedFields": []
+    },
+    {
+      "name": "Get_Product_Required",
+      "label": "Get Product Required",
+      "locationX": 176,
+      "locationY": 566,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "Work_Estimation_Detail",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "ParentRecordId",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "Work_Type.recordId"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "getFirstRecordOnly": false,
+      "object": "ProductRequired",
+      "storeOutputAutomatically": true,
+      "processMetadataValues": [],
+      "outputAssignments": [],
+      "queriedFields": []
+    },
+    {
+      "name": "Get_QLIs",
+      "label": "Get QLIs",
+      "locationX": 176,
+      "locationY": 2114,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "Final_Screen",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "QuoteId",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "varQuoteId"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "object": "QuoteLineItem",
+      "outputReference": "createdQLIs",
+      "queriedFields": [
+        "Id",
+        "UnitPrice",
+        "Quantity",
+        "Subtotal",
+        "Discount",
+        "TotalPrice",
+        "ListPrice",
+        "Product2Id",
+        "Description"
+      ],
+      "processMetadataValues": [],
+      "outputAssignments": []
+    },
+    {
+      "name": "Get_Quote",
+      "label": "Get Quote",
+      "locationX": 176,
+      "locationY": 2006,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "Get_QLIs",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "Id",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "varQuoteId"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "getFirstRecordOnly": true,
+      "object": "Quote",
+      "storeOutputAutomatically": true,
+      "processMetadataValues": [],
+      "outputAssignments": [],
+      "queriedFields": []
+    },
+    {
+      "name": "Get_SC",
+      "label": "Get SC",
+      "locationX": 176,
+      "locationY": 242,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "Get_Warranty",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "AccountId",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "Get_Asset_Details.AccountId"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "getFirstRecordOnly": false,
+      "object": "ServiceContract",
+      "storeOutputAutomatically": true,
+      "processMetadataValues": [],
+      "outputAssignments": [],
+      "queriedFields": []
+    },
+    {
+      "name": "Get_Service_Territory",
+      "label": "Get Service Territory",
+      "locationX": 176,
+      "locationY": 2438,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "Work_Order_Creation",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "External_ID__c",
+          "operator": "EqualTo",
+          "value": {
+            "stringValue": "SvcTerritory.001"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "getFirstRecordOnly": true,
+      "object": "ServiceTerritory",
+      "storeOutputAutomatically": true,
+      "processMetadataValues": [],
+      "outputAssignments": [],
+      "queriedFields": []
+    },
+    {
+      "name": "Get_Warranty",
+      "label": "Get Warranty",
+      "locationX": 176,
+      "locationY": 350,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "Work_Order_Estimation",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "AssetId",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "Get_Asset_Details.Id"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "getFirstRecordOnly": false,
+      "object": "AssetWarranty",
+      "storeOutputAutomatically": true,
+      "processMetadataValues": [],
+      "outputAssignments": [],
+      "queriedFields": []
+    }
+  ],
+  "recordUpdates": [
+    {
+      "name": "Quote_Updation",
+      "label": "Quote Updation",
+      "locationX": 176,
+      "locationY": 2330,
+      "connector": {
+        "targetReference": "Get_Service_Territory",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "Id",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "varQuoteId"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "inputAssignments": [
+        {
+          "field": "Status",
+          "value": {
+            "stringValue": "Approved"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "object": "Quote",
+      "processMetadataValues": []
+    }
+  ],
+  "screens": [
+    {
+      "name": "Final_Screen",
+      "label": "Final Screen",
+      "locationX": 176,
+      "locationY": 2222,
+      "allowBack": true,
+      "allowFinish": true,
+      "allowPause": false,
+      "connector": {
+        "targetReference": "Quote_Updation",
+        "processMetadataValues": []
+      },
+      "fields": [
+        {
+          "name": "Quote_Details",
+          "fieldText": "Quote Details",
+          "fieldType": "RegionContainer",
+          "fields": [
+            {
+              "name": "Quote_Details_Column1",
+              "fieldType": "Region",
+              "fields": {
+                "name": "Message1",
+                "fieldText": "<p><span style=\"font-size: 14px;\">Account Name</span></p><p><strong style=\"font-size: 14px;\">{!AccountName}</strong></p>",
+                "fieldType": "DisplayText",
+                "styleProperties": {
+                  "verticalAlignment": {
+                    "stringValue": "top"
+                  },
+                  "width": {
+                    "stringValue": "12"
+                  }
+                }
+              },
+              "inputParameters": {
+                "name": "width",
+                "value": {
+                  "stringValue": "3"
+                }
+              },
+              "isRequired": "false"
+            },
+            {
+              "name": "Quote_Details_Column2",
+              "fieldType": "Region",
+              "fields": {
+                "name": "Message2",
+                "fieldText": "<p><span style=\"font-size: 14px;\">Quote</span></p><p><strong style=\"font-size: 14px;\">{!Get_Quote.Name}</strong></p>",
+                "fieldType": "DisplayText",
+                "styleProperties": {
+                  "verticalAlignment": {
+                    "stringValue": "top"
+                  },
+                  "width": {
+                    "stringValue": "12"
+                  }
+                }
+              },
+              "inputParameters": {
+                "name": "width",
+                "value": {
+                  "stringValue": "3"
+                }
+              },
+              "isRequired": "false"
+            },
+            {
+              "name": "Quote_Details_Column3",
+              "fieldType": "Region",
+              "fields": {
+                "name": "Message3",
+                "fieldText": "<p><span style=\"font-size: 14px;\">Quote Number</span></p><p><strong style=\"font-size: 14px;\">{!Get_Quote.QuoteNumber}</strong></p>",
+                "fieldType": "DisplayText",
+                "styleProperties": {
+                  "verticalAlignment": {
+                    "stringValue": "top"
+                  },
+                  "width": {
+                    "stringValue": "12"
+                  }
+                }
+              },
+              "inputParameters": {
+                "name": "width",
+                "value": {
+                  "stringValue": "3"
+                }
+              },
+              "isRequired": "false"
+            },
+            {
+              "name": "Quote_Details_Column4",
+              "fieldType": "Region",
+              "fields": {
+                "name": "Message4",
+                "fieldText": "<p><span style=\"font-size: 14px;\">Total</span></p><p><strong>{!Get_Quote.GrandTotal}</strong></p>",
+                "fieldType": "DisplayText",
+                "styleProperties": {
+                  "verticalAlignment": {
+                    "stringValue": "top"
+                  },
+                  "width": {
+                    "stringValue": "12"
+                  }
+                }
+              },
+              "inputParameters": {
+                "name": "width",
+                "value": {
+                  "stringValue": "3"
+                }
+              },
+              "isRequired": "false"
+            }
+          ],
+          "isRequired": false,
+          "regionContainerType": "SectionWithHeader",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "Quote_Line_Items",
+          "fieldText": "Quote Line Items",
+          "fieldType": "RegionContainer",
+          "fields": {
+            "name": "Quote_Line_Items_Column1",
+            "fieldType": "Region",
+            "fields": {
+              "name": "QLIData",
+              "dataTypeMappings": {
+                "typeName": "T",
+                "typeValue": "QuoteLineItem"
+              },
+              "extensionName": "flowruntime:datatable",
+              "fieldType": "ComponentInstance",
+              "inputParameters": [
+                {
+                  "name": "label",
+                  "value": {
+                    "stringValue": "Quote Line Items"
+                  }
+                },
+                {
+                  "name": "selectionMode",
+                  "value": {
+                    "stringValue": "NO_SELECTION"
+                  }
+                },
+                {
+                  "name": "minRowSelection",
+                  "value": {
+                    "numberValue": "0.0"
+                  }
+                },
+                {
+                  "name": "tableData",
+                  "value": {
+                    "elementReference": "createdQLIs"
+                  }
+                },
+                {
+                  "name": "columns",
+                  "value": {
+                    "stringValue": "[{\"apiName\":\"Description\",\"guid\":\"column-91b3\",\"editable\":false,\"hasCustomHeaderLabel\":true,\"customHeaderLabel\":\"Product Name\",\"wrapText\":true,\"order\":0,\"label\":\"Line Item Description\",\"type\":\"text\"},{\"apiName\":\"UnitPrice\",\"guid\":\"column-18d1\",\"editable\":false,\"hasCustomHeaderLabel\":false,\"customHeaderLabel\":\"\",\"wrapText\":true,\"order\":1,\"label\":\"Sales Price\",\"type\":\"currency\"},{\"apiName\":\"Quantity\",\"guid\":\"column-32a2\",\"editable\":false,\"hasCustomHeaderLabel\":false,\"customHeaderLabel\":\"\",\"wrapText\":true,\"order\":2,\"label\":\"Quantity\",\"type\":\"number\"},{\"apiName\":\"Subtotal\",\"guid\":\"column-e3bb\",\"editable\":false,\"hasCustomHeaderLabel\":false,\"customHeaderLabel\":\"\",\"wrapText\":true,\"order\":3,\"label\":\"Subtotal \",\"type\":\"currency\"},{\"apiName\":\"Discount\",\"guid\":\"column-8e2a\",\"editable\":false,\"hasCustomHeaderLabel\":false,\"customHeaderLabel\":\"\",\"wrapText\":true,\"order\":4,\"label\":\"Discount (Percentage)\",\"type\":\"customPercent\"},{\"apiName\":\"TotalPrice\",\"guid\":\"column-e8d7\",\"editable\":false,\"hasCustomHeaderLabel\":false,\"customHeaderLabel\":\"\",\"wrapText\":true,\"order\":5,\"label\":\"Total Price\",\"type\":\"currency\"}]"
+                  }
+                },
+                {
+                  "name": "maxRowSelection",
+                  "value": {
+                    "numberValue": "0.0"
+                  }
+                }
+              ],
+              "inputsOnNextNavToAssocScrn": "UseStoredValues",
+              "isRequired": "true",
+              "storeOutputAutomatically": "true",
+              "styleProperties": {
+                "verticalAlignment": {
+                  "stringValue": "top"
+                },
+                "width": {
+                  "stringValue": "12"
+                }
+              }
+            },
+            "inputParameters": {
+              "name": "width",
+              "value": {
+                "stringValue": "12"
+              }
+            },
+            "isRequired": "false"
+          },
+          "isRequired": false,
+          "regionContainerType": "SectionWithHeader",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "SelectDate",
+          "fieldText": "<p><strong>Would you like to create the Work Order for this Quote then please select the Start Date for Work Order</strong></p>",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "Final_Screen_Section3",
+          "fieldType": "RegionContainer",
+          "fields": [
+            {
+              "name": "Final_Screen_Section3_Column1",
+              "fieldType": "Region",
+              "fields": {
+                "name": "Start_Date",
+                "dataType": "Date",
+                "fieldText": "Start Date",
+                "fieldType": "InputField",
+                "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                "isRequired": "false",
+                "styleProperties": {
+                  "verticalAlignment": {
+                    "stringValue": "top"
+                  },
+                  "width": {
+                    "stringValue": "12"
+                  }
+                }
+              },
+              "inputParameters": {
+                "name": "width",
+                "value": {
+                  "stringValue": "4"
+                }
+              },
+              "isRequired": "false"
+            },
+            {
+              "name": "Final_Screen_Section3_Column2",
+              "fieldType": "Region",
+              "inputParameters": {
+                "name": "width",
+                "value": {
+                  "stringValue": "4"
+                }
+              },
+              "isRequired": "false"
+            },
+            {
+              "name": "Final_Screen_Section3_Column3",
+              "fieldType": "Region",
+              "inputParameters": {
+                "name": "width",
+                "value": {
+                  "stringValue": "4"
+                }
+              },
+              "isRequired": "false"
+            }
+          ],
+          "isRequired": false,
+          "regionContainerType": "SectionWithoutHeader",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        }
+      ],
+      "nextOrFinishButtonLabel": "Create WorkOrder",
+      "showFooter": true,
+      "showHeader": true,
+      "processMetadataValues": [],
+      "rules": []
+    },
+    {
+      "name": "Msg",
+      "label": "Msg",
+      "locationX": 176,
+      "locationY": 2762,
+      "allowBack": false,
+      "allowFinish": true,
+      "allowPause": false,
+      "fields": [
+        {
+          "name": "SuccessMsg",
+          "fieldText": "<p>Success! Work Order \"<a href=\"/{!varWorkOrderId}\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: rgb(40, 167, 69); font-size: 16px;\">{!Fetch_Work_Order.WorkOrderNumber}</a>\" has been created for Quote \"<a href=\"/{!varQuoteId}\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"font-size: 16px; background-color: rgb(255, 255, 255); color: rgb(40, 167, 69);\">{!Quote_Name}</a><span style=\"background-color: rgb(255, 255, 255); color: rgb(68, 68, 68);\">\"</span> was approved.</p>",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        }
+      ],
+      "nextOrFinishButtonLabel": "Done",
+      "showFooter": true,
+      "showHeader": true,
+      "processMetadataValues": [],
+      "rules": []
+    },
+    {
+      "name": "Work_Estimation_Detail",
+      "label": "Work Estimation Details",
+      "locationX": 176,
+      "locationY": 674,
+      "allowBack": true,
+      "allowFinish": true,
+      "allowPause": false,
+      "connector": {
+        "targetReference": "Quote_Creation",
+        "processMetadataValues": []
+      },
+      "fields": [
+        {
+          "name": "Work_Estimation_Details",
+          "fieldText": "Work Estimation Details",
+          "fieldType": "RegionContainer",
+          "fields": [
+            {
+              "name": "Work_Estimation_Details_Column1",
+              "fieldType": "Region",
+              "fields": {
+                "name": "Asset_Account",
+                "fieldText": "<p>Asset Name - <strong>{!Get_Asset_Details.Name}</strong></p><p>Account Name - <strong>{!Get_Asset_Details.Account.Name}</strong></p>",
+                "fieldType": "DisplayText",
+                "styleProperties": {
+                  "verticalAlignment": {
+                    "stringValue": "top"
+                  },
+                  "width": {
+                    "stringValue": "12"
+                  }
+                }
+              },
+              "inputParameters": {
+                "name": "width",
+                "value": {
+                  "stringValue": "4"
+                }
+              },
+              "isRequired": "false"
+            },
+            {
+              "name": "Work_Estimation_Details_Column2",
+              "fieldType": "Region",
+              "fields": {
+                "name": "Worktype_ServiceCotract",
+                "fieldText": "<p>Work Type Name - <strong>{!Work_Type.recordName}</strong></p>",
+                "fieldType": "DisplayText",
+                "styleProperties": {
+                  "verticalAlignment": {
+                    "stringValue": "top"
+                  },
+                  "width": {
+                    "stringValue": "12"
+                  }
+                }
+              },
+              "inputParameters": {
+                "name": "width",
+                "value": {
+                  "stringValue": "4"
+                }
+              },
+              "isRequired": "false"
+            },
+            {
+              "name": "Work_Estimation_Details_Column3",
+              "fieldType": "Region",
+              "fields": {
+                "name": "Quote_Name",
+                "dataType": "String",
+                "defaultValue": {
+                  "elementReference": "QuoteName"
+                },
+                "fieldText": "Quote Name",
+                "fieldType": "InputField",
+                "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                "isRequired": "false",
+                "styleProperties": {
+                  "verticalAlignment": {
+                    "stringValue": "top"
+                  },
+                  "width": {
+                    "stringValue": "12"
+                  }
+                }
+              },
+              "inputParameters": {
+                "name": "width",
+                "value": {
+                  "stringValue": "4"
+                }
+              },
+              "isRequired": "false"
+            }
+          ],
+          "isRequired": false,
+          "regionContainerType": "SectionWithHeader",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "ProductList",
+          "extensionName": "c:sfsworkorder",
+          "fieldType": "ComponentInstance",
+          "inputParameters": [
+            {
+              "name": "workTypeId",
+              "value": {
+                "elementReference": "Work_Type.recordId"
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "inputsOnNextNavToAssocScrn": "UseStoredValues",
+          "isRequired": true,
+          "storeOutputAutomatically": true,
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "outputParameters": []
+        }
+      ],
+      "nextOrFinishButtonLabel": "Create Quote",
+      "showFooter": true,
+      "showHeader": true,
+      "processMetadataValues": [],
+      "rules": []
+    },
+    {
+      "name": "Work_Order_Estimation",
+      "label": "Work Order Estimation",
+      "locationX": 176,
+      "locationY": 458,
+      "allowBack": false,
+      "allowFinish": true,
+      "allowPause": false,
+      "connector": {
+        "targetReference": "Get_Product_Required",
+        "processMetadataValues": []
+      },
+      "fields": [
+        {
+          "name": "Enter_Quote_Details1",
+          "fieldText": "Enter Quote Details",
+          "fieldType": "RegionContainer",
+          "fields": [
+            {
+              "name": "Enter_Quote_Details1_Column1",
+              "fieldType": "Region",
+              "fields": [
+                {
+                  "name": "Asset_Name",
+                  "dataType": "String",
+                  "defaultValue": {
+                    "elementReference": "Get_Asset_Details.Name"
+                  },
+                  "fieldText": "Asset Name",
+                  "fieldType": "InputField",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "name": "AccountName",
+                  "dataType": "String",
+                  "defaultValue": {
+                    "elementReference": "Get_Asset_Details.Account.Name"
+                  },
+                  "fieldText": "Account Name",
+                  "fieldType": "InputField",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "name": "Address",
+                  "extensionName": "flowruntime:address",
+                  "fieldType": "ComponentInstance",
+                  "inputParameters": [
+                    {
+                      "name": "addressLabel",
+                      "value": {
+                        "stringValue": "Address"
+                      }
+                    },
+                    {
+                      "name": "street",
+                      "value": {
+                        "elementReference": "Get_Asset_Details.Account.BillingStreet"
+                      }
+                    },
+                    {
+                      "name": "city",
+                      "value": {
+                        "elementReference": "Get_Asset_Details.Account.BillingCity"
+                      }
+                    },
+                    {
+                      "name": "province",
+                      "value": {
+                        "elementReference": "Get_Asset_Details.Account.BillingState"
+                      }
+                    },
+                    {
+                      "name": "postalCode",
+                      "value": {
+                        "elementReference": "Get_Asset_Details.Account.BillingPostalCode"
+                      }
+                    },
+                    {
+                      "name": "country",
+                      "value": {
+                        "elementReference": "Get_Asset_Details.Account.BillingCountry"
+                      }
+                    }
+                  ],
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "true",
+                  "storeOutputAutomatically": "true",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                }
+              ],
+              "inputParameters": {
+                "name": "width",
+                "value": {
+                  "stringValue": "6"
+                }
+              },
+              "isRequired": "false"
+            },
+            {
+              "name": "Enter_Quote_Details1_Column2",
+              "fieldType": "Region",
+              "fields": [
+                {
+                  "name": "PriceBook",
+                  "extensionName": "flowruntime:lookup",
+                  "fieldType": "ComponentInstance",
+                  "inputParameters": [
+                    {
+                      "name": "fieldApiName",
+                      "value": {
+                        "stringValue": "Pricebook2Id"
+                      }
+                    },
+                    {
+                      "name": "label",
+                      "value": {
+                        "stringValue": "Price Book"
+                      }
+                    },
+                    {
+                      "name": "objectApiName",
+                      "value": {
+                        "stringValue": "PricebookEntry"
+                      }
+                    }
+                  ],
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "true",
+                  "storeOutputAutomatically": "true",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "name": "Work_Type",
+                  "extensionName": "flowruntime:lookup",
+                  "fieldType": "ComponentInstance",
+                  "inputParameters": [
+                    {
+                      "name": "fieldApiName",
+                      "value": {
+                        "stringValue": "WorkTypeId"
+                      }
+                    },
+                    {
+                      "name": "label",
+                      "value": {
+                        "stringValue": "Work Type"
+                      }
+                    },
+                    {
+                      "name": "objectApiName",
+                      "value": {
+                        "stringValue": "WorkOrder"
+                      }
+                    }
+                  ],
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "true",
+                  "storeOutputAutomatically": "true",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                }
+              ],
+              "inputParameters": {
+                "name": "width",
+                "value": {
+                  "stringValue": "6"
+                }
+              },
+              "isRequired": "false"
+            }
+          ],
+          "isRequired": false,
+          "regionContainerType": "SectionWithHeader",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "Select_Coverages",
+          "fieldText": "Select Coverages",
+          "fieldType": "RegionContainer",
+          "fields": {
+            "name": "Select_Coverages_Column1",
+            "fieldType": "Region",
+            "fields": [
+              {
+                "name": "Discount_Applied_From",
+                "choiceReferences": [
+                  "Contract",
+                  "Warranty"
+                ],
+                "dataType": "String",
+                "defaultSelectedChoiceReference": "Warranty",
+                "fieldText": "Discount Applied From",
+                "fieldType": "RadioButtons",
+                "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                "isRequired": "false",
+                "styleProperties": {
+                  "verticalAlignment": {
+                    "stringValue": "top"
+                  },
+                  "width": {
+                    "stringValue": "12"
+                  }
+                }
+              },
+              {
+                "name": "SelectAW",
+                "dataTypeMappings": {
+                  "typeName": "T",
+                  "typeValue": "AssetWarranty"
+                },
+                "extensionName": "flowruntime:datatable",
+                "fieldType": "ComponentInstance",
+                "inputParameters": [
+                  {
+                    "name": "label",
+                    "value": {
+                      "stringValue": "Asset Warranty"
+                    }
+                  },
+                  {
+                    "name": "selectionMode",
+                    "value": {
+                      "stringValue": "SINGLE_SELECT"
+                    }
+                  },
+                  {
+                    "name": "minRowSelection",
+                    "value": {
+                      "numberValue": "0.0"
+                    }
+                  },
+                  {
+                    "name": "tableData",
+                    "value": {
+                      "elementReference": "Get_Warranty"
+                    }
+                  },
+                  {
+                    "name": "maxRowSelection",
+                    "value": {
+                      "numberValue": "1.0"
+                    }
+                  },
+                  {
+                    "name": "columns",
+                    "value": {
+                      "stringValue": "[{\"apiName\":\"AssetWarrantyNumber\",\"guid\":\"column-2220\",\"editable\":false,\"hasCustomHeaderLabel\":false,\"customHeaderLabel\":\"\",\"wrapText\":true,\"order\":0,\"label\":\"Asset Warranty Number\",\"type\":\"text\"},{\"apiName\":\"StartDate\",\"guid\":\"column-bf5c\",\"editable\":false,\"hasCustomHeaderLabel\":false,\"customHeaderLabel\":\"\",\"wrapText\":true,\"order\":1,\"label\":\"Start Date\",\"type\":\"date-local\"},{\"apiName\":\"EndDate\",\"guid\":\"column-0461\",\"editable\":false,\"hasCustomHeaderLabel\":false,\"customHeaderLabel\":\"\",\"wrapText\":true,\"order\":2,\"label\":\"End Date\",\"type\":\"date-local\"},{\"apiName\":\"PartsCovered\",\"guid\":\"column-cdce\",\"editable\":false,\"hasCustomHeaderLabel\":false,\"customHeaderLabel\":\"\",\"wrapText\":true,\"order\":3,\"label\":\"Parts Covered\",\"type\":\"customPercent\"},{\"apiName\":\"LaborCovered\",\"guid\":\"column-0a68\",\"editable\":false,\"hasCustomHeaderLabel\":false,\"customHeaderLabel\":\"\",\"wrapText\":true,\"order\":4,\"label\":\"Labor Covered\",\"type\":\"customPercent\"}]"
+                    }
+                  },
+                  {
+                    "name": "shouldDisplayLabel",
+                    "value": {
+                      "booleanValue": "true"
+                    }
+                  }
+                ],
+                "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                "isRequired": "true",
+                "storeOutputAutomatically": "true",
+                "styleProperties": {
+                  "verticalAlignment": {
+                    "stringValue": "top"
+                  },
+                  "width": {
+                    "stringValue": "12"
+                  }
+                },
+                "visibilityRule": {
+                  "conditionLogic": "and",
+                  "conditions": {
+                    "leftValueReference": "Discount_Applied_From",
+                    "operator": "EqualTo",
+                    "rightValue": {
+                      "elementReference": "Warranty"
+                    }
+                  }
+                }
+              },
+              {
+                "name": "SelectSC1",
+                "dataTypeMappings": {
+                  "typeName": "T",
+                  "typeValue": "ServiceContract"
+                },
+                "extensionName": "flowruntime:datatable",
+                "fieldType": "ComponentInstance",
+                "inputParameters": [
+                  {
+                    "name": "label",
+                    "value": {
+                      "stringValue": "Service Contract"
+                    }
+                  },
+                  {
+                    "name": "selectionMode",
+                    "value": {
+                      "stringValue": "SINGLE_SELECT"
+                    }
+                  },
+                  {
+                    "name": "minRowSelection",
+                    "value": {
+                      "numberValue": "0.0"
+                    }
+                  },
+                  {
+                    "name": "tableData",
+                    "value": {
+                      "elementReference": "Get_SC"
+                    }
+                  },
+                  {
+                    "name": "maxRowSelection",
+                    "value": {
+                      "numberValue": "1.0"
+                    }
+                  },
+                  {
+                    "name": "columns",
+                    "value": {
+                      "stringValue": "[{\"apiName\":\"ContractNumber\",\"guid\":\"column-f440\",\"editable\":false,\"hasCustomHeaderLabel\":false,\"customHeaderLabel\":\"\",\"wrapText\":true,\"order\":0,\"label\":\"Contract Number\",\"type\":\"text\"},{\"apiName\":\"Status\",\"guid\":\"column-4143\",\"editable\":false,\"hasCustomHeaderLabel\":false,\"customHeaderLabel\":\"\",\"wrapText\":true,\"order\":1,\"label\":\"Status\",\"type\":\"text\"},{\"apiName\":\"StartDate\",\"guid\":\"column-f248\",\"editable\":false,\"hasCustomHeaderLabel\":false,\"customHeaderLabel\":\"\",\"wrapText\":true,\"order\":2,\"label\":\"Start Date\",\"type\":\"date-local\"},{\"apiName\":\"\",\"guid\":\"column-0d88\",\"editable\":false,\"hasCustomHeaderLabel\":false,\"customHeaderLabel\":\"\",\"wrapText\":true,\"order\":2}]"
+                    }
+                  }
+                ],
+                "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                "isRequired": "true",
+                "storeOutputAutomatically": "true",
+                "styleProperties": {
+                  "verticalAlignment": {
+                    "stringValue": "top"
+                  },
+                  "width": {
+                    "stringValue": "12"
+                  }
+                },
+                "visibilityRule": {
+                  "conditionLogic": "and",
+                  "conditions": {
+                    "leftValueReference": "Discount_Applied_From",
+                    "operator": "EqualTo",
+                    "rightValue": {
+                      "elementReference": "Contract"
+                    }
+                  }
+                }
+              }
+            ],
+            "inputParameters": {
+              "name": "width",
+              "value": {
+                "stringValue": "12"
+              }
+            },
+            "isRequired": "false"
+          },
+          "isRequired": false,
+          "regionContainerType": "SectionWithHeader",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        }
+      ],
+      "nextOrFinishButtonLabel": "Next",
+      "showFooter": true,
+      "showHeader": true,
+      "processMetadataValues": [],
+      "rules": []
+    }
+  ],
+  "start": {
+    "locationX": 50,
+    "locationY": 0,
+    "connector": {
+      "targetReference": "Get_Asset_Details",
+      "processMetadataValues": []
+    },
+    "processMetadataValues": [],
+    "filters": []
+  },
+  "status": "Active",
+  "variables": [
+    {
+      "name": "AppliedDiscount",
+      "dataType": "Number",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "scale": 2,
+      "value": {
+        "numberValue": 0
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "createdQLIs",
+      "dataType": "SObject",
+      "isCollection": true,
+      "isInput": false,
+      "isOutput": false,
+      "objectType": "QuoteLineItem",
+      "processMetadataValues": []
+    },
+    {
+      "name": "QLIs",
+      "dataType": "SObject",
+      "isCollection": true,
+      "isInput": false,
+      "isOutput": false,
+      "objectType": "QuoteLineItem",
+      "processMetadataValues": []
+    },
+    {
+      "name": "quoteLine",
+      "dataType": "SObject",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "objectType": "QuoteLineItem",
+      "processMetadataValues": []
+    },
+    {
+      "name": "recordId",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "name": "varproc",
+      "dataType": "SObject",
+      "isCollection": true,
+      "isInput": false,
+      "isOutput": false,
+      "objectType": "QuoteLineItem",
+      "processMetadataValues": []
+    },
+    {
+      "name": "varProductCollection",
+      "dataType": "SObject",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "objectType": "QuoteLineItem",
+      "processMetadataValues": []
+    },
+    {
+      "name": "varProductDataJSON",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": true,
+      "processMetadataValues": []
+    },
+    {
+      "name": "varQuoteId",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "name": "varWorkOrderId",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    }
+  ],
+  "actionCalls": [],
+  "apexPluginCalls": [],
+  "constants": [],
+  "dynamicChoiceSets": [],
+  "recordDeletes": [],
+  "stages": [],
+  "steps": [],
+  "subflows": [],
+  "textTemplates": [],
+  "waits": []
+}

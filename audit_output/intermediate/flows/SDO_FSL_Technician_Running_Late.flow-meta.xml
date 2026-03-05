@@ -1,0 +1,24 @@
+{
+  "fullName": "SDO_FSL_Technician_Running_Late",
+  "processType": "Workflow",
+  "description": "FSL - Technician Running Late",
+  "status": "Active",
+  "start": {
+    "connector": {}
+  },
+  "variables": [],
+  "assignments": [],
+  "decisions": [],
+  "loops": [],
+  "recordLookups": [],
+  "recordCreates": [],
+  "recordUpdates": [],
+  "recordDeletes": [],
+  "screens": [],
+  "subflows": [],
+  "actionCalls": [],
+  "constants": [],
+  "formulas": [],
+  "choices": [],
+  "textTemplates": []
+}

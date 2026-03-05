@@ -1,0 +1,24 @@
+{
+  "fullName": "SDO_B2BCommerce_Subflow_Shipping_Address_and_Delivery_Date",
+  "processType": "CheckoutFlow",
+  "description": "Includes delivery date picker",
+  "status": "Active",
+  "start": {
+    "connector": {}
+  },
+  "variables": [],
+  "assignments": [],
+  "decisions": [],
+  "loops": [],
+  "recordLookups": [],
+  "recordCreates": [],
+  "recordUpdates": [],
+  "recordDeletes": [],
+  "screens": [],
+  "subflows": [],
+  "actionCalls": [],
+  "constants": [],
+  "formulas": [],
+  "choices": [],
+  "textTemplates": []
+}

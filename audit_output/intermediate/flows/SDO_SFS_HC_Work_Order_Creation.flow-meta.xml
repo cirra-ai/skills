@@ -1,0 +1,24 @@
+{
+  "fullName": "SDO_SFS_HC_Work_Order_Creation",
+  "processType": "Flow",
+  "description": "",
+  "status": "Active",
+  "start": {
+    "connector": {}
+  },
+  "variables": [],
+  "assignments": [],
+  "decisions": [],
+  "loops": [],
+  "recordLookups": [],
+  "recordCreates": [],
+  "recordUpdates": [],
+  "recordDeletes": [],
+  "screens": [],
+  "subflows": [],
+  "actionCalls": [],
+  "constants": [],
+  "formulas": [],
+  "choices": [],
+  "textTemplates": []
+}

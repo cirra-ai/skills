@@ -1,0 +1,859 @@
+{
+  "fullName": "Reject_Time_Sheets_Entries",
+  "apiVersion": "63.0",
+  "areMetricsLoggedToDataCloud": "false",
+  "assignments": [
+    {
+      "description": "Adds the recordId value to the ids collection.",
+      "name": "AddRecordIdToCollection",
+      "label": "Add Record ID To Collection",
+      "locationX": 1205,
+      "locationY": 242,
+      "assignmentItems": [
+        {
+          "assignToReference": "ids",
+          "operator": "Add",
+          "value": {
+            "elementReference": "recordId"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "SetRecordIdCount",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "description": "Sets the RecordIdCount to the number of records in the ids collection variable.",
+      "name": "SetRecordIdCount",
+      "label": "Set Record ID Count",
+      "locationX": 1337,
+      "locationY": 434,
+      "assignmentItems": [
+        {
+          "assignToReference": "RecordIdCount",
+          "operator": "AssignCount",
+          "value": {
+            "elementReference": "GetTimeSheetEntries"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "RecordCountLessThanOrEqualToMaximum",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "description": "Sets the RejectedRecordCount to the number of records in the Time Sheet Entries from Get Time Sheet Entries record collection variable.",
+      "name": "SetRejectedRecordCount",
+      "label": "Set Rejected Record Count",
+      "locationX": 182,
+      "locationY": 1082,
+      "assignmentItems": [
+        {
+          "assignToReference": "RejectedRecordCount",
+          "operator": "AssignCount",
+          "value": {
+            "elementReference": "GetTimeSheetEntries"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "UpdateTimeSheetEntryItems",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "description": "Adds the time sheet ID of the current record in the loop to the TimeSheetIds collection variable and the PreviousTimesheetId variable.",
+      "name": "SetTimesheetIdVariables",
+      "label": "Set Timesheet ID Variables",
+      "locationX": 446,
+      "locationY": 1514,
+      "assignmentItems": [
+        {
+          "assignToReference": "TimeSheetIds",
+          "operator": "Add",
+          "value": {
+            "elementReference": "IterateOverTimeSheetEntries.TimeSheetId"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "PreviousTimesheetId",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "IterateOverTimeSheetEntries.TimeSheetId"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "IterateOverTimeSheetEntries",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    }
+  ],
+  "constants": [
+    {
+      "description": "Stores the maximum number of time sheet record IDs that can be rejected.",
+      "name": "MaximumRecordIdCount",
+      "dataType": "Number",
+      "value": {
+        "numberValue": 50
+      },
+      "processMetadataValues": []
+    },
+    {
+      "description": "Stores the text that is displayed to the flow user when no records are found.",
+      "name": "NoRecordFoundText",
+      "dataType": "String",
+      "value": {
+        "stringValue": "We couldn\u2019t find any time sheet entry records. Ask your admin for help."
+      },
+      "processMetadataValues": []
+    },
+    {
+      "description": "Stores the text that\u2019s shown when a time sheet entry record is rejected.",
+      "name": "TimeSheetEntryRejectedMessage",
+      "dataType": "String",
+      "value": {
+        "stringValue": "The time sheet entry was rejected."
+      },
+      "processMetadataValues": []
+    },
+    {
+      "description": "Stores the text that\u2019s shown when time sheet entry records are rejected.",
+      "name": "TimeSheetsEntriesRejectedMessage",
+      "dataType": "String",
+      "value": {
+        "stringValue": "The time sheet entry records were rejected."
+      },
+      "processMetadataValues": []
+    }
+  ],
+  "decisions": [
+    {
+      "description": "Determines whether a Record ID was passed into the flow by checking if the recordId variable contains a value.",
+      "name": "HaveRecordId",
+      "label": "Have Record ID?",
+      "locationX": 1337,
+      "locationY": 134,
+      "defaultConnector": {
+        "targetReference": "SetRecordIdCount",
+        "processMetadataValues": []
+      },
+      "defaultConnectorLabel": "No (Default)",
+      "rules": [
+        {
+          "name": "HasRecordId",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "recordId",
+              "operator": "IsNull",
+              "rightValue": {
+                "booleanValue": false
+              },
+              "processMetadataValues": []
+            },
+            {
+              "leftValueReference": "recordId",
+              "operator": "IsBlank",
+              "rightValue": {
+                "booleanValue": false
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "AddRecordIdToCollection",
+            "processMetadataValues": []
+          },
+          "label": "Yes",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    },
+    {
+      "description": "Determines whether a Record ID was passed into the flow by checking if the recordId variable contains a value.",
+      "name": "HaveRecordIdDisplayRejection",
+      "label": "Have Record ID?",
+      "locationX": 182,
+      "locationY": 1898,
+      "defaultConnector": {
+        "targetReference": "ScrnDplyTimeSheetEntriesRejectedMessage",
+        "processMetadataValues": []
+      },
+      "defaultConnectorLabel": "No (Default)",
+      "rules": [
+        {
+          "name": "HasRecordIdDisplayRejection",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "recordId",
+              "operator": "IsNull",
+              "rightValue": {
+                "booleanValue": false
+              },
+              "processMetadataValues": []
+            },
+            {
+              "leftValueReference": "recordId",
+              "operator": "IsBlank",
+              "rightValue": {
+                "booleanValue": false
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "ScrnDisplayTimeSheetEntryRejectedMessage",
+            "processMetadataValues": []
+          },
+          "label": "Yes",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    },
+    {
+      "description": "Determines whether time sheet entry records were found by checking if the Time Sheet Entries from Get Time Sheet Entries record collection contains a record.",
+      "name": "HaveTimeSheetEntries",
+      "label": "Have Time Sheets Entries?",
+      "locationX": 776,
+      "locationY": 758,
+      "defaultConnector": {
+        "targetReference": "ScreenDisplayErrorNoRecords",
+        "processMetadataValues": []
+      },
+      "defaultConnectorLabel": "No (Default)",
+      "rules": [
+        {
+          "name": "HasTimeSheetEntries",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "GetTimeSheetEntries",
+              "operator": "IsNull",
+              "rightValue": {
+                "booleanValue": false
+              },
+              "processMetadataValues": []
+            },
+            {
+              "leftValueReference": "GetTimeSheetEntries",
+              "operator": "IsEmpty",
+              "rightValue": {
+                "booleanValue": false
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "ScreenSelectRejectReason",
+            "processMetadataValues": []
+          },
+          "label": "Yes",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    },
+    {
+      "description": "Determines whether the time sheet ID of the current record in the loop is the same as the previous one in the loop by checking if PreviousTimesheetId matches the timesheet ID of the current record on the loop.",
+      "name": "IsTimeSheetIdEqualToPreviousTimeSheetId",
+      "label": "Is Time Sheet ID Equal to Previous Time Sheet ID?",
+      "locationX": 358,
+      "locationY": 1406,
+      "defaultConnector": {
+        "targetReference": "SetTimesheetIdVariables",
+        "processMetadataValues": []
+      },
+      "defaultConnectorLabel": "No",
+      "rules": [
+        {
+          "name": "IsEqualToPreviousTimeSheetId",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "IterateOverTimeSheetEntries.TimeSheetId",
+              "operator": "EqualTo",
+              "rightValue": {
+                "elementReference": "PreviousTimesheetId"
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "IterateOverTimeSheetEntries",
+            "processMetadataValues": []
+          },
+          "label": "Yes",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    },
+    {
+      "description": "Determines whether the record count exceeds the allowed maximum by checking whether RecordIdCount is less than or equal to MaximumRecordIdCount.",
+      "name": "RecordCountLessThanOrEqualToMaximum",
+      "label": "Record Count Less Than or Equal to Maximum?",
+      "locationX": 1337,
+      "locationY": 542,
+      "defaultConnector": {
+        "targetReference": "ScreenDisplayErrorMaxRecords",
+        "processMetadataValues": []
+      },
+      "defaultConnectorLabel": "No (Default)",
+      "rules": [
+        {
+          "name": "DoesHaveRecCountLessThanOrEqualToMaximum",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "RecordIdCount",
+              "operator": "LessThanOrEqualTo",
+              "rightValue": {
+                "elementReference": "MaximumRecordIdCount"
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "GetTimeSheetEntries",
+            "processMetadataValues": []
+          },
+          "label": "Yes",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    }
+  ],
+  "environments": "Default",
+  "interviewLabel": "Reject Time Sheets {!$Flow.CurrentDateTime}",
+  "label": "Reject Time Sheets Entries",
+  "loops": [
+    {
+      "description": "Repeats actions for each record in the Time Sheet Entries from Get Time Sheet Entries collection.",
+      "name": "IterateOverTimeSheetEntries",
+      "label": "Iterate Over Time Sheet Entries",
+      "locationX": 182,
+      "locationY": 1298,
+      "collectionReference": "GetTimeSheetEntries",
+      "iterationOrder": "Asc",
+      "nextValueConnector": {
+        "targetReference": "IsTimeSheetIdEqualToPreviousTimeSheetId",
+        "processMetadataValues": []
+      },
+      "noMoreValuesConnector": {
+        "targetReference": "UpdateTimeSheets",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": [],
+      "assignNextValueToReference": ""
+    }
+  ],
+  "processMetadataValues": [
+    {
+      "name": "BuilderType",
+      "value": {
+        "stringValue": "LightningFlowBuilder"
+      }
+    },
+    {
+      "name": "CanvasMode",
+      "value": {
+        "stringValue": "AUTO_LAYOUT_CANVAS"
+      }
+    },
+    {
+      "name": "OriginBuilderType",
+      "value": {
+        "stringValue": "LightningFlowBuilder"
+      }
+    }
+  ],
+  "processType": "Flow",
+  "recordLookups": [
+    {
+      "description": "Gets time sheet entry records with an ID in the ids collection variable. Stores the results in Time Sheet Entries from Get Time Sheet Entries collection.",
+      "name": "GetTimeSheetEntries",
+      "label": "Get Time Sheet Entries",
+      "locationX": 776,
+      "locationY": 650,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "HaveTimeSheetEntries",
+        "processMetadataValues": []
+      },
+      "faultConnector": {
+        "isGoTo": "true",
+        "targetReference": "RollbackRecordChanges",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "Id",
+          "operator": "In",
+          "value": {
+            "elementReference": "ids"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "getFirstRecordOnly": false,
+      "object": "TimeSheetEntry",
+      "storeOutputAutomatically": true,
+      "processMetadataValues": [],
+      "outputAssignments": [],
+      "queriedFields": []
+    }
+  ],
+  "recordRollbacks": {
+    "description": "Rolls back the current record update and reverts all previous record changes after flow execution.",
+    "name": "RollbackRecordChanges",
+    "label": "Rollback Record Changes",
+    "locationX": "578",
+    "locationY": "1898",
+    "connector": {
+      "targetReference": "ScrnDplyErrorUpdtTimeSheetEntryItems"
+    }
+  },
+  "recordUpdates": [
+    {
+      "description": "Updates the time sheet entry records with IDs that match those in the ids collection, setting the status comment to the RejectReasonText tex value, and the status to Rejected.",
+      "name": "UpdateTimeSheetEntries",
+      "label": "Update Time Sheet Entries",
+      "locationX": 182,
+      "locationY": 974,
+      "connector": {
+        "targetReference": "SetRejectedRecordCount",
+        "processMetadataValues": []
+      },
+      "faultConnector": {
+        "isGoTo": "true",
+        "targetReference": "RollbackRecordChanges",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "Id",
+          "operator": "In",
+          "value": {
+            "elementReference": "ids"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "inputAssignments": [
+        {
+          "field": "Status",
+          "value": {
+            "stringValue": "Rejected"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "StatusComment",
+          "value": {
+            "elementReference": "RejectReasonText"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "object": "TimeSheetEntry",
+      "processMetadataValues": []
+    },
+    {
+      "description": "Updates time sheet entry item records with a time sheet entry ID that match those in the ids collection, setting the status comment to the RejectReasonText value, and the status to Rejected.",
+      "name": "UpdateTimeSheetEntryItems",
+      "label": "Update Time Sheet Entry Items",
+      "locationX": 182,
+      "locationY": 1190,
+      "connector": {
+        "targetReference": "IterateOverTimeSheetEntries",
+        "processMetadataValues": []
+      },
+      "faultConnector": {
+        "isGoTo": "true",
+        "targetReference": "RollbackRecordChanges",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "TimeSheetEntryId",
+          "operator": "In",
+          "value": {
+            "elementReference": "ids"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "inputAssignments": [
+        {
+          "field": "Status",
+          "value": {
+            "stringValue": "Rejected"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "StatusComment",
+          "value": {
+            "elementReference": "RejectReasonText"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "object": "TimeSheetEntryItem",
+      "processMetadataValues": []
+    },
+    {
+      "description": "Updates the time sheet records with IDs that match those in the TimeSheetIds collection, setting the status comment to the RejectReasonText value, and the status to Rejected.",
+      "name": "UpdateTimeSheets",
+      "label": "Update Time Sheets",
+      "locationX": 182,
+      "locationY": 1790,
+      "connector": {
+        "targetReference": "HaveRecordIdDisplayRejection",
+        "processMetadataValues": []
+      },
+      "faultConnector": {
+        "targetReference": "RollbackRecordChanges",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "Id",
+          "operator": "In",
+          "value": {
+            "elementReference": "TimeSheetIds"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "inputAssignments": [
+        {
+          "field": "Status",
+          "value": {
+            "stringValue": "Rejected"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "StatusComment",
+          "value": {
+            "elementReference": "RejectReasonText"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "object": "TimeSheet",
+      "processMetadataValues": []
+    }
+  ],
+  "screens": [
+    {
+      "description": "Displays an error to the flow user when the number of records to be rejected is greater than the allowed maximum.",
+      "name": "ScreenDisplayErrorMaxRecords",
+      "label": "Display Error",
+      "locationX": 1898,
+      "locationY": 650,
+      "allowBack": false,
+      "allowFinish": true,
+      "allowPause": false,
+      "fields": [
+        {
+          "name": "ErrorMaximumRecordsDisplayText",
+          "fieldText": "<p><strong style=\"background-color: transparent; color: rgb(0, 0, 0); font-size: 12px;\">The number of selected time sheet entry records exceeds the allowed maximum of {!MaximumRecordIdCount}.Select less records and try again.</strong><strong style=\"background-color: transparent; color: rgb(0, 0, 0); font-family: &quot;Arial Narrow&quot;, sans-serif; font-size: 12pt;\"><span class=\"ql-cursor\">\ufeff</span></strong></p>",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        }
+      ],
+      "showFooter": true,
+      "showHeader": true,
+      "processMetadataValues": [],
+      "rules": []
+    },
+    {
+      "description": "Displays an error to the flow user when no time sheet entry records are found.",
+      "name": "ScreenDisplayErrorNoRecords",
+      "label": "Display Error",
+      "locationX": 1370,
+      "locationY": 866,
+      "allowBack": false,
+      "allowFinish": true,
+      "allowPause": false,
+      "fields": [
+        {
+          "name": "ErrorNoRecordsDisplayText",
+          "fieldText": "<p><strong style=\"font-size: 14px;\">{!</strong><strong style=\"font-size: 12px; background-color: rgb(255, 255, 255); color: rgb(68, 68, 68);\">NoRecordFoundText</strong><strong style=\"font-size: 14px;\">}</strong></p>",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        }
+      ],
+      "showFooter": true,
+      "showHeader": true,
+      "processMetadataValues": [],
+      "rules": []
+    },
+    {
+      "description": "Allows the flow user to enter a reason for rejecting the time sheet entries.",
+      "name": "ScreenSelectRejectReason",
+      "label": "Select Reject Reason",
+      "locationX": 182,
+      "locationY": 866,
+      "allowBack": false,
+      "allowFinish": true,
+      "allowPause": false,
+      "connector": {
+        "targetReference": "UpdateTimeSheetEntries",
+        "processMetadataValues": []
+      },
+      "fields": [
+        {
+          "name": "RejectReasonText",
+          "dataType": "String",
+          "fieldText": "Reason for Rejecting Time Sheet Entries",
+          "fieldType": "InputField",
+          "inputsOnNextNavToAssocScrn": "UseStoredValues",
+          "isRequired": false,
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        }
+      ],
+      "nextOrFinishButtonLabel": "Submit",
+      "showFooter": true,
+      "showHeader": true,
+      "processMetadataValues": [],
+      "rules": []
+    },
+    {
+      "description": "Displays a message to the flow user when a single time sheet entry record is rejected.",
+      "name": "ScrnDisplayTimeSheetEntryRejectedMessage",
+      "label": "Display Time Sheet Entry Rejected Message",
+      "locationX": 50,
+      "locationY": 2006,
+      "allowBack": false,
+      "allowFinish": true,
+      "allowPause": false,
+      "fields": [
+        {
+          "name": "TimeSheetEntryRejectedDisplayText",
+          "fieldText": "<p><strong style=\"background-color: rgb(255, 255, 255); color: rgb(68, 68, 68);\">{!TimeSheetEntryRejectedMessage}</strong></p>",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        }
+      ],
+      "showFooter": true,
+      "showHeader": true,
+      "processMetadataValues": [],
+      "rules": []
+    },
+    {
+      "description": "Displays an error to the flow user when there\u2019s an error updating the time sheet entry item records.",
+      "name": "ScrnDplyErrorUpdtTimeSheetEntryItems",
+      "label": "Display Error",
+      "locationX": 578,
+      "locationY": 2006,
+      "allowBack": false,
+      "allowFinish": true,
+      "allowPause": false,
+      "fields": [
+        {
+          "name": "ErrorUpdtTimeSheetEntryItemsDplyTxt",
+          "fieldText": "<p><strong style=\"background-color: transparent; color: rgb(0, 0, 0); font-size: 12px;\">We couldn\u2019t update the time sheet entry item records. </strong></p><p><br></p><p><strong style=\"color: rgb(68, 68, 68); background-color: rgb(255, 255, 255);\">{!$Flow.FaultMessage}</strong></p>",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        }
+      ],
+      "showFooter": true,
+      "showHeader": true,
+      "processMetadataValues": [],
+      "rules": []
+    },
+    {
+      "description": "Displays a message to the flow user when time sheet entry records are rejected.",
+      "name": "ScrnDplyTimeSheetEntriesRejectedMessage",
+      "label": "Display Time Sheet Entries Rejected Message",
+      "locationX": 314,
+      "locationY": 2006,
+      "allowBack": false,
+      "allowFinish": true,
+      "allowPause": false,
+      "fields": [
+        {
+          "name": "TimeSheetEntriesRejectedDisplayText",
+          "fieldText": "<p><strong style=\"font-size: 14px;\">{!TimeSheetsEntriesRejectedMessage}</strong></p><p><strong style=\"background-color: rgb(255, 255, 255);\">\ufeffNumber of timesheet entries rejected:{!RejectedRecordCount}</strong></p>",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        }
+      ],
+      "showFooter": true,
+      "showHeader": true,
+      "processMetadataValues": [],
+      "rules": []
+    }
+  ],
+  "sourceTemplate": "ifstmsht__RejectTimeSheetEntries",
+  "start": {
+    "locationX": 1211,
+    "locationY": 0,
+    "connector": {
+      "targetReference": "HaveRecordId",
+      "processMetadataValues": []
+    },
+    "processMetadataValues": [],
+    "filters": []
+  },
+  "status": "Active",
+  "variables": [
+    {
+      "description": "Stores a collection of time sheet entry record IDs.",
+      "name": "ids",
+      "dataType": "String",
+      "isCollection": true,
+      "isInput": true,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "description": "Stores the time sheet ID of the previous time sheet entry record iterated through in the loop.",
+      "name": "PreviousTimesheetId",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "description": "Stores the ID of the time sheet entry record that\u2019s passed into the flow.",
+      "name": "recordId",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "description": "Stores the number of records in the ids collection variable.",
+      "name": "RecordIdCount",
+      "dataType": "Number",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "scale": 0,
+      "processMetadataValues": []
+    },
+    {
+      "description": "Stores the total count of rejected timesheet entry records.",
+      "name": "RejectedRecordCount",
+      "dataType": "Number",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "scale": 0,
+      "processMetadataValues": []
+    },
+    {
+      "description": "Stores a collection of time sheet IDs.",
+      "name": "TimeSheetIds",
+      "dataType": "String",
+      "isCollection": true,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    }
+  ],
+  "actionCalls": [],
+  "apexPluginCalls": [],
+  "choices": [],
+  "dynamicChoiceSets": [],
+  "formulas": [],
+  "recordCreates": [],
+  "recordDeletes": [],
+  "stages": [],
+  "steps": [],
+  "subflows": [],
+  "textTemplates": [],
+  "waits": []
+}

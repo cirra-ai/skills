@@ -1,0 +1,24 @@
+{
+  "fullName": "SDO_Service_Einstein_Case_Classification_Demo",
+  "processType": "AutoLaunchedFlow",
+  "description": "Demo Einstein Case Classification",
+  "status": "Active",
+  "start": {
+    "connector": {}
+  },
+  "variables": [],
+  "assignments": [],
+  "decisions": [],
+  "loops": [],
+  "recordLookups": [],
+  "recordCreates": [],
+  "recordUpdates": [],
+  "recordDeletes": [],
+  "screens": [],
+  "subflows": [],
+  "actionCalls": [],
+  "constants": [],
+  "formulas": [],
+  "choices": [],
+  "textTemplates": []
+}

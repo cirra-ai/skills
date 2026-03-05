@@ -1,0 +1,24 @@
+{
+  "fullName": "SDO_Service_LunaBot_LoadContact",
+  "processType": "AutoLaunchedFlow",
+  "description": "V2 - Add Account Id",
+  "status": "Active",
+  "start": {
+    "connector": {}
+  },
+  "variables": [],
+  "assignments": [],
+  "decisions": [],
+  "loops": [],
+  "recordLookups": [],
+  "recordCreates": [],
+  "recordUpdates": [],
+  "recordDeletes": [],
+  "screens": [],
+  "subflows": [],
+  "actionCalls": [],
+  "constants": [],
+  "formulas": [],
+  "choices": [],
+  "textTemplates": []
+}

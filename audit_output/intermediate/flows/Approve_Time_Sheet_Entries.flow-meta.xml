@@ -1,0 +1,171 @@
+{
+  "fullName": "Approve_Time_Sheet_Entries",
+  "processType": "Flow",
+  "status": "Active",
+  "assignments": [
+    {
+      "name": "AddRecordIdToCollection"
+    },
+    {
+      "name": "RemoveUnapprovedTmshtIdsFromVariable"
+    },
+    {
+      "name": "SetApprovedRecordCount"
+    },
+    {
+      "name": "SetRecordIdCount"
+    },
+    {
+      "name": "SetTimesheetIdVariables"
+    },
+    {
+      "name": "SetUnapprovedTimesheetIdVariables"
+    }
+  ],
+  "decisions": [
+    {
+      "name": "HaveRecordId",
+      "rules": [
+        {}
+      ]
+    },
+    {
+      "name": "HaveRecordIdDisplayApproval",
+      "rules": [
+        {}
+      ]
+    },
+    {
+      "name": "HaveTimeSheetEntries",
+      "rules": [
+        {}
+      ]
+    },
+    {
+      "name": "IsTimeSheetIdEqualToPreviousTimeSheetId",
+      "rules": [
+        {}
+      ]
+    },
+    {
+      "name": "IsTmshtEqualToPreviousTmshtIdUnnaproved",
+      "rules": [
+        {}
+      ]
+    },
+    {
+      "name": "RecordCountLessThanOrEqualToMaximum",
+      "rules": [
+        {}
+      ]
+    }
+  ],
+  "loops": [
+    {
+      "name": "IterateOverTimeSheetEntries",
+      "collectionReference": "GetTimeSheetEntries"
+    },
+    {
+      "name": "IterateOverUnapprovedTimeSheetEntries",
+      "collectionReference": "GetUnapprovedTimeSheetEntries"
+    }
+  ],
+  "recordLookups": [
+    {
+      "name": "GetTimeSheetEntries",
+      "object": "TimeSheetEntry",
+      "faultConnector": {
+        "targetReference": "RollbackRecordChanges"
+      }
+    },
+    {
+      "name": "GetUnapprovedTimeSheetEntries",
+      "object": "TimeSheetEntry",
+      "faultConnector": {
+        "targetReference": "RollbackRecordChanges"
+      }
+    }
+  ],
+  "recordUpdates": [
+    {
+      "name": "UpdateTimeSheetEntries",
+      "object": "TimeSheetEntry",
+      "faultConnector": {
+        "targetReference": "RollbackRecordChanges"
+      }
+    },
+    {
+      "name": "UpdateTimeSheetEntryItems",
+      "object": "TimeSheetEntryItem",
+      "faultConnector": {
+        "targetReference": "RollbackRecordChanges"
+      }
+    },
+    {
+      "name": "UpdateTimeSheets",
+      "object": "TimeSheet",
+      "faultConnector": {
+        "targetReference": "RollbackRecordChanges"
+      }
+    }
+  ],
+  "screens": [
+    {},
+    {},
+    {},
+    {},
+    {}
+  ],
+  "variables": [
+    {
+      "name": "ApprovedRecordCount",
+      "dataType": "Number"
+    },
+    {
+      "name": "ids",
+      "dataType": "String",
+      "isCollection": true,
+      "isInput": true
+    },
+    {
+      "name": "PreviousTimeSheetId"
+    },
+    {
+      "name": "PreviousUnapprovedTimeSheetId"
+    },
+    {
+      "name": "recordId",
+      "dataType": "String",
+      "isInput": true
+    },
+    {
+      "name": "RecordIdCount",
+      "dataType": "Number"
+    },
+    {
+      "name": "TimeSheetIds",
+      "dataType": "String",
+      "isCollection": true
+    },
+    {
+      "name": "UnapprovedTimeSheetIds",
+      "dataType": "String",
+      "isCollection": true
+    }
+  ],
+  "recordRollbacks": {
+    "name": "RollbackRecordChanges"
+  },
+  "start": {
+    "connector": {
+      "targetReference": "HaveRecordId"
+    }
+  },
+  "actionCalls": [],
+  "recordCreates": [],
+  "recordDeletes": [],
+  "subflows": [],
+  "constants": [],
+  "formulas": [],
+  "choices": []
+}

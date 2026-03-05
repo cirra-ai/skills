@@ -1,0 +1,24 @@
+{
+  "fullName": "SDO_Service_Phone_Number_Search",
+  "processType": "AutoLaunchedFlow",
+  "description": "Look up contact/account/lead from phone number.",
+  "status": "Active",
+  "start": {
+    "connector": {}
+  },
+  "variables": [],
+  "assignments": [],
+  "decisions": [],
+  "loops": [],
+  "recordLookups": [],
+  "recordCreates": [],
+  "recordUpdates": [],
+  "recordDeletes": [],
+  "screens": [],
+  "subflows": [],
+  "actionCalls": [],
+  "constants": [],
+  "formulas": [],
+  "choices": [],
+  "textTemplates": []
+}

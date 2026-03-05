@@ -1,0 +1,24 @@
+{
+  "fullName": "SDO_OMS_RMA_Create_Credit_Memo_and_Ensure_Refunds",
+  "processType": "AutoLaunchedFlow",
+  "description": "From Latest Template for Return Fees",
+  "status": "Active",
+  "start": {
+    "connector": {}
+  },
+  "variables": [],
+  "assignments": [],
+  "decisions": [],
+  "loops": [],
+  "recordLookups": [],
+  "recordCreates": [],
+  "recordUpdates": [],
+  "recordDeletes": [],
+  "screens": [],
+  "subflows": [],
+  "actionCalls": [],
+  "constants": [],
+  "formulas": [],
+  "choices": [],
+  "textTemplates": []
+}

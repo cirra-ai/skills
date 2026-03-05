@@ -1,0 +1,24 @@
+{
+  "fullName": "Checkout_Main_with_Salesforce_Pricing_and_Promotions",
+  "processType": "CheckoutFlow",
+  "description": "The primary checkout with standard pricing and promotions.",
+  "status": "Active",
+  "start": {
+    "connector": {}
+  },
+  "variables": [],
+  "assignments": [],
+  "decisions": [],
+  "loops": [],
+  "recordLookups": [],
+  "recordCreates": [],
+  "recordUpdates": [],
+  "recordDeletes": [],
+  "screens": [],
+  "subflows": [],
+  "actionCalls": [],
+  "constants": [],
+  "formulas": [],
+  "choices": [],
+  "textTemplates": []
+}

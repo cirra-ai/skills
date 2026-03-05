@@ -1,0 +1,24 @@
+{
+  "fullName": "SDO_Service_OmniSupervisor_Reassign_All_Work",
+  "processType": "Flow",
+  "description": "Supervisor Action to reassign all work in a queue or queues",
+  "status": "Active",
+  "start": {
+    "connector": {}
+  },
+  "variables": [],
+  "assignments": [],
+  "decisions": [],
+  "loops": [],
+  "recordLookups": [],
+  "recordCreates": [],
+  "recordUpdates": [],
+  "recordDeletes": [],
+  "screens": [],
+  "subflows": [],
+  "actionCalls": [],
+  "constants": [],
+  "formulas": [],
+  "choices": [],
+  "textTemplates": []
+}

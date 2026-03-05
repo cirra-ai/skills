@@ -1,0 +1,24 @@
+{
+  "fullName": "SDO_Case_SendSurvey",
+  "processType": "AutoLaunchedFlow",
+  "description": "Autolaunched subflow to send surveys to Case Contacts",
+  "status": "Active",
+  "start": {
+    "connector": {}
+  },
+  "variables": [],
+  "assignments": [],
+  "decisions": [],
+  "loops": [],
+  "recordLookups": [],
+  "recordCreates": [],
+  "recordUpdates": [],
+  "recordDeletes": [],
+  "screens": [],
+  "subflows": [],
+  "actionCalls": [],
+  "constants": [],
+  "formulas": [],
+  "choices": [],
+  "textTemplates": []
+}

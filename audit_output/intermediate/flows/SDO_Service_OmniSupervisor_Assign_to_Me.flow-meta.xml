@@ -1,0 +1,24 @@
+{
+  "fullName": "SDO_Service_OmniSupervisor_Assign_to_Me",
+  "processType": "Flow",
+  "description": "Reassigns the passed in records to the current user.",
+  "status": "Active",
+  "start": {
+    "connector": {}
+  },
+  "variables": [],
+  "assignments": [],
+  "decisions": [],
+  "loops": [],
+  "recordLookups": [],
+  "recordCreates": [],
+  "recordUpdates": [],
+  "recordDeletes": [],
+  "screens": [],
+  "subflows": [],
+  "actionCalls": [],
+  "constants": [],
+  "formulas": [],
+  "choices": [],
+  "textTemplates": []
+}

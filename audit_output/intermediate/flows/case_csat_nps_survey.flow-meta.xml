@@ -1,0 +1,85 @@
+{
+  "fullName": "case_csat_nps_survey",
+  "processType": "Survey",
+  "status": "Active",
+  "runInMode": "SystemModeWithoutSharing",
+  "recordLookups": [
+    {
+      "name": "surveySubjectRecordLookup_Case",
+      "object": "SurveySubject",
+      "faultConnector": {
+        "targetReference": "recordLookupFaultConnectorAssignment"
+      }
+    },
+    {
+      "name": "surveyParticipantRecordLookup_Contact",
+      "object": "SurveyInvitation",
+      "faultConnector": {
+        "targetReference": "recordLookupFaultConnectorAssignment"
+      }
+    },
+    {
+      "name": "targetParticipantLookup_Contact",
+      "object": "Contact"
+    },
+    {
+      "name": "targetRecordLookup_Case",
+      "object": "Case"
+    }
+  ],
+  "screens": [
+    {
+      "name": "surveyQuestionPage"
+    },
+    {
+      "name": "welcome_page"
+    }
+  ],
+  "assignments": [
+    {
+      "name": "recordLookupFaultConnectorAssignment"
+    }
+  ],
+  "variables": [
+    {
+      "name": "Case",
+      "dataType": "SObject"
+    },
+    {
+      "name": "Contact",
+      "dataType": "SObject"
+    },
+    {
+      "name": "faultMessage",
+      "dataType": "String",
+      "isOutput": true
+    },
+    {
+      "name": "invitationId",
+      "dataType": "String",
+      "isInput": true
+    }
+  ],
+  "textTemplates": [
+    {},
+    {},
+    {}
+  ],
+  "choices": [
+    {},
+    {},
+    {},
+    {},
+    {}
+  ],
+  "startElementReference": "surveySubjectRecordLookup_Case",
+  "decisions": [],
+  "loops": [],
+  "recordUpdates": [],
+  "recordCreates": [],
+  "recordDeletes": [],
+  "subflows": [],
+  "actionCalls": [],
+  "constants": [],
+  "formulas": []
+}

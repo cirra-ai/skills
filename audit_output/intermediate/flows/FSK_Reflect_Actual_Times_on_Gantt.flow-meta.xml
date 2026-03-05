@@ -1,0 +1,24 @@
+{
+  "fullName": "FSK_Reflect_Actual_Times_on_Gantt",
+  "processType": "AutoLaunchedFlow",
+  "description": "Reflects actual times on Gantt chart.",
+  "status": "Active",
+  "start": {
+    "connector": {}
+  },
+  "variables": [],
+  "assignments": [],
+  "decisions": [],
+  "loops": [],
+  "recordLookups": [],
+  "recordCreates": [],
+  "recordUpdates": [],
+  "recordDeletes": [],
+  "screens": [],
+  "subflows": [],
+  "actionCalls": [],
+  "constants": [],
+  "formulas": [],
+  "choices": [],
+  "textTemplates": []
+}

@@ -1,0 +1,24 @@
+{
+  "fullName": "SDO_OMS_Create_Process_Exception",
+  "processType": "AutoLaunchedFlow",
+  "description": "Create Process Exception Flow",
+  "status": "Active",
+  "start": {
+    "connector": {}
+  },
+  "variables": [],
+  "assignments": [],
+  "decisions": [],
+  "loops": [],
+  "recordLookups": [],
+  "recordCreates": [],
+  "recordUpdates": [],
+  "recordDeletes": [],
+  "screens": [],
+  "subflows": [],
+  "actionCalls": [],
+  "constants": [],
+  "formulas": [],
+  "choices": [],
+  "textTemplates": []
+}

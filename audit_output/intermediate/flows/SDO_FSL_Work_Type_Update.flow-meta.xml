@@ -1,0 +1,1184 @@
+{
+  "fullName": "SDO_FSL_Work_Type_Update",
+  "apiVersion": "49.0",
+  "areMetricsLoggedToDataCloud": "false",
+  "assignments": [
+    {
+      "name": "reset_counts_and_averages",
+      "label": "reset counts and averages",
+      "locationX": 838,
+      "locationY": 195,
+      "assignmentItems": [
+        {
+          "assignToReference": "NumSAs",
+          "operator": "Assign",
+          "value": {
+            "numberValue": 0
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "AvgActualDuration",
+          "operator": "Assign",
+          "value": {
+            "numberValue": 0
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "AvgEstimatedDuration",
+          "operator": "Assign",
+          "value": {
+            "numberValue": 0
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "MinDelta",
+          "operator": "Assign",
+          "value": {
+            "numberValue": 0
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "MaxDelta",
+          "operator": "Assign",
+          "value": {
+            "numberValue": 0
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "TotalActual",
+          "operator": "Assign",
+          "value": {
+            "numberValue": 0
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "TotalEstimated",
+          "operator": "Assign",
+          "value": {
+            "numberValue": 0
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "Delta",
+          "operator": "Assign",
+          "value": {
+            "numberValue": 0
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "Loop_Through_SAs",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Update_Averages",
+      "label": "Update Averages",
+      "locationX": 881,
+      "locationY": 363,
+      "assignmentItems": [
+        {
+          "assignToReference": "Delta",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "CalcAverageDelta"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "AvgActualDuration",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "CalcAvgActualDuration"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "AvgEstimatedDuration",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "CalcAvgEstDuration"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "Display_Totals",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Update_Counts",
+      "label": "Update Counts",
+      "locationX": 1170,
+      "locationY": 313,
+      "assignmentItems": [
+        {
+          "assignToReference": "NumSAs",
+          "operator": "Add",
+          "value": {
+            "numberValue": 1
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "TotalActual",
+          "operator": "Add",
+          "value": {
+            "elementReference": "thisSA.ActualDuration"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "TotalEstimated",
+          "operator": "Add",
+          "value": {
+            "elementReference": "thisSA.DurationInMinutes"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "Update_Min_Maxes",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Update_Min_Maxes",
+      "label": "Update Min Maxes",
+      "locationX": 1040,
+      "locationY": 361,
+      "assignmentItems": [
+        {
+          "assignToReference": "MinDelta",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "updateMinDelta"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "MaxDelta",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "updateMaxDelta"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "Loop_Through_SAs",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Update_Work_Type_Duration",
+      "label": "Update Work Type Duration",
+      "locationX": 1093,
+      "locationY": 522,
+      "assignmentItems": [
+        {
+          "assignToReference": "foundWT.EstimatedDuration",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "Enter_new_value_for_Duration"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "foundWT.DurationType",
+          "operator": "Assign",
+          "value": {
+            "stringValue": "Minutes"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "fast_update_Work_Type",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    }
+  ],
+  "choices": [
+    {
+      "name": "All",
+      "choiceText": "All",
+      "dataType": "String",
+      "value": {
+        "stringValue": "All"
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Hours",
+      "choiceText": "Hours",
+      "dataType": "String",
+      "value": {
+        "stringValue": "Hours"
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Minutes",
+      "choiceText": "Minutes",
+      "dataType": "String",
+      "value": {
+        "stringValue": "Minutes"
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "ProceedNo",
+      "choiceText": "No",
+      "dataType": "Boolean",
+      "value": {
+        "booleanValue": false
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "ProceedYes",
+      "choiceText": "Yes",
+      "dataType": "Boolean",
+      "value": {
+        "booleanValue": true
+      },
+      "processMetadataValues": []
+    }
+  ],
+  "constants": [
+    {
+      "description": "this field represents the increment of time to round the recommended new duration to.  For example, round to the nearest 5 minutes, nearest 10 minutes, etc.",
+      "name": "DurationIncrement",
+      "dataType": "Number",
+      "value": {
+        "numberValue": 5
+      },
+      "processMetadataValues": []
+    }
+  ],
+  "decisions": [
+    {
+      "name": "Found_Records",
+      "label": "Found Records?",
+      "locationX": 651,
+      "locationY": 191,
+      "defaultConnectorLabel": "[Default Outcome]",
+      "rules": [
+        {
+          "name": "FoundYes",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "FoundServiceAppointments",
+              "operator": "IsNull",
+              "rightValue": {
+                "booleanValue": false
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "reset_counts_and_averages",
+            "processMetadataValues": []
+          },
+          "label": "Yes",
+          "processMetadataValues": []
+        },
+        {
+          "name": "FoundNo",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "FoundServiceAppointments",
+              "operator": "IsNull",
+              "rightValue": {
+                "booleanValue": true
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "WorkTypeHistoryNotFound",
+            "processMetadataValues": []
+          },
+          "label": "No",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    },
+    {
+      "description": "was a new duration entered",
+      "name": "New_Duration_Entered",
+      "label": "New Duration Entered?",
+      "locationX": 593,
+      "locationY": 491,
+      "defaultConnectorLabel": "Default Outcome",
+      "rules": [
+        {
+          "name": "NDEYes",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "Enter_new_value_for_Duration",
+              "operator": "IsNull",
+              "rightValue": {
+                "booleanValue": false
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Confirmation_Screen",
+            "processMetadataValues": []
+          },
+          "label": "Yes",
+          "processMetadataValues": []
+        },
+        {
+          "name": "NDENo",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "Enter_new_value_for_Duration",
+              "operator": "IsNull",
+              "rightValue": {
+                "booleanValue": true
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "label": "No",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    },
+    {
+      "name": "Proceed_with_Update",
+      "label": "Proceed with Update?",
+      "locationX": 913,
+      "locationY": 526,
+      "defaultConnectorLabel": "Default Outcome",
+      "rules": [
+        {
+          "name": "PWEYes",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "Perform_Update",
+              "operator": "EqualTo",
+              "rightValue": {
+                "booleanValue": true
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Update_Work_Type_Duration",
+            "processMetadataValues": []
+          },
+          "label": "Yes",
+          "processMetadataValues": []
+        },
+        {
+          "name": "PWUNo",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "Perform_Update",
+              "operator": "NotEqualTo",
+              "rightValue": {
+                "booleanValue": true
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "label": "No",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    },
+    {
+      "name": "user_selected_all_territories",
+      "label": "user selected all territories?",
+      "locationX": 296,
+      "locationY": 393,
+      "defaultConnectorLabel": "[Default Outcome]",
+      "rules": [
+        {
+          "name": "usatYes",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "Service_Territory",
+              "operator": "EqualTo",
+              "rightValue": {
+                "elementReference": "All"
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Find_all_Completed_Service_Appointments_for_the_work_type",
+            "processMetadataValues": []
+          },
+          "label": "Yes",
+          "processMetadataValues": []
+        },
+        {
+          "name": "usatNo",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "Service_Territory",
+              "operator": "NotEqualTo",
+              "rightValue": {
+                "elementReference": "All"
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Find_all_Completed_Service_Appointments_for_the_work_type_territory",
+            "processMetadataValues": []
+          },
+          "label": "No",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    }
+  ],
+  "description": "What: FSL Flow for Work Type Update",
+  "dynamicChoiceSets": [
+    {
+      "name": "DRCServiceTerritories",
+      "dataType": "String",
+      "displayField": "Name",
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "IsActive",
+          "operator": "EqualTo",
+          "value": {
+            "booleanValue": true
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "object": "ServiceTerritory",
+      "outputAssignments": [
+        {
+          "assignToReference": "selectedSTiD",
+          "field": "Id",
+          "processMetadataValues": []
+        }
+      ],
+      "sortField": "Name",
+      "sortOrder": "Asc",
+      "valueField": "Id",
+      "processMetadataValues": []
+    },
+    {
+      "name": "DRCWorkType",
+      "dataType": "String",
+      "displayField": "Name",
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "Name",
+          "operator": "IsNull",
+          "value": {
+            "booleanValue": false
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "object": "WorkType",
+      "outputAssignments": [
+        {
+          "assignToReference": "WTSelected",
+          "field": "Id",
+          "processMetadataValues": []
+        }
+      ],
+      "sortField": "Name",
+      "sortOrder": "Asc",
+      "valueField": "Id",
+      "processMetadataValues": []
+    }
+  ],
+  "formulas": [
+    {
+      "name": "CalcAverageDelta",
+      "dataType": "Number",
+      "expression": "if({!NumSAs} == 0,0,\n\n({!TotalActual} - {!TotalEstimated})/{!NumSAs})",
+      "scale": 2,
+      "processMetadataValues": []
+    },
+    {
+      "name": "CalcAvgActualDuration",
+      "dataType": "Number",
+      "expression": "if({!NumSAs} == 0,0,\n\n({!TotalActual} /{!NumSAs}))",
+      "scale": 2,
+      "processMetadataValues": []
+    },
+    {
+      "name": "CalcAvgEstDuration",
+      "dataType": "Number",
+      "expression": "if({!NumSAs} == 0,0,\n\n({!TotalEstimated})/{!NumSAs})",
+      "scale": 2,
+      "processMetadataValues": []
+    },
+    {
+      "name": "RecommendDuration",
+      "dataType": "Number",
+      "expression": "max(ceiling(( {!AvgEstimatedDuration} + {!Delta})/{!DurationIncrement})*{!DurationIncrement},0)",
+      "scale": 0,
+      "processMetadataValues": []
+    },
+    {
+      "name": "updateMaxDelta",
+      "dataType": "Number",
+      "expression": "if(isblank({!thisSA.ActualDuration}) || isblank({!thisSA.DurationInMinutes}),{!MaxDelta},\n\nmax({!MaxDelta},{!thisSA.ActualDuration} - {!thisSA.DurationInMinutes}))",
+      "scale": 2,
+      "processMetadataValues": []
+    },
+    {
+      "name": "updateMinDelta",
+      "dataType": "Number",
+      "expression": "if(isblank({!thisSA.ActualDuration}) || isblank({!thisSA.DurationInMinutes}),{!MinDelta},\nmin({!MinDelta},{!thisSA.ActualDuration} - {!thisSA.DurationInMinutes}))",
+      "scale": 2,
+      "processMetadataValues": []
+    }
+  ],
+  "interviewLabel": "Work Type Update {!$Flow.CurrentDateTime}",
+  "label": "FSL - Work Type Update",
+  "loops": [
+    {
+      "name": "Loop_Through_SAs",
+      "label": "Loop Through SAs",
+      "locationX": 1020,
+      "locationY": 197,
+      "assignNextValueToReference": "thisSA",
+      "collectionReference": "FoundServiceAppointments",
+      "iterationOrder": "Asc",
+      "nextValueConnector": {
+        "targetReference": "Update_Counts",
+        "processMetadataValues": []
+      },
+      "noMoreValuesConnector": {
+        "targetReference": "Update_Averages",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    }
+  ],
+  "processMetadataValues": [
+    {
+      "name": "BuilderType",
+      "value": {
+        "stringValue": "LightningFlowBuilder"
+      }
+    },
+    {
+      "name": "CanvasMode",
+      "value": {
+        "stringValue": "FREE_FORM_CANVAS"
+      }
+    }
+  ],
+  "processType": "Flow",
+  "recordLookups": [
+    {
+      "name": "Fast_Lookup_Work_Type",
+      "label": "Fast Lookup Work Type",
+      "locationX": 235,
+      "locationY": 276,
+      "assignNullValuesIfNoRecordsFound": true,
+      "connector": {
+        "targetReference": "Display_Totals",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "Id",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "WTSelected"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "object": "WorkType",
+      "outputReference": "foundWT",
+      "queriedFields": [
+        "DurationType",
+        "EstimatedDuration",
+        "Id",
+        "Name",
+        "DurationInMinutes"
+      ],
+      "processMetadataValues": [],
+      "outputAssignments": []
+    },
+    {
+      "name": "Find_all_Completed_Service_Appointments_for_the_work_type",
+      "label": "Find all Completed Service Appointments for the work type",
+      "locationX": 471,
+      "locationY": 191,
+      "assignNullValuesIfNoRecordsFound": true,
+      "connector": {
+        "targetReference": "Found_Records",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "Status",
+          "operator": "EqualTo",
+          "value": {
+            "stringValue": "Completed"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "WorkTypeId",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "WTSelected"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "object": "ServiceAppointment",
+      "outputReference": "FoundServiceAppointments",
+      "queriedFields": [
+        "AccountId",
+        "ActualDuration",
+        "DurationInMinutes",
+        "WorkTypeId",
+        "ServiceTerritoryId"
+      ],
+      "processMetadataValues": [],
+      "outputAssignments": []
+    },
+    {
+      "name": "Find_all_Completed_Service_Appointments_for_the_work_type_territory",
+      "label": "Find all Completed Service Appointments for work type territory",
+      "locationX": 456,
+      "locationY": 399,
+      "assignNullValuesIfNoRecordsFound": true,
+      "connector": {
+        "targetReference": "Found_Records",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "ServiceTerritoryId",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "selectedSTiD"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "Status",
+          "operator": "EqualTo",
+          "value": {
+            "stringValue": "Completed"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "WorkTypeId",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "WTSelected"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "object": "ServiceAppointment",
+      "outputReference": "FoundServiceAppointments",
+      "queriedFields": [
+        "AccountId",
+        "ActualDuration",
+        "DurationInMinutes",
+        "WorkTypeId",
+        "ServiceTerritoryId"
+      ],
+      "processMetadataValues": [],
+      "outputAssignments": []
+    }
+  ],
+  "recordUpdates": [
+    {
+      "name": "fast_update_Work_Type",
+      "label": "fast update Work Type",
+      "locationX": 825,
+      "locationY": 676,
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "Id",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "foundWT.Id"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "inputAssignments": [
+        {
+          "field": "DurationType",
+          "value": {
+            "elementReference": "Duration_Type"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "EstimatedDuration",
+          "value": {
+            "elementReference": "Enter_new_value_for_Duration"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "object": "WorkType",
+      "processMetadataValues": []
+    }
+  ],
+  "screens": [
+    {
+      "name": "Confirmation_Screen",
+      "label": "Confirmation Screen",
+      "locationX": 777,
+      "locationY": 520,
+      "allowBack": true,
+      "allowFinish": true,
+      "allowPause": true,
+      "connector": {
+        "targetReference": "Proceed_with_Update",
+        "processMetadataValues": []
+      },
+      "fields": [
+        {
+          "name": "UpdateWarning",
+          "fieldText": "<p>You are about update the duration for this work type.</p><p>{!foundWT.Name}</p><p>Current Duration: {!foundWT.DurationInMinutes}</p><p>Recommend Duration: 85</p><p>New Duration: {!Enter_new_value_for_Duration}</p>",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "Perform_Update",
+          "choiceReferences": [
+            "ProceedYes",
+            "ProceedNo"
+          ],
+          "dataType": "Boolean",
+          "defaultSelectedChoiceReference": "ProceedNo",
+          "fieldText": "Perform Update?",
+          "fieldType": "RadioButtons",
+          "isRequired": true,
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "inputParameters": [],
+          "outputParameters": []
+        }
+      ],
+      "showFooter": true,
+      "showHeader": true,
+      "processMetadataValues": [],
+      "rules": []
+    },
+    {
+      "name": "Display_Totals",
+      "label": "Work Type Analysis",
+      "locationX": 601,
+      "locationY": 348,
+      "allowBack": true,
+      "allowFinish": true,
+      "allowPause": true,
+      "connector": {
+        "targetReference": "New_Duration_Entered",
+        "processMetadataValues": []
+      },
+      "fields": [
+        {
+          "name": "dt1",
+          "fieldText": "<p><b>Work Type: {!DRCWorkType}</b></p><p><br></p><p>32 completed work orders were found for this work type.</p><p><br></p><p>On average, the difference between Actual Duration and Estimated Duration is <b style=\"background-color: rgb(255, 255, 255);\">-35.66</b><b> </b>minutes. A negative number indicates that work is being completed faster than planned.</p><p><br></p><p><u>All times below are in Minutes</u></p><p><br></p><p>Average Actual Duration: <span style=\"background-color: rgb(255, 255, 255);\">&nbsp;84.34</span></p><p>Average Estimated Duration: 120</p><p>Total Actual Duration: <span style=\"background-color: rgb(255, 255, 255);\">2,699</span></p><p>Total Estimated Duration: <span style=\"background-color: rgb(255, 255, 255);\">3,840</span></p><p>Minimum Delta: -45</p><p>Maximum Delta: 15</p><p>Current Work Type Duration <b>{!foundWT.DurationInMinutes}</b> minutes</p><p><br></p><p>Suggested new Duration: <b>85 </b>minutes</p>",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "Enter_new_value_for_Duration",
+          "dataType": "Number",
+          "fieldText": "Enter new value for Duration",
+          "fieldType": "InputField",
+          "isRequired": false,
+          "scale": 0,
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "validationRule": {
+            "errorMessage": "Please enter a positive number for the new duration",
+            "formulaExpression": "{!Enter_new_value_for_Duration} > 0 || isblank({!Enter_new_value_for_Duration})"
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "Duration_Type",
+          "choiceReferences": [
+            "Minutes",
+            "Hours"
+          ],
+          "dataType": "String",
+          "defaultSelectedChoiceReference": "Minutes",
+          "fieldText": "Duration Type",
+          "fieldType": "RadioButtons",
+          "isRequired": true,
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "inputParameters": [],
+          "outputParameters": []
+        }
+      ],
+      "showFooter": true,
+      "showHeader": true,
+      "processMetadataValues": [],
+      "rules": []
+    },
+    {
+      "name": "Work_Type_Selection",
+      "label": "Work Type Selection",
+      "locationX": 192,
+      "locationY": 140,
+      "allowBack": true,
+      "allowFinish": true,
+      "allowPause": true,
+      "connector": {
+        "targetReference": "Fast_Lookup_Work_Type",
+        "processMetadataValues": []
+      },
+      "fields": [
+        {
+          "name": "WTS1",
+          "fieldText": "<DIV ALIGN=\"LEFT\"><FONT FACE=\"Arial\" STYLE=\"font-size:12px\" COLOR=\"#000000\" LETTERSPACING=\"0\" KERNING=\"0\">Please select the work type that you would like to modify</FONT></DIV>",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "Work_Type",
+          "choiceReferences": [
+            "DRCWorkType"
+          ],
+          "dataType": "String",
+          "fieldText": "Work Type",
+          "fieldType": "DropdownBox",
+          "isRequired": false,
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "dt2",
+          "fieldText": "<DIV ALIGN=\"LEFT\"><FONT FACE=\"Arial\" STYLE=\"font-size:12px\" COLOR=\"#000000\" LETTERSPACING=\"0\" KERNING=\"0\">Optionally, limit the work type analysis to a selected territory or select All to include all territories.</FONT></DIV>",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "Service_Territory",
+          "choiceReferences": [
+            "All",
+            "DRCServiceTerritories"
+          ],
+          "dataType": "String",
+          "defaultSelectedChoiceReference": "All",
+          "fieldText": "Service Territory",
+          "fieldType": "DropdownBox",
+          "isRequired": false,
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "inputParameters": [],
+          "outputParameters": []
+        }
+      ],
+      "showFooter": true,
+      "showHeader": true,
+      "processMetadataValues": [],
+      "rules": []
+    },
+    {
+      "name": "WorkTypeHistoryNotFound",
+      "label": "Work Type History Not Found",
+      "locationX": 863,
+      "locationY": 91,
+      "allowBack": true,
+      "allowFinish": true,
+      "allowPause": true,
+      "fields": [
+        {
+          "name": "NoWorkHistoryFound",
+          "fieldText": "No work history was found for this work type in the selected territory.  Please select another work type and/or territory.",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        }
+      ],
+      "showFooter": true,
+      "showHeader": true,
+      "processMetadataValues": [],
+      "rules": []
+    }
+  ],
+  "start": {
+    "locationX": 50,
+    "locationY": 50,
+    "connector": {
+      "targetReference": "Work_Type_Selection",
+      "processMetadataValues": []
+    },
+    "processMetadataValues": [],
+    "filters": []
+  },
+  "status": "Active",
+  "variables": [
+    {
+      "name": "AvgActualDuration",
+      "dataType": "Number",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "scale": 2,
+      "processMetadataValues": []
+    },
+    {
+      "name": "AvgEstimatedDuration",
+      "dataType": "Number",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "scale": 2,
+      "processMetadataValues": []
+    },
+    {
+      "name": "Delta",
+      "dataType": "Number",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "scale": 2,
+      "processMetadataValues": []
+    },
+    {
+      "name": "FoundServiceAppointments",
+      "dataType": "SObject",
+      "isCollection": true,
+      "isInput": false,
+      "isOutput": false,
+      "objectType": "ServiceAppointment",
+      "processMetadataValues": []
+    },
+    {
+      "name": "foundWT",
+      "dataType": "SObject",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "objectType": "WorkType",
+      "processMetadataValues": []
+    },
+    {
+      "name": "MaxDelta",
+      "dataType": "Number",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "scale": 0,
+      "processMetadataValues": []
+    },
+    {
+      "name": "MinDelta",
+      "dataType": "Number",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "scale": 0,
+      "processMetadataValues": []
+    },
+    {
+      "name": "NumSAs",
+      "dataType": "Number",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "scale": 0,
+      "processMetadataValues": []
+    },
+    {
+      "name": "selectedSTiD",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "value": {
+        "stringValue": ""
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "thisSA",
+      "dataType": "SObject",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "objectType": "ServiceAppointment",
+      "processMetadataValues": []
+    },
+    {
+      "name": "TotalActual",
+      "dataType": "Number",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "scale": 0,
+      "processMetadataValues": []
+    },
+    {
+      "name": "TotalEstimated",
+      "dataType": "Number",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "scale": 0,
+      "processMetadataValues": []
+    },
+    {
+      "name": "WTSelected",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    }
+  ],
+  "actionCalls": [],
+  "apexPluginCalls": [],
+  "recordCreates": [],
+  "recordDeletes": [],
+  "stages": [],
+  "steps": [],
+  "subflows": [],
+  "textTemplates": [],
+  "waits": []
+}

@@ -1,0 +1,24 @@
+{
+  "fullName": "SDO_OMS_Einstein_Bots_Create_RMA_Return_Order",
+  "processType": "AutoLaunchedFlow",
+  "description": "Create Return Order",
+  "status": "Active",
+  "start": {
+    "connector": {}
+  },
+  "variables": [],
+  "assignments": [],
+  "decisions": [],
+  "loops": [],
+  "recordLookups": [],
+  "recordCreates": [],
+  "recordUpdates": [],
+  "recordDeletes": [],
+  "screens": [],
+  "subflows": [],
+  "actionCalls": [],
+  "constants": [],
+  "formulas": [],
+  "choices": [],
+  "textTemplates": []
+}

@@ -1,0 +1,24 @@
+{
+  "fullName": "SDO_Service_Luna_Bot_Create_New_Case",
+  "processType": "AutoLaunchedFlow",
+  "description": "Creates new Case record for Luna Bot transfer.",
+  "status": "Active",
+  "start": {
+    "connector": {}
+  },
+  "variables": [],
+  "assignments": [],
+  "decisions": [],
+  "loops": [],
+  "recordLookups": [],
+  "recordCreates": [],
+  "recordUpdates": [],
+  "recordDeletes": [],
+  "screens": [],
+  "subflows": [],
+  "actionCalls": [],
+  "constants": [],
+  "formulas": [],
+  "choices": [],
+  "textTemplates": []
+}

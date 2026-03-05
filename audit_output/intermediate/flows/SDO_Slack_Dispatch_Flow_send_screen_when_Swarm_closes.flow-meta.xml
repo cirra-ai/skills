@@ -1,0 +1,24 @@
+{
+  "fullName": "SDO_Slack_Dispatch_Flow_send_screen_when_Swarm_closes",
+  "processType": "AutoLaunchedFlow",
+  "description": "Dispatches screen",
+  "status": "Active",
+  "start": {
+    "connector": {}
+  },
+  "variables": [],
+  "assignments": [],
+  "decisions": [],
+  "loops": [],
+  "recordLookups": [],
+  "recordCreates": [],
+  "recordUpdates": [],
+  "recordDeletes": [],
+  "screens": [],
+  "subflows": [],
+  "actionCalls": [],
+  "constants": [],
+  "formulas": [],
+  "choices": [],
+  "textTemplates": []
+}

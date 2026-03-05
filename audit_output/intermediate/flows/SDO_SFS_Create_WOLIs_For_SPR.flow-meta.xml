@@ -1,0 +1,253 @@
+{
+  "fullName": "SDO_SFS_Create_WOLIs_For_SPR",
+  "apiVersion": "62.0",
+  "areMetricsLoggedToDataCloud": "false",
+  "assignments": [
+    {
+      "name": "Assign_WOLI",
+      "label": "Assign WOLI",
+      "locationX": 264,
+      "locationY": 647,
+      "assignmentItems": [
+        {
+          "assignToReference": "WOLI.AssetId",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "Loop_Through_Assets.Id"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "WOLI.WorkOrderId",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "$Record.Id"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "WOLI.PricebookEntryId",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "Get_PriceBook_Entry.Id"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "Assign_WOLIS",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Assign_WOLIS",
+      "label": "Assign WOLIS",
+      "locationX": 264,
+      "locationY": 755,
+      "assignmentItems": [
+        {
+          "assignToReference": "WOLIS",
+          "operator": "Add",
+          "value": {
+            "elementReference": "WOLI"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "Loop_Through_Assets",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    }
+  ],
+  "environments": "Default",
+  "interviewLabel": "SDO SFS Create WOLIs For SPR {!$Flow.CurrentDateTime}",
+  "label": "SDO SFS Create WOLIs For SPR",
+  "loops": [
+    {
+      "name": "Loop_Through_Assets",
+      "label": "Loop Through Assets",
+      "locationX": 176,
+      "locationY": 431,
+      "collectionReference": "Get_Asset_Hierarchy",
+      "iterationOrder": "Asc",
+      "nextValueConnector": {
+        "targetReference": "Get_PriceBook_Entry",
+        "processMetadataValues": []
+      },
+      "noMoreValuesConnector": {
+        "targetReference": "Create_WOLIs",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": [],
+      "assignNextValueToReference": ""
+    }
+  ],
+  "processMetadataValues": [
+    {
+      "name": "BuilderType",
+      "value": {
+        "stringValue": "LightningFlowBuilder"
+      }
+    },
+    {
+      "name": "CanvasMode",
+      "value": {
+        "stringValue": "AUTO_LAYOUT_CANVAS"
+      }
+    },
+    {
+      "name": "OriginBuilderType",
+      "value": {
+        "stringValue": "LightningFlowBuilder"
+      }
+    }
+  ],
+  "processType": "AutoLaunchedFlow",
+  "recordCreates": [
+    {
+      "name": "Create_WOLIs",
+      "label": "Create WOLIs",
+      "locationX": 176,
+      "locationY": 947,
+      "inputReference": "WOLIS",
+      "processMetadataValues": [],
+      "inputAssignments": []
+    }
+  ],
+  "recordLookups": [
+    {
+      "name": "Get_Asset_Hierarchy",
+      "label": "Get Asset Hierarchy",
+      "locationX": 176,
+      "locationY": 323,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "Loop_Through_Assets",
+        "processMetadataValues": []
+      },
+      "filterLogic": "or",
+      "filters": [
+        {
+          "field": "Id",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "$Record.AssetId"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "ParentId",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "$Record.AssetId"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "getFirstRecordOnly": false,
+      "object": "Asset",
+      "storeOutputAutomatically": true,
+      "processMetadataValues": [],
+      "outputAssignments": [],
+      "queriedFields": []
+    },
+    {
+      "name": "Get_PriceBook_Entry",
+      "label": "Get PriceBook Entry",
+      "locationX": 264,
+      "locationY": 539,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "Assign_WOLI",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "Pricebook2Id",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "$Record.Pricebook2Id"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "Product2Id",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "Loop_Through_Assets.Product2Id"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "getFirstRecordOnly": true,
+      "object": "PricebookEntry",
+      "storeOutputAutomatically": true,
+      "processMetadataValues": [],
+      "outputAssignments": [],
+      "queriedFields": []
+    }
+  ],
+  "start": {
+    "locationX": 50,
+    "locationY": 0,
+    "connector": {
+      "targetReference": "Get_Asset_Hierarchy",
+      "processMetadataValues": []
+    },
+    "filterLogic": "and",
+    "filters": [
+      {
+        "field": "AssetId",
+        "operator": "IsNull",
+        "value": {
+          "booleanValue": false
+        },
+        "processMetadataValues": []
+      }
+    ],
+    "object": "WorkOrder",
+    "recordTriggerType": "Create",
+    "triggerType": "RecordAfterSave",
+    "processMetadataValues": []
+  },
+  "status": "Active",
+  "variables": [
+    {
+      "name": "WOLI",
+      "dataType": "SObject",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "objectType": "WorkOrderLineItem",
+      "processMetadataValues": []
+    },
+    {
+      "name": "WOLIS",
+      "dataType": "SObject",
+      "isCollection": true,
+      "isInput": false,
+      "isOutput": false,
+      "objectType": "WorkOrderLineItem",
+      "processMetadataValues": []
+    }
+  ],
+  "actionCalls": [],
+  "apexPluginCalls": [],
+  "choices": [],
+  "constants": [],
+  "decisions": [],
+  "dynamicChoiceSets": [],
+  "formulas": [],
+  "recordDeletes": [],
+  "recordUpdates": [],
+  "screens": [],
+  "stages": [],
+  "steps": [],
+  "subflows": [],
+  "textTemplates": [],
+  "waits": []
+}

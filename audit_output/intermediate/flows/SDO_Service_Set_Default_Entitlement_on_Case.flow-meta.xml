@@ -1,0 +1,24 @@
+{
+  "fullName": "SDO_Service_Set_Default_Entitlement_on_Case",
+  "processType": "AutoLaunchedFlow",
+  "description": "Sets the Entitlement Process on the case",
+  "status": "Active",
+  "start": {
+    "connector": {}
+  },
+  "variables": [],
+  "assignments": [],
+  "decisions": [],
+  "loops": [],
+  "recordLookups": [],
+  "recordCreates": [],
+  "recordUpdates": [],
+  "recordDeletes": [],
+  "screens": [],
+  "subflows": [],
+  "actionCalls": [],
+  "constants": [],
+  "formulas": [],
+  "choices": [],
+  "textTemplates": []
+}

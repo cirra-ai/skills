@@ -1,0 +1,2562 @@
+{
+  "fullName": "SDO_SFS_HC_Quick_Tool",
+  "apiVersion": "58.0",
+  "areMetricsLoggedToDataCloud": "false",
+  "assignments": [
+    {
+      "name": "Assign_Account_Check",
+      "label": "Assign Account Check",
+      "locationX": 50,
+      "locationY": 566,
+      "assignmentItems": [
+        {
+          "assignToReference": "AccountCheckVar",
+          "operator": "Assign",
+          "value": {
+            "booleanValue": true
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "SetupScreen",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Assign_Account_Contact_Checkbox",
+      "label": "Assign Account Contact Checkbox",
+      "locationX": 226,
+      "locationY": 1598,
+      "assignmentItems": [
+        {
+          "assignToReference": "AccountCheckVar",
+          "operator": "Assign",
+          "value": {
+            "booleanValue": false
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "isGoTo": "true",
+        "targetReference": "Check_Update_Details",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Assign_Asset_Check",
+      "label": "Assign Asset Check",
+      "locationX": 314,
+      "locationY": 566,
+      "assignmentItems": [
+        {
+          "assignToReference": "AssetCheckVar",
+          "operator": "Assign",
+          "value": {
+            "booleanValue": true
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "SetupScreen",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Assign_Asset_Checkbox",
+      "label": "Assign Asset Checkbox",
+      "locationX": 490,
+      "locationY": 1598,
+      "assignmentItems": [
+        {
+          "assignToReference": "AssetCheckVar",
+          "operator": "Assign",
+          "value": {
+            "booleanValue": false
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "isGoTo": "true",
+        "targetReference": "Check_Update_Details",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Assign_Lat_Long",
+      "label": "Assign Lat Long",
+      "locationX": 1282,
+      "locationY": 566,
+      "assignmentItems": [
+        {
+          "assignToReference": "Loop_Over_Service_Territory_Members.Latitude",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "Get_Service_Territory_New.Latitude"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "Loop_Over_Service_Territory_Members.Longitude",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "Get_Service_Territory_New.Longitude"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "Assign_STM_List",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Assign_Location_Details",
+      "label": "Assign Location Details",
+      "locationX": 1018,
+      "locationY": 1382,
+      "assignmentItems": [
+        {
+          "assignToReference": "Get_Service_Resource.En_Route_Location__Latitude__s",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "Enroute_Latitude"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "Get_Service_Resource.En_Route_Location__Longitude__s",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "Enroute_Longitude"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "Get_Service_Resource.Last_Mile_Location__Latitude__s",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "Last_Mile_Latitude"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "Get_Service_Resource.Last_Mile_Location__Longitude__s",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "Last_Mile_Longitude"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "Update_Work_Type",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Assign_Product_Check",
+      "label": "Assign Product Check",
+      "locationX": 842,
+      "locationY": 566,
+      "assignmentItems": [
+        {
+          "assignToReference": "ProductCheckVar",
+          "operator": "Assign",
+          "value": {
+            "booleanValue": true
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "SetupScreen",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Assign_Products_Checkbox",
+      "label": "Assign Products Checkbox",
+      "locationX": 754,
+      "locationY": 1598,
+      "assignmentItems": [
+        {
+          "assignToReference": "ProductCheckVar",
+          "operator": "Assign",
+          "value": {
+            "booleanValue": false
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "isGoTo": "true",
+        "targetReference": "Check_Update_Details",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Assign_SFS_Check",
+      "label": "Assign SFS Check",
+      "locationX": 578,
+      "locationY": 782,
+      "assignmentItems": [
+        {
+          "assignToReference": "SFSCheckVar",
+          "operator": "Assign",
+          "value": {
+            "booleanValue": true
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "SetupScreen",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Assign_SFS_Checkbox",
+      "label": "Assign SFS Checkbox",
+      "locationX": 1018,
+      "locationY": 2138,
+      "assignmentItems": [
+        {
+          "assignToReference": "SFSCheckVar",
+          "operator": "Assign",
+          "value": {
+            "booleanValue": false
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "isGoTo": "true",
+        "targetReference": "Check_Update_Details",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Assign_STM_List",
+      "label": "Assign STM List",
+      "locationX": 1282,
+      "locationY": 674,
+      "assignmentItems": [
+        {
+          "assignToReference": "ServiceResourceList",
+          "operator": "Add",
+          "value": {
+            "elementReference": "Loop_Over_Service_Territory_Members"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "Loop_Over_Service_Territory_Members",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    }
+  ],
+  "decisions": [
+    {
+      "name": "Check_Screen",
+      "label": "Check Screen",
+      "locationX": 754,
+      "locationY": 242,
+      "defaultConnector": {
+        "targetReference": "SetupScreen",
+        "processMetadataValues": []
+      },
+      "defaultConnectorLabel": "Default Outcome",
+      "rules": [
+        {
+          "name": "Account_Check",
+          "conditionLogic": "or",
+          "conditions": [
+            {
+              "leftValueReference": "AccountCheckVar",
+              "operator": "EqualTo",
+              "rightValue": {
+                "booleanValue": true
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Get_Account",
+            "processMetadataValues": []
+          },
+          "label": "Account Check",
+          "processMetadataValues": []
+        },
+        {
+          "name": "Asset_Check",
+          "conditionLogic": "or",
+          "conditions": [
+            {
+              "leftValueReference": "AssetCheckVar",
+              "operator": "EqualTo",
+              "rightValue": {
+                "booleanValue": true
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Get_Asset_Details",
+            "processMetadataValues": []
+          },
+          "label": "Asset Check",
+          "processMetadataValues": []
+        },
+        {
+          "name": "SFS_Check",
+          "conditionLogic": "or",
+          "conditions": [
+            {
+              "leftValueReference": "SFSCheckVar",
+              "operator": "EqualTo",
+              "rightValue": {
+                "booleanValue": true
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Get_Service_Resource",
+            "processMetadataValues": []
+          },
+          "label": "SFS Check",
+          "processMetadataValues": []
+        },
+        {
+          "name": "Product_Check",
+          "conditionLogic": "or",
+          "conditions": [
+            {
+              "leftValueReference": "ProductCheckVar",
+              "operator": "EqualTo",
+              "rightValue": {
+                "booleanValue": true
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Get_Recommended_Product",
+            "processMetadataValues": []
+          },
+          "label": "Product Check",
+          "processMetadataValues": []
+        },
+        {
+          "name": "Territory_Member_Check",
+          "conditionLogic": "or",
+          "conditions": [
+            {
+              "leftValueReference": "stmCheckVar",
+              "operator": "EqualTo",
+              "rightValue": {
+                "booleanValue": true
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Get_Service_Territory_New",
+            "processMetadataValues": []
+          },
+          "label": "Territory Member Check",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    },
+    {
+      "name": "Check_Update_Details",
+      "label": "Check Update Details",
+      "locationX": 754,
+      "locationY": 1274,
+      "defaultConnector": {
+        "isGoTo": "true",
+        "targetReference": "Choose_Menu",
+        "processMetadataValues": []
+      },
+      "defaultConnectorLabel": "Default Outcome",
+      "rules": [
+        {
+          "name": "Update_Account_Data",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "AccountCheckVar",
+              "operator": "EqualTo",
+              "rightValue": {
+                "booleanValue": true
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Update_Account",
+            "processMetadataValues": []
+          },
+          "label": "Update Account Data",
+          "processMetadataValues": []
+        },
+        {
+          "name": "Update_Asset_Data",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "AssetCheckVar",
+              "operator": "EqualTo",
+              "rightValue": {
+                "booleanValue": true
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Update_Asset",
+            "processMetadataValues": []
+          },
+          "label": "Update Asset Data",
+          "processMetadataValues": []
+        },
+        {
+          "name": "Update_Product_Details",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "ProductCheckVar",
+              "operator": "EqualTo",
+              "rightValue": {
+                "booleanValue": true
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Update_Recommended_Product",
+            "processMetadataValues": []
+          },
+          "label": "Update Product Details",
+          "processMetadataValues": []
+        },
+        {
+          "name": "Update_SFS_Details",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "SFSCheckVar",
+              "operator": "EqualTo",
+              "rightValue": {
+                "booleanValue": true
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Assign_Location_Details",
+            "processMetadataValues": []
+          },
+          "label": "Update SFS Details",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    }
+  ],
+  "dynamicChoiceSets": [
+    {
+      "name": "timeZonePicklist",
+      "dataType": "Picklist",
+      "displayField": "",
+      "object": "",
+      "picklistField": "TimeZone",
+      "picklistObject": "OperatingHours",
+      "processMetadataValues": [],
+      "filters": [],
+      "outputAssignments": []
+    }
+  ],
+  "environments": "Default",
+  "interviewLabel": "SDO SFS HC Quick Tool {!$Flow.CurrentDateTime}",
+  "label": "SDO SFS HC Quick Tool",
+  "loops": [
+    {
+      "name": "Loop_Over_Service_Territory_Members",
+      "label": "Loop Over Service Territory Members",
+      "locationX": 1194,
+      "locationY": 458,
+      "collectionReference": "Get_Service_Territory_Members",
+      "iterationOrder": "Asc",
+      "nextValueConnector": {
+        "targetReference": "Assign_Lat_Long",
+        "processMetadataValues": []
+      },
+      "noMoreValuesConnector": {
+        "targetReference": "Update_STM_List",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": [],
+      "assignNextValueToReference": ""
+    }
+  ],
+  "processMetadataValues": [
+    {
+      "name": "BuilderType",
+      "value": {
+        "stringValue": "LightningFlowBuilder"
+      }
+    },
+    {
+      "name": "CanvasMode",
+      "value": {
+        "stringValue": "AUTO_LAYOUT_CANVAS"
+      }
+    },
+    {
+      "name": "OriginBuilderType",
+      "value": {
+        "stringValue": "LightningFlowBuilder"
+      }
+    }
+  ],
+  "processType": "Flow",
+  "recordLookups": [
+    {
+      "name": "Get_Account",
+      "label": "Get Account",
+      "locationX": 50,
+      "locationY": 350,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "Get_Contact_Details",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "External_ID__c",
+          "operator": "EqualTo",
+          "value": {
+            "stringValue": "Account.001"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "getFirstRecordOnly": true,
+      "object": "Account",
+      "storeOutputAutomatically": true,
+      "processMetadataValues": [],
+      "outputAssignments": [],
+      "queriedFields": []
+    },
+    {
+      "name": "Get_Asset_Details",
+      "label": "Get Asset Details",
+      "locationX": 314,
+      "locationY": 350,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "Get_Entitlement_Details",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "External_ID__c",
+          "operator": "EqualTo",
+          "value": {
+            "stringValue": "Asset.089"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "getFirstRecordOnly": true,
+      "object": "Asset",
+      "storeOutputAutomatically": true,
+      "processMetadataValues": [],
+      "outputAssignments": [],
+      "queriedFields": []
+    },
+    {
+      "name": "Get_Contact_Details",
+      "label": "Get Contact Details",
+      "locationX": 50,
+      "locationY": 458,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "Assign_Account_Check",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "External_ID__c",
+          "operator": "EqualTo",
+          "value": {
+            "stringValue": "Contact.001"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "getFirstRecordOnly": true,
+      "object": "Contact",
+      "storeOutputAutomatically": true,
+      "processMetadataValues": [],
+      "outputAssignments": [],
+      "queriedFields": []
+    },
+    {
+      "name": "Get_Entitlement_Details",
+      "label": "Get Entitlement Details",
+      "locationX": 314,
+      "locationY": 458,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "Assign_Asset_Check",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "External_ID__c",
+          "operator": "EqualTo",
+          "value": {
+            "stringValue": "SDO_Entitlement.004"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "getFirstRecordOnly": true,
+      "object": "Entitlement",
+      "storeOutputAutomatically": true,
+      "processMetadataValues": [],
+      "outputAssignments": [],
+      "queriedFields": []
+    },
+    {
+      "name": "Get_Operating_Hours",
+      "label": "Get Operating Hours",
+      "locationX": 578,
+      "locationY": 566,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "Get_Work_Type",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "Id",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "Get_Serivce_Territory.OperatingHoursId"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "getFirstRecordOnly": true,
+      "object": "OperatingHours",
+      "storeOutputAutomatically": true,
+      "processMetadataValues": [],
+      "outputAssignments": [],
+      "queriedFields": []
+    },
+    {
+      "name": "Get_Recommended_Product",
+      "label": "Get Recommended Product",
+      "locationX": 842,
+      "locationY": 350,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "Get_Replaced_Product",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "External_ID__c",
+          "operator": "EqualTo",
+          "value": {
+            "stringValue": "Product2.001"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "getFirstRecordOnly": true,
+      "object": "Product2",
+      "storeOutputAutomatically": true,
+      "processMetadataValues": [],
+      "outputAssignments": [],
+      "queriedFields": []
+    },
+    {
+      "name": "Get_Replaced_Product",
+      "label": "Get Replaced Product",
+      "locationX": 842,
+      "locationY": 458,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "Assign_Product_Check",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "External_ID__c",
+          "operator": "EqualTo",
+          "value": {
+            "stringValue": "Product2.016"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "getFirstRecordOnly": true,
+      "object": "Product2",
+      "storeOutputAutomatically": true,
+      "processMetadataValues": [],
+      "outputAssignments": [],
+      "queriedFields": []
+    },
+    {
+      "name": "Get_Serivce_Territory",
+      "label": "Get Serivce Territory",
+      "locationX": 578,
+      "locationY": 458,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "Get_Operating_Hours",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "External_ID__c",
+          "operator": "EqualTo",
+          "value": {
+            "stringValue": "SvcTerritory.001"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "getFirstRecordOnly": true,
+      "object": "ServiceTerritory",
+      "storeOutputAutomatically": true,
+      "processMetadataValues": [],
+      "outputAssignments": [],
+      "queriedFields": []
+    },
+    {
+      "name": "Get_Service_Resource",
+      "label": "Get Service Resource",
+      "locationX": 578,
+      "locationY": 350,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "Get_Serivce_Territory",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "External_ID__c",
+          "operator": "EqualTo",
+          "value": {
+            "stringValue": "ServiceResource.004"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "getFirstRecordOnly": true,
+      "object": "ServiceResource",
+      "storeOutputAutomatically": true,
+      "processMetadataValues": [],
+      "outputAssignments": [],
+      "queriedFields": []
+    },
+    {
+      "name": "Get_Service_Territory_Members",
+      "label": "Get Service Territory Members",
+      "locationX": 1018,
+      "locationY": 1922,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "Update_User_Timezone",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "ServiceTerritoryId",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "Get_Serivce_Territory.Id"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "getFirstRecordOnly": false,
+      "object": "ServiceTerritoryMember",
+      "storeOutputAutomatically": true,
+      "processMetadataValues": [],
+      "outputAssignments": [],
+      "queriedFields": []
+    },
+    {
+      "name": "Get_Service_Territory_New",
+      "label": "Get New Service Territory",
+      "locationX": 1194,
+      "locationY": 350,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "Loop_Over_Service_Territory_Members",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "Id",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "Get_Serivce_Territory.Id"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "getFirstRecordOnly": true,
+      "object": "ServiceTerritory",
+      "storeOutputAutomatically": true,
+      "processMetadataValues": [],
+      "outputAssignments": [],
+      "queriedFields": []
+    },
+    {
+      "name": "Get_Work_Type",
+      "label": "Get Work Type",
+      "locationX": 578,
+      "locationY": 674,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "Assign_SFS_Check",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "External_ID__c",
+          "operator": "EqualTo",
+          "value": {
+            "stringValue": "WT.011"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "getFirstRecordOnly": true,
+      "object": "WorkType",
+      "storeOutputAutomatically": true,
+      "processMetadataValues": [],
+      "outputAssignments": [],
+      "queriedFields": []
+    }
+  ],
+  "recordUpdates": [
+    {
+      "name": "Update_Account",
+      "label": "Update Account",
+      "locationX": 226,
+      "locationY": 1382,
+      "connector": {
+        "targetReference": "Update_Contact",
+        "processMetadataValues": []
+      },
+      "inputReference": "Get_Account",
+      "processMetadataValues": [],
+      "filters": [],
+      "inputAssignments": []
+    },
+    {
+      "name": "Update_Asset",
+      "label": "Update Asset",
+      "locationX": 490,
+      "locationY": 1382,
+      "connector": {
+        "targetReference": "Update_Entitlement",
+        "processMetadataValues": []
+      },
+      "inputReference": "Get_Asset_Details",
+      "processMetadataValues": [],
+      "filters": [],
+      "inputAssignments": []
+    },
+    {
+      "name": "Update_Contact",
+      "label": "Update Contact",
+      "locationX": 226,
+      "locationY": 1490,
+      "connector": {
+        "targetReference": "Assign_Account_Contact_Checkbox",
+        "processMetadataValues": []
+      },
+      "inputReference": "Get_Contact_Details",
+      "processMetadataValues": [],
+      "filters": [],
+      "inputAssignments": []
+    },
+    {
+      "name": "Update_Entitlement",
+      "label": "Update Entitlement",
+      "locationX": 490,
+      "locationY": 1490,
+      "connector": {
+        "targetReference": "Assign_Asset_Checkbox",
+        "processMetadataValues": []
+      },
+      "inputReference": "Get_Entitlement_Details",
+      "processMetadataValues": [],
+      "filters": [],
+      "inputAssignments": []
+    },
+    {
+      "name": "Update_Operating_Hours",
+      "label": "Update Operating Hours",
+      "locationX": 1018,
+      "locationY": 1706,
+      "connector": {
+        "targetReference": "Update_Service_Resource",
+        "processMetadataValues": []
+      },
+      "inputReference": "Get_Operating_Hours",
+      "processMetadataValues": [],
+      "filters": [],
+      "inputAssignments": []
+    },
+    {
+      "name": "Update_Recommended_Product",
+      "label": "Update Recommended Product",
+      "locationX": 754,
+      "locationY": 1382,
+      "connector": {
+        "targetReference": "Update_Replaced_Product",
+        "processMetadataValues": []
+      },
+      "inputReference": "Get_Recommended_Product",
+      "processMetadataValues": [],
+      "filters": [],
+      "inputAssignments": []
+    },
+    {
+      "name": "Update_Replaced_Product",
+      "label": "Update Replaced Product",
+      "locationX": 754,
+      "locationY": 1490,
+      "connector": {
+        "targetReference": "Assign_Products_Checkbox",
+        "processMetadataValues": []
+      },
+      "inputReference": "Get_Replaced_Product",
+      "processMetadataValues": [],
+      "filters": [],
+      "inputAssignments": []
+    },
+    {
+      "name": "Update_Service_Resource",
+      "label": "Update Service Resource",
+      "locationX": 1018,
+      "locationY": 1814,
+      "connector": {
+        "targetReference": "Get_Service_Territory_Members",
+        "processMetadataValues": []
+      },
+      "inputReference": "Get_Service_Resource",
+      "processMetadataValues": [],
+      "filters": [],
+      "inputAssignments": []
+    },
+    {
+      "name": "Update_Service_Territory",
+      "label": "Update Service Territory",
+      "locationX": 1018,
+      "locationY": 1598,
+      "connector": {
+        "targetReference": "Update_Operating_Hours",
+        "processMetadataValues": []
+      },
+      "inputReference": "Get_Serivce_Territory",
+      "processMetadataValues": [],
+      "filters": [],
+      "inputAssignments": []
+    },
+    {
+      "name": "Update_STM_List",
+      "label": "Update STM List",
+      "locationX": 1194,
+      "locationY": 866,
+      "inputReference": "ServiceResourceList",
+      "processMetadataValues": [],
+      "filters": [],
+      "inputAssignments": []
+    },
+    {
+      "name": "Update_User_Timezone",
+      "label": "Update User Timezone",
+      "locationX": 1018,
+      "locationY": 2030,
+      "connector": {
+        "targetReference": "Assign_SFS_Checkbox",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "Id",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "$User.Id"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "inputAssignments": [
+        {
+          "field": "TimeZoneSidKey",
+          "value": {
+            "elementReference": "Get_Operating_Hours.TimeZone"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "object": "User",
+      "processMetadataValues": []
+    },
+    {
+      "name": "Update_Work_Type",
+      "label": "Update Work Type",
+      "locationX": 1018,
+      "locationY": 1490,
+      "connector": {
+        "targetReference": "Update_Service_Territory",
+        "processMetadataValues": []
+      },
+      "inputReference": "Get_Work_Type",
+      "processMetadataValues": [],
+      "filters": [],
+      "inputAssignments": []
+    }
+  ],
+  "screens": [
+    {
+      "name": "Choose_Menu",
+      "label": "Choose Menu",
+      "locationX": 754,
+      "locationY": 134,
+      "allowBack": true,
+      "allowFinish": true,
+      "allowPause": true,
+      "connector": {
+        "targetReference": "Check_Screen",
+        "processMetadataValues": []
+      },
+      "fields": [
+        {
+          "name": "Choose_Menu_Section1",
+          "fieldType": "RegionContainer",
+          "fields": [
+            {
+              "name": "Choose_Menu_Section1_Column1",
+              "fieldType": "Region",
+              "fields": {
+                "name": "AccountCard",
+                "extensionName": "c:sdo_sfs_quick_setup_home",
+                "fieldType": "ComponentInstance",
+                "inputParameters": [
+                  {
+                    "name": "buttonCheck",
+                    "value": {
+                      "elementReference": "AccountCheckVar"
+                    }
+                  },
+                  {
+                    "name": "buttonLabel1",
+                    "value": {
+                      "stringValue": "Update Account"
+                    }
+                  },
+                  {
+                    "name": "cardIcon",
+                    "value": {
+                      "stringValue": "standard:account"
+                    }
+                  },
+                  {
+                    "name": "description",
+                    "value": {
+                      "stringValue": "To Change the Account & Contact Details for the demo, click on the button click on the button to the right"
+                    }
+                  },
+                  {
+                    "name": "title",
+                    "value": {
+                      "stringValue": "Account & Contact Info"
+                    }
+                  }
+                ],
+                "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                "isRequired": "true",
+                "outputParameters": {
+                  "assignToReference": "AccountCheckVar",
+                  "name": "buttonCheck"
+                },
+                "styleProperties": {
+                  "verticalAlignment": {
+                    "stringValue": "top"
+                  },
+                  "width": {
+                    "stringValue": "12"
+                  }
+                }
+              },
+              "inputParameters": {
+                "name": "width",
+                "value": {
+                  "stringValue": "4"
+                }
+              },
+              "isRequired": "false"
+            },
+            {
+              "name": "Choose_Menu_Section1_Column2",
+              "fieldType": "Region",
+              "fields": {
+                "name": "ServiceTerritoryCard",
+                "extensionName": "c:sdo_sfs_quick_setup_home",
+                "fieldType": "ComponentInstance",
+                "inputParameters": [
+                  {
+                    "name": "buttonCheck",
+                    "value": {
+                      "elementReference": "SFSCheckVar"
+                    }
+                  },
+                  {
+                    "name": "buttonLabel1",
+                    "value": {
+                      "stringValue": "Update Territory Details"
+                    }
+                  },
+                  {
+                    "name": "description",
+                    "value": {
+                      "stringValue": "To Change the Service Resource, Service Territory & Work Type Information click on the button to the right."
+                    }
+                  },
+                  {
+                    "name": "cardIcon",
+                    "value": {
+                      "stringValue": "standard:service_territory"
+                    }
+                  },
+                  {
+                    "name": "title",
+                    "value": {
+                      "stringValue": "Service Resource, Territory & Work Type Detals"
+                    }
+                  }
+                ],
+                "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                "isRequired": "true",
+                "outputParameters": {
+                  "assignToReference": "SFSCheckVar",
+                  "name": "buttonCheck"
+                },
+                "styleProperties": {
+                  "verticalAlignment": {
+                    "stringValue": "top"
+                  },
+                  "width": {
+                    "stringValue": "12"
+                  }
+                }
+              },
+              "inputParameters": {
+                "name": "width",
+                "value": {
+                  "stringValue": "4"
+                }
+              },
+              "isRequired": "false"
+            },
+            {
+              "name": "Choose_Menu_Section1_Column3",
+              "fieldType": "Region",
+              "fields": {
+                "name": "SFSSTMCard",
+                "extensionName": "c:sdo_sfs_quick_setup_home",
+                "fieldType": "ComponentInstance",
+                "inputParameters": [
+                  {
+                    "name": "buttonCheck",
+                    "value": {
+                      "elementReference": "stmCheckVar"
+                    }
+                  },
+                  {
+                    "name": "buttonLabel1",
+                    "value": {
+                      "stringValue": "Update Service Territory Member Details"
+                    }
+                  },
+                  {
+                    "name": "cardIcon",
+                    "value": {
+                      "stringValue": "standard:service_territory_member"
+                    }
+                  },
+                  {
+                    "name": "description",
+                    "value": {
+                      "elementReference": "stmDescription"
+                    }
+                  },
+                  {
+                    "name": "title",
+                    "value": {
+                      "stringValue": "Service Territory Member Details"
+                    }
+                  }
+                ],
+                "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                "isRequired": "true",
+                "outputParameters": {
+                  "assignToReference": "stmCheckVar",
+                  "name": "buttonCheck"
+                },
+                "styleProperties": {
+                  "verticalAlignment": {
+                    "stringValue": "top"
+                  },
+                  "width": {
+                    "stringValue": "12"
+                  }
+                }
+              },
+              "inputParameters": {
+                "name": "width",
+                "value": {
+                  "stringValue": "4"
+                }
+              },
+              "isRequired": "false"
+            }
+          ],
+          "isRequired": false,
+          "regionContainerType": "SectionWithoutHeader",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "Choose_Menu_Section2",
+          "fieldType": "RegionContainer",
+          "fields": [
+            {
+              "name": "Choose_Menu_Section2_Column1",
+              "fieldType": "Region",
+              "fields": {
+                "name": "AssetCard",
+                "extensionName": "c:sdo_sfs_quick_setup_home",
+                "fieldType": "ComponentInstance",
+                "inputParameters": [
+                  {
+                    "name": "title",
+                    "value": {
+                      "stringValue": "Asset & Entitlement Details"
+                    }
+                  },
+                  {
+                    "name": "cardIcon",
+                    "value": {
+                      "stringValue": "standard:asset_object"
+                    }
+                  },
+                  {
+                    "name": "buttonLabel1",
+                    "value": {
+                      "stringValue": "Update Details"
+                    }
+                  },
+                  {
+                    "name": "buttonCheck",
+                    "value": {
+                      "elementReference": "AssetCheckVar"
+                    }
+                  },
+                  {
+                    "name": "description",
+                    "value": {
+                      "stringValue": "To Change the Asset & Entitlement details click on the button to the right"
+                    }
+                  }
+                ],
+                "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                "isRequired": "true",
+                "outputParameters": {
+                  "assignToReference": "AssetCheckVar",
+                  "name": "buttonCheck"
+                },
+                "styleProperties": {
+                  "verticalAlignment": {
+                    "stringValue": "top"
+                  },
+                  "width": {
+                    "stringValue": "12"
+                  }
+                }
+              },
+              "inputParameters": {
+                "name": "width",
+                "value": {
+                  "stringValue": "4"
+                }
+              },
+              "isRequired": "false"
+            },
+            {
+              "name": "Choose_Menu_Section2_Column2",
+              "fieldType": "Region",
+              "fields": {
+                "name": "ProductCard",
+                "extensionName": "c:sdo_sfs_quick_setup_home",
+                "fieldType": "ComponentInstance",
+                "inputParameters": [
+                  {
+                    "name": "buttonCheck",
+                    "value": {
+                      "elementReference": "ProductCheckVar"
+                    }
+                  },
+                  {
+                    "name": "buttonLabel1",
+                    "value": {
+                      "stringValue": "Update Details"
+                    }
+                  },
+                  {
+                    "name": "cardIcon",
+                    "value": {
+                      "stringValue": "standard:product"
+                    }
+                  },
+                  {
+                    "name": "title",
+                    "value": {
+                      "stringValue": "Product Details"
+                    }
+                  },
+                  {
+                    "name": "description",
+                    "value": {
+                      "stringValue": "To Change the Recommended & Replaced Products please use this button."
+                    }
+                  }
+                ],
+                "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                "isRequired": "true",
+                "outputParameters": {
+                  "assignToReference": "ProductCheckVar",
+                  "name": "buttonCheck"
+                },
+                "styleProperties": {
+                  "verticalAlignment": {
+                    "stringValue": "top"
+                  },
+                  "width": {
+                    "stringValue": "12"
+                  }
+                }
+              },
+              "inputParameters": {
+                "name": "width",
+                "value": {
+                  "stringValue": "4"
+                }
+              },
+              "isRequired": "false"
+            },
+            {
+              "name": "Choose_Menu_Section2_Column3",
+              "fieldType": "Region",
+              "inputParameters": {
+                "name": "width",
+                "value": {
+                  "stringValue": "4"
+                }
+              },
+              "isRequired": "false"
+            }
+          ],
+          "isRequired": false,
+          "regionContainerType": "SectionWithoutHeader",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        }
+      ],
+      "showFooter": false,
+      "showHeader": false,
+      "processMetadataValues": [],
+      "rules": []
+    },
+    {
+      "name": "SetupScreen",
+      "label": "SetupScreen",
+      "locationX": 754,
+      "locationY": 1166,
+      "allowBack": false,
+      "allowFinish": true,
+      "allowPause": false,
+      "connector": {
+        "targetReference": "Check_Update_Details",
+        "processMetadataValues": []
+      },
+      "fields": [
+        {
+          "name": "Account_Contact_Details",
+          "fieldText": "Account & Contact Details",
+          "fieldType": "RegionContainer",
+          "fields": [
+            {
+              "name": "Account_Contact_Details_Column1",
+              "fieldType": "Region",
+              "fields": [
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "Get_Account.Name",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "Get_Account.Phone",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "Get_Contact_Details.Email",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "name": "ContactName",
+                  "extensionName": "flowruntime:name",
+                  "fieldType": "ComponentInstance",
+                  "inputParameters": [
+                    {
+                      "name": "disabled",
+                      "value": {
+                        "booleanValue": "false"
+                      }
+                    },
+                    {
+                      "name": "lastName",
+                      "value": {
+                        "elementReference": "Get_Contact_Details.LastName"
+                      }
+                    },
+                    {
+                      "name": "firstName",
+                      "value": {
+                        "elementReference": "Get_Contact_Details.FirstName"
+                      }
+                    }
+                  ],
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "true",
+                  "storeOutputAutomatically": "true",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "Get_Contact_Details.MobilePhone",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                }
+              ],
+              "inputParameters": {
+                "name": "width",
+                "value": {
+                  "stringValue": "4"
+                }
+              },
+              "isRequired": "false"
+            },
+            {
+              "name": "Account_Contact_Details_Column2",
+              "fieldType": "Region",
+              "fields": [
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "Get_Contact_Details.MailingAddress",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "Get_Account.SDO_Default_Location__c",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                }
+              ],
+              "inputParameters": {
+                "name": "width",
+                "value": {
+                  "stringValue": "4"
+                }
+              },
+              "isRequired": "false"
+            },
+            {
+              "name": "Account_Contact_Details_Column3",
+              "fieldType": "Region",
+              "fields": [
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "Get_Account.SDO_SFS_Service_Territory__c",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "Get_Account.SDO_Default_Price_Book__c",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "Get_Account.SDO_SFS_Default_Field_Entitlement__c",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "Get_Account.SDO_SFS_Work_Type__c",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "Get_Account.SDO_SFS_Work_Type_for_Quote_Creation__c",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "Get_Account.SDO_Operating_Hours__c",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                }
+              ],
+              "inputParameters": {
+                "name": "width",
+                "value": {
+                  "stringValue": "4"
+                }
+              },
+              "isRequired": "false"
+            }
+          ],
+          "isRequired": false,
+          "regionContainerType": "SectionWithHeader",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "visibilityRule": {
+            "conditionLogic": "and",
+            "conditions": [
+              {
+                "leftValueReference": "AccountCheckVar",
+                "operator": "EqualTo",
+                "rightValue": {
+                  "booleanValue": true
+                },
+                "processMetadataValues": []
+              }
+            ],
+            "processMetadataValues": []
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "Service_Resource_Territory",
+          "fieldText": "Service Resource, Territory & Work Type Details",
+          "fieldType": "RegionContainer",
+          "fields": [
+            {
+              "name": "Service_Resource_Territory_Column1",
+              "fieldType": "Region",
+              "fields": [
+                {
+                  "name": "SRHeading",
+                  "fieldText": "<p><strong style=\"font-size: 16px;\">Service Resource Details</strong></p>",
+                  "fieldType": "DisplayText",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "Get_Service_Resource.Name",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "name": "Enroute_Latitude",
+                  "dataType": "Number",
+                  "defaultValue": {
+                    "elementReference": "Get_Service_Resource.En_Route_Location__Latitude__s"
+                  },
+                  "fieldText": "Enroute Latitude",
+                  "fieldType": "InputField",
+                  "isRequired": "false",
+                  "scale": "8",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "name": "Enroute_Longitude",
+                  "dataType": "Number",
+                  "defaultValue": {
+                    "elementReference": "Get_Service_Resource.En_Route_Location__Longitude__s"
+                  },
+                  "fieldText": "Enroute Longitude",
+                  "fieldType": "InputField",
+                  "isRequired": "false",
+                  "scale": "8",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "name": "Last_Mile_Latitude",
+                  "dataType": "Number",
+                  "defaultValue": {
+                    "elementReference": "Get_Service_Resource.Last_Mile_Location__Latitude__s"
+                  },
+                  "fieldText": "Last Mile Latitude",
+                  "fieldType": "InputField",
+                  "isRequired": "false",
+                  "scale": "8",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "name": "Last_Mile_Longitude",
+                  "dataType": "Number",
+                  "defaultValue": {
+                    "elementReference": "Get_Service_Resource.Last_Mile_Location__Longitude__s"
+                  },
+                  "fieldText": "Last Mile Longitude",
+                  "fieldType": "InputField",
+                  "isRequired": "false",
+                  "scale": "8",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                }
+              ],
+              "inputParameters": {
+                "name": "width",
+                "value": {
+                  "stringValue": "4"
+                }
+              },
+              "isRequired": "false"
+            },
+            {
+              "name": "Service_Resource_Territory_Column2",
+              "fieldType": "Region",
+              "fields": [
+                {
+                  "name": "STHeading",
+                  "fieldText": "<p><strong style=\"font-size: 16px; background-color: rgb(255, 255, 255); color: rgb(68, 68, 68);\">Service Territory Details</strong></p>",
+                  "fieldType": "DisplayText",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "Get_Serivce_Territory.Name",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "Get_Serivce_Territory.OperatingHoursId",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "Get_Operating_Hours.TimeZone",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "name": "MessageText",
+                  "fieldText": "<p><em style=\"color: rgb(195, 0, 0);\">Give Right Location, So Google Maps Will Pick Right Latitude and Longitude through Reverse Geocoding</em></p>",
+                  "fieldType": "DisplayText",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "Get_Serivce_Territory.Address",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                }
+              ],
+              "inputParameters": {
+                "name": "width",
+                "value": {
+                  "stringValue": "4"
+                }
+              },
+              "isRequired": "false"
+            },
+            {
+              "name": "Service_Resource_Territory_Column3",
+              "fieldType": "Region",
+              "fields": [
+                {
+                  "name": "WTHeading",
+                  "fieldText": "<p><strong style=\"font-size: 16px; background-color: rgb(255, 255, 255); color: rgb(68, 68, 68);\">Work Type Details</strong></p>",
+                  "fieldType": "DisplayText",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "Get_Work_Type.Name",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "Get_Work_Type.EstimatedDuration",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "Get_Work_Type.DurationType",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "Get_Work_Type.ShouldAutoCreateSvcAppt",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "Get_Work_Type.Description",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                }
+              ],
+              "inputParameters": {
+                "name": "width",
+                "value": {
+                  "stringValue": "4"
+                }
+              },
+              "isRequired": "false"
+            }
+          ],
+          "isRequired": false,
+          "regionContainerType": "SectionWithHeader",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "visibilityRule": {
+            "conditionLogic": "and",
+            "conditions": [
+              {
+                "leftValueReference": "SFSCheckVar",
+                "operator": "EqualTo",
+                "rightValue": {
+                  "booleanValue": true
+                },
+                "processMetadataValues": []
+              }
+            ],
+            "processMetadataValues": []
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "Asset_Entitlement_Details",
+          "fieldText": "Asset & Entitlement Details",
+          "fieldType": "RegionContainer",
+          "fields": [
+            {
+              "name": "Asset_Entitlement_Details_Column1",
+              "fieldType": "Region",
+              "fields": [
+                {
+                  "name": "AssetHeading",
+                  "fieldText": "<p><strong style=\"font-size: 16px; background-color: rgb(255, 255, 255); color: rgb(68, 68, 68);\">Asset Details</strong></p>",
+                  "fieldType": "DisplayText",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "Get_Asset_Details.Name",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "Get_Asset_Details.Entitlement_Status__c",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "Get_Asset_Details.Status",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "Get_Asset_Details.InstallDate",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "Get_Asset_Details.PurchaseDate",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                }
+              ],
+              "inputParameters": {
+                "name": "width",
+                "value": {
+                  "stringValue": "6"
+                }
+              },
+              "isRequired": "false"
+            },
+            {
+              "name": "Asset_Entitlement_Details_Column2",
+              "fieldType": "Region",
+              "fields": [
+                {
+                  "name": "EntHeading",
+                  "fieldText": "<p><strong style=\"font-size: 16px; background-color: rgb(255, 255, 255); color: rgb(68, 68, 68);\">Entitlement  Details</strong></p>",
+                  "fieldType": "DisplayText",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "Get_Entitlement_Details.Name",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "Get_Entitlement_Details.AssetId",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "Get_Entitlement_Details.AccountId",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "Get_Entitlement_Details.Type",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                }
+              ],
+              "inputParameters": {
+                "name": "width",
+                "value": {
+                  "stringValue": "6"
+                }
+              },
+              "isRequired": "false"
+            }
+          ],
+          "isRequired": false,
+          "regionContainerType": "SectionWithHeader",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "visibilityRule": {
+            "conditionLogic": "and",
+            "conditions": [
+              {
+                "leftValueReference": "AssetCheckVar",
+                "operator": "EqualTo",
+                "rightValue": {
+                  "booleanValue": true
+                },
+                "processMetadataValues": []
+              }
+            ],
+            "processMetadataValues": []
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "Product_Info",
+          "fieldText": "Product Info",
+          "fieldType": "RegionContainer",
+          "fields": [
+            {
+              "name": "Product_Info_Column1",
+              "fieldType": "Region",
+              "fields": [
+                {
+                  "name": "RecPHeading",
+                  "fieldText": "<p><strong style=\"font-size: 16px;\">Recommended Product Details</strong></p>",
+                  "fieldType": "DisplayText",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "Get_Recommended_Product.Name",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "Get_Recommended_Product.ProductCode",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "Get_Recommended_Product.Family",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                }
+              ],
+              "inputParameters": {
+                "name": "width",
+                "value": {
+                  "stringValue": "6"
+                }
+              },
+              "isRequired": "false"
+            },
+            {
+              "name": "Product_Info_Column2",
+              "fieldType": "Region",
+              "fields": [
+                {
+                  "name": "RepPHeading",
+                  "fieldText": "<p><strong style=\"font-size: 16px; background-color: rgb(255, 255, 255); color: rgb(68, 68, 68);\">Replaced Product Details</strong></p>",
+                  "fieldType": "DisplayText",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "Get_Replaced_Product.Name",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "Get_Replaced_Product.ProductCode",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "Get_Replaced_Product.Family",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                }
+              ],
+              "inputParameters": {
+                "name": "width",
+                "value": {
+                  "stringValue": "6"
+                }
+              },
+              "isRequired": "false"
+            }
+          ],
+          "isRequired": false,
+          "regionContainerType": "SectionWithHeader",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "visibilityRule": {
+            "conditionLogic": "and",
+            "conditions": [
+              {
+                "leftValueReference": "ProductCheckVar",
+                "operator": "EqualTo",
+                "rightValue": {
+                  "booleanValue": true
+                },
+                "processMetadataValues": []
+              }
+            ],
+            "processMetadataValues": []
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        }
+      ],
+      "nextOrFinishButtonLabel": "Save Changes",
+      "showFooter": true,
+      "showHeader": false,
+      "processMetadataValues": [],
+      "rules": []
+    }
+  ],
+  "start": {
+    "locationX": 628,
+    "locationY": 0,
+    "connector": {
+      "targetReference": "Choose_Menu",
+      "processMetadataValues": []
+    },
+    "processMetadataValues": [],
+    "filters": []
+  },
+  "status": "Active",
+  "textTemplates": [
+    {
+      "name": "stmDescription",
+      "isViewedAsPlainText": "false",
+      "text": "<p>First Click on&nbsp;<strong>Update Territory Details b</strong>utton. Then, Click the&nbsp;<strong>Update Service Territory Members&nbsp;</strong>button</p>",
+      "processMetadataValues": []
+    }
+  ],
+  "variables": [
+    {
+      "name": "AccountCheckVar",
+      "dataType": "Boolean",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "name": "AssetCheckVar",
+      "dataType": "Boolean",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "name": "backCheckVar",
+      "dataType": "Boolean",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "value": {
+        "booleanValue": false
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "ProductCheckVar",
+      "dataType": "Boolean",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "name": "ServiceResourceList",
+      "dataType": "SObject",
+      "isCollection": true,
+      "isInput": false,
+      "isOutput": false,
+      "objectType": "ServiceTerritoryMember",
+      "processMetadataValues": []
+    },
+    {
+      "name": "SFSCheckVar",
+      "dataType": "Boolean",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "name": "stmCheckVar",
+      "dataType": "Boolean",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    }
+  ],
+  "actionCalls": [],
+  "apexPluginCalls": [],
+  "choices": [],
+  "constants": [],
+  "formulas": [],
+  "recordCreates": [],
+  "recordDeletes": [],
+  "stages": [],
+  "steps": [],
+  "subflows": [],
+  "waits": []
+}

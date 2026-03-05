@@ -1,0 +1,24 @@
+{
+  "fullName": "SDO_Maps_Visit_Checklist_Flow",
+  "processType": "Flow",
+  "description": "SDO MAPS Screen Flow for custom visit data capture.",
+  "status": "Active",
+  "start": {
+    "connector": {}
+  },
+  "variables": [],
+  "assignments": [],
+  "decisions": [],
+  "loops": [],
+  "recordLookups": [],
+  "recordCreates": [],
+  "recordUpdates": [],
+  "recordDeletes": [],
+  "screens": [],
+  "subflows": [],
+  "actionCalls": [],
+  "constants": [],
+  "formulas": [],
+  "choices": [],
+  "textTemplates": []
+}

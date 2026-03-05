@@ -1,1073 +1,2104 @@
 [
   {
     "name": "AIAgentMonitorController",
-    "score": 78,
+    "score": 115,
     "maxScore": 150,
-    "pct": 52,
-    "apiVersion": 0,
+    "pct": 77,
+    "apiVersion": 62,
     "issues": [
-      "Missing sharing declaration",
+      "No sharing declaration",
       "No CRUD/FLS enforcement",
-      "AuraEnabled without try-catch",
-      "Missing ApexDoc"
+      "AuraEnabled methods without try-catch",
+      "Read-only AuraEnabled without cacheable=true",
+      "No ApexDoc comments"
     ],
     "categories": {
-      "bulkification": 22,
-      "security": 7,
-      "testing": 15,
-      "architecture": 10,
-      "cleanCode": 14,
-      "errorHandling": 3,
-      "performance": 5,
-      "documentation": 2
-    }
-  },
-  {
-    "name": "B2BSyncCheckInventory",
-    "score": 89,
-    "maxScore": 150,
-    "pct": 59,
-    "apiVersion": 55,
-    "issues": ["SOQL inside loop", "High commented-out code"],
-    "categories": {
-      "bulkification": 10,
-      "security": 21,
-      "testing": 15,
-      "architecture": 12,
-      "cleanCode": 12,
+      "bulkification": 25,
+      "security": 10,
+      "testing": 20,
+      "architecture": 20,
+      "cleanCode": 20,
       "errorHandling": 8,
       "performance": 7,
-      "documentation": 4
+      "documentation": 5
     }
   },
   {
     "name": "B2BSyncPricing",
-    "score": 89,
+    "score": 120,
     "maxScore": 150,
-    "pct": 59,
+    "pct": 80,
     "apiVersion": 55,
-    "issues": ["SOQL inside loop", "High commented-out code"],
+    "issues": [
+      "SOQL inside loop",
+      "High ratio of commented-out code",
+      "No ApexDoc comments"
+    ],
     "categories": {
       "bulkification": 10,
-      "security": 21,
-      "testing": 15,
-      "architecture": 12,
-      "cleanCode": 12,
-      "errorHandling": 8,
-      "performance": 7,
-      "documentation": 4
+      "security": 25,
+      "testing": 20,
+      "architecture": 20,
+      "cleanCode": 15,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 5
+    }
+  },
+  {
+    "name": "B2BCartUpload_ProductSearchRestApiMock",
+    "score": 125,
+    "maxScore": 150,
+    "pct": 83,
+    "apiVersion": 49,
+    "issues": [
+      "Test class without assertions",
+      "No @TestSetup method",
+      "No Test.startTest/stopTest",
+      "No ApexDoc comments",
+      "Old API version (49)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 5,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 5
+    }
+  },
+  {
+    "name": "B2BSyncCheckInventory",
+    "score": 125,
+    "maxScore": 150,
+    "pct": 83,
+    "apiVersion": 55,
+    "issues": [
+      "SOQL inside loop",
+      "No ApexDoc comments"
+    ],
+    "categories": {
+      "bulkification": 10,
+      "security": 25,
+      "testing": 20,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 5
+    }
+  },
+  {
+    "name": "B2B_Moodboard_ProductSearchRestApiMock",
+    "score": 125,
+    "maxScore": 150,
+    "pct": 83,
+    "apiVersion": 49,
+    "issues": [
+      "Test class without assertions",
+      "No @TestSetup method",
+      "No Test.startTest/stopTest",
+      "No ApexDoc comments",
+      "Old API version (49)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 5,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 5
     }
   },
   {
     "name": "LightningLoginFormController",
-    "score": 89,
+    "score": 126,
     "maxScore": 150,
-    "pct": 59,
-    "apiVersion": 0,
-    "issues": ["Missing sharing declaration", "Only catches generic Exception", "Missing ApexDoc"],
-    "categories": {
-      "bulkification": 22,
-      "security": 12,
-      "testing": 15,
-      "architecture": 12,
-      "cleanCode": 14,
-      "errorHandling": 7,
-      "performance": 5,
-      "documentation": 2
-    }
-  },
-  {
-    "name": "DBM25PostInstallScript",
-    "score": 90,
-    "maxScore": 150,
-    "pct": 60,
-    "apiVersion": 0,
-    "issues": ["Missing sharing declaration", "No CRUD/FLS enforcement", "Missing ApexDoc"],
-    "categories": {
-      "bulkification": 22,
-      "security": 7,
-      "testing": 15,
-      "architecture": 15,
-      "cleanCode": 16,
-      "errorHandling": 8,
-      "performance": 5,
-      "documentation": 2
-    }
-  },
-  {
-    "name": "DE_RY_Spotter_DataSource",
-    "score": 91,
-    "maxScore": 150,
-    "pct": 61,
-    "apiVersion": 0,
-    "issues": ["No CRUD/FLS enforcement", "Uses without sharing", "Missing ApexDoc"],
-    "categories": {
-      "bulkification": 22,
-      "security": 11,
-      "testing": 15,
-      "architecture": 12,
-      "cleanCode": 16,
-      "errorHandling": 8,
-      "performance": 5,
-      "documentation": 2
-    }
-  },
-  {
-    "name": "LightningForgotPasswordController",
-    "score": 91,
-    "maxScore": 150,
-    "pct": 61,
-    "apiVersion": 0,
-    "issues": ["Missing sharing declaration", "Only catches generic Exception", "Missing ApexDoc"],
-    "categories": {
-      "bulkification": 22,
-      "security": 12,
-      "testing": 15,
-      "architecture": 12,
-      "cleanCode": 16,
-      "errorHandling": 7,
-      "performance": 5,
-      "documentation": 2
-    }
-  },
-  {
-    "name": "CompositeSmartLookup",
-    "score": 94,
-    "maxScore": 150,
-    "pct": 63,
-    "apiVersion": 0,
-    "issues": ["Missing sharing declaration"],
-    "categories": {
-      "bulkification": 22,
-      "security": 12,
-      "testing": 15,
-      "architecture": 12,
-      "cleanCode": 16,
-      "errorHandling": 8,
-      "performance": 5,
-      "documentation": 4
-    }
-  },
-  {
-    "name": "D2CLookupFieldsPickList",
-    "score": 94,
-    "maxScore": 150,
-    "pct": 63,
-    "apiVersion": 0,
-    "issues": ["Missing sharing declaration"],
-    "categories": {
-      "bulkification": 22,
-      "security": 12,
-      "testing": 15,
-      "architecture": 12,
-      "cleanCode": 16,
-      "errorHandling": 8,
-      "performance": 5,
-      "documentation": 4
-    }
-  },
-  {
-    "name": "FlowFindCollection_WithoutSharing",
-    "score": 94,
-    "maxScore": 150,
-    "pct": 63,
-    "apiVersion": 0,
+    "pct": 84,
+    "apiVersion": 57,
     "issues": [
-      "Dynamic SOQL without escapeSingleQuotes",
-      "Uses without sharing",
-      "Missing ApexDoc"
+      "No sharing declaration",
+      "No AuraHandledException in controller",
+      "No ApexDoc comments",
+      "Many methods without ApexDoc"
     ],
     "categories": {
-      "bulkification": 22,
-      "security": 14,
-      "testing": 15,
-      "architecture": 12,
-      "cleanCode": 16,
-      "errorHandling": 8,
-      "performance": 5,
-      "documentation": 2
-    }
-  },
-  {
-    "name": "DECreateUpdateMetadataUtils",
-    "score": 95,
-    "maxScore": 150,
-    "pct": 63,
-    "apiVersion": 0,
-    "issues": ["Missing sharing declaration", "Missing ApexDoc"],
-    "categories": {
-      "bulkification": 22,
-      "security": 12,
-      "testing": 15,
-      "architecture": 15,
-      "cleanCode": 16,
-      "errorHandling": 8,
-      "performance": 5,
-      "documentation": 2
-    }
-  },
-  {
-    "name": "ImageCaptureController",
-    "score": 96,
-    "maxScore": 150,
-    "pct": 64,
-    "apiVersion": 0,
-    "issues": ["AuraEnabled without try-catch", "Missing ApexDoc"],
-    "categories": {
-      "bulkification": 22,
-      "security": 21,
-      "testing": 15,
-      "architecture": 10,
-      "cleanCode": 16,
-      "errorHandling": 3,
-      "performance": 7,
-      "documentation": 2
-    }
-  },
-  {
-    "name": "B2BInvUtilsTest",
-    "score": 97,
-    "maxScore": 150,
-    "pct": 65,
-    "apiVersion": 0,
-    "issues": ["No assertions in test", "Missing ApexDoc"],
-    "categories": {
-      "bulkification": 20,
-      "security": 18,
-      "testing": 10,
-      "architecture": 14,
-      "cleanCode": 16,
-      "errorHandling": 10,
-      "performance": 7,
-      "documentation": 2
-    }
-  },
-  {
-    "name": "ChartDataProvider",
-    "score": 97,
-    "maxScore": 150,
-    "pct": 65,
-    "apiVersion": 0,
-    "issues": ["Missing sharing declaration", "AuraEnabled without try-catch"],
-    "categories": {
-      "bulkification": 22,
-      "security": 12,
-      "testing": 15,
-      "architecture": 15,
-      "cleanCode": 16,
-      "errorHandling": 3,
-      "performance": 5,
-      "documentation": 9
-    }
-  },
-  {
-    "name": "LightningControllerTest",
-    "score": 97,
-    "maxScore": 150,
-    "pct": 65,
-    "apiVersion": 0,
-    "issues": ["No assertions in test", "Missing ApexDoc"],
-    "categories": {
-      "bulkification": 20,
-      "security": 18,
-      "testing": 10,
-      "architecture": 14,
-      "cleanCode": 16,
-      "errorHandling": 10,
-      "performance": 7,
-      "documentation": 2
-    }
-  },
-  {
-    "name": "B2B_FeaturedProducts_Util",
-    "score": 98,
-    "maxScore": 150,
-    "pct": 65,
-    "apiVersion": 51,
-    "issues": ["Missing ApexDoc"],
-    "categories": {
-      "bulkification": 22,
-      "security": 18,
-      "testing": 15,
-      "architecture": 12,
-      "cleanCode": 16,
-      "errorHandling": 8,
-      "performance": 5,
-      "documentation": 2
-    }
-  },
-  {
-    "name": "B2B_Moodboard_Util",
-    "score": 98,
-    "maxScore": 150,
-    "pct": 65,
-    "apiVersion": 0,
-    "issues": ["Missing ApexDoc"],
-    "categories": {
-      "bulkification": 22,
-      "security": 18,
-      "testing": 15,
-      "architecture": 12,
-      "cleanCode": 16,
-      "errorHandling": 8,
-      "performance": 5,
+      "bulkification": 25,
+      "security": 17,
+      "testing": 20,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 12,
+      "performance": 10,
       "documentation": 2
     }
   },
   {
     "name": "CommunitiesSelfRegConfirmControllerTest",
-    "score": 98,
+    "score": 127,
     "maxScore": 150,
-    "pct": 65,
-    "apiVersion": 0,
-    "issues": ["No assertions in test", "Uses SeeAllData=true"],
+    "pct": 85,
+    "apiVersion": 54,
+    "issues": [
+      "Test class without assertions",
+      "Uses SeeAllData=true"
+    ],
     "categories": {
-      "bulkification": 20,
-      "security": 18,
-      "testing": 7,
-      "architecture": 14,
-      "cleanCode": 16,
-      "errorHandling": 10,
-      "performance": 7,
-      "documentation": 6
+      "bulkification": 25,
+      "security": 25,
+      "testing": 2,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
     }
   },
   {
     "name": "B2B_FeaturedProducts_UtilTest",
-    "score": 99,
+    "score": 128,
     "maxScore": 150,
-    "pct": 66,
+    "pct": 85,
     "apiVersion": 51,
-    "issues": ["No assertions in test", "Missing ApexDoc"],
-    "categories": {
-      "bulkification": 20,
-      "security": 18,
-      "testing": 12,
-      "architecture": 14,
-      "cleanCode": 16,
-      "errorHandling": 10,
-      "performance": 7,
-      "documentation": 2
-    }
-  },
-  {
-    "name": "B2B_FeaturedProducts_SecurityUtils",
-    "score": 99,
-    "maxScore": 150,
-    "pct": 66,
-    "apiVersion": 0,
-    "issues": ["High commented-out code"],
-    "categories": {
-      "bulkification": 22,
-      "security": 21,
-      "testing": 15,
-      "architecture": 12,
-      "cleanCode": 12,
-      "errorHandling": 8,
-      "performance": 5,
-      "documentation": 4
-    }
-  },
-  {
-    "name": "CustomDataProviderDataSourceProvider",
-    "score": 99,
-    "maxScore": 150,
-    "pct": 66,
-    "apiVersion": 0,
-    "issues": ["Missing sharing declaration"],
-    "categories": {
-      "bulkification": 22,
-      "security": 12,
-      "testing": 15,
-      "architecture": 12,
-      "cleanCode": 16,
-      "errorHandling": 8,
-      "performance": 5,
-      "documentation": 9
-    }
-  },
-  {
-    "name": "B2BCartUpload_ProductSearchRestApiMock",
-    "score": 100,
-    "maxScore": 150,
-    "pct": 67,
-    "apiVersion": 0,
-    "issues": ["No assertions in test", "Missing ApexDoc"],
-    "categories": {
-      "bulkification": 23,
-      "security": 18,
-      "testing": 10,
-      "architecture": 14,
-      "cleanCode": 16,
-      "errorHandling": 10,
-      "performance": 7,
-      "documentation": 2
-    }
-  },
-  {
-    "name": "B2B_Moodboard_ProductSearchRestApiMock",
-    "score": 100,
-    "maxScore": 150,
-    "pct": 67,
-    "apiVersion": 0,
-    "issues": ["No assertions in test", "Missing ApexDoc"],
-    "categories": {
-      "bulkification": 23,
-      "security": 18,
-      "testing": 10,
-      "architecture": 14,
-      "cleanCode": 16,
-      "errorHandling": 10,
-      "performance": 7,
-      "documentation": 2
-    }
-  },
-  {
-    "name": "ChartBuilderController",
-    "score": 102,
-    "maxScore": 150,
-    "pct": 68,
-    "apiVersion": 0,
-    "issues": ["Missing sharing declaration"],
-    "categories": {
-      "bulkification": 22,
-      "security": 12,
-      "testing": 15,
-      "architecture": 12,
-      "cleanCode": 16,
-      "errorHandling": 9,
-      "performance": 7,
-      "documentation": 9
-    }
-  },
-  {
-    "name": "CommunitiesLandingController",
-    "score": 102,
-    "maxScore": 150,
-    "pct": 68,
-    "apiVersion": 0,
-    "issues": [],
-    "categories": {
-      "bulkification": 22,
-      "security": 18,
-      "testing": 15,
-      "architecture": 12,
-      "cleanCode": 16,
-      "errorHandling": 8,
-      "performance": 5,
-      "documentation": 6
-    }
-  },
-  {
-    "name": "CommunitiesLoginController",
-    "score": 102,
-    "maxScore": 150,
-    "pct": 68,
-    "apiVersion": 0,
-    "issues": [],
-    "categories": {
-      "bulkification": 22,
-      "security": 18,
-      "testing": 15,
-      "architecture": 12,
-      "cleanCode": 16,
-      "errorHandling": 8,
-      "performance": 5,
-      "documentation": 6
-    }
-  },
-  {
-    "name": "CommunitiesSelfRegConfirmController",
-    "score": 102,
-    "maxScore": 150,
-    "pct": 68,
-    "apiVersion": 0,
-    "issues": [],
-    "categories": {
-      "bulkification": 22,
-      "security": 18,
-      "testing": 15,
-      "architecture": 12,
-      "cleanCode": 16,
-      "errorHandling": 8,
-      "performance": 5,
-      "documentation": 6
-    }
-  },
-  {
-    "name": "ForgotPasswordController",
-    "score": 102,
-    "maxScore": 150,
-    "pct": 68,
-    "apiVersion": 0,
-    "issues": [],
-    "categories": {
-      "bulkification": 22,
-      "security": 18,
-      "testing": 15,
-      "architecture": 12,
-      "cleanCode": 16,
-      "errorHandling": 8,
-      "performance": 5,
-      "documentation": 6
-    }
-  },
-  {
-    "name": "IMockarooHelper",
-    "score": 102,
-    "maxScore": 150,
-    "pct": 68,
-    "apiVersion": 0,
-    "issues": ["Missing ApexDoc"],
-    "categories": {
-      "bulkification": 20,
-      "security": 18,
-      "testing": 15,
-      "architecture": 14,
-      "cleanCode": 16,
-      "errorHandling": 10,
-      "performance": 7,
-      "documentation": 2
-    }
-  },
-  {
-    "name": "CreateObjectsAndFieldsQueueable",
-    "score": 103,
-    "maxScore": 150,
-    "pct": 69,
-    "apiVersion": 0,
-    "issues": ["Missing ApexDoc"],
-    "categories": {
-      "bulkification": 22,
-      "security": 18,
-      "testing": 15,
-      "architecture": 17,
-      "cleanCode": 16,
-      "errorHandling": 8,
-      "performance": 5,
-      "documentation": 2
-    }
-  },
-  {
-    "name": "CreateRecordTypesQueueable",
-    "score": 103,
-    "maxScore": 150,
-    "pct": 69,
-    "apiVersion": 0,
-    "issues": ["Missing ApexDoc"],
-    "categories": {
-      "bulkification": 22,
-      "security": 18,
-      "testing": 15,
-      "architecture": 17,
-      "cleanCode": 16,
-      "errorHandling": 8,
-      "performance": 5,
-      "documentation": 2
-    }
-  },
-  {
-    "name": "FieldPickerControllerTest",
-    "score": 103,
-    "maxScore": 150,
-    "pct": 69,
-    "apiVersion": 0,
-    "issues": ["Missing ApexDoc"],
-    "categories": {
-      "bulkification": 20,
-      "security": 18,
-      "testing": 16,
-      "architecture": 14,
-      "cleanCode": 16,
-      "errorHandling": 10,
-      "performance": 7,
-      "documentation": 2
-    }
-  },
-  {
-    "name": "ChangePasswordControllerTest",
-    "score": 104,
-    "maxScore": 150,
-    "pct": 69,
-    "apiVersion": 0,
-    "issues": ["Uses SeeAllData=true"],
-    "categories": {
-      "bulkification": 20,
-      "security": 18,
-      "testing": 13,
-      "architecture": 14,
-      "cleanCode": 16,
-      "errorHandling": 10,
-      "performance": 7,
-      "documentation": 6
-    }
-  },
-  {
-    "name": "CommunitiesLandingControllerTest",
-    "score": 104,
-    "maxScore": 150,
-    "pct": 69,
-    "apiVersion": 0,
-    "issues": ["Uses SeeAllData=true"],
-    "categories": {
-      "bulkification": 20,
-      "security": 18,
-      "testing": 13,
-      "architecture": 14,
-      "cleanCode": 16,
-      "errorHandling": 10,
-      "performance": 7,
-      "documentation": 6
-    }
-  },
-  {
-    "name": "CommunitiesLoginControllerTest",
-    "score": 104,
-    "maxScore": 150,
-    "pct": 69,
-    "apiVersion": 0,
-    "issues": ["Uses SeeAllData=true"],
-    "categories": {
-      "bulkification": 20,
-      "security": 18,
-      "testing": 13,
-      "architecture": 14,
-      "cleanCode": 16,
-      "errorHandling": 10,
-      "performance": 7,
-      "documentation": 6
-    }
-  },
-  {
-    "name": "CommunitiesSelfRegControllerTest",
-    "score": 104,
-    "maxScore": 150,
-    "pct": 69,
-    "apiVersion": 0,
-    "issues": ["Uses SeeAllData=true"],
-    "categories": {
-      "bulkification": 20,
-      "security": 18,
-      "testing": 13,
-      "architecture": 14,
-      "cleanCode": 16,
-      "errorHandling": 10,
-      "performance": 7,
-      "documentation": 6
-    }
-  },
-  {
-    "name": "CSV_RowIterator",
-    "score": 104,
-    "maxScore": 150,
-    "pct": 69,
-    "apiVersion": 0,
-    "issues": ["Missing ApexDoc"],
+    "issues": [
+      "Test class without assertions",
+      "No Test.startTest/stopTest",
+      "No ApexDoc comments"
+    ],
     "categories": {
       "bulkification": 25,
-      "security": 18,
-      "testing": 15,
-      "architecture": 15,
-      "cleanCode": 16,
-      "errorHandling": 8,
-      "performance": 5,
-      "documentation": 2
+      "security": 25,
+      "testing": 8,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 5
     }
   },
   {
-    "name": "ForgotPasswordControllerTest",
-    "score": 104,
+    "name": "LightningForgotPasswordController",
+    "score": 129,
     "maxScore": 150,
-    "pct": 69,
-    "apiVersion": 0,
-    "issues": ["Uses SeeAllData=true"],
+    "pct": 86,
+    "apiVersion": 57,
+    "issues": [
+      "No sharing declaration",
+      "No AuraHandledException in controller",
+      "No ApexDoc comments"
+    ],
     "categories": {
-      "bulkification": 20,
-      "security": 18,
-      "testing": 13,
-      "architecture": 14,
-      "cleanCode": 16,
-      "errorHandling": 10,
-      "performance": 7,
-      "documentation": 6
+      "bulkification": 25,
+      "security": 17,
+      "testing": 20,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 12,
+      "performance": 10,
+      "documentation": 5
     }
   },
   {
-    "name": "LightningForgotPasswordControllerTest",
-    "score": 105,
+    "name": "DE_RY_Spotter_DataSource",
+    "score": 130,
     "maxScore": 150,
-    "pct": 70,
-    "apiVersion": 0,
-    "issues": ["Missing ApexDoc"],
+    "pct": 87,
+    "apiVersion": 54,
+    "issues": [
+      "Uses without sharing",
+      "No CRUD/FLS enforcement",
+      "No ApexDoc comments"
+    ],
     "categories": {
-      "bulkification": 20,
-      "security": 18,
-      "testing": 18,
-      "architecture": 14,
-      "cleanCode": 16,
-      "errorHandling": 10,
-      "performance": 7,
-      "documentation": 2
-    }
-  },
-  {
-    "name": "AnalyticsDemoFAQ",
-    "score": 106,
-    "maxScore": 150,
-    "pct": 71,
-    "apiVersion": 0,
-    "issues": [],
-    "categories": {
-      "bulkification": 20,
-      "security": 18,
-      "testing": 15,
-      "architecture": 14,
-      "cleanCode": 16,
-      "errorHandling": 10,
-      "performance": 7,
-      "documentation": 6
+      "bulkification": 25,
+      "security": 15,
+      "testing": 20,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 5
     }
   },
   {
     "name": "B2BInvUtils",
-    "score": 106,
+    "score": 132,
     "maxScore": 150,
-    "pct": 71,
-    "apiVersion": 0,
-    "issues": ["AuraEnabled without try-catch"],
+    "pct": 88,
+    "apiVersion": 55,
+    "issues": [
+      "Hardcoded Salesforce IDs",
+      "AuraEnabled methods without try-catch",
+      "Read-only AuraEnabled without cacheable=true"
+    ],
     "categories": {
       "bulkification": 25,
-      "security": 21,
-      "testing": 15,
-      "architecture": 10,
-      "cleanCode": 16,
-      "errorHandling": 3,
+      "security": 25,
+      "testing": 20,
+      "architecture": 20,
+      "cleanCode": 17,
+      "errorHandling": 8,
       "performance": 7,
-      "documentation": 9
+      "documentation": 10
+    }
+  },
+  {
+    "name": "DECreateUpdateMetadataUtils",
+    "score": 132,
+    "maxScore": 150,
+    "pct": 88,
+    "apiVersion": 54,
+    "issues": [
+      "No sharing declaration",
+      "No ApexDoc comments"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 20,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 5
+    }
+  },
+  {
+    "name": "SDO_Einstein_HomeInsightHelper",
+    "score": 132,
+    "maxScore": 150,
+    "pct": 88,
+    "apiVersion": 41,
+    "issues": [
+      "No sharing declaration",
+      "Dynamic SOQL without escapeSingleQuotes",
+      "Possible SOQL injection via string concatenation",
+      "Old API version (41)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 7,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "ImageCaptureController",
+    "score": 133,
+    "maxScore": 150,
+    "pct": 89,
+    "apiVersion": 55,
+    "issues": [
+      "AuraEnabled methods without try-catch",
+      "No ApexDoc comments"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 20,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 8,
+      "performance": 10,
+      "documentation": 5
+    }
+  },
+  {
+    "name": "B2BInvUtilsTest",
+    "score": 135,
+    "maxScore": 150,
+    "pct": 90,
+    "apiVersion": 55,
+    "issues": [
+      "Test class without assertions"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 10,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "B2B_FeaturedProducts_SecurityUtils",
+    "score": 135,
+    "maxScore": 150,
+    "pct": 90,
+    "apiVersion": 51,
+    "issues": [
+      "High ratio of commented-out code",
+      "No ApexDoc comments"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 20,
+      "architecture": 20,
+      "cleanCode": 15,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 5
+    }
+  },
+  {
+    "name": "LightningControllerTest",
+    "score": 135,
+    "maxScore": 150,
+    "pct": 90,
+    "apiVersion": 35,
+    "issues": [
+      "Test class without assertions",
+      "Old API version (35)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 10,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "ChangePasswordControllerTest",
+    "score": 137,
+    "maxScore": 150,
+    "pct": 91,
+    "apiVersion": 54,
+    "issues": [
+      "Low assertion count (1)",
+      "Uses SeeAllData=true"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 12,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "CommunitiesLandingControllerTest",
+    "score": 137,
+    "maxScore": 150,
+    "pct": 91,
+    "apiVersion": 54,
+    "issues": [
+      "Low assertion count (1)",
+      "Uses SeeAllData=true"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 12,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "CommunitiesLoginControllerTest",
+    "score": 137,
+    "maxScore": 150,
+    "pct": 91,
+    "apiVersion": 54,
+    "issues": [
+      "Low assertion count (1)",
+      "Uses SeeAllData=true"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 12,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "CommunitiesSelfRegControllerTest",
+    "score": 137,
+    "maxScore": 150,
+    "pct": 91,
+    "apiVersion": 54,
+    "issues": [
+      "Low assertion count (2)",
+      "Uses SeeAllData=true"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 12,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "ForgotPasswordControllerTest",
+    "score": 137,
+    "maxScore": 150,
+    "pct": 91,
+    "apiVersion": 54,
+    "issues": [
+      "Low assertion count (1)",
+      "Uses SeeAllData=true"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 12,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "MicrobatchSelfRegControllerTest",
+    "score": 137,
+    "maxScore": 150,
+    "pct": 91,
+    "apiVersion": 54,
+    "issues": [
+      "Low assertion count (1)",
+      "Uses SeeAllData=true"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 12,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
     }
   },
   {
     "name": "CartProductWrapper",
-    "score": 106,
+    "score": 138,
     "maxScore": 150,
-    "pct": 71,
-    "apiVersion": 0,
-    "issues": [],
+    "pct": 92,
+    "apiVersion": 48,
+    "issues": [
+      "AuraEnabled methods without try-catch",
+      "Old API version (48)"
+    ],
     "categories": {
-      "bulkification": 20,
-      "security": 18,
-      "testing": 15,
-      "architecture": 14,
-      "cleanCode": 16,
-      "errorHandling": 10,
-      "performance": 7,
-      "documentation": 6
+      "bulkification": 25,
+      "security": 25,
+      "testing": 20,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 8,
+      "performance": 10,
+      "documentation": 10
     }
   },
   {
-    "name": "CartSummaryWrapper",
-    "score": 106,
+    "name": "ChartDataProvider",
+    "score": 138,
     "maxScore": 150,
-    "pct": 71,
-    "apiVersion": 0,
-    "issues": [],
+    "pct": 92,
+    "apiVersion": 63,
+    "issues": [
+      "AuraEnabled methods without try-catch"
+    ],
     "categories": {
-      "bulkification": 20,
-      "security": 18,
-      "testing": 15,
-      "architecture": 14,
-      "cleanCode": 16,
-      "errorHandling": 10,
-      "performance": 7,
-      "documentation": 6
+      "bulkification": 25,
+      "security": 25,
+      "testing": 20,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 8,
+      "performance": 10,
+      "documentation": 10
     }
   },
   {
-    "name": "ChangePasswordController",
-    "score": 106,
+    "name": "B2B_FeaturedProducts_Util",
+    "score": 140,
     "maxScore": 150,
-    "pct": 71,
-    "apiVersion": 0,
-    "issues": [],
+    "pct": 93,
+    "apiVersion": 51,
+    "issues": [
+      "No ApexDoc comments"
+    ],
     "categories": {
-      "bulkification": 20,
-      "security": 18,
-      "testing": 15,
-      "architecture": 14,
-      "cleanCode": 16,
-      "errorHandling": 10,
-      "performance": 7,
-      "documentation": 6
+      "bulkification": 25,
+      "security": 25,
+      "testing": 20,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 5
+    }
+  },
+  {
+    "name": "B2B_Moodboard_Util",
+    "score": 140,
+    "maxScore": 150,
+    "pct": 93,
+    "apiVersion": 49,
+    "issues": [
+      "No ApexDoc comments",
+      "Old API version (49)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 20,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 5
+    }
+  },
+  {
+    "name": "CSV_RowIterator",
+    "score": 140,
+    "maxScore": 150,
+    "pct": 93,
+    "apiVersion": 48,
+    "issues": [
+      "No ApexDoc comments",
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 20,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 5
+    }
+  },
+  {
+    "name": "CreateObjectsAndFieldsQueueable",
+    "score": 140,
+    "maxScore": 150,
+    "pct": 93,
+    "apiVersion": 48,
+    "issues": [
+      "No ApexDoc comments",
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 20,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 5
     }
   },
   {
     "name": "CustomDataProviderDataSourceProviderTest",
-    "score": 106,
+    "score": 140,
     "maxScore": 150,
-    "pct": 71,
-    "apiVersion": 0,
-    "issues": ["Missing ApexDoc"],
-    "categories": {
-      "bulkification": 20,
-      "security": 18,
-      "testing": 19,
-      "architecture": 14,
-      "cleanCode": 16,
-      "errorHandling": 10,
-      "performance": 7,
-      "documentation": 2
-    }
-  },
-  {
-    "name": "CustomModalConfirmation",
-    "score": 106,
-    "maxScore": 150,
-    "pct": 71,
-    "apiVersion": 0,
-    "issues": [],
-    "categories": {
-      "bulkification": 20,
-      "security": 18,
-      "testing": 15,
-      "architecture": 14,
-      "cleanCode": 16,
-      "errorHandling": 10,
-      "performance": 7,
-      "documentation": 6
-    }
-  },
-  {
-    "name": "GenericAppConfiguration",
-    "score": 106,
-    "maxScore": 150,
-    "pct": 71,
-    "apiVersion": 0,
-    "issues": [],
-    "categories": {
-      "bulkification": 20,
-      "security": 18,
-      "testing": 15,
-      "architecture": 14,
-      "cleanCode": 16,
-      "errorHandling": 10,
-      "performance": 7,
-      "documentation": 6
-    }
-  },
-  {
-    "name": "ers_EncodeDecodeURL",
-    "score": 108,
-    "maxScore": 150,
-    "pct": 72,
-    "apiVersion": 0,
-    "issues": [],
+    "pct": 93,
+    "apiVersion": 63,
+    "issues": [
+      "Low assertion count (2)",
+      "No ApexDoc comments"
+    ],
     "categories": {
       "bulkification": 25,
-      "security": 18,
-      "testing": 15,
-      "architecture": 12,
-      "cleanCode": 16,
-      "errorHandling": 8,
-      "performance": 5,
-      "documentation": 9
+      "security": 25,
+      "testing": 20,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 5
     }
   },
   {
-    "name": "ChartDataProviderTest",
-    "score": 109,
+    "name": "D2CLookupFieldsPickList",
+    "score": 140,
     "maxScore": 150,
-    "pct": 73,
-    "apiVersion": 0,
-    "issues": ["Missing ApexDoc"],
+    "pct": 93,
+    "apiVersion": 56,
+    "issues": [
+      "No ApexDoc comments"
+    ],
     "categories": {
-      "bulkification": 23,
-      "security": 18,
-      "testing": 19,
-      "architecture": 14,
-      "cleanCode": 16,
-      "errorHandling": 10,
-      "performance": 7,
-      "documentation": 2
-    }
-  },
-  {
-    "name": "B2BPricingSampleTest",
-    "score": 110,
-    "maxScore": 150,
-    "pct": 73,
-    "apiVersion": 55,
-    "issues": ["High commented-out code"],
-    "categories": {
-      "bulkification": 20,
-      "security": 18,
-      "testing": 25,
-      "architecture": 14,
-      "cleanCode": 12,
-      "errorHandling": 10,
-      "performance": 7,
-      "documentation": 4
-    }
-  },
-  {
-    "name": "B2BTaxSampleTest",
-    "score": 110,
-    "maxScore": 150,
-    "pct": 73,
-    "apiVersion": 55,
-    "issues": ["High commented-out code"],
-    "categories": {
-      "bulkification": 20,
-      "security": 18,
-      "testing": 25,
-      "architecture": 14,
-      "cleanCode": 12,
-      "errorHandling": 10,
-      "performance": 7,
-      "documentation": 4
-    }
-  },
-  {
-    "name": "B2BUtils",
-    "score": 110,
-    "maxScore": 150,
-    "pct": 73,
-    "apiVersion": 0,
-    "issues": [],
-    "categories": {
-      "bulkification": 22,
-      "security": 21,
-      "testing": 15,
-      "architecture": 12,
-      "cleanCode": 16,
-      "errorHandling": 8,
-      "performance": 7,
-      "documentation": 9
+      "bulkification": 25,
+      "security": 25,
+      "testing": 20,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 5
     }
   },
   {
     "name": "ers_EncodeDecodeURLTest",
-    "score": 110,
+    "score": 141,
     "maxScore": 150,
-    "pct": 73,
-    "apiVersion": 0,
-    "issues": [],
+    "pct": 94,
+    "apiVersion": 60,
+    "issues": [
+      "Low assertion count (2)",
+      "No Test.startTest/stopTest",
+      "ApexDoc without @description/@param"
+    ],
     "categories": {
-      "bulkification": 23,
-      "security": 18,
-      "testing": 16,
-      "architecture": 14,
-      "cleanCode": 16,
-      "errorHandling": 10,
-      "performance": 7,
-      "documentation": 6
+      "bulkification": 25,
+      "security": 25,
+      "testing": 18,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 8
     }
   },
   {
     "name": "ers_QueryNRecordsTest",
-    "score": 110,
+    "score": 141,
     "maxScore": 150,
-    "pct": 73,
-    "apiVersion": 0,
-    "issues": [],
+    "pct": 94,
+    "apiVersion": 60,
+    "issues": [
+      "Low assertion count (1)",
+      "No Test.startTest/stopTest",
+      "ApexDoc without @description/@param"
+    ],
     "categories": {
-      "bulkification": 23,
-      "security": 18,
-      "testing": 16,
-      "architecture": 14,
-      "cleanCode": 16,
-      "errorHandling": 10,
-      "performance": 7,
-      "documentation": 6
+      "bulkification": 25,
+      "security": 25,
+      "testing": 18,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 8
     }
   },
   {
-    "name": "B2BSyncDeliveryTest",
-    "score": 113,
+    "name": "B2BUtils",
+    "score": 142,
     "maxScore": 150,
-    "pct": 75,
+    "pct": 95,
     "apiVersion": 55,
-    "issues": ["High commented-out code"],
+    "issues": [
+      "Hardcoded Salesforce IDs"
+    ],
     "categories": {
-      "bulkification": 23,
-      "security": 18,
-      "testing": 23,
-      "architecture": 14,
-      "cleanCode": 14,
-      "errorHandling": 10,
-      "performance": 7,
-      "documentation": 4
+      "bulkification": 25,
+      "security": 25,
+      "testing": 20,
+      "architecture": 20,
+      "cleanCode": 17,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "ChartDataProviderTest",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 63,
+    "issues": [
+      "No @TestSetup method",
+      "No ApexDoc comments"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 22,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 5
+    }
+  },
+  {
+    "name": "CompositeSmartLookup",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 48,
+    "issues": [
+      "No sharing declaration",
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "CustomModalConfirmation",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 48,
+    "issues": [
+      "No sharing declaration",
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "DBM25PostInstallScript",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 63,
+    "issues": [
+      "No sharing declaration"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "FlowFindCollection_WithoutSharing",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 48,
+    "issues": [
+      "Uses without sharing",
+      "Dynamic SOQL without escapeSingleQuotes",
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "GenericAppConfiguration",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 48,
+    "issues": [
+      "No sharing declaration",
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "LightningForgotPasswordControllerTest",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 57,
+    "issues": [
+      "Uses SeeAllData=true"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 17,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "RestApiCompositeTreeResponse",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 48,
+    "issues": [
+      "No sharing declaration",
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "RestApiErrorResponse",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 48,
+    "issues": [
+      "No sharing declaration",
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "RestApiFolderErrorResponse",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 48,
+    "issues": [
+      "No sharing declaration",
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "RestApiResponseBody",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 48,
+    "issues": [
+      "No sharing declaration",
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "SDO_Community_ArticlePagedResult",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 52,
+    "issues": [
+      "No sharing declaration"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "SDO_OMS_AdvanceShippingNotice",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 54,
+    "issues": [
+      "No sharing declaration"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "SDO_Platform_EventsNotificationCtrl",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 54,
+    "issues": [
+      "No sharing declaration"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "SDO_Platform_SessionController",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 54,
+    "issues": [
+      "No sharing declaration"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "ScheduledTimeShifting",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 48,
+    "issues": [
+      "No sharing declaration",
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "TimeShiftSettings",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 48,
+    "issues": [
+      "No sharing declaration",
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "Trigger_Loop_Helper",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 57,
+    "issues": [
+      "No sharing declaration"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "WaveApplicationActionField",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 48,
+    "issues": [
+      "No sharing declaration",
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "WaveApplicationCompositeForeignKeyPart",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 48,
+    "issues": [
+      "No sharing declaration",
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "WaveApplicationDashboard",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 48,
+    "issues": [
+      "No sharing declaration",
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "WaveApplicationDataflow",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 48,
+    "issues": [
+      "No sharing declaration",
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "WaveApplicationDataset",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 48,
+    "issues": [
+      "No sharing declaration",
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "WaveApplicationEdgemart",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 48,
+    "issues": [
+      "No sharing declaration",
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "WaveApplicationImage",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 48,
+    "issues": [
+      "No sharing declaration",
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "WaveApplicationObjectField",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 48,
+    "issues": [
+      "No sharing declaration",
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "WaveApplicationObjectRelation",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 48,
+    "issues": [
+      "No sharing declaration",
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "WaveApplicationRow",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 48,
+    "issues": [
+      "No sharing declaration",
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "WaveMetadata",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 48,
+    "issues": [
+      "No sharing declaration",
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "WaveMetadataApplicationActionField",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 48,
+    "issues": [
+      "No sharing declaration",
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "WaveMetadataApplicationDashboard",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 48,
+    "issues": [
+      "No sharing declaration",
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "WaveMetadataApplicationDataflow",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 48,
+    "issues": [
+      "No sharing declaration",
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "WaveMetadataApplicationDataset",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 48,
+    "issues": [
+      "No sharing declaration",
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "WaveMetadataApplicationEdgemart",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 48,
+    "issues": [
+      "No sharing declaration",
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "WaveMetadataApplicationImage",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 48,
+    "issues": [
+      "No sharing declaration",
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "WaveMetadataApplicationObject",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 48,
+    "issues": [
+      "No sharing declaration",
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "WaveMetadataApplicationObjectRelation",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 48,
+    "issues": [
+      "No sharing declaration",
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "WaveMetadataCompositeForeignKeyPart",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 48,
+    "issues": [
+      "No sharing declaration",
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "WaveRecordTypeItem",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 48,
+    "issues": [
+      "No sharing declaration",
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "WaveTimeShiftingItem",
+    "score": 142,
+    "maxScore": 150,
+    "pct": 95,
+    "apiVersion": 48,
+    "issues": [
+      "No sharing declaration",
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 17,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
     }
   },
   {
     "name": "AutoCompleteControllerTest",
-    "score": 114,
+    "score": 143,
     "maxScore": 150,
-    "pct": 76,
-    "apiVersion": 0,
-    "issues": [],
+    "pct": 95,
+    "apiVersion": 48,
+    "issues": [
+      "No Test.startTest/stopTest",
+      "No ApexDoc comments",
+      "Old API version (48)"
+    ],
     "categories": {
-      "bulkification": 23,
-      "security": 18,
-      "testing": 22,
-      "architecture": 14,
-      "cleanCode": 16,
-      "errorHandling": 10,
-      "performance": 7,
-      "documentation": 4
+      "bulkification": 25,
+      "security": 25,
+      "testing": 23,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 5
+    }
+  },
+  {
+    "name": "B2BPricingSampleTest",
+    "score": 145,
+    "maxScore": 150,
+    "pct": 97,
+    "apiVersion": 55,
+    "issues": [
+      "No ApexDoc comments"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 5
     }
   },
   {
     "name": "B2BSyncCheckInventoryTest",
-    "score": 115,
+    "score": 145,
     "maxScore": 150,
-    "pct": 77,
+    "pct": 97,
     "apiVersion": 55,
-    "issues": [],
+    "issues": [
+      "No ApexDoc comments"
+    ],
     "categories": {
-      "bulkification": 23,
-      "security": 18,
+      "bulkification": 25,
+      "security": 25,
       "testing": 25,
-      "architecture": 14,
-      "cleanCode": 14,
-      "errorHandling": 10,
-      "performance": 7,
-      "documentation": 4
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 5
+    }
+  },
+  {
+    "name": "B2BSyncDeliveryTest",
+    "score": 145,
+    "maxScore": 150,
+    "pct": 97,
+    "apiVersion": 55,
+    "issues": [
+      "No ApexDoc comments"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 5
     }
   },
   {
     "name": "B2BSyncPricingTest",
-    "score": 115,
+    "score": 145,
     "maxScore": 150,
-    "pct": 77,
+    "pct": 97,
     "apiVersion": 55,
-    "issues": [],
+    "issues": [
+      "No ApexDoc comments"
+    ],
     "categories": {
-      "bulkification": 23,
-      "security": 18,
+      "bulkification": 25,
+      "security": 25,
       "testing": 25,
-      "architecture": 14,
-      "cleanCode": 14,
-      "errorHandling": 10,
-      "performance": 7,
-      "documentation": 4
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 5
     }
   },
   {
     "name": "B2BSyncTaxTest",
-    "score": 115,
+    "score": 145,
     "maxScore": 150,
-    "pct": 77,
+    "pct": 97,
+    "apiVersion": 55,
+    "issues": [
+      "No ApexDoc comments"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 5
+    }
+  },
+  {
+    "name": "B2BTaxSampleTest",
+    "score": 145,
+    "maxScore": 150,
+    "pct": 97,
+    "apiVersion": 55,
+    "issues": [
+      "No ApexDoc comments"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 5
+    }
+  },
+  {
+    "name": "ChartBuilderController",
+    "score": 145,
+    "maxScore": 150,
+    "pct": 97,
+    "apiVersion": 63,
+    "issues": [],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 20,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "CreateRecordTypesQueueable",
+    "score": 145,
+    "maxScore": 150,
+    "pct": 97,
+    "apiVersion": 48,
+    "issues": [
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 20,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "CustomDataProviderDataSourceProvider",
+    "score": 145,
+    "maxScore": 150,
+    "pct": 97,
+    "apiVersion": 63,
+    "issues": [],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 20,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "FieldPickerControllerTest",
+    "score": 145,
+    "maxScore": 150,
+    "pct": 97,
+    "apiVersion": 48,
+    "issues": [
+      "Low assertion count (1)",
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 20,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "ers_EncodeDecodeURL",
+    "score": 145,
+    "maxScore": 150,
+    "pct": 97,
+    "apiVersion": 60,
+    "issues": [],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 20,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "AnalyticsDemoFAQ",
+    "score": 150,
+    "maxScore": 150,
+    "pct": 100,
+    "apiVersion": 48,
+    "issues": [
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "CartSummaryWrapper",
+    "score": 150,
+    "maxScore": 150,
+    "pct": 100,
+    "apiVersion": 49,
+    "issues": [
+      "Old API version (49)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "ChangePasswordController",
+    "score": 150,
+    "maxScore": 150,
+    "pct": 100,
+    "apiVersion": 54,
+    "issues": [],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "CommunitiesLandingController",
+    "score": 150,
+    "maxScore": 150,
+    "pct": 100,
+    "apiVersion": 54,
+    "issues": [],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "CommunitiesLoginController",
+    "score": 150,
+    "maxScore": 150,
+    "pct": 100,
+    "apiVersion": 54,
+    "issues": [],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "CommunitiesSelfRegConfirmController",
+    "score": 150,
+    "maxScore": 150,
+    "pct": 100,
+    "apiVersion": 54,
+    "issues": [],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "ForgotPasswordController",
+    "score": 150,
+    "maxScore": 150,
+    "pct": 100,
+    "apiVersion": 54,
+    "issues": [],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "IMockarooHelper",
+    "score": 150,
+    "maxScore": 150,
+    "pct": 100,
+    "apiVersion": 48,
+    "issues": [
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "MockarooHelperFactory",
+    "score": 150,
+    "maxScore": 150,
+    "pct": 100,
+    "apiVersion": 48,
+    "issues": [
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "OrderGridWrapper",
+    "score": 150,
+    "maxScore": 150,
+    "pct": 100,
+    "apiVersion": 49,
+    "issues": [
+      "Old API version (49)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "ReplaceSfdcDigestByEdgemarts",
+    "score": 150,
+    "maxScore": 150,
+    "pct": 100,
+    "apiVersion": 48,
+    "issues": [
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "SDO_Community_LandingController",
+    "score": 150,
+    "maxScore": 150,
+    "pct": 100,
+    "apiVersion": 54,
+    "issues": [],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "SDO_OMS_SalesforceValidationException",
+    "score": 150,
+    "maxScore": 150,
+    "pct": 100,
+    "apiVersion": 54,
+    "issues": [],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "SalesforceValidationException",
+    "score": 150,
+    "maxScore": 150,
+    "pct": 100,
     "apiVersion": 55,
     "issues": [],
     "categories": {
-      "bulkification": 23,
-      "security": 18,
+      "bulkification": 25,
+      "security": 25,
       "testing": 25,
-      "architecture": 14,
-      "cleanCode": 14,
-      "errorHandling": 10,
-      "performance": 7,
-      "documentation": 4
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "WaveConfiguratorException",
+    "score": 150,
+    "maxScore": 150,
+    "pct": 100,
+    "apiVersion": 48,
+    "issues": [
+      "Old API version (48)"
+    ],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
+    }
+  },
+  {
+    "name": "XDO_Tool_NullOrEmptyArgumentException",
+    "score": 150,
+    "maxScore": 150,
+    "pct": 100,
+    "apiVersion": 60,
+    "issues": [],
+    "categories": {
+      "bulkification": 25,
+      "security": 25,
+      "testing": 25,
+      "architecture": 20,
+      "cleanCode": 20,
+      "errorHandling": 15,
+      "performance": 10,
+      "documentation": 10
     }
   }
 ]

@@ -1,0 +1,436 @@
+{
+  "fullName": "Subflow_Activate_Order_with_Bundle_Items_2_0",
+  "actionCalls": [
+    {
+      "name": "Activate_Order",
+      "label": "Activate Order",
+      "locationX": 1114,
+      "locationY": 459,
+      "actionName": "activateOrderAction",
+      "actionType": "activateOrderAction",
+      "connector": {
+        "targetReference": "Set_Close_Cart",
+        "processMetadataValues": []
+      },
+      "faultConnector": {
+        "targetReference": "Show_Error",
+        "processMetadataValues": []
+      },
+      "flowTransactionModel": "CurrentTransaction",
+      "inputParameters": [
+        {
+          "name": "cartId",
+          "value": {
+            "elementReference": "cartId"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "name": "orderStatus",
+          "value": {
+            "stringValue": "Activated"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "nameSegment": "activateOrderAction",
+      "processMetadataValues": [],
+      "outputParameters": []
+    },
+    {
+      "description": "Calls the updateCheckoutState invocable action and sets the value of the next state field for the current checkout session object. The action is only used in asynchronous subflows.",
+      "name": "Update_Checkout_Session_State",
+      "label": "Update Checkout Session State",
+      "locationX": 864,
+      "locationY": 459,
+      "actionName": "updateCheckoutSessionStateAction",
+      "actionType": "updateCheckoutSessionStateAction",
+      "connector": {
+        "targetReference": "Activate_Order",
+        "processMetadataValues": []
+      },
+      "faultConnector": {
+        "targetReference": "Show_Error",
+        "processMetadataValues": []
+      },
+      "flowTransactionModel": "CurrentTransaction",
+      "inputParameters": [
+        {
+          "name": "expCurrentState",
+          "value": {
+            "elementReference": "currentState"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "name": "nextState",
+          "value": {
+            "elementReference": "nextState"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "name": "checkoutSessionId",
+          "value": {
+            "elementReference": "checkoutSession.Id"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "nameSegment": "updateCheckoutSessionStateAction",
+      "storeOutputAutomatically": "true",
+      "processMetadataValues": [],
+      "outputParameters": []
+    }
+  ],
+  "apiVersion": "49.0",
+  "areMetricsLoggedToDataCloud": "false",
+  "assignments": [
+    {
+      "name": "Set_Close_Cart",
+      "label": "Set Close Cart",
+      "locationX": 1364,
+      "locationY": 459,
+      "assignmentItems": [
+        {
+          "assignToReference": "closeCart",
+          "operator": "Assign",
+          "value": {
+            "booleanValue": true
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    }
+  ],
+  "decisions": [
+    {
+      "name": "Is_Bundle_Product",
+      "label": "Is Bundle Product",
+      "locationX": 639,
+      "locationY": 613,
+      "defaultConnector": {
+        "targetReference": "Loop_over_Bundle_Items",
+        "processMetadataValues": []
+      },
+      "defaultConnectorLabel": "True",
+      "rules": [
+        {
+          "name": "False",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "Get_Bundle_Items",
+              "operator": "IsNull",
+              "rightValue": {
+                "booleanValue": true
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Loop_over_Order_Product_Items",
+            "processMetadataValues": []
+          },
+          "label": "False",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    }
+  ],
+  "formulas": [
+    {
+      "name": "FinalProductItemQuantity",
+      "dataType": "Number",
+      "expression": "{!Loop_over_Bundle_Items.Quantity__c}*{!Loop_over_Order_Product_Items.Quantity}",
+      "scale": 0,
+      "processMetadataValues": []
+    }
+  ],
+  "interviewLabel": "Subflow - Activate Order with Bundle Items 2.0 {!$Flow.CurrentDateTime}",
+  "isTemplate": true,
+  "label": "Subflow - Activate Order with Bundle Items 2.0",
+  "loops": [
+    {
+      "name": "Loop_over_Bundle_Items",
+      "label": "Loop over Bundle Items",
+      "locationX": 213,
+      "locationY": 809,
+      "collectionReference": "Get_Bundle_Items",
+      "iterationOrder": "Asc",
+      "nextValueConnector": {
+        "targetReference": "Create_Bundle_Elements_to_Order",
+        "processMetadataValues": []
+      },
+      "noMoreValuesConnector": {
+        "targetReference": "Loop_over_Order_Product_Items",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": [],
+      "assignNextValueToReference": ""
+    },
+    {
+      "name": "Loop_over_Order_Product_Items",
+      "label": "Loop over Order Product Items",
+      "locationX": 175,
+      "locationY": 327,
+      "collectionReference": "Get_Order_Items",
+      "iterationOrder": "Asc",
+      "nextValueConnector": {
+        "targetReference": "Get_Bundle_Items",
+        "processMetadataValues": []
+      },
+      "noMoreValuesConnector": {
+        "targetReference": "Update_Checkout_Session_State",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": [],
+      "assignNextValueToReference": ""
+    }
+  ],
+  "processMetadataValues": [
+    {
+      "name": "BuilderType",
+      "value": {
+        "stringValue": "LightningFlowBuilder"
+      }
+    },
+    {
+      "name": "OriginBuilderType",
+      "value": {
+        "stringValue": "LightningFlowBuilder"
+      }
+    }
+  ],
+  "processType": "CheckoutFlow",
+  "recordCreates": [
+    {
+      "name": "Create_Bundle_Elements_to_Order",
+      "label": "Create Bundle Elements to Order",
+      "locationX": 375,
+      "locationY": 965,
+      "connector": {
+        "targetReference": "Loop_over_Bundle_Items",
+        "processMetadataValues": []
+      },
+      "inputAssignments": [
+        {
+          "field": "ListPrice",
+          "value": {
+            "numberValue": 0
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "OrderDeliveryGroupId",
+          "value": {
+            "elementReference": "Loop_over_Order_Product_Items.OrderDeliveryGroup.Id"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "OrderId",
+          "value": {
+            "elementReference": "checkoutSession.Order.Id"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "Product2Id",
+          "value": {
+            "elementReference": "Loop_over_Bundle_Items.Bundle_Item__r.Id"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "Quantity",
+          "value": {
+            "elementReference": "FinalProductItemQuantity"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "TotalLineAmount",
+          "value": {
+            "numberValue": 0
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "Type",
+          "value": {
+            "stringValue": "Delivery Charge"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "UnitPrice",
+          "value": {
+            "numberValue": 0
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "object": "OrderItem",
+      "storeOutputAutomatically": "true",
+      "processMetadataValues": []
+    }
+  ],
+  "recordLookups": [
+    {
+      "name": "Get_Bundle_Items",
+      "label": "Get Bundle Items",
+      "locationX": 350,
+      "locationY": 611,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "Is_Bundle_Product",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "Bundle_Parent_Item__c",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "Loop_over_Order_Product_Items.Product2.Id"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "getFirstRecordOnly": false,
+      "object": "Bundle_Item__c",
+      "storeOutputAutomatically": true,
+      "processMetadataValues": [],
+      "outputAssignments": [],
+      "queriedFields": []
+    },
+    {
+      "name": "Get_Order_Items",
+      "label": "Get Order Items",
+      "locationX": 175,
+      "locationY": 176,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "Loop_over_Order_Product_Items",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "OrderId",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "checkoutSession.Order.Id"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "getFirstRecordOnly": false,
+      "object": "OrderItem",
+      "storeOutputAutomatically": true,
+      "processMetadataValues": [],
+      "outputAssignments": [],
+      "queriedFields": []
+    }
+  ],
+  "runInMode": "DefaultMode",
+  "start": {
+    "locationX": 50,
+    "locationY": 50,
+    "connector": {
+      "targetReference": "Get_Order_Items",
+      "processMetadataValues": []
+    },
+    "processMetadataValues": [],
+    "filters": []
+  },
+  "status": "Active",
+  "subflows": [
+    {
+      "name": "Show_Error",
+      "label": "Show Error",
+      "locationX": 989,
+      "locationY": 709,
+      "flowName": "sfdc_checkout__Error",
+      "inputAssignments": [
+        {
+          "name": "cartId",
+          "value": {
+            "elementReference": "cartId"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "name": "ErrorMessage",
+          "value": {
+            "elementReference": "$Flow.FaultMessage"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "storeOutputAutomatically": "true",
+      "processMetadataValues": [],
+      "outputAssignments": []
+    }
+  ],
+  "variables": [
+    {
+      "name": "cartId",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "name": "checkoutSession",
+      "dataType": "SObject",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": false,
+      "objectType": "CartCheckoutSession",
+      "processMetadataValues": []
+    },
+    {
+      "name": "closeCart",
+      "dataType": "Boolean",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": true,
+      "value": {
+        "booleanValue": false
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "currentState",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": true,
+      "processMetadataValues": []
+    },
+    {
+      "name": "nextState",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": true,
+      "processMetadataValues": []
+    }
+  ],
+  "apexPluginCalls": [],
+  "choices": [],
+  "constants": [],
+  "dynamicChoiceSets": [],
+  "recordDeletes": [],
+  "recordUpdates": [],
+  "screens": [],
+  "stages": [],
+  "steps": [],
+  "textTemplates": [],
+  "waits": []
+}

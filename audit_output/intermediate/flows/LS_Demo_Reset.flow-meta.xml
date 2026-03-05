@@ -1,0 +1,556 @@
+{
+  "fullName": "LS_Demo_Reset",
+  "apiVersion": "49.0",
+  "areMetricsLoggedToDataCloud": "false",
+  "assignments": [
+    {
+      "name": "Add_Updated_SA_to_Collection",
+      "label": "Add Updated SA to Collection",
+      "locationX": 585,
+      "locationY": 661,
+      "assignmentItems": [
+        {
+          "assignToReference": "LSDemoAppointmentsUpdated",
+          "operator": "Add",
+          "value": {
+            "elementReference": "LS_SA"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "Loop_Through_Service_Appointments",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Assign_New_Dates",
+      "label": "Assign New Dates",
+      "locationX": 896,
+      "locationY": 658,
+      "assignmentItems": [
+        {
+          "assignToReference": "LS_SA.SchedStartTime",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "NewSchedStartTime"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "LS_SA.SchedEndTime",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "NewSchedEndTime"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "LS_SA.EarliestStartTime",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "NewEarlyStart"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "LS_SA.DueDate",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "NewDueDate"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "Add_Updated_SA_to_Collection",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    }
+  ],
+  "decisions": [
+    {
+      "name": "Demo_records_Found",
+      "label": "Demo records Found?",
+      "locationX": 373,
+      "locationY": 160,
+      "defaultConnectorLabel": "Default Outcome",
+      "rules": [
+        {
+          "name": "DRFYes",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "LSEarliestDateFound",
+              "operator": "IsNull",
+              "rightValue": {
+                "booleanValue": false
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Get_Demo_Service_Appointments",
+            "processMetadataValues": []
+          },
+          "label": "Yes",
+          "processMetadataValues": []
+        },
+        {
+          "name": "No",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "LSEarliestDateFound",
+              "operator": "IsNull",
+              "rightValue": {
+                "booleanValue": true
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Demo_Records_were_not_found",
+            "processMetadataValues": []
+          },
+          "label": "No",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    }
+  ],
+  "description": "Lightning Scheduler Demo Rest functionality.",
+  "environments": "Default",
+  "formulas": [
+    {
+      "name": "DateDifference",
+      "dataType": "Number",
+      "expression": "If(not(isblank({!New_Demo_Date})), {!New_Demo_Date} - datevalue({!LSEarliestDateFound}), {!Hours_Offset} / 24)",
+      "scale": 6,
+      "processMetadataValues": []
+    },
+    {
+      "name": "NewDueDate",
+      "dataType": "DateTime",
+      "expression": "{!LS_SA.DueDate} + {!DateDifference}",
+      "processMetadataValues": []
+    },
+    {
+      "name": "NewEarlyStart",
+      "dataType": "DateTime",
+      "expression": "{!LS_SA.EarliestStartTime} + {!DateDifference}",
+      "processMetadataValues": []
+    },
+    {
+      "name": "NewSchedEndTime",
+      "dataType": "DateTime",
+      "expression": "{!LS_SA.SchedEndTime} + {!DateDifference}",
+      "processMetadataValues": []
+    },
+    {
+      "name": "NewSchedStartTime",
+      "dataType": "DateTime",
+      "expression": "{!LS_SA.SchedStartTime} + {!DateDifference}",
+      "processMetadataValues": []
+    },
+    {
+      "name": "SummaryMessage",
+      "dataType": "String",
+      "expression": "If(isblank({!Hours_Offset}), \"The new demo date is \" & text( {!New_Demo_Date}), \"The appointments have been moved by \" & text( {!Hours_Offset}) & \" hours\")",
+      "processMetadataValues": []
+    }
+  ],
+  "interviewLabel": "LS Demo Reset {!$Flow.CurrentDateTime}",
+  "label": "LS Demo Reset (Scheduler)",
+  "loops": [
+    {
+      "name": "Loop_Through_Service_Appointments",
+      "label": "Loop Through Service Appointments",
+      "locationX": 657,
+      "locationY": 307,
+      "assignNextValueToReference": "LS_SA",
+      "collectionReference": "LSDemoServiceAppointments",
+      "iterationOrder": "Asc",
+      "nextValueConnector": {
+        "targetReference": "Assign_New_Dates",
+        "processMetadataValues": []
+      },
+      "noMoreValuesConnector": {
+        "targetReference": "Update_SAs",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    }
+  ],
+  "processMetadataValues": [
+    {
+      "name": "BuilderType",
+      "value": {
+        "stringValue": "LightningFlowBuilder"
+      }
+    },
+    {
+      "name": "CanvasMode",
+      "value": {
+        "stringValue": "FREE_FORM_CANVAS"
+      }
+    },
+    {
+      "name": "OriginBuilderType",
+      "value": {
+        "stringValue": "LightningFlowBuilder"
+      }
+    }
+  ],
+  "processType": "Flow",
+  "recordLookups": [
+    {
+      "name": "Get_Demo_Service_Appointments",
+      "label": "Get Demo Service Appointments",
+      "locationX": 356,
+      "locationY": 318,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "Select_Demo_Date",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "LSDemoTools_Master_Data__c",
+          "operator": "EqualTo",
+          "value": {
+            "booleanValue": true
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "SchedStartTime",
+          "operator": "IsNull",
+          "value": {
+            "booleanValue": false
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "object": "ServiceAppointment",
+      "outputReference": "LSDemoServiceAppointments",
+      "queriedFields": [
+        "Id",
+        "SchedEndTime",
+        "SchedStartTime",
+        "EarliestStartTime",
+        "DueDate"
+      ],
+      "processMetadataValues": [],
+      "outputAssignments": []
+    },
+    {
+      "name": "Get_the_Earliest_Demo_SA",
+      "label": "Get the Earliest Demo SA",
+      "locationX": 227,
+      "locationY": 129,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "Demo_records_Found",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "LSDemoTools_Master_Data__c",
+          "operator": "EqualTo",
+          "value": {
+            "booleanValue": true
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "SchedStartTime",
+          "operator": "IsNull",
+          "value": {
+            "booleanValue": false
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "object": "ServiceAppointment",
+      "outputAssignments": [
+        {
+          "assignToReference": "LSEarliestDateFound",
+          "field": "SchedStartTime",
+          "processMetadataValues": []
+        }
+      ],
+      "sortField": "SchedStartTime",
+      "sortOrder": "Asc",
+      "processMetadataValues": [],
+      "queriedFields": []
+    }
+  ],
+  "recordUpdates": [
+    {
+      "name": "Update_SAs",
+      "label": "Update SAs",
+      "locationX": 963,
+      "locationY": 314,
+      "connector": {
+        "targetReference": "Demo_Date_Reset_Complete",
+        "processMetadataValues": []
+      },
+      "inputReference": "LSDemoAppointmentsUpdated",
+      "processMetadataValues": [],
+      "filters": [],
+      "inputAssignments": []
+    }
+  ],
+  "screens": [
+    {
+      "name": "Demo_Date_Reset_Complete",
+      "label": "Demo Date Reset Complete",
+      "locationX": 1387,
+      "locationY": 314,
+      "allowBack": true,
+      "allowFinish": true,
+      "allowPause": true,
+      "fields": [
+        {
+          "name": "NewDemoDate",
+          "fieldText": "Demo Date Mover Complete. {!SummaryMessage}.",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "OtherNextSeps",
+          "fieldText": "<p><span style=\"text-decoration: underline;\"><strong>Important Next Steps</strong></span><br /><strong>Moving locations</strong>: If desired, change the addresses of the service territories and the timezones to match your requirements. For example, move territories from a California based address to a London one and change the timezones from Pacific time to Greenwich Mean Time (Europe/London). This can be found on the service territory record.</p>",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        }
+      ],
+      "showFooter": true,
+      "showHeader": true,
+      "processMetadataValues": [],
+      "rules": []
+    },
+    {
+      "name": "Demo_Records_were_not_found",
+      "label": "Demo Records were not found",
+      "locationX": 491,
+      "locationY": 65,
+      "allowBack": true,
+      "allowFinish": true,
+      "allowPause": true,
+      "fields": [
+        {
+          "name": "drwnt",
+          "fieldText": "Demo records were not found in your org.  Please create at least one Service Appointment where the LS Demo Master flag is set to True.",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        }
+      ],
+      "showFooter": true,
+      "showHeader": true,
+      "processMetadataValues": [],
+      "rules": []
+    },
+    {
+      "name": "Select_Demo_Date",
+      "label": "Select Demo Date",
+      "locationX": 486,
+      "locationY": 319,
+      "allowBack": true,
+      "allowFinish": true,
+      "allowPause": true,
+      "connector": {
+        "targetReference": "Loop_Through_Service_Appointments",
+        "processMetadataValues": []
+      },
+      "fields": [
+        {
+          "name": "Display_Current_Demo_Date",
+          "fieldText": "Current Demo Date - {!LSEarliestDateFound}",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "New_Demo_Date",
+          "dataType": "Date",
+          "fieldText": "New Demo Date (Must be a Monday)",
+          "fieldType": "InputField",
+          "inputsOnNextNavToAssocScrn": "UseStoredValues",
+          "isRequired": false,
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "validationRule": {
+            "errorMessage": "Please enter a new demo date or an hours offset, but not both.",
+            "formulaExpression": "(isblank({!Hours_Offset} )  && not(isblank({!New_Demo_Date}))) || (not(isblank({!Hours_Offset}) )  && isblank({!New_Demo_Date}))"
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "TimeZoneShiftingInfo",
+          "fieldText": "Alternatively, enter the number of hours, positive or negative, that you would like to shift the appointments by.  Use this option if you are located in another time zone other than Pacific Time and want to demo in that time zone.  Run this option if your appointments appear outside the normal work hours of your employee.",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "Hours_Offset",
+          "dataType": "Number",
+          "fieldText": "Hours Offset",
+          "fieldType": "InputField",
+          "helpText": "Enter the number of hours, positive or negative, that you would like to shift the appointments by.  Use this option if you are located in another time zone other than Pacific Time and want to demo in that time zone.",
+          "inputsOnNextNavToAssocScrn": "UseStoredValues",
+          "isRequired": false,
+          "scale": 0,
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "validationRule": {
+            "errorMessage": "Enter a number between -23 and 23.",
+            "formulaExpression": "isblank({!Hours_Offset} )  || ({!Hours_Offset} >= -23 && {!Hours_Offset} <= 23)"
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        }
+      ],
+      "showFooter": true,
+      "showHeader": true,
+      "processMetadataValues": [],
+      "rules": []
+    }
+  ],
+  "start": {
+    "locationX": 50,
+    "locationY": 50,
+    "connector": {
+      "targetReference": "Get_the_Earliest_Demo_SA",
+      "processMetadataValues": []
+    },
+    "processMetadataValues": [],
+    "filters": []
+  },
+  "status": "Active",
+  "variables": [
+    {
+      "name": "LS_SA",
+      "dataType": "SObject",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "objectType": "ServiceAppointment",
+      "processMetadataValues": []
+    },
+    {
+      "name": "LSDemoAppointmentsUpdated",
+      "dataType": "SObject",
+      "isCollection": true,
+      "isInput": true,
+      "isOutput": true,
+      "objectType": "ServiceAppointment",
+      "processMetadataValues": []
+    },
+    {
+      "name": "LSDemoServiceAppointments",
+      "dataType": "SObject",
+      "isCollection": true,
+      "isInput": true,
+      "isOutput": true,
+      "objectType": "ServiceAppointment",
+      "processMetadataValues": []
+    },
+    {
+      "name": "LSEarliestDateFound",
+      "dataType": "DateTime",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    }
+  ],
+  "actionCalls": [],
+  "apexPluginCalls": [],
+  "choices": [],
+  "constants": [],
+  "dynamicChoiceSets": [],
+  "recordCreates": [],
+  "recordDeletes": [],
+  "stages": [],
+  "steps": [],
+  "subflows": [],
+  "textTemplates": [],
+  "waits": []
+}

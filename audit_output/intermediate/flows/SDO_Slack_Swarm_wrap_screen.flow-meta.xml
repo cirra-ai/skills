@@ -1,0 +1,24 @@
+{
+  "fullName": "SDO_Slack_Swarm_wrap_screen",
+  "processType": "Flow",
+  "description": "Screen modal sent to Slack when a swarm closes",
+  "status": "Active",
+  "start": {
+    "connector": {}
+  },
+  "variables": [],
+  "assignments": [],
+  "decisions": [],
+  "loops": [],
+  "recordLookups": [],
+  "recordCreates": [],
+  "recordUpdates": [],
+  "recordDeletes": [],
+  "screens": [],
+  "subflows": [],
+  "actionCalls": [],
+  "constants": [],
+  "formulas": [],
+  "choices": [],
+  "textTemplates": []
+}

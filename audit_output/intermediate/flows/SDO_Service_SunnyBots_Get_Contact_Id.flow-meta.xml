@@ -1,0 +1,24 @@
+{
+  "fullName": "SDO_Service_SunnyBots_Get_Contact_Id",
+  "processType": "AutoLaunchedFlow",
+  "description": "Gets Contact Id from Contact record",
+  "status": "Active",
+  "start": {
+    "connector": {}
+  },
+  "variables": [],
+  "assignments": [],
+  "decisions": [],
+  "loops": [],
+  "recordLookups": [],
+  "recordCreates": [],
+  "recordUpdates": [],
+  "recordDeletes": [],
+  "screens": [],
+  "subflows": [],
+  "actionCalls": [],
+  "constants": [],
+  "formulas": [],
+  "choices": [],
+  "textTemplates": []
+}

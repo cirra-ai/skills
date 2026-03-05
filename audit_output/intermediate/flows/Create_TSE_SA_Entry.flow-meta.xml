@@ -1,0 +1,1331 @@
+{
+  "fullName": "Create_TSE_SA_Entry",
+  "areMetricsLoggedToDataCloud": "false",
+  "assignments": [
+    {
+      "description": "SetsParentWorkOrderId to the ParentRecordId variable value.",
+      "name": "SetParentWorkOrderIdVariable",
+      "label": "Set Parent Work Order ID Variable",
+      "locationX": 116,
+      "locationY": 758,
+      "assignmentItems": [
+        {
+          "assignToReference": "ParentWorkOrderId",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "ParentRecordId"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "GetAssignedResource",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "description": "Sets ParentWorkOrderLineItemId to the ParentRecordId variable value.",
+      "name": "SetParentWorkOrderLineItemIdVariable",
+      "label": "Set Parent Work Order Line Item ID Variable",
+      "locationX": 380,
+      "locationY": 758,
+      "assignmentItems": [
+        {
+          "assignToReference": "ParentWorkOrderLineItemId",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "ParentRecordId"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "GetAssignedResource",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "description": "Sets recordId variable to the value of Id.",
+      "name": "SetRecordIdVariable",
+      "label": "Set Record ID Variable",
+      "locationX": 468,
+      "locationY": 242,
+      "assignmentItems": [
+        {
+          "assignToReference": "Id",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "recordId"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "GetServiceAppointment",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "description": "Sets the value of the TimeSheetEntryRecordCount to the number of records in the TimeSheetEntries collection.",
+      "name": "SetTimeSheetEntryRecordCount",
+      "label": "Set Time Sheet Entry Record Count",
+      "locationX": 50,
+      "locationY": 1598,
+      "assignmentItems": [
+        {
+          "assignToReference": "TimeSheetEntryRecordCount",
+          "operator": "AssignCount",
+          "value": {
+            "elementReference": "TimeSheetEntries"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "UpdateTimeSheetEntriesDriveTime",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "description": "Sets the value of the TimeSheetEntryRecordCount to the number of records in the TimeSheetEntries collection.",
+      "name": "SetTimeSheetEntryRecordCount2",
+      "label": "Set TimeSheetEntryRecordCount",
+      "locationX": 314,
+      "locationY": 1598,
+      "assignmentItems": [
+        {
+          "assignToReference": "TimeSheetEntryRecordCount",
+          "operator": "AssignCount",
+          "value": {
+            "elementReference": "TimeSheetEntries"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "CreateTimeSheetEntryDriveTime",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "description": "Sets the value of the TimeSheetEntryRecordCount to the number of records in the TimeSheetEntries collection.",
+      "name": "SetTimeSheetEntryRecordCount3",
+      "label": "Set TimeSheetEntryRecordCount",
+      "locationX": 314,
+      "locationY": 2222,
+      "assignmentItems": [
+        {
+          "assignToReference": "TimeSheetEntryRecordCount",
+          "operator": "AssignCount",
+          "value": {
+            "elementReference": "TimeSheetEntries"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "CreateTimeSheetEntryWorkTime",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    }
+  ],
+  "constants": [
+    {
+      "name": "Approved",
+      "dataType": "String",
+      "value": {
+        "stringValue": "Approved"
+      },
+      "processMetadataValues": []
+    },
+    {
+      "description": "Stores the default interval time between completing the drive and starting work on the work order.",
+      "name": "DefaultIntervalWorkAndDriveTime",
+      "dataType": "Number",
+      "value": {
+        "numberValue": 0
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Submitted",
+      "dataType": "String",
+      "value": {
+        "stringValue": "Submitted"
+      },
+      "processMetadataValues": []
+    }
+  ],
+  "decisions": [
+    {
+      "description": "Determines whether the ID of the triggering record exists by checking if recordId is null.",
+      "name": "HaveId",
+      "label": "Have ID?",
+      "locationX": 380,
+      "locationY": 134,
+      "defaultConnector": {
+        "targetReference": "SetRecordIdVariable",
+        "processMetadataValues": []
+      },
+      "defaultConnectorLabel": "No (Default)",
+      "rules": [
+        {
+          "name": "HasId",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "Id",
+              "operator": "IsNull",
+              "rightValue": {
+                "booleanValue": false
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "GetServiceAppointment",
+            "processMetadataValues": []
+          },
+          "label": "Yes",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    },
+    {
+      "description": "Determines whether an unapproved time sheet record was found by checking if TimeSheetId isn\u2019t null, and the Status isn\u2019t Submitted and Approved.",
+      "name": "HaveTimeSheet",
+      "label": "Have Time Sheet?",
+      "locationX": 380,
+      "locationY": 1166,
+      "defaultConnectorLabel": "No (Default)",
+      "rules": [
+        {
+          "name": "HasTimeSheet",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "TimeSheetId",
+              "operator": "IsNull",
+              "rightValue": {
+                "booleanValue": false
+              },
+              "processMetadataValues": []
+            },
+            {
+              "leftValueReference": "Status",
+              "operator": "NotEqualTo",
+              "rightValue": {
+                "elementReference": "Submitted"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "leftValueReference": "Status",
+              "operator": "NotEqualTo",
+              "rightValue": {
+                "elementReference": "Approved"
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "GetTimeSheetEntryDriveTime",
+            "processMetadataValues": []
+          },
+          "label": "Yes",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    },
+    {
+      "description": "Determines whether a time sheet entry was found by checking if TimeSheetEntryDriveTimeId is null.",
+      "name": "HaveTimeSheetEntryDriveTime",
+      "label": "Have Time Sheet Entry?",
+      "locationX": 182,
+      "locationY": 1382,
+      "defaultConnector": {
+        "targetReference": "GetTimeSheetEntriesBeforeCurrentDateTime",
+        "processMetadataValues": []
+      },
+      "defaultConnectorLabel": "No (Default)",
+      "rules": [
+        {
+          "name": "HasTimeSheetEntryDriveTime",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "TimeSheetEntryDriveTimeId",
+              "operator": "IsNull",
+              "rightValue": {
+                "booleanValue": false
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "GetTimeSheetEntriesBeforeDriveStartTime",
+            "processMetadataValues": []
+          },
+          "label": "Yes",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    },
+    {
+      "description": "Determines whether a time sheet entry for the work time category was found by checking if TimeSheetEntryWorkTimeId is null.",
+      "name": "HaveTimeSheetEntryWorkTime",
+      "label": "Have Time Sheet Entry?",
+      "locationX": 182,
+      "locationY": 2006,
+      "defaultConnector": {
+        "targetReference": "GetTimeSheetEntryBetweenShifts",
+        "processMetadataValues": []
+      },
+      "defaultConnectorLabel": "No (Default)",
+      "rules": [
+        {
+          "name": "HasTimeSheetEntryWorkTime",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "TimeSheetEntryWorkTimeId",
+              "operator": "IsNull",
+              "rightValue": {
+                "booleanValue": false
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "label": "Yes",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    },
+    {
+      "description": "Determines whether the parent record of the triggering record is a work order or a work order line item by checking if ParentRecordType is WorkOrder or WorkOrderLineItem.",
+      "name": "IsParentWorkOrderOrWorkOrderLineItem",
+      "label": "Is Parent Work Order or Work Order Line Item?",
+      "locationX": 380,
+      "locationY": 542,
+      "defaultConnectorLabel": "Other (Default)",
+      "rules": [
+        {
+          "name": "IsWorkOrder",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "ParentRecordType",
+              "operator": "EqualTo",
+              "rightValue": {
+                "stringValue": "WorkOrder"
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "GetWorkOrder",
+            "processMetadataValues": []
+          },
+          "label": "Work Order",
+          "processMetadataValues": []
+        },
+        {
+          "name": "IsWorkOrderLineItem",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "ParentRecordType",
+              "operator": "EqualTo",
+              "rightValue": {
+                "stringValue": "WorkOrderLineItem"
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "GetWorkOrderLineItem",
+            "processMetadataValues": []
+          },
+          "label": "Line Item",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    }
+  ],
+  "description": "Creates or updates a time sheet entry and associates it with a work order or work order line item when a field service resource reaches the appointment location.",
+  "environments": "Default",
+  "formulas": [
+    {
+      "description": "Calculates the date and time after the default interval time is added.",
+      "name": "CurrentDateTimePlusDefaultInterval",
+      "dataType": "DateTime",
+      "expression": "NOW() + {!DefaultIntervalWorkAndDriveTime}/24/60",
+      "processMetadataValues": []
+    },
+    {
+      "description": "Generates the default subject to use for time sheet entry records with the Drive Time category",
+      "name": "DefaultSubjectForTimeSheetEntryDriveTime",
+      "dataType": "String",
+      "expression": "\"Automated Time Sheet Entry Created for \" + {!ServiceAppointmentNumber} + \" for Category DriveTime in Entry Flow\"",
+      "processMetadataValues": []
+    },
+    {
+      "description": "Generates the default subject to use for time sheet entry records with the Drive Time category.",
+      "name": "DefaultSubjectTimeSheetEntryDriveTime",
+      "dataType": "String",
+      "expression": "\"Automated Time Sheet Entry Created for \" + {!ServiceAppointmentNumber} + \" for Category DriveTime in Entry Flow\"",
+      "processMetadataValues": []
+    },
+    {
+      "description": "Calculates the time block sequence for drive time.",
+      "name": "TimeBlockSequenceDriveTimeFormula",
+      "dataType": "Number",
+      "expression": "{!TimeSheetEntryRecordCount} + 1",
+      "scale": 0,
+      "processMetadataValues": []
+    },
+    {
+      "description": "Calculates the time block sequence for work time.",
+      "name": "TimeBlockSequenceWorkTimeFormula",
+      "dataType": "Number",
+      "expression": "{!TimeSheetEntryRecordCount} + 1",
+      "scale": 0,
+      "processMetadataValues": []
+    }
+  ],
+  "interviewLabel": "Create Time Sheet Entries on Appointment Start {!$Flow.CurrentDateTime}",
+  "label": "Create Time Sheet Entries on Appointment Start",
+  "processMetadataValues": [
+    {
+      "name": "BuilderType",
+      "value": {
+        "stringValue": "LightningFlowBuilder"
+      }
+    },
+    {
+      "name": "CanvasMode",
+      "value": {
+        "stringValue": "AUTO_LAYOUT_CANVAS"
+      }
+    },
+    {
+      "name": "OriginBuilderType",
+      "value": {
+        "stringValue": "LightningFlowBuilder"
+      }
+    }
+  ],
+  "processType": "FieldServiceMobile",
+  "recordCreates": [
+    {
+      "description": "Creates a time sheet entry record, setting the category to DriveTime, the cost center ID to the ParentCostCenterId, the end time to the current date and time, the job expense type ID to the ParentJobExpenseTypeId, the start time to TimeSheetStartTime, the status to New, the subject to the DefaultSubjectForTimeSheetEntryDriveTime, the time sheet ID to the TimeSheetId, the work order ID to ParentWorkOrderId, the work order line item ID to ParentWorkOrderLineItemId, and the Time Block Sequence to TimeBlockSequenceDriveTimeFormula.",
+      "name": "CreateTimeSheetEntryDriveTime",
+      "label": "Create Time Sheet Entry",
+      "locationX": 314,
+      "locationY": 1706,
+      "connector": {
+        "targetReference": "GetTimeSheetEntryWorkTime",
+        "processMetadataValues": []
+      },
+      "inputAssignments": [
+        {
+          "field": "Category",
+          "value": {
+            "stringValue": "DriveTime"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "CostCenterId",
+          "value": {
+            "elementReference": "ParentCostCenterId"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "EndTime",
+          "value": {
+            "elementReference": "$Flow.CurrentDateTime"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "JobExpenseTypeId",
+          "value": {
+            "elementReference": "ParentJobExpenseTypeId"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "StartTime",
+          "value": {
+            "elementReference": "$Flow.CurrentDateTime"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "Status",
+          "value": {
+            "stringValue": "New"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "Subject",
+          "value": {
+            "elementReference": "DefaultSubjectForTimeSheetEntryDriveTime"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "TimeBlockSequence",
+          "value": {
+            "elementReference": "TimeBlockSequenceDriveTimeFormula"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "TimeSheetId",
+          "value": {
+            "elementReference": "TimeSheetId"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "WorkOrderId",
+          "value": {
+            "elementReference": "ParentWorkOrderId"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "WorkOrderLineItemId",
+          "value": {
+            "elementReference": "ParentWorkOrderLineItemId"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "object": "TimeSheetEntry",
+      "processMetadataValues": []
+    },
+    {
+      "description": "Creates a time sheet entry record with the category set to WorkTime, the cost center ID set to the ParentCostCenterId, the Job Expense Type ID set to the ParentJobExpenseTypeId, the start time set to TimeSheetStartTime, the status set to New, the subject set to the DefaultSubjectForTimeSheetEntryDriveTime, and the time sheet ID matching the TimeSheetId passed into the flow, the work order ID set to ParentWorkOrderId, the Work Order Line Item ID set to ParentWorkOrderLineItemId, and and the Time Block Sequence to TimeBlockSequenceDriveTimeFormula.",
+      "name": "CreateTimeSheetEntryWorkTime",
+      "label": "Create Time Sheet Entry",
+      "locationX": 314,
+      "locationY": 2330,
+      "inputAssignments": [
+        {
+          "field": "Category",
+          "value": {
+            "stringValue": "WorkTime"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "CostCenterId",
+          "value": {
+            "elementReference": "ParentCostCenterId"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "JobExpenseTypeId",
+          "value": {
+            "elementReference": "ParentJobExpenseTypeId"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "StartTime",
+          "value": {
+            "elementReference": "CurrentDateTimePlusDefaultInterval"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "Status",
+          "value": {
+            "stringValue": "New"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "Subject",
+          "value": {
+            "elementReference": "DefaultSubjectTimeSheetEntryDriveTime"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "TimeBlockSequence",
+          "value": {
+            "elementReference": "TimeBlockSequenceWorkTimeFormula"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "TimeSheetId",
+          "value": {
+            "elementReference": "TimeSheetId"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "WorkOrderId",
+          "value": {
+            "elementReference": "ParentWorkOrderId"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "WorkOrderLineItemId",
+          "value": {
+            "elementReference": "ParentWorkOrderLineItemId"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "object": "TimeSheetEntry",
+      "processMetadataValues": []
+    }
+  ],
+  "recordLookups": [
+    {
+      "description": "Gets the assigned resource record with an service resource ID that matches id. Stores the service resource ID of the result in the ServiceResourceId variable.",
+      "name": "GetAssignedResource",
+      "label": "Get Assigned Resource",
+      "locationX": 380,
+      "locationY": 950,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "GetTimeSheet",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "ServiceAppointmentId",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "Id"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "object": "AssignedResource",
+      "outputAssignments": [
+        {
+          "assignToReference": "ServiceResourceId",
+          "field": "ServiceResourceId",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": [],
+      "queriedFields": []
+    },
+    {
+      "description": "Gets the service appointment record with an ID that matches the ID that was passed into the flow. Stores the parent record ID in the ParentRecordId variable, the parent record type in the ParentRecordType variable, and the appointment number in the ServiceAppointmentNumber variable.",
+      "name": "GetServiceAppointment",
+      "label": "Get Service Appointment",
+      "locationX": 380,
+      "locationY": 434,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "IsParentWorkOrderOrWorkOrderLineItem",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "Id",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "Id"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "object": "ServiceAppointment",
+      "outputAssignments": [
+        {
+          "assignToReference": "ServiceAppointmentNumber",
+          "field": "AppointmentNumber",
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "ParentRecordId",
+          "field": "ParentRecordId",
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "ParentRecordType",
+          "field": "ParentRecordType",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": [],
+      "queriedFields": []
+    },
+    {
+      "description": "Gets the time sheet record with the start date matching the current date, the end date matching the current date, and the service resource ID matching the ServiceResourceId variable value. Stores the ID of the result in TimeSheetId, the start date and time in TimeSheetStartDateTime, and the status in the Status variable.",
+      "name": "GetTimeSheet",
+      "label": "Get Time Sheet",
+      "locationX": 380,
+      "locationY": 1058,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "HaveTimeSheet",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "StartDate",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "$Flow.CurrentDate"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "EndDate",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "$Flow.CurrentDate"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "ServiceResourceId",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "ServiceResourceId"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "object": "TimeSheet",
+      "outputAssignments": [
+        {
+          "assignToReference": "TimeSheetId",
+          "field": "Id",
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "TimeSheetStartDateTime",
+          "field": "StartDateTime",
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "Status",
+          "field": "Status",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": [],
+      "queriedFields": []
+    },
+    {
+      "description": "Gets time sheet entry records with a category of BetweenShifts, a start time that\u2019s before the current date and time, and a time sheet ID that matches the TimeSheetId variable. Stores the ID of the results in the TimeSheetEntries record collection.",
+      "name": "GetTimeSheetEntriesBeforeCurrentDateTime",
+      "label": "Get Time Sheet Entries",
+      "locationX": 314,
+      "locationY": 1490,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "SetTimeSheetEntryRecordCount2",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "Category",
+          "operator": "EqualTo",
+          "value": {
+            "stringValue": "BetweenShifts"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "StartTime",
+          "operator": "LessThan",
+          "value": {
+            "elementReference": "$Flow.CurrentDateTime"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "TimeSheetId",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "TimeSheetId"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "object": "TimeSheetEntry",
+      "outputReference": "TimeSheetEntries",
+      "queriedFields": [
+        "Id"
+      ],
+      "processMetadataValues": [],
+      "outputAssignments": []
+    },
+    {
+      "description": "Gets the time sheet entry record with a category of BetweenShifts, a start time that\u2019s before TimeSheetEntryDriveStartTime, and a time sheet ID that matches TimeSheetId. Stores the ID of the results in the TimeSheetEntries record collection.",
+      "name": "GetTimeSheetEntriesBeforeDriveStartTime",
+      "label": "Get Time Sheet Entries",
+      "locationX": 50,
+      "locationY": 1490,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "SetTimeSheetEntryRecordCount",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "Category",
+          "operator": "EqualTo",
+          "value": {
+            "stringValue": "BetweenShifts"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "StartTime",
+          "operator": "LessThan",
+          "value": {
+            "elementReference": "TimeSheetEntryDriveStartTime"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "TimeSheetId",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "TimeSheetId"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "object": "TimeSheetEntry",
+      "outputReference": "TimeSheetEntries",
+      "queriedFields": [
+        "Id"
+      ],
+      "processMetadataValues": [],
+      "outputAssignments": []
+    },
+    {
+      "description": "Gets the time sheet entry record with a category of BetweenShifts, a start time that\u2019s before the CurrentDateTimePlusDefaultInterval, and a time sheet ID that matches the TimeSheetId variable. Stores the ID of the results in the TimeSheetEntries record collection.",
+      "name": "GetTimeSheetEntryBetweenShifts",
+      "label": "Get Time Sheet Entry",
+      "locationX": 314,
+      "locationY": 2114,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "SetTimeSheetEntryRecordCount3",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "Category",
+          "operator": "EqualTo",
+          "value": {
+            "stringValue": "BetweenShifts"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "StartTime",
+          "operator": "LessThan",
+          "value": {
+            "elementReference": "CurrentDateTimePlusDefaultInterval"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "TimeSheetId",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "TimeSheetId"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "object": "TimeSheetEntry",
+      "outputReference": "TimeSheetEntries",
+      "queriedFields": [
+        "Id"
+      ],
+      "processMetadataValues": [],
+      "outputAssignments": []
+    },
+    {
+      "description": "Gets the time sheet entry record with a time sheet ID that matches TimeSheetId and a category that is DriveTime. Stores the ID of the result in the TimeSheetEntryDriveTimeId variable and the start time in the TimeSheetEntryDriveStartTime variable.",
+      "name": "GetTimeSheetEntryDriveTime",
+      "label": "Get Time Sheet Entry",
+      "locationX": 182,
+      "locationY": 1274,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "HaveTimeSheetEntryDriveTime",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "TimeSheetId",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "TimeSheetId"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "Category",
+          "operator": "EqualTo",
+          "value": {
+            "stringValue": "DriveTime"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "object": "TimeSheetEntry",
+      "outputAssignments": [
+        {
+          "assignToReference": "TimeSheetEntryDriveTimeId",
+          "field": "Id",
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "TimeSheetEntryDriveStartTime",
+          "field": "StartTime",
+          "processMetadataValues": []
+        }
+      ],
+      "sortField": "CreatedDate",
+      "sortOrder": "Desc",
+      "processMetadataValues": [],
+      "queriedFields": []
+    },
+    {
+      "description": "Gets the time sheet entry record with a time sheet ID that matches TimeSheetId, a category that matches WorkTime, and a work order ID that matches ParentWorkOrderId or a work order line item ID that matches ParenWorkOrderLineItemId. Stores the ID of the result in the TimeSheetEntryWorkItemId variable.",
+      "name": "GetTimeSheetEntryWorkTime",
+      "label": "Get Time Sheet Entry",
+      "locationX": 182,
+      "locationY": 1898,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "HaveTimeSheetEntryWorkTime",
+        "processMetadataValues": []
+      },
+      "filterLogic": "1 AND 2 AND (3 OR 4)",
+      "filters": [
+        {
+          "field": "TimeSheetId",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "TimeSheetId"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "Category",
+          "operator": "EqualTo",
+          "value": {
+            "stringValue": "WorkTime"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "WorkOrderId",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "ParentWorkOrderId"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "WorkOrderLineItemId",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "ParentWorkOrderLineItemId"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "object": "TimeSheetEntry",
+      "outputAssignments": [
+        {
+          "assignToReference": "TimeSheetEntryWorkTimeId",
+          "field": "Id",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": [],
+      "queriedFields": []
+    },
+    {
+      "description": "Gets the work order record with an ID that matches the ParentRecordId. Stores the cost center ID and job expense type ID of the result in the ParentCostCenterId and ParentJobExpenseTypeId variables respectively.",
+      "name": "GetWorkOrder",
+      "label": "Get Work Order",
+      "locationX": 116,
+      "locationY": 650,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "SetParentWorkOrderIdVariable",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "Id",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "ParentRecordId"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "object": "WorkOrder",
+      "outputAssignments": [
+        {
+          "assignToReference": "ParentCostCenterId",
+          "field": "CostCenterId",
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "ParentJobExpenseTypeId",
+          "field": "JobExpenseTypeId",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": [],
+      "queriedFields": []
+    },
+    {
+      "description": "Gets the work order line item record with an ID that matches the ParentRecordId. Stores the cost center ID and job expense type ID of the result in the ParentCostCenterId and ParentJobExpenseTypeId variables respectively.",
+      "name": "GetWorkOrderLineItem",
+      "label": "Get Work Order Line Item",
+      "locationX": 380,
+      "locationY": 650,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "SetParentWorkOrderLineItemIdVariable",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "Id",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "ParentRecordId"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "object": "WorkOrderLineItem",
+      "outputAssignments": [
+        {
+          "assignToReference": "ParentCostCenterId",
+          "field": "CostCenterId",
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "ParentJobExpenseTypeId",
+          "field": "JobExpenseTypeId",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": [],
+      "queriedFields": []
+    }
+  ],
+  "recordUpdates": [
+    {
+      "description": "Updates the time sheet entry record with an ID that matches TimeSheetEntryDriveTimeId. Sets the cost center ID to ParentCostCenterId, the end time to the current date and time, the subject to the DefaultSubjectForTimeSheetEntryDriveTime value, work order ID to ParentWorkOrderId, the Work Order Line Item ID to ParentWorkOrderLineItemId, and Time Block Sequence to the TimeBlockSequenceDriveTimeFormula variable.",
+      "name": "UpdateTimeSheetEntriesDriveTime",
+      "label": "Update Time Sheet Entries",
+      "locationX": 50,
+      "locationY": 1706,
+      "connector": {
+        "targetReference": "GetTimeSheetEntryWorkTime",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "Id",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "TimeSheetEntryDriveTimeId"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "inputAssignments": [
+        {
+          "field": "CostCenterId",
+          "value": {
+            "elementReference": "ParentCostCenterId"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "EndTime",
+          "value": {
+            "elementReference": "$Flow.CurrentDateTime"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "JobExpenseTypeId",
+          "value": {
+            "elementReference": "ParentJobExpenseTypeId"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "Subject",
+          "value": {
+            "elementReference": "DefaultSubjectForTimeSheetEntryDriveTime"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "TimeBlockSequence",
+          "value": {
+            "elementReference": "TimeBlockSequenceDriveTimeFormula"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "WorkOrderId",
+          "value": {
+            "elementReference": "ParentWorkOrderId"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "WorkOrderLineItemId",
+          "value": {
+            "elementReference": "ParentWorkOrderLineItemId"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "object": "TimeSheetEntry",
+      "processMetadataValues": []
+    }
+  ],
+  "sourceTemplate": "ifstmsht__CreaTmshtEntrApptStart",
+  "start": {
+    "locationX": 254,
+    "locationY": 0,
+    "connector": {
+      "targetReference": "HaveId",
+      "processMetadataValues": []
+    },
+    "processMetadataValues": [],
+    "filters": []
+  },
+  "status": "Active",
+  "variables": [
+    {
+      "description": "Stores the ID of the triggering record.",
+      "name": "Id",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "description": "Stores the CostCenterId field of the work order record that triggered the flow.",
+      "name": "ParentCostCenterId",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "description": "Stores the JobExpenseTypeId field of the work order record that triggered the flow.",
+      "name": "ParentJobExpenseTypeId",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "description": "Stores the ID of the parent record of the service appointment record.",
+      "name": "ParentRecordId",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "description": "Stores the type of the parent record of the service appointment record.",
+      "name": "ParentRecordType",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "description": "Stores the ID of the work order record, which is the parent of the triggering record.",
+      "name": "ParentWorkOrderId",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "description": "Stores the ID of the work order line item record, which is the parent of the triggering record.",
+      "name": "ParentWorkOrderLineItemId",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "description": "Stores the ID of the triggering record passed into the flow.",
+      "name": "recordId",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "description": "Stores the appointment number of the service appointment record.",
+      "name": "ServiceAppointmentNumber",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "description": "Stores the service resource ID of the assigned resource record.",
+      "name": "ServiceResourceId",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "description": "Stores the status of a time sheet record.",
+      "name": "Status",
+      "dataType": "Picklist",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "description": "Stores a collection of time sheet entry records.",
+      "name": "TimeSheetEntries",
+      "dataType": "SObject",
+      "isCollection": true,
+      "isInput": false,
+      "isOutput": false,
+      "objectType": "TimeSheetEntry",
+      "processMetadataValues": []
+    },
+    {
+      "description": "Stores the start time of the time sheet entry record.",
+      "name": "TimeSheetEntryDriveStartTime",
+      "dataType": "DateTime",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "description": "Stores the ID of the time sheet entry record.",
+      "name": "TimeSheetEntryDriveTimeId",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "description": "Stores the number of time sheet entry records in TimeSheetEntries.",
+      "name": "TimeSheetEntryRecordCount",
+      "dataType": "Number",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "scale": 0,
+      "processMetadataValues": []
+    },
+    {
+      "description": "Stores the ID of the time sheet entry record.",
+      "name": "TimeSheetEntryWorkTimeId",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "description": "Stores the ID of the time sheet record.",
+      "name": "TimeSheetId",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "description": "Stores the start time of the time sheet record.",
+      "name": "TimeSheetStartDateTime",
+      "dataType": "DateTime",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "value": {
+        "elementReference": "$Flow.CurrentDateTime"
+      },
+      "processMetadataValues": []
+    }
+  ],
+  "actionCalls": [],
+  "apexPluginCalls": [],
+  "choices": [],
+  "dynamicChoiceSets": [],
+  "loops": [],
+  "recordDeletes": [],
+  "screens": [],
+  "stages": [],
+  "steps": [],
+  "subflows": [],
+  "textTemplates": [],
+  "waits": []
+}

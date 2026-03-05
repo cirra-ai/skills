@@ -1,0 +1,24 @@
+{
+  "fullName": "SDO_Change_Request_Set_Priority_Based_on_Impact",
+  "processType": "AutoLaunchedFlow",
+  "description": "Set Priority based on Impact for Change Requests",
+  "status": "Active",
+  "start": {
+    "connector": {}
+  },
+  "variables": [],
+  "assignments": [],
+  "decisions": [],
+  "loops": [],
+  "recordLookups": [],
+  "recordCreates": [],
+  "recordUpdates": [],
+  "recordDeletes": [],
+  "screens": [],
+  "subflows": [],
+  "actionCalls": [],
+  "constants": [],
+  "formulas": [],
+  "choices": [],
+  "textTemplates": []
+}

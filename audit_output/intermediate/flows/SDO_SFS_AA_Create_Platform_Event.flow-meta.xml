@@ -1,0 +1,24 @@
+{
+  "fullName": "SDO_SFS_AA_Create_Platform_Event",
+  "processType": "AutoLaunchedFlow",
+  "description": "LWC AA work around flow",
+  "status": "Active",
+  "start": {
+    "connector": {}
+  },
+  "variables": [],
+  "assignments": [],
+  "decisions": [],
+  "loops": [],
+  "recordLookups": [],
+  "recordCreates": [],
+  "recordUpdates": [],
+  "recordDeletes": [],
+  "screens": [],
+  "subflows": [],
+  "actionCalls": [],
+  "constants": [],
+  "formulas": [],
+  "choices": [],
+  "textTemplates": []
+}

@@ -1,0 +1,24 @@
+{
+  "fullName": "FSK_Set_Assign_Service_Resource_On_Service_Appointment",
+  "processType": "AutoLaunchedFlow",
+  "description": "Populates assigned resource field on SA.",
+  "status": "Active",
+  "start": {
+    "connector": {}
+  },
+  "variables": [],
+  "assignments": [],
+  "decisions": [],
+  "loops": [],
+  "recordLookups": [],
+  "recordCreates": [],
+  "recordUpdates": [],
+  "recordDeletes": [],
+  "screens": [],
+  "subflows": [],
+  "actionCalls": [],
+  "constants": [],
+  "formulas": [],
+  "choices": [],
+  "textTemplates": []
+}

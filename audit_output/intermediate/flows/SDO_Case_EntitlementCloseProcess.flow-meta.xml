@@ -1,0 +1,24 @@
+{
+  "fullName": "SDO_Case_EntitlementCloseProcess",
+  "processType": "AutoLaunchedFlow",
+  "description": "Subflow for Case closure entitlement process.",
+  "status": "Active",
+  "start": {
+    "connector": {}
+  },
+  "variables": [],
+  "assignments": [],
+  "decisions": [],
+  "loops": [],
+  "recordLookups": [],
+  "recordCreates": [],
+  "recordUpdates": [],
+  "recordDeletes": [],
+  "screens": [],
+  "subflows": [],
+  "actionCalls": [],
+  "constants": [],
+  "formulas": [],
+  "choices": [],
+  "textTemplates": []
+}

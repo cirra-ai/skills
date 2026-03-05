@@ -1,0 +1,24 @@
+{
+  "fullName": "SDO_FSL_Appointment_Assistant_Approaching",
+  "processType": "AutoLaunchedFlow",
+  "description": "Sends approaching notification",
+  "status": "Active",
+  "start": {
+    "connector": {}
+  },
+  "variables": [],
+  "assignments": [],
+  "decisions": [],
+  "loops": [],
+  "recordLookups": [],
+  "recordCreates": [],
+  "recordUpdates": [],
+  "recordDeletes": [],
+  "screens": [],
+  "subflows": [],
+  "actionCalls": [],
+  "constants": [],
+  "formulas": [],
+  "choices": [],
+  "textTemplates": []
+}

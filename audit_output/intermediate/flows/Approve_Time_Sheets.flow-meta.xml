@@ -1,0 +1,156 @@
+{
+  "fullName": "Approve_Time_Sheets",
+  "processType": "Flow",
+  "status": "Active",
+  "assignments": [
+    {
+      "name": "AddRecordIdToCollection"
+    },
+    {
+      "name": "AddTimeSheetEntryIdToCollection"
+    },
+    {
+      "name": "SetApprovedRecordCount"
+    },
+    {
+      "name": "SetRecordIdCount"
+    }
+  ],
+  "decisions": [
+    {
+      "name": "HaveRecordId",
+      "rules": [
+        {
+          "name": "HasRecordId"
+        }
+      ]
+    },
+    {
+      "name": "HaveRecordIdDisplayApproval",
+      "rules": [
+        {
+          "name": "HasRecordIdDisplayApproval"
+        }
+      ]
+    },
+    {
+      "name": "HaveTimeSheets",
+      "rules": [
+        {
+          "name": "HasTimeSheets"
+        }
+      ]
+    },
+    {
+      "name": "RecordCountLessThanOrEqualToMaximum",
+      "rules": [
+        {
+          "name": "DoesHaveRecCountLessThanOrEqualToMaximum"
+        }
+      ]
+    }
+  ],
+  "loops": [
+    {
+      "name": "IterateOverTimeSheetEntries",
+      "collectionReference": "GetTimeSheetEntries"
+    }
+  ],
+  "recordLookups": [
+    {
+      "name": "GetTimeSheetEntries",
+      "object": "TimeSheetEntry",
+      "faultConnector": {
+        "targetReference": "RollbackRecordChanges"
+      }
+    },
+    {
+      "name": "GetTimeSheets",
+      "object": "TimeSheet",
+      "faultConnector": {
+        "targetReference": "RollbackRecordChanges"
+      }
+    }
+  ],
+  "recordUpdates": [
+    {
+      "name": "UpdateTimeSheetEntries",
+      "object": "TimeSheetEntry",
+      "faultConnector": {
+        "targetReference": "RollbackRecordChanges"
+      }
+    },
+    {
+      "name": "UpdateTimeSheetEntryItems",
+      "object": "TimeSheetEntryItem",
+      "faultConnector": {
+        "targetReference": "RollbackRecordChanges"
+      }
+    },
+    {
+      "name": "UpdateTimeSheets",
+      "object": "TimeSheet",
+      "faultConnector": {
+        "targetReference": "RollbackRecordChanges"
+      }
+    }
+  ],
+  "screens": [
+    {
+      "name": "DisplayTimeSheetsApprovedMessage"
+    },
+    {
+      "name": "ScreenDisplayErrorMaxRecords"
+    },
+    {
+      "name": "ScreenDisplayErrorNoRecords"
+    },
+    {
+      "name": "ScreenDisplayTimeSheetApprovedMessage"
+    },
+    {
+      "name": "ScrnDplyErrorUpdtTimeSheetEntryItems"
+    }
+  ],
+  "variables": [
+    {
+      "name": "ApprovedRecordCount",
+      "dataType": "Number"
+    },
+    {
+      "name": "ids",
+      "dataType": "String",
+      "isCollection": true,
+      "isInput": true
+    },
+    {
+      "name": "recordId",
+      "dataType": "String",
+      "isInput": true
+    },
+    {
+      "name": "RecordIdCount",
+      "dataType": "Number"
+    },
+    {
+      "name": "TimeSheetEntryIds",
+      "dataType": "String",
+      "isCollection": true
+    }
+  ],
+  "recordRollbacks": {
+    "name": "RollbackRecordChanges"
+  },
+  "start": {
+    "connector": {
+      "targetReference": "HaveRecordId"
+    }
+  },
+  "actionCalls": [],
+  "recordCreates": [],
+  "recordDeletes": [],
+  "subflows": [],
+  "constants": [],
+  "formulas": [],
+  "choices": []
+}

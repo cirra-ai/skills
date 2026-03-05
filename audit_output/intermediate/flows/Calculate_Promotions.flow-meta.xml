@@ -1,0 +1,65 @@
+{
+  "fullName": "Calculate_Promotions",
+  "processType": "CheckoutFlow",
+  "status": "Active",
+  "actionCalls": [
+    {
+      "name": "Calculate_Cart_Promotions",
+      "actionType": "calcCartPromotionsAction",
+      "faultConnector": {
+        "targetReference": "Show_Error"
+      }
+    },
+    {
+      "name": "Update_Checkout_Session",
+      "actionType": "updateCheckoutSessionStateAction",
+      "faultConnector": {
+        "targetReference": "Show_Error"
+      }
+    }
+  ],
+  "subflows": [
+    {
+      "name": "Show_Error",
+      "flowName": "sfdc_checkout__Error"
+    }
+  ],
+  "variables": [
+    {
+      "name": "cartId",
+      "dataType": "String",
+      "isInput": true
+    },
+    {
+      "name": "checkoutSessionId",
+      "dataType": "String",
+      "isInput": true
+    },
+    {
+      "name": "currentState",
+      "dataType": "String",
+      "isInput": true
+    },
+    {
+      "name": "nextState",
+      "dataType": "String",
+      "isInput": true
+    }
+  ],
+  "start": {
+    "connector": {
+      "targetReference": "Update_Checkout_Session"
+    }
+  },
+  "assignments": [],
+  "decisions": [],
+  "loops": [],
+  "recordLookups": [],
+  "recordUpdates": [],
+  "recordCreates": [],
+  "recordDeletes": [],
+  "screens": [],
+  "constants": [],
+  "formulas": [],
+  "choices": []
+}

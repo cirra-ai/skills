@@ -1,0 +1,24 @@
+{
+  "fullName": "SDO_Scheduler_Screen_Flow_Inbound_Modify_Appointment",
+  "processType": "Flow",
+  "description": "Screen flow version of reschedule appointment",
+  "status": "Active",
+  "start": {
+    "connector": {}
+  },
+  "variables": [],
+  "assignments": [],
+  "decisions": [],
+  "loops": [],
+  "recordLookups": [],
+  "recordCreates": [],
+  "recordUpdates": [],
+  "recordDeletes": [],
+  "screens": [],
+  "subflows": [],
+  "actionCalls": [],
+  "constants": [],
+  "formulas": [],
+  "choices": [],
+  "textTemplates": []
+}

@@ -1,0 +1,3597 @@
+{
+  "fullName": "Datatable_Configuration_Wizard5",
+  "actionCalls": [
+    {
+      "name": "Decode_Cell_Attribute",
+      "label": "Decode Cell Attribute",
+      "locationX": 732,
+      "locationY": 158,
+      "actionName": "ers_EncodeDecodeURL",
+      "actionType": "apex",
+      "connector": {
+        "targetReference": "Decode_Type_Attribute",
+        "processMetadataValues": []
+      },
+      "flowTransactionModel": "CurrentTransaction",
+      "inputParameters": [
+        {
+          "name": "inputStr",
+          "value": {
+            "elementReference": "wiz_columnCellAttribs"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "nameSegment": "ers_EncodeDecodeURL",
+      "storeOutputAutomatically": "true",
+      "processMetadataValues": [],
+      "outputParameters": []
+    },
+    {
+      "name": "Decode_Other_Attribute",
+      "label": "Decode Other Attribute",
+      "locationX": 732,
+      "locationY": 398,
+      "actionName": "ers_EncodeDecodeURL",
+      "actionType": "apex",
+      "connector": {
+        "targetReference": "Set_Quick_Choice_Options",
+        "processMetadataValues": []
+      },
+      "flowTransactionModel": "CurrentTransaction",
+      "inputParameters": [
+        {
+          "name": "inputStr",
+          "value": {
+            "elementReference": "wiz_columnOtherAttribs"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "nameSegment": "ers_EncodeDecodeURL",
+      "storeOutputAutomatically": "true",
+      "processMetadataValues": [],
+      "outputParameters": []
+    },
+    {
+      "name": "Decode_Type_Attribute",
+      "label": "Decode Type Attribute",
+      "locationX": 732,
+      "locationY": 278,
+      "actionName": "ers_EncodeDecodeURL",
+      "actionType": "apex",
+      "connector": {
+        "targetReference": "Decode_Other_Attribute",
+        "processMetadataValues": []
+      },
+      "flowTransactionModel": "CurrentTransaction",
+      "inputParameters": [
+        {
+          "name": "inputStr",
+          "value": {
+            "elementReference": "wiz_columnTypeAttribs"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "nameSegment": "ers_EncodeDecodeURL",
+      "storeOutputAutomatically": "true",
+      "processMetadataValues": [],
+      "outputParameters": []
+    },
+    {
+      "name": "Get_Field_Information_usf",
+      "label": "Get Field Information usf",
+      "locationX": 732,
+      "locationY": 3338,
+      "actionName": "usf3__GetFieldInformation",
+      "actionType": "apex",
+      "connector": {
+        "targetReference": "Select_Fields",
+        "processMetadataValues": []
+      },
+      "flowTransactionModel": "CurrentTransaction",
+      "inputParameters": [
+        {
+          "name": "objectName",
+          "value": {
+            "elementReference": "vSObject"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "nameSegment": "usf3__GetFieldInformation",
+      "outputParameters": [
+        {
+          "assignToReference": "apexColFieldDescriptors_usf",
+          "name": "fields",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    },
+    {
+      "name": "Get_First_xx_Records",
+      "label": "Get First xx Records",
+      "locationX": 732,
+      "locationY": 4250,
+      "actionName": "ers_QueryNRecords",
+      "actionType": "apex",
+      "connector": {
+        "targetReference": "Get_Records_Result",
+        "processMetadataValues": []
+      },
+      "flowTransactionModel": "CurrentTransaction",
+      "inputParameters": [
+        {
+          "name": "objectApiName",
+          "value": {
+            "elementReference": "vSObject"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "name": "fieldsToQuery",
+          "value": {
+            "elementReference": "vFieldList"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "name": "numberOfRecords",
+          "value": {
+            "elementReference": "vWizRecordCount"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "nameSegment": "ers_QueryNRecords",
+      "outputParameters": [
+        {
+          "assignToReference": "vRecordList",
+          "name": "recordString",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    }
+  ],
+  "apiVersion": "57.0",
+  "areMetricsLoggedToDataCloud": "false",
+  "assignments": [
+    {
+      "name": "Add_Config_Quick_Choice_Option",
+      "label": "Add Config Quick Choice Option",
+      "locationX": 578,
+      "locationY": 1334,
+      "assignmentItems": [
+        {
+          "assignToReference": "colTitles",
+          "operator": "Add",
+          "value": {
+            "elementReference": "cConfig"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "colDescriptions",
+          "operator": "Add",
+          "value": {
+            "stringValue": "Load the column configuration from a custom Configuration record"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "colIcons",
+          "operator": "Add",
+          "value": {
+            "stringValue": "utility:component_customization"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "Field_Selection_Method_Screen",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Add_Last_Field",
+      "label": "Add Last Field",
+      "locationX": 402,
+      "locationY": 2510,
+      "assignmentItems": [
+        {
+          "assignToReference": "colFieldList",
+          "operator": "Add",
+          "value": {
+            "elementReference": "vConfigFields"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "wiz_columnWidths",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "fGetWidthAttribute"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "wiz_columnFlexes",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "fGetFlexAttribute"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "Loop_Previously_Selected_Fields",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Assign_Config_Fields",
+      "label": "Assign Config Fields",
+      "locationX": 534,
+      "locationY": 2030,
+      "assignmentItems": [
+        {
+          "assignToReference": "colFieldList",
+          "operator": "Assign",
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "vLoadedConfig",
+          "operator": "Assign",
+          "value": {
+            "booleanValue": true
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "vFieldList",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "ConfigTable_select.outputSelectedRow.Field_API_Names__c"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "vConfigFields",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "ConfigTable_select.outputSelectedRow.Field_API_Names__c"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "vSelectionMethod",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "ConfigTable_select.outputSelectedRow.Selection_Method__c"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "wiz_columnAlignments",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "ConfigTable_select.outputSelectedRow.Alignments__c"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "wiz_columnEdits",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "ConfigTable_select.outputSelectedRow.Edits__c"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "wiz_columnFields",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "ConfigTable_select.outputSelectedRow.Field_API_Names__c"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "wiz_columnFilters",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "ConfigTable_select.outputSelectedRow.Filters__c"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "wiz_columnIcons",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "ConfigTable_select.outputSelectedRow.Icons__c"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "wiz_columnLabels",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "ConfigTable_select.outputSelectedRow.Labels__c"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "wiz_columnWidths",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "ConfigTable_select.outputSelectedRow.Widths__c"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "wiz_columnWraps",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "ConfigTable_select.outputSelectedRow.Wraps__c"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "wiz_columnCellAttribs",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "ConfigTable_select.outputSelectedRow.Cell_Attributes__c"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "wiz_columnOtherAttribs",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "ConfigTable_select.outputSelectedRow.Other_Attributes__c"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "wiz_columnTypeAttribs",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "ConfigTable_select.outputSelectedRow.Type_Attributes__c"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "objConfig",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "ConfigTable_select.outputSelectedRow"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "colPreSelectedConfigs",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "ConfigTable_select.outputSelectedRows"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "vConfigToggleStatus",
+          "operator": "Assign",
+          "value": {
+            "booleanValue": true
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "Initialize_Width_Flex_Processing",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Assign_PreSelected",
+      "label": "Assign PreSelected",
+      "locationX": 446,
+      "locationY": 1118,
+      "assignmentItems": [
+        {
+          "assignToReference": "colPreSelectedConfigs",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "Get_Available_Config_Records"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "Add_Config_Quick_Choice_Option",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Clear_Early_Exit_Flag",
+      "label": "Clear Early Exit Flag",
+      "locationX": 1062,
+      "locationY": 5066,
+      "assignmentItems": [
+        {
+          "assignToReference": "vEarlyExit",
+          "operator": "Assign",
+          "value": {
+            "booleanValue": false
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "Save_Configuration_Data",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Clear_Record_Id",
+      "label": "Clear Record Id",
+      "locationX": 1194,
+      "locationY": 5786,
+      "assignmentItems": [
+        {
+          "assignToReference": "objConfig.Id",
+          "operator": "Assign",
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "Create_New_Config_Record",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Get_Config_Record_Count",
+      "label": "Get Config Record Count",
+      "locationX": 578,
+      "locationY": 878,
+      "assignmentItems": [
+        {
+          "assignToReference": "vConfigCount",
+          "operator": "AssignCount",
+          "value": {
+            "elementReference": "Get_Available_Config_Records"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "How_Many_Records",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Initialize_Width_Flex_Processing",
+      "label": "Initialize Width & Flex Processing",
+      "locationX": 534,
+      "locationY": 2150,
+      "assignmentItems": [
+        {
+          "assignToReference": "vSeparatorLength",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "fSeparatorLength"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "vSeparatorLocation",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "fSeparatorLocation"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "vCombinedAttribute",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "ConfigTable_select.outputSelectedRow.Widths__c"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "Separate_Width_Flex_Attributes",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Process_Config_Field",
+      "label": "Process Config Field",
+      "locationX": 666,
+      "locationY": 2510,
+      "assignmentItems": [
+        {
+          "assignToReference": "colFieldList",
+          "operator": "Add",
+          "value": {
+            "elementReference": "fFirstField"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "vConfigFields",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "fRemoveField"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "isGoTo": "true",
+        "targetReference": "Last_Field",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Save_Configuration_Data",
+      "label": "Save Configuration Data",
+      "locationX": 1062,
+      "locationY": 5186,
+      "assignmentItems": [
+        {
+          "assignToReference": "objConfig.Selection_Method__c",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "vSelectionMethod"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "objConfig.Object_API_Name__c",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "vSObject"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "objConfig.Alignments__c",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "wiz_columnAlignments"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "objConfig.Edits__c",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "wiz_columnEdits"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "objConfig.Field_API_Names__c",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "wiz_columnFields"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "objConfig.Filters__c",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "wiz_columnFilters"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "objConfig.Icons__c",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "wiz_columnIcons"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "objConfig.Labels__c",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "wiz_columnLabels"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "objConfig.Widths__c",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "fSetWidthFlexAttribute"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "objConfig.Wraps__c",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "wiz_columnWraps"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "objConfig.Cell_Attributes__c",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "wiz_columnCellAttribs"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "objConfig.Type_Attributes__c",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "wiz_columnTypeAttribs"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "objConfig.Other_Attributes__c",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "wiz_columnOtherAttribs"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "Config_Record",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Save_Selected_Config_Record",
+      "label": "Save Selected Config Record",
+      "locationX": 1062,
+      "locationY": 4610,
+      "assignmentItems": [
+        {
+          "assignToReference": "objConfig",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "ConfigTable_saveas.outputSelectedRow"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "vNewConfigName",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "Configuration_Record_Name"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "vConfigToggleStatus",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "ConfigToggle.value"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "Special_Attribute_Changes",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Save_Selection_Method",
+      "label": "Save Selection Method",
+      "locationX": 732,
+      "locationY": 1670,
+      "assignmentItems": [
+        {
+          "assignToReference": "vSelectionMethod",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "FieldSelectionMethod.value"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "Selected_Option",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Separate_Width_Flex_Attributes",
+      "label": "Separate Width & Flex Attributes",
+      "locationX": 534,
+      "locationY": 2270,
+      "assignmentItems": [
+        {
+          "assignToReference": "wiz_columnWidths",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "fGetWidthAttribute"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "wiz_columnFlexes",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "fGetFlexAttribute"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "Last_Field",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Set_Error_Flag",
+      "label": "Set Error Flag",
+      "locationX": 930,
+      "locationY": 5666,
+      "assignmentItems": [
+        {
+          "assignToReference": "vDuplicateNameError",
+          "operator": "Assign",
+          "value": {
+            "booleanValue": true
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "vConfigToggleStatus",
+          "operator": "Assign",
+          "value": {
+            "booleanValue": true
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "isGoTo": "true",
+        "targetReference": "Wizard_Screen",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Set_Field_List_Parameter",
+      "label": "Set Field List Parameter",
+      "locationX": 798,
+      "locationY": 3698,
+      "assignmentItems": [
+        {
+          "assignToReference": "vFieldList",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "List_of_Field_Names"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "wiz_columnFields",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "List_of_Field_Names"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "Did_User_Enter_Field_List",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Set_Field_List_Parameter_0",
+      "label": "Set Field List Parameter",
+      "locationX": 50,
+      "locationY": 3818,
+      "assignmentItems": [
+        {
+          "assignToReference": "wiz_columnFields",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "List_of_Field_Names"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "Get_First_xx_Records",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Set_Field_Name",
+      "label": "Set Field Name",
+      "locationX": 820,
+      "locationY": 3002,
+      "assignmentItems": [
+        {
+          "assignToReference": "apexFieldDescriptor.name",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "Loop_Previously_Selected_Fields"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "Update_Selected_Field_Descriptors",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Set_Metadata_Name_create",
+      "label": "Set Metadata Name",
+      "locationX": 1194,
+      "locationY": 5666,
+      "assignmentItems": [
+        {
+          "assignToReference": "objConfig.Name",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "vNewConfigName"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "objConfig.View_Name__c",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "vNewConfigName"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "Clear_Record_Id",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Set_Quick_Choice_Options",
+      "label": "Set Quick Choice Options",
+      "locationX": 732,
+      "locationY": 518,
+      "assignmentItems": [
+        {
+          "assignToReference": "colTitles",
+          "operator": "Add",
+          "value": {
+            "elementReference": "cPick"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "colTitles",
+          "operator": "Add",
+          "value": {
+            "elementReference": "cType"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "colDescriptions",
+          "operator": "Add",
+          "value": {
+            "stringValue": "Pick your table columns from a list"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "colDescriptions",
+          "operator": "Add",
+          "value": {
+            "stringValue": "Manually specify the column fields"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "colIcons",
+          "operator": "Add",
+          "value": {
+            "stringValue": "standard:picklist_choice"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "colIcons",
+          "operator": "Add",
+          "value": {
+            "stringValue": "standard:text"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "vEarlyExit",
+          "operator": "Assign",
+          "value": {
+            "booleanValue": true
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "wiz_columnFields",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "vFieldList"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "vDebugMode",
+          "operator": "Assign",
+          "value": {
+            "booleanValue": false
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "vConfigFields",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "fTrimFieldList"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "Get_Available_Config_Records",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Update_Selected_Field_Descriptors",
+      "label": "Update Selected Field Descriptors",
+      "locationX": 820,
+      "locationY": 3122,
+      "assignmentItems": [
+        {
+          "assignToReference": "apexColSelectedFieldDescriptors_usf",
+          "operator": "Add",
+          "value": {
+            "elementReference": "apexFieldDescriptor"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "Loop_Previously_Selected_Fields",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Update_Special_Attributes",
+      "label": "Update Special Attributes",
+      "locationX": 930,
+      "locationY": 4850,
+      "assignmentItems": [
+        {
+          "assignToReference": "wiz_columnCellAttribs",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "Special_Cell_Attributes"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "wiz_columnTypeAttribs",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "Special_Type_Attributes"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "wiz_columnOtherAttribs",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "Special_Other_Attributes"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "Clear_Early_Exit_Flag",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Wizard_Finish_ass",
+      "label": "Wizard Finish",
+      "locationX": 1062,
+      "locationY": 6218,
+      "assignmentItems": [
+        {
+          "assignToReference": "vEarlyExit",
+          "operator": "Assign",
+          "value": {
+            "booleanValue": false
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    }
+  ],
+  "constants": [
+    {
+      "name": "cConfig",
+      "dataType": "String",
+      "value": {
+        "stringValue": "Config"
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "cPick",
+      "dataType": "String",
+      "value": {
+        "stringValue": "Pick"
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "cSeparator",
+      "dataType": "String",
+      "value": {
+        "stringValue": "|~|"
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "cType",
+      "dataType": "String",
+      "value": {
+        "stringValue": "Type"
+      },
+      "processMetadataValues": []
+    }
+  ],
+  "decisions": [
+    {
+      "name": "Any_Fields_Selected",
+      "label": "Any Fields Selected?",
+      "locationX": 182,
+      "locationY": 3698,
+      "defaultConnector": {
+        "isGoTo": "true",
+        "targetReference": "Select_Fields",
+        "processMetadataValues": []
+      },
+      "defaultConnectorLabel": "NONE",
+      "rules": [
+        {
+          "name": "YES_fs",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "fListLength",
+              "operator": "GreaterThan",
+              "rightValue": {
+                "numberValue": 0
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Set_Field_List_Parameter_0",
+            "processMetadataValues": []
+          },
+          "label": "YES",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    },
+    {
+      "name": "Check_Field_Selection_Method",
+      "label": "Check Field Selection Method",
+      "locationX": 732,
+      "locationY": 3578,
+      "defaultConnectorLabel": "Error",
+      "rules": [
+        {
+          "name": "PICK",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "vSelectionMethod",
+              "operator": "EqualTo",
+              "rightValue": {
+                "elementReference": "cPick"
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Any_Fields_Selected",
+            "processMetadataValues": []
+          },
+          "label": "PICK",
+          "processMetadataValues": []
+        },
+        {
+          "name": "MANUAL",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "vSelectionMethod",
+              "operator": "EqualTo",
+              "rightValue": {
+                "elementReference": "cType"
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Set_Field_List_Parameter",
+            "processMetadataValues": []
+          },
+          "label": "MANUAL",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    },
+    {
+      "name": "Config_Record",
+      "label": "Config Record?",
+      "locationX": 1062,
+      "locationY": 5306,
+      "defaultConnector": {
+        "targetReference": "Wizard_Finish_ass",
+        "processMetadataValues": []
+      },
+      "defaultConnectorLabel": "NO CONFIG RECORD",
+      "rules": [
+        {
+          "name": "SAVE",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "ConfigButtonSave.value",
+              "operator": "EqualTo",
+              "rightValue": {
+                "stringValue": "Save"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "leftValueReference": "ConfigTable_saveas.numberOfRowsSelected",
+              "operator": "EqualTo",
+              "rightValue": {
+                "numberValue": 1
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Save_Config_Record",
+            "processMetadataValues": []
+          },
+          "label": "SAVE",
+          "processMetadataValues": []
+        },
+        {
+          "name": "CREATE",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "ConfigButtonCreate.value",
+              "operator": "EqualTo",
+              "rightValue": {
+                "stringValue": "Create"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "leftValueReference": "vNewConfigName",
+              "operator": "IsNull",
+              "rightValue": {
+                "booleanValue": false
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Check_For_Existing_Config_Record",
+            "processMetadataValues": []
+          },
+          "label": "CREATE",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    },
+    {
+      "name": "Did_User_Enter_Field_List",
+      "label": "Did User Enter Field List?",
+      "locationX": 798,
+      "locationY": 3818,
+      "defaultConnectorLabel": "Error",
+      "rules": [
+        {
+          "name": "YES",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "fListLength",
+              "operator": "GreaterThan",
+              "rightValue": {
+                "numberValue": 0
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Get_First_xx_Records",
+            "processMetadataValues": []
+          },
+          "label": "YES",
+          "processMetadataValues": []
+        },
+        {
+          "name": "NO",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "fListLength",
+              "operator": "EqualTo",
+              "rightValue": {
+                "numberValue": 0
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "isGoTo": "true",
+            "targetReference": "Any_Fields_Selected",
+            "processMetadataValues": []
+          },
+          "label": "NO",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    },
+    {
+      "name": "Found_Config_Records",
+      "label": "Found Config Records?",
+      "locationX": 732,
+      "locationY": 758,
+      "defaultConnector": {
+        "targetReference": "Field_Selection_Method_Screen",
+        "processMetadataValues": []
+      },
+      "defaultConnectorLabel": "NO",
+      "rules": [
+        {
+          "name": "YES_md",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "Get_Available_Config_Records",
+              "operator": "IsNull",
+              "rightValue": {
+                "booleanValue": false
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Get_Config_Record_Count",
+            "processMetadataValues": []
+          },
+          "label": "YES",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    },
+    {
+      "name": "Get_Records_Result",
+      "label": "Get Records Result",
+      "locationX": 732,
+      "locationY": 4370,
+      "defaultConnector": {
+        "targetReference": "Wizard_Screen",
+        "processMetadataValues": []
+      },
+      "defaultConnectorLabel": "RECORDS FOUND",
+      "rules": [
+        {
+          "name": "NO_RECORDS",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "vRecordList",
+              "operator": "EqualTo",
+              "rightValue": {
+                "stringValue": "[]"
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Wizard_Exit",
+            "processMetadataValues": []
+          },
+          "label": "NO RECORDS",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    },
+    {
+      "name": "How_Many_Records",
+      "label": "How Many Records?",
+      "locationX": 578,
+      "locationY": 998,
+      "defaultConnector": {
+        "targetReference": "Add_Config_Quick_Choice_Option",
+        "processMetadataValues": []
+      },
+      "defaultConnectorLabel": "MULTIPLE",
+      "rules": [
+        {
+          "name": "JUST_ONE",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "vConfigCount",
+              "operator": "EqualTo",
+              "rightValue": {
+                "numberValue": 1
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Assign_PreSelected",
+            "processMetadataValues": []
+          },
+          "label": "JUST ONE",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    },
+    {
+      "name": "Last_Field",
+      "label": "Last Field?",
+      "locationX": 534,
+      "locationY": 2390,
+      "defaultConnector": {
+        "targetReference": "Process_Config_Field",
+        "processMetadataValues": []
+      },
+      "defaultConnectorLabel": "NO",
+      "rules": [
+        {
+          "name": "YES_lf",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "fHasComma",
+              "operator": "EqualTo",
+              "rightValue": {
+                "booleanValue": false
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Add_Last_Field",
+            "processMetadataValues": []
+          },
+          "label": "YES",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    },
+    {
+      "name": "Name_Already_Exists",
+      "label": "Name Already Exists?",
+      "locationX": 1062,
+      "locationY": 5546,
+      "defaultConnector": {
+        "targetReference": "Set_Metadata_Name_create",
+        "processMetadataValues": []
+      },
+      "defaultConnectorLabel": "NEW NAME",
+      "rules": [
+        {
+          "name": "NAME_EXISTS",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "Check_For_Existing_Config_Record",
+              "operator": "IsNull",
+              "rightValue": {
+                "booleanValue": false
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Set_Error_Flag",
+            "processMetadataValues": []
+          },
+          "label": "NAME EXISTS",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    },
+    {
+      "name": "Selected_Option",
+      "label": "Selected Option?",
+      "locationX": 732,
+      "locationY": 1790,
+      "defaultConnector": {
+        "targetReference": "Loop_Previously_Selected_Fields",
+        "processMetadataValues": []
+      },
+      "defaultConnectorLabel": "Pick or Type",
+      "rules": [
+        {
+          "name": "Config",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "vSelectionMethod",
+              "operator": "EqualTo",
+              "rightValue": {
+                "elementReference": "cConfig"
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Select_Config_Record",
+            "processMetadataValues": []
+          },
+          "label": "Config",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    },
+    {
+      "name": "Special_Attribute_Changes",
+      "label": "Special Attribute Changes?",
+      "locationX": 1062,
+      "locationY": 4730,
+      "defaultConnector": {
+        "targetReference": "Clear_Early_Exit_Flag",
+        "processMetadataValues": []
+      },
+      "defaultConnectorLabel": "IGNORE",
+      "rules": [
+        {
+          "name": "SAVE_atrib",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "SaveAttributes.value",
+              "operator": "EqualTo",
+              "rightValue": {
+                "stringValue": "Save"
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Update_Special_Attributes",
+            "processMetadataValues": []
+          },
+          "label": "SAVE",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    }
+  ],
+  "description": "Flow designed to run inside of the datatable CPE to select and set component attributes by interacting with a sample datatable.",
+  "environments": "Default",
+  "formulas": [
+    {
+      "name": "fFirstField",
+      "dataType": "String",
+      "expression": "TRIM(LEFT({!vConfigFields},FIND(\",\",{!vConfigFields})-1))",
+      "processMetadataValues": []
+    },
+    {
+      "name": "fGetFlexAttribute",
+      "dataType": "String",
+      "expression": "IF( {!vSeparatorLocation} > 0, RIGHT( {!vCombinedAttribute}, LEN( {!vCombinedAttribute} ) - {!vSeparatorLocation} - {!vSeparatorLength} + 1 ) , \"\" )",
+      "processMetadataValues": []
+    },
+    {
+      "name": "fGetWidthAttribute",
+      "dataType": "String",
+      "expression": "IF( {!vSeparatorLocation} > 0, LEFT( {!vCombinedAttribute}, {!vSeparatorLocation} - 1 ), {!vCombinedAttribute} )",
+      "processMetadataValues": []
+    },
+    {
+      "name": "fHasComma",
+      "dataType": "Boolean",
+      "expression": "FIND(\",\",{!vConfigFields})>0",
+      "processMetadataValues": []
+    },
+    {
+      "name": "fListLength",
+      "dataType": "Number",
+      "expression": "LEN({!vFieldList})",
+      "scale": 0,
+      "processMetadataValues": []
+    },
+    {
+      "name": "fRemoveField",
+      "dataType": "String",
+      "expression": "MID({!vConfigFields},FIND(\",\",{!vConfigFields})+1,999)",
+      "processMetadataValues": []
+    },
+    {
+      "name": "fSeparatorLength",
+      "dataType": "Number",
+      "expression": "LEN( {!cSeparator} )",
+      "scale": 0,
+      "processMetadataValues": []
+    },
+    {
+      "name": "fSeparatorLocation",
+      "dataType": "Number",
+      "expression": "FIND( {!cSeparator}, {!ConfigTable_select.outputSelectedRow.Widths__c} )",
+      "scale": 0,
+      "processMetadataValues": []
+    },
+    {
+      "name": "fSetWidthFlexAttribute",
+      "dataType": "String",
+      "expression": "{!wiz_columnWidths} & IF( LEN( {!wiz_columnFlexes} ) > 0, {!cSeparator} & {!wiz_columnFlexes}, \"\" )",
+      "processMetadataValues": []
+    },
+    {
+      "name": "fTrimFieldList",
+      "dataType": "String",
+      "expression": "TRIM({!vFieldList})",
+      "processMetadataValues": []
+    }
+  ],
+  "interviewLabel": "Datatable Configuration Wizard {!$Flow.CurrentDateTime}",
+  "label": "Datatable Configuration Wizard",
+  "loops": [
+    {
+      "name": "Loop_Previously_Selected_Fields",
+      "label": "Loop Previously Selected Fields",
+      "locationX": 732,
+      "locationY": 2882,
+      "collectionReference": "colFieldList",
+      "iterationOrder": "Asc",
+      "nextValueConnector": {
+        "targetReference": "Set_Field_Name",
+        "processMetadataValues": []
+      },
+      "noMoreValuesConnector": {
+        "targetReference": "Get_Field_Information_usf",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": [],
+      "assignNextValueToReference": ""
+    }
+  ],
+  "processMetadataValues": [
+    {
+      "name": "BuilderType",
+      "value": {
+        "stringValue": "LightningFlowBuilder"
+      }
+    },
+    {
+      "name": "CanvasMode",
+      "value": {
+        "stringValue": "AUTO_LAYOUT_CANVAS"
+      }
+    },
+    {
+      "name": "OriginBuilderType",
+      "value": {
+        "stringValue": "LightningFlowBuilder"
+      }
+    }
+  ],
+  "processType": "Flow",
+  "recordCreates": [
+    {
+      "name": "Create_New_Config_Record",
+      "label": "Create New Config Record",
+      "locationX": 1194,
+      "locationY": 5906,
+      "connector": {
+        "targetReference": "Wizard_Finish_ass",
+        "processMetadataValues": []
+      },
+      "inputReference": "objConfig",
+      "processMetadataValues": [],
+      "inputAssignments": []
+    }
+  ],
+  "recordLookups": [
+    {
+      "name": "Check_For_Existing_Config_Record",
+      "label": "Check For Existing Config Record",
+      "locationX": 1062,
+      "locationY": 5426,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "Name_Already_Exists",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "Name",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "vNewConfigName"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "getFirstRecordOnly": true,
+      "object": "FlowTableViewDefinition__c",
+      "storeOutputAutomatically": true,
+      "processMetadataValues": [],
+      "outputAssignments": [],
+      "queriedFields": []
+    },
+    {
+      "name": "Get_Available_Config_Records",
+      "label": "Get Available Config Records",
+      "locationX": 732,
+      "locationY": 638,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "Found_Config_Records",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "Active__c",
+          "operator": "EqualTo",
+          "value": {
+            "booleanValue": true
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "Object_API_Name__c",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "vSObject"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "getFirstRecordOnly": false,
+      "object": "FlowTableViewDefinition__c",
+      "sortField": "Name",
+      "sortOrder": "Asc",
+      "storeOutputAutomatically": true,
+      "processMetadataValues": [],
+      "outputAssignments": [],
+      "queriedFields": []
+    }
+  ],
+  "recordUpdates": [
+    {
+      "name": "Save_Config_Record",
+      "label": "Save Config Record",
+      "locationX": 666,
+      "locationY": 5426,
+      "connector": {
+        "targetReference": "Wizard_Finish_ass",
+        "processMetadataValues": []
+      },
+      "inputReference": "objConfig",
+      "processMetadataValues": [],
+      "filters": [],
+      "inputAssignments": []
+    }
+  ],
+  "screens": [
+    {
+      "name": "Field_Selection_Method_Screen",
+      "label": "Field Selection Method Screen",
+      "locationX": 732,
+      "locationY": 1550,
+      "allowBack": false,
+      "allowFinish": true,
+      "allowPause": false,
+      "connector": {
+        "targetReference": "Save_Selection_Method",
+        "processMetadataValues": []
+      },
+      "fields": [
+        {
+          "name": "qcHeader",
+          "fieldText": "<p><b style=\"font-size: 18px; background-color: rgb(255, 255, 255); color: rgb(62, 62, 60);\">{!vSObject}</b></p>",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "FieldSelectionMethod",
+          "extensionName": "c:fsc_quickChoiceFSC",
+          "fieldType": "ComponentInstance",
+          "inputParameters": [
+            {
+              "name": "displayMode",
+              "value": {
+                "stringValue": "Visual"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "inputMode",
+              "value": {
+                "stringValue": "Dual String Collections"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "numberOfColumns",
+              "value": {
+                "stringValue": "1"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "includeIcons",
+              "value": {
+                "booleanValue": true
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "navOnSelect",
+              "value": {
+                "booleanValue": true
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "choiceIcons",
+              "value": {
+                "elementReference": "colIcons"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "choiceLabels",
+              "value": {
+                "elementReference": "colTitles"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "choiceValues",
+              "value": {
+                "elementReference": "colDescriptions"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "required",
+              "value": {
+                "booleanValue": true
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "masterLabel",
+              "value": {
+                "stringValue": "How do you want to select your columns?"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "iconSize",
+              "value": {
+                "stringValue": "large"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "value",
+              "value": {
+                "elementReference": "vSelectionMethod"
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "inputsOnNextNavToAssocScrn": "UseStoredValues",
+          "isRequired": true,
+          "storeOutputAutomatically": true,
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "outputParameters": []
+        }
+      ],
+      "showFooter": false,
+      "showHeader": false,
+      "processMetadataValues": [],
+      "rules": []
+    },
+    {
+      "name": "Select_Config_Record",
+      "label": "Select Config Record",
+      "locationX": 534,
+      "locationY": 1910,
+      "allowBack": true,
+      "allowFinish": true,
+      "allowPause": true,
+      "connector": {
+        "targetReference": "Assign_Config_Fields",
+        "processMetadataValues": []
+      },
+      "fields": [
+        {
+          "name": "ConfigTable_select",
+          "dataTypeMappings": {
+            "typeName": "T",
+            "typeValue": "FlowTableViewDefinition__c"
+          },
+          "extensionName": "c:datatable",
+          "fieldType": "ComponentInstance",
+          "inputParameters": [
+            {
+              "name": "objectName",
+              "value": {
+                "stringValue": "FlowTableViewDefinition__c"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "isDisplayHeader",
+              "value": {
+                "booleanValue": true
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "cb_isDisplayHeader",
+              "value": {
+                "stringValue": "CB_TRUE"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "tableLabel",
+              "value": {
+                "stringValue": "Select a Datatable Configuration"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "tableIcon",
+              "value": {
+                "stringValue": "utility:component_customization"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "columnFields",
+              "value": {
+                "stringValue": "Name,Object_API_Name__c,Field_API_Names__c,CreatedDate,LastModifiedDate"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "cb_matchCaseOnFilters",
+              "value": {
+                "stringValue": "CB_FALSE"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "columnLabels",
+              "value": {
+                "stringValue": "Name:Configuration Name, Object_API_Name__c:Object, Field_API_Names__c:Columns, CreatedDate:Created, LastModifiedDate:Modified"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "columnWidths",
+              "value": {
+                "stringValue": "Name:225, Object_API_Name__c:125, Field_API_Names__c:310, CreatedDate:110, LastModifiedDate:110"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "columnWraps",
+              "value": {
+                "stringValue": "Name:true, Object_API_Name__c:true, Field_API_Names__c:true, Labels__c:true, CreatedDate:true, LastModifiedDate:true"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "hideClearSelectionButton",
+              "value": {
+                "booleanValue": true
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "cb_hideClearSelectionButton",
+              "value": {
+                "stringValue": "CB_TRUE"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "singleRowSelection",
+              "value": {
+                "booleanValue": true
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "cb_singleRowSelection",
+              "value": {
+                "stringValue": "CB_TRUE"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "columnFilters",
+              "value": {
+                "stringValue": "All"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "tableData",
+              "value": {
+                "elementReference": "Get_Available_Config_Records"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "preSelectedRows",
+              "value": {
+                "elementReference": "colPreSelectedConfigs"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "cb_suppressBottomBar",
+              "value": {
+                "stringValue": "CB_FALSE"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "cb_navigateNextOnSave",
+              "value": {
+                "stringValue": "CB_FALSE"
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "inputsOnNextNavToAssocScrn": "UseStoredValues",
+          "isRequired": true,
+          "storeOutputAutomatically": true,
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "outputParameters": []
+        }
+      ],
+      "showFooter": true,
+      "showHeader": true,
+      "processMetadataValues": [],
+      "rules": []
+    },
+    {
+      "name": "Select_Fields",
+      "label": "Select Fields",
+      "locationX": 732,
+      "locationY": 3458,
+      "allowBack": false,
+      "allowFinish": true,
+      "allowPause": false,
+      "connector": {
+        "targetReference": "Check_Field_Selection_Method",
+        "processMetadataValues": []
+      },
+      "fields": [
+        {
+          "name": "Object",
+          "fieldText": "<p><b style=\"font-size: 18px;\">{!vSObject}</b></p>",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "SelectFields",
+          "extensionName": "c:fsc_dualListBox3",
+          "fieldType": "ComponentInstance",
+          "inputParameters": [
+            {
+              "name": "allOptionsStringFormat",
+              "value": {
+                "stringValue": "object"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "useWhichObjectKeyForData",
+              "value": {
+                "stringValue": "name"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "useWhichObjectKeyForSort",
+              "value": {
+                "stringValue": "label"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "selectedLabel",
+              "value": {
+                "stringValue": "Selected"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "min",
+              "value": {
+                "numberValue": 1
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "max",
+              "value": {
+                "numberValue": 20
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "size",
+              "value": {
+                "numberValue": 7
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "allOptionsFieldDescriptorList",
+              "value": {
+                "elementReference": "apexColFieldDescriptors_usf"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "label",
+              "value": {
+                "stringValue": "Select and Order your Datatable Fields"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "sourceLabel",
+              "value": {
+                "stringValue": "Available"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "selectedOptionsFieldDescriptorList",
+              "value": {
+                "elementReference": "apexColSelectedFieldDescriptors_usf"
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "inputsOnNextNavToAssocScrn": "UseStoredValues",
+          "isRequired": true,
+          "outputParameters": [
+            {
+              "assignToReference": "vFieldList",
+              "name": "selectedOptionsCSV",
+              "processMetadataValues": []
+            },
+            {
+              "assignToReference": "apexColSelectedFieldDescriptors_usf",
+              "name": "selectedOptionsFieldDescriptorList",
+              "processMetadataValues": []
+            }
+          ],
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "visibilityRule": {
+            "conditionLogic": "or",
+            "conditions": [
+              {
+                "leftValueReference": "vSelectionMethod",
+                "operator": "EqualTo",
+                "rightValue": {
+                  "elementReference": "cPick"
+                },
+                "processMetadataValues": []
+              },
+              {
+                "leftValueReference": "vSelectionMethod",
+                "operator": "EqualTo",
+                "rightValue": {
+                  "elementReference": "cConfig"
+                },
+                "processMetadataValues": []
+              }
+            ],
+            "processMetadataValues": []
+          },
+          "processMetadataValues": [],
+          "choiceReferences": []
+        },
+        {
+          "name": "List_of_Field_Names",
+          "dataType": "String",
+          "defaultValue": {
+            "elementReference": "vFieldList"
+          },
+          "fieldText": "Enter a comma separated list of field API names",
+          "fieldType": "InputField",
+          "isRequired": false,
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "visibilityRule": {
+            "conditionLogic": "and",
+            "conditions": [
+              {
+                "leftValueReference": "vSelectionMethod",
+                "operator": "EqualTo",
+                "rightValue": {
+                  "elementReference": "cType"
+                },
+                "processMetadataValues": []
+              }
+            ],
+            "processMetadataValues": []
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        }
+      ],
+      "showFooter": true,
+      "showHeader": false,
+      "processMetadataValues": [],
+      "rules": []
+    },
+    {
+      "name": "Wizard_Exit",
+      "label": "Wizard Exit",
+      "locationX": 402,
+      "locationY": 4490,
+      "allowBack": false,
+      "allowFinish": true,
+      "allowPause": false,
+      "fields": [
+        {
+          "name": "FinishMessage_0",
+          "fieldText": "<p><b style=\"color: rgb(182, 56, 56); font-size: 24px;\"><i>The \ufeff\ufeffColumn Wizard requires that the selected Object ({!vSObject}) has at least one record!</i></b></p>",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        }
+      ],
+      "nextOrFinishButtonLabel": "Cancel",
+      "showFooter": true,
+      "showHeader": false,
+      "processMetadataValues": [],
+      "rules": []
+    },
+    {
+      "name": "Wizard_Screen",
+      "label": "Wizard Screen",
+      "locationX": 1062,
+      "locationY": 4490,
+      "allowBack": false,
+      "allowFinish": true,
+      "allowPause": false,
+      "connector": {
+        "targetReference": "Save_Selected_Config_Record",
+        "processMetadataValues": []
+      },
+      "fields": [
+        {
+          "name": "debug",
+          "fieldText": "<p>Debug Mode: {!vDebugMode}</p><p>Selected Object: {!vSObject}</p><p>Selected Fields: {!vFieldList}</p><p>Selected Field Descriptors: {!apexColSelectedFieldDescriptors_usf}</p><p>10 Records: {!vRecordList}</p><p><br></p><p><u>Wizard Attributes</u></p><p>Alignments: {!wiz_columnAlignments}</p><p>Edits: {!wiz_columnEdits}</p><p>Filters: {!wiz_columnFilters}</p><p>Labels: {!wiz_columnLabels}</p><p>Icons: {!wiz_columnIcons}</p><p>Widths: {!wiz_columnWidths}</p><p>Flexes: {!wiz_columnFlexes}</p><p>Wraps: {!wiz_columnWraps}</p>",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "visibilityRule": {
+            "conditionLogic": "and",
+            "conditions": [
+              {
+                "leftValueReference": "vDebugMode",
+                "operator": "EqualTo",
+                "rightValue": {
+                  "booleanValue": true
+                },
+                "processMetadataValues": []
+              }
+            ],
+            "processMetadataValues": []
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "WizardTable",
+          "dataTypeMappings": {
+            "typeName": "T",
+            "typeValue": "User"
+          },
+          "extensionName": "c:datatable",
+          "fieldType": "ComponentInstance",
+          "inputParameters": [
+            {
+              "name": "isConfigMode",
+              "value": {
+                "booleanValue": true
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "columnFields",
+              "value": {
+                "elementReference": "vFieldList"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "tableDataString",
+              "value": {
+                "elementReference": "vRecordList"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "hideCheckboxColumn",
+              "value": {
+                "booleanValue": true
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "isUserDefinedObject",
+              "value": {
+                "booleanValue": true
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "columnAlignments",
+              "value": {
+                "elementReference": "wiz_columnAlignments"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "columnEdits",
+              "value": {
+                "elementReference": "wiz_columnEdits"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "columnFilters",
+              "value": {
+                "elementReference": "wiz_columnFilters"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "columnIcons",
+              "value": {
+                "elementReference": "wiz_columnIcons"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "columnLabels",
+              "value": {
+                "elementReference": "wiz_columnLabels"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "columnWidths",
+              "value": {
+                "elementReference": "wiz_columnWidths"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "columnWraps",
+              "value": {
+                "elementReference": "wiz_columnWraps"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "cb_isUserDefinedObject",
+              "value": {
+                "stringValue": "CB_TRUE"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "columnCellAttribs",
+              "value": {
+                "elementReference": "wiz_columnCellAttribs"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "columnTypeAttribs",
+              "value": {
+                "elementReference": "wiz_columnTypeAttribs"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "columnOtherAttribs",
+              "value": {
+                "elementReference": "wiz_columnOtherAttribs"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "columnFlexes",
+              "value": {
+                "elementReference": "wiz_columnFlexes"
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "inputsOnNextNavToAssocScrn": "UseStoredValues",
+          "isRequired": true,
+          "outputParameters": [
+            {
+              "assignToReference": "wiz_columnLabels",
+              "name": "wizColumnLabels",
+              "processMetadataValues": []
+            },
+            {
+              "assignToReference": "wiz_columnFields",
+              "name": "wizColumnFields",
+              "processMetadataValues": []
+            },
+            {
+              "assignToReference": "wiz_columnAlignments",
+              "name": "wizColumnAlignments",
+              "processMetadataValues": []
+            },
+            {
+              "assignToReference": "wiz_columnEdits",
+              "name": "wizColumnEdits",
+              "processMetadataValues": []
+            },
+            {
+              "assignToReference": "wiz_columnFilters",
+              "name": "wizColumnFilters",
+              "processMetadataValues": []
+            },
+            {
+              "assignToReference": "wiz_columnIcons",
+              "name": "wizColumnIcons",
+              "processMetadataValues": []
+            },
+            {
+              "assignToReference": "wiz_columnWidths",
+              "name": "wizColumnWidths",
+              "processMetadataValues": []
+            },
+            {
+              "assignToReference": "wiz_columnFlexes",
+              "name": "wizColumnFlexes",
+              "processMetadataValues": []
+            },
+            {
+              "assignToReference": "wiz_columnWraps",
+              "name": "wizColumnWraps",
+              "processMetadataValues": []
+            },
+            {
+              "assignToReference": "wiz_objectName",
+              "name": "wizSObject",
+              "processMetadataValues": []
+            }
+          ],
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": []
+        },
+        {
+          "name": "AttributeToggle",
+          "extensionName": "flowruntime:toggle",
+          "fieldType": "ComponentInstance",
+          "inputParameters": [
+            {
+              "name": "label",
+              "value": {
+                "stringValue": "Edit Special Attributes"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "messageToggleActive",
+              "value": {
+                "stringValue": "Edit"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "messageToggleInactive",
+              "value": {
+                "stringValue": "Hide"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "value",
+              "value": {
+                "booleanValue": false
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "inputsOnNextNavToAssocScrn": "UseStoredValues",
+          "isRequired": true,
+          "storeOutputAutomatically": true,
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "outputParameters": []
+        },
+        {
+          "name": "Special_Cell_Attributes",
+          "dataType": "String",
+          "defaultValue": {
+            "elementReference": "Decode_Cell_Attribute.outputStr"
+          },
+          "fieldText": "Special Cell Attributes",
+          "fieldType": "InputField",
+          "isRequired": false,
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "visibilityRule": {
+            "conditionLogic": "or",
+            "conditions": [
+              {
+                "leftValueReference": "AttributeToggle.value",
+                "operator": "EqualTo",
+                "rightValue": {
+                  "booleanValue": true
+                },
+                "processMetadataValues": []
+              }
+            ],
+            "processMetadataValues": []
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "Special_Type_Attributes",
+          "dataType": "String",
+          "defaultValue": {
+            "elementReference": "Decode_Type_Attribute.outputStr"
+          },
+          "fieldText": "Special Type Attributes",
+          "fieldType": "InputField",
+          "isRequired": false,
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "visibilityRule": {
+            "conditionLogic": "or",
+            "conditions": [
+              {
+                "leftValueReference": "AttributeToggle.value",
+                "operator": "EqualTo",
+                "rightValue": {
+                  "booleanValue": true
+                },
+                "processMetadataValues": []
+              }
+            ],
+            "processMetadataValues": []
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "Special_Other_Attributes",
+          "dataType": "String",
+          "defaultValue": {
+            "elementReference": "Decode_Other_Attribute.outputStr"
+          },
+          "fieldText": "Special Other Attributes",
+          "fieldType": "InputField",
+          "isRequired": false,
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "visibilityRule": {
+            "conditionLogic": "or",
+            "conditions": [
+              {
+                "leftValueReference": "AttributeToggle.value",
+                "operator": "EqualTo",
+                "rightValue": {
+                  "booleanValue": true
+                },
+                "processMetadataValues": []
+              }
+            ],
+            "processMetadataValues": []
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "SaveAttributes",
+          "extensionName": "c:fsc_flowButtonBar",
+          "fieldType": "ComponentInstance",
+          "inputParameters": [
+            {
+              "name": "alignment",
+              "value": {
+                "stringValue": "left"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "orientation",
+              "value": {
+                "stringValue": "horizontal"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "showLines",
+              "value": {
+                "stringValue": "below"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "actionMode",
+              "value": {
+                "stringValue": "selection"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "buttons",
+              "value": {
+                "stringValue": "[{\"label\":\"Ignore Changes\",\"value\":\"Ignore\",\"iconPosition\":\"left\",\"variant\":\"neutral\",\"index\":0},{\"label\":\"Save Changes\",\"value\":\"Save\",\"iconPosition\":\"left\",\"variant\":\"neutral\",\"index\":1}]"
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "inputsOnNextNavToAssocScrn": "UseStoredValues",
+          "isRequired": true,
+          "storeOutputAutomatically": true,
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "visibilityRule": {
+            "conditionLogic": "and",
+            "conditions": [
+              {
+                "leftValueReference": "AttributeToggle.value",
+                "operator": "EqualTo",
+                "rightValue": {
+                  "booleanValue": true
+                },
+                "processMetadataValues": []
+              }
+            ],
+            "processMetadataValues": []
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "outputParameters": []
+        },
+        {
+          "name": "ConfigToggle",
+          "extensionName": "flowruntime:toggle",
+          "fieldType": "ComponentInstance",
+          "inputParameters": [
+            {
+              "name": "label",
+              "value": {
+                "stringValue": "Show Configuration Record Options"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "messageToggleActive",
+              "value": {
+                "stringValue": "Show"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "messageToggleInactive",
+              "value": {
+                "stringValue": "Hide"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "value",
+              "value": {
+                "elementReference": "vConfigToggleStatus"
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "inputsOnNextNavToAssocScrn": "UseStoredValues",
+          "isRequired": true,
+          "storeOutputAutomatically": true,
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "outputParameters": []
+        },
+        {
+          "name": "ConfigTable_saveas",
+          "dataTypeMappings": {
+            "typeName": "T",
+            "typeValue": "FlowTableViewDefinition__c"
+          },
+          "extensionName": "c:datatable",
+          "fieldType": "ComponentInstance",
+          "inputParameters": [
+            {
+              "name": "objectName",
+              "value": {
+                "stringValue": "FlowTableViewDefinition__c"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "tableData",
+              "value": {
+                "elementReference": "Get_Available_Config_Records"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "isDisplayHeader",
+              "value": {
+                "booleanValue": true
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "cb_isDisplayHeader",
+              "value": {
+                "stringValue": "CB_TRUE"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "tableLabel",
+              "value": {
+                "stringValue": "Select a Configuration Record to Update"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "tableIcon",
+              "value": {
+                "stringValue": "utility:component_customization"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "cb_suppressBottomBar",
+              "value": {
+                "stringValue": "CB_FALSE"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "cb_navigateNextOnSave",
+              "value": {
+                "stringValue": "CB_FALSE"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "columnFields",
+              "value": {
+                "stringValue": "Name,Object_API_Name__c,Field_API_Names__c,CreatedDate,LastModifiedDate"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "columnFilters",
+              "value": {
+                "stringValue": "All"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "columnLabels",
+              "value": {
+                "stringValue": "Name:Configuration Name, Object_API_Name__c:Object, Field_API_Names__c:Columns, CreatedDate:Created, LastModifiedDate:Modified"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "columnWidths",
+              "value": {
+                "stringValue": "Name:225, Object_API_Name__c:125, Field_API_Names__c:310, CreatedDate:110, LastModifiedDate:110"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "columnWraps",
+              "value": {
+                "stringValue": "Name:true, Object_API_Name__c:true, Field_API_Names__c:true, Labels__c:true, CreatedDate:true, LastModifiedDate:true"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "singleRowSelection",
+              "value": {
+                "booleanValue": true
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "cb_singleRowSelection",
+              "value": {
+                "stringValue": "CB_TRUE"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "preSelectedRows",
+              "value": {
+                "elementReference": "colPreSelectedConfigs"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "hideClearSelectionButton",
+              "value": {
+                "booleanValue": true
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "cb_hideClearSelectionButton",
+              "value": {
+                "stringValue": "CB_TRUE"
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "inputsOnNextNavToAssocScrn": "UseStoredValues",
+          "isRequired": true,
+          "storeOutputAutomatically": true,
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "visibilityRule": {
+            "conditionLogic": "and",
+            "conditions": [
+              {
+                "leftValueReference": "ConfigToggle.value",
+                "operator": "EqualTo",
+                "rightValue": {
+                  "booleanValue": true
+                },
+                "processMetadataValues": []
+              }
+            ],
+            "processMetadataValues": []
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "outputParameters": []
+        },
+        {
+          "name": "ConfigButtonSave",
+          "extensionName": "c:fsc_flowButtonBar",
+          "fieldType": "ComponentInstance",
+          "inputParameters": [
+            {
+              "name": "alignment",
+              "value": {
+                "stringValue": "left"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "orientation",
+              "value": {
+                "stringValue": "horizontal"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "showLines",
+              "value": {
+                "stringValue": "below"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "actionMode",
+              "value": {
+                "stringValue": "navigation"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "buttons",
+              "value": {
+                "stringValue": "[{\"label\":\"Save As Selected Configuration Record\",\"value\":\"Save\",\"iconPosition\":\"left\",\"variant\":\"brand-outline\",\"iconName\":\"utility:save\",\"index\":0}]"
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "inputsOnNextNavToAssocScrn": "UseStoredValues",
+          "isRequired": true,
+          "storeOutputAutomatically": true,
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "visibilityRule": {
+            "conditionLogic": "and",
+            "conditions": [
+              {
+                "leftValueReference": "ConfigToggle.value",
+                "operator": "EqualTo",
+                "rightValue": {
+                  "booleanValue": true
+                },
+                "processMetadataValues": []
+              }
+            ],
+            "processMetadataValues": []
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "outputParameters": []
+        },
+        {
+          "name": "Configuration_Record_Name",
+          "dataType": "String",
+          "defaultValue": {
+            "elementReference": "vNewConfigName"
+          },
+          "fieldText": "New Configuration Record Name (Enter a name here if you want to create a new record of this configuration for reuse later)",
+          "fieldType": "InputField",
+          "isRequired": false,
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "visibilityRule": {
+            "conditionLogic": "and",
+            "conditions": [
+              {
+                "leftValueReference": "ConfigToggle.value",
+                "operator": "EqualTo",
+                "rightValue": {
+                  "booleanValue": true
+                },
+                "processMetadataValues": []
+              }
+            ],
+            "processMetadataValues": []
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "DuplicateNameErrorMessage",
+          "fieldText": "<p><i style=\"color: rgb(255, 0, 0);\">A Configuration Record with the name </i><b style=\"color: rgb(255, 0, 0);\"><i>{!vNewConfigName}</i></b><i style=\"color: rgb(255, 0, 0);\"> already exists. Please provide a unique name for a new record.</i></p>",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "visibilityRule": {
+            "conditionLogic": "and",
+            "conditions": [
+              {
+                "leftValueReference": "vDuplicateNameError",
+                "operator": "EqualTo",
+                "rightValue": {
+                  "booleanValue": true
+                },
+                "processMetadataValues": []
+              }
+            ],
+            "processMetadataValues": []
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "ConfigButtonCreate",
+          "extensionName": "c:fsc_flowButtonBar",
+          "fieldType": "ComponentInstance",
+          "inputParameters": [
+            {
+              "name": "alignment",
+              "value": {
+                "stringValue": "left"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "orientation",
+              "value": {
+                "stringValue": "horizontal"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "showLines",
+              "value": {
+                "stringValue": "neither"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "actionMode",
+              "value": {
+                "stringValue": "navigation"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "buttons",
+              "value": {
+                "stringValue": "[{\"label\":\"Create New Configuration Record\",\"value\":\"Create\",\"iconPosition\":\"left\",\"variant\":\"brand-outline\",\"iconName\":\"utility:new\",\"index\":0}]"
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "inputsOnNextNavToAssocScrn": "UseStoredValues",
+          "isRequired": true,
+          "storeOutputAutomatically": true,
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "visibilityRule": {
+            "conditionLogic": "and",
+            "conditions": [
+              {
+                "leftValueReference": "ConfigToggle.value",
+                "operator": "EqualTo",
+                "rightValue": {
+                  "booleanValue": true
+                },
+                "processMetadataValues": []
+              }
+            ],
+            "processMetadataValues": []
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "outputParameters": []
+        },
+        {
+          "name": "NoLoadConfig",
+          "extensionName": "c:fsc_flowButtonBar",
+          "fieldType": "ComponentInstance",
+          "inputParameters": [
+            {
+              "name": "alignment",
+              "value": {
+                "stringValue": "right"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "orientation",
+              "value": {
+                "stringValue": "horizontal"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "showLines",
+              "value": {
+                "stringValue": "above"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "actionMode",
+              "value": {
+                "stringValue": "navigation"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "name": "buttons",
+              "value": {
+                "stringValue": "[{\"label\":\"Done\",\"value\":\"Done\",\"iconPosition\":\"left\",\"variant\":\"brand\",\"iconName\":null,\"index\":0}]"
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "inputsOnNextNavToAssocScrn": "UseStoredValues",
+          "isRequired": true,
+          "storeOutputAutomatically": true,
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "outputParameters": []
+        }
+      ],
+      "showFooter": false,
+      "showHeader": false,
+      "processMetadataValues": [],
+      "rules": []
+    }
+  ],
+  "start": {
+    "locationX": 606,
+    "locationY": 0,
+    "connector": {
+      "targetReference": "Decode_Cell_Attribute",
+      "processMetadataValues": []
+    },
+    "processMetadataValues": [],
+    "filters": []
+  },
+  "status": "Active",
+  "variables": [
+    {
+      "name": "apexColFieldDescriptors_usf",
+      "apexClass": "usf3__FieldDescriptor",
+      "dataType": "Apex",
+      "isCollection": true,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "name": "apexColSelectedFieldDescriptors_usf",
+      "apexClass": "usf3__FieldDescriptor",
+      "dataType": "Apex",
+      "isCollection": true,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "name": "apexFieldDescriptor",
+      "apexClass": "usf3__FieldDescriptor",
+      "dataType": "Apex",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "name": "colDescriptions",
+      "dataType": "String",
+      "isCollection": true,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "name": "colFieldList",
+      "dataType": "String",
+      "isCollection": true,
+      "isInput": true,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "name": "colIcons",
+      "dataType": "String",
+      "isCollection": true,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "name": "colPreSelectedConfigs",
+      "dataType": "SObject",
+      "isCollection": true,
+      "isInput": false,
+      "isOutput": false,
+      "objectType": "FlowTableViewDefinition__c",
+      "processMetadataValues": []
+    },
+    {
+      "name": "colTitles",
+      "dataType": "String",
+      "isCollection": true,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "name": "objConfig",
+      "dataType": "SObject",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "objectType": "FlowTableViewDefinition__c",
+      "processMetadataValues": []
+    },
+    {
+      "name": "vCombinedAttribute",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "name": "vConfigCount",
+      "dataType": "Number",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "scale": 0,
+      "processMetadataValues": []
+    },
+    {
+      "name": "vConfigFields",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "name": "vConfigToggleStatus",
+      "dataType": "Boolean",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "value": {
+        "booleanValue": false
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "vDebugMode",
+      "dataType": "Boolean",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": false,
+      "value": {
+        "booleanValue": false
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "vDuplicateNameError",
+      "dataType": "Boolean",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "value": {
+        "booleanValue": false
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "vEarlyExit",
+      "dataType": "Boolean",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": true,
+      "processMetadataValues": []
+    },
+    {
+      "name": "vFieldList",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": true,
+      "processMetadataValues": []
+    },
+    {
+      "name": "vLoadedConfig",
+      "dataType": "Boolean",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "value": {
+        "booleanValue": false
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "vNewConfigName",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "value": {
+        "stringValue": ""
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "vRecordList",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "name": "vSelectionMethod",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": true,
+      "processMetadataValues": []
+    },
+    {
+      "name": "vSeparatorLength",
+      "dataType": "Number",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "scale": 0,
+      "processMetadataValues": []
+    },
+    {
+      "name": "vSeparatorLocation",
+      "dataType": "Number",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "scale": 0,
+      "value": {
+        "numberValue": 0
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "vSObject",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "name": "vWizRecordCount",
+      "dataType": "Number",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": false,
+      "scale": 0,
+      "value": {
+        "numberValue": 10
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "wiz_columnAlignments",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": true,
+      "processMetadataValues": []
+    },
+    {
+      "name": "wiz_columnCellAttribs",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": true,
+      "processMetadataValues": []
+    },
+    {
+      "name": "wiz_columnEdits",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": true,
+      "processMetadataValues": []
+    },
+    {
+      "name": "wiz_columnFields",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": true,
+      "processMetadataValues": []
+    },
+    {
+      "name": "wiz_columnFilters",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": true,
+      "processMetadataValues": []
+    },
+    {
+      "name": "wiz_columnFlexes",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": true,
+      "processMetadataValues": []
+    },
+    {
+      "name": "wiz_columnIcons",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": true,
+      "processMetadataValues": []
+    },
+    {
+      "name": "wiz_columnLabels",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": true,
+      "processMetadataValues": []
+    },
+    {
+      "name": "wiz_columnOtherAttribs",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": true,
+      "processMetadataValues": []
+    },
+    {
+      "name": "wiz_columnTypeAttribs",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": true,
+      "processMetadataValues": []
+    },
+    {
+      "name": "wiz_columnWidths",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": true,
+      "processMetadataValues": []
+    },
+    {
+      "name": "wiz_columnWraps",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": true,
+      "processMetadataValues": []
+    },
+    {
+      "name": "wiz_objectName",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    }
+  ],
+  "apexPluginCalls": [],
+  "choices": [],
+  "dynamicChoiceSets": [],
+  "recordDeletes": [],
+  "stages": [],
+  "steps": [],
+  "subflows": [],
+  "textTemplates": [],
+  "waits": []
+}

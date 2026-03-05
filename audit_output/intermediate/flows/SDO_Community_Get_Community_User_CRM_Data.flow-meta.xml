@@ -1,0 +1,24 @@
+{
+  "fullName": "SDO_Community_Get_Community_User_CRM_Data",
+  "processType": "AutoLaunchedFlow",
+  "description": "Returns User, Contact, and Account record of logged-in Community user.",
+  "status": "Active",
+  "start": {
+    "connector": {}
+  },
+  "variables": [],
+  "assignments": [],
+  "decisions": [],
+  "loops": [],
+  "recordLookups": [],
+  "recordCreates": [],
+  "recordUpdates": [],
+  "recordDeletes": [],
+  "screens": [],
+  "subflows": [],
+  "actionCalls": [],
+  "constants": [],
+  "formulas": [],
+  "choices": [],
+  "textTemplates": []
+}

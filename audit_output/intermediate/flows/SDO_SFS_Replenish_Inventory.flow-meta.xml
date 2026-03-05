@@ -1,0 +1,76 @@
+{
+  "fullName": "SDO_SFS_Replenish_Inventory",
+  "actionCalls": [
+    {
+      "name": "Replenish_Inventory",
+      "label": "Replenish Inventory",
+      "locationX": 176,
+      "locationY": 134,
+      "actionName": "inv_replenishment__ReplenishInventory",
+      "actionType": "batchJobAction",
+      "flowTransactionModel": "CurrentTransaction",
+      "nameSegment": "inv_replenishment__ReplenishInventory",
+      "offset": "0",
+      "storeOutputAutomatically": "true",
+      "processMetadataValues": [],
+      "inputParameters": [],
+      "outputParameters": []
+    }
+  ],
+  "apiVersion": "63.0",
+  "areMetricsLoggedToDataCloud": "false",
+  "environments": "Default",
+  "interviewLabel": "SDO SFS Replenish Inventory {!$Flow.CurrentDateTime}",
+  "label": "SDO SFS Replenish Inventory",
+  "processMetadataValues": [
+    {
+      "name": "BuilderType",
+      "value": {
+        "stringValue": "LightningFlowBuilder"
+      }
+    },
+    {
+      "name": "CanvasMode",
+      "value": {
+        "stringValue": "AUTO_LAYOUT_CANVAS"
+      }
+    },
+    {
+      "name": "OriginBuilderType",
+      "value": {
+        "stringValue": "LightningFlowBuilder"
+      }
+    }
+  ],
+  "processType": "Flow",
+  "start": {
+    "locationX": 50,
+    "locationY": 0,
+    "connector": {
+      "targetReference": "Replenish_Inventory",
+      "processMetadataValues": []
+    },
+    "processMetadataValues": [],
+    "filters": []
+  },
+  "status": "Active",
+  "apexPluginCalls": [],
+  "assignments": [],
+  "choices": [],
+  "constants": [],
+  "decisions": [],
+  "dynamicChoiceSets": [],
+  "formulas": [],
+  "loops": [],
+  "recordCreates": [],
+  "recordDeletes": [],
+  "recordLookups": [],
+  "recordUpdates": [],
+  "screens": [],
+  "stages": [],
+  "steps": [],
+  "subflows": [],
+  "textTemplates": [],
+  "variables": [],
+  "waits": []
+}

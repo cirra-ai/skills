@@ -1,0 +1,24 @@
+{
+  "fullName": "FSK_Actual_Times_Capturing",
+  "processType": "AutoLaunchedFlow",
+  "description": "Updates Actual Start/End/Duration on SA status change.",
+  "status": "Active",
+  "start": {
+    "connector": {}
+  },
+  "variables": [],
+  "assignments": [],
+  "decisions": [],
+  "loops": [],
+  "recordLookups": [],
+  "recordCreates": [],
+  "recordUpdates": [],
+  "recordDeletes": [],
+  "screens": [],
+  "subflows": [],
+  "actionCalls": [],
+  "constants": [],
+  "formulas": [],
+  "choices": [],
+  "textTemplates": []
+}

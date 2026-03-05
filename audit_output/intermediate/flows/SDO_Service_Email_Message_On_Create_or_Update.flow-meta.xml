@@ -1,0 +1,24 @@
+{
+  "fullName": "SDO_Service_Email_Message_On_Create_or_Update",
+  "processType": "AutoLaunchedFlow",
+  "description": "Handles inbound/outbound emails for SLA automation.",
+  "status": "Active",
+  "start": {
+    "connector": {}
+  },
+  "variables": [],
+  "assignments": [],
+  "decisions": [],
+  "loops": [],
+  "recordLookups": [],
+  "recordCreates": [],
+  "recordUpdates": [],
+  "recordDeletes": [],
+  "screens": [],
+  "subflows": [],
+  "actionCalls": [],
+  "constants": [],
+  "formulas": [],
+  "choices": [],
+  "textTemplates": []
+}

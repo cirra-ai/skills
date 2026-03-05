@@ -1,0 +1,1081 @@
+{
+  "fullName": "SDO_Service_CTI_ID_V",
+  "actionCalls": [
+    {
+      "name": "OpenContact",
+      "label": "OpenContact",
+      "locationX": 1339,
+      "locationY": 35,
+      "actionName": "c:SDO_Service_Flow_OpenSObject",
+      "actionType": "component",
+      "connector": {
+        "targetReference": "ContactPoppedScreen",
+        "processMetadataValues": []
+      },
+      "faultConnector": {
+        "targetReference": "ContactPopErrorScreen",
+        "processMetadataValues": []
+      },
+      "flowTransactionModel": "CurrentTransaction",
+      "inputParameters": [
+        {
+          "name": "SObject",
+          "value": {
+            "elementReference": "vaContactId"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "nameSegment": "c:SDO_Service_Flow_OpenSObject",
+      "outputParameters": [
+        {
+          "assignToReference": "OpenedContact",
+          "name": "SObject",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    }
+  ],
+  "apiVersion": "49.0",
+  "areMetricsLoggedToDataCloud": "false",
+  "choices": [
+    {
+      "name": "AC_Adapter_not_charging",
+      "choiceText": "AC Adapter not charging *",
+      "dataType": "String",
+      "value": {
+        "stringValue": "AC Adapter not charging *"
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Keyboard",
+      "choiceText": "Projector",
+      "dataType": "String",
+      "value": {
+        "stringValue": "Keyboard"
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Laptop_Display",
+      "choiceText": "Display",
+      "dataType": "String",
+      "value": {
+        "stringValue": "Laptop Display"
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Memory",
+      "choiceText": "Sound",
+      "dataType": "String",
+      "value": {
+        "stringValue": "Memory"
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "No",
+      "choiceText": "No",
+      "dataType": "String",
+      "value": {
+        "stringValue": "No"
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "No_POST",
+      "choiceText": "No POST",
+      "dataType": "String",
+      "value": {
+        "stringValue": "No POST"
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Power_Supply",
+      "choiceText": "Power Supply *",
+      "dataType": "String",
+      "value": {
+        "stringValue": "Power Supply *"
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Screen_has_no_power",
+      "choiceText": "Screen has no power",
+      "dataType": "String",
+      "value": {
+        "stringValue": "No power"
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "The_Boardroom",
+      "choiceText": "The Boardroom",
+      "dataType": "String",
+      "value": {
+        "stringValue": "The Boardroom"
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "The_Earbuds",
+      "choiceText": "The Earbuds",
+      "dataType": "String",
+      "value": {
+        "stringValue": "The Earbuds"
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "The_Headphones",
+      "choiceText": "The Headphones",
+      "dataType": "String",
+      "value": {
+        "stringValue": "The Headphones"
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "The_Huddle",
+      "choiceText": "The Huddle *",
+      "dataType": "String",
+      "value": {
+        "stringValue": "The Huddle *"
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "The_Offsite",
+      "choiceText": "The Offsite",
+      "dataType": "String",
+      "value": {
+        "stringValue": "The Offsite"
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Verification_Successful",
+      "choiceText": "Verification Successful",
+      "dataType": "String",
+      "processMetadataValues": []
+    },
+    {
+      "name": "Wireless_Adapter",
+      "choiceText": "Wireless Adapter",
+      "dataType": "String",
+      "value": {
+        "stringValue": "Wireless Adapter"
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Yes",
+      "choiceText": "Yes",
+      "dataType": "String",
+      "value": {
+        "stringValue": "Yes"
+      },
+      "processMetadataValues": []
+    }
+  ],
+  "decisions": [
+    {
+      "name": "New_deContactId",
+      "label": "New_Does Contact Exist",
+      "locationX": 390,
+      "locationY": 257,
+      "defaultConnector": {
+        "targetReference": "New_quConfirmRightDetails",
+        "processMetadataValues": []
+      },
+      "defaultConnectorLabel": "[Default Outcome]",
+      "rules": [
+        {
+          "name": "Contact_Null2",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "vaContactId",
+              "operator": "EqualTo",
+              "rightValue": {
+                "stringValue": ""
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Incorrect_Details",
+            "processMetadataValues": []
+          },
+          "label": "Contact Null",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    },
+    {
+      "name": "New_DoB_Success_or_Not",
+      "label": "New_DoB Success or Not",
+      "locationX": 858,
+      "locationY": 28,
+      "defaultConnector": {
+        "targetReference": "New_Confirmed",
+        "processMetadataValues": []
+      },
+      "defaultConnectorLabel": "[Default Outcome]",
+      "rules": [
+        {
+          "name": "Incorrect_DoB",
+          "conditionLogic": "or",
+          "conditions": [
+            {
+              "leftValueReference": "MonthInput",
+              "operator": "NotEqualTo",
+              "rightValue": {
+                "elementReference": "vaMonth"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "leftValueReference": "YearInput",
+              "operator": "NotEqualTo",
+              "rightValue": {
+                "elementReference": "YearInput"
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Incorrect_Details",
+            "processMetadataValues": []
+          },
+          "label": "Incorrect DoB",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    }
+  ],
+  "description": "What: Service Flow for CTI_Flow Tab Who: Service Team",
+  "dynamicChoiceSets": [
+    {
+      "name": "Month",
+      "dataType": "Picklist",
+      "displayField": "",
+      "object": "",
+      "picklistField": "SDO_Service_Month_of_Birth__c",
+      "picklistObject": "Contact",
+      "processMetadataValues": [],
+      "filters": [],
+      "outputAssignments": []
+    },
+    {
+      "name": "Year",
+      "dataType": "Picklist",
+      "displayField": "",
+      "object": "",
+      "picklistField": "SDO_PA_Year_of_Birth__c",
+      "picklistObject": "Contact",
+      "processMetadataValues": [],
+      "filters": [],
+      "outputAssignments": []
+    }
+  ],
+  "interviewLabel": "ID&V {!$Flow.CurrentDateTime}",
+  "label": "ID&V",
+  "processMetadataValues": [
+    {
+      "name": "BuilderType",
+      "value": {
+        "stringValue": "LightningFlowBuilder"
+      }
+    },
+    {
+      "name": "CanvasMode",
+      "value": {
+        "stringValue": "FREE_FORM_CANVAS"
+      }
+    }
+  ],
+  "processType": "Flow",
+  "recordLookups": [
+    {
+      "name": "New_Birthdate_Lookup",
+      "label": "New_Birthdate Lookup",
+      "locationX": 856,
+      "locationY": 259,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "New_DoB_Success_or_Not",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "LastName",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "Lastname"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "SDO_Service_Month_of_Birth__c",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "Month"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "SDO_PA_Year_of_Birth__c",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "Year_of_Birth"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "object": "Contact",
+      "outputAssignments": [
+        {
+          "assignToReference": "vaContactId",
+          "field": "Id",
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "vaLastName",
+          "field": "LastName",
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "YearInput",
+          "field": "SDO_PA_Year_of_Birth__c",
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "MonthInput",
+          "field": "SDO_Service_Month_of_Birth__c",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": [],
+      "queriedFields": []
+    },
+    {
+      "name": "New_rlContact",
+      "label": "New_Contact Lookup",
+      "locationX": 390,
+      "locationY": 141,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "New_deContactId",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "FirstName",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "Firstname"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "LastName",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "Lastname"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "object": "Contact",
+      "outputAssignments": [
+        {
+          "assignToReference": "vaAccountId",
+          "field": "AccountId",
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "vaBirthdate",
+          "field": "Birthdate",
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "vaEmail",
+          "field": "Email",
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "vaFirstName",
+          "field": "FirstName",
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "vaContactId",
+          "field": "Id",
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "vaLastName",
+          "field": "LastName",
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "vaCity",
+          "field": "MailingCity",
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "vaCountry",
+          "field": "MailingCountry",
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "vaPostCode",
+          "field": "MailingPostalCode",
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "vaState",
+          "field": "MailingState",
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "vaStreetAddress",
+          "field": "MailingStreet",
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "vaPhone",
+          "field": "Phone",
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "vaMonth",
+          "field": "SDO_Service_Month_of_Birth__c",
+          "processMetadataValues": []
+        }
+      ],
+      "sortField": "LastName",
+      "sortOrder": "Desc",
+      "processMetadataValues": [],
+      "queriedFields": []
+    }
+  ],
+  "screens": [
+    {
+      "name": "ContactPopErrorScreen",
+      "label": "ContactPopErrorScreen",
+      "locationX": 1483,
+      "locationY": 139,
+      "allowBack": true,
+      "allowFinish": true,
+      "allowPause": true,
+      "fields": [
+        {
+          "name": "ContactPopErrorText",
+          "fieldText": "Contact Pop Error",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        }
+      ],
+      "showFooter": true,
+      "showHeader": true,
+      "processMetadataValues": [],
+      "rules": []
+    },
+    {
+      "name": "ContactPoppedScreen",
+      "label": "ContactPoppedScreen",
+      "locationX": 1484,
+      "locationY": 32,
+      "allowBack": true,
+      "allowFinish": true,
+      "allowPause": true,
+      "fields": [
+        {
+          "name": "ContactPopComplete",
+          "fieldText": "Contact Popped !",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        }
+      ],
+      "showFooter": true,
+      "showHeader": true,
+      "processMetadataValues": [],
+      "rules": []
+    },
+    {
+      "name": "Incorrect_Details",
+      "label": "Incorrect Details",
+      "locationX": 625,
+      "locationY": 28,
+      "allowBack": true,
+      "allowFinish": true,
+      "allowPause": true,
+      "connector": {
+        "targetReference": "New_quConfirm",
+        "processMetadataValues": []
+      },
+      "fields": [
+        {
+          "name": "IncorrectMessage",
+          "fieldText": "Incorrect Customer Details. Please start again.",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        }
+      ],
+      "showFooter": true,
+      "showHeader": true,
+      "processMetadataValues": [],
+      "rules": []
+    },
+    {
+      "name": "New_Confirmed",
+      "label": "New_Postcode Check",
+      "locationX": 1164,
+      "locationY": 33,
+      "allowBack": true,
+      "allowFinish": true,
+      "allowPause": false,
+      "connector": {
+        "targetReference": "OpenContact",
+        "processMetadataValues": []
+      },
+      "fields": [
+        {
+          "name": "Verified",
+          "fieldText": "<SPAN ALIGN=\"LEFT\"><FONT FACE=\"Arial\" STYLE=\"font-size:20px\" COLOR=\"#000000\" LETTERSPACING=\"0\" KERNING=\"1\">Postcode Verification</FONT></SPAN>",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "Finish",
+          "fieldText": "<DIV ALIGN=\"LEFT\"><FONT FACE=\"Arial\" STYLE=\"font-size:12px\" COLOR=\"#000000\" LETTERSPACING=\"0\" KERNING=\"0\">Finally ask the caller to verify their postcode:</FONT></DIV><DIV ALIGN=\"LEFT\"><FONT FACE=\"Arial\" STYLE=\"font-size:12px\" COLOR=\"#000000\" LETTERSPACING=\"0\" KERNING=\"0\"><B>{!vaPostCode}</B></FONT></DIV><DIV ALIGN=\"LEFT\"><FONT FACE=\"Arial\" STYLE=\"font-size:12px\" COLOR=\"#000000\" LETTERSPACING=\"0\" KERNING=\"0\"></FONT></DIV><DIV ALIGN=\"LEFT\"><FONT FACE=\"Arial\" STYLE=\"font-size:12px\" COLOR=\"#000000\" LETTERSPACING=\"0\" KERNING=\"0\">Acknowledge you are satisfied with the verification before proceeding.</FONT></DIV><DIV ALIGN=\"LEFT\"><FONT FACE=\"Arial\" STYLE=\"font-size:12px\" COLOR=\"#000000\" LETTERSPACING=\"0\" KERNING=\"0\"></FONT></DIV><DIV ALIGN=\"LEFT\"><FONT FACE=\"Arial\" STYLE=\"font-size:12px\" COLOR=\"#000000\" LETTERSPACING=\"0\" KERNING=\"0\">All access to the records and their changes are tracked.</FONT></DIV><DIV ALIGN=\"LEFT\"><FONT FACE=\"Arial\" STYLE=\"font-size:12px\" COLOR=\"#000000\" LETTERSPACING=\"0\" KERNING=\"0\"></FONT></DIV><DIV ALIGN=\"LEFT\"><FONT FACE=\"Arial\" STYLE=\"font-size:12px\" COLOR=\"#000000\" LETTERSPACING=\"0\" KERNING=\"0\">Click <B>&apos;Next&apos;</B> to open the contact record.</FONT></DIV>",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        }
+      ],
+      "showFooter": true,
+      "showHeader": true,
+      "processMetadataValues": [],
+      "rules": []
+    },
+    {
+      "name": "New_quConfirm",
+      "label": "New_Capture Contact Name",
+      "locationX": 390,
+      "locationY": 27,
+      "allowBack": true,
+      "allowFinish": false,
+      "allowPause": false,
+      "connector": {
+        "targetReference": "New_rlContact",
+        "processMetadataValues": []
+      },
+      "fields": [
+        {
+          "name": "Step1",
+          "fieldText": "<SPAN ALIGN=\"LEFT\"><FONT FACE=\"Arial\" STYLE=\"font-size:20px\" COLOR=\"#000000\" LETTERSPACING=\"0\" KERNING=\"0\">Ask caller for both of the following:</FONT></SPAN>",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "Step1Text",
+          "fieldText": "<SPAN ALIGN=\"LEFT\"><FONT FACE=\"Arial\" STYLE=\"font-size:12px\" COLOR=\"#000000\" LETTERSPACING=\"0\" KERNING=\"1\">Confirm that the contact exists:</FONT></SPAN>",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "Firstname",
+          "dataType": "String",
+          "defaultValue": {
+            "elementReference": "vaFirstName"
+          },
+          "fieldText": "Firstname",
+          "fieldType": "InputField",
+          "isRequired": true,
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "Lastname",
+          "dataType": "String",
+          "defaultValue": {
+            "elementReference": "vaLastName"
+          },
+          "fieldText": "Lastname",
+          "fieldType": "InputField",
+          "isRequired": true,
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        }
+      ],
+      "showFooter": true,
+      "showHeader": true,
+      "processMetadataValues": [],
+      "rules": []
+    },
+    {
+      "name": "New_quConfirmRightDetails",
+      "label": "New_Capture DoB",
+      "locationX": 634,
+      "locationY": 260,
+      "allowBack": true,
+      "allowFinish": false,
+      "allowPause": false,
+      "connector": {
+        "targetReference": "New_Birthdate_Lookup",
+        "processMetadataValues": []
+      },
+      "fields": [
+        {
+          "name": "ConfirmTitle",
+          "fieldText": "<SPAN ALIGN=\"LEFT\"><FONT FACE=\"Arial\" STYLE=\"font-size:20px\" COLOR=\"#000000\" LETTERSPACING=\"0\" KERNING=\"0\">Verify the Caller</FONT></SPAN>",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "ConfirmBody",
+          "fieldText": "<SPAN ALIGN=\"LEFT\"><FONT FACE=\"Arial\" STYLE=\"font-size:12px\" COLOR=\"#000000\" LETTERSPACING=\"0\" KERNING=\"1\"><B>Name:</B> {!vaFirstName} {!vaLastName} </FONT></SPAN><DIV ALIGN=\"LEFT\"><FONT FACE=\"Arial\" STYLE=\"font-size:12px\" COLOR=\"#000000\" LETTERSPACING=\"0\" KERNING=\"0\"> </FONT></DIV>",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "Ask",
+          "fieldText": "Ask the customer for their month and year of birth.",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "Month_of_Birth",
+          "choiceReferences": [
+            "Month"
+          ],
+          "dataType": "String",
+          "fieldText": "Month of Birth",
+          "fieldType": "DropdownBox",
+          "isRequired": false,
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "Year_of_Birth",
+          "choiceReferences": [
+            "Year"
+          ],
+          "dataType": "String",
+          "fieldText": "Year of Birth",
+          "fieldType": "DropdownBox",
+          "isRequired": false,
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "inputParameters": [],
+          "outputParameters": []
+        }
+      ],
+      "showFooter": true,
+      "showHeader": true,
+      "processMetadataValues": [],
+      "rules": []
+    },
+    {
+      "name": "Open_Contact",
+      "label": "Open_Contact",
+      "locationX": 1337,
+      "locationY": 226,
+      "allowBack": true,
+      "allowFinish": false,
+      "allowPause": false,
+      "fields": [
+        {
+          "name": "OpenRecord",
+          "fieldText": "<a href=\"/console#%2F{!vaContactId}%3FsrPos%3D0%26srKp%3D003\" target=\"top\">View {!Firstname} {!Lastname}&#8217;s contact record</a>",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        }
+      ],
+      "showFooter": true,
+      "showHeader": true,
+      "processMetadataValues": [],
+      "rules": []
+    }
+  ],
+  "start": {
+    "locationX": 50,
+    "locationY": 50,
+    "connector": {
+      "targetReference": "New_quConfirm",
+      "processMetadataValues": []
+    },
+    "processMetadataValues": [],
+    "filters": []
+  },
+  "status": "Active",
+  "variables": [
+    {
+      "name": "Maiden",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "name": "MonthInput",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "name": "OpenedContact",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "name": "retURL",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": true,
+      "processMetadataValues": []
+    },
+    {
+      "name": "vaAccountId",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": true,
+      "processMetadataValues": []
+    },
+    {
+      "name": "vaBirthdate",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "name": "vaCaseId",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": true,
+      "processMetadataValues": []
+    },
+    {
+      "name": "vaCaseNumber",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": true,
+      "processMetadataValues": []
+    },
+    {
+      "name": "vaCity",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": true,
+      "processMetadataValues": []
+    },
+    {
+      "name": "vaContactId",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": true,
+      "value": {
+        "stringValue": ""
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "vaCountry",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": true,
+      "processMetadataValues": []
+    },
+    {
+      "name": "vaEmail",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": true,
+      "processMetadataValues": []
+    },
+    {
+      "name": "vaFirstName",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": true,
+      "processMetadataValues": []
+    },
+    {
+      "name": "vaLastName",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": true,
+      "processMetadataValues": []
+    },
+    {
+      "name": "vaMaiden",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "name": "vaMonth",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "name": "vaOppId",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": true,
+      "processMetadataValues": []
+    },
+    {
+      "name": "vaPhone",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": true,
+      "processMetadataValues": []
+    },
+    {
+      "name": "vaPostCode",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": true,
+      "processMetadataValues": []
+    },
+    {
+      "name": "vaState",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": true,
+      "processMetadataValues": []
+    },
+    {
+      "name": "vaStreetAddress",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": true,
+      "processMetadataValues": []
+    },
+    {
+      "name": "vaTaskId",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": true,
+      "processMetadataValues": []
+    },
+    {
+      "name": "YearInput",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    }
+  ],
+  "apexPluginCalls": [],
+  "assignments": [],
+  "constants": [],
+  "formulas": [],
+  "loops": [],
+  "recordCreates": [],
+  "recordDeletes": [],
+  "recordUpdates": [],
+  "stages": [],
+  "steps": [],
+  "subflows": [],
+  "textTemplates": [],
+  "waits": []
+}

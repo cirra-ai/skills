@@ -1,0 +1,313 @@
+{
+  "fullName": "SDO_Service_WEM_Absence_Request",
+  "apiVersion": "53.0",
+  "areMetricsLoggedToDataCloud": "false",
+  "description": "*What*: Used for Agents to create absence requests.  *Who*: Gregory Johnson. *When*: June 2022",
+  "dynamicChoiceSets": [
+    {
+      "name": "choice_Absence_Type",
+      "dataType": "Picklist",
+      "displayField": "",
+      "object": "",
+      "picklistField": "Type",
+      "picklistObject": "ResourceAbsence",
+      "processMetadataValues": [],
+      "filters": [],
+      "outputAssignments": []
+    }
+  ],
+  "interviewLabel": "WEM - Absence Request {!$Flow.CurrentDateTime}",
+  "label": "WEM - Absence Request",
+  "processMetadataValues": [
+    {
+      "name": "BuilderType",
+      "value": {
+        "stringValue": "LightningFlowBuilder"
+      }
+    },
+    {
+      "name": "CanvasMode",
+      "value": {
+        "stringValue": "AUTO_LAYOUT_CANVAS"
+      }
+    },
+    {
+      "name": "OriginBuilderType",
+      "value": {
+        "stringValue": "LightningFlowBuilder"
+      }
+    }
+  ],
+  "processType": "Flow",
+  "recordCreates": [
+    {
+      "name": "Create_Resource_Absence",
+      "label": "Create Resource Absence",
+      "locationX": 176,
+      "locationY": 398,
+      "connector": {
+        "targetReference": "Confirm",
+        "processMetadataValues": []
+      },
+      "inputAssignments": [
+        {
+          "field": "Description",
+          "value": {
+            "elementReference": "Description"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "End",
+          "value": {
+            "elementReference": "End_Date"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "ResourceId",
+          "value": {
+            "elementReference": "varServiceResourceId"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "Start",
+          "value": {
+            "elementReference": "Start_Date"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "Type",
+          "value": {
+            "elementReference": "Absence_Type"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "object": "ResourceAbsence",
+      "storeOutputAutomatically": "true",
+      "processMetadataValues": []
+    }
+  ],
+  "recordLookups": [
+    {
+      "description": "Where RelatedRecord.Id = User.Id",
+      "name": "Get_Service_Resource_Record",
+      "label": "Get Service Resource Record",
+      "locationX": 176,
+      "locationY": 158,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "Absence_Request",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "RelatedRecordId",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "$User.Id"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "object": "ServiceResource",
+      "outputAssignments": [
+        {
+          "assignToReference": "varServiceResourceId",
+          "field": "Id",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": [],
+      "queriedFields": []
+    }
+  ],
+  "screens": [
+    {
+      "name": "Absence_Request",
+      "label": "Absence Request",
+      "locationX": 176,
+      "locationY": 278,
+      "allowBack": true,
+      "allowFinish": true,
+      "allowPause": true,
+      "connector": {
+        "targetReference": "Create_Resource_Absence",
+        "processMetadataValues": []
+      },
+      "fields": [
+        {
+          "name": "Absence_Display",
+          "fieldText": "<p><b style=\"font-size: 18px;\"><span class=\"ql-cursor\">\ufeff</span>Fill out the details of your absence request below and it will be automatically submitted for approval.</b></p>",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "Absence_Type",
+          "choiceReferences": [
+            "choice_Absence_Type"
+          ],
+          "dataType": "String",
+          "fieldText": "Absence Type",
+          "fieldType": "DropdownBox",
+          "isRequired": true,
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "Description",
+          "dataType": "String",
+          "fieldText": "Description",
+          "fieldType": "InputField",
+          "isRequired": true,
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "Start_Date",
+          "dataType": "Date",
+          "fieldText": "Start Date",
+          "fieldType": "InputField",
+          "isRequired": true,
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "End_Date",
+          "dataType": "Date",
+          "fieldText": "End Date",
+          "fieldType": "InputField",
+          "isRequired": true,
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        }
+      ],
+      "showFooter": true,
+      "showHeader": false,
+      "processMetadataValues": [],
+      "rules": []
+    },
+    {
+      "name": "Confirm",
+      "label": "Confirm",
+      "locationX": 176,
+      "locationY": 518,
+      "allowBack": true,
+      "allowFinish": true,
+      "allowPause": true,
+      "fields": [
+        {
+          "name": "Confirm_Display",
+          "fieldText": "<p><span style=\"font-size: 20px;\">Your absence request has been submitted. You will receive a message once approval is completed. </span></p>",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        }
+      ],
+      "showFooter": true,
+      "showHeader": false,
+      "processMetadataValues": [],
+      "rules": []
+    }
+  ],
+  "start": {
+    "locationX": 50,
+    "locationY": 0,
+    "connector": {
+      "targetReference": "Get_Service_Resource_Record",
+      "processMetadataValues": []
+    },
+    "processMetadataValues": [],
+    "filters": []
+  },
+  "status": "Active",
+  "variables": [
+    {
+      "name": "varServiceResourceId",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    }
+  ],
+  "actionCalls": [],
+  "apexPluginCalls": [],
+  "assignments": [],
+  "choices": [],
+  "constants": [],
+  "decisions": [],
+  "formulas": [],
+  "loops": [],
+  "recordDeletes": [],
+  "recordUpdates": [],
+  "stages": [],
+  "steps": [],
+  "subflows": [],
+  "textTemplates": [],
+  "waits": []
+}

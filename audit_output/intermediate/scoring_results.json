@@ -1,0 +1,6371 @@
+[
+  {
+    "name": "AA_Custom_NotificationFlow",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "AA_New_Booking_Flow",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "Account_Engagement_Bulk_Asset_Copy_Flow",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "Account_Engagement_Sandbox_Production_Bulk_Asset_Copy_Flow",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "Add_Asset_to_Maintenance_Plan",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "Approve_Time_Sheet_Entries",
+    "type": "Screen Flow",
+    "score": 93,
+    "maxScore": 110,
+    "pct": 85,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No subflow usage in a complex flow - should decompose",
+      "DML operations may not be using collection variables for bulk safety",
+      "Record lookup 'GetTimeSheetEntries' has no filter criteria",
+      "Record lookup 'GetUnapprovedTimeSheetEntries' has no filter criteria",
+      "No explicit run mode set - recommend setting explicitly",
+      "Some record lookups use manual field assignments instead of auto-store (FLS concerns)"
+    ],
+    "categories": {
+      "designNaming": 16,
+      "logicStructure": 20,
+      "architecture": 11,
+      "performanceBulk": 15,
+      "errorHandling": 20,
+      "security": 11
+    }
+  },
+  {
+    "name": "Approve_Time_Sheets",
+    "type": "Screen Flow",
+    "score": 95,
+    "maxScore": 110,
+    "pct": 86,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "Consider extracting reusable logic into subflows",
+      "DML operations may not be using collection variables for bulk safety",
+      "Record lookup 'GetTimeSheetEntries' has no filter criteria",
+      "Record lookup 'GetTimeSheets' has no filter criteria",
+      "No explicit run mode set - recommend setting explicitly",
+      "Some record lookups use manual field assignments instead of auto-store (FLS concerns)"
+    ],
+    "categories": {
+      "designNaming": 16,
+      "logicStructure": 20,
+      "architecture": 13,
+      "performanceBulk": 15,
+      "errorHandling": 20,
+      "security": 11
+    }
+  },
+  {
+    "name": "B2B_LE_Checkout_with_Bundle",
+    "type": "Checkout Flow",
+    "score": 104,
+    "maxScore": 110,
+    "pct": 95,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow description"
+    ],
+    "categories": {
+      "designNaming": 15,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 19,
+      "errorHandling": 20,
+      "security": 15
+    }
+  },
+  {
+    "name": "Calculate_Promotions",
+    "type": "Checkout Flow",
+    "score": 100,
+    "maxScore": 110,
+    "pct": 91,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 14,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 18,
+      "security": 13
+    }
+  },
+  {
+    "name": "Checkout_Main_Checkout",
+    "type": "Checkout Flow",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "Checkout_Main_with_Salesforce_Pricing_and_Promotions",
+    "type": "Checkout Flow",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "Checkout_Subflow_Calculate_Promotions",
+    "type": "Checkout Flow",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "Checkout_Subflow_Confirm_Price",
+    "type": "Checkout Flow",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "Checkout_Subflow_Error",
+    "type": "Checkout Flow",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "Create_Benefits_and_Filters",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "Create_Program_and_Rebate_Types",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "Create_Service_Report_and_Document_Recipient",
+    "type": "Field Service Mobile",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "Create_TSE_SA_Entry",
+    "type": "Field Service Mobile",
+    "score": 80,
+    "maxScore": 110,
+    "pct": 73,
+    "verdict": "Review",
+    "issues": [
+      "No subflow usage in a complex flow - should decompose",
+      "Only 0/3 DML/action elements have fault paths",
+      "No fault paths on any DML operations - critical gap",
+      "No error screens or fault handling for user-facing flow",
+      "No explicit run mode set - recommend setting explicitly",
+      "Some record lookups use manual field assignments instead of auto-store (FLS concerns)"
+    ],
+    "categories": {
+      "designNaming": 16,
+      "logicStructure": 20,
+      "architecture": 11,
+      "performanceBulk": 20,
+      "errorHandling": 2,
+      "security": 11
+    }
+  },
+  {
+    "name": "Create_TSE_SA_Exit",
+    "type": "Field Service Mobile",
+    "score": 81,
+    "maxScore": 110,
+    "pct": 74,
+    "verdict": "Review",
+    "issues": [
+      "Missing flow description",
+      "Consider extracting reusable logic into subflows",
+      "Only 0/2 DML/action elements have fault paths",
+      "No fault paths on any DML operations - critical gap",
+      "No error screens or fault handling for user-facing flow",
+      "No explicit run mode set - recommend setting explicitly",
+      "Some record lookups use manual field assignments instead of auto-store (FLS concerns)"
+    ],
+    "categories": {
+      "designNaming": 15,
+      "logicStructure": 20,
+      "architecture": 13,
+      "performanceBulk": 20,
+      "errorHandling": 2,
+      "security": 11
+    }
+  },
+  {
+    "name": "Datatable_Configuration_Wizard5",
+    "type": "Screen Flow",
+    "score": 81,
+    "maxScore": 110,
+    "pct": 74,
+    "verdict": "Review",
+    "issues": [
+      "Large flow with 48 elements - consider breaking into subflows",
+      "No subflow usage in a complex flow - should decompose",
+      "Only 0/7 DML/action elements have fault paths",
+      "No fault paths on any DML operations - critical gap",
+      "No error screens or fault handling for user-facing flow",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 17,
+      "logicStructure": 18,
+      "architecture": 11,
+      "performanceBulk": 20,
+      "errorHandling": 2,
+      "security": 13
+    }
+  },
+  {
+    "name": "FSK_Actual_Times_Capturing",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "FSK_Cancelation_Canned_Notification",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "FSK_Canned_Notification_Dispatched",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "FSK_Exclude_Resource_On_Rejection",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "FSK_Populate_Custom_Work_Order_Lookup",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "FSK_Reflect_Actual_Times_on_Gantt",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "FSK_Resource_Deactivation",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "FSK_Service_Appointment",
+    "type": "Workflow",
+    "score": 105,
+    "maxScore": 110,
+    "pct": 95,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 13,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "FSK_Set_Assign_Resource_On_Service_Appointment",
+    "type": "Workflow",
+    "score": 105,
+    "maxScore": 110,
+    "pct": 95,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 13,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "FSK_Set_Assign_Service_Resource_On_Service_Appointment",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "FSK_Set_Gantt_Label_Concatenation",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "FSK_Update_Work_Order_Child_Records",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "FSK_Work_Order_Process",
+    "type": "Workflow",
+    "score": 105,
+    "maxScore": 110,
+    "pct": 95,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 13,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "Field_Service_Mobile_Status_Transition",
+    "type": "Field Service Mobile",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "Knowledge_Approval_Flow_Get_Role_LLM",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "LS_Demo_Reset",
+    "type": "Screen Flow",
+    "score": 84,
+    "maxScore": 110,
+    "pct": 76,
+    "verdict": "Review",
+    "issues": [
+      "Only 0/1 DML/action elements have fault paths",
+      "No fault paths on any DML operations - critical gap",
+      "No error screens or fault handling for user-facing flow",
+      "No explicit run mode set - recommend setting explicitly",
+      "Some record lookups use manual field assignments instead of auto-store (FLS concerns)"
+    ],
+    "categories": {
+      "designNaming": 16,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 2,
+      "security": 11
+    }
+  },
+  {
+    "name": "MCC_BackupTriggeredSendWorkflow",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "MCC_BackupWorkflow",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "MCC_FailBackupWorkflow",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "MCC_NewSupportRequest",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "MCC_PopulateBackupWorkflow",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "MCC_PopulateTrigSendBackupWorkflow",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "MCC_ScheduledSend",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "MCC_SendClassFrom",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "MCC_SendComplete",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "MCC_SendFailed",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "MCC_SendStatusDateTime",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "MCC_TrackingAsOfIER",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "MCC_TrackingAsOfSD",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "OMSOrderEntry_FlowContainer",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "Order_Entry_Checkout_Session",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "Order_Entry_Subflow_Account_and_Store_Select",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "Order_Entry_Subflow_Payment_Billing_Address",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "Order_Entry_Subflow_Set_Order_On_Behalf_Of",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "Order_Entry_Subflow_Shipping_Details",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "Order_Entry_Subflow_Update_Checkout_State",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "Order_Entry_Update_Owner_from_Cart",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "Order_Search_Bulk_Action_Email_Contacts",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "Order_Search_Bulk_Action_Flow_Sample",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "PMT_Mass_update_Task_Assignee",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "PMT_Mass_update_Task_Status",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "Publish_an_article",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "Reject_Time_Sheets",
+    "type": "Screen Flow",
+    "score": 95,
+    "maxScore": 110,
+    "pct": 86,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow description",
+      "Consider extracting reusable logic into subflows",
+      "SOQL in loop: 'Get Time Sheet Entries' queries inside loop 'Iterate Over Time Sheet Entries'",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 17,
+      "logicStructure": 20,
+      "architecture": 13,
+      "performanceBulk": 12,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "Reject_Time_Sheets_Entries",
+    "type": "Screen Flow",
+    "score": 96,
+    "maxScore": 110,
+    "pct": 87,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow description",
+      "DML in loop: 'Update Time Sheet Entry Items' inside loop 'Iterate Over Time Sheet Entries'",
+      "Consider extracting reusable logic into subflows",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 17,
+      "logicStructure": 14,
+      "architecture": 13,
+      "performanceBulk": 19,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_B2BCommerce_Abandoned_Cart_Flow",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_B2BCommerce_Checkout_One_Screen",
+    "type": "Checkout Flow",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_B2BCommerce_Cirrus_Checkout",
+    "type": "Checkout Flow",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_B2BCommerce_Cirrus_Checkout_Enhanced",
+    "type": "Checkout Flow",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_B2BCommerce_Subflow_Checkout_Summary_Enhanced",
+    "type": "Checkout Flow",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_B2BCommerce_Subflow_Custom_Cart_Validation",
+    "type": "Checkout Flow",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_B2BCommerce_Subflow_Payment_and_Billing_Address_Enhanced",
+    "type": "Checkout Flow",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_B2BCommerce_Subflow_Shipping_Address_and_Delivery_Date",
+    "type": "Checkout Flow",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_B2BCommerce_Update_Cart_Custom_Error",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_B2BCommerce_Update_Contact_in_Order",
+    "type": "Workflow",
+    "score": 105,
+    "maxScore": 110,
+    "pct": 95,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 13,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_BuyerAssistant_CreateLead",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_BuyerAssistant_CreateSchedulingLink",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_BuyerAssistant_CreateTask",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_BuyerAssistant_GetAccountOpportunity",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_BuyerAssistant_GetAccountfromEmailDomain",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_BuyerAssistant_GetOpportunityFromContact",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_BuyerAssistant_GetOwner",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_BuyerAssistant_LookupContact",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_BuyerAssistant_LookupLead",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_BuyerAssistant_SendEmailVerification",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_BuyerAssistant_SendToRecordOwner",
+    "type": "Routing Flow",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_BuyerAssistant_VerifyEmailCode",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Case_EntitlementCloseProcess",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Case_SendSurvey",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Change_Request_Set_Priority_Based_on_Impact",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Commerce_ActivateManagedOrder",
+    "type": "Checkout Flow",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Commerce_GuidedSelling",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Commerce_Order_Summary_Path",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Commerce_Update_WebCart_With_Contact",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Community_Get_Community_User_CRM_Data",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Community_Partner_Central_Fund_Request",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Community_Personalization_Flow",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Experience_Partner_Account_Details",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Experience_Request_Information",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Experience_Secure_Your_Spot",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Experience_User_Reputation_Level",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_FSL_Appointment_Assistant_Approaching",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_FSL_Appointment_Assistant_EnRoute",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_FSL_Appointment_Assistant_Simulate_Tech_Location",
+    "type": "Field Service Mobile",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_FSL_Check_the_IsMulti_Day_checkbox",
+    "type": "Workflow",
+    "score": 105,
+    "maxScore": 110,
+    "pct": 95,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 13,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_FSL_Check_the_Site_Inspection_checkbox",
+    "type": "Workflow",
+    "score": 105,
+    "maxScore": 110,
+    "pct": 95,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 13,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_FSL_Contractor_Flow_Clone_Service_Appointment",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_FSL_Create_Bundles_Action",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_FSL_Dispatch_Field_Technician",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_FSL_ERB_Part_Recommendation",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_FSL_Image_Capture_Flow_SDO",
+    "type": "Field Service Mobile",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_FSL_RMA_Flow",
+    "type": "Field Service Mobile",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_FSL_Reset_Shift_Dates",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_FSL_Rider_Check_Context",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_FSL_Rider_Create_SA",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_FSL_Rider_Get_Appointments",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_FSL_Rider_Get_Contact_Info",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_FSL_Rider_Slot_Selection_Choose_Own",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_FSL_Rider_Update_Appointment_Status",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_FSL_Site_Check_In",
+    "type": "Field Service Mobile",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_FSL_Site_Work_Order_Closure",
+    "type": "Field Service Mobile",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_FSL_TURN_ON_TO_BOOK_APPOINTMENT_FROM_CONTACT_Populate_fields_on_Work_Order",
+    "type": "Workflow",
+    "score": 104,
+    "maxScore": 110,
+    "pct": 95,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 13,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_FSL_TURN_ON_TO_BOOK_APPOINTMENT_FROM_OPPTY_Populate_fields_on_Work_Order",
+    "type": "Workflow",
+    "score": 104,
+    "maxScore": 110,
+    "pct": 95,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 13,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_FSL_TURN_ON_TO_BOOK_APPOINTMENT_FROM_ORDER_Populate_fields_on_Work_Order",
+    "type": "Workflow",
+    "score": 104,
+    "maxScore": 110,
+    "pct": 95,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 13,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_FSL_TURN_ON_TO_BOOK_FROM_CASE_Populate_fields_on_Work_Order",
+    "type": "Workflow",
+    "score": 104,
+    "maxScore": 110,
+    "pct": 95,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 13,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_FSL_Technician_Running_Late",
+    "type": "Workflow",
+    "score": 105,
+    "maxScore": 110,
+    "pct": 95,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 13,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_FSL_TrackerBot_Add_Resource_Capacity",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_FSL_TrackerBot_Check_Context",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_FSL_TrackerBot_Create_Absence",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_FSL_TrackerBot_Delete_Absence",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_FSL_TrackerBot_Delete_Capacity",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_FSL_TrackerBot_Get_Absences",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_FSL_TrackerBot_Get_Appointments",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_FSL_TrackerBot_Get_Capacity_Record",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_FSL_TrackerBot_Get_Contact_Info",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_FSL_TrackerBot_Update_Absence",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_FSL_TrackerBot_Update_Appointment_Status",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_FSL_TrackerBot_Update_Capacity",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_FSL_Work_Type_Update",
+    "type": "Screen Flow",
+    "score": 82,
+    "maxScore": 110,
+    "pct": 75,
+    "verdict": "Review",
+    "issues": [
+      "Consider extracting reusable logic into subflows",
+      "Only 0/1 DML/action elements have fault paths",
+      "No fault paths on any DML operations - critical gap",
+      "No error screens or fault handling for user-facing flow",
+      "No explicit run mode set - recommend setting explicitly",
+      "Some record lookups use manual field assignments instead of auto-store (FLS concerns)"
+    ],
+    "categories": {
+      "designNaming": 16,
+      "logicStructure": 20,
+      "architecture": 13,
+      "performanceBulk": 20,
+      "errorHandling": 2,
+      "security": 11
+    }
+  },
+  {
+    "name": "SDO_FSL_Workplan_COVID_Statement",
+    "type": "Field Service Mobile",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Maps_Checklist",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Maps_Visit_Checklist_Flow",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_OMS_Approve_Order_Summary_PE",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_OMS_Cancel_Item_Event_Triggered",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_OMS_Cancel_Item_Screenflow",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_OMS_Cancel_Item_w_Fee",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_OMS_Create_Fulfillment_Orders",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_OMS_Create_Process_Exception",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_OMS_Create_Reship_Order",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_OMS_Create_Shipment_Details_for_Fulfillment_Order",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_OMS_Discount_Item",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_OMS_Einstein_Bots_Create_RMA_Return_Order",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_OMS_Einstein_Bots_Find_Order_Summaries",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_OMS_Einstein_Bots_Find_Reason_Codes",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_OMS_Einstein_Bots_Get_Order_Product_Summaries",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_OMS_Einstein_Bots_Get_Order_Product_Summary_Quantity",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_OMS_Einstein_Bots_Update_Case_Order_Summary_Id",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_OMS_Invoice_Payments",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_OMS_NEW_Create_Invoice_and_Ensure_Funds",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_OMS_NEW_Create_Order_Summary",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_OMS_OMSBots_Get_Order_Summaries",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_OMS_Order_Search_Bulk_Action_Change_Shipping_Address",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_OMS_Order_on_Behalf_Of",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_OMS_RMA_Create_Credit_Memo_and_Ensure_Refunds",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_OMS_RMA_Return_w_Fee",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_OMS_Replacement_Reship",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_OMS_Return_Item_w_Fee",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_OMS_Return_Order_Approved",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_OMS_Swap_Item",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_OMS_Update_Account_Credit_Balance_for_Paid_Invoice",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_PRM_Opportunity_Suggestions",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_PRM_Partner_Deal_Registration",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_SCOM_OOA_Commerce_Approval_Update_Status_To_Cart",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_SCOM_OOA_Create_Contact_and_User",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_SCOM_OOA_Delete_Cart_Related_Commerce_Approval_Requests",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_SFS_AA_Create_Platform_Event",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_SFS_Add_to_Campaign",
+    "type": "Field Service Mobile",
+    "score": 81,
+    "maxScore": 110,
+    "pct": 74,
+    "verdict": "Review",
+    "issues": [
+      "Missing flow description",
+      "Variable naming: only 0.5/2 use standard prefixes (var_, col_, rec_, etc.)",
+      "Only 0/1 DML/action elements have fault paths",
+      "No fault paths on any DML operations - critical gap",
+      "No error screens or fault handling for user-facing flow",
+      "No explicit run mode set - recommend setting explicitly",
+      "Some record lookups use manual field assignments instead of auto-store (FLS concerns)"
+    ],
+    "categories": {
+      "designNaming": 13,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 2,
+      "security": 11
+    }
+  },
+  {
+    "name": "SDO_SFS_Appointment_Confirmation_Notification",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_SFS_Attach_Forms_On_Create",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_SFS_Create_5_WO_for_Sliding",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_SFS_Create_Leads_and_Opportunities",
+    "type": "Field Service Mobile",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_SFS_Create_WOLIs_For_SPR",
+    "type": "Record-Triggered After (WorkOrder)",
+    "score": 79,
+    "maxScore": 110,
+    "pct": 72,
+    "verdict": "Review",
+    "issues": [
+      "Missing flow description",
+      "SOQL in loop: 'Get Asset Hierarchy' queries inside loop 'Loop Through Assets'",
+      "Only 0/1 DML/action elements have fault paths",
+      "No fault paths on any DML operations - critical gap",
+      "Record-triggered flow with DML but no fault handling"
+    ],
+    "categories": {
+      "designNaming": 15,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 12,
+      "errorHandling": 3,
+      "security": 14
+    }
+  },
+  {
+    "name": "SDO_SFS_Generate_and_send_URL_to_Contact",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_SFS_HC_Quick_Tool",
+    "type": "Screen Flow",
+    "score": 71,
+    "maxScore": 110,
+    "pct": 65,
+    "verdict": "Review",
+    "issues": [
+      "Missing flow description",
+      "Large flow with 40 elements - consider breaking into subflows",
+      "No subflow usage in a complex flow - should decompose",
+      "SOQL in loop: 'Get New Service Territory' queries inside loop 'Loop Over Service Territory Members'",
+      "Only 0/12 DML/action elements have fault paths",
+      "No fault paths on any DML operations - critical gap",
+      "No error screens or fault handling for user-facing flow",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 15,
+      "logicStructure": 18,
+      "architecture": 11,
+      "performanceBulk": 12,
+      "errorHandling": 2,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_SFS_HC_Work_Order_Creation",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_SFS_Maintenance_Plan_Creation",
+    "type": "Screen Flow",
+    "score": 84,
+    "maxScore": 110,
+    "pct": 76,
+    "verdict": "Review",
+    "issues": [
+      "Missing flow description",
+      "Only 0/4 DML/action elements have fault paths",
+      "No fault paths on any DML operations - critical gap",
+      "No error screens or fault handling for user-facing flow",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 15,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 19,
+      "errorHandling": 2,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_SFS_Move_Dates",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_SFS_Populate_Gantt",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_SFS_Replenish_Inventory",
+    "type": "Autolaunched (Subflow)",
+    "score": 89,
+    "maxScore": 110,
+    "pct": 81,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow description",
+      "Only 0/1 DML/action elements have fault paths",
+      "No fault paths on any DML operations - critical gap",
+      "No error screens or fault handling for user-facing flow",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 2,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_SFS_Self_Service_Authentication",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_SFS_Self_Service_SchedulingV2",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_SFS_SendForCustomerSignature",
+    "type": "Field Service Mobile",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_SFS_Update_SA_Status",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_SFS_Upsell",
+    "type": "Field Service Mobile",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_SFS_WOE",
+    "type": "Screen Flow",
+    "score": 78,
+    "maxScore": 110,
+    "pct": 71,
+    "verdict": "Review",
+    "issues": [
+      "DML in loop: 'Quote Creation' inside loop 'Product Item Loop'",
+      "No subflow usage in a complex flow - should decompose",
+      "Only 0/4 DML/action elements have fault paths",
+      "No fault paths on any DML operations - critical gap",
+      "No error screens or fault handling for user-facing flow",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 14,
+      "architecture": 11,
+      "performanceBulk": 20,
+      "errorHandling": 2,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Sales_MIAW_Omni_Flow",
+    "type": "Routing Flow",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Sales_Sales_Programs_Account_Plan_Filled_in",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Sales_pitch_certification",
+    "type": "Survey",
+    "score": 104,
+    "maxScore": 110,
+    "pct": 95,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 13,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Scheduler_Manage_My_Appointment",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Scheduler_Screen_Flow_Inbound_Cancel_Appointment",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Scheduler_Screen_Flow_Inbound_Modify_Appointment",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Scheduler_ServiceAppointmentFlow",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Scheduler_Update_SA_Email_and_Phone",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Agent_Work_Opened",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Asset_On_Update",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Billing_Request",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_CTI_ID_V",
+    "type": "Screen Flow",
+    "score": 100,
+    "maxScore": 110,
+    "pct": 91,
+    "verdict": "Deploy",
+    "issues": [
+      "Consider extracting reusable logic into subflows",
+      "No explicit run mode set - recommend setting explicitly",
+      "Some record lookups use manual field assignments instead of auto-store (FLS concerns)"
+    ],
+    "categories": {
+      "designNaming": 16,
+      "logicStructure": 20,
+      "architecture": 13,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 11
+    }
+  },
+  {
+    "name": "SDO_Service_Case_Closed_Triggered_Outbound_Message",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Case_Creation",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Case_Routing",
+    "type": "Routing Flow",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Case_SetCasePrediction",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Case_Status_Updated",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Case_Survey",
+    "type": "Survey",
+    "score": 104,
+    "maxScore": 110,
+    "pct": 95,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 13,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Case_Wrap_Up_Classification",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Chat_Survey",
+    "type": "Survey",
+    "score": 104,
+    "maxScore": 110,
+    "pct": 95,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 13,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Close_All_Records_Based_on_Change",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Create_Case_for_Channel",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Create_Change_From_Problem",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Create_Draft_Article_from_Case",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Create_Problem_from_Incident",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Demo_Einstein_Article_Recommendations",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Einstein_Case_Classification_Demo",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Email_Message_On_Create_or_Update",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Incident_Set_Priority_Based_on_Impact_and_Urgency",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_KCS_Create_Article",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_KCS_Create_Article_For_Case",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_KCS_Get_Knowledge_Record_Type_IDs",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Laptop_Troubleshoot",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Lead_On_Create",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Log_A_Call_from_Voice",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Lookup_Contact_Flow",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_LunaBot_FindLocations",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_LunaBot_GetAddress",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_LunaBot_GetCaseSummaries",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_LunaBot_GetCasebyNumber",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_LunaBot_LoadContact",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_LunaBot_ModifyContact",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_LunaBot_SelectOrder",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_LunaBot_SetContact",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_LunaBot_TransfertoQueue",
+    "type": "Routing Flow",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_LunaBot_UploadFileToCase",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Luna_Bot_Create_New_Case",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_MIAW_Omni_Flow",
+    "type": "Routing Flow",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Messaging_Session_On_Create",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Messaging_User_On_Create",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_NBA_Benefits_of_Self_Service",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_NBA_Loyalty_Recognition_Package",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_NBA_Offer_10_Percent_Discount",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_NBA_Offer_Premium_Support_Package",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_NBA_Shipping_Guidelines",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Net_promoter_score",
+    "type": "Survey",
+    "score": 104,
+    "maxScore": 110,
+    "pct": 95,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 13,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_OmniSupervisor_Add_Absence",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_OmniSupervisor_Assign_to_Me",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_OmniSupervisor_Create_Demo_Cases",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_OmniSupervisor_Reassign_All_Work",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_OmniSupervisor_Reassign_Work",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_OmniSupervisor_Reset_Password",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_OmniSupervisor_Send_Notification",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_OmniSupervisor_Update_Capacity",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_OmniSupervisor_Update_Priority",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Password_Reset",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Phone_Number_Search",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Problem_Set_Priority_Based_on_Impact_and_Urgency",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Recommendation_Strategy_for_Negative_Sentiment_CI_V2",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Register_New_Product",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Register_for_Training_Course",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Send_Message",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Send_SMS_from_Record",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Set_Default_Entitlement_on_Case",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Set_Default_Entitlement_on_Incident",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_SunnyBots_Chatter_Post_to_Case",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_SunnyBots_Close_Case",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_SunnyBots_Create_Return_Order",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_SunnyBots_Find_Cases",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_SunnyBots_Find_Orders",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_SunnyBots_Find_Session_Init_Records",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_SunnyBots_Get_Contact_Id",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_SunnyBots_Loopback_Current_Dialog_Name",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_SunnyBots_Update_Case_Subject",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_SunnyBots_Update_Chat_Transcript_Contact_Id",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_SunnyBots_Update_Mailing_Address",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Swarming",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Update_Customer_Information",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Voice_Call_Omni_Routing",
+    "type": "Routing Flow",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_Voice_Call_On_Create",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Service_WEM_Absence_Request",
+    "type": "Screen Flow",
+    "score": 88,
+    "maxScore": 110,
+    "pct": 80,
+    "verdict": "Deploy",
+    "issues": [
+      "Only 0/1 DML/action elements have fault paths",
+      "No fault paths on any DML operations - critical gap",
+      "No error screens or fault handling for user-facing flow",
+      "No explicit run mode set - recommend setting explicitly",
+      "Some record lookups use manual field assignments instead of auto-store (FLS concerns)"
+    ],
+    "categories": {
+      "designNaming": 20,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 2,
+      "security": 11
+    }
+  },
+  {
+    "name": "SDO_Service_WEM_Shift_Notifications",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Slack_Dispatch_Flow_send_screen_when_Swarm_closes",
+    "type": "Autolaunched (No Trigger)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Slack_Send_Slack_Notification_for_Oppty_Changes",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Slack_Send_Slack_Notifications_When_Opportunity_Stage_is_Unchanged",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Slack_Send_Slack_Notifications_for_Approaching_Opportunity_Close_Date",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Slack_Send_Slack_Notifications_for_Deals_Won",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Slack_Send_Slack_Notifications_for_New_Opptys",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Slack_Send_Slack_Notifications_when_opportunity_next_step_is_unchanged",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Slack_Swarm_wrap_screen",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "SDO_Slack_case_ownership",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "Self_Service_Scheduling_AuthenticationFlow",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "Subflow_Activate_Order_with_Bundle_Items_2_0",
+    "type": "Checkout Flow",
+    "score": 82,
+    "maxScore": 110,
+    "pct": 75,
+    "verdict": "Review",
+    "issues": [
+      "Missing flow description",
+      "DML in loop: 'Create Bundle Elements to Order' inside loop 'Loop over Bundle Items'",
+      "SOQL in loop: 'Get Order Items' queries inside loop 'Loop over Order Product Items'",
+      "DML operations may not be using collection variables for bulk safety",
+      "Flow runs in default mode - consider explicit System/User mode selection"
+    ],
+    "categories": {
+      "designNaming": 15,
+      "logicStructure": 14,
+      "architecture": 15,
+      "performanceBulk": 11,
+      "errorHandling": 14,
+      "security": 13
+    }
+  },
+  {
+    "name": "Subflow_B2B_Checkout_Calculate_Promotions",
+    "type": "Checkout Flow",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "Subflow_B2B_Checkout_One_Screen_Activate_Managed_Order",
+    "type": "Autolaunched (Subflow)",
+    "score": 107,
+    "maxScore": 110,
+    "pct": 97,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 19,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "Test_Flow",
+    "type": "Autolaunched (Subflow)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "case_csat_nps_survey",
+    "type": "Survey",
+    "score": 89,
+    "maxScore": 110,
+    "pct": 81,
+    "verdict": "Deploy",
+    "issues": [
+      "Flow name 'case_csat_nps_survey' doesn't follow naming conventions",
+      "Missing flow label",
+      "Missing flow description",
+      "Flow runs in System Mode Without Sharing - verify this is intentional",
+      "Some record lookups use manual field assignments instead of auto-store (FLS concerns)"
+    ],
+    "categories": {
+      "designNaming": 9,
+      "logicStructure": 20,
+      "architecture": 13,
+      "performanceBulk": 17,
+      "errorHandling": 20,
+      "security": 10
+    }
+  },
+  {
+    "name": "chat_csat_nps_survey",
+    "type": "Survey",
+    "score": 101,
+    "maxScore": 110,
+    "pct": 92,
+    "verdict": "Deploy",
+    "issues": [
+      "Flow name 'chat_csat_nps_survey' doesn't follow naming conventions",
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 15,
+      "logicStructure": 20,
+      "architecture": 13,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "csat_nps_survey_spring_22",
+    "type": "Survey",
+    "score": 101,
+    "maxScore": 110,
+    "pct": 92,
+    "verdict": "Deploy",
+    "issues": [
+      "Flow name 'csat_nps_survey_spring_22' doesn't follow naming conventions",
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 15,
+      "logicStructure": 20,
+      "architecture": 13,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "customer_satisfaction",
+    "type": "Survey",
+    "score": 101,
+    "maxScore": 110,
+    "pct": 92,
+    "verdict": "Deploy",
+    "issues": [
+      "Flow name 'customer_satisfaction' doesn't follow naming conventions",
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 15,
+      "logicStructure": 20,
+      "architecture": 13,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "discovery_call_assessment",
+    "type": "Survey",
+    "score": 101,
+    "maxScore": 110,
+    "pct": 92,
+    "verdict": "Deploy",
+    "issues": [
+      "Flow name 'discovery_call_assessment' doesn't follow naming conventions",
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 15,
+      "logicStructure": 20,
+      "architecture": 13,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "net_promoter_score",
+    "type": "Survey",
+    "score": 101,
+    "maxScore": 110,
+    "pct": 92,
+    "verdict": "Deploy",
+    "issues": [
+      "Flow name 'net_promoter_score' doesn't follow naming conventions",
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 15,
+      "logicStructure": 20,
+      "architecture": 13,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "sfdc_Checkout_Order_Summary_Notification_Flow",
+    "type": "Autolaunched (No Trigger)",
+    "score": 106,
+    "maxScore": 110,
+    "pct": 96,
+    "verdict": "Deploy",
+    "issues": [
+      "Missing flow label",
+      "Missing flow description",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 18,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  },
+  {
+    "name": "xDO_Tool_Tracking_Event_Reporting_Conversion",
+    "type": "Autolaunched (Subflow)",
+    "score": 104,
+    "maxScore": 110,
+    "pct": 95,
+    "verdict": "Deploy",
+    "issues": [
+      "Flow name 'xDO_Tool_Tracking_Event_Reporting_Conversion' doesn't follow naming conventions",
+      "Missing flow label",
+      "No explicit run mode set - recommend setting explicitly"
+    ],
+    "categories": {
+      "designNaming": 16,
+      "logicStructure": 20,
+      "architecture": 15,
+      "performanceBulk": 20,
+      "errorHandling": 20,
+      "security": 13
+    }
+  }
+]

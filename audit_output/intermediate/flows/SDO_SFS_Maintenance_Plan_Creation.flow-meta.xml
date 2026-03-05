@@ -1,0 +1,543 @@
+{
+  "fullName": "SDO_SFS_Maintenance_Plan_Creation",
+  "actionCalls": [
+    {
+      "name": "Open_Maintenance_Plan",
+      "label": "Open Maintenance Plan",
+      "locationX": 176,
+      "locationY": 890,
+      "actionName": "c:OpenSObject",
+      "actionType": "component",
+      "flowTransactionModel": "CurrentTransaction",
+      "inputParameters": [
+        {
+          "name": "SObject",
+          "value": {
+            "elementReference": "MaintainenacePlanRec.Id"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "nameSegment": "c:OpenSObject",
+      "storeOutputAutomatically": "true",
+      "processMetadataValues": [],
+      "outputParameters": []
+    }
+  ],
+  "apiVersion": "59.0",
+  "areMetricsLoggedToDataCloud": "false",
+  "assignments": [
+    {
+      "name": "Assign_MP_to_MPA",
+      "label": "Assign MP to MPA",
+      "locationX": 176,
+      "locationY": 458,
+      "assignmentItems": [
+        {
+          "assignToReference": "MaintenanceAssetRec.MaintenancePlanId",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "MaintainenacePlanRec.Id"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "Create_MPA",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Assign_MP_Values",
+      "label": "Assign MP Values",
+      "locationX": 176,
+      "locationY": 134,
+      "assignmentItems": [
+        {
+          "assignToReference": "MaintainenacePlanRec.GenerationTimeframe",
+          "operator": "Assign",
+          "value": {
+            "numberValue": 12
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "MaintainenacePlanRec.GenerationTimeframeType",
+          "operator": "Assign",
+          "value": {
+            "stringValue": "Months"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "MaintainenacePlanRec.MaintenancePlanTitle",
+          "operator": "Assign",
+          "value": {
+            "stringValue": "Preventive Maintenance Plan"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "MaintainenacePlanRec.StartDate",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "$Flow.CurrentDate"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "MaintainenacePlanRec.NextSuggestedMaintenanceDate",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "$Flow.CurrentDate"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "MP_Creation",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "Assign_MWR_Values",
+      "label": "Assign MWR Values",
+      "locationX": 176,
+      "locationY": 674,
+      "assignmentItems": [
+        {
+          "assignToReference": "MaintenanceWorkRule.Title",
+          "operator": "Assign",
+          "value": {
+            "stringValue": "MWR"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "MaintenanceWorkRule.Type",
+          "operator": "Assign",
+          "value": {
+            "stringValue": "Calendar"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "MaintenanceWorkRule.RecurrencePattern",
+          "operator": "Assign",
+          "value": {
+            "stringValue": "FREQ=MONTHLY;BYMONTHDAY=5;"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "MaintenanceWorkRule.ParentMaintenancePlanId",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "MaintainenacePlanRec.Id"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "assignToReference": "MaintenanceWorkRule.SortOrder",
+          "operator": "Assign",
+          "value": {
+            "numberValue": 1
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "Create_MWR",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    }
+  ],
+  "environments": "Default",
+  "interviewLabel": "SDO SFS Maint {!$Flow.CurrentDateTime}",
+  "label": "SDO SFS Maintenance Plan Creation",
+  "processMetadataValues": [
+    {
+      "name": "BuilderType",
+      "value": {
+        "stringValue": "LightningFlowBuilder"
+      }
+    },
+    {
+      "name": "CanvasMode",
+      "value": {
+        "stringValue": "AUTO_LAYOUT_CANVAS"
+      }
+    },
+    {
+      "name": "OriginBuilderType",
+      "value": {
+        "stringValue": "LightningFlowBuilder"
+      }
+    }
+  ],
+  "processType": "Flow",
+  "recordCreates": [
+    {
+      "name": "Create_MP",
+      "label": "Create MP",
+      "locationX": 176,
+      "locationY": 350,
+      "connector": {
+        "targetReference": "Assign_MP_to_MPA",
+        "processMetadataValues": []
+      },
+      "inputReference": "MaintainenacePlanRec",
+      "processMetadataValues": [],
+      "inputAssignments": []
+    },
+    {
+      "name": "Create_MPA",
+      "label": "Create MPA",
+      "locationX": 176,
+      "locationY": 566,
+      "connector": {
+        "targetReference": "Assign_MWR_Values",
+        "processMetadataValues": []
+      },
+      "inputReference": "MaintenanceAssetRec",
+      "processMetadataValues": [],
+      "inputAssignments": []
+    },
+    {
+      "name": "Create_MWR",
+      "label": "Create MWR",
+      "locationX": 176,
+      "locationY": 782,
+      "connector": {
+        "targetReference": "Open_Maintenance_Plan",
+        "processMetadataValues": []
+      },
+      "inputReference": "MaintenanceWorkRule",
+      "processMetadataValues": [],
+      "inputAssignments": []
+    }
+  ],
+  "screens": [
+    {
+      "name": "MP_Creation",
+      "label": "MP Creation",
+      "locationX": 176,
+      "locationY": 242,
+      "allowBack": true,
+      "allowFinish": true,
+      "allowPause": false,
+      "connector": {
+        "targetReference": "Create_MP",
+        "processMetadataValues": []
+      },
+      "fields": [
+        {
+          "name": "Maintenance_Plan_Details",
+          "fieldText": "Maintenance Plan Details",
+          "fieldType": "RegionContainer",
+          "fields": [
+            {
+              "name": "Maintenance_Plan_Details_Column1",
+              "fieldType": "Region",
+              "fields": [
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "MaintainenacePlanRec.MaintenancePlanTitle",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "MaintainenacePlanRec.StartDate",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "MaintainenacePlanRec.NextSuggestedMaintenanceDate",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "MaintainenacePlanRec.GenerationTimeframe",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "MaintainenacePlanRec.GenerationTimeframeType",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                }
+              ],
+              "inputParameters": {
+                "name": "width",
+                "value": {
+                  "stringValue": "6"
+                }
+              },
+              "isRequired": "false"
+            },
+            {
+              "name": "Maintenance_Plan_Details_Column2",
+              "fieldType": "Region",
+              "fields": [
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "MaintainenacePlanRec.AccountId",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "MaintainenacePlanRec.ContactId",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "MaintainenacePlanRec.WorkTypeId",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                },
+                {
+                  "fieldType": "ObjectProvided",
+                  "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                  "isRequired": "false",
+                  "objectFieldReference": "MaintainenacePlanRec.ServiceContractId",
+                  "styleProperties": {
+                    "verticalAlignment": {
+                      "stringValue": "top"
+                    },
+                    "width": {
+                      "stringValue": "12"
+                    }
+                  }
+                }
+              ],
+              "inputParameters": {
+                "name": "width",
+                "value": {
+                  "stringValue": "6"
+                }
+              },
+              "isRequired": "false"
+            }
+          ],
+          "isRequired": false,
+          "regionContainerType": "SectionWithHeader",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "MaintenanceAssetDetails",
+          "fieldText": "Maintenance Asset Details",
+          "fieldType": "RegionContainer",
+          "fields": [
+            {
+              "name": "MaintenanceAssetDetails_Column1",
+              "fieldType": "Region",
+              "fields": {
+                "fieldType": "ObjectProvided",
+                "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                "isRequired": "false",
+                "objectFieldReference": "MaintenanceAssetRec.AssetId",
+                "styleProperties": {
+                  "verticalAlignment": {
+                    "stringValue": "top"
+                  },
+                  "width": {
+                    "stringValue": "12"
+                  }
+                }
+              },
+              "inputParameters": {
+                "name": "width",
+                "value": {
+                  "stringValue": "6"
+                }
+              },
+              "isRequired": "false"
+            },
+            {
+              "name": "MaintenanceAssetDetails_Column2",
+              "fieldType": "Region",
+              "fields": {
+                "fieldType": "ObjectProvided",
+                "inputsOnNextNavToAssocScrn": "UseStoredValues",
+                "isRequired": "false",
+                "objectFieldReference": "MaintenanceAssetRec.ContractLineItemId",
+                "styleProperties": {
+                  "verticalAlignment": {
+                    "stringValue": "top"
+                  },
+                  "width": {
+                    "stringValue": "12"
+                  }
+                }
+              },
+              "inputParameters": {
+                "name": "width",
+                "value": {
+                  "stringValue": "6"
+                }
+              },
+              "isRequired": "false"
+            }
+          ],
+          "isRequired": false,
+          "regionContainerType": "SectionWithHeader",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        }
+      ],
+      "showFooter": true,
+      "showHeader": false,
+      "processMetadataValues": [],
+      "rules": []
+    }
+  ],
+  "start": {
+    "locationX": 50,
+    "locationY": 0,
+    "connector": {
+      "targetReference": "Assign_MP_Values",
+      "processMetadataValues": []
+    },
+    "processMetadataValues": [],
+    "filters": []
+  },
+  "status": "Active",
+  "variables": [
+    {
+      "name": "MaintainenacePlanRec",
+      "dataType": "SObject",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "objectType": "MaintenancePlan",
+      "processMetadataValues": []
+    },
+    {
+      "name": "MaintenanceAssetRec",
+      "dataType": "SObject",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "objectType": "MaintenanceAsset",
+      "processMetadataValues": []
+    },
+    {
+      "name": "MaintenanceWorkRule",
+      "dataType": "SObject",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "objectType": "MaintenanceWorkRule",
+      "processMetadataValues": []
+    }
+  ],
+  "apexPluginCalls": [],
+  "choices": [],
+  "constants": [],
+  "decisions": [],
+  "dynamicChoiceSets": [],
+  "formulas": [],
+  "loops": [],
+  "recordDeletes": [],
+  "recordLookups": [],
+  "recordUpdates": [],
+  "stages": [],
+  "steps": [],
+  "subflows": [],
+  "textTemplates": [],
+  "waits": []
+}

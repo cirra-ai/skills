@@ -1,0 +1,24 @@
+{
+  "fullName": "Field_Service_Mobile_Status_Transition",
+  "processType": "FieldServiceMobile",
+  "description": "Mobile status transition flow with time capture.",
+  "status": "Active",
+  "start": {
+    "connector": {}
+  },
+  "variables": [],
+  "assignments": [],
+  "decisions": [],
+  "loops": [],
+  "recordLookups": [],
+  "recordCreates": [],
+  "recordUpdates": [],
+  "recordDeletes": [],
+  "screens": [],
+  "subflows": [],
+  "actionCalls": [],
+  "constants": [],
+  "formulas": [],
+  "choices": [],
+  "textTemplates": []
+}

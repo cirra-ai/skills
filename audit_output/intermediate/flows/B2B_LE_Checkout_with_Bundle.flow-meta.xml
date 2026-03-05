@@ -1,0 +1,1320 @@
+{
+  "fullName": "B2B_LE_Checkout_with_Bundle",
+  "apiVersion": "49.0",
+  "areMetricsLoggedToDataCloud": "false",
+  "assignments": [
+    {
+      "description": "The loop node is here for cosmetic purposes. It helps make the flow easier to read, but is not a necessary technical component.",
+      "name": "Loop",
+      "label": "Loop",
+      "locationX": 1233,
+      "locationY": 977,
+      "assignmentItems": [
+        {
+          "assignToReference": "cartId",
+          "operator": "Assign",
+          "value": {
+            "elementReference": "cartId"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "connector": {
+        "targetReference": "Refetch_Session_Subflow",
+        "processMetadataValues": []
+      },
+      "processMetadataValues": []
+    }
+  ],
+  "decisions": [
+    {
+      "description": "The Debug Screen Decision node determines whether to show the debug screen. The default is no.",
+      "name": "Debug_Screen_Decision",
+      "label": "Show Debug Screen?",
+      "locationX": 366,
+      "locationY": 169,
+      "defaultConnector": {
+        "targetReference": "Main_Decision_Hub",
+        "processMetadataValues": []
+      },
+      "defaultConnectorLabel": "Default Outcome",
+      "rules": [
+        {
+          "name": "Debug_Screen_Outcome",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "debug",
+              "operator": "EqualTo",
+              "rightValue": {
+                "booleanValue": true
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Debug_Screen",
+            "processMetadataValues": []
+          },
+          "label": "Debug Screen Outcome",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    },
+    {
+      "description": "The Main Decision Hub is the primary driver of the checkout flow.\n\nIt uses the following logic:\n - If mainCheckoutSession.IsProcessing = True, go to the wait screen.\n - Otherwise, for each session.state, go to the corresponding subflow.\n \nNote: The nextState is passed into the subflow and the nextState value is set to mainCheckoutSession.state when: \n - An asynchronous invocable action completes in an asynchronous subflow.\n - Or the Save Session node produces the nextState value for a synchronous subflow, and assigns it to the nextState variable in the main flow. \n\nAsynchronous invocable actions set mainCheckoutSession.isProcess = True.",
+      "name": "Main_Decision_Hub",
+      "label": "Main Decision Hub",
+      "locationX": 673,
+      "locationY": 447,
+      "defaultConnectorLabel": "Default Outcome",
+      "rules": [
+        {
+          "name": "Error_Outcome",
+          "conditionLogic": "or",
+          "conditions": [
+            {
+              "leftValueReference": "mainCheckoutSession.IsError",
+              "operator": "EqualTo",
+              "rightValue": {
+                "booleanValue": true
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Error_Subflow",
+            "processMetadataValues": []
+          },
+          "label": "Error",
+          "processMetadataValues": []
+        },
+        {
+          "name": "Waiting_Outcome",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "mainCheckoutSession.IsProcessing",
+              "operator": "EqualTo",
+              "rightValue": {
+                "booleanValue": true
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Wait_Debug_Decision",
+            "processMetadataValues": []
+          },
+          "label": "Waiting",
+          "processMetadataValues": []
+        },
+        {
+          "name": "Shipping_Address_Outcome",
+          "conditionLogic": "or",
+          "conditions": [
+            {
+              "leftValueReference": "mainCheckoutSession.State",
+              "operator": "EqualTo",
+              "rightValue": {
+                "stringValue": "Shipping Address"
+              },
+              "processMetadataValues": []
+            },
+            {
+              "leftValueReference": "mainCheckoutSession.State",
+              "operator": "EqualTo",
+              "rightValue": {
+                "stringValue": "Start"
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Shipping_Address_Subflow",
+            "processMetadataValues": []
+          },
+          "label": "Shipping Address",
+          "processMetadataValues": []
+        },
+        {
+          "name": "Checkout_Summary_Outcome",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "mainCheckoutSession.State",
+              "operator": "EqualTo",
+              "rightValue": {
+                "stringValue": "Checkout Summary"
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Checkout_Summary_Subflow",
+            "processMetadataValues": []
+          },
+          "label": "Checkout Summary",
+          "processMetadataValues": []
+        },
+        {
+          "name": "Order_Confirmation_Outcome",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "mainCheckoutSession.State",
+              "operator": "EqualTo",
+              "rightValue": {
+                "stringValue": "Order Confirmation"
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Order_Confirmation_Subflow",
+            "processMetadataValues": []
+          },
+          "label": "Order Confirmation",
+          "processMetadataValues": []
+        },
+        {
+          "name": "Cart_To_Order_Outcome",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "mainCheckoutSession.State",
+              "operator": "EqualTo",
+              "rightValue": {
+                "stringValue": "Cart To Order"
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Cart_To_Order_Subflow",
+            "processMetadataValues": []
+          },
+          "label": "Cart To Order",
+          "processMetadataValues": []
+        },
+        {
+          "name": "Payment_And_Billing_Address_Outcome",
+          "conditionLogic": "or",
+          "conditions": [
+            {
+              "leftValueReference": "mainCheckoutSession.State",
+              "operator": "EqualTo",
+              "rightValue": {
+                "stringValue": "Payment And Billing Address"
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Payment_and_Billing",
+            "processMetadataValues": []
+          },
+          "label": "Payment And Billing Address",
+          "processMetadataValues": []
+        },
+        {
+          "name": "Confirm_Price_Outcome",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "mainCheckoutSession.State",
+              "operator": "EqualTo",
+              "rightValue": {
+                "stringValue": "Confirm Price"
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Confirm_Price_Subflow",
+            "processMetadataValues": []
+          },
+          "label": "Confirm Price",
+          "processMetadataValues": []
+        },
+        {
+          "name": "Shipping_Cost_Outcome",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "mainCheckoutSession.State",
+              "operator": "EqualTo",
+              "rightValue": {
+                "stringValue": "Shipping Cost"
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Shipping_Cost_Subflow",
+            "processMetadataValues": []
+          },
+          "label": "Shipping Cost",
+          "processMetadataValues": []
+        },
+        {
+          "name": "Inventory_Outcome",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "mainCheckoutSession.State",
+              "operator": "EqualTo",
+              "rightValue": {
+                "stringValue": "Inventory"
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Inventory_Subflow",
+            "processMetadataValues": []
+          },
+          "label": "Inventory",
+          "processMetadataValues": []
+        },
+        {
+          "name": "Taxes_Outcome",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "mainCheckoutSession.State",
+              "operator": "EqualTo",
+              "rightValue": {
+                "stringValue": "Taxes"
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Taxes_Subflow",
+            "processMetadataValues": []
+          },
+          "label": "Taxes",
+          "processMetadataValues": []
+        },
+        {
+          "name": "Activate_Order_Outcome",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "mainCheckoutSession.State",
+              "operator": "EqualTo",
+              "rightValue": {
+                "stringValue": "Activate Order"
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Activate_Order_with_Bundle_Items",
+            "processMetadataValues": []
+          },
+          "label": "Activate Order",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    },
+    {
+      "description": "The Wait Debug Decision node determines whether to show the debug screen. The default is no.",
+      "name": "Wait_Debug_Decision",
+      "label": "Show Wait Debug?",
+      "locationX": 769,
+      "locationY": 270,
+      "defaultConnector": {
+        "targetReference": "Wait_Screen",
+        "processMetadataValues": []
+      },
+      "defaultConnectorLabel": "Default Outcome",
+      "rules": [
+        {
+          "name": "Wait_Debug_Outcome",
+          "conditionLogic": "and",
+          "conditions": [
+            {
+              "leftValueReference": "debug",
+              "operator": "EqualTo",
+              "rightValue": {
+                "booleanValue": true
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "connector": {
+            "targetReference": "Wait_Debug_Screen",
+            "processMetadataValues": []
+          },
+          "label": "Wait Debug Outcome",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    }
+  ],
+  "interviewLabel": "B2B LE Checkout with Bundle {!$Flow.CurrentDateTime}",
+  "isTemplate": true,
+  "label": "B2B LE Checkout with Bundle",
+  "processMetadataValues": [
+    {
+      "name": "BuilderType",
+      "value": {
+        "stringValue": "LightningFlowBuilder"
+      }
+    },
+    {
+      "name": "CanvasMode",
+      "value": {
+        "stringValue": "FREE_FORM_CANVAS"
+      }
+    },
+    {
+      "name": "OriginBuilderType",
+      "value": {
+        "stringValue": "LightningFlowBuilder"
+      }
+    }
+  ],
+  "processType": "CheckoutFlow",
+  "runInMode": "SystemModeWithSharing",
+  "screens": [
+    {
+      "name": "Debug_Screen",
+      "label": "Debug",
+      "locationX": 374,
+      "locationY": 380,
+      "allowBack": true,
+      "allowFinish": true,
+      "allowPause": true,
+      "connector": {
+        "targetReference": "Main_Decision_Hub",
+        "processMetadataValues": []
+      },
+      "fields": [
+        {
+          "name": "CheckoutSessionIdText",
+          "fieldText": "<p>Session Id: {!mainCheckoutSession.Id}</p>",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "currentstate",
+          "fieldText": "<p>State: {!mainCheckoutSession.State}</p>",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "sessionNextState",
+          "fieldText": "<p>Next State: {!mainCheckoutSession.NextState}</p>",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "jobIdDisplaydsaf",
+          "fieldText": "<p>JobId: {!mainCheckoutSession.Id}</p>",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "locked",
+          "fieldText": "<p>Locked? {!mainCheckoutSession.IsProcessing}</p>",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "order",
+          "fieldText": "<p>Order: {!mainCheckoutSession.OrderId}</p>",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "shouldCloseCartBool",
+          "fieldText": "<p>Should Close Cart? {!shouldCloseCart}</p>",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        }
+      ],
+      "showFooter": true,
+      "showHeader": true,
+      "processMetadataValues": [],
+      "rules": []
+    },
+    {
+      "description": "The Wait Debug Screen node displays a version of the wait screen with debug information.",
+      "name": "Wait_Debug_Screen",
+      "label": "Wait Debug",
+      "locationX": 1034,
+      "locationY": 323,
+      "allowBack": true,
+      "allowFinish": true,
+      "allowPause": true,
+      "connector": {
+        "targetReference": "Refetch_Session_Subflow",
+        "processMetadataValues": []
+      },
+      "fields": [
+        {
+          "name": "WaitingLabel",
+          "fieldText": "<p>Waiting Screen ( replace with a subflow at some point )</p>",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "lockDisplay",
+          "fieldText": "<p>Locked: {!mainCheckoutSession.IsProcessing}</p>",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "stateDisplay",
+          "fieldText": "<p>State: {!mainCheckoutSession.State}</p>",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "sessionNextState2",
+          "fieldText": "<p>Next State: {!mainCheckoutSession.NextState}</p>",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "jobIdDislpay",
+          "fieldText": "<p>Job: {!mainCheckoutSession.Id}</p>",
+          "fieldType": "DisplayText",
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": [],
+          "inputParameters": [],
+          "outputParameters": []
+        },
+        {
+          "name": "commerceScreenWait",
+          "extensionName": "forceCommunity:commerceScreenWait",
+          "fieldType": "ComponentInstance",
+          "inputParameters": [
+            {
+              "name": "cartCheckoutSessionId",
+              "value": {
+                "elementReference": "mainCheckoutSession.Id"
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "isRequired": true,
+          "outputParameters": [
+            {
+              "assignToReference": "mainCheckoutSession.Id",
+              "name": "cartCheckoutSessionId",
+              "processMetadataValues": []
+            }
+          ],
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": []
+        }
+      ],
+      "showFooter": false,
+      "showHeader": false,
+      "processMetadataValues": [],
+      "rules": []
+    },
+    {
+      "description": "The Wait Screen node displays when session.isProcessing = true\n\nAsync subflows set session.isProcessing = true before calling async invocable actions.\n\nWhen async invocable actions complete, they change session.isProcessing to false and set session.state to session.nextState, not the flow variable nextState.",
+      "name": "Wait_Screen",
+      "label": "Wait",
+      "locationX": 1034,
+      "locationY": 205,
+      "allowBack": true,
+      "allowFinish": true,
+      "allowPause": true,
+      "connector": {
+        "targetReference": "Refetch_Session_Subflow",
+        "processMetadataValues": []
+      },
+      "fields": [
+        {
+          "name": "commerceScreenWait_0",
+          "extensionName": "forceCommunity:commerceScreenWait",
+          "fieldType": "ComponentInstance",
+          "inputParameters": [
+            {
+              "name": "cartCheckoutSessionId",
+              "value": {
+                "elementReference": "mainCheckoutSession.Id"
+              },
+              "processMetadataValues": []
+            }
+          ],
+          "isRequired": true,
+          "outputParameters": [
+            {
+              "assignToReference": "mainCheckoutSession.Id",
+              "name": "cartCheckoutSessionId",
+              "processMetadataValues": []
+            }
+          ],
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "choiceReferences": []
+        }
+      ],
+      "showFooter": false,
+      "showHeader": false,
+      "processMetadataValues": [],
+      "rules": []
+    }
+  ],
+  "start": {
+    "locationX": 121,
+    "locationY": 21,
+    "connector": {
+      "targetReference": "Get_Or_Create_Session_Subflow",
+      "processMetadataValues": []
+    },
+    "processMetadataValues": [],
+    "filters": []
+  },
+  "status": "Active",
+  "subflows": [
+    {
+      "name": "Activate_Order_with_Bundle_Items",
+      "label": "Activate Order with Bundle Items",
+      "locationX": 980,
+      "locationY": 1355,
+      "connector": {
+        "targetReference": "Loop",
+        "processMetadataValues": []
+      },
+      "flowName": "Subflow_Activate_Order_with_Bundle_Items_2_0",
+      "inputAssignments": [
+        {
+          "name": "cartId",
+          "value": {
+            "elementReference": "cartId"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "name": "checkoutSession",
+          "value": {
+            "elementReference": "mainCheckoutSession"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "name": "currentState",
+          "value": {
+            "elementReference": "mainCheckoutSession.State"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "name": "nextState",
+          "value": {
+            "stringValue": "Order Confirmation"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "outputAssignments": [
+        {
+          "assignToReference": "shouldCloseCart",
+          "name": "closeCart",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    },
+    {
+      "description": "Calls the cartToOrderAction invocable action to convert a cart to a draft order.",
+      "name": "Cart_To_Order_Subflow",
+      "label": "Cart To Order",
+      "locationX": 805,
+      "locationY": 1258,
+      "connector": {
+        "targetReference": "Loop",
+        "processMetadataValues": []
+      },
+      "flowName": "sfdc_checkout__CartToOrder",
+      "inputAssignments": [
+        {
+          "name": "cartId",
+          "value": {
+            "elementReference": "cartId"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "name": "checkoutSessionId",
+          "value": {
+            "elementReference": "mainCheckoutSession.Id"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "name": "currentState",
+          "value": {
+            "elementReference": "mainCheckoutSession.State"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "name": "nextState",
+          "value": {
+            "stringValue": "Payment And Billing Address"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": [],
+      "outputAssignments": []
+    },
+    {
+      "description": "Display the checkout summary screen before placing the order.",
+      "name": "Checkout_Summary_Subflow",
+      "label": "Checkout Summary",
+      "locationX": 723,
+      "locationY": 1230,
+      "connector": {
+        "targetReference": "Loop",
+        "processMetadataValues": []
+      },
+      "flowName": "sfdc_checkout__CheckoutSummary",
+      "inputAssignments": [
+        {
+          "name": "cartId",
+          "value": {
+            "elementReference": "cartId"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "name": "currentState",
+          "value": {
+            "elementReference": "mainCheckoutSession.State"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "name": "nextState",
+          "value": {
+            "stringValue": "Cart To Order"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": [],
+      "outputAssignments": []
+    },
+    {
+      "description": "Calls the priceCart invocable action to confirm item pricing in the cart, perform complex pricing logic, and integrate with external pricing services.",
+      "name": "Confirm_Price_Subflow",
+      "label": "Confirm Price",
+      "locationX": 476,
+      "locationY": 1075,
+      "connector": {
+        "targetReference": "Loop",
+        "processMetadataValues": []
+      },
+      "flowName": "sfdc_checkout__ConfirmPrice",
+      "inputAssignments": [
+        {
+          "name": "cartId",
+          "value": {
+            "elementReference": "cartId"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "name": "checkoutSessionId",
+          "value": {
+            "elementReference": "mainCheckoutSession.Id"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "name": "currentState",
+          "value": {
+            "elementReference": "mainCheckoutSession.State"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "name": "nextState",
+          "value": {
+            "stringValue": "Shipping Cost"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": [],
+      "outputAssignments": []
+    },
+    {
+      "description": "Shows the error message from the CartValidationOutput",
+      "name": "Error_Subflow",
+      "label": "Error",
+      "locationX": 807,
+      "locationY": 617,
+      "flowName": "sfdc_checkout__Error",
+      "inputAssignments": [
+        {
+          "name": "cartId",
+          "value": {
+            "elementReference": "cartId"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": [],
+      "outputAssignments": []
+    },
+    {
+      "description": "The Get or Create Session node retrieves or creates the CartCheckoutSession for a given cart ID. There is only one valid session for a cart at a time. The most likely scenarios are Session.isArchived=false and Session.state is not Error or Completed.",
+      "name": "Get_Or_Create_Session_Subflow",
+      "label": "Get Or Create Session",
+      "locationX": 247,
+      "locationY": 167,
+      "connector": {
+        "targetReference": "Debug_Screen_Decision",
+        "processMetadataValues": []
+      },
+      "flowName": "sfdc_checkout__CheckoutSession",
+      "inputAssignments": [
+        {
+          "name": "cartId",
+          "value": {
+            "elementReference": "cartId"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "outputAssignments": [
+        {
+          "assignToReference": "mainCheckoutSession",
+          "name": "checkoutSession",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    },
+    {
+      "description": "Calls the checkCartInventoryAction invocable action to check inventory. You  can apply custom business logic using Apex.",
+      "name": "Inventory_Subflow",
+      "label": "Inventory",
+      "locationX": 393,
+      "locationY": 1020,
+      "connector": {
+        "targetReference": "Loop",
+        "processMetadataValues": []
+      },
+      "flowName": "sfdc_checkout__Inventory",
+      "inputAssignments": [
+        {
+          "name": "cartId",
+          "value": {
+            "elementReference": "cartId"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "name": "checkoutSessionId",
+          "value": {
+            "elementReference": "mainCheckoutSession.Id"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "name": "currentState",
+          "value": {
+            "elementReference": "mainCheckoutSession.State"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "name": "nextState",
+          "value": {
+            "stringValue": "Confirm Price"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": [],
+      "outputAssignments": []
+    },
+    {
+      "description": "The Redirect Order Confirmation node finishes the checkout process, closes the cart, and redirects the user to the order confirmation page in your B2B store.",
+      "name": "Order_Confirmation_Subflow",
+      "label": "Order Confirmation",
+      "locationX": 1057,
+      "locationY": 1414,
+      "connector": {
+        "targetReference": "Loop",
+        "processMetadataValues": []
+      },
+      "flowName": "sfdc_checkout__OrderConfirmation",
+      "inputAssignments": [
+        {
+          "name": "cartId",
+          "value": {
+            "elementReference": "cartId"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "name": "checkoutSessionId",
+          "value": {
+            "elementReference": "mainCheckoutSession.Id"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "name": "currentState",
+          "value": {
+            "stringValue": "Order Confirmation"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "name": "mainCheckoutSession",
+          "value": {
+            "elementReference": "mainCheckoutSession"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "name": "nextState",
+          "value": {
+            "stringValue": "Complete"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "name": "shouldArchiveCheckoutAndCloseCart",
+          "value": {
+            "elementReference": "shouldCloseCart"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": [],
+      "outputAssignments": []
+    },
+    {
+      "name": "Payment_and_Billing",
+      "label": "Payment and Billing",
+      "locationX": 891,
+      "locationY": 1315,
+      "connector": {
+        "targetReference": "Loop",
+        "processMetadataValues": []
+      },
+      "flowName": "sfdc_checkout__PaymentBillingAddress",
+      "inputAssignments": [
+        {
+          "name": "cartId",
+          "value": {
+            "elementReference": "cartId"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "name": "currentState",
+          "value": {
+            "elementReference": "mainCheckoutSession.State"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "name": "nextState",
+          "value": {
+            "stringValue": "Activate Order"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "name": "orderId",
+          "value": {
+            "elementReference": "mainCheckoutSession.OrderId"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": [],
+      "outputAssignments": []
+    },
+    {
+      "description": "The Refetch Session node retrieves the current checkout session without creating a new one.",
+      "name": "Refetch_Session_Subflow",
+      "label": "Refetch Session",
+      "locationX": 1233,
+      "locationY": 172,
+      "connector": {
+        "targetReference": "Debug_Screen_Decision",
+        "processMetadataValues": []
+      },
+      "flowName": "sfdc_checkout__CheckoutSession",
+      "inputAssignments": [
+        {
+          "name": "cartId",
+          "value": {
+            "elementReference": "cartId"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "outputAssignments": [
+        {
+          "assignToReference": "mainCheckoutSession",
+          "name": "checkoutSession",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": []
+    },
+    {
+      "description": "Display the shipping address selection screen.",
+      "name": "Shipping_Address_Subflow",
+      "label": "Shipping Address",
+      "locationX": 298,
+      "locationY": 958,
+      "connector": {
+        "targetReference": "Loop",
+        "processMetadataValues": []
+      },
+      "flowName": "sfdc_checkout__ShippingAddress",
+      "inputAssignments": [
+        {
+          "name": "cartId",
+          "value": {
+            "elementReference": "cartId"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "name": "currentState",
+          "value": {
+            "elementReference": "mainCheckoutSession.State"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "name": "nextState",
+          "value": {
+            "stringValue": "Inventory"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": [],
+      "outputAssignments": []
+    },
+    {
+      "description": "Calls the calcCartShipmentAction invocable action to calculate shipping costs. You can integrate with an external shipment vendor using Apex.",
+      "name": "Shipping_Cost_Subflow",
+      "label": "Shipping Cost",
+      "locationX": 565,
+      "locationY": 1108,
+      "connector": {
+        "targetReference": "Loop",
+        "processMetadataValues": []
+      },
+      "flowName": "sfdc_checkout__ShippingCost",
+      "inputAssignments": [
+        {
+          "name": "cartId",
+          "value": {
+            "elementReference": "cartId"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "name": "checkoutSessionId",
+          "value": {
+            "elementReference": "mainCheckoutSession.Id"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "name": "currentState",
+          "value": {
+            "elementReference": "mainCheckoutSession.State"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "name": "nextState",
+          "value": {
+            "stringValue": "Taxes"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": [],
+      "outputAssignments": []
+    },
+    {
+      "description": "Calls the calcCartTaxesAction invocable action to calculate taxes. You can integrate with external tax services using Apex.",
+      "name": "Taxes_Subflow",
+      "label": "Taxes",
+      "locationX": 641,
+      "locationY": 1167,
+      "connector": {
+        "targetReference": "Loop",
+        "processMetadataValues": []
+      },
+      "flowName": "sfdc_checkout__Taxes",
+      "inputAssignments": [
+        {
+          "name": "cartId",
+          "value": {
+            "elementReference": "cartId"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "name": "checkoutSessionId",
+          "value": {
+            "elementReference": "mainCheckoutSession.Id"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "name": "currentState",
+          "value": {
+            "elementReference": "mainCheckoutSession.State"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "name": "nextState",
+          "value": {
+            "stringValue": "Checkout Summary"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": [],
+      "outputAssignments": []
+    }
+  ],
+  "variables": [
+    {
+      "name": "cartId",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "name": "debug",
+      "dataType": "Boolean",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": false,
+      "value": {
+        "booleanValue": false
+      },
+      "processMetadataValues": []
+    },
+    {
+      "name": "jobId",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "name": "mainCheckoutSession",
+      "dataType": "SObject",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "objectType": "CartCheckoutSession",
+      "processMetadataValues": []
+    },
+    {
+      "name": "orderId",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "name": "shouldCloseCart",
+      "dataType": "Boolean",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "value": {
+        "booleanValue": false
+      },
+      "processMetadataValues": []
+    }
+  ],
+  "actionCalls": [],
+  "apexPluginCalls": [],
+  "choices": [],
+  "constants": [],
+  "dynamicChoiceSets": [],
+  "formulas": [],
+  "loops": [],
+  "recordCreates": [],
+  "recordDeletes": [],
+  "recordLookups": [],
+  "recordUpdates": [],
+  "stages": [],
+  "steps": [],
+  "textTemplates": [],
+  "waits": []
+}

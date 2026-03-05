@@ -1,0 +1,194 @@
+{
+  "fullName": "SDO_SFS_Add_to_Campaign",
+  "areMetricsLoggedToDataCloud": "false",
+  "dynamicChoiceSets": [
+    {
+      "name": "campaignList",
+      "dataType": "String",
+      "displayField": "ProductServiceCampaignName",
+      "object": "ProductServiceCampaign",
+      "valueField": "Id",
+      "processMetadataValues": [],
+      "filters": [],
+      "outputAssignments": []
+    }
+  ],
+  "environments": "Default",
+  "interviewLabel": "Add to Campaign {!$Flow.CurrentDateTime}",
+  "label": "Add to Campaign",
+  "processMetadataValues": [
+    {
+      "name": "BuilderType",
+      "value": {
+        "stringValue": "LightningFlowBuilder"
+      }
+    },
+    {
+      "name": "CanvasMode",
+      "value": {
+        "stringValue": "AUTO_LAYOUT_CANVAS"
+      }
+    },
+    {
+      "name": "OriginBuilderType",
+      "value": {
+        "stringValue": "LightningFlowBuilder"
+      }
+    }
+  ],
+  "processType": "FieldServiceMobile",
+  "recordCreates": [
+    {
+      "name": "Create_PSC_Item",
+      "label": "Create PSC Item",
+      "locationX": 176,
+      "locationY": 350,
+      "inputAssignments": [
+        {
+          "field": "AssetId",
+          "value": {
+            "elementReference": "AssetId"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "ProductServiceCampaignId",
+          "value": {
+            "elementReference": "Select_Campaign"
+          },
+          "processMetadataValues": []
+        },
+        {
+          "field": "Status",
+          "value": {
+            "stringValue": "New"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "object": "ProductServiceCampaignItem",
+      "processMetadataValues": []
+    }
+  ],
+  "recordLookups": [
+    {
+      "name": "Get_Asset",
+      "label": "Get Asset",
+      "locationX": 176,
+      "locationY": 134,
+      "assignNullValuesIfNoRecordsFound": false,
+      "connector": {
+        "targetReference": "Add_to_Campaign",
+        "processMetadataValues": []
+      },
+      "filterLogic": "and",
+      "filters": [
+        {
+          "field": "Id",
+          "operator": "EqualTo",
+          "value": {
+            "elementReference": "Id"
+          },
+          "processMetadataValues": []
+        }
+      ],
+      "object": "WorkOrder",
+      "outputAssignments": [
+        {
+          "assignToReference": "AssetId",
+          "field": "AssetId",
+          "processMetadataValues": []
+        }
+      ],
+      "processMetadataValues": [],
+      "queriedFields": []
+    }
+  ],
+  "screens": [
+    {
+      "name": "Add_to_Campaign",
+      "label": "Add to Campaign",
+      "locationX": 176,
+      "locationY": 242,
+      "allowBack": true,
+      "allowFinish": true,
+      "allowPause": true,
+      "connector": {
+        "targetReference": "Create_PSC_Item",
+        "processMetadataValues": []
+      },
+      "fields": [
+        {
+          "name": "Select_Campaign",
+          "choiceReferences": [
+            "campaignList"
+          ],
+          "dataType": "String",
+          "fieldText": "Select Campaign",
+          "fieldType": "DropdownBox",
+          "inputsOnNextNavToAssocScrn": "UseStoredValues",
+          "isRequired": false,
+          "styleProperties": {
+            "verticalAlignment": {
+              "stringValue": "top"
+            },
+            "width": {
+              "stringValue": "12"
+            }
+          },
+          "processMetadataValues": [],
+          "inputParameters": [],
+          "outputParameters": []
+        }
+      ],
+      "showFooter": true,
+      "showHeader": true,
+      "processMetadataValues": [],
+      "rules": []
+    }
+  ],
+  "start": {
+    "locationX": 50,
+    "locationY": 0,
+    "connector": {
+      "targetReference": "Get_Asset",
+      "processMetadataValues": []
+    },
+    "processMetadataValues": [],
+    "filters": []
+  },
+  "status": "Active",
+  "variables": [
+    {
+      "name": "AssetId",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": false,
+      "isOutput": false,
+      "processMetadataValues": []
+    },
+    {
+      "name": "Id",
+      "dataType": "String",
+      "isCollection": false,
+      "isInput": true,
+      "isOutput": false,
+      "processMetadataValues": []
+    }
+  ],
+  "actionCalls": [],
+  "apexPluginCalls": [],
+  "assignments": [],
+  "choices": [],
+  "constants": [],
+  "decisions": [],
+  "formulas": [],
+  "loops": [],
+  "recordDeletes": [],
+  "recordUpdates": [],
+  "stages": [],
+  "steps": [],
+  "subflows": [],
+  "textTemplates": [],
+  "waits": []
+}

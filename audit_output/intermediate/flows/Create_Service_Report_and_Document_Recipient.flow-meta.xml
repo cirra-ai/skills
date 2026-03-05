@@ -1,0 +1,24 @@
+{
+  "fullName": "Create_Service_Report_and_Document_Recipient",
+  "processType": "FieldServiceMobile",
+  "description": "Creates a Service Report and Document Recipient.",
+  "status": "Active",
+  "start": {
+    "connector": {}
+  },
+  "variables": [],
+  "assignments": [],
+  "decisions": [],
+  "loops": [],
+  "recordLookups": [],
+  "recordCreates": [],
+  "recordUpdates": [],
+  "recordDeletes": [],
+  "screens": [],
+  "subflows": [],
+  "actionCalls": [],
+  "constants": [],
+  "formulas": [],
+  "choices": [],
+  "textTemplates": []
+}

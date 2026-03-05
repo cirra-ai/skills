@@ -1,0 +1,24 @@
+{
+  "fullName": "SDO_FSL_Contractor_Flow_Clone_Service_Appointment",
+  "processType": "AutoLaunchedFlow",
+  "description": "Clone SA when assigned to contractor and accepted.",
+  "status": "Active",
+  "start": {
+    "connector": {}
+  },
+  "variables": [],
+  "assignments": [],
+  "decisions": [],
+  "loops": [],
+  "recordLookups": [],
+  "recordCreates": [],
+  "recordUpdates": [],
+  "recordDeletes": [],
+  "screens": [],
+  "subflows": [],
+  "actionCalls": [],
+  "constants": [],
+  "formulas": [],
+  "choices": [],
+  "textTemplates": []
+}
