@@ -1,7 +1,7 @@
 ---
 name: cirra-ai-sf-flow
 metadata:
-  version: 1.0.0
+  version: 1.1.0
 description: >
   Creates and validates Salesforce flows with 110-point scoring and Winter '26
   best practices using Cirra AI MCP Server. Use when building record-triggered flows,
@@ -218,6 +218,83 @@ metadata_create(
 - Missing filters on Get Records
 - Null check after Get Records recommendation
 - Variable naming prefix validation (var*, col*, rec*, inp*, out\_)
+
+### Schema Validation (Structural)
+
+Before deployment, validate the generated Flow against known structural
+requirements. This applies to **both XML and JSON** output formats.
+
+> **Schema source**: A baseline JSON Schema is bundled at
+> `references/flow-metadata-schema.json` (API v65.0). To refresh it from a
+> live org's WSDL (recommended after major Salesforce releases):
+>
+> ```bash
+> scripts/pull_schema.sh                    # Flow schema, default org
+> scripts/pull_schema.sh dev                # Flow schema, specific org
+> scripts/pull_schema.sh --type Flow dev    # equivalent to above
+> ```
+>
+> The script downloads the org's metadata WSDL, extracts only Flow-related
+> XSD types, and generates a JSON Schema usable for both XML and JSON
+> validation. The bundled baseline covers all core types; the pull script
+> ensures you match your org's exact API version.
+
+#### Tier 1 — JSON Schema + structural checks (always run)
+
+Validate against `references/flow-metadata-schema.json` first, then apply
+the structural checks below. The JSON Schema covers required fields, valid
+enums, type shapes, and connector structure for both XML-derived and JSON
+payloads.
+
+| Check                      | Applies to | What to validate                                                                                                                                                                                                                                                                                                                          |
+| -------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Required top-level fields  | XML + JSON | `apiVersion`, `label`, `processType`, `status`, `start` must be present                                                                                                                                                                                                                                                                   |
+| Valid `processType` enum   | XML + JSON | Must match one of the values in the `FlowProcessType` enum defined in `references/flow-metadata-schema.json` (the bundled schema is the source of truth — common values include `AutoLaunchedFlow`, `Flow`, `Workflow`, `CustomEvent`, `InvocableProcess`, `LoginFlow`, `ActionPlan`, `OrchestrationFlow`, `Orchestrator`, and many more) |
+| Valid `status` enum        | XML + JSON | Must be `Draft`, `Active`, `Obsolete`, or `InvalidDraft`                                                                                                                                                                                                                                                                                  |
+| `apiVersion` range         | XML + JSON | Must be a valid decimal (e.g., `65.0`). Warn if < 55.0, block if absent                                                                                                                                                                                                                                                                   |
+| Element type grouping      | XML only   | All elements of the same type (e.g., all `<assignments>`) must be contiguous — no scattering                                                                                                                                                                                                                                              |
+| Alphabetical root ordering | XML only   | Root-level element types must follow alphabetical order (see XML Element Ordering section)                                                                                                                                                                                                                                                |
+| Connector integrity        | XML + JSON | Every `connector.targetReference` and `faultConnector.targetReference` must reference an element that exists in the flow                                                                                                                                                                                                                  |
+| No orphaned elements       | XML + JSON | Every non-start element must be reachable from `start` via connector chain                                                                                                                                                                                                                                                                |
+| Variable type validity     | XML + JSON | `dataType` must be one of: `String`, `Number`, `Currency`, `Boolean`, `Date`, `DateTime`, `Picklist`, `Multipicklist`, `SObject`, `Apex`                                                                                                                                                                                                  |
+| DML fault paths            | XML + JSON | All `recordCreates`, `recordUpdates`, `recordDeletes` must have a `faultConnector`                                                                                                                                                                                                                                                        |
+
+#### Tier 2 — Org-validated schema (when `sf` CLI is available)
+
+When the Salesforce CLI is available and authenticated (see `cirra-ai-sf-audit`
+environment detection pattern), use a **dry-run deployment** to validate against
+the org's actual metadata schema at its current API version:
+
+```bash
+# Write the flow to a temporary sfdx project structure
+mkdir -p /tmp/flow-validate/force-app/main/default/flows
+cp <flow-file>.flow-meta.xml /tmp/flow-validate/force-app/main/default/flows/
+
+# Dry-run deploy — validates schema + dependencies without saving
+sf project deploy validate \
+  --source-dir /tmp/flow-validate/force-app/main/default/flows \
+  --target-org <org> \
+  --json
+```
+
+This validates:
+
+- Full XML structure against the org's current metadata XSD
+- Field and object references exist in the target org
+- API version compatibility
+- Dependency resolution (referenced Apex classes, subflows, etc.)
+
+For **JSON payloads** (used with `metadata_create`), validate against
+`references/flow-metadata-schema.json` before calling the API. This catches
+type mismatches, missing required fields, and invalid enum values offline.
+The MCP `metadata_create` call remains the authoritative validator for
+org-specific constraints (field existence, object references, etc.).
+
+**Error handling**: If `sf project deploy validate` fails:
+
+- Parse the `--json` output for `componentFailures`
+- Map each failure to the corresponding Tier 1 check category
+- Report failures alongside the 110-point score
 
 **Validation Report Format** (6-Category Scoring 0-110):
 

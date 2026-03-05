@@ -277,6 +277,29 @@ SELECT PermissionSetId, PermissionSet.Name, COUNT(AssigneeId) FROM PermissionSet
 
 ---
 
+## Schema Validation for Permission Sets
+
+A baseline JSON Schema is bundled at `references/permissionset-metadata-schema.json`
+(API v65.0). Before calling `metadata_create`, validate the JSON payload against
+this schema to catch structural errors offline:
+
+- Required fields (`label`)
+- Valid child types (`objectPermissions`, `fieldPermissions`, `userPermissions`, etc.)
+- Correct field formats (e.g., `field` in `fieldPermissions` must be `Object.Field`)
+- Valid enum values for `tabSettings.visibility` (`Available`, `Hidden`, `Visible`)
+
+To refresh the schema from a live org (requires sf CLI):
+
+```bash
+scripts/pull_schema.sh --type PermissionSet          # default org
+scripts/pull_schema.sh --type PermissionSet myOrg    # specific org
+scripts/pull_schema.sh --type PermissionSetGroup
+scripts/pull_schema.sh --type Profile
+scripts/pull_schema.sh --type SharingRules
+```
+
+---
+
 ## Creating Permission Sets via MCP
 
 ```
