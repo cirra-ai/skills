@@ -78,12 +78,13 @@ See `docs/orchestration.md` for extended orchestration patterns including Agentf
 
 ## 🔑 Key Insights
 
-| Insight                  | Details                                                                                                                                     |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Before vs After Save** | Before-Save: same-record updates (no DML), validation. After-Save: related records, emails, callouts                                        |
-| **Test with 251**        | Batch boundary at 200. Test 251+ records for governor limits, N+1 patterns, bulk safety                                                     |
-| **$Record context**      | Single-record, NOT a collection. Platform handles batching. Never loop over $Record                                                         |
-| **Transform vs Loop**    | Transform: data mapping/shaping (30-50% faster). Loop: per-record decisions, counters, varying logic. See `docs/transform-vs-loop-guide.md` |
+| Insight                  | Details                                                                                                                                                                                                            |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Before vs After Save** | Before-Save: same-record updates (no DML), validation. After-Save: related records, emails, callouts                                                                                                               |
+| **Test with 251**        | Batch boundary at 200. Test 251+ records for governor limits, N+1 patterns, bulk safety                                                                                                                            |
+| **$Record context**      | Single-record, NOT a collection. Platform handles batching. Never loop over $Record                                                                                                                                |
+| **$Record traversal**    | `$Record` supports relationship traversal: `{!$Record.Contact__r.FirstName}`, `{!$Record.Account__r.Name}`. Do NOT use Get Records for data already available through `$Record` lookups — this wastes a SOQL query |
+| **Transform vs Loop**    | Transform: data mapping/shaping (30-50% faster). Loop: per-record decisions, counters, varying logic. See `docs/transform-vs-loop-guide.md`                                                                        |
 
 ---
 
@@ -238,18 +239,19 @@ If ANY of these patterns would be generated, **STOP and ask the user**:
 > A) Refactor to use [correct pattern]
 > B) Proceed anyway (not recommended)"
 
-| Anti-Pattern                                             | Impact                               | Correct Pattern                                           |
-| -------------------------------------------------------- | ------------------------------------ | --------------------------------------------------------- |
-| After-Save updating same object without entry conditions | **Infinite loop** (critical)         | MUST add entry conditions: "Only when [field] is changed" |
-| Get Records inside Loop                                  | Governor limit failure (100 SOQL)    | Query BEFORE loop, use collection variable                |
-| Create/Update/Delete Records inside Loop                 | Governor limit failure (150 DML)     | Collect in loop → single DML after loop                   |
-| Apex Action inside Loop                                  | Callout limits                       | Pass collection to single Apex invocation                 |
-| DML without Fault Path                                   | Silent failures                      | Add Fault connector → error handling element              |
-| Get Records without null check                           | NullPointerException                 | Add Decision: "Records Found?" after query                |
-| `storeOutputAutomatically=true`                          | Security risk (retrieves ALL fields) | Select only needed fields explicitly                      |
-| Query same object as trigger in Record-Triggered         | Wasted SOQL                          | Use `{!$Record.FieldName}` directly                       |
-| Hardcoded Salesforce ID                                  | Deployment failure across orgs       | Use input variable or Custom Label                        |
-| Get Records without filters                              | Too many records returned            | Always include WHERE conditions                           |
+| Anti-Pattern                                                            | Impact                               | Correct Pattern                                                                                                                    |
+| ----------------------------------------------------------------------- | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| After-Save updating same object without entry conditions                | **Infinite loop** (critical)         | MUST add entry conditions: "Only when [field] is changed"                                                                          |
+| Get Records inside Loop                                                 | Governor limit failure (100 SOQL)    | Query BEFORE loop, use collection variable                                                                                         |
+| Create/Update/Delete Records inside Loop                                | Governor limit failure (150 DML)     | Collect in loop → single DML after loop                                                                                            |
+| Apex Action inside Loop                                                 | Callout limits                       | Pass collection to single Apex invocation                                                                                          |
+| DML without Fault Path                                                  | Silent failures                      | Add Fault connector → error handling element                                                                                       |
+| Get Records without null check                                          | NullPointerException                 | Add Decision: "Records Found?" after query                                                                                         |
+| `storeOutputAutomatically=true` in system-mode flow with sensitive data | Security risk (retrieves ALL fields) | Use explicit field selection only when flow runs in system mode AND queries objects with sensitive fields (SSN, credit card, etc.) |
+| Query same object as trigger in Record-Triggered                        | Wasted SOQL                          | Use `{!$Record.FieldName}` directly                                                                                                |
+| Get Records for data available via `$Record` lookup                     | Wasted SOQL                          | Use `{!$Record.Lookup__r.Field}` — traversal works up to 5 levels                                                                  |
+| Hardcoded Salesforce ID                                                 | Deployment failure across orgs       | Use input variable or Custom Label                                                                                                 |
+| Get Records without filters                                             | Too many records returned            | Always include WHERE conditions                                                                                                    |
 
 **DO NOT generate anti-patterns even if explicitly requested.** Ask user to confirm the exception with documented justification.
 
@@ -362,11 +364,16 @@ Resources: `examples/`, `docs/subflow-library.md`, `docs/orchestration-guide.md`
 
 **NEVER loop over triggered records.** `$Record` = single record; platform handles batching.
 
-| Pattern                | OK? | Notes                             |
-| ---------------------- | --- | --------------------------------- |
-| `$Record.FieldName`    | ✅  | Direct access                     |
-| Loop over `$Record__c` | ❌  | Process Builder pattern, not Flow |
-| Loop over `$Record`    | ❌  | $Record is single, not collection |
+| Pattern                          | OK? | Notes                                                     |
+| -------------------------------- | --- | --------------------------------------------------------- |
+| `$Record.FieldName`              | ✅  | Direct field access                                       |
+| `$Record.Lookup__r.FieldName`    | ✅  | Relationship traversal — NO Get Records needed            |
+| `$Record.Account__r.Owner.Name`  | ✅  | Multi-level traversal (up to 5 levels)                    |
+| Get Records for `$Record` lookup | ❌  | Wastes SOQL — use `$Record.Relationship__r.Field` instead |
+| Loop over `$Record__c`           | ❌  | Process Builder pattern, not Flow                         |
+| Loop over `$Record`              | ❌  | $Record is single, not collection                         |
+
+**`$Record` relationship traversal**: In record-triggered flows, `$Record` provides access to related records through lookup/master-detail fields WITHOUT a Get Records element. Use `{!$Record.Contact__r.FirstName}` instead of querying Contact separately. Only use Get Records when you need related records that are NOT accessible through `$Record` lookups (e.g., child records, or records with no relationship to the trigger object).
 
 **Loops for RELATED records only**: Get Records → Loop collection → Assignment → DML after loop
 
@@ -376,13 +383,13 @@ Resources: `examples/`, `docs/subflow-library.md`, `docs/orchestration-guide.md`
 
 ### recordLookups Best Practices
 
-| Element                            | Recommendation                          | Why                                    |
-| ---------------------------------- | --------------------------------------- | -------------------------------------- |
-| `getFirstRecordOnly`               | Set to `true` for single-record queries | Avoids collection overhead             |
-| `storeOutputAutomatically`         | Set to `false`, use `outputReference`   | Prevents data leaks, explicit variable |
-| `assignNullValuesIfNoRecordsFound` | Set to `false`                          | Preserves previous variable value      |
-| `faultConnector`                   | Always include                          | Handle query failures gracefully       |
-| `filterLogic`                      | Use `and` for multiple filters          | Clear filter behavior                  |
+| Element                            | Recommendation                          | Why                                                                                                                                                    |
+| ---------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `getFirstRecordOnly`               | Set to `true` for single-record queries | Avoids collection overhead                                                                                                                             |
+| `storeOutputAutomatically`         | Set to `true` (default)                 | Simpler, modern approach — auto-stores all fields. Only set to `false` with explicit field selection when handling sensitive data in system-mode flows |
+| `assignNullValuesIfNoRecordsFound` | Set to `false`                          | Preserves previous variable value                                                                                                                      |
+| `faultConnector`                   | Always include                          | Handle query failures gracefully                                                                                                                       |
+| `filterLogic`                      | Use `and` for multiple filters          | Clear filter behavior                                                                                                                                  |
 
 ### Critical Requirements
 
