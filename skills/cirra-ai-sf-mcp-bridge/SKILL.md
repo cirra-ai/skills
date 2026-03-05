@@ -3,28 +3,43 @@ name: cirra-ai-sf-mcp-bridge
 metadata:
   version: 1.0.0
 description: >
-  MCPorter bridge for Cirra AI MCP Server. Use when native MCP tools (mcp__*)
-  are unavailable, such as in web sessions. Routes Cirra AI tool calls through
-  MCPorter via Bash, preserving the same tool interface and parameters.
+  MCPorter bridge for Cirra AI MCP Server. Use when native MCP tools are
+  unavailable. Routes Cirra AI tool calls through MCPorter via Bash,
+  preserving the same tool interface and parameters.
 ---
 
-# cirra-ai-sf-mcp-bridge: MCPorter Bridge for Web Sessions
+# cirra-ai-sf-mcp-bridge: MCPorter Bridge for Non-MCP Environments
 
-When native MCP tools are not available (typically in web sessions), use MCPorter
-to call the Cirra AI MCP Server via the Bash tool. This skill maps every Cirra AI
-MCP tool to its MCPorter bridge equivalent.
+When native MCP tools are not available, use MCPorter to call the Cirra AI
+MCP Server via the Bash tool. This skill maps every Cirra AI MCP tool to its
+MCPorter bridge equivalent.
 
 ## When to Use This Skill
 
-Use this bridge **only when** native MCP tools (`mcp__plugin_cirra-ai-sf_cirra-ai__*`)
-are unavailable. In CLI and desktop sessions, always prefer native MCP.
+Use this bridge **only when** native MCP tools are unavailable. Native MCP is
+the preferred transport on all platforms:
+
+| Platform                             | Native MCP available?        | Bridge needed?            |
+| ------------------------------------ | ---------------------------- | ------------------------- |
+| Claude Code (CLI/Desktop)            | Yes — via plugin `.mcp.json` | No                        |
+| Codex / Cowork                       | Yes — via MCP server sidebar | No (and no outbound HTTP) |
+| Claude Web (no MCP configured)       | No                           | Yes                       |
+| Any environment with Bash + internet | Depends on config            | Fallback option           |
+
+**Important**: Codex/Cowork sandboxes have no outbound internet except through
+MCP. If MCP is not connected there, the bridge cannot reach the server either.
+Connect the Cirra AI MCP Server via the Cowork sidebar instead.
 
 ## Bridge Script
 
-All calls go through the wrapper script:
+All calls go through the wrapper script in the plugin's `scripts/` directory:
 
 ```bash
+# Claude Code — CLAUDE_PLUGIN_ROOT is set automatically
 "${CLAUDE_PLUGIN_ROOT}/scripts/mcporter-bridge.sh" <tool_name> '<json_params>'
+
+# Manual / other platforms — use the path relative to the plugin root
+<plugin-root>/scripts/mcporter-bridge.sh <tool_name> '<json_params>'
 ```
 
 The script:
@@ -42,7 +57,7 @@ The bridge script automatically selects the right auth mode:
 | Set                      | Bearer token via header | No              |
 | Not set                  | MCPorter OAuth flow     | Yes             |
 
-### Recommended: Token-based auth (web sessions)
+### Recommended: Token-based auth (headless environments)
 
 Set `CIRRA_AI_TOKEN` with a valid Cirra AI API token before starting a session.
 The bridge script picks it up automatically — no browser, no OAuth flow:
@@ -53,9 +68,9 @@ export CIRRA_AI_TOKEN="your-cirra-ai-token"
 
 The token is passed as a `Bearer` header to `https://mcp.cirra.ai/mcp` via
 a separate config file (`scripts/mcporter-token.mcp.json`). The plugin's
-main `.mcp.json` (used by native MCP in CLI/desktop) is not modified.
+main `.mcp.json` (used by native MCP) is not modified.
 
-### Fallback: OAuth (CLI or environments with browser access)
+### Fallback: OAuth (environments with browser access)
 
 If `CIRRA_AI_TOKEN` is not set, MCPorter falls back to its standard OAuth flow:
 it launches a browser, completes the OAuth handshake, and caches tokens under
@@ -74,7 +89,7 @@ it launches a browser, completes the OAuth handshake, and caches tokens under
 **MCPorter bridge**:
 
 ```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/mcporter-bridge.sh" cirra_ai_init '{}'
+./scripts/mcporter-bridge.sh cirra_ai_init '{}'
 ```
 
 Must be called first before any other operations. Returns the default org
@@ -86,7 +101,7 @@ configuration.
 **MCPorter bridge**:
 
 ```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/mcporter-bridge.sh" soql_query '{
+./scripts/mcporter-bridge.sh soql_query '{
   "sObject": "Account",
   "fields": ["Id", "Name", "Industry"],
   "whereClause": "Industry = '\''Technology'\''",
@@ -101,7 +116,7 @@ configuration.
 **MCPorter bridge**:
 
 ```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/mcporter-bridge.sh" sobject_dml '{
+./scripts/mcporter-bridge.sh sobject_dml '{
   "sObject": "Account",
   "operation": "insert",
   "records": [
@@ -120,7 +135,7 @@ For upsert, include `"externalIdField": "ExternalId__c"`.
 **MCPorter bridge**:
 
 ```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/mcporter-bridge.sh" sobject_describe '{
+./scripts/mcporter-bridge.sh sobject_describe '{
   "sObject": "Account",
   "sf_user": "prod"
 }'
@@ -132,7 +147,7 @@ For upsert, include `"externalIdField": "ExternalId__c"`.
 **MCPorter bridge**:
 
 ```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/mcporter-bridge.sh" tooling_api_query '{
+./scripts/mcporter-bridge.sh tooling_api_query '{
   "sObject": "ApexClass",
   "fields": ["Id", "Name", "ApiVersion"],
   "whereClause": "NamespacePrefix = null",
@@ -147,7 +162,7 @@ For upsert, include `"externalIdField": "ExternalId__c"`.
 **MCPorter bridge**:
 
 ```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/mcporter-bridge.sh" tooling_api_dml '{
+./scripts/mcporter-bridge.sh tooling_api_dml '{
   "operation": "insert",
   "sObject": "ApexClass",
   "record": {
@@ -166,7 +181,7 @@ For upsert, include `"externalIdField": "ExternalId__c"`.
 **MCPorter bridge**:
 
 ```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/mcporter-bridge.sh" metadata_read '{
+./scripts/mcporter-bridge.sh metadata_read '{
   "type": "Flow",
   "fullNames": ["My_Flow"],
   "sf_user": "prod"
@@ -179,7 +194,7 @@ For upsert, include `"externalIdField": "ExternalId__c"`.
 **MCPorter bridge**:
 
 ```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/mcporter-bridge.sh" metadata_create '{
+./scripts/mcporter-bridge.sh metadata_create '{
   "type": "CustomObject",
   "metadata": [
     {
@@ -204,7 +219,7 @@ For upsert, include `"externalIdField": "ExternalId__c"`.
 **MCPorter bridge**:
 
 ```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/mcporter-bridge.sh" metadata_update '{
+./scripts/mcporter-bridge.sh metadata_update '{
   "type": "CustomObject",
   "metadata": [
     {
@@ -221,7 +236,7 @@ For upsert, include `"externalIdField": "ExternalId__c"`.
 MCPorter returns JSON responses. Check for error fields:
 
 ```bash
-RESULT=$("${CLAUDE_PLUGIN_ROOT}/scripts/mcporter-bridge.sh" soql_query '{"sObject":"Account","fields":["Id"],"sf_user":"prod"}')
+RESULT=$(./scripts/mcporter-bridge.sh soql_query '{"sObject":"Account","fields":["Id"],"sf_user":"prod"}')
 echo "$RESULT"
 ```
 
@@ -240,7 +255,7 @@ The plugin's validation scripts work the same way regardless of transport.
 Run validation before executing operations:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/mcp_validator_cli.py" --format report /tmp/operation.json
+python3 hooks/scripts/mcp_validator_cli.py --format report /tmp/operation.json
 ```
 
 ## Limitations
@@ -250,8 +265,11 @@ python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/mcp_validator_cli.py" --format repo
 - **Token management**: When using `CIRRA_AI_TOKEN`, you are responsible for
   token rotation and expiry. If calls start failing with auth errors, refresh
   the token.
-- **No tool auto-discovery**: Claude does not automatically see MCPorter tools.
-  Use this skill's reference to know which tools are available.
+- **No tool auto-discovery**: The AI agent does not automatically see MCPorter
+  tools. Use this skill's reference to know which tools are available.
 - **OAuth timeout**: If using OAuth fallback, browser handshakes have a 60s
   default. Override with `--oauth-timeout <ms>` or
   `export MCPORTER_OAUTH_TIMEOUT_MS=<ms>`.
+- **Codex/Cowork**: The sandboxed environment has no outbound HTTP. If MCP is
+  not connected via the sidebar, the bridge cannot work. Use the native MCP
+  connection instead.

@@ -14,11 +14,15 @@ mcporter_available() {
 }
 
 # Check if native MCP tools are likely available by looking at the environment.
-# Web sessions typically lack the native MCP transport. We use the absence
-# of CLAUDE_MCP_TRANSPORT as a heuristic — when running in CLI/desktop,
-# Claude Code sets this when MCP servers connect.
+# Checks multiple platform signals (Claude Code, Codex/Cowork, generic MCP).
 native_mcp_likely() {
-  [ -n "${CLAUDE_MCP_TRANSPORT:-}" ]
+  # Claude Code sets CLAUDE_MCP_TRANSPORT when MCP servers connect
+  [ -n "${CLAUDE_MCP_TRANSPORT:-}" ] && return 0
+  # Codex/Cowork sets OPENAI_BASE_URL when running in the sandbox
+  [ -n "${OPENAI_BASE_URL:-}" ] && return 0
+  # Generic: MCP_SERVER_URL indicates an MCP-capable environment
+  [ -n "${MCP_SERVER_URL:-}" ] && return 0
+  return 1
 }
 
 if native_mcp_likely; then
