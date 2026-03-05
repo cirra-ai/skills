@@ -1,0 +1,265 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cirra.ai/schemas/salesforce-profile-metadata.json",
+  "title": "Salesforce Profile Metadata",
+  "description": "Baseline JSON Schema for Salesforce Profile metadata (API v65.0). Covers objectPermissions, fieldPermissions, layoutAssignments, recordTypeVisibilities, applicationVisibilities, tabVisibilities, userPermissions, classAccesses, pageAccesses, loginHours, loginIpRanges. Refresh from a live org with: python scripts/pull_metadata_schema.py --type Profile",
+  "x-salesforce-api-version": "65.0",
+  "x-schema-source": "baseline",
+  "type": "object",
+  "$ref": "#/$defs/Profile",
+  "$defs": {
+    "Profile": {
+      "type": "object",
+      "required": ["fullName"],
+      "properties": {
+        "fullName": { "type": "string", "minLength": 1 },
+        "custom": { "type": "boolean" },
+        "description": { "type": "string" },
+        "userLicense": { "type": "string" },
+        "applicationVisibilities": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ProfileApplicationVisibility" }
+        },
+        "classAccesses": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ProfileApexClassAccess" }
+        },
+        "customMetadataTypeAccesses": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ProfileCustomMetadataTypeAccess" }
+        },
+        "customPermissions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ProfileCustomPermissions" }
+        },
+        "customSettingAccesses": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ProfileCustomSettingAccess" }
+        },
+        "externalDataSourceAccesses": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ProfileExternalDataSourceAccess" }
+        },
+        "fieldPermissions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ProfileFieldLevelSecurity" }
+        },
+        "flowAccesses": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ProfileFlowAccess" }
+        },
+        "layoutAssignments": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ProfileLayoutAssignment" }
+        },
+        "loginFlows": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ProfileLoginFlow" }
+        },
+        "loginHours": { "$ref": "#/$defs/ProfileLoginHours" },
+        "loginIpRanges": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ProfileLoginIpRange" }
+        },
+        "objectPermissions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ProfileObjectPermissions" }
+        },
+        "pageAccesses": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ProfileApexPageAccess" }
+        },
+        "recordTypeVisibilities": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ProfileRecordTypeVisibility" }
+        },
+        "tabVisibilities": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ProfileTabVisibility" }
+        },
+        "userPermissions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ProfileUserPermission" }
+        }
+      },
+      "additionalProperties": true
+    },
+
+    "ProfileApplicationVisibility": {
+      "type": "object",
+      "required": ["application", "default", "visible"],
+      "properties": {
+        "application": { "type": "string" },
+        "default": { "type": "boolean" },
+        "visible": { "type": "boolean" }
+      }
+    },
+    "ProfileApexClassAccess": {
+      "type": "object",
+      "required": ["apexClass", "enabled"],
+      "properties": {
+        "apexClass": { "type": "string" },
+        "enabled": { "type": "boolean" }
+      }
+    },
+    "ProfileCustomMetadataTypeAccess": {
+      "type": "object",
+      "required": ["enabled", "name"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "name": { "type": "string" }
+      }
+    },
+    "ProfileCustomPermissions": {
+      "type": "object",
+      "required": ["enabled", "name"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "name": { "type": "string" }
+      }
+    },
+    "ProfileCustomSettingAccess": {
+      "type": "object",
+      "required": ["enabled", "name"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "name": { "type": "string" }
+      }
+    },
+    "ProfileExternalDataSourceAccess": {
+      "type": "object",
+      "required": ["enabled", "externalDataSource"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "externalDataSource": { "type": "string" }
+      }
+    },
+    "ProfileFieldLevelSecurity": {
+      "type": "object",
+      "required": ["field"],
+      "properties": {
+        "editable": { "type": "boolean" },
+        "field": {
+          "type": "string",
+          "description": "Format: Object.Field (e.g., Account.Industry)"
+        },
+        "hidden": { "type": "boolean" },
+        "readable": { "type": "boolean" }
+      }
+    },
+    "ProfileFlowAccess": {
+      "type": "object",
+      "required": ["enabled", "flow"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "flow": { "type": "string" }
+      }
+    },
+    "ProfileLayoutAssignment": {
+      "type": "object",
+      "required": ["layout"],
+      "properties": {
+        "layout": {
+          "type": "string",
+          "description": "Format: Object-LayoutName (e.g., Account-Account Layout)"
+        },
+        "recordType": {
+          "type": "string",
+          "description": "Format: Object.RecordTypeName. Omit for default assignment."
+        }
+      }
+    },
+    "ProfileLoginFlow": {
+      "type": "object",
+      "required": ["flow", "flowType"],
+      "properties": {
+        "flow": { "type": "string" },
+        "flowType": { "type": "string", "enum": ["UI"] },
+        "friendlyName": { "type": "string" },
+        "uiLoginFlowType": { "type": "string", "enum": ["VisualWorkflow"] }
+      }
+    },
+    "ProfileLoginHours": {
+      "type": "object",
+      "properties": {
+        "mondayStart": { "type": "integer" },
+        "mondayEnd": { "type": "integer" },
+        "tuesdayStart": { "type": "integer" },
+        "tuesdayEnd": { "type": "integer" },
+        "wednesdayStart": { "type": "integer" },
+        "wednesdayEnd": { "type": "integer" },
+        "thursdayStart": { "type": "integer" },
+        "thursdayEnd": { "type": "integer" },
+        "fridayStart": { "type": "integer" },
+        "fridayEnd": { "type": "integer" },
+        "saturdayStart": { "type": "integer" },
+        "saturdayEnd": { "type": "integer" },
+        "sundayStart": { "type": "integer" },
+        "sundayEnd": { "type": "integer" }
+      },
+      "description": "Times in minutes from midnight. E.g., 480 = 8:00 AM."
+    },
+    "ProfileLoginIpRange": {
+      "type": "object",
+      "required": ["startAddress", "endAddress"],
+      "properties": {
+        "description": { "type": "string" },
+        "endAddress": { "type": "string", "format": "ipv4" },
+        "startAddress": { "type": "string", "format": "ipv4" }
+      }
+    },
+    "ProfileObjectPermissions": {
+      "type": "object",
+      "required": ["object"],
+      "properties": {
+        "allowCreate": { "type": "boolean" },
+        "allowDelete": { "type": "boolean" },
+        "allowEdit": { "type": "boolean" },
+        "allowRead": { "type": "boolean" },
+        "modifyAllRecords": { "type": "boolean" },
+        "object": { "type": "string" },
+        "viewAllRecords": { "type": "boolean" }
+      }
+    },
+    "ProfileApexPageAccess": {
+      "type": "object",
+      "required": ["apexPage", "enabled"],
+      "properties": {
+        "apexPage": { "type": "string" },
+        "enabled": { "type": "boolean" }
+      }
+    },
+    "ProfileRecordTypeVisibility": {
+      "type": "object",
+      "required": ["recordType", "visible"],
+      "properties": {
+        "default": { "type": "boolean" },
+        "personAccountDefault": { "type": "boolean" },
+        "recordType": {
+          "type": "string",
+          "description": "Format: Object.RecordTypeName"
+        },
+        "visible": { "type": "boolean" }
+      }
+    },
+    "ProfileTabVisibility": {
+      "type": "object",
+      "required": ["tab", "visibility"],
+      "properties": {
+        "tab": { "type": "string" },
+        "visibility": {
+          "type": "string",
+          "enum": ["DefaultOff", "DefaultOn", "Hidden"]
+        }
+      }
+    },
+    "ProfileUserPermission": {
+      "type": "object",
+      "required": ["enabled", "name"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "name": { "type": "string" }
+      }
+    }
+  }
+}

@@ -1,0 +1,263 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cirra.ai/schemas/salesforce-flexipage-metadata.json",
+  "title": "Salesforce FlexiPage (Lightning Page) Metadata",
+  "description": "Baseline JSON Schema for Salesforce FlexiPage metadata (API v65.0). Covers flexiPageRegions, itemInstances, componentInstance, componentInstanceProperties. Uses the API v49+ format with itemInstances wrapper. Refresh from a live org with: python scripts/pull_metadata_schema.py --type FlexiPage",
+  "x-salesforce-api-version": "65.0",
+  "x-schema-source": "baseline",
+  "type": "object",
+  "$ref": "#/$defs/FlexiPage",
+  "$defs": {
+    "FlexiPage": {
+      "type": "object",
+      "required": ["masterLabel", "template", "type"],
+      "properties": {
+        "fullName": { "type": "string" },
+        "apiVersion": { "type": "number", "minimum": 49.0 },
+        "description": { "type": "string" },
+        "flexiPageRegions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlexiPageRegion" }
+        },
+        "masterLabel": { "type": "string", "minLength": 1 },
+        "parentFlexiPage": { "type": "string" },
+        "platformActionlist": { "$ref": "#/$defs/PlatformActionList" },
+        "quickActionList": { "$ref": "#/$defs/QuickActionList" },
+        "sobjectType": {
+          "type": "string",
+          "description": "Required for RecordPage type — the SObject this page applies to"
+        },
+        "template": { "$ref": "#/$defs/FlexiPageTemplateInstance" },
+        "type": { "$ref": "#/$defs/FlexiPageType" }
+      },
+      "additionalProperties": true
+    },
+
+    "FlexiPageType": {
+      "type": "string",
+      "enum": [
+        "AppPage",
+        "HomePage",
+        "RecordPage",
+        "UtilityBar",
+        "CommAppPage",
+        "CommFlowPage",
+        "CommForgotPasswordPage",
+        "CommGlobalSearchResultPage",
+        "CommKnowledgeArticlePage",
+        "CommLoginPage",
+        "CommNoSearchResultsPage",
+        "CommObjectPage",
+        "CommQuickActionCreatePage",
+        "CommRecordPage",
+        "CommRelatedListPage",
+        "CommSearchResultPage",
+        "CommSelfRegisterPage",
+        "CommThemeLayoutPage"
+      ]
+    },
+
+    "FlexiPageRegion": {
+      "type": "object",
+      "required": ["name", "type"],
+      "properties": {
+        "appendable": {
+          "type": "string",
+          "enum": ["enabled", "disabled"]
+        },
+        "itemInstances": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ItemInstance" },
+          "description": "API v49+ format: components wrapped in itemInstances"
+        },
+        "mode": {
+          "type": "string",
+          "enum": ["Append", "Prepend", "Replace"]
+        },
+        "name": {
+          "type": "string",
+          "description": "Region name (e.g., header, main, sidebar, Facet-xxx)"
+        },
+        "prependable": {
+          "type": "string",
+          "enum": ["enabled", "disabled"]
+        },
+        "replaceable": {
+          "type": "string",
+          "enum": ["enabled", "disabled"]
+        },
+        "type": {
+          "type": "string",
+          "enum": ["Region", "Facet"]
+        }
+      }
+    },
+    "ItemInstance": {
+      "type": "object",
+      "required": ["componentInstance"],
+      "properties": {
+        "componentInstance": { "$ref": "#/$defs/ComponentInstance" },
+        "fieldInstance": { "$ref": "#/$defs/FieldInstance" }
+      }
+    },
+    "ComponentInstance": {
+      "type": "object",
+      "required": ["componentName"],
+      "properties": {
+        "componentInstanceProperties": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ComponentInstanceProperty" }
+        },
+        "componentName": {
+          "type": "string",
+          "description": "Lightning component reference (e.g., force:highlightsPanel, flexipage:richText, c:myCustomComponent)"
+        },
+        "componentValidityRules": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ComponentValidityRule" }
+        },
+        "identifier": { "type": "string" },
+        "visibilityRule": { "$ref": "#/$defs/FlexiPageVisibilityRule" }
+      }
+    },
+    "ComponentInstanceProperty": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string" },
+        "type": {
+          "type": "string",
+          "enum": ["decorator", "facet", "expr", "literal"]
+        },
+        "value": { "type": "string" },
+        "valueList": {
+          "type": "object",
+          "properties": {
+            "valueListItems": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/ValueListItem" }
+            }
+          }
+        }
+      }
+    },
+    "ValueListItem": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "string" },
+        "visibilityRule": { "$ref": "#/$defs/FlexiPageVisibilityRule" }
+      }
+    },
+    "FieldInstance": {
+      "type": "object",
+      "properties": {
+        "fieldInstanceProperties": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FieldInstanceProperty" }
+        },
+        "fieldItem": { "type": "string" }
+      }
+    },
+    "FieldInstanceProperty": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string" },
+        "value": { "type": "string" }
+      }
+    },
+    "FlexiPageVisibilityRule": {
+      "type": "object",
+      "properties": {
+        "booleanFilter": { "type": "string" },
+        "criteria": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlexiPageVisibilityCriterion" }
+        }
+      }
+    },
+    "FlexiPageVisibilityCriterion": {
+      "type": "object",
+      "required": ["leftValue", "operator"],
+      "properties": {
+        "leftValue": { "type": "string" },
+        "operator": {
+          "type": "string",
+          "enum": [
+            "EQUAL",
+            "NOT_EQUAL",
+            "GREATER_THAN",
+            "GREATER_OR_EQUAL",
+            "LESS_THAN",
+            "LESS_OR_EQUAL",
+            "CONTAINS",
+            "STARTS_WITH",
+            "INCLUDES",
+            "WAS_SET",
+            "WAS_SELECTED"
+          ]
+        },
+        "rightValue": { "type": "string" }
+      }
+    },
+    "ComponentValidityRule": {
+      "type": "object",
+      "properties": {
+        "booleanFilter": { "type": "string" },
+        "criteria": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FlexiPageVisibilityCriterion" }
+        }
+      }
+    },
+    "FlexiPageTemplateInstance": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Template name (e.g., flexipage:defaultAppHomeTemplate, flexipage:recordHomeTemplateDesktop)"
+        },
+        "properties": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ComponentInstanceProperty" }
+        }
+      }
+    },
+    "PlatformActionList": {
+      "type": "object",
+      "properties": {
+        "actionListContext": { "type": "string" },
+        "platformActionListItems": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/PlatformActionListItem" }
+        }
+      }
+    },
+    "PlatformActionListItem": {
+      "type": "object",
+      "required": ["actionName", "actionType", "sortOrder"],
+      "properties": {
+        "actionName": { "type": "string" },
+        "actionType": { "type": "string" },
+        "sortOrder": { "type": "integer" },
+        "subtype": { "type": "string" }
+      }
+    },
+    "QuickActionList": {
+      "type": "object",
+      "properties": {
+        "quickActionListItems": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["quickActionName"],
+            "properties": {
+              "quickActionName": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

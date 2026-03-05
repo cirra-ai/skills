@@ -1,0 +1,317 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cirra.ai/schemas/salesforce-layout-metadata.json",
+  "title": "Salesforce Layout (PageLayout) Metadata",
+  "description": "Baseline JSON Schema for Salesforce Layout metadata (API v65.0). Covers layoutSections, layoutColumns, layoutItems, relatedLists, miniLayout, quickActionList, platformActionList, feedLayout, headers, relatedContent. Refresh from a live org with: python scripts/pull_metadata_schema.py --type Layout",
+  "x-salesforce-api-version": "65.0",
+  "x-schema-source": "baseline",
+  "type": "object",
+  "$ref": "#/$defs/Layout",
+  "$defs": {
+    "Layout": {
+      "type": "object",
+      "required": ["fullName", "layoutSections"],
+      "properties": {
+        "fullName": {
+          "type": "string",
+          "description": "Format: Object-LayoutName (e.g., Account-Account Layout)"
+        },
+        "customButtons": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "customConsoleComponents": { "$ref": "#/$defs/CustomConsoleComponents" },
+        "emailDefault": { "type": "boolean" },
+        "excludeButtons": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "feedLayout": { "$ref": "#/$defs/FeedLayout" },
+        "headers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["PersonalTagging", "PublicTagging"]
+          }
+        },
+        "layoutSections": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/LayoutSection" },
+          "minItems": 1
+        },
+        "miniLayout": { "$ref": "#/$defs/MiniLayout" },
+        "multilineLayoutFields": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "platformActionList": { "$ref": "#/$defs/PlatformActionList" },
+        "quickActionList": { "$ref": "#/$defs/QuickActionList" },
+        "relatedContent": { "$ref": "#/$defs/RelatedContent" },
+        "relatedLists": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/RelatedListItem" }
+        },
+        "relatedObjects": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "runAssignmentRulesDefault": { "type": "boolean" },
+        "showEmailCheckbox": { "type": "boolean" },
+        "showHighlightsPanel": { "type": "boolean" },
+        "showInteractionLogPanel": { "type": "boolean" },
+        "showKnowledgeComponent": { "type": "boolean" },
+        "showRunAssignmentRulesCheckbox": { "type": "boolean" },
+        "showSolutionSection": { "type": "boolean" },
+        "showSubmitAndAttachButton": { "type": "boolean" },
+        "summaryLayout": { "$ref": "#/$defs/SummaryLayout" }
+      },
+      "additionalProperties": true
+    },
+
+    "LayoutSection": {
+      "type": "object",
+      "required": ["label", "style", "layoutColumns"],
+      "properties": {
+        "customLabel": { "type": "boolean" },
+        "detailHeading": { "type": "boolean" },
+        "editHeading": { "type": "boolean" },
+        "label": { "type": "string" },
+        "layoutColumns": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/LayoutColumn" },
+          "minItems": 1,
+          "maxItems": 3
+        },
+        "style": { "$ref": "#/$defs/LayoutSectionStyle" },
+        "tabOrder": {
+          "type": "string",
+          "enum": ["LeftToRight", "TopToBottom"]
+        }
+      }
+    },
+    "LayoutSectionStyle": {
+      "type": "string",
+      "enum": ["TwoColumnsTopToBottom", "TwoColumnsLeftToRight", "OneColumn", "CustomLinks"]
+    },
+    "LayoutColumn": {
+      "type": "object",
+      "properties": {
+        "layoutItems": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/LayoutItem" }
+        }
+      }
+    },
+    "LayoutItem": {
+      "type": "object",
+      "properties": {
+        "analyticsCloudComponent": { "type": "object" },
+        "behavior": { "$ref": "#/$defs/UiBehavior" },
+        "canvas": { "type": "string" },
+        "component": { "type": "string" },
+        "customLink": { "type": "string" },
+        "emptySpace": { "type": "boolean" },
+        "field": { "type": "string" },
+        "height": { "type": "integer" },
+        "page": { "type": "string" },
+        "reportChartComponent": { "type": "object" },
+        "scontrol": { "type": "string" },
+        "showLabel": { "type": "boolean" },
+        "showScrollbars": { "type": "boolean" },
+        "width": { "type": "string" }
+      }
+    },
+    "UiBehavior": {
+      "type": "string",
+      "enum": ["Edit", "Readonly", "Required"]
+    },
+
+    "RelatedListItem": {
+      "type": "object",
+      "required": ["relatedList"],
+      "properties": {
+        "customButtons": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "excludeButtons": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "fields": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "relatedList": { "type": "string" },
+        "sortField": { "type": "string" },
+        "sortOrder": { "type": "string", "enum": ["Asc", "Desc"] }
+      }
+    },
+    "MiniLayout": {
+      "type": "object",
+      "properties": {
+        "fields": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "relatedLists": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/RelatedListItem" }
+        }
+      }
+    },
+    "SummaryLayout": {
+      "type": "object",
+      "properties": {
+        "masterLabel": { "type": "string" },
+        "sizeX": { "type": "integer" },
+        "sizeY": { "type": "integer" },
+        "sizeZ": { "type": "integer" },
+        "summaryLayoutItems": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/SummaryLayoutItem" }
+        },
+        "summaryLayoutStyle": {
+          "type": "string",
+          "enum": ["Default", "QuoteTemplate", "DefaultQuoteTemplate", "CaseInteraction"]
+        }
+      }
+    },
+    "SummaryLayoutItem": {
+      "type": "object",
+      "properties": {
+        "customLink": { "type": "string" },
+        "field": { "type": "string" },
+        "posX": { "type": "integer" },
+        "posY": { "type": "integer" },
+        "posZ": { "type": "integer" }
+      }
+    },
+    "PlatformActionList": {
+      "type": "object",
+      "properties": {
+        "actionListContext": {
+          "type": "string",
+          "enum": ["Record", "RelatedList", "Feeditem", "ListView"]
+        },
+        "platformActionListItems": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/PlatformActionListItem" }
+        }
+      }
+    },
+    "PlatformActionListItem": {
+      "type": "object",
+      "required": ["actionName", "actionType", "sortOrder"],
+      "properties": {
+        "actionName": { "type": "string" },
+        "actionType": {
+          "type": "string",
+          "enum": [
+            "StandardButton",
+            "CustomButton",
+            "QuickAction",
+            "ProductivityAction",
+            "InvocableAction"
+          ]
+        },
+        "sortOrder": { "type": "integer" },
+        "subtype": { "type": "string" }
+      }
+    },
+    "QuickActionList": {
+      "type": "object",
+      "properties": {
+        "quickActionListItems": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/QuickActionListItem" }
+        }
+      }
+    },
+    "QuickActionListItem": {
+      "type": "object",
+      "required": ["quickActionName"],
+      "properties": {
+        "quickActionName": { "type": "string" }
+      }
+    },
+    "FeedLayout": {
+      "type": "object",
+      "properties": {
+        "autocollapsePublisher": { "type": "boolean" },
+        "compactFeed": { "type": "boolean" },
+        "feedFilterPosition": {
+          "type": "string",
+          "enum": ["CenterColumn", "LeftColumn"]
+        },
+        "feedFilters": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FeedLayoutFilter" }
+        },
+        "fullWidthFeed": { "type": "boolean" },
+        "hideSidebar": { "type": "boolean" },
+        "highlightExternalFeedItems": { "type": "boolean" },
+        "rightComponents": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FeedLayoutComponent" }
+        },
+        "useInlineFiltersInConsole": { "type": "boolean" }
+      }
+    },
+    "FeedLayoutFilter": {
+      "type": "object",
+      "required": ["feedFilterName", "feedFilterType"],
+      "properties": {
+        "feedFilterName": { "type": "string" },
+        "feedFilterType": {
+          "type": "string",
+          "enum": ["AllUpdates", "FeedItemType", "Custom"]
+        },
+        "feedItemType": { "type": "string" }
+      }
+    },
+    "FeedLayoutComponent": {
+      "type": "object",
+      "properties": {
+        "componentType": {
+          "type": "string",
+          "enum": [
+            "HelpAndToolLinks",
+            "CustomButtons",
+            "Following",
+            "Followers",
+            "Topics",
+            "CustomLinks",
+            "Milestones",
+            "CaseExperts",
+            "Visualforce"
+          ]
+        },
+        "height": { "type": "integer" },
+        "page": { "type": "string" }
+      }
+    },
+    "RelatedContent": {
+      "type": "object",
+      "properties": {
+        "relatedContentItems": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/RelatedContentItem" }
+        }
+      }
+    },
+    "RelatedContentItem": {
+      "type": "object",
+      "properties": {
+        "layoutItem": { "$ref": "#/$defs/LayoutItem" }
+      }
+    },
+    "CustomConsoleComponents": {
+      "type": "object",
+      "properties": {
+        "primaryTabComponents": { "type": "object" },
+        "subtabComponents": { "type": "object" }
+      }
+    }
+  }
+}

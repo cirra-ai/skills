@@ -216,6 +216,33 @@ metadata_create(
 )
 ```
 
+### Phase 3.5: Schema Validation (Pre-Deploy)
+
+Before calling `metadata_create`, validate JSON payloads against the bundled
+JSON Schemas in `references/`:
+
+| Metadata Type | Schema File                                 |
+| ------------- | ------------------------------------------- |
+| Profile       | `references/profile-metadata-schema.json`   |
+| Layout        | `references/layout-metadata-schema.json`    |
+| FlexiPage     | `references/flexipage-metadata-schema.json` |
+| PermissionSet | See `cirra-ai-sf-permissions` skill         |
+
+These schemas validate required fields, valid enum values, correct nesting
+(e.g., Layout → LayoutSection → LayoutColumn → LayoutItem), and type shapes.
+
+To refresh any schema from a live org (requires sf CLI + `cirra-ai-sf-flow`
+scripts):
+
+```bash
+python cirra-ai-sf-flow/scripts/pull_flow_schema.py --type Profile \
+  --output cirra-ai-sf-metadata/references/profile-metadata-schema.json
+python cirra-ai-sf-flow/scripts/pull_flow_schema.py --type Layout \
+  --output cirra-ai-sf-metadata/references/layout-metadata-schema.json
+python cirra-ai-sf-flow/scripts/pull_flow_schema.py --type FlexiPage \
+  --output cirra-ai-sf-metadata/references/flexipage-metadata-schema.json
+```
+
 ### Phase 4: Validation & Scoring
 
 Score the metadata operation against the 120-point rubric.

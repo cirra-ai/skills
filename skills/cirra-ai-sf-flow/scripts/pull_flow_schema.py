@@ -1,15 +1,20 @@
 #!/usr/bin/env python3
 """
-Pull Flow Metadata Schema from a Salesforce org.
+Pull Metadata Schema from a Salesforce org.
 
-Downloads the metadata WSDL from an authenticated org, extracts only
-Flow-related XSD type definitions, and generates a JSON Schema file
-that can be used for offline validation of Flow metadata (both XML
-and JSON representations).
+Downloads the metadata WSDL from an authenticated org, extracts XSD type
+definitions for a specified metadata type, and generates a JSON Schema file
+that can be used for offline validation (both XML and JSON representations).
 
 Usage:
-    # Using sf CLI (recommended — uses default org):
+    # Pull Flow schema (default):
     python pull_flow_schema.py
+
+    # Pull a different metadata type:
+    python pull_flow_schema.py --type PermissionSet
+    python pull_flow_schema.py --type Profile
+    python pull_flow_schema.py --type Layout
+    python pull_flow_schema.py --type FlexiPage
 
     # Specify a target org:
     python pull_flow_schema.py --target-org myOrg
@@ -18,7 +23,7 @@ Usage:
     python pull_flow_schema.py --instance-url https://myorg.my.salesforce.com --access-token <token>
 
 Output:
-    references/flow-metadata-schema.json  (overwrites existing)
+    references/<type>-metadata-schema.json  (overwrites existing)
 """
 
 import argparse
@@ -31,14 +36,22 @@ from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).parent
 REFERENCES_DIR = SCRIPT_DIR.parent / "references"
-OUTPUT_FILE = REFERENCES_DIR / "flow-metadata-schema.json"
 
-SF_NS = "http://soap.sforce.com/2006/04/metadata"
 XSD_NS = "http://www.w3.org/2001/XMLSchema"
 
-# Flow-related type prefixes — we extract any complexType whose name starts
-# with "Flow" plus the top-level "Flow" element itself.
-FLOW_TYPE_PREFIX = "Flow"
+# Metadata types and their XSD type prefixes. The key is the CLI-friendly
+# name; the value is (type_prefix, root_type_name, output_filename).
+METADATA_TYPES = {
+    "Flow": ("Flow", "Flow", "flow-metadata-schema.json"),
+    "PermissionSet": (
+        "PermissionSet",
+        "PermissionSet",
+        "permissionset-metadata-schema.json",
+    ),
+    "Profile": ("Profile", "Profile", "profile-metadata-schema.json"),
+    "Layout": ("Layout", "Layout", "layout-metadata-schema.json"),
+    "FlexiPage": ("FlexiPage", "FlexiPage", "flexipage-metadata-schema.json"),
+}
 
 # XSD → JSON Schema type mapping
 XSD_TYPE_MAP = {
@@ -86,23 +99,22 @@ def download_wsdl(instance_url, access_token):
         return resp.read().decode("utf-8")
 
 
-def extract_flow_types(wsdl_content):
-    """Extract Flow-related XSD complex types from the WSDL."""
+def extract_types(wsdl_content, type_prefix):
+    """Extract XSD complex types matching a prefix from the WSDL."""
     root = ET.fromstring(wsdl_content)
 
     # Find the <types> → <schema> section
     types_el = root.find(f".//{{{XSD_NS}}}schema")
     if types_el is None:
-        # Try WSDL namespace wrapper
         wsdl_ns = "http://schemas.xmlsoap.org/wsdl/"
         types_el = root.find(f".//{{{wsdl_ns}}}types/{{{XSD_NS}}}schema")
     if types_el is None:
         raise ValueError("Could not find XSD schema in WSDL")
 
-    flow_types = {}
+    matched_types = {}
     enum_types = {}
 
-    # Pass 1: collect all simpleType enums (many are used by Flow types)
+    # Pass 1: collect all simpleType enums
     for simple_type in types_el.findall(f"{{{XSD_NS}}}simpleType"):
         name = simple_type.get("name", "")
         restriction = simple_type.find(f"{{{XSD_NS}}}restriction")
@@ -111,50 +123,44 @@ def extract_flow_types(wsdl_content):
             if enums:
                 enum_types[name] = enums
 
-    # Pass 2: collect Flow complexTypes
+    # Pass 2: collect complexTypes matching the prefix
     for complex_type in types_el.findall(f"{{{XSD_NS}}}complexType"):
         name = complex_type.get("name", "")
-        if name.startswith(FLOW_TYPE_PREFIX) or name == "Flow":
-            flow_types[name] = complex_type
+        if name.startswith(type_prefix) or name == type_prefix:
+            matched_types[name] = complex_type
 
-    return flow_types, enum_types, types_el
+    return matched_types, enum_types
 
 
-def xsd_type_to_json_schema(type_name, enum_types):
+def xsd_type_to_json_schema(type_name, enum_types, type_prefix):
     """Convert an XSD type reference to a JSON Schema type."""
     if type_name in XSD_TYPE_MAP:
         return {"type": XSD_TYPE_MAP[type_name]}
 
-    # Strip tns: prefix
     clean = re.sub(r"^tns:", "", type_name)
 
-    # Check if it's an enum
     if clean in enum_types:
         return {"type": "string", "enum": enum_types[clean]}
 
-    # Check if it's a Flow type (reference)
-    if clean.startswith(FLOW_TYPE_PREFIX):
+    if clean.startswith(type_prefix):
         return {"$ref": f"#/$defs/{clean}"}
 
-    # Fallback
     return {"type": "string", "description": f"Mapped from XSD type: {type_name}"}
 
 
-def complex_type_to_json_schema(ct_element, enum_types):
+def complex_type_to_json_schema(ct_element, enum_types, type_prefix):
     """Convert an XSD complexType element to a JSON Schema object definition."""
     schema = {"type": "object", "properties": {}, "additionalProperties": False}
     required = []
 
-    # Handle extension (e.g., FlowNode extends FlowElement)
     complex_content = ct_element.find(f"{{{XSD_NS}}}complexContent")
     if complex_content is not None:
         extension = complex_content.find(f"{{{XSD_NS}}}extension")
         if extension is not None:
             base = extension.get("base", "")
             clean_base = re.sub(r"^tns:", "", base)
-            if clean_base.startswith(FLOW_TYPE_PREFIX):
+            if clean_base.startswith(type_prefix):
                 schema["allOf"] = [{"$ref": f"#/$defs/{clean_base}"}]
-            # Elements inside the extension
             sequence = extension.find(f"{{{XSD_NS}}}sequence")
         else:
             sequence = None
@@ -168,7 +174,7 @@ def complex_type_to_json_schema(ct_element, enum_types):
             min_occurs = elem.get("minOccurs", "1")
             max_occurs = elem.get("maxOccurs", "1")
 
-            prop_schema = xsd_type_to_json_schema(elem_type, enum_types)
+            prop_schema = xsd_type_to_json_schema(elem_type, enum_types, type_prefix)
 
             if max_occurs == "unbounded":
                 prop_schema = {"type": "array", "items": prop_schema}
@@ -184,19 +190,17 @@ def complex_type_to_json_schema(ct_element, enum_types):
     return schema
 
 
-def build_json_schema(flow_types, enum_types, api_version=None):
-    """Build a complete JSON Schema from extracted Flow types."""
+def build_json_schema(matched_types, enum_types, type_prefix, root_type, api_version=None):
+    """Build a complete JSON Schema from extracted types."""
     schema = {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://cirra.ai/schemas/salesforce-flow-metadata.json",
-        "title": "Salesforce Flow Metadata",
+        "$id": f"https://cirra.ai/schemas/salesforce-{root_type.lower()}-metadata.json",
+        "title": f"Salesforce {root_type} Metadata",
         "description": (
-            f"JSON Schema for Salesforce Flow metadata (API v{api_version}). "
-            "Auto-generated from the org's metadata WSDL by pull_flow_schema.py."
-            if api_version
-            else "JSON Schema for Salesforce Flow metadata. "
-            "Auto-generated from the org's metadata WSDL by pull_flow_schema.py."
-        ),
+            f"JSON Schema for Salesforce {root_type} metadata"
+            f" (API v{api_version}). " if api_version else f"JSON Schema for Salesforce {root_type} metadata. "
+        )
+        + "Auto-generated from the org's metadata WSDL by pull_flow_schema.py.",
         "type": "object",
         "$defs": {},
     }
@@ -204,52 +208,32 @@ def build_json_schema(flow_types, enum_types, api_version=None):
     if api_version:
         schema["x-salesforce-api-version"] = api_version
 
-    # Convert each Flow type
-    for name, ct_element in sorted(flow_types.items()):
-        schema["$defs"][name] = complex_type_to_json_schema(ct_element, enum_types)
+    for name, ct_element in sorted(matched_types.items()):
+        schema["$defs"][name] = complex_type_to_json_schema(ct_element, enum_types, type_prefix)
 
-    # The root schema references the top-level Flow type
-    if "Flow" in schema["$defs"]:
-        schema["$ref"] = "#/$defs/Flow"
-
-    # Add enum types used by Flow as $defs
-    flow_enum_refs = set()
-    for defn in schema["$defs"].values():
-        _collect_enum_refs(defn, flow_enum_refs)
-
-    for enum_name in sorted(flow_enum_refs):
-        if enum_name in enum_types and enum_name not in schema["$defs"]:
-            schema["$defs"][enum_name] = {
-                "type": "string",
-                "enum": enum_types[enum_name],
-            }
+    if root_type in schema["$defs"]:
+        schema["$ref"] = f"#/$defs/{root_type}"
 
     return schema
 
 
-def _collect_enum_refs(obj, refs):
-    """Recursively find enum references in a schema fragment."""
-    if isinstance(obj, dict):
-        if "enum" in obj and "$ref" not in obj:
-            pass  # inline enum, skip
-        for v in obj.values():
-            _collect_enum_refs(v, refs)
-    elif isinstance(obj, list):
-        for item in obj:
-            _collect_enum_refs(item, refs)
-
-
 def main():
-    parser = argparse.ArgumentParser(description="Pull Flow schema from Salesforce org")
+    parser = argparse.ArgumentParser(
+        description="Pull metadata schema from Salesforce org"
+    )
+    parser.add_argument(
+        "--type",
+        default="Flow",
+        choices=list(METADATA_TYPES.keys()),
+        help="Metadata type to extract (default: Flow)",
+    )
     parser.add_argument("--target-org", help="sf CLI target org alias or username")
     parser.add_argument("--instance-url", help="Salesforce instance URL (direct mode)")
     parser.add_argument("--access-token", help="OAuth access token (direct mode)")
-    parser.add_argument(
-        "--output",
-        default=str(OUTPUT_FILE),
-        help=f"Output JSON Schema path (default: {OUTPUT_FILE})",
-    )
+    parser.add_argument("--output", help="Output JSON Schema path (overrides default)")
     args = parser.parse_args()
+
+    type_prefix, root_type, default_filename = METADATA_TYPES[args.type]
 
     if args.instance_url and args.access_token:
         instance_url = args.instance_url
@@ -258,18 +242,21 @@ def main():
     else:
         instance_url, access_token, api_version = get_org_info(args.target_org)
         if not instance_url or not access_token:
-            print("Could not get org credentials. Is sf CLI installed and authenticated?", file=sys.stderr)
+            print(
+                "Could not get org credentials. Is sf CLI installed and authenticated?",
+                file=sys.stderr,
+            )
             sys.exit(1)
 
     wsdl_content = download_wsdl(instance_url, access_token)
 
-    print("Extracting Flow types from WSDL...")
-    flow_types, enum_types, _ = extract_flow_types(wsdl_content)
-    print(f"Found {len(flow_types)} Flow complex types and {len(enum_types)} enum types")
+    print(f"Extracting {args.type} types from WSDL...")
+    matched_types, enum_types = extract_types(wsdl_content, type_prefix)
+    print(f"Found {len(matched_types)} {args.type} complex types and {len(enum_types)} enum types")
 
-    schema = build_json_schema(flow_types, enum_types, api_version)
+    schema = build_json_schema(matched_types, enum_types, type_prefix, root_type, api_version)
 
-    output_path = Path(args.output)
+    output_path = Path(args.output) if args.output else REFERENCES_DIR / default_filename
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, "w") as f:
         json.dump(schema, f, indent=2)
