@@ -41,9 +41,9 @@ _SCHEMAS: dict[str, str] = {
     "PermissionSetGroup": "skills/cirra-ai-sf-permissions/references/permissionsetgroup-metadata-schema.json",
     "Profile":           "skills/cirra-ai-sf-permissions/references/profile-metadata-schema.json",
     "SharingRules":      "skills/cirra-ai-sf-permissions/references/sharingrules-metadata-schema.json",
-    "Flow":              "skills/cirra-ai-sf-flow/references/flow-metadata-schema.json",
-    "FlowDefinition":    "skills/cirra-ai-sf-flow/references/flow-metadata-schema.json",
 }
+# Note: Flow and FlowDefinition are NOT in _SCHEMAS because they have
+# delegate validators that provide richer feedback (110-point rubric).
 
 # Cache loaded schemas to avoid re-reading per item.
 _schema_cache: dict[str, dict] = {}
@@ -168,30 +168,30 @@ def main() -> int:
         print(json.dumps(_allow()))
         return 0
 
-    # --- JSON Schema validation (runs before custom validators) ---
+    # --- Delegate to sub-skill custom validator (takes priority) ---
+    delegate_script = _DELEGATES.get(metadata_type)
+    if delegate_script:
+        script_path = os.path.join(_PLUGIN_ROOT, delegate_script)
+        result = subprocess.run(
+            [sys.executable, script_path],
+            input=raw,
+            capture_output=True,
+        )
+
+        output = result.stdout.strip()
+        if output:
+            print(output.decode("utf-8", errors="replace"))
+        else:
+            print(json.dumps(_allow()))
+        return 0
+
+    # --- JSON Schema validation (for types without a delegate) ---
     schema_error = _validate_schema(metadata_type, tool_input)
     if schema_error:
         print(json.dumps(_deny(schema_error)))
         return 0
 
-    # --- Delegate to sub-skill custom validator ---
-    delegate_script = _DELEGATES.get(metadata_type)
-    if not delegate_script:
-        print(json.dumps(_allow()))
-        return 0
-
-    script_path = os.path.join(_PLUGIN_ROOT, delegate_script)
-    result = subprocess.run(
-        [sys.executable, script_path],
-        input=raw,
-        capture_output=True,
-    )
-
-    output = result.stdout.strip()
-    if output:
-        print(output.decode("utf-8", errors="replace"))
-    else:
-        print(json.dumps(_allow()))
+    print(json.dumps(_allow()))
     return 0
 
 
