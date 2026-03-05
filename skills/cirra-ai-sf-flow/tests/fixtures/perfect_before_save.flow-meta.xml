@@ -7,10 +7,10 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignmentItems>
-            <assignToReference>$Record.Priority__c</assignToReference>
+            <assignToReference>$Record.Rating</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>High</stringValue>
+                <stringValue>Hot</stringValue>
             </value>
         </assignmentItems>
     </assignments>
@@ -36,7 +36,7 @@
             <label>High Revenue</label>
         </rules>
     </decisions>
-    <description>Before-save flow that sets Lead priority based on annual revenue. Runs on create and update for Lead records with revenue over 1M.</description>
+    <description>Before-save flow that sets Lead rating based on annual revenue. Runs on create and update for Lead records with revenue over 1M.</description>
     <label>Before Lead Priority Assignment</label>
     <processType>AutoLaunchedFlow</processType>
     <start>

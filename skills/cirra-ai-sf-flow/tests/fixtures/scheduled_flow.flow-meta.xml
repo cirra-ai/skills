@@ -60,6 +60,7 @@
         <connector>
             <targetReference>Get_Stale_Opportunities</targetReference>
         </connector>
+        <triggerType>Scheduled</triggerType>
         <schedule>
             <frequency>Daily</frequency>
             <startDate>2025-01-01</startDate>
