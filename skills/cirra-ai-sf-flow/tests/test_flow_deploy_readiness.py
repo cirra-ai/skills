@@ -159,6 +159,16 @@ class TestFixtureDeployReadiness:
         errors = [i for i in r["issues"] if i["severity"] == "ERROR"]
         assert r["ready"], f"Deploy issues: {errors}"
 
+    def test_before_save_warns_custom_field(self):
+        """Before-save fixture references TEST_Priority__c — should warn."""
+        r = check_deploy_readiness(
+            os.path.join(FIXTURES_DIR, "perfect_before_save.flow-meta.xml")
+        )
+        checks = [i["check"] for i in r["issues"]]
+        assert "custom_field_references" in checks
+        # It's a warning, not an error — flow is still ready
+        assert r["ready"]
+
     def test_after_save_deploy_ready(self):
         r = check_deploy_readiness(
             os.path.join(FIXTURES_DIR, "perfect_after_save.flow-meta.xml")
@@ -308,6 +318,15 @@ class TestDeploymentRegressions:
             assert "deprecated_bulk_support" in checks
         finally:
             os.unlink(tmp)
+
+    def test_invalid_scheduled_flow_fixture_detected(self):
+        """The invalid scheduled flow fixture (missing triggerType) must be flagged."""
+        r = check_deploy_readiness(
+            os.path.join(FIXTURES_DIR, "scheduled_flow_missing_trigger_type.flow-meta.xml")
+        )
+        assert not r["ready"]
+        checks = [i["check"] for i in r["issues"]]
+        assert "scheduled_trigger_type" in checks
 
     def test_custom_field_ref_warned(self):
         """Custom field references should produce a warning (not error)."""
