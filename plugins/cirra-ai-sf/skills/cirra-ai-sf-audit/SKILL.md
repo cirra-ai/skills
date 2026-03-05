@@ -15,6 +15,14 @@ Run a complete Salesforce org audit. Follow these phases in order.
 `cirra-ai-sf-lwc` skills, which should be loaded in your context alongside this skill.
 Do not invent your own criteria.
 
+**Completeness requirement**: Every component counted in Phase 1 **must** have its full
+source fetched, saved to disk, and scored against the rubric using its actual source code.
+It is **never** acceptable to silently skip components, use metadata-only heuristic scoring,
+or generate placeholder scores. If a fetch fails, retry with smaller batches (down to 1).
+If a component still cannot be fetched after retries, log it explicitly and tell the user
+which components could not be retrieved and why. The reports must clearly distinguish between
+fully-scored and unfetchable components.
+
 ## Prerequisites
 
 Call `cirra_ai_init()` first if not already done this session.
@@ -41,16 +49,30 @@ Paginate Apex class metadata in batches of 200 using an Id cursor:
 4. Score using the 150-point rubric from the `cirra-ai-sf-apex` skill
 5. Track: class name, score, issues found
 
+### Completeness gate
+
+After fetching, verify every class from the Phase 1 count has a `.cls` file in
+`intermediate/apex/`. If any are missing, retry the fetch for the missing classes
+before proceeding. **Never silently skip classes or fall back to metadata-only scoring.**
+Tell the user: "Fetched N/M Apex classes. Retrying K missing..." until all are collected.
+
 ## Phase 3 — Collect and score Flows
 
 Paginate Flow metadata in batches of 200 using an Id cursor, then fetch XML in batches:
 
 1. Fetch `Id`, `DeveloperName`, `MasterLabel`, `ActiveVersionId` for all flows via `tooling_api_query`
 2. Fetch Flow XML via `metadata_read` in batches — start with 25 flows per call. If the response
-   is too large or an error is thrown, halve the batch size and retry.
+   is too large or an error is thrown, halve the batch size and retry (down to batch size 1).
 3. Write each flow XML to `./audit_output/intermediate/flows/<DeveloperName>.flow-meta.xml`
 4. Score using the 110-point rubric from the `cirra-ai-sf-flow` skill
 5. Track: flow name, score, issues found
+
+### Completeness gate
+
+After fetching, verify every active flow from Phase 1 has a `.flow-meta.xml` file in
+`intermediate/flows/`. If any are missing, retry with smaller batches (down to 1 at a
+time) before proceeding. **Never silently skip flows or fall back to metadata-only scoring.**
+Tell the user: "Fetched N/M Flows. Retrying K missing..." until all are collected.
 
 ## Phase 4 — Collect and score LWC
 
@@ -63,6 +85,13 @@ Paginate LWC bundle metadata in batches of 200 using an Id cursor:
 3. Write each component to `./audit_output/intermediate/lwc/<DeveloperName>/` before scoring
 4. Score using the rubric from the `cirra-ai-sf-lwc` skill
 5. Track: component name, score, issues found
+
+### Completeness gate
+
+After fetching, verify every LWC bundle from Phase 1 has a directory in
+`intermediate/lwc/`. If any are missing, retry before proceeding.
+**Never silently skip components or fall back to metadata-only scoring.**
+Tell the user: "Fetched N/M LWC bundles. Retrying K missing..." until all are collected.
 
 ## Phase 5 — Generate reports
 
