@@ -1,5 +1,5 @@
 ---
-name: cirra-ai-mcp-bridge
+name: cirra-ai-sf-mcp-bridge
 metadata:
   version: 1.0.0
 description: >
@@ -8,7 +8,7 @@ description: >
   MCPorter via Bash, preserving the same tool interface and parameters.
 ---
 
-# cirra-ai-mcp-bridge: MCPorter Bridge for Web Sessions
+# cirra-ai-sf-mcp-bridge: MCPorter Bridge for Web Sessions
 
 When native MCP tools are not available (typically in web sessions), use MCPorter
 to call the Cirra AI MCP Server via the Bash tool. This skill maps every Cirra AI
@@ -37,10 +37,10 @@ The script:
 
 The bridge script automatically selects the right auth mode:
 
-| `CIRRA_AI_TOKEN` env var | Auth mode | Browser needed? |
-| --- | --- | --- |
-| Set | Bearer token via header | No |
-| Not set | MCPorter OAuth flow | Yes |
+| `CIRRA_AI_TOKEN` env var | Auth mode               | Browser needed? |
+| ------------------------ | ----------------------- | --------------- |
+| Set                      | Bearer token via header | No              |
+| Not set                  | MCPorter OAuth flow     | Yes             |
 
 ### Recommended: Token-based auth (web sessions)
 
@@ -227,12 +227,12 @@ echo "$RESULT"
 
 Common errors:
 
-| Error | Cause | Fix |
-| --- | --- | --- |
-| `mcporter: command not found` | Not installed | `npm install -g mcporter` |
-| `OAuth token expired` | Cached token stale | Delete `~/.mcporter/cirra-ai/` and re-auth |
-| `Connection refused` | Server unreachable | Check network; verify `https://mcp.cirra.ai/mcp` is accessible |
-| `INVALID_FIELD` | Field does not exist | Use `sobject_describe` to verify field names first |
+| Error                         | Cause                | Fix                                                            |
+| ----------------------------- | -------------------- | -------------------------------------------------------------- |
+| `mcporter: command not found` | Not installed        | `npm install -g mcporter`                                      |
+| `OAuth token expired`         | Cached token stale   | Delete `~/.mcporter/cirra-ai/` and re-auth                     |
+| `Connection refused`          | Server unreachable   | Check network; verify `https://mcp.cirra.ai/mcp` is accessible |
+| `INVALID_FIELD`               | Field does not exist | Use `sobject_describe` to verify field names first             |
 
 ## Pre-Flight Validation
 

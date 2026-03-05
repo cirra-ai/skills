@@ -128,6 +128,11 @@ soql_query(
 )
 ```
 
+> **Known caveats**:
+>
+> - `Parent.Name` returns hex IDs (e.g. `0PSV90000004CqU`) instead of human-readable PS API names. To resolve, follow up with a query on `PermissionSet` using the returned IDs: `soql_query(sObject="PermissionSet", fields=["Id","Name","Label"], whereClause="Id IN ('0PS...',...)")`.
+> - `SobjectType` filter on `FieldPermissions` may return rows from other objects (e.g. `Lead.AnnualRevenue` when filtering for `Account`). Always verify the `Field` column prefix matches the expected object.
+
 #### User's PS Assignments
 
 ```
@@ -268,6 +273,29 @@ SELECT PermissionSetGroup.DeveloperName, PermissionSet.Name FROM PermissionSetGr
 
 -- Count users per Permission Set
 SELECT PermissionSetId, PermissionSet.Name, COUNT(AssigneeId) FROM PermissionSetAssignment GROUP BY PermissionSetId, PermissionSet.Name
+```
+
+---
+
+## Schema Validation for Permission Sets
+
+A baseline JSON Schema is bundled at `references/permissionset-metadata-schema.json`
+(API v65.0). Before calling `metadata_create`, validate the JSON payload against
+this schema to catch structural errors offline:
+
+- Required fields (`label`)
+- Valid child types (`objectPermissions`, `fieldPermissions`, `userPermissions`, etc.)
+- Correct field formats (e.g., `field` in `fieldPermissions` must be `Object.Field`)
+- Valid enum values for `tabSettings.visibility` (`Available`, `Hidden`, `Visible`)
+
+To refresh the schema from a live org (requires sf CLI):
+
+```bash
+scripts/pull_schema.sh --type PermissionSet          # default org
+scripts/pull_schema.sh --type PermissionSet myOrg    # specific org
+scripts/pull_schema.sh --type PermissionSetGroup
+scripts/pull_schema.sh --type Profile
+scripts/pull_schema.sh --type SharingRules
 ```
 
 ---

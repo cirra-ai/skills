@@ -199,9 +199,9 @@ The MCP validator uses a **two-tier model** that matches the risk profile of eac
 ### How to run
 
 ```bash
-python hooks/scripts/mcp_validator_cli.py input.json
-python hooks/scripts/mcp_validator_cli.py --format report input.json
-echo '{"tool":"soql_query","params":{...}}' | python hooks/scripts/mcp_validator_cli.py
+python scripts/mcp_validator_cli.py input.json
+python scripts/mcp_validator_cli.py --format report input.json
+echo '{"tool":"soql_query","params":{...}}' | python scripts/mcp_validator_cli.py
 ```
 
 ### Tier 1: Data Parameter Checks (soql_query, sobject_dml)
@@ -322,11 +322,13 @@ Call with no parameters — uses the default org. If a default is configured, co
 Parameters:
   - sObject: "Account" (required)
   - fields: ["Id", "Name", "Industry"] (optional; uses SELECT *)
-  - whereClause: "Industry='Technology'" (optional)
+  - whereClause: "Industry='Technology'" (optional — omit for no filter; do NOT pass empty string "")
   - limit: 1000 (optional; default varies)
   - orderBy: "Name ASC" (optional)
   - sf_user: Connection identifier
 ```
+
+> **whereClause caveat**: Never pass an empty string `""` for `whereClause` — it generates malformed SQL (`WHERE ""`). Either omit the parameter entirely or use `"Id != null"` to select all records.
 
 **Example**: Query Accounts in Technology
 
@@ -424,6 +426,8 @@ sobject_describe(
 ```
 
 Response includes: fields (name, type, required, length), relationships, record types, etc.
+
+> **IMPORTANT**: `sobject_describe` is NOT authoritative for field accessibility. A field may appear in the describe response but still fail SOQL queries (`No such column`), LWC schema imports, or Metadata API deployments due to FLS, profile restrictions, or org-level configuration. Always verify critical fields with a test SOQL query before relying on describe output for data operations or component development.
 
 ### 5. Tooling API Queries
 
