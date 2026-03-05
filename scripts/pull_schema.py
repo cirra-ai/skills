@@ -146,12 +146,24 @@ def download_wsdl(instance_url, access_token):
 
     url = f"{instance_url}/services/wsdl/metadata"
     req = urllib.request.Request(url)
-    req.add_header("Authorization", f"Bearer {access_token}")
+    # The WSDL endpoint requires a session cookie, not a Bearer header
+    req.add_header("Cookie", f"sid={access_token}")
     req.add_header("Accept", "application/xml")
 
     print(f"Downloading metadata WSDL from {instance_url}...")
     with urllib.request.urlopen(req, timeout=60) as resp:
-        return resp.read().decode("utf-8")
+        content = resp.read().decode("utf-8")
+
+    # Sanity-check: the response should be XML, not an HTML login page
+    if not content.lstrip().startswith("<?xml") and "<definitions" not in content[:500]:
+        print(
+            "Error: WSDL endpoint returned non-XML content (likely a login page).\n"
+            "Verify that the org is authenticated and the access token is valid.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    return content
 
 
 def extract_types(wsdl_content, type_prefix):
