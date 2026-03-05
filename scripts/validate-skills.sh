@@ -77,11 +77,11 @@ SKILLS_REF="$(find_skills_ref || install_skills_ref)" || exit 1
 
 # ── Find skill directories ────────────────────────────────────────────────────
 
-# All skill dirs: parent of every SKILL.md matching */skills/*/SKILL.md
+# Skills now live under the top-level skills/ directory: skills/*/SKILL.md
 all_skill_dirs=()
 while IFS= read -r skill_md; do
   all_skill_dirs+=("$(dirname "$skill_md")")
-done < <(find "$REPO_ROOT" -path "*/.git" -prune -o -path "*/skills/*/SKILL.md" -print | sort)
+done < <(find "$REPO_ROOT/skills" -maxdepth 2 -name "SKILL.md" -print 2>/dev/null | sort)
 
 if [[ $STAGED_ONLY -eq 1 ]]; then
   # Only validate dirs that contain staged files
@@ -103,7 +103,15 @@ else
   skill_dirs=("${all_skill_dirs[@]}")
 fi
 
-[[ ${#skill_dirs[@]} -eq 0 ]] && exit 0
+# In --staged mode, zero matching dirs is fine (no skill files were staged).
+# In full-validation mode, zero skills means something is misconfigured.
+if [[ ${#skill_dirs[@]} -eq 0 ]]; then
+  if [[ $STAGED_ONLY -eq 1 ]]; then
+    exit 0
+  fi
+  echo "error: no skills found under $REPO_ROOT/skills — expected at least one SKILL.md" >&2
+  exit 1
+fi
 
 # ── Custom checks ─────────────────────────────────────────────────────────────
 

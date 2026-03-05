@@ -2,7 +2,12 @@
 set -euo pipefail
 
 # Package all Cirra AI plugins and skills for distribution.
-# Outputs individual plugin zips to install/plugins/ and skill zips to install/skills/.
+#
+# Skills live at the repo root (skills/) and are copied into each plugin
+# (plugins/<name>/skills/) so marketplace installs work. This script syncs
+# them before zipping to ensure the zips are up to date.
+#
+# Skill zips are also packaged individually from skills/.
 #
 # Usage:
 #   scripts/package-all.sh          # warn on skill issues, fail on errors
@@ -10,7 +15,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-PLUGINS_DIR="$REPO_ROOT/install/plugins"
+PLUGINS_OUT_DIR="$REPO_ROOT/install/plugins"
 STRICT=0
 
 for arg in "$@"; do
@@ -20,8 +25,25 @@ for arg in "$@"; do
   esac
 done
 
-rm -rf "$PLUGINS_DIR"
-mkdir -p "$PLUGINS_DIR"
+rm -rf "$PLUGINS_OUT_DIR"
+mkdir -p "$PLUGINS_OUT_DIR"
+
+# ── Assemble shared content into target files ─────────────────────────────────
+# Run before any packaging so both plugin and skill zips get assembled content.
+
+echo "=== Assembling Shared Content ==="
+echo ""
+"$SCRIPT_DIR/assemble.sh"
+echo ""
+
+# ── Sync skills into plugins ─────────────────────────────────────────────────
+# Ensures the committed copies in plugins/<name>/skills/ match the source of
+# truth in skills/.
+
+echo "=== Syncing Plugin Skills ==="
+echo ""
+"$SCRIPT_DIR/sync-plugin-skills.sh"
+echo ""
 
 # Directories to exclude from zips
 EXCLUDE_PATTERNS=(
@@ -48,11 +70,13 @@ echo ""
 # Find all plugin directories (contain .claude-plugin/plugin.json)
 PLUGIN_COUNT=0
 
-for plugin_json in "$REPO_ROOT"/*/.claude-plugin/plugin.json; do
+for plugin_json in "$REPO_ROOT"/plugins/*/.claude-plugin/plugin.json; do
+  [[ -f "$plugin_json" ]] || continue
+
   plugin_dir="$(dirname "$(dirname "$plugin_json")")"
   plugin_name="$(basename "$plugin_dir")"
 
-  # Skip directories with spaces (e.g. "cirra-ai-sf-data 2") — likely artifacts
+  # Skip directories with spaces — likely artifacts
   if [[ "$plugin_name" == *" "* ]]; then
     echo "  Skipping '$plugin_name' (contains spaces, likely artifact)"
     continue
@@ -61,7 +85,8 @@ for plugin_json in "$REPO_ROOT"/*/.claude-plugin/plugin.json; do
   PLUGIN_COUNT=$((PLUGIN_COUNT + 1))
 
   echo "  Packaging $plugin_name..."
-  (cd "$REPO_ROOT" && zip -r -q "$PLUGINS_DIR/$plugin_name.zip" "$plugin_name" $EXCLUDE_ARGS)
+
+  (cd "$REPO_ROOT/plugins" && zip -r -q "$PLUGINS_OUT_DIR/$plugin_name.zip" "$plugin_name" $EXCLUDE_ARGS)
 done
 
 echo ""
@@ -69,8 +94,8 @@ echo "  Packaged $PLUGIN_COUNT individual plugins"
 echo ""
 echo "=== Done ==="
 echo ""
-echo "Output in $PLUGINS_DIR/:"
-ls -lh "$PLUGINS_DIR"/*.zip
+echo "Output in $PLUGINS_OUT_DIR/:"
+ls -lh "$PLUGINS_OUT_DIR"/*.zip
 
 echo ""
 
