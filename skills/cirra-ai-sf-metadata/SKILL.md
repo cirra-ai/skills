@@ -223,9 +223,9 @@ JSON Schemas in `references/`:
 
 | Metadata Type | Schema File                                 |
 | ------------- | ------------------------------------------- |
-| Profile       | `references/profile-metadata-schema.json`   |
 | Layout        | `references/layout-metadata-schema.json`    |
 | FlexiPage     | `references/flexipage-metadata-schema.json` |
+| Profile       | See `cirra-ai-sf-permissions` skill         |
 | PermissionSet | See `cirra-ai-sf-permissions` skill         |
 
 These schemas validate required fields, valid enum values, correct nesting
@@ -234,7 +234,6 @@ These schemas validate required fields, valid enum values, correct nesting
 To refresh any schema from a live org (requires sf CLI):
 
 ```bash
-scripts/pull_schema.sh --type Profile          # default org
 scripts/pull_schema.sh --type Layout myOrg     # specific org
 scripts/pull_schema.sh --type FlexiPage
 scripts/pull_schema.sh --type CustomObject
