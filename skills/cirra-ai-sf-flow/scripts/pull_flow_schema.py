@@ -35,22 +35,28 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).parent
-REFERENCES_DIR = SCRIPT_DIR.parent / "references"
+SKILLS_DIR = SCRIPT_DIR.parent.parent  # skills/ root containing all skill dirs
 
 XSD_NS = "http://www.w3.org/2001/XMLSchema"
 
 # Metadata types and their XSD type prefixes. The key is the CLI-friendly
-# name; the value is (type_prefix, root_type_name, output_filename).
+# name; the value is (type_prefix, root_type_name, skill_dir, output_filename).
 METADATA_TYPES = {
-    "Flow": ("Flow", "Flow", "flow-metadata-schema.json"),
+    "Flow": ("Flow", "Flow", "cirra-ai-sf-flow", "flow-metadata-schema.json"),
     "PermissionSet": (
         "PermissionSet",
         "PermissionSet",
+        "cirra-ai-sf-permissions",
         "permissionset-metadata-schema.json",
     ),
-    "Profile": ("Profile", "Profile", "profile-metadata-schema.json"),
-    "Layout": ("Layout", "Layout", "layout-metadata-schema.json"),
-    "FlexiPage": ("FlexiPage", "FlexiPage", "flexipage-metadata-schema.json"),
+    "Profile": ("Profile", "Profile", "cirra-ai-sf-metadata", "profile-metadata-schema.json"),
+    "Layout": ("Layout", "Layout", "cirra-ai-sf-metadata", "layout-metadata-schema.json"),
+    "FlexiPage": (
+        "FlexiPage",
+        "FlexiPage",
+        "cirra-ai-sf-metadata",
+        "flexipage-metadata-schema.json",
+    ),
 }
 
 # XSD → JSON Schema type mapping
@@ -150,7 +156,7 @@ def xsd_type_to_json_schema(type_name, enum_types, type_prefix):
 
 def complex_type_to_json_schema(ct_element, enum_types, type_prefix):
     """Convert an XSD complexType element to a JSON Schema object definition."""
-    schema = {"type": "object", "properties": {}, "additionalProperties": False}
+    schema = {"type": "object", "properties": {}, "additionalProperties": True}
     required = []
 
     complex_content = ct_element.find(f"{{{XSD_NS}}}complexContent")
@@ -233,7 +239,7 @@ def main():
     parser.add_argument("--output", help="Output JSON Schema path (overrides default)")
     args = parser.parse_args()
 
-    type_prefix, root_type, default_filename = METADATA_TYPES[args.type]
+    type_prefix, root_type, skill_dir, default_filename = METADATA_TYPES[args.type]
 
     if args.instance_url and args.access_token:
         instance_url = args.instance_url
@@ -256,7 +262,8 @@ def main():
 
     schema = build_json_schema(matched_types, enum_types, type_prefix, root_type, api_version)
 
-    output_path = Path(args.output) if args.output else REFERENCES_DIR / default_filename
+    default_refs_dir = SKILLS_DIR / skill_dir / "references"
+    output_path = Path(args.output) if args.output else default_refs_dir / default_filename
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, "w") as f:
         json.dump(schema, f, indent=2)
