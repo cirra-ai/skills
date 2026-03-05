@@ -182,6 +182,10 @@
         "EventDrivenJourney"
       ]
     },
+    "FlowRecordTriggerType": {
+      "type": "string",
+      "enum": ["Create", "Update", "CreateAndUpdate", "Delete"]
+    },
     "FlowEnvironment": {
       "type": "string",
       "enum": ["Default", "Slack"]
@@ -315,7 +319,7 @@
         "filterLogic": { "type": "string" },
         "object": { "type": "string" },
         "objectContainer": { "type": "string" },
-        "recordTriggerType": { "$ref": "#/$defs/FlowTriggerType" },
+        "recordTriggerType": { "$ref": "#/$defs/FlowRecordTriggerType" },
         "schedule": { "$ref": "#/$defs/FlowSchedule" },
         "scheduledPaths": {
           "type": "array",

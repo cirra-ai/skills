@@ -37,52 +37,81 @@ Determine execution mode automatically. The result controls whether bulk CLI
 commands are used (faster for large orgs) or everything runs through MCP
 (works in any environment).
 
+Run these steps in order and classify the CLI into one of three states:
+**`READY`**, **`AUTH_MISSING_BUT_POSSIBLE`**, or **`UNUSABLE`**. The
+classification determines `EXEC_MODE` (see mode summary table below).
+
 ### Step 1 — Check for the Salesforce CLI
 
 ```bash
-sf --version 2>/dev/null
+command -v sf >/dev/null 2>&1 && sf --version
 ```
 
 - Exit code 0 → CLI binary is present. Continue to Step 2.
-- Non-zero or "command not found" → set `EXEC_MODE = cloud`. Skip to Phase 1.
+- Non-zero or "command not found" → classify **`UNUSABLE`**, set
+  `EXEC_MODE = cloud`. Skip to Phase 1.
 
-### Step 2 — Check for an authenticated org
-
-Cloud environments (containers, web-based IDEs, CI runners) typically cannot
-open a local browser, which means `sf org login web` will fail. Check whether
-an org is already authorized:
+### Step 2 — Check that the auth store is readable
 
 ```bash
 sf org list --json 2>/dev/null
 ```
 
-- If the command succeeds and `.result.nonScratchOrgs` or `.result.scratchOrgs`
-  contains at least one entry → an org is authorized. Continue to Step 3.
-- If the list is empty or the command fails → the CLI is installed but has no
-  authorized org. Set `EXEC_MODE = cloud` and inform the user:
-  "Salesforce CLI is installed but no org is authorized. Running in cloud mode
-  (MCP only). To enable CLI mode in a future session, pre-authorize an org with
-  `sf org login web` (desktop) or `sf org login sfdx-url` / `sf org login jwt`
-  (headless)."
+This can fail for reasons beyond "no orgs" — keychain/permissions errors,
+corrupted auth files, etc.
 
-### Step 3 — Verify org alignment
+- Command succeeds (exit 0) → auth store is accessible. Continue to Step 3.
+- Command fails (non-zero exit) → classify **`UNUSABLE`**, set
+  `EXEC_MODE = cloud`. Inform the user:
+  "Salesforce CLI auth store is not accessible (`sf org list` failed). Running
+  in cloud mode (MCP only). Check CLI installation and keychain permissions."
 
-The MCP server and the CLI may target different orgs. Confirm they match:
+### Step 3 — Verify a target org is actually usable
+
+`sf org list` can show orgs whose tokens are expired, revoked, or otherwise
+broken. Confirm the target org is reachable **now**:
 
 ```bash
 sf org display --target-org <alias-or-username> --json 2>/dev/null
 ```
 
-Compare `.result.id` (the 18-char OrgId) against the OrgId returned by
-`cirra_ai_init()`.
+This forces a token refresh and validates actual connectivity.
 
-- OrgIds match → set `EXEC_MODE = local`.
+- Command succeeds → the org is live. Continue to Step 4.
+- Command fails or `.result.connectedStatus` is not `"Connected"` →
+  the org is listed but not usable. Continue to Step 3b.
+
+#### Step 3b — Can auth be (re-)established in this environment?
+
+Determine whether interactive or non-interactive login is viable:
+
+| Environment            | Viable login method                                        |
+| ---------------------- | ---------------------------------------------------------- |
+| Local desktop / TTY    | `sf org login web` (opens browser)                         |
+| Headless / CI / cloud  | `sf org login sfdx-url` or `sf org login jwt` (no browser) |
+| Sandboxed (no network) | None — login not possible                                  |
+
+- **Login is viable** → classify **`AUTH_MISSING_BUT_POSSIBLE`**, set
+  `EXEC_MODE = cloud` for now, and inform the user:
+  "Salesforce CLI is installed but the target org is not authenticated (or the
+  token has expired). Running in cloud mode (MCP only) for this audit. To
+  enable faster CLI mode, authenticate with: `<viable method>`."
+- **Login is not viable** → classify **`UNUSABLE`**, set `EXEC_MODE = cloud`.
+
+### Step 4 — Verify org alignment
+
+The MCP server and the CLI may target different orgs. Confirm they match:
+
+Compare `.result.id` (the 18-char OrgId from the Step 3 `sf org display`
+output) against the OrgId returned by `cirra_ai_init()`.
+
+- OrgIds match → classify **`READY`**, set `EXEC_MODE = local`.
 - OrgIds differ → set `EXEC_MODE = cloud` and warn the user:
   "CLI default org (<CLI OrgId>) does not match the MCP org (<MCP OrgId>).
   Running in cloud mode to avoid auditing the wrong org. Use
   `sf config set target-org <correct-alias>` to fix this."
 
-### Step 4 — Optional tool check
+### Step 5 — Optional tool check
 
 ```bash
 jq --version 2>/dev/null
@@ -91,12 +120,20 @@ jq --version 2>/dev/null
 If available, use `jq` for post-processing CLI JSON exports. Otherwise parse
 JSON natively (Python, Node, etc.) or skip post-processing.
 
+### Classification summary
+
+| Classification                  | When                                                     | `EXEC_MODE` |
+| ------------------------------- | -------------------------------------------------------- | ----------- |
+| **`READY`**                     | Steps 1–4 all pass, OrgIds match                         | `local`     |
+| **`AUTH_MISSING_BUT_POSSIBLE`** | Steps 1–2 pass, Step 3 fails, but login method is viable | `cloud`     |
+| **`UNUSABLE`**                  | Step 1 or 2 fails, or no viable login method             | `cloud`     |
+
 ### Mode summary
 
-| Mode    | When                                        | Bulk retrieval        | Queries & describes |
-| ------- | ------------------------------------------- | --------------------- | ------------------- |
-| `local` | CLI installed, org authorized, OrgIds match | `sf` CLI commands     | MCP tools           |
-| `cloud` | CLI absent, no auth, or OrgId mismatch      | MCP tools (paginated) | MCP tools           |
+| Mode    | When                         | Bulk retrieval        | Queries & describes |
+| ------- | ---------------------------- | --------------------- | ------------------- |
+| `local` | CLI classification = `READY` | `sf` CLI commands     | MCP tools           |
+| `cloud` | CLI classification ≠ `READY` | MCP tools (paginated) | MCP tools           |
 
 In **both** modes, always use MCP tools (`soql_query`, `tooling_api_query`,
 `sobject_describe`) for queries and targeted lookups. The CLI is only preferred
