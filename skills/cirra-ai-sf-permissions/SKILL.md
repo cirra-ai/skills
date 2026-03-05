@@ -294,6 +294,7 @@ To refresh the schema from a live org (requires sf CLI):
 scripts/pull_schema.sh --type PermissionSet          # default org
 scripts/pull_schema.sh --type PermissionSet myOrg    # specific org
 scripts/pull_schema.sh --type PermissionSetGroup
+scripts/pull_schema.sh --type Profile
 scripts/pull_schema.sh --type SharingRules
 ```
 

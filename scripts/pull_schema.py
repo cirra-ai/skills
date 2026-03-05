@@ -53,7 +53,7 @@ METADATA_TYPES = {
         "cirra-ai-sf-permissions",
         "permissionset-metadata-schema.json",
     ),
-    "Profile": ("Profile", "Profile", "cirra-ai-sf-metadata", "profile-metadata-schema.json"),
+    "Profile": ("Profile", "Profile", "cirra-ai-sf-permissions", "profile-metadata-schema.json"),
     "Layout": ("Layout", "Layout", "cirra-ai-sf-metadata", "layout-metadata-schema.json"),
     "FlexiPage": (
         "FlexiPage",
