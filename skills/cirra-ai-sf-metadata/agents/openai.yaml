@@ -1,0 +1,7 @@
+interface:
+  display_name: "Cirra AI Salesforce Metadata"
+  short_description: "Manage Salesforce metadata operations using Cirra AI"
+  icon_small: "./assets/icon-small.png"
+  icon_large: "./assets/icon-large.png"
+  brand_color: "#4068EB"
+  default_prompt: "Use $cirra-ai-sf-metadata to manage Salesforce metadata."
