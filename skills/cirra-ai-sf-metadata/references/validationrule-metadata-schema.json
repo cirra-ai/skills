@@ -4,8 +4,6 @@
   "title": "Salesforce ValidationRule Metadata",
   "description": "JSON Schema for Salesforce ValidationRule metadata (API v66.0). Auto-generated from the org's metadata WSDL by pull_schema.py.",
   "type": "object",
-  "x-salesforce-api-version": "66.0",
-  "x-schema-source": "metadata-wsdl",
   "$defs": {
     "ValidationRule": {
       "type": "object",
@@ -24,14 +22,32 @@
         },
         "errorMessage": {
           "type": "string"
-        },
-        "shouldEvaluateOnClient": {
-          "type": "boolean"
         }
       },
       "additionalProperties": true,
-      "required": ["active", "errorConditionFormula", "errorMessage"]
+      "required": [
+        "active",
+        "errorConditionFormula",
+        "errorMessage"
+      ]
+    },
+    "ValidationRuleTranslation": {
+      "type": "object",
+      "properties": {
+        "errorMessage": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "errorMessage",
+        "name"
+      ]
     }
   },
+  "x-salesforce-api-version": "66.0",
   "$ref": "#/$defs/ValidationRule"
 }

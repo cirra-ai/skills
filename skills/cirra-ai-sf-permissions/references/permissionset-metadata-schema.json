@@ -2,196 +2,567 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://cirra.ai/schemas/salesforce-permissionset-metadata.json",
   "title": "Salesforce PermissionSet Metadata",
-  "description": "Baseline JSON Schema for Salesforce PermissionSet metadata (API v65.0). Covers all child types: objectPermissions, fieldPermissions, userPermissions, classAccesses, pageAccesses, tabSettings, applicationVisibilities, recordTypeVisibilities, customPermissions, customMetadataTypeAccesses, customSettingAccesses, externalDataSourceAccesses, flowAccesses. Refresh from a live org with: python scripts/pull_metadata_schema.py --type PermissionSet",
-  "x-salesforce-api-version": "65.0",
-  "x-schema-source": "baseline",
+  "description": "JSON Schema for Salesforce PermissionSet metadata (API v66.0). Auto-generated from the org's metadata WSDL by pull_schema.py.",
   "type": "object",
-  "$ref": "#/$defs/PermissionSet",
   "$defs": {
     "PermissionSet": {
       "type": "object",
-      "required": ["label"],
       "properties": {
-        "fullName": { "type": "string" },
-        "label": { "type": "string", "minLength": 1 },
-        "description": { "type": "string" },
-        "license": { "type": "string" },
-        "hasActivationRequired": { "type": "boolean" },
+        "agentAccesses": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PermissionSetAgentAccess"
+          }
+        },
         "applicationVisibilities": {
           "type": "array",
-          "items": { "$ref": "#/$defs/PermissionSetApplicationVisibility" }
+          "items": {
+            "$ref": "#/$defs/PermissionSetApplicationVisibility"
+          }
         },
         "classAccesses": {
           "type": "array",
-          "items": { "$ref": "#/$defs/PermissionSetApexClassAccess" }
+          "items": {
+            "$ref": "#/$defs/PermissionSetApexClassAccess"
+          }
         },
         "customMetadataTypeAccesses": {
           "type": "array",
-          "items": { "$ref": "#/$defs/PermissionSetCustomMetadataTypeAccess" }
+          "items": {
+            "$ref": "#/$defs/PermissionSetCustomMetadataTypeAccess"
+          }
         },
         "customPermissions": {
           "type": "array",
-          "items": { "$ref": "#/$defs/PermissionSetCustomPermissions" }
+          "items": {
+            "$ref": "#/$defs/PermissionSetCustomPermissions"
+          }
         },
         "customSettingAccesses": {
           "type": "array",
-          "items": { "$ref": "#/$defs/PermissionSetCustomSettingAccess" }
+          "items": {
+            "$ref": "#/$defs/PermissionSetCustomSettingAccess"
+          }
+        },
+        "description": {
+          "type": "string"
+        },
+        "emailRoutingAddressAccesses": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PermissionSetEmailRoutingAddressAccess"
+          }
+        },
+        "externalCredentialPrincipalAccesses": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PermissionSetExternalCredentialPrincipalAccess"
+          }
         },
         "externalDataSourceAccesses": {
           "type": "array",
-          "items": { "$ref": "#/$defs/PermissionSetExternalDataSourceAccess" }
+          "items": {
+            "$ref": "#/$defs/PermissionSetExternalDataSourceAccess"
+          }
         },
         "fieldPermissions": {
           "type": "array",
-          "items": { "$ref": "#/$defs/PermissionSetFieldPermissions" }
+          "items": {
+            "$ref": "#/$defs/PermissionSetFieldPermissions"
+          }
         },
         "flowAccesses": {
           "type": "array",
-          "items": { "$ref": "#/$defs/PermissionSetFlowAccess" }
+          "items": {
+            "$ref": "#/$defs/PermissionSetFlowAccess"
+          }
+        },
+        "genComputingSummaryDefAccesses": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PermissionSetGenComputingSummaryDefAccess"
+          }
+        },
+        "hasActivationRequired": {
+          "type": "boolean"
+        },
+        "label": {
+          "type": "string"
+        },
+        "license": {
+          "type": "string"
         },
         "objectPermissions": {
           "type": "array",
-          "items": { "$ref": "#/$defs/PermissionSetObjectPermissions" }
+          "items": {
+            "$ref": "#/$defs/PermissionSetObjectPermissions"
+          }
         },
         "pageAccesses": {
           "type": "array",
-          "items": { "$ref": "#/$defs/PermissionSetApexPageAccess" }
+          "items": {
+            "$ref": "#/$defs/PermissionSetApexPageAccess"
+          }
         },
         "recordTypeVisibilities": {
           "type": "array",
-          "items": { "$ref": "#/$defs/PermissionSetRecordTypeVisibility" }
+          "items": {
+            "$ref": "#/$defs/PermissionSetRecordTypeVisibility"
+          }
+        },
+        "servicePresenceStatusAccesses": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PermissionSetServicePresenceStatusAccess"
+          }
         },
         "tabSettings": {
           "type": "array",
-          "items": { "$ref": "#/$defs/PermissionSetTabSetting" }
+          "items": {
+            "$ref": "#/$defs/PermissionSetTabSetting"
+          }
         },
         "userPermissions": {
           "type": "array",
-          "items": { "$ref": "#/$defs/PermissionSetUserPermission" }
+          "items": {
+            "$ref": "#/$defs/PermissionSetUserPermission"
+          }
         }
       },
-      "additionalProperties": true
+      "additionalProperties": true,
+      "required": [
+        "label"
+      ]
     },
-
-    "PermissionSetApplicationVisibility": {
+    "PermissionSetAgentAccess": {
       "type": "object",
-      "required": ["application", "visible"],
       "properties": {
-        "application": { "type": "string" },
-        "visible": { "type": "boolean" }
-      }
+        "agentName": {
+          "type": "string"
+        },
+        "enabled": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "agentName",
+        "enabled"
+      ]
     },
     "PermissionSetApexClassAccess": {
       "type": "object",
-      "required": ["apexClass", "enabled"],
       "properties": {
-        "apexClass": { "type": "string" },
-        "enabled": { "type": "boolean" }
-      }
-    },
-    "PermissionSetCustomMetadataTypeAccess": {
-      "type": "object",
-      "required": ["enabled", "name"],
-      "properties": {
-        "enabled": { "type": "boolean" },
-        "name": { "type": "string" }
-      }
-    },
-    "PermissionSetCustomPermissions": {
-      "type": "object",
-      "required": ["enabled", "name"],
-      "properties": {
-        "enabled": { "type": "boolean" },
-        "name": { "type": "string" }
-      }
-    },
-    "PermissionSetCustomSettingAccess": {
-      "type": "object",
-      "required": ["enabled", "name"],
-      "properties": {
-        "enabled": { "type": "boolean" },
-        "name": { "type": "string" }
-      }
-    },
-    "PermissionSetExternalDataSourceAccess": {
-      "type": "object",
-      "required": ["enabled", "externalDataSource"],
-      "properties": {
-        "enabled": { "type": "boolean" },
-        "externalDataSource": { "type": "string" }
-      }
-    },
-    "PermissionSetFieldPermissions": {
-      "type": "object",
-      "required": ["field"],
-      "properties": {
-        "editable": { "type": "boolean" },
-        "field": {
-          "type": "string",
-          "pattern": "^[A-Za-z][A-Za-z0-9_]*(__[a-z])?\\.([A-Za-z][A-Za-z0-9_]*(__[a-z])?)$",
-          "description": "Format: Object.Field (e.g., Account.Industry or MyObj__c.MyField__c)"
+        "apexClass": {
+          "type": "string"
         },
-        "readable": { "type": "boolean" }
-      }
-    },
-    "PermissionSetFlowAccess": {
-      "type": "object",
-      "required": ["enabled", "flow"],
-      "properties": {
-        "enabled": { "type": "boolean" },
-        "flow": { "type": "string" }
-      }
-    },
-    "PermissionSetObjectPermissions": {
-      "type": "object",
-      "required": ["object"],
-      "properties": {
-        "allowCreate": { "type": "boolean" },
-        "allowDelete": { "type": "boolean" },
-        "allowEdit": { "type": "boolean" },
-        "allowRead": { "type": "boolean" },
-        "modifyAllRecords": { "type": "boolean" },
-        "object": { "type": "string" },
-        "viewAllRecords": { "type": "boolean" }
-      }
+        "enabled": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "apexClass",
+        "enabled"
+      ]
     },
     "PermissionSetApexPageAccess": {
       "type": "object",
-      "required": ["apexPage", "enabled"],
       "properties": {
-        "apexPage": { "type": "string" },
-        "enabled": { "type": "boolean" }
-      }
+        "apexPage": {
+          "type": "string"
+        },
+        "enabled": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "apexPage",
+        "enabled"
+      ]
+    },
+    "PermissionSetApplicationVisibility": {
+      "type": "object",
+      "properties": {
+        "application": {
+          "type": "string"
+        },
+        "visible": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "application",
+        "visible"
+      ]
+    },
+    "PermissionSetCustomMetadataTypeAccess": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "enabled",
+        "name"
+      ]
+    },
+    "PermissionSetCustomPermissions": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "enabled",
+        "name"
+      ]
+    },
+    "PermissionSetCustomSettingAccess": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "enabled",
+        "name"
+      ]
+    },
+    "PermissionSetEmailRoutingAddressAccess": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "enabled",
+        "name"
+      ]
+    },
+    "PermissionSetExternalCredentialPrincipalAccess": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "externalCredentialPrincipal": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "enabled",
+        "externalCredentialPrincipal"
+      ]
+    },
+    "PermissionSetExternalDataSourceAccess": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "externalDataSource": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "enabled",
+        "externalDataSource"
+      ]
+    },
+    "PermissionSetFieldPermissions": {
+      "type": "object",
+      "properties": {
+        "editable": {
+          "type": "boolean"
+        },
+        "field": {
+          "type": "string",
+          "description": "Format: Object.Field (e.g., Account.Industry or MyObj__c.MyField__c)"
+        },
+        "readable": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "editable",
+        "field"
+      ]
+    },
+    "PermissionSetFlowAccess": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "flow": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "enabled",
+        "flow"
+      ]
+    },
+    "PermissionSetGenComputingSummaryDefAccess": {
+      "type": "object",
+      "properties": {
+        "configName": {
+          "type": "string"
+        },
+        "enabled": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "configName",
+        "enabled"
+      ]
+    },
+    "PermissionSetGroup": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "hasActivationRequired": {
+          "type": "boolean"
+        },
+        "label": {
+          "type": "string"
+        },
+        "mutingPermissionSets": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "permissionSets": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "status": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "label"
+      ]
+    },
+    "PermissionSetLicenseDefinition": {
+      "type": "object",
+      "properties": {
+        "customObjects": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PermissionSetLicenseDefinitionCustomObject"
+          }
+        },
+        "customPermissions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PermissionSetLicenseDefinitionCustomPermission"
+          }
+        },
+        "isSupplementLicense": {
+          "type": "boolean"
+        },
+        "label": {
+          "type": "string"
+        },
+        "licenseExpirationPolicy": {
+          "type": "string",
+          "enum": [
+            "AllowNamespaceAccess",
+            "BlockNamespaceAccess"
+          ]
+        },
+        "userLicenseRestrictions": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "label",
+        "licenseExpirationPolicy"
+      ]
+    },
+    "PermissionSetLicenseDefinitionCustomObject": {
+      "type": "object",
+      "properties": {
+        "allowCreate": {
+          "type": "boolean"
+        },
+        "allowDelete": {
+          "type": "boolean"
+        },
+        "allowRead": {
+          "type": "boolean"
+        },
+        "allowUpdate": {
+          "type": "boolean"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "name"
+      ]
+    },
+    "PermissionSetLicenseDefinitionCustomPermission": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "name"
+      ]
+    },
+    "PermissionSetObjectPermissions": {
+      "type": "object",
+      "properties": {
+        "allowCreate": {
+          "type": "boolean"
+        },
+        "allowDelete": {
+          "type": "boolean"
+        },
+        "allowEdit": {
+          "type": "boolean"
+        },
+        "allowRead": {
+          "type": "boolean"
+        },
+        "modifyAllRecords": {
+          "type": "boolean"
+        },
+        "object": {
+          "type": "string"
+        },
+        "viewAllFields": {
+          "type": "boolean"
+        },
+        "viewAllRecords": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "allowCreate",
+        "allowDelete",
+        "allowEdit",
+        "allowRead",
+        "modifyAllRecords",
+        "object",
+        "viewAllRecords"
+      ]
     },
     "PermissionSetRecordTypeVisibility": {
       "type": "object",
-      "required": ["recordType", "visible"],
       "properties": {
         "recordType": {
           "type": "string",
           "description": "Format: Object.RecordTypeName"
         },
-        "visible": { "type": "boolean" }
-      }
+        "visible": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "recordType",
+        "visible"
+      ]
+    },
+    "PermissionSetServicePresenceStatusAccess": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "servicePresenceStatus": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "enabled",
+        "servicePresenceStatus"
+      ]
     },
     "PermissionSetTabSetting": {
       "type": "object",
-      "required": ["tab", "visibility"],
       "properties": {
-        "tab": { "type": "string" },
+        "tab": {
+          "type": "string"
+        },
         "visibility": {
           "type": "string",
-          "enum": ["Available", "Hidden", "Visible"]
+          "enum": [
+            "None",
+            "Available",
+            "Visible"
+          ]
         }
-      }
+      },
+      "additionalProperties": true,
+      "required": [
+        "tab",
+        "visibility"
+      ]
     },
     "PermissionSetUserPermission": {
       "type": "object",
-      "required": ["enabled", "name"],
       "properties": {
-        "enabled": { "type": "boolean" },
-        "name": { "type": "string" }
-      }
+        "enabled": {
+          "type": "boolean"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "enabled",
+        "name"
+      ]
     }
-  }
+  },
+  "x-salesforce-api-version": "66.0",
+  "$ref": "#/$defs/PermissionSet"
 }

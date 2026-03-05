@@ -4,8 +4,6 @@
   "title": "Salesforce PermissionSetGroup Metadata",
   "description": "JSON Schema for Salesforce PermissionSetGroup metadata (API v66.0). Auto-generated from the org's metadata WSDL by pull_schema.py.",
   "type": "object",
-  "x-salesforce-api-version": "66.0",
-  "x-schema-source": "metadata-wsdl",
   "$defs": {
     "PermissionSetGroup": {
       "type": "object",
@@ -36,8 +34,11 @@
         }
       },
       "additionalProperties": true,
-      "required": ["label"]
+      "required": [
+        "label"
+      ]
     }
   },
+  "x-salesforce-api-version": "66.0",
   "$ref": "#/$defs/PermissionSetGroup"
 }

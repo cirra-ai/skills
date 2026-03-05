@@ -4,8 +4,6 @@
   "title": "Salesforce SharingRules Metadata",
   "description": "JSON Schema for Salesforce SharingRules metadata (API v66.0). Auto-generated from the org's metadata WSDL by pull_schema.py.",
   "type": "object",
-  "x-salesforce-api-version": "66.0",
-  "x-schema-source": "metadata-wsdl",
   "$defs": {
     "AccountSharingRuleSettings": {
       "type": "object",
@@ -21,7 +19,11 @@
         }
       },
       "additionalProperties": true,
-      "required": ["caseAccessLevel", "contactAccessLevel", "opportunityAccessLevel"]
+      "required": [
+        "caseAccessLevel",
+        "contactAccessLevel",
+        "opportunityAccessLevel"
+      ]
     },
     "FilterItem": {
       "type": "object",
@@ -54,7 +56,10 @@
         }
       },
       "additionalProperties": true,
-      "required": ["field", "operation"]
+      "required": [
+        "field",
+        "operation"
+      ]
     },
     "SharedTo": {
       "type": "object",
@@ -205,7 +210,11 @@
         }
       },
       "additionalProperties": true,
-      "required": ["accessLevel", "label", "sharedTo"]
+      "required": [
+        "accessLevel",
+        "label",
+        "sharedTo"
+      ]
     },
     "SharingCriteriaRule": {
       "type": "object",
@@ -229,7 +238,9 @@
           "$ref": "#/$defs/SharingBaseRule"
         }
       ],
-      "required": ["includeRecordsOwnedByAll"]
+      "required": [
+        "includeRecordsOwnedByAll"
+      ]
     },
     "SharingGuestRule": {
       "type": "object",
@@ -253,7 +264,9 @@
           "$ref": "#/$defs/SharingBaseRule"
         }
       ],
-      "required": ["includeHVUOwnedRecords"]
+      "required": [
+        "includeHVUOwnedRecords"
+      ]
     },
     "SharingOwnerRule": {
       "type": "object",
@@ -268,7 +281,9 @@
           "$ref": "#/$defs/SharingBaseRule"
         }
       ],
-      "required": ["sharedFrom"]
+      "required": [
+        "sharedFrom"
+      ]
     },
     "SharingRules": {
       "type": "object",
@@ -311,5 +326,6 @@
       ]
     }
   },
+  "x-salesforce-api-version": "66.0",
   "$ref": "#/$defs/SharingRules"
 }

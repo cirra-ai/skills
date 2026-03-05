@@ -4,8 +4,6 @@
   "title": "Salesforce CustomObject Metadata",
   "description": "JSON Schema for Salesforce CustomObject metadata (API v66.0). Auto-generated from the org's metadata WSDL by pull_schema.py.",
   "type": "object",
-  "x-salesforce-api-version": "66.0",
-  "x-schema-source": "metadata-wsdl",
   "$defs": {
     "ActionOverride": {
       "type": "object",
@@ -21,7 +19,11 @@
         },
         "formFactor": {
           "type": "string",
-          "enum": ["Small", "Medium", "Large"]
+          "enum": [
+            "Small",
+            "Medium",
+            "Large"
+          ]
         },
         "skipRecordTypeSelect": {
           "type": "boolean"
@@ -57,18 +59,31 @@
       "properties": {
         "channel": {
           "type": "string",
-          "enum": ["AllChannels", "App", "Pkb", "Csp", "Prm"]
+          "enum": [
+            "AllChannels",
+            "App",
+            "Pkb",
+            "Csp",
+            "Prm"
+          ]
         },
         "page": {
           "type": "string"
         },
         "template": {
           "type": "string",
-          "enum": ["Page", "Tab", "Toc"]
+          "enum": [
+            "Page",
+            "Tab",
+            "Toc"
+          ]
         }
       },
       "additionalProperties": true,
-      "required": ["channel", "template"]
+      "required": [
+        "channel",
+        "template"
+      ]
     },
     "BusinessProcess": {
       "type": "object",
@@ -102,7 +117,9 @@
         }
       },
       "additionalProperties": true,
-      "required": ["label"]
+      "required": [
+        "label"
+      ]
     },
     "CustomField": {
       "type": "object",
@@ -130,7 +147,11 @@
         },
         "deleteConstraint": {
           "type": "string",
-          "enum": ["Cascade", "Restrict", "SetNull"]
+          "enum": [
+            "Cascade",
+            "Restrict",
+            "SetNull"
+          ]
         },
         "deprecated": {
           "type": "boolean"
@@ -141,12 +162,12 @@
         "displayFormat": {
           "type": "string"
         },
-        "displayLocationInDecimal": {
-          "type": "boolean"
-        },
         "elementType": {
           "type": "string",
-          "enum": ["Float", "Text"]
+          "enum": [
+            "Float",
+            "Text"
+          ]
         },
         "encryptionScheme": {
           "type": "string",
@@ -168,14 +189,21 @@
         },
         "fieldManageability": {
           "type": "string",
-          "enum": ["DeveloperControlled", "SubscriberControlled", "Locked"]
+          "enum": [
+            "DeveloperControlled",
+            "SubscriberControlled",
+            "Locked"
+          ]
         },
         "formula": {
           "type": "string"
         },
         "formulaTreatBlanksAs": {
           "type": "string",
-          "enum": ["BlankAsBlank", "BlankAsZero"]
+          "enum": [
+            "BlankAsBlank",
+            "BlankAsZero"
+          ]
         },
         "inlineHelpText": {
           "type": "string"
@@ -206,11 +234,21 @@
         },
         "maskChar": {
           "type": "string",
-          "enum": ["asterisk", "X"]
+          "enum": [
+            "asterisk",
+            "X"
+          ]
         },
         "maskType": {
           "type": "string",
-          "enum": ["all", "creditCard", "ssn", "lastFour", "sin", "nino"]
+          "enum": [
+            "all",
+            "creditCard",
+            "ssn",
+            "lastFour",
+            "sin",
+            "nino"
+          ]
         },
         "metadataRelationshipControllingField": {
           "type": "string"
@@ -221,17 +259,11 @@
         "mktDataModelFieldAttributes": {
           "$ref": "#/$defs/MktDataModelFieldAttributes"
         },
-        "picklist": {
-          "$ref": "#/$defs/Picklist"
-        },
         "populateExistingRows": {
           "type": "boolean"
         },
         "precision": {
           "type": "integer"
-        },
-        "readOnlyProxy": {
-          "type": "boolean"
         },
         "referenceTargetField": {
           "type": "string"
@@ -283,7 +315,12 @@
         },
         "summaryOperation": {
           "type": "string",
-          "enum": ["count", "sum", "min", "max"]
+          "enum": [
+            "count",
+            "sum",
+            "min",
+            "max"
+          ]
         },
         "trackFeedHistory": {
           "type": "boolean"
@@ -349,6 +386,86 @@
       },
       "additionalProperties": true
     },
+    "CustomFieldBinding": {
+      "type": "object",
+      "properties": {
+        "implementationField": {
+          "type": "string"
+        },
+        "interfaceField": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "implementationField",
+        "interfaceField"
+      ]
+    },
+    "CustomFieldTranslation": {
+      "type": "object",
+      "properties": {
+        "caseValues": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ObjectNameCaseValue"
+          }
+        },
+        "gender": {
+          "type": "string",
+          "enum": [
+            "Neuter",
+            "Masculine",
+            "Feminine",
+            "AnimateMasculine",
+            "ClassI",
+            "ClassIII",
+            "ClassV",
+            "ClassVII",
+            "ClassIX",
+            "ClassXI",
+            "ClassXIV",
+            "ClassXV",
+            "ClassXVI",
+            "ClassXVII",
+            "ClassXVIII"
+          ]
+        },
+        "help": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "lookupFilter": {
+          "$ref": "#/$defs/LookupFilterTranslation"
+        },
+        "name": {
+          "type": "string"
+        },
+        "picklistValues": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PicklistValueTranslation"
+          }
+        },
+        "relationshipLabel": {
+          "type": "string"
+        },
+        "startsWith": {
+          "type": "string",
+          "enum": [
+            "Consonant",
+            "Vowel",
+            "Special"
+          ]
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "name"
+      ]
+    },
     "CustomObject": {
       "type": "object",
       "properties": {
@@ -387,11 +504,17 @@
         },
         "customSettingsType": {
           "type": "string",
-          "enum": ["List", "Hierarchy"]
+          "enum": [
+            "List",
+            "Hierarchy"
+          ]
         },
         "deploymentStatus": {
           "type": "string",
-          "enum": ["InDevelopment", "Deployed"]
+          "enum": [
+            "InDevelopment",
+            "Deployed"
+          ]
         },
         "deprecated": {
           "type": "boolean"
@@ -440,13 +563,14 @@
         },
         "eventType": {
           "type": "string",
-          "enum": ["HighVolume", "StandardVolume", "ExternalEvent"]
+          "enum": [
+            "HighVolume",
+            "StandardVolume",
+            "ExternalEvent"
+          ]
         },
         "externalDataSource": {
           "type": "string"
-        },
-        "externalIndexAvailable": {
-          "type": "boolean"
         },
         "externalName": {
           "type": "string"
@@ -541,7 +665,10 @@
         },
         "publishBehavior": {
           "type": "string",
-          "enum": ["PublishAfterCommit", "PublishImmediately"]
+          "enum": [
+            "PublishAfterCommit",
+            "PublishImmediately"
+          ]
         },
         "recordTypeTrackFeedHistory": {
           "type": "boolean"
@@ -586,7 +713,11 @@
         },
         "startsWith": {
           "type": "string",
-          "enum": ["Consonant", "Vowel", "Special"]
+          "enum": [
+            "Consonant",
+            "Vowel",
+            "Special"
+          ]
         },
         "validationRules": {
           "type": "array",
@@ -596,12 +727,145 @@
         },
         "visibility": {
           "type": "string",
-          "enum": ["PackageProtected", "Protected", "Public"]
+          "enum": [
+            "PackageProtected",
+            "Protected",
+            "Public"
+          ]
         },
         "webLinks": {
           "type": "array",
           "items": {
             "$ref": "#/$defs/WebLink"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "CustomObjectBinding": {
+      "type": "object",
+      "properties": {
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CustomFieldBinding"
+          }
+        },
+        "implementationObject": {
+          "type": "string"
+        },
+        "interfaceObject": {
+          "type": "string"
+        },
+        "masterLabel": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "implementationObject",
+        "interfaceObject",
+        "masterLabel"
+      ]
+    },
+    "CustomObjectTranslation": {
+      "type": "object",
+      "properties": {
+        "caseValues": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ObjectNameCaseValue"
+          }
+        },
+        "fieldSets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FieldSetTranslation"
+          }
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CustomFieldTranslation"
+          }
+        },
+        "gender": {
+          "type": "string",
+          "enum": [
+            "Neuter",
+            "Masculine",
+            "Feminine",
+            "AnimateMasculine",
+            "ClassI",
+            "ClassIII",
+            "ClassV",
+            "ClassVII",
+            "ClassIX",
+            "ClassXI",
+            "ClassXIV",
+            "ClassXV",
+            "ClassXVI",
+            "ClassXVII",
+            "ClassXVIII"
+          ]
+        },
+        "layouts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LayoutTranslation"
+          }
+        },
+        "nameFieldLabel": {
+          "type": "string"
+        },
+        "quickActions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/QuickActionTranslation"
+          }
+        },
+        "recordTypes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RecordTypeTranslation"
+          }
+        },
+        "sharingReasons": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SharingReasonTranslation"
+          }
+        },
+        "standardFields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/StandardFieldTranslation"
+          }
+        },
+        "startsWith": {
+          "type": "string",
+          "enum": [
+            "Consonant",
+            "Vowel",
+            "Special"
+          ]
+        },
+        "validationRules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ValidationRuleTranslation"
+          }
+        },
+        "webLinks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WebLinkTranslation"
+          }
+        },
+        "workflowTasks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WorkflowTaskTranslation"
           }
         }
       },
@@ -627,7 +891,9 @@
         }
       },
       "additionalProperties": true,
-      "required": ["default"]
+      "required": [
+        "default"
+      ]
     },
     "FieldSet": {
       "type": "object",
@@ -652,7 +918,10 @@
         }
       },
       "additionalProperties": true,
-      "required": ["description", "label"]
+      "required": [
+        "description",
+        "label"
+      ]
     },
     "FieldSetItem": {
       "type": "object",
@@ -671,6 +940,22 @@
         }
       },
       "additionalProperties": true
+    },
+    "FieldSetTranslation": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "label",
+        "name"
+      ]
     },
     "FilterItem": {
       "type": "object",
@@ -703,7 +988,10 @@
         }
       },
       "additionalProperties": true,
-      "required": ["field", "operation"]
+      "required": [
+        "field",
+        "operation"
+      ]
     },
     "HistoryRetentionPolicy": {
       "type": "object",
@@ -716,13 +1004,13 @@
         },
         "description": {
           "type": "string"
-        },
-        "gracePeriodDays": {
-          "type": "integer"
         }
       },
       "additionalProperties": true,
-      "required": ["archiveAfterMonths", "archiveRetentionYears", "gracePeriodDays"]
+      "required": [
+        "archiveAfterMonths",
+        "archiveRetentionYears"
+      ]
     },
     "Index": {
       "type": "object",
@@ -735,16 +1023,12 @@
         },
         "label": {
           "type": "string"
-        },
-        "minNumRequiredIndexedFields": {
-          "type": "integer"
-        },
-        "type": {
-          "type": "string"
         }
       },
       "additionalProperties": true,
-      "required": ["label"]
+      "required": [
+        "label"
+      ]
     },
     "IndexField": {
       "type": "object",
@@ -757,7 +1041,47 @@
         }
       },
       "additionalProperties": true,
-      "required": ["name", "sortDirection"]
+      "required": [
+        "name",
+        "sortDirection"
+      ]
+    },
+    "LayoutSectionTranslation": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "section": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "label",
+        "section"
+      ]
+    },
+    "LayoutTranslation": {
+      "type": "object",
+      "properties": {
+        "layout": {
+          "type": "string"
+        },
+        "layoutType": {
+          "type": "string"
+        },
+        "sections": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LayoutSectionTranslation"
+          }
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "layout"
+      ]
     },
     "ListView": {
       "type": "object",
@@ -1030,7 +1354,10 @@
         }
       },
       "additionalProperties": true,
-      "required": ["filterScope", "label"]
+      "required": [
+        "filterScope",
+        "label"
+      ]
     },
     "ListViewFilter": {
       "type": "object",
@@ -1060,7 +1387,10 @@
         }
       },
       "additionalProperties": true,
-      "required": ["field", "operation"]
+      "required": [
+        "field",
+        "operation"
+      ]
     },
     "LookupFilter": {
       "type": "object",
@@ -1091,7 +1421,26 @@
         }
       },
       "additionalProperties": true,
-      "required": ["active", "isOptional"]
+      "required": [
+        "active",
+        "isOptional"
+      ]
+    },
+    "LookupFilterTranslation": {
+      "type": "object",
+      "properties": {
+        "errorMessage": {
+          "type": "string"
+        },
+        "informationalMessage": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "errorMessage",
+        "informationalMessage"
+      ]
     },
     "MktDataLakeAttributes": {
       "type": "object",
@@ -1190,7 +1539,10 @@
         },
         "usageTag": {
           "type": "string",
-          "enum": ["NONE", "KEY_QUALIFIER"]
+          "enum": [
+            "NONE",
+            "KEY_QUALIFIER"
+          ]
         }
       },
       "additionalProperties": true
@@ -1301,7 +1653,11 @@
         },
         "invalidMergeActionType": {
           "type": "string",
-          "enum": ["Drop", "Keep", "Override"]
+          "enum": [
+            "Drop",
+            "Keep",
+            "Override"
+          ]
         },
         "isDynamicLookup": {
           "type": "boolean"
@@ -1314,7 +1670,11 @@
         },
         "mappingAlertType": {
           "type": "string",
-          "enum": ["None", "Warning", "Error"]
+          "enum": [
+            "None",
+            "Warning",
+            "Error"
+          ]
         },
         "masterLabel": {
           "type": "string"
@@ -1327,32 +1687,79 @@
         },
         "usageTag": {
           "type": "string",
-          "enum": ["None", "KeyQualifier"]
+          "enum": [
+            "None",
+            "KeyQualifier"
+          ]
         }
       },
       "additionalProperties": true
     },
-    "Picklist": {
+    "ObjectNameCaseValue": {
       "type": "object",
       "properties": {
-        "controllingField": {
+        "article": {
+          "type": "string",
+          "enum": [
+            "None",
+            "Indefinite",
+            "Definite"
+          ]
+        },
+        "caseType": {
+          "type": "string",
+          "enum": [
+            "Nominative",
+            "Accusative",
+            "Genitive",
+            "Dative",
+            "Inessive",
+            "Elative",
+            "Illative",
+            "Adessive",
+            "Ablative",
+            "Allative",
+            "Essive",
+            "Translative",
+            "Partitive",
+            "Objective",
+            "Subjective",
+            "Instrumental",
+            "Prepositional",
+            "Locative",
+            "Vocative",
+            "Sublative",
+            "Superessive",
+            "Delative",
+            "Causalfinal",
+            "Essiveformal",
+            "Termanative",
+            "Distributive",
+            "Ergative",
+            "Adverbial",
+            "Abessive",
+            "Comitative"
+          ]
+        },
+        "plural": {
+          "type": "boolean"
+        },
+        "possessive": {
+          "type": "string",
+          "enum": [
+            "None",
+            "First",
+            "Second"
+          ]
+        },
+        "value": {
           "type": "string"
-        },
-        "picklistValues": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/PicklistValue"
-          }
-        },
-        "restrictedPicklist": {
-          "type": "boolean"
-        },
-        "sorted": {
-          "type": "boolean"
         }
       },
       "additionalProperties": true,
-      "required": ["sorted"]
+      "required": [
+        "value"
+      ]
     },
     "PicklistValue": {
       "type": "object",
@@ -1389,7 +1796,14 @@
         },
         "forecastCategory": {
           "type": "string",
-          "enum": ["Omitted", "Pipeline", "BestCase", "MostLikely", "Forecast", "Closed"]
+          "enum": [
+            "Omitted",
+            "Pipeline",
+            "BestCase",
+            "MostLikely",
+            "Forecast",
+            "Closed"
+          ]
         },
         "highPriority": {
           "type": "boolean"
@@ -1408,7 +1822,24 @@
         }
       },
       "additionalProperties": true,
-      "required": ["default"]
+      "required": [
+        "default"
+      ]
+    },
+    "PicklistValueTranslation": {
+      "type": "object",
+      "properties": {
+        "masterLabel": {
+          "type": "string"
+        },
+        "translation": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "masterLabel"
+      ]
     },
     "ProfileSearchLayouts": {
       "type": "object",
@@ -1424,6 +1855,25 @@
         }
       },
       "additionalProperties": true
+    },
+    "QuickActionTranslation": {
+      "type": "object",
+      "properties": {
+        "aspect": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "label",
+        "name"
+      ]
     },
     "RecordType": {
       "type": "object",
@@ -1451,7 +1901,10 @@
         }
       },
       "additionalProperties": true,
-      "required": ["active", "label"]
+      "required": [
+        "active",
+        "label"
+      ]
     },
     "RecordTypePicklistValue": {
       "type": "object",
@@ -1467,7 +1920,28 @@
         }
       },
       "additionalProperties": true,
-      "required": ["picklist"]
+      "required": [
+        "picklist"
+      ]
+    },
+    "RecordTypeTranslation": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "label",
+        "name"
+      ]
     },
     "SearchLayouts": {
       "type": "object",
@@ -1672,7 +2146,25 @@
         }
       },
       "additionalProperties": true,
-      "required": ["label"]
+      "required": [
+        "label"
+      ]
+    },
+    "SharingReasonTranslation": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "label",
+        "name"
+      ]
     },
     "SharingRecalculation": {
       "type": "object",
@@ -1682,7 +2174,24 @@
         }
       },
       "additionalProperties": true,
-      "required": ["className"]
+      "required": [
+        "className"
+      ]
+    },
+    "StandardFieldTranslation": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "name"
+      ]
     },
     "ValidationRule": {
       "type": "object",
@@ -1701,13 +2210,30 @@
         },
         "errorMessage": {
           "type": "string"
-        },
-        "shouldEvaluateOnClient": {
-          "type": "boolean"
         }
       },
       "additionalProperties": true,
-      "required": ["active", "errorConditionFormula", "errorMessage"]
+      "required": [
+        "active",
+        "errorConditionFormula",
+        "errorMessage"
+      ]
+    },
+    "ValidationRuleTranslation": {
+      "type": "object",
+      "properties": {
+        "errorMessage": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "errorMessage",
+        "name"
+      ]
     },
     "ValueSet": {
       "type": "object",
@@ -1747,7 +2273,9 @@
         }
       },
       "additionalProperties": true,
-      "required": ["sorted"]
+      "required": [
+        "sorted"
+      ]
     },
     "ValueSettings": {
       "type": "object",
@@ -1763,21 +2291,30 @@
         }
       },
       "additionalProperties": true,
-      "required": ["valueName"]
+      "required": [
+        "valueName"
+      ]
     },
     "WebLink": {
       "type": "object",
       "properties": {
         "availability": {
           "type": "string",
-          "enum": ["online", "offline"]
+          "enum": [
+            "online",
+            "offline"
+          ]
         },
         "description": {
           "type": "string"
         },
         "displayType": {
           "type": "string",
-          "enum": ["link", "button", "massActionButton"]
+          "enum": [
+            "link",
+            "button",
+            "massActionButton"
+          ]
         },
         "encodingKey": {
           "type": "string",
@@ -1811,21 +2348,37 @@
         },
         "linkType": {
           "type": "string",
-          "enum": ["url", "sControl", "javascript", "page", "flow"]
+          "enum": [
+            "url",
+            "sControl",
+            "javascript",
+            "page",
+            "flow"
+          ]
         },
         "masterLabel": {
           "type": "string"
         },
         "openType": {
           "type": "string",
-          "enum": ["newWindow", "sidebar", "noSidebar", "replace", "onClickJavaScript"]
+          "enum": [
+            "newWindow",
+            "sidebar",
+            "noSidebar",
+            "replace",
+            "onClickJavaScript"
+          ]
         },
         "page": {
           "type": "string"
         },
         "position": {
           "type": "string",
-          "enum": ["fullScreen", "none", "topLeft"]
+          "enum": [
+            "fullScreen",
+            "none",
+            "topLeft"
+          ]
         },
         "protected": {
           "type": "boolean"
@@ -1850,8 +2403,49 @@
         }
       },
       "additionalProperties": true,
-      "required": ["availability", "displayType", "linkType", "openType", "protected"]
+      "required": [
+        "availability",
+        "displayType",
+        "linkType",
+        "openType",
+        "protected"
+      ]
+    },
+    "WebLinkTranslation": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "label",
+        "name"
+      ]
+    },
+    "WorkflowTaskTranslation": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "subject": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "name"
+      ]
     }
   },
+  "x-salesforce-api-version": "66.0",
   "$ref": "#/$defs/CustomObject"
 }

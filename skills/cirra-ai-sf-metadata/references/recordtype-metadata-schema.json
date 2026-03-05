@@ -4,8 +4,6 @@
   "title": "Salesforce RecordType Metadata",
   "description": "JSON Schema for Salesforce RecordType metadata (API v66.0). Auto-generated from the org's metadata WSDL by pull_schema.py.",
   "type": "object",
-  "x-salesforce-api-version": "66.0",
-  "x-schema-source": "metadata-wsdl",
   "$defs": {
     "PicklistValue": {
       "type": "object",
@@ -42,7 +40,14 @@
         },
         "forecastCategory": {
           "type": "string",
-          "enum": ["Omitted", "Pipeline", "BestCase", "MostLikely", "Forecast", "Closed"]
+          "enum": [
+            "Omitted",
+            "Pipeline",
+            "BestCase",
+            "MostLikely",
+            "Forecast",
+            "Closed"
+          ]
         },
         "highPriority": {
           "type": "boolean"
@@ -61,7 +66,9 @@
         }
       },
       "additionalProperties": true,
-      "required": ["default"]
+      "required": [
+        "default"
+      ]
     },
     "RecordType": {
       "type": "object",
@@ -89,7 +96,10 @@
         }
       },
       "additionalProperties": true,
-      "required": ["active", "label"]
+      "required": [
+        "active",
+        "label"
+      ]
     },
     "RecordTypePicklistValue": {
       "type": "object",
@@ -105,8 +115,30 @@
         }
       },
       "additionalProperties": true,
-      "required": ["picklist"]
+      "required": [
+        "picklist"
+      ]
+    },
+    "RecordTypeTranslation": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "label",
+        "name"
+      ]
     }
   },
+  "x-salesforce-api-version": "66.0",
   "$ref": "#/$defs/RecordType"
 }
