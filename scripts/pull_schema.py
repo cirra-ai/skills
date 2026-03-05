@@ -198,9 +198,20 @@ def extract_types(wsdl_content, type_prefix):
         if name:
             all_complex_types[name] = complex_type
 
-    # Pass 2: seed with prefix-matched types, then resolve transitive deps
+    # Pass 2: seed with prefix-matched types, then resolve transitive deps.
+    # Exclude names that match a *longer* prefix from another METADATA_TYPES
+    # entry to avoid pulling in unrelated type trees (e.g. PermissionSetGroup
+    # types when the target prefix is PermissionSet).
+    longer_prefixes = {
+        v[0]
+        for v in METADATA_TYPES.values()
+        if v[0] != type_prefix and v[0].startswith(type_prefix)
+    }
     seed_names = {
-        n for n in all_complex_types if n.startswith(type_prefix) or n == type_prefix
+        n
+        for n in all_complex_types
+        if (n.startswith(type_prefix) or n == type_prefix)
+        and not any(n.startswith(lp) for lp in longer_prefixes)
     }
     matched_types = _resolve_transitive_types(seed_names, all_complex_types)
 
@@ -311,10 +322,13 @@ def build_json_schema(matched_types, enum_types, root_type, api_version=None):
         "$id": f"https://cirra.ai/schemas/salesforce-{root_type.lower()}-metadata.json",
         "title": f"Salesforce {root_type} Metadata",
         "description": (
-            f"JSON Schema for Salesforce {root_type} metadata"
-            f" (API v{api_version}). " if api_version else f"JSON Schema for Salesforce {root_type} metadata. "
-        )
-        + "Auto-generated from the org's metadata WSDL by pull_schema.py.",
+            (
+                f"JSON Schema for Salesforce {root_type} metadata (API v{api_version}). "
+                if api_version
+                else f"JSON Schema for Salesforce {root_type} metadata. "
+            )
+            + "Auto-generated from the org's metadata WSDL by pull_schema.py."
+        ),
         "type": "object",
         "$defs": {},
     }

@@ -31,11 +31,7 @@
         },
         "deleteConstraint": {
           "type": "string",
-          "enum": [
-            "Cascade",
-            "Restrict",
-            "SetNull"
-          ]
+          "enum": ["Cascade", "Restrict", "SetNull"]
         },
         "deprecated": {
           "type": "boolean"
@@ -48,10 +44,7 @@
         },
         "elementType": {
           "type": "string",
-          "enum": [
-            "Float",
-            "Text"
-          ]
+          "enum": ["Float", "Text"]
         },
         "encryptionScheme": {
           "type": "string",
@@ -73,21 +66,14 @@
         },
         "fieldManageability": {
           "type": "string",
-          "enum": [
-            "DeveloperControlled",
-            "SubscriberControlled",
-            "Locked"
-          ]
+          "enum": ["DeveloperControlled", "SubscriberControlled", "Locked"]
         },
         "formula": {
           "type": "string"
         },
         "formulaTreatBlanksAs": {
           "type": "string",
-          "enum": [
-            "BlankAsBlank",
-            "BlankAsZero"
-          ]
+          "enum": ["BlankAsBlank", "BlankAsZero"]
         },
         "inlineHelpText": {
           "type": "string"
@@ -118,21 +104,11 @@
         },
         "maskChar": {
           "type": "string",
-          "enum": [
-            "asterisk",
-            "X"
-          ]
+          "enum": ["asterisk", "X"]
         },
         "maskType": {
           "type": "string",
-          "enum": [
-            "all",
-            "creditCard",
-            "ssn",
-            "lastFour",
-            "sin",
-            "nino"
-          ]
+          "enum": ["all", "creditCard", "ssn", "lastFour", "sin", "nino"]
         },
         "metadataRelationshipControllingField": {
           "type": "string"
@@ -199,12 +175,7 @@
         },
         "summaryOperation": {
           "type": "string",
-          "enum": [
-            "count",
-            "sum",
-            "min",
-            "max"
-          ]
+          "enum": ["count", "sum", "min", "max"]
         },
         "trackFeedHistory": {
           "type": "boolean"
@@ -281,21 +252,14 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "implementationField",
-        "interfaceField"
-      ]
+      "required": ["implementationField", "interfaceField"]
     },
     "CustomFieldDisplay": {
       "type": "object",
       "properties": {
         "displayType": {
           "type": "string",
-          "enum": [
-            "Dropdown",
-            "ColorSwatch",
-            "Pill"
-          ]
+          "enum": ["Dropdown", "ColorSwatch", "Pill"]
         },
         "fieldApiName": {
           "type": "string"
@@ -308,11 +272,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "displayType",
-        "fieldApiName",
-        "masterLabel"
-      ]
+      "required": ["displayType", "fieldApiName", "masterLabel"]
     },
     "CustomFieldTranslation": {
       "type": "object",
@@ -366,17 +326,11 @@
         },
         "startsWith": {
           "type": "string",
-          "enum": [
-            "Consonant",
-            "Vowel",
-            "Special"
-          ]
+          "enum": ["Consonant", "Vowel", "Special"]
         }
       },
       "additionalProperties": true,
-      "required": [
-        "name"
-      ]
+      "required": ["name"]
     },
     "CustomValue": {
       "type": "object",
@@ -398,9 +352,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "default"
-      ]
+      "required": ["default"]
     },
     "FilterItem": {
       "type": "object",
@@ -433,10 +385,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "field",
-        "operation"
-      ]
+      "required": ["field", "operation"]
     },
     "LookupFilter": {
       "type": "object",
@@ -467,10 +416,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "active",
-        "isOptional"
-      ]
+      "required": ["active", "isOptional"]
     },
     "LookupFilterTranslation": {
       "type": "object",
@@ -483,10 +429,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "errorMessage",
-        "informationalMessage"
-      ]
+      "required": ["errorMessage", "informationalMessage"]
     },
     "MktDataLakeFieldAttributes": {
       "type": "object",
@@ -545,10 +488,7 @@
         },
         "usageTag": {
           "type": "string",
-          "enum": [
-            "NONE",
-            "KEY_QUALIFIER"
-          ]
+          "enum": ["NONE", "KEY_QUALIFIER"]
         }
       },
       "additionalProperties": true
@@ -586,11 +526,7 @@
         },
         "invalidMergeActionType": {
           "type": "string",
-          "enum": [
-            "Drop",
-            "Keep",
-            "Override"
-          ]
+          "enum": ["Drop", "Keep", "Override"]
         },
         "isDynamicLookup": {
           "type": "boolean"
@@ -603,11 +539,7 @@
         },
         "mappingAlertType": {
           "type": "string",
-          "enum": [
-            "None",
-            "Warning",
-            "Error"
-          ]
+          "enum": ["None", "Warning", "Error"]
         },
         "masterLabel": {
           "type": "string"
@@ -620,10 +552,7 @@
         },
         "usageTag": {
           "type": "string",
-          "enum": [
-            "None",
-            "KeyQualifier"
-          ]
+          "enum": ["None", "KeyQualifier"]
         }
       },
       "additionalProperties": true
@@ -633,11 +562,7 @@
       "properties": {
         "article": {
           "type": "string",
-          "enum": [
-            "None",
-            "Indefinite",
-            "Definite"
-          ]
+          "enum": ["None", "Indefinite", "Definite"]
         },
         "caseType": {
           "type": "string",
@@ -679,20 +604,14 @@
         },
         "possessive": {
           "type": "string",
-          "enum": [
-            "None",
-            "First",
-            "Second"
-          ]
+          "enum": ["None", "First", "Second"]
         },
         "value": {
           "type": "string"
         }
       },
       "additionalProperties": true,
-      "required": [
-        "value"
-      ]
+      "required": ["value"]
     },
     "PicklistValueTranslation": {
       "type": "object",
@@ -705,9 +624,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "masterLabel"
-      ]
+      "required": ["masterLabel"]
     },
     "ValueSet": {
       "type": "object",
@@ -747,9 +664,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "sorted"
-      ]
+      "required": ["sorted"]
     },
     "ValueSettings": {
       "type": "object",
@@ -765,9 +680,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "valueName"
-      ]
+      "required": ["valueName"]
     }
   },
   "x-salesforce-api-version": "66.0",

@@ -25,9 +25,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "componentName"
-      ]
+      "required": ["componentName"]
     },
     "ComponentInstanceProperty": {
       "type": "object",
@@ -37,9 +35,7 @@
         },
         "type": {
           "type": "string",
-          "enum": [
-            "decorator"
-          ]
+          "enum": ["decorator"]
         },
         "value": {
           "type": "string"
@@ -94,9 +90,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "fieldItem"
-      ]
+      "required": ["fieldItem"]
     },
     "FieldInstanceProperty": {
       "type": "object",
@@ -196,11 +190,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "masterLabel",
-        "template",
-        "type"
-      ]
+      "required": ["masterLabel", "template", "type"]
     },
     "FlexiPageEvent": {
       "type": "object",
@@ -216,9 +206,7 @@
         },
         "sourceType": {
           "type": "string",
-          "enum": [
-            "Component"
-          ]
+          "enum": ["Component"]
         },
         "targets": {
           "type": "array",
@@ -228,10 +216,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "sourceName",
-        "sourceType"
-      ]
+      "required": ["sourceName", "sourceType"]
     },
     "FlexiPageEventPropertyMapping": {
       "type": "object",
@@ -244,9 +229,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "name"
-      ]
+      "required": ["name"]
     },
     "FlexiPageEventSourceProperty": {
       "type": "object",
@@ -259,10 +242,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "name",
-        "value"
-      ]
+      "required": ["name", "value"]
     },
     "FlexiPageEventTarget": {
       "type": "object",
@@ -298,11 +278,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "method",
-        "name",
-        "type"
-      ]
+      "required": ["method", "name", "type"]
     },
     "FlexiPageEventTargetProperty": {
       "type": "object",
@@ -315,20 +291,14 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "name",
-        "value"
-      ]
+      "required": ["name", "value"]
     },
     "FlexiPageRegion": {
       "type": "object",
       "properties": {
         "appendable": {
           "type": "string",
-          "enum": [
-            "disabled",
-            "enabled"
-          ]
+          "enum": ["disabled", "enabled"]
         },
         "itemInstances": {
           "type": "array",
@@ -338,43 +308,26 @@
         },
         "mode": {
           "type": "string",
-          "enum": [
-            "Append",
-            "Prepend",
-            "Replace"
-          ]
+          "enum": ["Append", "Prepend", "Replace"]
         },
         "name": {
           "type": "string"
         },
         "prependable": {
           "type": "string",
-          "enum": [
-            "disabled",
-            "enabled"
-          ]
+          "enum": ["disabled", "enabled"]
         },
         "replaceable": {
           "type": "string",
-          "enum": [
-            "disabled",
-            "enabled"
-          ]
+          "enum": ["disabled", "enabled"]
         },
         "type": {
           "type": "string",
-          "enum": [
-            "Region",
-            "Facet",
-            "Background"
-          ]
+          "enum": ["Region", "Facet", "Background"]
         }
       },
       "additionalProperties": true,
-      "required": [
-        "name",
-        "type"
-      ]
+      "required": ["name", "type"]
     },
     "FlexiPageTemplateInstance": {
       "type": "object",
@@ -390,9 +343,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "name"
-      ]
+      "required": ["name"]
     },
     "ItemInstance": {
       "type": "object",
@@ -444,9 +395,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "actionListContext"
-      ]
+      "required": ["actionListContext"]
     },
     "PlatformActionListItem": {
       "type": "object",
@@ -473,11 +422,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "actionName",
-        "actionType",
-        "sortOrder"
-      ]
+      "required": ["actionName", "actionType", "sortOrder"]
     },
     "QuickActionList": {
       "type": "object",
@@ -499,9 +444,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "quickActionName"
-      ]
+      "required": ["quickActionName"]
     },
     "UiFormulaCriterion": {
       "type": "object",
@@ -517,10 +460,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "leftValue",
-        "operator"
-      ]
+      "required": ["leftValue", "operator"]
     },
     "UiFormulaRule": {
       "type": "object",

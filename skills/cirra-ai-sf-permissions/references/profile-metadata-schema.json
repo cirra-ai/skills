@@ -13,19 +13,14 @@
         },
         "flowType": {
           "type": "string",
-          "enum": [
-            "UI"
-          ]
+          "enum": ["UI"]
         },
         "friendlyName": {
           "type": "string"
         },
         "uiLoginFlowType": {
           "type": "string",
-          "enum": [
-            "VisualWorkflow",
-            "VisualForce"
-          ]
+          "enum": ["VisualWorkflow", "VisualForce"]
         },
         "useLightningRuntime": {
           "type": "boolean"
@@ -38,11 +33,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "flowType",
-        "friendlyName",
-        "uiLoginFlowType"
-      ]
+      "required": ["flowType", "friendlyName", "uiLoginFlowType"]
     },
     "Profile": {
       "type": "object",
@@ -199,11 +190,7 @@
         },
         "formFactor": {
           "type": "string",
-          "enum": [
-            "Small",
-            "Medium",
-            "Large"
-          ]
+          "enum": ["Small", "Medium", "Large"]
         },
         "pageOrSobjectType": {
           "type": "string"
@@ -224,12 +211,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "actionName",
-        "formFactor",
-        "pageOrSobjectType",
-        "type"
-      ]
+      "required": ["actionName", "formFactor", "pageOrSobjectType", "type"]
     },
     "ProfileAgentAccess": {
       "type": "object",
@@ -242,10 +224,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "agentName",
-        "enabled"
-      ]
+      "required": ["agentName", "enabled"]
     },
     "ProfileApexClassAccess": {
       "type": "object",
@@ -258,10 +237,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "apexClass",
-        "enabled"
-      ]
+      "required": ["apexClass", "enabled"]
     },
     "ProfileApexPageAccess": {
       "type": "object",
@@ -274,10 +250,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "apexPage",
-        "enabled"
-      ]
+      "required": ["apexPage", "enabled"]
     },
     "ProfileApplicationVisibility": {
       "type": "object",
@@ -293,11 +266,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "application",
-        "default",
-        "visible"
-      ]
+      "required": ["application", "default", "visible"]
     },
     "ProfileCategoryGroupVisibility": {
       "type": "object",
@@ -313,18 +282,11 @@
         },
         "visibility": {
           "type": "string",
-          "enum": [
-            "ALL",
-            "NONE",
-            "CUSTOM"
-          ]
+          "enum": ["ALL", "NONE", "CUSTOM"]
         }
       },
       "additionalProperties": true,
-      "required": [
-        "dataCategoryGroup",
-        "visibility"
-      ]
+      "required": ["dataCategoryGroup", "visibility"]
     },
     "ProfileCustomMetadataTypeAccess": {
       "type": "object",
@@ -337,10 +299,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "enabled",
-        "name"
-      ]
+      "required": ["enabled", "name"]
     },
     "ProfileCustomPermissions": {
       "type": "object",
@@ -353,10 +312,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "enabled",
-        "name"
-      ]
+      "required": ["enabled", "name"]
     },
     "ProfileCustomSettingAccess": {
       "type": "object",
@@ -369,10 +325,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "enabled",
-        "name"
-      ]
+      "required": ["enabled", "name"]
     },
     "ProfileExternalDataSourceAccess": {
       "type": "object",
@@ -385,10 +338,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "enabled",
-        "externalDataSource"
-      ]
+      "required": ["enabled", "externalDataSource"]
     },
     "ProfileFieldLevelSecurity": {
       "type": "object",
@@ -405,10 +355,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "editable",
-        "field"
-      ]
+      "required": ["editable", "field"]
     },
     "ProfileFlowAccess": {
       "type": "object",
@@ -421,10 +368,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "enabled",
-        "flow"
-      ]
+      "required": ["enabled", "flow"]
     },
     "ProfileGenComputingSummaryDefAccess": {
       "type": "object",
@@ -437,10 +381,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "configName",
-        "enabled"
-      ]
+      "required": ["configName", "enabled"]
     },
     "ProfileLayoutAssignment": {
       "type": "object",
@@ -455,9 +396,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "layout"
-      ]
+      "required": ["layout"]
     },
     "ProfileLoginHours": {
       "type": "object",
@@ -522,10 +461,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "endAddress",
-        "startAddress"
-      ]
+      "required": ["endAddress", "startAddress"]
     },
     "ProfileObjectPermissions": {
       "type": "object",
@@ -556,9 +492,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "object"
-      ]
+      "required": ["object"]
     },
     "ProfilePasswordPolicy": {
       "type": "object",
@@ -627,11 +561,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "default",
-        "recordType",
-        "visible"
-      ]
+      "required": ["default", "recordType", "visible"]
     },
     "ProfileSearchLayouts": {
       "type": "object",
@@ -659,10 +589,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "enabled",
-        "servicePresenceStatus"
-      ]
+      "required": ["enabled", "servicePresenceStatus"]
     },
     "ProfileSessionSetting": {
       "type": "object",
@@ -678,11 +605,7 @@
         },
         "requiredSessionLevel": {
           "type": "string",
-          "enum": [
-            "LOW",
-            "STANDARD",
-            "HIGH_ASSURANCE"
-          ]
+          "enum": ["LOW", "STANDARD", "HIGH_ASSURANCE"]
         },
         "sessionPersistence": {
           "type": "boolean"
@@ -712,18 +635,11 @@
         },
         "visibility": {
           "type": "string",
-          "enum": [
-            "Hidden",
-            "DefaultOff",
-            "DefaultOn"
-          ]
+          "enum": ["Hidden", "DefaultOff", "DefaultOn"]
         }
       },
       "additionalProperties": true,
-      "required": [
-        "tab",
-        "visibility"
-      ]
+      "required": ["tab", "visibility"]
     },
     "ProfileUserPermission": {
       "type": "object",
@@ -736,10 +652,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "enabled",
-        "name"
-      ]
+      "required": ["enabled", "name"]
     }
   },
   "x-salesforce-api-version": "66.0",

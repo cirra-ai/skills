@@ -19,11 +19,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "caseAccessLevel",
-        "contactAccessLevel",
-        "opportunityAccessLevel"
-      ]
+      "required": ["caseAccessLevel", "contactAccessLevel", "opportunityAccessLevel"]
     },
     "FilterItem": {
       "type": "object",
@@ -56,10 +52,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "field",
-        "operation"
-      ]
+      "required": ["field", "operation"]
     },
     "SharedTo": {
       "type": "object",
@@ -210,11 +203,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "accessLevel",
-        "label",
-        "sharedTo"
-      ]
+      "required": ["accessLevel", "label", "sharedTo"]
     },
     "SharingCriteriaRule": {
       "type": "object",
@@ -238,9 +227,7 @@
           "$ref": "#/$defs/SharingBaseRule"
         }
       ],
-      "required": [
-        "includeRecordsOwnedByAll"
-      ]
+      "required": ["includeRecordsOwnedByAll"]
     },
     "SharingGuestRule": {
       "type": "object",
@@ -264,9 +251,7 @@
           "$ref": "#/$defs/SharingBaseRule"
         }
       ],
-      "required": [
-        "includeHVUOwnedRecords"
-      ]
+      "required": ["includeHVUOwnedRecords"]
     },
     "SharingOwnerRule": {
       "type": "object",
@@ -281,9 +266,7 @@
           "$ref": "#/$defs/SharingBaseRule"
         }
       ],
-      "required": [
-        "sharedFrom"
-      ]
+      "required": ["sharedFrom"]
     },
     "SharingRules": {
       "type": "object",

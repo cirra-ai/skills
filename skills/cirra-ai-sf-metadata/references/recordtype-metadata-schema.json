@@ -40,14 +40,7 @@
         },
         "forecastCategory": {
           "type": "string",
-          "enum": [
-            "Omitted",
-            "Pipeline",
-            "BestCase",
-            "MostLikely",
-            "Forecast",
-            "Closed"
-          ]
+          "enum": ["Omitted", "Pipeline", "BestCase", "MostLikely", "Forecast", "Closed"]
         },
         "highPriority": {
           "type": "boolean"
@@ -66,9 +59,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "default"
-      ]
+      "required": ["default"]
     },
     "RecordType": {
       "type": "object",
@@ -96,10 +87,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "active",
-        "label"
-      ]
+      "required": ["active", "label"]
     },
     "RecordTypePicklistValue": {
       "type": "object",
@@ -115,9 +103,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "picklist"
-      ]
+      "required": ["picklist"]
     },
     "RecordTypeTranslation": {
       "type": "object",
@@ -133,10 +119,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "label",
-        "name"
-      ]
+      "required": ["label", "name"]
     }
   },
   "x-salesforce-api-version": "66.0",

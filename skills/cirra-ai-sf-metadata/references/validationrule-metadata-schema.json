@@ -25,11 +25,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "active",
-        "errorConditionFormula",
-        "errorMessage"
-      ]
+      "required": ["active", "errorConditionFormula", "errorMessage"]
     },
     "ValidationRuleTranslation": {
       "type": "object",
@@ -42,10 +38,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "errorMessage",
-        "name"
-      ]
+      "required": ["errorMessage", "name"]
     }
   },
   "x-salesforce-api-version": "66.0",

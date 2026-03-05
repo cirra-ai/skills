@@ -130,9 +130,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "label"
-      ]
+      "required": ["label"]
     },
     "PermissionSetAgentAccess": {
       "type": "object",
@@ -145,10 +143,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "agentName",
-        "enabled"
-      ]
+      "required": ["agentName", "enabled"]
     },
     "PermissionSetApexClassAccess": {
       "type": "object",
@@ -161,10 +156,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "apexClass",
-        "enabled"
-      ]
+      "required": ["apexClass", "enabled"]
     },
     "PermissionSetApexPageAccess": {
       "type": "object",
@@ -177,10 +169,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "apexPage",
-        "enabled"
-      ]
+      "required": ["apexPage", "enabled"]
     },
     "PermissionSetApplicationVisibility": {
       "type": "object",
@@ -193,10 +182,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "application",
-        "visible"
-      ]
+      "required": ["application", "visible"]
     },
     "PermissionSetCustomMetadataTypeAccess": {
       "type": "object",
@@ -209,10 +195,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "enabled",
-        "name"
-      ]
+      "required": ["enabled", "name"]
     },
     "PermissionSetCustomPermissions": {
       "type": "object",
@@ -225,10 +208,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "enabled",
-        "name"
-      ]
+      "required": ["enabled", "name"]
     },
     "PermissionSetCustomSettingAccess": {
       "type": "object",
@@ -241,10 +221,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "enabled",
-        "name"
-      ]
+      "required": ["enabled", "name"]
     },
     "PermissionSetEmailRoutingAddressAccess": {
       "type": "object",
@@ -257,10 +234,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "enabled",
-        "name"
-      ]
+      "required": ["enabled", "name"]
     },
     "PermissionSetExternalCredentialPrincipalAccess": {
       "type": "object",
@@ -273,10 +247,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "enabled",
-        "externalCredentialPrincipal"
-      ]
+      "required": ["enabled", "externalCredentialPrincipal"]
     },
     "PermissionSetExternalDataSourceAccess": {
       "type": "object",
@@ -289,10 +260,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "enabled",
-        "externalDataSource"
-      ]
+      "required": ["enabled", "externalDataSource"]
     },
     "PermissionSetFieldPermissions": {
       "type": "object",
@@ -309,10 +277,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "editable",
-        "field"
-      ]
+      "required": ["editable", "field"]
     },
     "PermissionSetFlowAccess": {
       "type": "object",
@@ -325,10 +290,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "enabled",
-        "flow"
-      ]
+      "required": ["enabled", "flow"]
     },
     "PermissionSetGenComputingSummaryDefAccess": {
       "type": "object",
@@ -341,10 +303,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "configName",
-        "enabled"
-      ]
+      "required": ["configName", "enabled"]
     },
     "PermissionSetGroup": {
       "type": "object",
@@ -375,9 +334,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "label"
-      ]
+      "required": ["label"]
     },
     "PermissionSetLicenseDefinition": {
       "type": "object",
@@ -402,20 +359,14 @@
         },
         "licenseExpirationPolicy": {
           "type": "string",
-          "enum": [
-            "AllowNamespaceAccess",
-            "BlockNamespaceAccess"
-          ]
+          "enum": ["AllowNamespaceAccess", "BlockNamespaceAccess"]
         },
         "userLicenseRestrictions": {
           "type": "string"
         }
       },
       "additionalProperties": true,
-      "required": [
-        "label",
-        "licenseExpirationPolicy"
-      ]
+      "required": ["label", "licenseExpirationPolicy"]
     },
     "PermissionSetLicenseDefinitionCustomObject": {
       "type": "object",
@@ -437,9 +388,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "name"
-      ]
+      "required": ["name"]
     },
     "PermissionSetLicenseDefinitionCustomPermission": {
       "type": "object",
@@ -449,9 +398,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "name"
-      ]
+      "required": ["name"]
     },
     "PermissionSetObjectPermissions": {
       "type": "object",
@@ -504,10 +451,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "recordType",
-        "visible"
-      ]
+      "required": ["recordType", "visible"]
     },
     "PermissionSetServicePresenceStatusAccess": {
       "type": "object",
@@ -520,10 +464,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "enabled",
-        "servicePresenceStatus"
-      ]
+      "required": ["enabled", "servicePresenceStatus"]
     },
     "PermissionSetTabSetting": {
       "type": "object",
@@ -533,18 +474,11 @@
         },
         "visibility": {
           "type": "string",
-          "enum": [
-            "None",
-            "Available",
-            "Visible"
-          ]
+          "enum": ["None", "Available", "Visible"]
         }
       },
       "additionalProperties": true,
-      "required": [
-        "tab",
-        "visibility"
-      ]
+      "required": ["tab", "visibility"]
     },
     "PermissionSetUserPermission": {
       "type": "object",
@@ -557,10 +491,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "enabled",
-        "name"
-      ]
+      "required": ["enabled", "name"]
     }
   },
   "x-salesforce-api-version": "66.0",

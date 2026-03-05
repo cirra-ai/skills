@@ -91,11 +91,7 @@
           "type": "array",
           "items": {
             "type": "string",
-            "enum": [
-              "Default",
-              "Slack",
-              "Offline"
-            ]
+            "enum": ["Default", "Slack", "Offline"]
           }
         },
         "exitRules": {
@@ -246,11 +242,7 @@
         },
         "runInMode": {
           "type": "string",
-          "enum": [
-            "DefaultMode",
-            "SystemModeWithSharing",
-            "SystemModeWithoutSharing"
-          ]
+          "enum": ["DefaultMode", "SystemModeWithSharing", "SystemModeWithoutSharing"]
         },
         "screens": {
           "type": "array",
@@ -275,13 +267,7 @@
         },
         "status": {
           "type": "string",
-          "enum": [
-            "Active",
-            "Draft",
-            "Obsolete",
-            "InvalidDraft",
-            "UnderReview"
-          ]
+          "enum": ["Active", "Draft", "Obsolete", "InvalidDraft", "UnderReview"]
         },
         "steps": {
           "type": "array",
@@ -327,9 +313,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "label"
-      ]
+      "required": ["label"]
     },
     "FlowActionCall": {
       "type": "object",
@@ -1586,11 +1570,7 @@
         },
         "flowTransactionModel": {
           "type": "string",
-          "enum": [
-            "Automatic",
-            "NewTransaction",
-            "CurrentTransaction"
-          ]
+          "enum": ["Automatic", "NewTransaction", "CurrentTransaction"]
         },
         "inputParameters": {
           "type": "array",
@@ -1609,13 +1589,7 @@
         },
         "offsetUnit": {
           "type": "string",
-          "enum": [
-            "Hours",
-            "Days",
-            "Minutes",
-            "Months",
-            "Weeks"
-          ]
+          "enum": ["Hours", "Days", "Minutes", "Months", "Weeks"]
         },
         "outputParameters": {
           "type": "array",
@@ -1631,10 +1605,7 @@
         },
         "timeoutPathUsage": {
           "type": "string",
-          "enum": [
-            "EnableTimeoutPath",
-            "DisableTimeoutPath"
-          ]
+          "enum": ["EnableTimeoutPath", "DisableTimeoutPath"]
         },
         "versionString": {
           "type": "string"
@@ -1663,9 +1634,7 @@
           "$ref": "#/$defs/FlowBaseElement"
         }
       ],
-      "required": [
-        "name"
-      ]
+      "required": ["name"]
     },
     "FlowActionCallOutputParameter": {
       "type": "object",
@@ -1683,10 +1652,7 @@
           "$ref": "#/$defs/FlowBaseElement"
         }
       ],
-      "required": [
-        "assignToReference",
-        "name"
-      ]
+      "required": ["assignToReference", "name"]
     },
     "FlowActionCallPath": {
       "type": "object",
@@ -1704,10 +1670,7 @@
           "$ref": "#/$defs/FlowBaseElement"
         }
       ],
-      "required": [
-        "connector",
-        "pathName"
-      ]
+      "required": ["connector", "pathName"]
     },
     "FlowApexPluginCall": {
       "type": "object",
@@ -1740,9 +1703,7 @@
           "$ref": "#/$defs/FlowNode"
         }
       ],
-      "required": [
-        "apexClass"
-      ]
+      "required": ["apexClass"]
     },
     "FlowApexPluginCallInputParameter": {
       "type": "object",
@@ -1760,9 +1721,7 @@
           "$ref": "#/$defs/FlowBaseElement"
         }
       ],
-      "required": [
-        "name"
-      ]
+      "required": ["name"]
     },
     "FlowApexPluginCallOutputParameter": {
       "type": "object",
@@ -1780,10 +1739,7 @@
           "$ref": "#/$defs/FlowBaseElement"
         }
       ],
-      "required": [
-        "assignToReference",
-        "name"
-      ]
+      "required": ["assignToReference", "name"]
     },
     "FlowAssignment": {
       "type": "object",
@@ -1845,10 +1801,7 @@
       "properties": {
         "type": {
           "type": "string",
-          "enum": [
-            "LlmPrompt",
-            "LlmDescription"
-          ]
+          "enum": ["LlmPrompt", "LlmDescription"]
         },
         "value": {
           "type": "string"
@@ -1860,9 +1813,7 @@
           "$ref": "#/$defs/FlowBaseElement"
         }
       ],
-      "required": [
-        "type"
-      ]
+      "required": ["type"]
     },
     "FlowBaseElement": {
       "type": "object",
@@ -1895,9 +1846,7 @@
           "$ref": "#/$defs/FlowElement"
         }
       ],
-      "required": [
-        "capabilityName"
-      ]
+      "required": ["capabilityName"]
     },
     "FlowCapabilityInput": {
       "type": "object",
@@ -1918,10 +1867,7 @@
           "$ref": "#/$defs/FlowElement"
         }
       ],
-      "required": [
-        "capabilityInputName",
-        "isCollection"
-      ]
+      "required": ["capabilityInputName", "isCollection"]
     },
     "FlowCategory": {
       "type": "object",
@@ -1940,9 +1886,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "masterLabel"
-      ]
+      "required": ["masterLabel"]
     },
     "FlowCategoryItems": {
       "type": "object",
@@ -1952,9 +1896,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "flow"
-      ]
+      "required": ["flow"]
     },
     "FlowChoice": {
       "type": "object",
@@ -1994,10 +1936,7 @@
           "$ref": "#/$defs/FlowElement"
         }
       ],
-      "required": [
-        "choiceText",
-        "dataType"
-      ]
+      "required": ["choiceText", "dataType"]
     },
     "FlowChoiceTranslation": {
       "type": "object",
@@ -2013,9 +1952,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "name"
-      ]
+      "required": ["name"]
     },
     "FlowChoiceUserInput": {
       "type": "object",
@@ -2099,10 +2036,7 @@
           "$ref": "#/$defs/FlowElement"
         }
       ],
-      "required": [
-        "filterCondition",
-        "formatType"
-      ]
+      "required": ["filterCondition", "formatType"]
     },
     "FlowCollectionMapItem": {
       "type": "object",
@@ -2138,11 +2072,7 @@
           "$ref": "#/$defs/FlowBaseElement"
         }
       ],
-      "required": [
-        "assignToFieldReference",
-        "operator",
-        "value"
-      ]
+      "required": ["assignToFieldReference", "operator", "value"]
     },
     "FlowCollectionProcessor": {
       "type": "object",
@@ -2201,10 +2131,7 @@
           "$ref": "#/$defs/FlowNode"
         }
       ],
-      "required": [
-        "collectionProcessorType",
-        "collectionReference"
-      ]
+      "required": ["collectionProcessorType", "collectionReference"]
     },
     "FlowCollectionSortOption": {
       "type": "object",
@@ -2217,10 +2144,7 @@
         },
         "sortOrder": {
           "type": "string",
-          "enum": [
-            "Asc",
-            "Desc"
-          ]
+          "enum": ["Asc", "Desc"]
         }
       },
       "additionalProperties": true,
@@ -2229,10 +2153,7 @@
           "$ref": "#/$defs/FlowBaseElement"
         }
       ],
-      "required": [
-        "doesPutEmptyStringAndNullFirst",
-        "sortOrder"
-      ]
+      "required": ["doesPutEmptyStringAndNullFirst", "sortOrder"]
     },
     "FlowComplexLiteralTranslation": {
       "type": "object",
@@ -2302,9 +2223,7 @@
           "$ref": "#/$defs/FlowBaseElement"
         }
       ],
-      "required": [
-        "operator"
-      ]
+      "required": ["operator"]
     },
     "FlowConnector": {
       "type": "object",
@@ -2322,9 +2241,7 @@
           "$ref": "#/$defs/FlowBaseElement"
         }
       ],
-      "required": [
-        "targetReference"
-      ]
+      "required": ["targetReference"]
     },
     "FlowConstant": {
       "type": "object",
@@ -2355,9 +2272,7 @@
           "$ref": "#/$defs/FlowElement"
         }
       ],
-      "required": [
-        "dataType"
-      ]
+      "required": ["dataType"]
     },
     "FlowCoverageResult": {
       "type": "object",
@@ -2464,12 +2379,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "flowId",
-        "flowName",
-        "flowNamespace",
-        "message"
-      ]
+      "required": ["flowId", "flowName", "flowNamespace", "message"]
     },
     "FlowCustomError": {
       "type": "object",
@@ -2513,10 +2423,7 @@
           "$ref": "#/$defs/FlowBaseElement"
         }
       ],
-      "required": [
-        "errorMessage",
-        "isFieldError"
-      ]
+      "required": ["errorMessage", "isFieldError"]
     },
     "FlowCustomErrorMessageTranslation": {
       "type": "object",
@@ -2532,9 +2439,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "developerName"
-      ]
+      "required": ["developerName"]
     },
     "FlowCustomProperty": {
       "type": "object",
@@ -2547,9 +2452,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "name"
-      ]
+      "required": ["name"]
     },
     "FlowDataTypeMapping": {
       "type": "object",
@@ -2574,9 +2477,7 @@
         },
         "valueMappingTransformType": {
           "type": "string",
-          "enum": [
-            "FirstEntry"
-          ]
+          "enum": ["FirstEntry"]
         }
       },
       "additionalProperties": true,
@@ -2647,9 +2548,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "fullName"
-      ]
+      "required": ["fullName"]
     },
     "FlowDynamicChoiceSet": {
       "type": "object",
@@ -2708,10 +2607,7 @@
         },
         "sortOrder": {
           "type": "string",
-          "enum": [
-            "Asc",
-            "Desc"
-          ]
+          "enum": ["Asc", "Desc"]
         },
         "valueField": {
           "type": "string"
@@ -2723,11 +2619,7 @@
           "$ref": "#/$defs/FlowElement"
         }
       ],
-      "required": [
-        "dataType",
-        "displayField",
-        "object"
-      ]
+      "required": ["dataType", "displayField", "object"]
     },
     "FlowElement": {
       "type": "object",
@@ -2805,12 +2697,7 @@
         },
         "inputConfiguratorMode": {
           "type": "string",
-          "enum": [
-            "Custom",
-            "Resource",
-            "Transform",
-            "ValueMapping"
-          ]
+          "enum": ["Custom", "Resource", "Transform", "ValueMapping"]
         },
         "isReverseValueMapping": {
           "type": "boolean"
@@ -2871,11 +2758,7 @@
           "$ref": "#/$defs/FlowElement"
         }
       ],
-      "required": [
-        "label",
-        "logicalOperator",
-        "ruleOrder"
-      ]
+      "required": ["label", "logicalOperator", "ruleOrder"]
     },
     "FlowExperiment": {
       "type": "object",
@@ -2885,20 +2768,11 @@
         },
         "durationUnit": {
           "type": "string",
-          "enum": [
-            "Hours",
-            "Days",
-            "Minutes",
-            "Months",
-            "Weeks"
-          ]
+          "enum": ["Hours", "Days", "Minutes", "Months", "Weeks"]
         },
         "fallbackMode": {
           "type": "string",
-          "enum": [
-            "BestPerformer",
-            "Randomize"
-          ]
+          "enum": ["BestPerformer", "Randomize"]
         },
         "paths": {
           "type": "array",
@@ -2923,9 +2797,7 @@
           "$ref": "#/$defs/FlowNode"
         }
       ],
-      "required": [
-        "type"
-      ]
+      "required": ["type"]
     },
     "FlowExperimentPath": {
       "type": "object",
@@ -2946,10 +2818,7 @@
           "$ref": "#/$defs/FlowElement"
         }
       ],
-      "required": [
-        "label",
-        "percentage"
-      ]
+      "required": ["label", "percentage"]
     },
     "FlowFerovTranslation": {
       "type": "object",
@@ -2998,9 +2867,7 @@
           "$ref": "#/$defs/FlowElement"
         }
       ],
-      "required": [
-        "expression"
-      ]
+      "required": ["expression"]
     },
     "FlowIcon": {
       "type": "object",
@@ -3084,10 +2951,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "name",
-        "value"
-      ]
+      "required": ["name", "value"]
     },
     "FlowInputValidationRule": {
       "type": "object",
@@ -3100,10 +2964,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "errorMessage",
-        "formulaExpression"
-      ]
+      "required": ["errorMessage", "formulaExpression"]
     },
     "FlowInputValidationRuleTranslation": {
       "type": "object",
@@ -3125,10 +2986,7 @@
         },
         "iterationOrder": {
           "type": "string",
-          "enum": [
-            "Asc",
-            "Desc"
-          ]
+          "enum": ["Asc", "Desc"]
         },
         "nextValueConnector": {
           "$ref": "#/$defs/FlowConnector"
@@ -3155,9 +3013,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "name"
-      ]
+      "required": ["name"]
     },
     "FlowNode": {
       "type": "object",
@@ -3205,10 +3061,7 @@
           "$ref": "#/$defs/FlowElement"
         }
       ],
-      "required": [
-        "locationX",
-        "locationY"
-      ]
+      "required": ["locationX", "locationY"]
     },
     "FlowNodeGroup": {
       "type": "object",
@@ -3227,10 +3080,7 @@
         },
         "groupType": {
           "type": "string",
-          "enum": [
-            "generic",
-            "rpa"
-          ]
+          "enum": ["generic", "rpa"]
         },
         "groupVersion": {
           "type": "string"
@@ -3245,11 +3095,7 @@
           "$ref": "#/$defs/FlowNode"
         }
       ],
-      "required": [
-        "groupName",
-        "groupType",
-        "groupVersion"
-      ]
+      "required": ["groupName", "groupType", "groupVersion"]
     },
     "FlowOrchestratedStage": {
       "type": "object",
@@ -4538,9 +4384,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "name"
-      ]
+      "required": ["name"]
     },
     "FlowOrchestrationStepTranslation": {
       "type": "object",
@@ -4553,9 +4397,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "name"
-      ]
+      "required": ["name"]
     },
     "FlowOutputFieldAssignment": {
       "type": "object",
@@ -4573,10 +4415,7 @@
           "$ref": "#/$defs/FlowBaseElement"
         }
       ],
-      "required": [
-        "assignToReference",
-        "field"
-      ]
+      "required": ["assignToReference", "field"]
     },
     "FlowRecordCreate": {
       "type": "object",
@@ -4766,10 +4605,7 @@
         },
         "sortOrder": {
           "type": "string",
-          "enum": [
-            "Asc",
-            "Desc"
-          ]
+          "enum": ["Asc", "Desc"]
         },
         "storeOutputAutomatically": {
           "type": "boolean"
@@ -4875,10 +4711,7 @@
         },
         "sortOrder": {
           "type": "string",
-          "enum": [
-            "Asc",
-            "Desc"
-          ]
+          "enum": ["Asc", "Desc"]
         }
       },
       "additionalProperties": true,
@@ -4922,10 +4755,7 @@
           "$ref": "#/$defs/FlowElement"
         }
       ],
-      "required": [
-        "conditionLogic",
-        "label"
-      ]
+      "required": ["conditionLogic", "label"]
     },
     "FlowSchedule": {
       "type": "object",
@@ -4986,30 +4816,18 @@
         },
         "offsetUnit": {
           "type": "string",
-          "enum": [
-            "Hours",
-            "Days",
-            "Minutes",
-            "Months",
-            "Weeks"
-          ]
+          "enum": ["Hours", "Days", "Minutes", "Months", "Weeks"]
         },
         "pathType": {
           "type": "string",
-          "enum": [
-            "AsyncAfterCommit",
-            "ApprovalRecall"
-          ]
+          "enum": ["AsyncAfterCommit", "ApprovalRecall"]
         },
         "recordField": {
           "type": "string"
         },
         "timeSource": {
           "type": "string",
-          "enum": [
-            "RecordTriggerEvent",
-            "RecordField"
-          ]
+          "enum": ["RecordTriggerEvent", "RecordField"]
         }
       },
       "additionalProperties": true,
@@ -6353,9 +6171,7 @@
           "$ref": "#/$defs/FlowElement"
         }
       ],
-      "required": [
-        "label"
-      ]
+      "required": ["label"]
     },
     "FlowScreenActionInputParameter": {
       "type": "object",
@@ -6373,9 +6189,7 @@
           "$ref": "#/$defs/FlowBaseElement"
         }
       ],
-      "required": [
-        "name"
-      ]
+      "required": ["name"]
     },
     "FlowScreenField": {
       "type": "object",
@@ -6465,10 +6279,7 @@
         },
         "inputsOnNextNavToAssocScrn": {
           "type": "string",
-          "enum": [
-            "UseStoredValues",
-            "ResetValues"
-          ]
+          "enum": ["UseStoredValues", "ResetValues"]
         },
         "isDisabled": {
           "$ref": "#/$defs/FlowElementReferenceOrValue"
@@ -6493,10 +6304,7 @@
         },
         "regionContainerType": {
           "type": "string",
-          "enum": [
-            "SectionWithHeader",
-            "SectionWithoutHeader"
-          ]
+          "enum": ["SectionWithHeader", "SectionWithoutHeader"]
         },
         "scale": {
           "type": "integer"
@@ -6526,9 +6334,7 @@
           "$ref": "#/$defs/FlowElement"
         }
       ],
-      "required": [
-        "fieldType"
-      ]
+      "required": ["fieldType"]
     },
     "FlowScreenFieldInputParameter": {
       "type": "object",
@@ -6546,9 +6352,7 @@
           "$ref": "#/$defs/FlowBaseElement"
         }
       ],
-      "required": [
-        "name"
-      ]
+      "required": ["name"]
     },
     "FlowScreenFieldOutputParameter": {
       "type": "object",
@@ -6566,10 +6370,7 @@
           "$ref": "#/$defs/FlowBaseElement"
         }
       ],
-      "required": [
-        "assignToReference",
-        "name"
-      ]
+      "required": ["assignToReference", "name"]
     },
     "FlowScreenFieldStyleProperties": {
       "type": "object",
@@ -6588,10 +6389,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "verticalAlignment",
-        "width"
-      ]
+      "required": ["verticalAlignment", "width"]
     },
     "FlowScreenFieldTranslation": {
       "type": "object",
@@ -6616,9 +6414,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "name"
-      ]
+      "required": ["name"]
     },
     "FlowScreenRule": {
       "type": "object",
@@ -6648,9 +6444,7 @@
           "$ref": "#/$defs/FlowBaseElement"
         }
       ],
-      "required": [
-        "label"
-      ]
+      "required": ["label"]
     },
     "FlowScreenRuleAction": {
       "type": "object",
@@ -6671,10 +6465,7 @@
           "$ref": "#/$defs/FlowBaseElement"
         }
       ],
-      "required": [
-        "attribute",
-        "fieldReference"
-      ]
+      "required": ["attribute", "fieldReference"]
     },
     "FlowScreenStyleSetting": {
       "type": "object",
@@ -6695,10 +6486,7 @@
           "$ref": "#/$defs/FlowBaseElement"
         }
       ],
-      "required": [
-        "propertyName",
-        "propertyValue"
-      ]
+      "required": ["propertyName", "propertyValue"]
     },
     "FlowScreenTranslation": {
       "type": "object",
@@ -6729,9 +6517,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "name"
-      ]
+      "required": ["name"]
     },
     "FlowScreenTrigger": {
       "type": "object",
@@ -6755,10 +6541,7 @@
           "$ref": "#/$defs/FlowBaseElement"
         }
       ],
-      "required": [
-        "eventName",
-        "eventSource"
-      ]
+      "required": ["eventName", "eventSource"]
     },
     "FlowScreenTriggerHandler": {
       "type": "object",
@@ -6785,9 +6568,7 @@
           "$ref": "#/$defs/FlowBaseElement"
         }
       ],
-      "required": [
-        "screenActionName"
-      ]
+      "required": ["screenActionName"]
     },
     "FlowSettings": {
       "type": "object",
@@ -6886,11 +6667,7 @@
           "$ref": "#/$defs/FlowElement"
         }
       ],
-      "required": [
-        "isActive",
-        "label",
-        "stageOrder"
-      ]
+      "required": ["isActive", "label", "stageOrder"]
     },
     "FlowStageStep": {
       "type": "object",
@@ -10706,10 +10483,7 @@
           "$ref": "#/$defs/FlowElement"
         }
       ],
-      "required": [
-        "entryConditionLogic",
-        "label"
-      ]
+      "required": ["entryConditionLogic", "label"]
     },
     "FlowStageStepAssignee": {
       "type": "object",
@@ -10719,13 +10493,7 @@
         },
         "assigneeType": {
           "type": "string",
-          "enum": [
-            "User",
-            "Group",
-            "Queue",
-            "Invalid",
-            "Resource"
-          ]
+          "enum": ["User", "Group", "Queue", "Invalid", "Resource"]
         }
       },
       "additionalProperties": true,
@@ -10734,9 +10502,7 @@
           "$ref": "#/$defs/FlowBaseElement"
         }
       ],
-      "required": [
-        "assigneeType"
-      ]
+      "required": ["assigneeType"]
     },
     "FlowStageStepEntryActionInputParameter": {
       "type": "object",
@@ -10754,9 +10520,7 @@
           "$ref": "#/$defs/FlowBaseElement"
         }
       ],
-      "required": [
-        "name"
-      ]
+      "required": ["name"]
     },
     "FlowStageStepEntryActionOutputParameter": {
       "type": "object",
@@ -10774,10 +10538,7 @@
           "$ref": "#/$defs/FlowBaseElement"
         }
       ],
-      "required": [
-        "assignToReference",
-        "name"
-      ]
+      "required": ["assignToReference", "name"]
     },
     "FlowStageStepExitActionInputParameter": {
       "type": "object",
@@ -10795,9 +10556,7 @@
           "$ref": "#/$defs/FlowBaseElement"
         }
       ],
-      "required": [
-        "name"
-      ]
+      "required": ["name"]
     },
     "FlowStageStepExitActionOutputParameter": {
       "type": "object",
@@ -10815,10 +10574,7 @@
           "$ref": "#/$defs/FlowBaseElement"
         }
       ],
-      "required": [
-        "assignToReference",
-        "name"
-      ]
+      "required": ["assignToReference", "name"]
     },
     "FlowStageStepInputParameter": {
       "type": "object",
@@ -10836,9 +10592,7 @@
           "$ref": "#/$defs/FlowBaseElement"
         }
       ],
-      "required": [
-        "name"
-      ]
+      "required": ["name"]
     },
     "FlowStageStepOutputConfigParam": {
       "type": "object",
@@ -10856,10 +10610,7 @@
           "$ref": "#/$defs/FlowBaseElement"
         }
       ],
-      "required": [
-        "name",
-        "value"
-      ]
+      "required": ["name", "value"]
     },
     "FlowStageStepOutputParameter": {
       "type": "object",
@@ -10877,10 +10628,7 @@
           "$ref": "#/$defs/FlowBaseElement"
         }
       ],
-      "required": [
-        "assignToReference",
-        "name"
-      ]
+      "required": ["assignToReference", "name"]
     },
     "FlowStageTranslation": {
       "type": "object",
@@ -10893,9 +10641,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "name"
-      ]
+      "required": ["name"]
     },
     "FlowStart": {
       "type": "object",
@@ -10938,11 +10684,7 @@
         },
         "entryType": {
           "type": "string",
-          "enum": [
-            "Always",
-            "AfterCompletion",
-            "Never"
-          ]
+          "enum": ["Always", "AfterCompletion", "Never"]
         },
         "eventName": {
           "type": "string"
@@ -12193,10 +11935,7 @@
         },
         "flowRunAsUser": {
           "type": "string",
-          "enum": [
-            "TriggeringUser",
-            "DefaultWorkflowUser"
-          ]
+          "enum": ["TriggeringUser", "DefaultWorkflowUser"]
         },
         "form": {
           "type": "string"
@@ -12227,13 +11966,7 @@
         },
         "recordTriggerType": {
           "type": "string",
-          "enum": [
-            "Update",
-            "Create",
-            "CreateAndUpdate",
-            "Delete",
-            "None"
-          ]
+          "enum": ["Update", "Create", "CreateAndUpdate", "Delete", "None"]
         },
         "schedule": {
           "$ref": "#/$defs/FlowSchedule"
@@ -12308,9 +12041,7 @@
           "$ref": "#/$defs/FlowBaseElement"
         }
       ],
-      "required": [
-        "name"
-      ]
+      "required": ["name"]
     },
     "FlowStep": {
       "type": "object",
@@ -12377,9 +12108,7 @@
           "$ref": "#/$defs/FlowBaseElement"
         }
       ],
-      "required": [
-        "name"
-      ]
+      "required": ["name"]
     },
     "FlowSubflowOutputAssignment": {
       "type": "object",
@@ -12397,9 +12126,7 @@
           "$ref": "#/$defs/FlowBaseElement"
         }
       ],
-      "required": [
-        "name"
-      ]
+      "required": ["name"]
     },
     "FlowTest": {
       "type": "object",
@@ -12439,17 +12166,11 @@
         },
         "testType": {
           "type": "string",
-          "enum": [
-            "WithAssertion",
-            "WithoutAssertion"
-          ]
+          "enum": ["WithAssertion", "WithoutAssertion"]
         }
       },
       "additionalProperties": true,
-      "required": [
-        "flowApiName",
-        "label"
-      ]
+      "required": ["flowApiName", "label"]
     },
     "FlowTestAssertion": {
       "type": "object",
@@ -12502,10 +12223,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "leftValueReference",
-        "operator"
-      ]
+      "required": ["leftValueReference", "operator"]
     },
     "FlowTestDataSource": {
       "type": "object",
@@ -12515,16 +12233,11 @@
         },
         "dataSourceType": {
           "type": "string",
-          "enum": [
-            "ApexClass"
-          ]
+          "enum": ["ApexClass"]
         }
       },
       "additionalProperties": true,
-      "required": [
-        "apexClass",
-        "dataSourceType"
-      ]
+      "required": ["apexClass", "dataSourceType"]
     },
     "FlowTestExtKeyField": {
       "type": "object",
@@ -12534,9 +12247,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "fieldName"
-      ]
+      "required": ["fieldName"]
     },
     "FlowTestFlowVersion": {
       "type": "object",
@@ -12546,9 +12257,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "flowVersionNumber"
-      ]
+      "required": ["flowVersionNumber"]
     },
     "FlowTestIsolObjExtlKey": {
       "type": "object",
@@ -12564,9 +12273,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "objectType"
-      ]
+      "required": ["objectType"]
     },
     "FlowTestParameter": {
       "type": "object",
@@ -12589,11 +12296,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "leftValueReference",
-        "type",
-        "value"
-      ]
+      "required": ["leftValueReference", "type", "value"]
     },
     "FlowTestPoint": {
       "type": "object",
@@ -12618,9 +12321,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "elementApiName"
-      ]
+      "required": ["elementApiName"]
     },
     "FlowTestReferenceOrValue": {
       "type": "object",
@@ -12672,9 +12373,7 @@
           "$ref": "#/$defs/FlowElement"
         }
       ],
-      "required": [
-        "text"
-      ]
+      "required": ["text"]
     },
     "FlowTextTemplateTranslation": {
       "type": "object",
@@ -12687,9 +12386,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "name"
-      ]
+      "required": ["name"]
     },
     "FlowTransform": {
       "type": "object",
@@ -14026,14 +13723,7 @@
         },
         "transformType": {
           "type": "string",
-          "enum": [
-            "Map",
-            "Count",
-            "Sum",
-            "GetItemByIndex",
-            "InnerJoin",
-            "InvocableAction"
-          ]
+          "enum": ["Map", "Count", "Sum", "GetItemByIndex", "InnerJoin", "InvocableAction"]
         },
         "value": {
           "$ref": "#/$defs/FlowElementReferenceOrValue"
@@ -14045,9 +13735,7 @@
           "$ref": "#/$defs/FlowBaseElement"
         }
       ],
-      "required": [
-        "transformType"
-      ]
+      "required": ["transformType"]
     },
     "FlowTransformValueActionInputParameter": {
       "type": "object",
@@ -14065,9 +13753,7 @@
           "$ref": "#/$defs/FlowBaseElement"
         }
       ],
-      "required": [
-        "name"
-      ]
+      "required": ["name"]
     },
     "FlowTranslation": {
       "type": "object",
@@ -14131,10 +13817,7 @@
         },
         "defaultValueStrategy": {
           "type": "string",
-          "enum": [
-            "PassThrough",
-            "FixedValue"
-          ]
+          "enum": ["PassThrough", "FixedValue"]
         },
         "description": {
           "type": "string"
@@ -14144,23 +13827,11 @@
         },
         "sourceType": {
           "type": "string",
-          "enum": [
-            "String",
-            "Boolean",
-            "DateTime",
-            "Date",
-            "Number"
-          ]
+          "enum": ["String", "Boolean", "DateTime", "Date", "Number"]
         },
         "targetType": {
           "type": "string",
-          "enum": [
-            "String",
-            "Boolean",
-            "DateTime",
-            "Date",
-            "Number"
-          ]
+          "enum": ["String", "Boolean", "DateTime", "Date", "Number"]
         },
         "valueMapEntries": {
           "type": "array",
@@ -14170,12 +13841,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "defaultValueStrategy",
-        "label",
-        "sourceType",
-        "targetType"
-      ]
+      "required": ["defaultValueStrategy", "label", "sourceType", "targetType"]
     },
     "FlowValueMapEntry": {
       "type": "object",
@@ -14188,10 +13854,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "sourceValue",
-        "targetValue"
-      ]
+      "required": ["sourceValue", "targetValue"]
     },
     "FlowVariable": {
       "type": "object",
@@ -14240,9 +13903,7 @@
           "$ref": "#/$defs/FlowElement"
         }
       ],
-      "required": [
-        "dataType"
-      ]
+      "required": ["dataType"]
     },
     "FlowVisibilityRule": {
       "type": "object",
@@ -14292,9 +13953,7 @@
           "$ref": "#/$defs/FlowNode"
         }
       ],
-      "required": [
-        "defaultConnectorLabel"
-      ]
+      "required": ["defaultConnectorLabel"]
     },
     "FlowWaitEvent": {
       "type": "object",
@@ -15566,11 +15225,7 @@
         },
         "interactionType": {
           "type": "string",
-          "enum": [
-            "EmailResponse",
-            "SmsResponse",
-            "WhatsappResponse"
-          ]
+          "enum": ["EmailResponse", "SmsResponse", "WhatsappResponse"]
         },
         "label": {
           "type": "string"
@@ -15586,13 +15241,7 @@
         },
         "offsetUnit": {
           "type": "string",
-          "enum": [
-            "Hours",
-            "Days",
-            "Minutes",
-            "Months",
-            "Weeks"
-          ]
+          "enum": ["Hours", "Days", "Minutes", "Months", "Weeks"]
         },
         "outputParameters": {
           "type": "array",
@@ -15602,13 +15251,7 @@
         },
         "recordTriggerType": {
           "type": "string",
-          "enum": [
-            "Update",
-            "Create",
-            "CreateAndUpdate",
-            "Delete",
-            "None"
-          ]
+          "enum": ["Update", "Create", "CreateAndUpdate", "Delete", "None"]
         },
         "resumeDate": {
           "type": "string"
@@ -15627,9 +15270,7 @@
           "$ref": "#/$defs/FlowElement"
         }
       ],
-      "required": [
-        "label"
-      ]
+      "required": ["label"]
     },
     "FlowWaitEventInputParameter": {
       "type": "object",
@@ -15664,10 +15305,7 @@
           "$ref": "#/$defs/FlowBaseElement"
         }
       ],
-      "required": [
-        "assignToReference",
-        "name"
-      ]
+      "required": ["assignToReference", "name"]
     }
   },
   "x-salesforce-api-version": "66.0",

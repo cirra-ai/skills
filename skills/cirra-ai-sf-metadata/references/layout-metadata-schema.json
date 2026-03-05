@@ -40,10 +40,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "assetType",
-        "devName"
-      ]
+      "required": ["assetType", "devName"]
     },
     "Container": {
       "type": "object",
@@ -74,12 +71,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "isContainerAutoSizeEnabled",
-        "region",
-        "style",
-        "unit"
-      ]
+      "required": ["isContainerAutoSizeEnabled", "region", "style", "unit"]
     },
     "CustomConsoleComponents": {
       "type": "object",
@@ -104,11 +96,7 @@
         },
         "feedFilterPosition": {
           "type": "string",
-          "enum": [
-            "CenterDropDown",
-            "LeftFixed",
-            "LeftFloat"
-          ]
+          "enum": ["CenterDropDown", "LeftFixed", "LeftFloat"]
         },
         "feedFilters": {
           "type": "array",
@@ -168,9 +156,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "componentType"
-      ]
+      "required": ["componentType"]
     },
     "FeedLayoutFilter": {
       "type": "object",
@@ -180,11 +166,7 @@
         },
         "feedFilterType": {
           "type": "string",
-          "enum": [
-            "AllUpdates",
-            "FeedItemType",
-            "Custom"
-          ]
+          "enum": ["AllUpdates", "FeedItemType", "Custom"]
         },
         "feedItemType": {
           "type": "string",
@@ -222,9 +204,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "feedFilterType"
-      ]
+      "required": ["feedFilterType"]
     },
     "Layout": {
       "type": "object",
@@ -254,10 +234,7 @@
           "type": "array",
           "items": {
             "type": "string",
-            "enum": [
-              "PersonalTagging",
-              "PublicTagging"
-            ]
+            "enum": ["PersonalTagging", "PublicTagging"]
           }
         },
         "layoutSections": {
@@ -349,11 +326,7 @@
         },
         "behavior": {
           "type": "string",
-          "enum": [
-            "Edit",
-            "Required",
-            "Readonly"
-          ]
+          "enum": ["Edit", "Required", "Readonly"]
         },
         "canvas": {
           "type": "string"
@@ -417,18 +390,11 @@
         },
         "style": {
           "type": "string",
-          "enum": [
-            "TwoColumnsTopToBottom",
-            "TwoColumnsLeftToRight",
-            "OneColumn",
-            "CustomLinks"
-          ]
+          "enum": ["TwoColumnsTopToBottom", "TwoColumnsLeftToRight", "OneColumn", "CustomLinks"]
         }
       },
       "additionalProperties": true,
-      "required": [
-        "style"
-      ]
+      "required": ["style"]
     },
     "LayoutSectionTranslation": {
       "type": "object",
@@ -441,10 +407,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "label",
-        "section"
-      ]
+      "required": ["label", "section"]
     },
     "LayoutTranslation": {
       "type": "object",
@@ -463,9 +426,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "layout"
-      ]
+      "required": ["layout"]
     },
     "MiniLayout": {
       "type": "object",
@@ -523,9 +484,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "actionListContext"
-      ]
+      "required": ["actionListContext"]
     },
     "PlatformActionListItem": {
       "type": "object",
@@ -552,11 +511,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "actionName",
-        "actionType",
-        "sortOrder"
-      ]
+      "required": ["actionName", "actionType", "sortOrder"]
     },
     "PrimaryTabComponents": {
       "type": "object",
@@ -590,9 +545,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "quickActionName"
-      ]
+      "required": ["quickActionName"]
     },
     "RelatedContent": {
       "type": "object",
@@ -614,9 +567,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "layoutItem"
-      ]
+      "required": ["layoutItem"]
     },
     "RelatedList": {
       "type": "object",
@@ -629,10 +580,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "hideOnDetail",
-        "name"
-      ]
+      "required": ["hideOnDetail", "name"]
     },
     "RelatedListItem": {
       "type": "object",
@@ -669,16 +617,11 @@
         },
         "sortOrder": {
           "type": "string",
-          "enum": [
-            "Asc",
-            "Desc"
-          ]
+          "enum": ["Asc", "Desc"]
         }
       },
       "additionalProperties": true,
-      "required": [
-        "relatedList"
-      ]
+      "required": ["relatedList"]
     },
     "ReportChartComponentLayoutItem": {
       "type": "object",
@@ -706,17 +649,11 @@
         },
         "size": {
           "type": "string",
-          "enum": [
-            "SMALL",
-            "MEDIUM",
-            "LARGE"
-          ]
+          "enum": ["SMALL", "MEDIUM", "LARGE"]
         }
       },
       "additionalProperties": true,
-      "required": [
-        "reportName"
-      ]
+      "required": ["reportName"]
     },
     "SidebarComponent": {
       "type": "object",
@@ -759,9 +696,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "componentType"
-      ]
+      "required": ["componentType"]
     },
     "SubtabComponents": {
       "type": "object",
@@ -813,11 +748,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "masterLabel",
-        "sizeX",
-        "summaryLayoutStyle"
-      ]
+      "required": ["masterLabel", "sizeX", "summaryLayoutStyle"]
     },
     "SummaryLayoutItem": {
       "type": "object",
@@ -839,9 +770,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "posX"
-      ]
+      "required": ["posX"]
     }
   },
   "x-salesforce-api-version": "66.0",

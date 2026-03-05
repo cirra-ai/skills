@@ -34,9 +34,7 @@
         }
       },
       "additionalProperties": true,
-      "required": [
-        "label"
-      ]
+      "required": ["label"]
     }
   },
   "x-salesforce-api-version": "66.0",
