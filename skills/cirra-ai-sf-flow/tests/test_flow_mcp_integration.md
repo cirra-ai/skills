@@ -14,6 +14,7 @@ Run interactively in a Claude Code session with MCP access.
 | 5   | Query flow status via Tooling API                                          | PASS   | 5 flows = Draft, 1 flow = InvalidDraft |
 | 6   | Fix InvalidDraft via metadata_update                                       | PASS   | Added triggerType=Scheduled            |
 | 7   | Verify fix — re-query status                                               | PASS   | All 6 flows now Draft                  |
+| 8   | Deploy flow with missing custom field (TEST_Invalid\_\_c)                  | PASS   | API accepted, Status = InvalidDraft    |
 
 ## Prerequisites
 
@@ -98,6 +99,40 @@ metadata_update(type="Flow", metadata=[{
 ## Step 7: Verify Fix
 
 Re-query and confirm all 6 flows are now `Draft`.
+
+## Step 8: Deploy Flow With Missing Custom Field (Negative Test)
+
+Deploy `TEST_Before_Lead_Missing_Field` — references `TEST_Invalid__c` which does NOT exist on Lead.
+
+```
+metadata_create(type="Flow", metadata=[{
+    "fullName": "TEST_Before_Lead_Missing_Field",
+    ...
+    "start": { "object": "Lead", "triggerType": "RecordBeforeSave", ... },
+    # assignments reference $Record.TEST_Invalid__c
+}])
+```
+
+Expected: API returns `success: true` (it accepts the flow), but:
+
+```
+tooling_api_query(sObject="Flow", fields=["Id", "Definition.DeveloperName", "Status"],
+    whereClause="Definition.DeveloperName = 'TEST_Before_Lead_Missing_Field'")
+```
+
+Result: `Status: "InvalidDraft"` — the field doesn't exist so the flow is broken.
+
+**Key insight**: The `check_deploy_readiness()` function with `org_fields` parameter
+catches this BEFORE deploying by promoting the custom field warning to an ERROR:
+
+```python
+# Pre-deploy check: get actual fields from org
+fields = sobject_describe(sObject="Lead")  # get field list
+result = check_deploy_readiness("flow.xml", org_fields=field_names)
+# result["ready"] == False, issues include "missing_custom_fields" ERROR
+```
+
+Clean up after test: `metadata_delete(type="Flow", fullNames=["TEST_Before_Lead_Missing_Field"])`
 
 ## Cleanup (Optional — Run After Review)
 

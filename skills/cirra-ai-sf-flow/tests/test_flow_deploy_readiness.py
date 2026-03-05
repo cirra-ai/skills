@@ -72,11 +72,42 @@ def _get_custom_field_refs(root: ET.Element) -> list[str]:
     return refs
 
 
+def _get_trigger_object(root: ET.Element) -> str | None:
+    """Extract the trigger object from a record-triggered flow."""
+    start = root.find("sf:start", _NS)
+    if start is not None:
+        obj = start.find("sf:object", _NS)
+        if obj is not None and obj.text:
+            return obj.text.strip()
+    return None
+
+
+def _extract_field_names_from_refs(refs: list[str]) -> list[str]:
+    """Extract bare field API names from $Record.Field__c style references."""
+    fields = []
+    for ref in refs:
+        # Handle $Record.Field__c pattern
+        if "." in ref:
+            field = ref.rsplit(".", 1)[-1]
+        else:
+            field = ref
+        if field.endswith("__c") and field not in fields:
+            fields.append(field)
+    return fields
+
+
 # -- deployment readiness checks (derived from live MCP testing) --------------
 
 
-def check_deploy_readiness(path: str) -> dict:
+def check_deploy_readiness(path: str, org_fields: list[str] | None = None) -> dict:
     """Run deployment-readiness checks against a flow XML file.
+
+    Args:
+        path: Path to a .flow-meta.xml file.
+        org_fields: Optional list of field API names that exist on the trigger
+            object in the target org.  When provided, custom field references
+            are checked against this list — missing fields are promoted from
+            WARN to ERROR.
 
     Returns dict with:
       - ready: bool (True = will deploy as Draft, not InvalidDraft)
@@ -109,17 +140,42 @@ def check_deploy_readiness(path: str) -> dict:
             ),
         })
 
-    # Check 3: Warn about custom field references (org-dependent)
+    # Check 3: Custom field references — warn or error depending on org_fields
     custom_refs = _get_custom_field_refs(root)
     if custom_refs:
-        issues.append({
-            "severity": "WARN",
-            "check": "custom_field_references",
-            "message": (
-                f"Flow references custom fields: {custom_refs}. "
-                "These must exist in the target org or activation will fail."
-            ),
-        })
+        field_names = _extract_field_names_from_refs(custom_refs)
+        if org_fields is not None:
+            org_fields_set = set(org_fields)
+            missing = [f for f in field_names if f not in org_fields_set]
+            present = [f for f in field_names if f in org_fields_set]
+            if missing:
+                issues.append({
+                    "severity": "ERROR",
+                    "check": "missing_custom_fields",
+                    "message": (
+                        f"Flow references custom fields that do NOT exist "
+                        f"on the target object: {missing}. "
+                        "Create these fields before deploying the flow."
+                    ),
+                })
+            if present:
+                issues.append({
+                    "severity": "INFO",
+                    "check": "custom_field_references",
+                    "message": (
+                        f"Flow references custom fields (verified present): "
+                        f"{present}."
+                    ),
+                })
+        else:
+            issues.append({
+                "severity": "WARN",
+                "check": "custom_field_references",
+                "message": (
+                    f"Flow references custom fields: {custom_refs}. "
+                    "These must exist in the target org or activation will fail."
+                ),
+            })
 
     # Check 4: Record-triggered flows must have triggerType
     start = root.find("sf:start", _NS)
@@ -373,3 +429,35 @@ class TestDeploymentRegressions:
             assert "custom_field_references" in checks
         finally:
             os.unlink(tmp)
+
+    def test_missing_field_detected_with_org_fields(self):
+        """When org_fields is provided, missing custom fields become ERROR."""
+        r = check_deploy_readiness(
+            os.path.join(FIXTURES_DIR, "before_save_missing_field.flow-meta.xml"),
+            org_fields=["AnnualRevenue", "Name", "Status"],  # no TEST_Invalid__c
+        )
+        assert not r["ready"]
+        checks = [i["check"] for i in r["issues"]]
+        assert "missing_custom_fields" in checks
+        # Verify the missing field name is in the message
+        missing_issue = next(i for i in r["issues"] if i["check"] == "missing_custom_fields")
+        assert "TEST_Invalid__c" in missing_issue["message"]
+
+    def test_present_field_not_flagged_as_error(self):
+        """When org_fields confirms a field exists, it should NOT be an error."""
+        r = check_deploy_readiness(
+            os.path.join(FIXTURES_DIR, "perfect_before_save.flow-meta.xml"),
+            org_fields=["TEST_Priority__c", "AnnualRevenue", "Name"],
+        )
+        assert r["ready"]
+        checks = [i["check"] for i in r["issues"]]
+        assert "missing_custom_fields" not in checks
+
+    def test_missing_field_without_org_fields_is_warn(self):
+        """Without org_fields, custom field refs are WARN only (not blocking)."""
+        r = check_deploy_readiness(
+            os.path.join(FIXTURES_DIR, "before_save_missing_field.flow-meta.xml"),
+        )
+        assert r["ready"]  # WARN doesn't block
+        checks = [i["check"] for i in r["issues"]]
+        assert "custom_field_references" in checks
