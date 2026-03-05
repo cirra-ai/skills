@@ -1,5 +1,6 @@
 target-version = "py311"
 line-length = 100
+exclude = ["audit_output"]
 
 [lint]
 select = [

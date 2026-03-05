@@ -1,0 +1,205 @@
+{
+  "SDO_Service_MIAW_Omni_Flow": {
+    "processType": "RoutingFlow",
+    "description": "Runs when Enhanced Messaging Sessions are created based on Messaging Settings channel configuration.",
+    "id": "301Kh000000V4DlIAK"
+  },
+  "SDO_Sales_MIAW_Omni_Flow": {
+    "processType": "RoutingFlow",
+    "description": "",
+    "id": "301Kh000000V4DqIAK"
+  },
+  "SDO_Service_LunaBot_TransfertoQueue": {
+    "processType": "RoutingFlow",
+    "description": "Transfer a Messaging Session from an Enhanced Bot to a Queue with Screen Pop.",
+    "id": "301Kh000000V4DrIAK"
+  },
+  "SDO_Service_Case_Closed_Triggered_Outbound_Message": {
+    "processType": "AutoLaunchedFlow",
+    "description": "",
+    "id": "301Kh000000V4DvIAK"
+  },
+  "SDO_Service_OmniSupervisor_Add_Absence": {
+    "processType": "Flow",
+    "description": "",
+    "id": "301Kh000000V4E0IAK"
+  },
+  "SDO_Service_OmniSupervisor_Assign_to_Me": {
+    "processType": "Flow",
+    "description": "Reassigns the passed in records to the current user (who invoked the flow).",
+    "id": "301Kh000000V4E1IAK"
+  },
+  "SDO_Service_OmniSupervisor_Create_Demo_Cases": {
+    "processType": "Flow",
+    "description": "Generate cases and assigns them to the selected queue(s)",
+    "id": "301Kh000000V4E2IAK"
+  },
+  "SDO_Service_OmniSupervisor_Reassign_All_Work": {
+    "processType": "Flow",
+    "description": "Supervisor Action to reassign all work in a queue or queues",
+    "id": "301Kh000000V4E3IAK"
+  },
+  "SDO_Service_OmniSupervisor_Reassign_Work": {
+    "processType": "Flow",
+    "description": "Supervisor Action to reassign work",
+    "id": "301Kh000000V4E4IAK"
+  },
+  "SDO_Service_OmniSupervisor_Reset_Password": {
+    "processType": "Flow",
+    "description": "An action which can be put on the Omni-Supervisor screen and used to reset the password of selected Users",
+    "id": "301Kh000000V4E5IAK"
+  },
+  "SDO_Service_OmniSupervisor_Send_Notification": {
+    "processType": "Flow",
+    "description": "Sends a Custom Notification to Users with the typed message",
+    "id": "301Kh000000V4E6IAK"
+  },
+  "SDO_Service_OmniSupervisor_Update_Capacity": {
+    "processType": "Flow",
+    "description": "Assigns the selected user a Presence Config with the appropriate capacity, or creates a new one if no such presence config exists by cloning the 'default_presence_config' presence status and updating the capacity",
+    "id": "301Kh000000V4E7IAK"
+  },
+  "SDO_Service_OmniSupervisor_Update_Priority": {
+    "processType": "Flow",
+    "description": "Supervisor action to update the priority of cases in the backlog",
+    "id": "301Kh000000V4E8IAK"
+  },
+  "Approve_Time_Sheet_Entries": {
+    "processType": "Flow",
+    "description": "",
+    "id": "301Kh000000V4EAIA0"
+  },
+  "Approve_Time_Sheets": { "processType": "Flow", "description": "", "id": "301Kh000000V4EBIA0" },
+  "Create_TSE_SA_Entry": {
+    "processType": "FieldServiceMobile",
+    "description": "Creates or updates a time sheet entry and associates it with a work order or work order line item when a field service resource reaches the appointment location.",
+    "id": "301Kh000000V4ECIA0"
+  },
+  "Create_TSE_SA_Exit": {
+    "processType": "FieldServiceMobile",
+    "description": "",
+    "id": "301Kh000000V4EDIA0"
+  },
+  "Reject_Time_Sheets": { "processType": "Flow", "description": "", "id": "301Kh000000V4EEIA0" },
+  "Reject_Time_Sheets_Entries": {
+    "processType": "Flow",
+    "description": "",
+    "id": "301Kh000000V4EFIA0"
+  },
+  "SDO_SFS_Add_to_Campaign": {
+    "processType": "FieldServiceMobile",
+    "description": "",
+    "id": "301Kh000000V4EGIA0"
+  },
+  "SDO_SFS_Create_WOLIs_For_SPR": {
+    "processType": "AutoLaunchedFlow",
+    "description": "",
+    "id": "301Kh000000V4EHIA0"
+  },
+  "SDO_SFS_Replenish_Inventory": {
+    "processType": "Flow",
+    "description": "",
+    "id": "301Kh000000V4EIIA0"
+  },
+  "SDO_SFS_WOE": {
+    "processType": "Flow",
+    "description": "This is a Screen Flow.\nThis flow is used to create a work order estimation, including asset details, service contracts, warranties, and products required.",
+    "id": "301Kh000000V4EJIA0"
+  },
+  "Calculate_Promotions": {
+    "processType": "CheckoutFlow",
+    "description": "",
+    "id": "301Kh000001C9QfIAK"
+  },
+  "Checkout_Main_Checkout": {
+    "processType": "CheckoutFlow",
+    "description": "Most of the logic for the checkout lives in this flow.",
+    "id": "301Kh000001C9QgIAK"
+  },
+  "Checkout_Main_with_Salesforce_Pricing_and_Promotions": {
+    "processType": "CheckoutFlow",
+    "description": "The primary checkout. This version includes standard pricing and promotions.",
+    "id": "301Kh000001C9QhIAK"
+  },
+  "Checkout_Subflow_Calculate_Promotions": {
+    "processType": "CheckoutFlow",
+    "description": "This runs the standard promotion integration.",
+    "id": "301Kh000001C9QiIAK"
+  },
+  "Checkout_Subflow_Confirm_Price": {
+    "processType": "CheckoutFlow",
+    "description": "This runs the standard pricing integration.",
+    "id": "301Kh000001C9QjIAK"
+  },
+  "Checkout_Subflow_Error": {
+    "processType": "CheckoutFlow",
+    "description": "",
+    "id": "301Kh000001C9QkIAK"
+  },
+  "SDO_B2BCommerce_Abandoned_Cart_Flow": {
+    "processType": "Flow",
+    "description": "",
+    "id": "301Kh000001C9QlIAK"
+  },
+  "SDO_B2BCommerce_Cirrus_Checkout_Enhanced": {
+    "processType": "CheckoutFlow",
+    "description": "B2B commerce Checkout Enhanced Flow",
+    "id": "301Kh000001C9QmIAK"
+  },
+  "SDO_B2BCommerce_Subflow_Checkout_Summary_Enhanced": {
+    "processType": "CheckoutFlow",
+    "description": "",
+    "id": "301Kh000001C9QnIAK"
+  },
+  "SDO_B2BCommerce_Subflow_Custom_Cart_Validation": {
+    "processType": "CheckoutFlow",
+    "description": "",
+    "id": "301Kh000001C9QoIAK"
+  },
+  "SDO_B2BCommerce_Subflow_Payment_and_Billing_Address_Enhanced": {
+    "processType": "CheckoutFlow",
+    "description": "Includes a stage indicator",
+    "id": "301Kh000001C9QpIAK"
+  },
+  "SDO_B2BCommerce_Subflow_Shipping_Address_and_Delivery_Date": {
+    "processType": "CheckoutFlow",
+    "description": "Includes delivery date picker and stage indicator",
+    "id": "301Kh000001C9QqIAK"
+  },
+  "SDO_B2BCommerce_Update_Cart_Custom_Error": {
+    "processType": "Flow",
+    "description": "",
+    "id": "301Kh000001C9QrIAK"
+  },
+  "SDO_B2BCommerce_Update_Contact_in_Order": {
+    "processType": "Workflow",
+    "description": "B2BLE Update Contact in Order",
+    "id": "301Kh000001C9QsIAK"
+  },
+  "Subflow_B2B_Checkout_One_Screen_Activate_Managed_Order": {
+    "processType": "Flow",
+    "description": "Update Order Product Summary Names",
+    "id": "301Kh000001C9QuIAK"
+  },
+  "Subflow_B2B_Checkout_Calculate_Promotions": {
+    "processType": "CheckoutFlow",
+    "description": "",
+    "id": "301Kh000001C9QvIAK"
+  },
+  "sfdc_Checkout_Notify_On_Order_Summary_Created_Event": {
+    "processType": "CustomEvent",
+    "description": "",
+    "id": "301Kh000001C9QwIAK"
+  },
+  "sfdc_Checkout_Order_Summary_Notification_Flow": {
+    "processType": "AutoLaunchedFlow",
+    "description": "",
+    "id": "301Kh000001C9QxIAK"
+  },
+  "SDO_Service_Swarming": { "processType": "Flow", "description": "", "id": "301Kh000001C9QyIAK" },
+  "SDO_Slack_Dispatch_Flow_send_screen_when_Swarm_closes": {
+    "processType": "AutoLaunchedFlow",
+    "description": "Dispatches screen",
+    "id": "301Kh000001C9QzIAK"
+  }
+}

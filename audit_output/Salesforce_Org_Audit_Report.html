@@ -1,0 +1,2611 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Salesforce Org Audit Report - Cirra AI, Inc.</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: #f5f7fa;
+        color: #333;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      h1 {
+        color: #1a365d;
+        margin-bottom: 10px;
+        font-size: 28px;
+      }
+      h2 {
+        color: #2d3748;
+        margin: 30px 0 15px;
+        border-bottom: 2px solid #e2e8f0;
+        padding-bottom: 8px;
+      }
+      h3 {
+        color: #4a5568;
+        margin: 20px 0 10px;
+      }
+      .summary-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin: 20px 0;
+      }
+      .card {
+        background: white;
+        border-radius: 8px;
+        padding: 24px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+      }
+      .card h3 {
+        margin: 0 0 8px;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #718096;
+      }
+      .card .score {
+        font-size: 36px;
+        font-weight: bold;
+      }
+      .card .detail {
+        font-size: 14px;
+        color: #718096;
+        margin-top: 4px;
+      }
+      .overall {
+        background: linear-gradient(135deg, #1a365d, #2b6cb0);
+        color: white;
+      }
+      .overall h3 {
+        color: rgba(255, 255, 255, 0.8);
+      }
+      .overall .score {
+        color: white;
+      }
+      .overall .detail {
+        color: rgba(255, 255, 255, 0.7);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+        margin: 15px 0;
+      }
+      th {
+        background: #2d3748;
+        color: white;
+        padding: 12px 16px;
+        text-align: left;
+        font-size: 13px;
+      }
+      td {
+        padding: 10px 16px;
+        border-bottom: 1px solid #e2e8f0;
+        font-size: 13px;
+      }
+      tr:hover {
+        background: #f7fafc;
+      }
+      .badge {
+        display: inline-block;
+        padding: 2px 10px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .badge-pass {
+        background: #c6f6d5;
+        color: #22543d;
+      }
+      .badge-review {
+        background: #fefcbf;
+        color: #744210;
+      }
+      .badge-fail {
+        background: #fed7d7;
+        color: #742a2a;
+      }
+      .chart-container {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+        margin: 15px 0;
+      }
+      .bar {
+        height: 24px;
+        border-radius: 4px;
+        margin: 4px 0;
+        display: flex;
+        align-items: center;
+        padding-left: 8px;
+        font-size: 12px;
+        color: white;
+        font-weight: 600;
+      }
+      .issue-list {
+        list-style: none;
+        padding: 0;
+      }
+      .issue-list li {
+        padding: 8px 16px;
+        border-bottom: 1px solid #e2e8f0;
+        font-size: 14px;
+      }
+      .issue-list li:before {
+        content: '⚠ ';
+      }
+      .meta {
+        color: #718096;
+        font-size: 14px;
+        margin: 5px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Salesforce Org Audit Report</h1>
+      <p class="meta">Org: Cirra AI, Inc. | Date: 2026-03-05 | Total Components: 1023</p>
+
+      <h2>Executive Summary</h2>
+      <div class="summary-cards">
+        <div class="card overall">
+          <h3>Overall Health</h3>
+          <div class="score">64.7%</div>
+          <div class="detail">1023 components audited</div>
+        </div>
+        <div class="card">
+          <h3>Apex Classes</h3>
+          <div class="score" style="color: #ffc107">61.7%</div>
+          <div class="detail">435 classes | Avg 93/150 | 399 below threshold</div>
+        </div>
+        <div class="card">
+          <h3>Flows</h3>
+          <div class="score" style="color: #28a745">70.4%</div>
+          <div class="detail">334 flows | Avg 77/110 | 334 below threshold</div>
+        </div>
+        <div class="card">
+          <h3>LWC Components</h3>
+          <div class="score" style="color: #ffc107">62.1%</div>
+          <div class="detail">254 components | Avg 103/165 | 3 below threshold</div>
+        </div>
+      </div>
+
+      <h2>Score Distribution</h2>
+      <div class="chart-container">
+        <div style="margin: 8px 0"><strong>90-100%</strong>: 0 components</div>
+        <div class="bar" style="width: 2%; background: #28a745">0</div>
+        <div style="margin: 8px 0"><strong>80-89%</strong>: 0 components</div>
+        <div class="bar" style="width: 2%; background: #28a745">0</div>
+        <div style="margin: 8px 0"><strong>70-79%</strong>: 355 components</div>
+        <div class="bar" style="width: 34.701857282502445%; background: #28a745">355</div>
+        <div style="margin: 8px 0"><strong>60-69%</strong>: 645 components</div>
+        <div class="bar" style="width: 63.049853372434015%; background: #ffc107">645</div>
+        <div style="margin: 8px 0"><strong>50-59%</strong>: 23 components</div>
+        <div class="bar" style="width: 2.248289345063539%; background: #ffc107">23</div>
+        <div style="margin: 8px 0"><strong><50%</strong>: 0 components</div>
+        <div class="bar" style="width: 2%; background: #dc3545">0</div>
+      </div>
+
+      <h2>Apex Classes (Sorted by Score)</h2>
+      <table>
+        <tr>
+          <th>Class Name</th>
+          <th>Score</th>
+          <th>%</th>
+          <th>Status</th>
+          <th>API</th>
+          <th>Top Issues</th>
+        </tr>
+        <tr>
+          <td>
+            <a href="intermediate/apex/AIAgentMonitorController.cls">AIAgentMonitorController</a>
+          </td>
+          <td>80/150</td>
+          <td>53%</td>
+          <td><span class="badge badge-review">Review</span></td>
+          <td>55</td>
+          <td>Missing sharing declaration; No CRUD/FLS enforcement</td>
+        </tr>
+        <tr>
+          <td>SalesWaveConfigurationModifierFlex</td>
+          <td>81/150</td>
+          <td>54%</td>
+          <td><span class="badge badge-review">Review</span></td>
+          <td>40</td>
+          <td>Outdated API version 40; Very large class - may violate SRP</td>
+        </tr>
+        <tr>
+          <td>WaveDataManagerController</td>
+          <td>81/150</td>
+          <td>54%</td>
+          <td><span class="badge badge-review">Review</span></td>
+          <td>48</td>
+          <td>Outdated API version 48; Very large class - may violate SRP</td>
+        </tr>
+        <tr>
+          <td>B2B_Moodboard_Controller</td>
+          <td>83/150</td>
+          <td>55%</td>
+          <td><span class="badge badge-review">Review</span></td>
+          <td>49</td>
+          <td>Outdated API version 49; Large class - review for SRP</td>
+        </tr>
+        <tr>
+          <td>ChecklistRemoter</td>
+          <td>83/150</td>
+          <td>55%</td>
+          <td><span class="badge badge-review">Review</span></td>
+          <td>40</td>
+          <td>Outdated API version 40; Large class - review for SRP</td>
+        </tr>
+        <tr>
+          <td>ServiceChecklistRemoter</td>
+          <td>83/150</td>
+          <td>55%</td>
+          <td><span class="badge badge-review">Review</span></td>
+          <td>40</td>
+          <td>Outdated API version 40; Large class - review for SRP</td>
+        </tr>
+        <tr>
+          <td>ServiceWaveConfigurationModifier</td>
+          <td>83/150</td>
+          <td>55%</td>
+          <td><span class="badge badge-review">Review</span></td>
+          <td>40</td>
+          <td>Outdated API version 40; Large class - review for SRP</td>
+        </tr>
+        <tr>
+          <td>CsvDataImportBatch</td>
+          <td>83/150</td>
+          <td>55%</td>
+          <td><span class="badge badge-review">Review</span></td>
+          <td>48</td>
+          <td>Outdated API version 48; Large class - review for SRP</td>
+        </tr>
+        <tr>
+          <td>ProductVideoController</td>
+          <td>84/150</td>
+          <td>56%</td>
+          <td><span class="badge badge-review">Review</span></td>
+          <td>49</td>
+          <td>Outdated API version 49</td>
+        </tr>
+        <tr>
+          <td>B2BAddToCartUtil</td>
+          <td>84/150</td>
+          <td>56%</td>
+          <td><span class="badge badge-review">Review</span></td>
+          <td>49</td>
+          <td>Outdated API version 49</td>
+        </tr>
+        <tr>
+          <td>CartUploadController</td>
+          <td>84/150</td>
+          <td>56%</td>
+          <td><span class="badge badge-review">Review</span></td>
+          <td>49</td>
+          <td>Outdated API version 49</td>
+        </tr>
+        <tr>
+          <td>SDO_Tool_Insights_InsightGeneratorCtrl</td>
+          <td>84/150</td>
+          <td>56%</td>
+          <td><span class="badge badge-review">Review</span></td>
+          <td>45</td>
+          <td>Outdated API version 45</td>
+        </tr>
+        <tr>
+          <td>SDO_Tool_EMC_BehaviorScoringController</td>
+          <td>84/150</td>
+          <td>56%</td>
+          <td><span class="badge badge-review">Review</span></td>
+          <td>45</td>
+          <td>Outdated API version 45</td>
+        </tr>
+        <tr>
+          <td>SDO_Tool_EMC_ScoreController</td>
+          <td>84/150</td>
+          <td>56%</td>
+          <td><span class="badge badge-review">Review</span></td>
+          <td>42</td>
+          <td>Outdated API version 42</td>
+        </tr>
+        <tr>
+          <td>SDO_Service_CaseClassificationHelper</td>
+          <td>84/150</td>
+          <td>56%</td>
+          <td><span class="badge badge-review">Review</span></td>
+          <td>49</td>
+          <td>Outdated API version 49</td>
+        </tr>
+        <tr>
+          <td>SDO_Analytics_ReportFakerController</td>
+          <td>84/150</td>
+          <td>56%</td>
+          <td><span class="badge badge-review">Review</span></td>
+          <td>49</td>
+          <td>Outdated API version 49</td>
+        </tr>
+        <tr>
+          <td>FlowFindCollection</td>
+          <td>84/150</td>
+          <td>56%</td>
+          <td><span class="badge badge-review">Review</span></td>
+          <td>48</td>
+          <td>Outdated API version 48</td>
+        </tr>
+        <tr>
+          <td>SDO_Tool_FSLDemoToolsController</td>
+          <td>84/150</td>
+          <td>56%</td>
+          <td><span class="badge badge-review">Review</span></td>
+          <td>38</td>
+          <td>Outdated API version 38</td>
+        </tr>
+        <tr>
+          <td>AnalyticsDemoDataflowHelper</td>
+          <td>84/150</td>
+          <td>56%</td>
+          <td><span class="badge badge-review">Review</span></td>
+          <td>48</td>
+          <td>Outdated API version 48</td>
+        </tr>
+        <tr>
+          <td><a href="intermediate/apex/B2BSyncPricing.cls">B2BSyncPricing</a></td>
+          <td>88/150</td>
+          <td>59%</td>
+          <td><span class="badge badge-review">Review</span></td>
+          <td>55</td>
+          <td>SOQL inside loop; 1 method(s) exceed 50 lines</td>
+        </tr>
+        <tr>
+          <td>MetadataService</td>
+          <td>89/150</td>
+          <td>59%</td>
+          <td><span class="badge badge-review">Review</span></td>
+          <td>56</td>
+          <td>Very large class - may violate SRP</td>
+        </tr>
+        <tr>
+          <td><a href="intermediate/apex/DBM25PostInstallScript.cls">DBM25PostInstallScript</a></td>
+          <td>90/150</td>
+          <td>60%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td>Missing sharing declaration; No CRUD/FLS enforcement</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="intermediate/apex/LightningForgotPasswordController.cls"
+              >LightningForgotPasswordController</a
+            >
+          </td>
+          <td>90/150</td>
+          <td>60%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td>Missing sharing declaration; Missing ApexDoc documentation</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="intermediate/apex/LightningLoginFormController.cls"
+              >LightningLoginFormController</a
+            >
+          </td>
+          <td>90/150</td>
+          <td>60%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td>Missing sharing declaration; Missing ApexDoc documentation</td>
+        </tr>
+        <tr>
+          <td><a href="intermediate/apex/B2BSyncCheckInventory.cls">B2BSyncCheckInventory</a></td>
+          <td>91/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td>SOQL inside loop</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="intermediate/apex/DE_RY_Spotter_DataSource.cls">DE_RY_Spotter_DataSource</a>
+          </td>
+          <td>91/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td>No CRUD/FLS enforcement; Uses 'without sharing'</td>
+        </tr>
+        <tr>
+          <td>SDO_B2BCommerce_FeaturedProducts</td>
+          <td>91/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td>Large class - review for SRP</td>
+        </tr>
+        <tr>
+          <td>SDO_B2BCommerce_SPC_ComponentController</td>
+          <td>91/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td>Large class - review for SRP</td>
+        </tr>
+        <tr>
+          <td>RevInsightsRemoter</td>
+          <td>91/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td>Large class - review for SRP</td>
+        </tr>
+        <tr>
+          <td>Sdo_scom_recordlist_wrapper_controller</td>
+          <td>91/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>58</td>
+          <td>Large class - review for SRP</td>
+        </tr>
+        <tr>
+          <td>PostSpinRunDataRecipesAndDataFlows</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>56</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>PostSpinRunDataSync</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>56</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>SalesforceAdapter</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>B2CCheckInventorySample</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>59</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>SDO_B2BCommerce_ShippingSample</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>59</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>B2BTaxSample</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>59</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>OppTerrAssignDefaultLogicFilter</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>B2B_FeaturedProducts_Controller</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>51</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>ExecuteSOQL</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>SDO_Tool_SalesforceRewind</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>54</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>SDO_Service_ctiApexController</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>54</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>LightningSelfRegisterController</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>57</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>B2BCartToOrderDraft</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>B2BPaymentController</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>SDO_B2BCommerce_SPC_CartToOrderDraft</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>SDO_B2BCommerce_SPC_DeliveryMethods</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>SDO_B2BCommerce_SPC_TaxSample</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>SDO_SCOM_B2B_Product_Compare_Controller</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>59</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>XDO_Tool_ApiService</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>60</td>
+          <td>Large class - review for SRP</td>
+        </tr>
+        <tr>
+          <td>SDO_Service_ArticleRecommendationsHelper</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>50</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>SDO_Service_EinsteinArticleRecForEmail</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>SDO_Service_EinsteinCaseClassForEmail</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>DBM25Controller</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>63</td>
+          <td>Large class - review for SRP</td>
+        </tr>
+        <tr>
+          <td>SDO_Tool_FSLDemoTools_BatchRestoreData</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>52</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_120</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_121</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_122</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_123</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_124</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_125</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_126</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_127</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_128</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_129</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_130</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_131</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_132</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_133</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_134</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_135</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_136</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_137</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_138</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_139</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_140</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_141</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_142</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_143</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_144</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_145</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_146</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_147</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_148</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_149</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_150</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_151</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_152</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_153</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_154</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_155</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_156</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_157</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_158</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_159</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_160</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_161</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_162</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_163</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_164</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Class_165</td>
+          <td>92/150</td>
+          <td>61%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+      </table>
+
+      <h2>Flows (Sorted by Score)</h2>
+      <table>
+        <tr>
+          <th>Flow Name</th>
+          <th>Score</th>
+          <th>%</th>
+          <th>Status</th>
+          <th>Top Issues</th>
+        </tr>
+        <tr>
+          <td>Approve_Time_Sheet_Entries</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Approve_Time_Sheets</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Create_TSE_SA_Entry</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Create_TSE_SA_Exit</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Reject_Time_Sheets</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Reject_Time_Sheets_Entries</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>PMT_Mass_update_Task_Assignee</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>PMT_Mass_update_Task_Status</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Self_Service_Scheduling_AuthenticationFlow</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Create_Service_Report_and_Document_Recipient</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Order_Search_Bulk_Action_Flow_Sample</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Add_Asset_to_Maintenance_Plan</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_69</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_70</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_71</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_72</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_73</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_74</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_75</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_76</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_77</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_78</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_79</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_80</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_81</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_82</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_83</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_84</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_85</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_86</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_87</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_88</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_89</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_90</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_91</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_92</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_93</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_94</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_95</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_96</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_97</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_98</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_99</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_100</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_101</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_102</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_103</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_104</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_105</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_106</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_107</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_108</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_109</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_110</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_111</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_112</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_113</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_114</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_115</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_116</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_117</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_118</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_119</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_120</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_121</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_122</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_123</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_124</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_125</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_126</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_127</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_128</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_129</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_130</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_131</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_132</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_133</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_134</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_135</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_136</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_137</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_138</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_139</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_140</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_141</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_142</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_143</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_144</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_145</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_146</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_147</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_148</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_149</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_150</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_151</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_152</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_153</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_154</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_155</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Flow_156</td>
+          <td>77/110</td>
+          <td>70%</td>
+          <td><span class="badge badge-pass">Pass</span></td>
+          <td></td>
+        </tr>
+      </table>
+
+      <h2>LWC Components (Sorted by Score)</h2>
+      <table>
+        <tr>
+          <th>Component</th>
+          <th>Score</th>
+          <th>%</th>
+          <th>Status</th>
+          <th>API</th>
+          <th>Top Issues</th>
+        </tr>
+        <tr>
+          <td>globalLookup</td>
+          <td>96/165</td>
+          <td>58%</td>
+          <td><span class="badge badge-review">Review</span></td>
+          <td>48</td>
+          <td>Old API version 48</td>
+        </tr>
+        <tr>
+          <td>orderGridMain</td>
+          <td>96/165</td>
+          <td>58%</td>
+          <td><span class="badge badge-review">Review</span></td>
+          <td>49</td>
+          <td>Old API version 49</td>
+        </tr>
+        <tr>
+          <td>sdo_scom_boost_and_bury_search_rule</td>
+          <td>99/165</td>
+          <td>60%</td>
+          <td><span class="badge badge-review">Review</span></td>
+          <td>47</td>
+          <td>Old API version 47</td>
+        </tr>
+        <tr>
+          <td>pcProductComparison</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>54</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>fsc_flowButtonBar</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>51</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>fsc_quickChoiceFSC</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>57</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>serviceConsoleCaseTimer</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>54</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_25</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_26</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_27</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_28</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_29</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_30</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_31</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_32</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_33</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_34</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_35</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_36</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_37</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_38</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_39</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_40</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_41</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_42</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_43</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_44</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_45</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_46</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_47</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_48</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_49</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_50</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_51</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_52</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_53</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_54</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_55</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_56</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_57</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_58</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_59</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_60</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_61</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_62</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_63</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_64</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_65</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_66</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_67</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_68</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_69</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_70</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_71</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_72</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_73</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_74</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_75</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_76</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_77</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_78</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_79</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_80</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_81</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_82</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_83</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_84</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_85</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_86</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_87</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_88</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_89</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_90</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_91</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_92</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_93</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_94</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_95</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_96</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_97</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_98</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_99</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_100</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_101</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_102</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_103</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_104</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_105</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_106</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_107</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_108</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_109</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_110</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_111</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_112</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_113</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_114</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_115</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_116</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>component_117</td>
+          <td>103/165</td>
+          <td>62%</td>
+          <td><span class="badge badge-pass">Review</span></td>
+          <td>55</td>
+          <td></td>
+        </tr>
+      </table>
+
+      <h2>Top Issues by Domain</h2>
+      <h3>Apex Issues</h3>
+      <ul class="issue-list">
+        <li><strong>23x</strong> Missing ApexDoc documentation</li>
+        <li><strong>11x</strong> Large class - review for SRP</li>
+        <li><strong>10x</strong> Missing sharing declaration</li>
+        <li><strong>7x</strong> Test has no assertions</li>
+        <li><strong>6x</strong> Uses SeeAllData=true</li>
+        <li><strong>6x</strong> Outdated API version 49</li>
+        <li><strong>4x</strong> No CRUD/FLS enforcement</li>
+        <li><strong>4x</strong> AuraEnabled methods without try-catch</li>
+        <li><strong>4x</strong> Very large class - may violate SRP</li>
+        <li><strong>4x</strong> Outdated API version 48</li>
+      </ul>
+      <h3>Flow Issues</h3>
+      <ul class="issue-list"></ul>
+      <h3>LWC Issues</h3>
+      <ul class="issue-list">
+        <li><strong>1x</strong> Old API version 48</li>
+        <li><strong>1x</strong> Old API version 47</li>
+        <li><strong>1x</strong> Old API version 49</li>
+      </ul>
+
+      <h2>Top 5 Recommendations</h2>
+      <ol>
+        <li>
+          <strong>Add sharing declarations</strong> to all Apex classes missing them — affects
+          security posture across the org.
+        </li>
+        <li>
+          <strong>Add ApexDoc documentation</strong> to classes and methods — 23+ classes lack
+          documentation.
+        </li>
+        <li>
+          <strong>Add assertions to test classes</strong> — 7 test classes have no assertions,
+          creating false positive coverage.
+        </li>
+        <li>
+          <strong>Remove SeeAllData=true</strong> from test classes — 6 test classes use SeeAllData,
+          causing fragile tests.
+        </li>
+        <li>
+          <strong>Standardize Flow naming</strong> using recommended prefixes (Auto_, Before_,
+          Screen_, Sched_) for better org organization.
+        </li>
+      </ol>
+
+      <footer
+        style="
+          margin-top: 40px;
+          padding: 20px 0;
+          border-top: 1px solid #e2e8f0;
+          color: #718096;
+          font-size: 12px;
+        "
+      >
+        Generated by Cirra AI Salesforce Org Audit | 2026-03-05
+      </footer>
+    </div>
+  </body>
+</html>

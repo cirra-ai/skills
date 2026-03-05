@@ -1,0 +1,1081 @@
+[
+  {
+    "name": "B2BPricingSampleTest",
+    "score": 112,
+    "maxScore": 150,
+    "pct": 75,
+    "apiVersion": 55,
+    "issues": [],
+    "categories": {
+      "bulkification": 20,
+      "security": 18,
+      "testing": 25,
+      "architecture": 14,
+      "cleanCode": 14,
+      "errorHandling": 10,
+      "performance": 7,
+      "documentation": 4
+    }
+  },
+  {
+    "name": "B2BSyncCheckInventory",
+    "score": 91,
+    "maxScore": 150,
+    "pct": 61,
+    "apiVersion": 55,
+    "issues": ["SOQL inside loop"],
+    "categories": {
+      "bulkification": 10,
+      "security": 22,
+      "testing": 15,
+      "architecture": 12,
+      "cleanCode": 14,
+      "errorHandling": 7,
+      "performance": 7,
+      "documentation": 4
+    }
+  },
+  {
+    "name": "B2BSyncCheckInventoryTest",
+    "score": 115,
+    "maxScore": 150,
+    "pct": 77,
+    "apiVersion": 55,
+    "issues": [],
+    "categories": {
+      "bulkification": 23,
+      "security": 18,
+      "testing": 25,
+      "architecture": 14,
+      "cleanCode": 14,
+      "errorHandling": 10,
+      "performance": 7,
+      "documentation": 4
+    }
+  },
+  {
+    "name": "B2BSyncDeliveryTest",
+    "score": 117,
+    "maxScore": 150,
+    "pct": 78,
+    "apiVersion": 55,
+    "issues": [],
+    "categories": {
+      "bulkification": 23,
+      "security": 18,
+      "testing": 25,
+      "architecture": 14,
+      "cleanCode": 16,
+      "errorHandling": 10,
+      "performance": 7,
+      "documentation": 4
+    }
+  },
+  {
+    "name": "B2BSyncPricing",
+    "score": 88,
+    "maxScore": 150,
+    "pct": 59,
+    "apiVersion": 55,
+    "issues": ["SOQL inside loop", "1 method(s) exceed 50 lines"],
+    "categories": {
+      "bulkification": 10,
+      "security": 22,
+      "testing": 15,
+      "architecture": 12,
+      "cleanCode": 11,
+      "errorHandling": 7,
+      "performance": 7,
+      "documentation": 4
+    }
+  },
+  {
+    "name": "B2BSyncPricingTest",
+    "score": 115,
+    "maxScore": 150,
+    "pct": 77,
+    "apiVersion": 55,
+    "issues": [],
+    "categories": {
+      "bulkification": 23,
+      "security": 18,
+      "testing": 25,
+      "architecture": 14,
+      "cleanCode": 14,
+      "errorHandling": 10,
+      "performance": 7,
+      "documentation": 4
+    }
+  },
+  {
+    "name": "B2BSyncTaxTest",
+    "score": 115,
+    "maxScore": 150,
+    "pct": 77,
+    "apiVersion": 55,
+    "issues": [],
+    "categories": {
+      "bulkification": 23,
+      "security": 18,
+      "testing": 25,
+      "architecture": 14,
+      "cleanCode": 14,
+      "errorHandling": 10,
+      "performance": 7,
+      "documentation": 4
+    }
+  },
+  {
+    "name": "B2BTaxSampleTest",
+    "score": 112,
+    "maxScore": 150,
+    "pct": 75,
+    "apiVersion": 55,
+    "issues": [],
+    "categories": {
+      "bulkification": 20,
+      "security": 18,
+      "testing": 25,
+      "architecture": 14,
+      "cleanCode": 14,
+      "errorHandling": 10,
+      "performance": 7,
+      "documentation": 4
+    }
+  },
+  {
+    "name": "B2B_FeaturedProducts_Util",
+    "score": 98,
+    "maxScore": 150,
+    "pct": 65,
+    "apiVersion": 51,
+    "issues": ["Missing ApexDoc documentation"],
+    "categories": {
+      "bulkification": 22,
+      "security": 19,
+      "testing": 15,
+      "architecture": 12,
+      "cleanCode": 16,
+      "errorHandling": 7,
+      "performance": 5,
+      "documentation": 2
+    }
+  },
+  {
+    "name": "B2B_FeaturedProducts_UtilTest",
+    "score": 99,
+    "maxScore": 150,
+    "pct": 66,
+    "apiVersion": 51,
+    "issues": ["Test has no assertions", "Missing ApexDoc documentation"],
+    "categories": {
+      "bulkification": 20,
+      "security": 18,
+      "testing": 12,
+      "architecture": 14,
+      "cleanCode": 16,
+      "errorHandling": 10,
+      "performance": 7,
+      "documentation": 2
+    }
+  },
+  {
+    "name": "AIAgentMonitorController",
+    "score": 80,
+    "maxScore": 150,
+    "pct": 53,
+    "apiVersion": 55,
+    "issues": [
+      "Missing sharing declaration",
+      "No CRUD/FLS enforcement",
+      "AuraEnabled methods without try-catch",
+      "Missing ApexDoc documentation"
+    ],
+    "categories": {
+      "bulkification": 22,
+      "security": 8,
+      "testing": 15,
+      "architecture": 10,
+      "cleanCode": 16,
+      "errorHandling": 2,
+      "performance": 5,
+      "documentation": 2
+    }
+  },
+  {
+    "name": "AnalyticsDemoFAQ",
+    "score": 106,
+    "maxScore": 150,
+    "pct": 71,
+    "apiVersion": 55,
+    "issues": [],
+    "categories": {
+      "bulkification": 20,
+      "security": 18,
+      "testing": 15,
+      "architecture": 14,
+      "cleanCode": 16,
+      "errorHandling": 10,
+      "performance": 7,
+      "documentation": 6
+    }
+  },
+  {
+    "name": "AutoCompleteControllerTest",
+    "score": 114,
+    "maxScore": 150,
+    "pct": 76,
+    "apiVersion": 55,
+    "issues": [],
+    "categories": {
+      "bulkification": 23,
+      "security": 18,
+      "testing": 22,
+      "architecture": 14,
+      "cleanCode": 16,
+      "errorHandling": 10,
+      "performance": 7,
+      "documentation": 4
+    }
+  },
+  {
+    "name": "B2BCartUpload_ProductSearchRestApiMock",
+    "score": 100,
+    "maxScore": 150,
+    "pct": 67,
+    "apiVersion": 55,
+    "issues": ["Test has no assertions", "Missing ApexDoc documentation"],
+    "categories": {
+      "bulkification": 23,
+      "security": 18,
+      "testing": 10,
+      "architecture": 14,
+      "cleanCode": 16,
+      "errorHandling": 10,
+      "performance": 7,
+      "documentation": 2
+    }
+  },
+  {
+    "name": "B2BInvUtils",
+    "score": 98,
+    "maxScore": 150,
+    "pct": 65,
+    "apiVersion": 55,
+    "issues": ["No CRUD/FLS enforcement", "AuraEnabled methods without try-catch"],
+    "categories": {
+      "bulkification": 25,
+      "security": 14,
+      "testing": 15,
+      "architecture": 10,
+      "cleanCode": 16,
+      "errorHandling": 2,
+      "performance": 7,
+      "documentation": 9
+    }
+  },
+  {
+    "name": "B2BInvUtilsTest",
+    "score": 97,
+    "maxScore": 150,
+    "pct": 65,
+    "apiVersion": 55,
+    "issues": ["Test has no assertions", "Missing ApexDoc documentation"],
+    "categories": {
+      "bulkification": 20,
+      "security": 18,
+      "testing": 10,
+      "architecture": 14,
+      "cleanCode": 16,
+      "errorHandling": 10,
+      "performance": 7,
+      "documentation": 2
+    }
+  },
+  {
+    "name": "B2BUtils",
+    "score": 110,
+    "maxScore": 150,
+    "pct": 73,
+    "apiVersion": 55,
+    "issues": [],
+    "categories": {
+      "bulkification": 22,
+      "security": 22,
+      "testing": 15,
+      "architecture": 12,
+      "cleanCode": 16,
+      "errorHandling": 7,
+      "performance": 7,
+      "documentation": 9
+    }
+  },
+  {
+    "name": "B2B_FeaturedProducts_SecurityUtils",
+    "score": 100,
+    "maxScore": 150,
+    "pct": 67,
+    "apiVersion": 55,
+    "issues": [],
+    "categories": {
+      "bulkification": 22,
+      "security": 19,
+      "testing": 15,
+      "architecture": 12,
+      "cleanCode": 16,
+      "errorHandling": 7,
+      "performance": 5,
+      "documentation": 4
+    }
+  },
+  {
+    "name": "B2B_Moodboard_ProductSearchRestApiMock",
+    "score": 100,
+    "maxScore": 150,
+    "pct": 67,
+    "apiVersion": 55,
+    "issues": ["Test has no assertions", "Missing ApexDoc documentation"],
+    "categories": {
+      "bulkification": 23,
+      "security": 18,
+      "testing": 10,
+      "architecture": 14,
+      "cleanCode": 16,
+      "errorHandling": 10,
+      "performance": 7,
+      "documentation": 2
+    }
+  },
+  {
+    "name": "B2B_Moodboard_Util",
+    "score": 98,
+    "maxScore": 150,
+    "pct": 65,
+    "apiVersion": 55,
+    "issues": ["Missing ApexDoc documentation"],
+    "categories": {
+      "bulkification": 22,
+      "security": 19,
+      "testing": 15,
+      "architecture": 12,
+      "cleanCode": 16,
+      "errorHandling": 7,
+      "performance": 5,
+      "documentation": 2
+    }
+  },
+  {
+    "name": "CartProductWrapper",
+    "score": 106,
+    "maxScore": 150,
+    "pct": 71,
+    "apiVersion": 55,
+    "issues": [],
+    "categories": {
+      "bulkification": 20,
+      "security": 18,
+      "testing": 15,
+      "architecture": 14,
+      "cleanCode": 16,
+      "errorHandling": 10,
+      "performance": 7,
+      "documentation": 6
+    }
+  },
+  {
+    "name": "CartSummaryWrapper",
+    "score": 106,
+    "maxScore": 150,
+    "pct": 71,
+    "apiVersion": 55,
+    "issues": [],
+    "categories": {
+      "bulkification": 20,
+      "security": 18,
+      "testing": 15,
+      "architecture": 14,
+      "cleanCode": 16,
+      "errorHandling": 10,
+      "performance": 7,
+      "documentation": 6
+    }
+  },
+  {
+    "name": "ChangePasswordController",
+    "score": 106,
+    "maxScore": 150,
+    "pct": 71,
+    "apiVersion": 55,
+    "issues": [],
+    "categories": {
+      "bulkification": 20,
+      "security": 18,
+      "testing": 15,
+      "architecture": 14,
+      "cleanCode": 16,
+      "errorHandling": 10,
+      "performance": 7,
+      "documentation": 6
+    }
+  },
+  {
+    "name": "ChangePasswordControllerTest",
+    "score": 104,
+    "maxScore": 150,
+    "pct": 69,
+    "apiVersion": 55,
+    "issues": ["Uses SeeAllData=true"],
+    "categories": {
+      "bulkification": 20,
+      "security": 18,
+      "testing": 13,
+      "architecture": 14,
+      "cleanCode": 16,
+      "errorHandling": 10,
+      "performance": 7,
+      "documentation": 6
+    }
+  },
+  {
+    "name": "ChartBuilderController",
+    "score": 102,
+    "maxScore": 150,
+    "pct": 68,
+    "apiVersion": 55,
+    "issues": ["Missing sharing declaration"],
+    "categories": {
+      "bulkification": 22,
+      "security": 13,
+      "testing": 15,
+      "architecture": 12,
+      "cleanCode": 16,
+      "errorHandling": 8,
+      "performance": 7,
+      "documentation": 9
+    }
+  },
+  {
+    "name": "ChartDataProvider",
+    "score": 94,
+    "maxScore": 150,
+    "pct": 63,
+    "apiVersion": 55,
+    "issues": ["Missing sharing declaration", "AuraEnabled methods without try-catch"],
+    "categories": {
+      "bulkification": 22,
+      "security": 13,
+      "testing": 15,
+      "architecture": 12,
+      "cleanCode": 16,
+      "errorHandling": 2,
+      "performance": 5,
+      "documentation": 9
+    }
+  },
+  {
+    "name": "ChartDataProviderTest",
+    "score": 111,
+    "maxScore": 150,
+    "pct": 74,
+    "apiVersion": 55,
+    "issues": ["Missing ApexDoc documentation"],
+    "categories": {
+      "bulkification": 23,
+      "security": 18,
+      "testing": 21,
+      "architecture": 14,
+      "cleanCode": 16,
+      "errorHandling": 10,
+      "performance": 7,
+      "documentation": 2
+    }
+  },
+  {
+    "name": "CommunitiesLandingController",
+    "score": 102,
+    "maxScore": 150,
+    "pct": 68,
+    "apiVersion": 55,
+    "issues": [],
+    "categories": {
+      "bulkification": 22,
+      "security": 19,
+      "testing": 15,
+      "architecture": 12,
+      "cleanCode": 16,
+      "errorHandling": 7,
+      "performance": 5,
+      "documentation": 6
+    }
+  },
+  {
+    "name": "CommunitiesLandingControllerTest",
+    "score": 104,
+    "maxScore": 150,
+    "pct": 69,
+    "apiVersion": 55,
+    "issues": ["Uses SeeAllData=true"],
+    "categories": {
+      "bulkification": 20,
+      "security": 18,
+      "testing": 13,
+      "architecture": 14,
+      "cleanCode": 16,
+      "errorHandling": 10,
+      "performance": 7,
+      "documentation": 6
+    }
+  },
+  {
+    "name": "CommunitiesLoginController",
+    "score": 102,
+    "maxScore": 150,
+    "pct": 68,
+    "apiVersion": 55,
+    "issues": [],
+    "categories": {
+      "bulkification": 22,
+      "security": 19,
+      "testing": 15,
+      "architecture": 12,
+      "cleanCode": 16,
+      "errorHandling": 7,
+      "performance": 5,
+      "documentation": 6
+    }
+  },
+  {
+    "name": "CommunitiesLoginControllerTest",
+    "score": 104,
+    "maxScore": 150,
+    "pct": 69,
+    "apiVersion": 55,
+    "issues": ["Uses SeeAllData=true"],
+    "categories": {
+      "bulkification": 20,
+      "security": 18,
+      "testing": 13,
+      "architecture": 14,
+      "cleanCode": 16,
+      "errorHandling": 10,
+      "performance": 7,
+      "documentation": 6
+    }
+  },
+  {
+    "name": "CommunitiesSelfRegConfirmController",
+    "score": 102,
+    "maxScore": 150,
+    "pct": 68,
+    "apiVersion": 55,
+    "issues": [],
+    "categories": {
+      "bulkification": 22,
+      "security": 19,
+      "testing": 15,
+      "architecture": 12,
+      "cleanCode": 16,
+      "errorHandling": 7,
+      "performance": 5,
+      "documentation": 6
+    }
+  },
+  {
+    "name": "CommunitiesSelfRegConfirmControllerTest",
+    "score": 98,
+    "maxScore": 150,
+    "pct": 65,
+    "apiVersion": 55,
+    "issues": ["Test has no assertions", "Uses SeeAllData=true"],
+    "categories": {
+      "bulkification": 20,
+      "security": 18,
+      "testing": 7,
+      "architecture": 14,
+      "cleanCode": 16,
+      "errorHandling": 10,
+      "performance": 7,
+      "documentation": 6
+    }
+  },
+  {
+    "name": "CommunitiesSelfRegControllerTest",
+    "score": 104,
+    "maxScore": 150,
+    "pct": 69,
+    "apiVersion": 55,
+    "issues": ["Uses SeeAllData=true"],
+    "categories": {
+      "bulkification": 20,
+      "security": 18,
+      "testing": 13,
+      "architecture": 14,
+      "cleanCode": 16,
+      "errorHandling": 10,
+      "performance": 7,
+      "documentation": 6
+    }
+  },
+  {
+    "name": "CompositeSmartLookup",
+    "score": 94,
+    "maxScore": 150,
+    "pct": 63,
+    "apiVersion": 55,
+    "issues": ["Missing sharing declaration"],
+    "categories": {
+      "bulkification": 22,
+      "security": 13,
+      "testing": 15,
+      "architecture": 12,
+      "cleanCode": 16,
+      "errorHandling": 7,
+      "performance": 5,
+      "documentation": 4
+    }
+  },
+  {
+    "name": "CreateObjectsAndFieldsQueueable",
+    "score": 98,
+    "maxScore": 150,
+    "pct": 65,
+    "apiVersion": 55,
+    "issues": ["1 method(s) exceed 50 lines", "Missing ApexDoc documentation"],
+    "categories": {
+      "bulkification": 22,
+      "security": 19,
+      "testing": 15,
+      "architecture": 15,
+      "cleanCode": 13,
+      "errorHandling": 7,
+      "performance": 5,
+      "documentation": 2
+    }
+  },
+  {
+    "name": "CreateRecordTypesQueueable",
+    "score": 101,
+    "maxScore": 150,
+    "pct": 67,
+    "apiVersion": 55,
+    "issues": ["Missing ApexDoc documentation"],
+    "categories": {
+      "bulkification": 22,
+      "security": 19,
+      "testing": 15,
+      "architecture": 15,
+      "cleanCode": 16,
+      "errorHandling": 7,
+      "performance": 5,
+      "documentation": 2
+    }
+  },
+  {
+    "name": "CSV_RowIterator",
+    "score": 104,
+    "maxScore": 150,
+    "pct": 69,
+    "apiVersion": 55,
+    "issues": ["Missing ApexDoc documentation"],
+    "categories": {
+      "bulkification": 25,
+      "security": 19,
+      "testing": 15,
+      "architecture": 15,
+      "cleanCode": 16,
+      "errorHandling": 7,
+      "performance": 5,
+      "documentation": 2
+    }
+  },
+  {
+    "name": "CustomDataProviderDataSourceProvider",
+    "score": 99,
+    "maxScore": 150,
+    "pct": 66,
+    "apiVersion": 55,
+    "issues": ["Missing sharing declaration"],
+    "categories": {
+      "bulkification": 22,
+      "security": 13,
+      "testing": 15,
+      "architecture": 12,
+      "cleanCode": 16,
+      "errorHandling": 7,
+      "performance": 5,
+      "documentation": 9
+    }
+  },
+  {
+    "name": "CustomDataProviderDataSourceProviderTest",
+    "score": 108,
+    "maxScore": 150,
+    "pct": 72,
+    "apiVersion": 55,
+    "issues": ["Missing ApexDoc documentation"],
+    "categories": {
+      "bulkification": 20,
+      "security": 18,
+      "testing": 21,
+      "architecture": 14,
+      "cleanCode": 16,
+      "errorHandling": 10,
+      "performance": 7,
+      "documentation": 2
+    }
+  },
+  {
+    "name": "CustomModalConfirmation",
+    "score": 106,
+    "maxScore": 150,
+    "pct": 71,
+    "apiVersion": 55,
+    "issues": [],
+    "categories": {
+      "bulkification": 20,
+      "security": 18,
+      "testing": 15,
+      "architecture": 14,
+      "cleanCode": 16,
+      "errorHandling": 10,
+      "performance": 7,
+      "documentation": 6
+    }
+  },
+  {
+    "name": "D2CLookupFieldsPickList",
+    "score": 94,
+    "maxScore": 150,
+    "pct": 63,
+    "apiVersion": 55,
+    "issues": ["Missing sharing declaration"],
+    "categories": {
+      "bulkification": 22,
+      "security": 13,
+      "testing": 15,
+      "architecture": 12,
+      "cleanCode": 16,
+      "errorHandling": 7,
+      "performance": 5,
+      "documentation": 4
+    }
+  },
+  {
+    "name": "DBM25PostInstallScript",
+    "score": 90,
+    "maxScore": 150,
+    "pct": 60,
+    "apiVersion": 55,
+    "issues": [
+      "Missing sharing declaration",
+      "No CRUD/FLS enforcement",
+      "Missing ApexDoc documentation"
+    ],
+    "categories": {
+      "bulkification": 22,
+      "security": 8,
+      "testing": 15,
+      "architecture": 15,
+      "cleanCode": 16,
+      "errorHandling": 7,
+      "performance": 5,
+      "documentation": 2
+    }
+  },
+  {
+    "name": "DECreateUpdateMetadataUtils",
+    "score": 95,
+    "maxScore": 150,
+    "pct": 63,
+    "apiVersion": 55,
+    "issues": ["Missing sharing declaration", "Missing ApexDoc documentation"],
+    "categories": {
+      "bulkification": 22,
+      "security": 13,
+      "testing": 15,
+      "architecture": 15,
+      "cleanCode": 16,
+      "errorHandling": 7,
+      "performance": 5,
+      "documentation": 2
+    }
+  },
+  {
+    "name": "DE_RY_Spotter_DataSource",
+    "score": 91,
+    "maxScore": 150,
+    "pct": 61,
+    "apiVersion": 55,
+    "issues": [
+      "No CRUD/FLS enforcement",
+      "Uses 'without sharing'",
+      "Missing ApexDoc documentation"
+    ],
+    "categories": {
+      "bulkification": 22,
+      "security": 12,
+      "testing": 15,
+      "architecture": 12,
+      "cleanCode": 16,
+      "errorHandling": 7,
+      "performance": 5,
+      "documentation": 2
+    }
+  },
+  {
+    "name": "ers_EncodeDecodeURL",
+    "score": 108,
+    "maxScore": 150,
+    "pct": 72,
+    "apiVersion": 55,
+    "issues": [],
+    "categories": {
+      "bulkification": 25,
+      "security": 19,
+      "testing": 15,
+      "architecture": 12,
+      "cleanCode": 16,
+      "errorHandling": 7,
+      "performance": 5,
+      "documentation": 9
+    }
+  },
+  {
+    "name": "ers_EncodeDecodeURLTest",
+    "score": 110,
+    "maxScore": 150,
+    "pct": 73,
+    "apiVersion": 55,
+    "issues": [],
+    "categories": {
+      "bulkification": 23,
+      "security": 18,
+      "testing": 16,
+      "architecture": 14,
+      "cleanCode": 16,
+      "errorHandling": 10,
+      "performance": 7,
+      "documentation": 6
+    }
+  },
+  {
+    "name": "ers_QueryNRecordsTest",
+    "score": 110,
+    "maxScore": 150,
+    "pct": 73,
+    "apiVersion": 55,
+    "issues": [],
+    "categories": {
+      "bulkification": 23,
+      "security": 18,
+      "testing": 16,
+      "architecture": 14,
+      "cleanCode": 16,
+      "errorHandling": 10,
+      "performance": 7,
+      "documentation": 6
+    }
+  },
+  {
+    "name": "FieldPickerControllerTest",
+    "score": 97,
+    "maxScore": 150,
+    "pct": 65,
+    "apiVersion": 55,
+    "issues": ["Test has no assertions", "Missing ApexDoc documentation"],
+    "categories": {
+      "bulkification": 20,
+      "security": 18,
+      "testing": 10,
+      "architecture": 14,
+      "cleanCode": 16,
+      "errorHandling": 10,
+      "performance": 7,
+      "documentation": 2
+    }
+  },
+  {
+    "name": "FlowFindCollection_WithoutSharing",
+    "score": 93,
+    "maxScore": 150,
+    "pct": 62,
+    "apiVersion": 55,
+    "issues": [
+      "Dynamic SOQL without escapeSingleQuotes",
+      "Uses 'without sharing'",
+      "Missing ApexDoc documentation"
+    ],
+    "categories": {
+      "bulkification": 22,
+      "security": 14,
+      "testing": 15,
+      "architecture": 12,
+      "cleanCode": 16,
+      "errorHandling": 7,
+      "performance": 5,
+      "documentation": 2
+    }
+  },
+  {
+    "name": "ForgotPasswordController",
+    "score": 106,
+    "maxScore": 150,
+    "pct": 71,
+    "apiVersion": 55,
+    "issues": [],
+    "categories": {
+      "bulkification": 20,
+      "security": 18,
+      "testing": 15,
+      "architecture": 14,
+      "cleanCode": 16,
+      "errorHandling": 10,
+      "performance": 7,
+      "documentation": 6
+    }
+  },
+  {
+    "name": "ForgotPasswordControllerTest",
+    "score": 104,
+    "maxScore": 150,
+    "pct": 69,
+    "apiVersion": 55,
+    "issues": ["Uses SeeAllData=true"],
+    "categories": {
+      "bulkification": 20,
+      "security": 18,
+      "testing": 13,
+      "architecture": 14,
+      "cleanCode": 16,
+      "errorHandling": 10,
+      "performance": 7,
+      "documentation": 6
+    }
+  },
+  {
+    "name": "GenericAppConfiguration",
+    "score": 106,
+    "maxScore": 150,
+    "pct": 71,
+    "apiVersion": 55,
+    "issues": [],
+    "categories": {
+      "bulkification": 20,
+      "security": 18,
+      "testing": 15,
+      "architecture": 14,
+      "cleanCode": 16,
+      "errorHandling": 10,
+      "performance": 7,
+      "documentation": 6
+    }
+  },
+  {
+    "name": "ImageCaptureController",
+    "score": 96,
+    "maxScore": 150,
+    "pct": 64,
+    "apiVersion": 55,
+    "issues": ["AuraEnabled methods without try-catch", "Missing ApexDoc documentation"],
+    "categories": {
+      "bulkification": 22,
+      "security": 22,
+      "testing": 15,
+      "architecture": 10,
+      "cleanCode": 16,
+      "errorHandling": 2,
+      "performance": 7,
+      "documentation": 2
+    }
+  },
+  {
+    "name": "IMockarooHelper",
+    "score": 102,
+    "maxScore": 150,
+    "pct": 68,
+    "apiVersion": 55,
+    "issues": ["Missing ApexDoc documentation"],
+    "categories": {
+      "bulkification": 20,
+      "security": 18,
+      "testing": 15,
+      "architecture": 14,
+      "cleanCode": 16,
+      "errorHandling": 10,
+      "performance": 7,
+      "documentation": 2
+    }
+  },
+  {
+    "name": "LightningControllerTest",
+    "score": 97,
+    "maxScore": 150,
+    "pct": 65,
+    "apiVersion": 55,
+    "issues": ["Test has no assertions", "Missing ApexDoc documentation"],
+    "categories": {
+      "bulkification": 20,
+      "security": 18,
+      "testing": 10,
+      "architecture": 14,
+      "cleanCode": 16,
+      "errorHandling": 10,
+      "performance": 7,
+      "documentation": 2
+    }
+  },
+  {
+    "name": "LightningForgotPasswordController",
+    "score": 90,
+    "maxScore": 150,
+    "pct": 60,
+    "apiVersion": 55,
+    "issues": ["Missing sharing declaration", "Missing ApexDoc documentation"],
+    "categories": {
+      "bulkification": 22,
+      "security": 13,
+      "testing": 15,
+      "architecture": 12,
+      "cleanCode": 16,
+      "errorHandling": 5,
+      "performance": 5,
+      "documentation": 2
+    }
+  },
+  {
+    "name": "LightningForgotPasswordControllerTest",
+    "score": 105,
+    "maxScore": 150,
+    "pct": 70,
+    "apiVersion": 55,
+    "issues": ["Missing ApexDoc documentation"],
+    "categories": {
+      "bulkification": 20,
+      "security": 18,
+      "testing": 18,
+      "architecture": 14,
+      "cleanCode": 16,
+      "errorHandling": 10,
+      "performance": 7,
+      "documentation": 2
+    }
+  },
+  {
+    "name": "LightningLoginFormController",
+    "score": 90,
+    "maxScore": 150,
+    "pct": 60,
+    "apiVersion": 55,
+    "issues": ["Missing sharing declaration", "Missing ApexDoc documentation"],
+    "categories": {
+      "bulkification": 22,
+      "security": 13,
+      "testing": 15,
+      "architecture": 12,
+      "cleanCode": 16,
+      "errorHandling": 5,
+      "performance": 5,
+      "documentation": 2
+    }
+  }
+]
