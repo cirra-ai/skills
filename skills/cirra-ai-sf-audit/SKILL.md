@@ -538,6 +538,25 @@ tokens, colours, CSS classes, Word heading styles, Excel header fills, and
 score-to-rating lookups. If the user provides their own template, use that
 instead — their template always takes precedence over the default.
 
+**Report generator script**: After scoring all components, write the scored
+results as JSON files to `audit_output/` following the schema in
+`docs/INPUT_SCHEMA.md`, then run `scripts/generate_reports.py` to produce
+deterministic HTML, DOCX, XLSX, and JSON outputs:
+
+```bash
+pip install openpyxl python-docx   # if not already installed
+python scripts/generate_reports.py \
+  --input-dir audit_output \
+  --output-dir audit_output \
+  --org-name "<org name from cirra_ai_init>" \
+  --org-id "<org id>" \
+  --instance "<instance>"
+```
+
+This ensures visually consistent reports regardless of which AI model or agent
+runs the audit. The script reads scored JSON and applies the brand template
+automatically.
+
 ### Word report (`Salesforce_Org_Audit_Report.docx`)
 
 - **Executive summary**: org name, date, complete component inventory across all categories

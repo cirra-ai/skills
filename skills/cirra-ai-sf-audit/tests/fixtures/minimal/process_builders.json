@@ -1,0 +1,9 @@
+[
+  {
+    "name": "Update_Account_Status",
+    "object": "Account",
+    "criteria_count": 5,
+    "actions_summary": "2 field updates, 1 email alert",
+    "migration_priority": "HIGH"
+  }
+]
