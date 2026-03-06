@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>65.0</apiVersion>
+    <assignments>
+        <name>Set_Lead_Priority</name>
+        <label>Set Lead Priority</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.TEST_Priority__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>High</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <decisions>
+        <name>Check_Annual_Revenue</name>
+        <label>Check Annual Revenue</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>Low Revenue</defaultConnectorLabel>
+        <rules>
+            <name>High_Revenue</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.AnnualRevenue</leftValueReference>
+                <operator>GreaterThan</operator>
+                <rightValue>
+                    <numberValue>1000000</numberValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Set_Lead_Priority</targetReference>
+            </connector>
+            <label>High Revenue</label>
+        </rules>
+    </decisions>
+    <description>Before-save flow that sets Lead priority based on annual revenue. Runs on create and update for Lead records with revenue over 1M. Requires TEST_Priority__c custom field on Lead.</description>
+    <label>Before Lead Priority Assignment</label>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <object>Lead</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+        <connector>
+            <targetReference>Check_Annual_Revenue</targetReference>
+        </connector>
+    </start>
+    <status>Draft</status>
+    <variables>
+        <name>var_PriorityLevel</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

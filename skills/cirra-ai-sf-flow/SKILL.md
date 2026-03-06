@@ -178,6 +178,19 @@ Generate the complete Flow XML with:
 - Auto-Layout: all locationX/Y = 0
 - Fault paths on all DML operations
 
+**Pre-Deployment: Check Prerequisites** (REQUIRED for flows referencing custom fields/objects):
+
+Before deploying a flow, verify that all referenced custom fields and objects exist
+in the target org. Flows referencing missing fields will deploy but become
+`InvalidDraft` and cannot be activated.
+
+```python
+# Check if custom field exists before deploying flow that references it
+sobject_describe(sObject="Lead")
+# Verify TEST_Priority__c (or any custom field) appears in the field list
+# If missing: create the field FIRST via sobject_field_create, then deploy the flow
+```
+
 **Deploy via Cirra AI**:
 
 ```python
@@ -199,6 +212,34 @@ metadata_create(
     sf_user="your-username"
 )
 ```
+
+**Post-Deployment: Verify Flow Status** (REQUIRED after every metadata_create for Flow):
+
+After deploying a flow, immediately query its status via the Tooling API to
+detect `InvalidDraft`. This catches issues the Metadata API accepts silently.
+
+```python
+# Check flow status after deployment
+tooling_api_query(
+    sObject="Flow",
+    fields=["Id", "Definition.DeveloperName", "VersionNumber", "Status"],
+    whereClause="Definition.DeveloperName = 'Auto_Lead_Assignment'"
+)
+# Expected: Status = "Draft"
+# If Status = "InvalidDraft":
+#   1. Check for missing triggerType (scheduled flows need triggerType=Scheduled)
+#   2. Check for missing custom field references (sobject_describe to verify)
+#   3. Fix the issue and redeploy via metadata_update
+```
+
+**Common InvalidDraft Causes and Fixes**:
+
+| Cause                            | Symptom                                                        | Fix                                                           |
+| -------------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------- |
+| Missing `triggerType` in `start` | Scheduled flow with `schedule` but no `triggerType: Scheduled` | Add `triggerType: "Scheduled"` to start element               |
+| Missing custom field             | Flow references `Custom_Field__c` that doesn't exist           | Create field via `sobject_field_create` first, then redeploy  |
+| Deprecated `bulkSupport`         | API 60.0+ flow includes `bulkSupport`                          | Remove the `bulkSupport` property                             |
+| Missing `recordTriggerType`      | Record-triggered flow without `recordTriggerType`              | Add `recordTriggerType: "Create"` (or Update/CreateAndUpdate) |
 
 **For Review** — validate an existing flow from the org or a local file before modifying:
 
