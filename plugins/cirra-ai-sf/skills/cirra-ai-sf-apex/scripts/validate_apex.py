@@ -264,6 +264,10 @@ class ApexValidator:
         class_decl_pattern = r"\b(public|private|global)\b.*?\bclass\s+\w+"
         sharing_pattern = r"\b(with\s+sharing|without\s+sharing|inherited\s+sharing)\b"
 
+        # @IsTest classes run in system mode and do not require sharing declarations.
+        # Check if the file-level @IsTest annotation is present (before the first class).
+        is_test_class = bool(re.search(r"@istest\b", self.content, re.IGNORECASE))
+
         # Collect all class declarations: (line_num, has_sharing, is_without_sharing)
         class_declarations = []
 
@@ -278,8 +282,9 @@ class ApexValidator:
 
         if class_declarations:
             # Outer class (first declaration) must have an explicit sharing keyword
+            # Exception: @IsTest classes run in system mode — sharing is irrelevant
             outer_line, outer_has_sharing, outer_is_without = class_declarations[0]
-            if not outer_has_sharing:
+            if not outer_has_sharing and not is_test_class:
                 self.issues.append(
                     {
                         "severity": "WARNING",

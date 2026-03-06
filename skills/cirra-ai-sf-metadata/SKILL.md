@@ -1,7 +1,7 @@
 ---
 name: cirra-ai-sf-metadata
 metadata:
-  version: 1.0.0
+  version: 1.1.0
 description: >
   Salesforce metadata operations expert. Use when creating custom objects, fields,
   validation rules, record types, permission sets, or querying org metadata

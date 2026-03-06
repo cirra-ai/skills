@@ -645,6 +645,73 @@ class SLDSValidator:
                     )
 
 
+def _format_report(results: dict, file_path: str) -> str:
+    """Format validation results as a human-readable report."""
+    parts = []
+    score = results["score"]
+    max_score = results["max_score"]
+    pct = (score / max_score * 100) if max_score > 0 else 0
+
+    if pct >= 90:
+        stars = "⭐⭐⭐⭐⭐"
+    elif pct >= 80:
+        stars = "⭐⭐⭐⭐☆"
+    elif pct >= 70:
+        stars = "⭐⭐⭐☆☆"
+    elif pct >= 60:
+        stars = "⭐⭐☆☆☆"
+    else:
+        stars = "⭐☆☆☆☆"
+
+    parts.append("")
+    parts.append(f"🎨 SLDS 2 Validation: {os.path.basename(file_path)}")
+    parts.append("=" * 60)
+    parts.append(f"📊 Score: {score}/{max_score} {stars} {results['rating']}")
+
+    scores = results.get("scores", {})
+    if scores:
+        parts.append("")
+        parts.append("📋 Category Breakdown:")
+        for cat, cat_score in scores.items():
+            cat_max = SLDSValidator.max_scores.get(cat, 0)
+            if cat_max > 0:
+                icon = "✅" if cat_score == cat_max else ("⚠️" if cat_score >= cat_max * 0.7 else "❌")
+                diff = f" (-{cat_max - cat_score})" if cat_score < cat_max else ""
+                display = cat.replace("_", " ").title()
+                parts.append(f"   {icon} {display}: {cat_score}/{cat_max}{diff}")
+
+    issues = results.get("issues", [])
+    if issues:
+        parts.append("")
+        parts.append(f"⚠️  Issues Found ({len(issues)}):")
+        severity_order = {"CRITICAL": 0, "HIGH": 1, "MODERATE": 2, "WARNING": 3, "INFO": 4}
+        issues.sort(key=lambda x: severity_order.get(x.get("severity", "INFO"), 4))
+        for issue in issues[:12]:
+            sev = issue.get("severity", "INFO")
+            icon = {"CRITICAL": "🔴", "HIGH": "🟠", "MODERATE": "🟡", "WARNING": "🟡", "INFO": "⚪"}.get(sev, "⚪")
+            line_info = f"L{issue['line']}" if issue.get("line") else ""
+            msg = issue["message"][:65] + "..." if len(issue["message"]) > 65 else issue["message"]
+            parts.append(f"   {icon} {sev} {line_info}: {msg}")
+            if issue.get("fix"):
+                fix = issue["fix"][:55] + "..." if len(issue["fix"]) > 55 else issue["fix"]
+                parts.append(f"      💡 Fix: {fix}")
+        if len(issues) > 12:
+            parts.append(f"   ... and {len(issues) - 12} more issues")
+    else:
+        parts.append("")
+        parts.append("✅ No issues found!")
+
+    parts.append("=" * 60)
+    if pct >= 90:
+        parts.append("✅ PASSED — production-ready SLDS 2")
+    elif pct >= 70:
+        parts.append("⚠️  NEEDS REVIEW — some SLDS 2 improvements recommended")
+    else:
+        parts.append("❌ BELOW THRESHOLD — fix issues before deploying")
+
+    return "\n".join(parts)
+
+
 if __name__ == "__main__":
     import sys
 
@@ -652,6 +719,13 @@ if __name__ == "__main__":
         print("Usage: python validate_slds.py <file.html|file.css|file.js>")
         sys.exit(1)
 
-    validator = SLDSValidator(sys.argv[1])
+    file_path = sys.argv[1]
+    output_json = "--json" in sys.argv
+
+    validator = SLDSValidator(file_path)
     results = validator.validate()
-    print(json.dumps(results, indent=2))
+
+    if output_json:
+        print(json.dumps(results, indent=2))
+    else:
+        print(_format_report(results, file_path))
