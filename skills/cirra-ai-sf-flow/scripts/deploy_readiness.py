@@ -20,6 +20,7 @@ Usage as CLI:
 """
 
 import json
+import re
 import sys
 import xml.etree.ElementTree as ET
 
@@ -65,12 +66,32 @@ def _get_api_version(root: ET.Element) -> float:
     return float(v) if v else 0.0
 
 
+_FIELD_REF_TAGS = frozenset({
+    "assignToReference", "field", "elementReference",
+    "inputReference", "outputReference", "assignNullValuesIfNoRecordsFound",
+})
+
+# Matches $Record.Field__c, {!var.Field__c}, or currentItem.Field__c patterns.
+_FIELD_REF_RE = re.compile(r"(?:\$Record|currentItem|\{![^}]+)\.\w+__c\b")
+
+
 def _get_custom_field_refs(root: ET.Element) -> list[str]:
-    """Find all references to custom fields (__c) in assignments and filters."""
+    """Find references to custom fields (__c) in assignment/filter elements.
+
+    Only scans elements whose local tag name is a known field-reference tag,
+    or whose text matches a ``$Record.Field__c`` / ``{!var.Field__c}`` pattern.
+    This avoids false positives from ``<object>``, ``<description>``, and other
+    free-text elements that may mention custom API names.
+    """
     refs = []
     for el in root.iter():
-        if el.text and "__c" in el.text:
-            refs.append(el.text.strip())
+        text = el.text
+        if not text or "__c" not in text:
+            continue
+        # Strip namespace prefix to get local tag name.
+        local_tag = el.tag.rsplit("}", 1)[-1] if "}" in el.tag else el.tag
+        if local_tag in _FIELD_REF_TAGS or _FIELD_REF_RE.search(text):
+            refs.append(text.strip())
     return refs
 
 
@@ -85,14 +106,17 @@ def _get_trigger_object(root: ET.Element) -> str | None:
 
 
 def _extract_field_names_from_refs(refs: list[str]) -> list[str]:
-    """Extract bare field API names from $Record.Field__c style references."""
+    """Extract bare field API names from $Record.Field__c style references.
+
+    Only considers references that contain a dot (e.g. ``$Record.Field__c``,
+    ``currentItem.Status__c``) to avoid misidentifying standalone object API
+    names like ``Custom_Object__c`` as field names.
+    """
     fields = []
     for ref in refs:
-        # Handle $Record.Field__c pattern
-        if "." in ref:
-            field = ref.rsplit(".", 1)[-1]
-        else:
-            field = ref
+        if "." not in ref:
+            continue
+        field = ref.rsplit(".", 1)[-1]
         if field.endswith("__c") and field not in fields:
             fields.append(field)
     return fields
