@@ -39,7 +39,7 @@ except ImportError:
     HAS_DOCX = False
 
 
-# ── Brand tokens (from assets/report-template.md) ──────────────────────────
+# ── Brand tokens (from references/report-template.md) ─────────────────────
 
 BRAND_BLUE = "#417AE4"
 BRAND_CYAN = "#14DDDD"
@@ -322,7 +322,7 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
     rating = summary["overall_rating"]
     counts = summary["counts"]
 
-    # Core CSS is embedded below (from assets/report-template.md)
+    # Core CSS is embedded below (from references/report-template.md)
 
     sections = []
 
