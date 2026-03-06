@@ -533,6 +533,10 @@ Track: rule name, object, action types, migration priority.
 Produce three report files in `./audit_output/` (create the directory if needed).
 Never scatter files into the working directory root.
 
+**Styling**: Follow `assets/report-template.md` exactly for all brand tokens,
+colours, CSS classes, Word heading styles, Excel header fills, and score-to-rating
+lookups. That file is the single source of truth for report appearance.
+
 ### Word report (`Salesforce_Org_Audit_Report.docx`)
 
 - **Executive summary**: org name, date, complete component inventory across all categories
