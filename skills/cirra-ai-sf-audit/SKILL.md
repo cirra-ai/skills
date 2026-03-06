@@ -665,7 +665,7 @@ Update `audit_state.md`: mark C8 complete.
 
 ## Phase D — Reports
 
-Produce three report files in `./audit_output/`. See `assets/report-template.md`
+Produce three report files in `./audit_output/`. See `references/report-template.md`
 for brand tokens (Cirra AI blue `#417AE4`, cyan `#14DDDD`), HTML CSS, docx-js
 patterns, and openpyxl patterns — follow it exactly for consistent output.
 If the user provides their own template, use that instead — their template
