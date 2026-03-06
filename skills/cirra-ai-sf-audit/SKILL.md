@@ -533,9 +533,10 @@ Track: rule name, object, action types, migration priority.
 Produce three report files in `./audit_output/` (create the directory if needed).
 Never scatter files into the working directory root.
 
-**Styling**: Follow `assets/report-template.md` exactly for all brand tokens,
-colours, CSS classes, Word heading styles, Excel header fills, and score-to-rating
-lookups. That file is the single source of truth for report appearance.
+**Styling**: Use `assets/report-template.md` as the default template for brand
+tokens, colours, CSS classes, Word heading styles, Excel header fills, and
+score-to-rating lookups. If the user provides their own template, use that
+instead — their template always takes precedence over the default.
 
 ### Word report (`Salesforce_Org_Audit_Report.docx`)
 
@@ -581,6 +582,17 @@ DOCX formatting requirement:
 - For permissions, include a collapsible hierarchy tree
 - For metadata, link to each object summary in `intermediate/metadata/<ObjectApiName>.md`
 - Automation overlap matrix: a table showing which objects have which automation types active
+
+### Post-generation review
+
+After all three reports are written, ask the user:
+
+> "Reports are ready. Would you like to adjust the style, layout, or structure
+> of any of the reports before we wrap up?"
+
+If the user requests changes, regenerate only the affected report(s). Common
+adjustments include reordering sections, adding/removing columns, changing
+colours, or switching to landscape layout for the Word document.
 
 ## Phase 10 — Summarise
 
