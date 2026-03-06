@@ -53,10 +53,10 @@
     <start>
         <locationX>50</locationX>
         <locationY>50</locationY>
-        <bulkSupport>true</bulkSupport>
         <connector>
             <targetReference>Get_Records_To_Process</targetReference>
         </connector>
+        <triggerType>Scheduled</triggerType>
         <schedule>
             <frequency>Daily</frequency>
             <startDate>{{START_DATE}}</startDate>

@@ -1,7 +1,7 @@
 ---
 name: cirra-ai-sf-flow
 metadata:
-  version: 1.1.0
+  version: 1.2.0
 description: >
   Creates and validates Salesforce flows with 110-point scoring and Winter '26
   best practices using Cirra AI MCP Server. Use when building record-triggered flows,
@@ -78,12 +78,13 @@ See `docs/orchestration.md` for extended orchestration patterns including Agentf
 
 ## 🔑 Key Insights
 
-| Insight                  | Details                                                                                                                                     |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Before vs After Save** | Before-Save: same-record updates (no DML), validation. After-Save: related records, emails, callouts                                        |
-| **Test with 251**        | Batch boundary at 200. Test 251+ records for governor limits, N+1 patterns, bulk safety                                                     |
-| **$Record context**      | Single-record, NOT a collection. Platform handles batching. Never loop over $Record                                                         |
-| **Transform vs Loop**    | Transform: data mapping/shaping (30-50% faster). Loop: per-record decisions, counters, varying logic. See `docs/transform-vs-loop-guide.md` |
+| Insight                  | Details                                                                                                                                                                                                            |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Before vs After Save** | Before-Save: same-record updates (no DML), validation. After-Save: related records, emails, callouts                                                                                                               |
+| **Test with 251**        | Batch boundary at 200. Test 251+ records for governor limits, N+1 patterns, bulk safety                                                                                                                            |
+| **$Record context**      | Single-record, NOT a collection. Platform handles batching. Never loop over $Record                                                                                                                                |
+| **$Record traversal**    | `$Record` supports relationship traversal: `{!$Record.Contact__r.FirstName}`, `{!$Record.Account__r.Name}`. Do NOT use Get Records for data already available through `$Record` lookups — this wastes a SOQL query |
+| **Transform vs Loop**    | Transform: data mapping/shaping (30-50% faster). Loop: per-record decisions, counters, varying logic. See `docs/transform-vs-loop-guide.md`                                                                        |
 
 ---
 
@@ -197,17 +198,12 @@ sobject_describe(sObject="Lead")
 # Initialize connection (ONCE per session)
 cirra_ai_init(sf_user="your-username")
 
-# Create/deploy Flow as structured metadata (NOT raw XML — unlike ApexClass,
-# Flow metadata_create does not accept XML in a "content" field)
+# Create/deploy Flow XML
 metadata_create(
     type="Flow",
     metadata=[{
         "fullName": "Auto_Lead_Assignment",
-        "apiVersion": "65.0",
-        "label": "Auto Lead Assignment",
-        "processType": "AutoLaunchedFlow",
-        "status": "Draft",
-        # ... remaining Flow structure as JSON properties ...
+        "content": "[generated-flow-xml]"
     }],
     sf_user="your-username"
 )
@@ -248,8 +244,8 @@ tooling_api_query(
 
 **Validation (STRICT MODE)**:
 
-- **BLOCK** (CRITICAL — deployment denied): DML in loops, SOQL in loops, recursive after-update without entry conditions
-- **WARN** (score deduction): Missing required fields, API <65.0, element ordering, missing fault paths, unused vars, naming violations, non-zero coords
+- **BLOCK**: XML invalid, missing required fields (apiVersion/label/processType/status), API <65.0, broken refs, DML in loops
+- **WARN**: Element ordering, deprecated elements, non-zero coords, missing fault paths, unused vars, naming violations
 
 **New v2.0.0 Validations**:
 
@@ -259,83 +255,6 @@ tooling_api_query(
 - Missing filters on Get Records
 - Null check after Get Records recommendation
 - Variable naming prefix validation (var*, col*, rec*, inp*, out\_)
-
-### Schema Validation (Structural)
-
-Before deployment, validate the generated Flow against known structural
-requirements. This applies to **both XML and JSON** output formats.
-
-> **Schema source**: A baseline JSON Schema is bundled at
-> `references/flow-metadata-schema.json` (API v65.0). To refresh it from a
-> live org's WSDL (recommended after major Salesforce releases):
->
-> ```bash
-> scripts/pull_schema.sh                    # Flow schema, default org
-> scripts/pull_schema.sh dev                # Flow schema, specific org
-> scripts/pull_schema.sh --type Flow dev    # equivalent to above
-> ```
->
-> The script downloads the org's metadata WSDL, extracts only Flow-related
-> XSD types, and generates a JSON Schema usable for both XML and JSON
-> validation. The bundled baseline covers all core types; the pull script
-> ensures you match your org's exact API version.
-
-#### Tier 1 — JSON Schema + structural checks (always run)
-
-Validate against `references/flow-metadata-schema.json` first, then apply
-the structural checks below. The JSON Schema covers required fields, valid
-enums, type shapes, and connector structure for both XML-derived and JSON
-payloads.
-
-| Check                      | Applies to | What to validate                                                                                                                                                                                                                                                                                                                          |
-| -------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Required top-level fields  | XML + JSON | `apiVersion`, `label`, `processType`, `status`, `start` must be present                                                                                                                                                                                                                                                                   |
-| Valid `processType` enum   | XML + JSON | Must match one of the values in the `FlowProcessType` enum defined in `references/flow-metadata-schema.json` (the bundled schema is the source of truth — common values include `AutoLaunchedFlow`, `Flow`, `Workflow`, `CustomEvent`, `InvocableProcess`, `LoginFlow`, `ActionPlan`, `OrchestrationFlow`, `Orchestrator`, and many more) |
-| Valid `status` enum        | XML + JSON | Must be `Draft`, `Active`, `Obsolete`, or `InvalidDraft`                                                                                                                                                                                                                                                                                  |
-| `apiVersion` range         | XML + JSON | Must be a valid decimal (e.g., `65.0`). Warn if < 55.0, block if absent                                                                                                                                                                                                                                                                   |
-| Element type grouping      | XML only   | All elements of the same type (e.g., all `<assignments>`) must be contiguous — no scattering                                                                                                                                                                                                                                              |
-| Alphabetical root ordering | XML only   | Root-level element types must follow alphabetical order (see XML Element Ordering section)                                                                                                                                                                                                                                                |
-| Connector integrity        | XML + JSON | Every `connector.targetReference` and `faultConnector.targetReference` must reference an element that exists in the flow                                                                                                                                                                                                                  |
-| No orphaned elements       | XML + JSON | Every non-start element must be reachable from `start` via connector chain                                                                                                                                                                                                                                                                |
-| Variable type validity     | XML + JSON | `dataType` must be one of: `String`, `Number`, `Currency`, `Boolean`, `Date`, `DateTime`, `Picklist`, `Multipicklist`, `SObject`, `Apex`                                                                                                                                                                                                  |
-| DML fault paths            | XML + JSON | All `recordCreates`, `recordUpdates`, `recordDeletes` must have a `faultConnector`                                                                                                                                                                                                                                                        |
-
-#### Tier 2 — Org-validated schema (when `sf` CLI is available)
-
-When the Salesforce CLI is available and authenticated (see `cirra-ai-sf-audit`
-environment detection pattern), use a **dry-run deployment** to validate against
-the org's actual metadata schema at its current API version:
-
-```bash
-# Write the flow to a temporary sfdx project structure
-mkdir -p /tmp/flow-validate/force-app/main/default/flows
-cp <flow-file>.flow-meta.xml /tmp/flow-validate/force-app/main/default/flows/
-
-# Dry-run deploy — validates schema + dependencies without saving
-sf project deploy validate \
-  --source-dir /tmp/flow-validate/force-app/main/default/flows \
-  --target-org <org> \
-  --json
-```
-
-This validates:
-
-- Full XML structure against the org's current metadata XSD
-- Field and object references exist in the target org
-- API version compatibility
-- Dependency resolution (referenced Apex classes, subflows, etc.)
-
-For **JSON payloads** (used with `metadata_create`), validate against
-`references/flow-metadata-schema.json` before calling the API. This catches
-type mismatches, missing required fields, and invalid enum values offline.
-The MCP `metadata_create` call remains the authoritative validator for
-org-specific constraints (field existence, object references, etc.).
-
-**Error handling**: If `sf project deploy validate` fails:
-
-- Parse the `--json` output for `componentFailures`
-- Map each failure to the corresponding Tier 1 check category
-- Report failures alongside the 110-point score
 
 **Validation Report Format** (6-Category Scoring 0-110):
 
@@ -361,18 +280,19 @@ If ANY of these patterns would be generated, **STOP and ask the user**:
 > A) Refactor to use [correct pattern]
 > B) Proceed anyway (not recommended)"
 
-| Anti-Pattern                                             | Impact                               | Correct Pattern                                           |
-| -------------------------------------------------------- | ------------------------------------ | --------------------------------------------------------- |
-| After-Save updating same object without entry conditions | **Infinite loop** (critical)         | MUST add entry conditions: "Only when [field] is changed" |
-| Get Records inside Loop                                  | Governor limit failure (100 SOQL)    | Query BEFORE loop, use collection variable                |
-| Create/Update/Delete Records inside Loop                 | Governor limit failure (150 DML)     | Collect in loop → single DML after loop                   |
-| Apex Action inside Loop                                  | Callout limits                       | Pass collection to single Apex invocation                 |
-| DML without Fault Path                                   | Silent failures                      | Add Fault connector → error handling element              |
-| Get Records without null check                           | NullPointerException                 | Add Decision: "Records Found?" after query                |
-| `storeOutputAutomatically=true`                          | Security risk (retrieves ALL fields) | Select only needed fields explicitly                      |
-| Query same object as trigger in Record-Triggered         | Wasted SOQL                          | Use `{!$Record.FieldName}` directly                       |
-| Hardcoded Salesforce ID                                  | Deployment failure across orgs       | Use input variable or Custom Label                        |
-| Get Records without filters                              | Too many records returned            | Always include WHERE conditions                           |
+| Anti-Pattern                                                            | Impact                               | Correct Pattern                                                                                                                    |
+| ----------------------------------------------------------------------- | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| After-Save updating same object without entry conditions                | **Infinite loop** (critical)         | MUST add entry conditions: "Only when [field] is changed"                                                                          |
+| Get Records inside Loop                                                 | Governor limit failure (100 SOQL)    | Query BEFORE loop, use collection variable                                                                                         |
+| Create/Update/Delete Records inside Loop                                | Governor limit failure (150 DML)     | Collect in loop → single DML after loop                                                                                            |
+| Apex Action inside Loop                                                 | Callout limits                       | Pass collection to single Apex invocation                                                                                          |
+| DML without Fault Path                                                  | Silent failures                      | Add Fault connector → error handling element                                                                                       |
+| Get Records without null check                                          | NullPointerException                 | Add Decision: "Records Found?" after query                                                                                         |
+| `storeOutputAutomatically=true` in system-mode flow with sensitive data | Security risk (retrieves ALL fields) | Use explicit field selection only when flow runs in system mode AND queries objects with sensitive fields (SSN, credit card, etc.) |
+| Query same object as trigger in Record-Triggered                        | Wasted SOQL                          | Use `{!$Record.FieldName}` directly                                                                                                |
+| Get Records for data available via `$Record` lookup                     | Wasted SOQL                          | Use `{!$Record.Lookup__r.Field}` — traversal works up to 5 levels                                                                  |
+| Hardcoded Salesforce ID                                                 | Deployment failure across orgs       | Use input variable or Custom Label                                                                                                 |
+| Get Records without filters                                             | Too many records returned            | Always include WHERE conditions                                                                                                    |
 
 **DO NOT generate anti-patterns even if explicitly requested.** Ask user to confirm the exception with documented justification.
 
@@ -395,11 +315,7 @@ metadata_create(
     type="Flow",
     metadata=[{
         "fullName": "Auto_Lead_Assignment",
-        "apiVersion": "65.0",
-        "label": "Auto Lead Assignment",
-        "processType": "AutoLaunchedFlow",
-        "status": "Draft",
-        # ... Flow structure as JSON (NOT raw XML) ...
+        "content": "[flow-xml-content]"
     }],
     sf_user="your-salesforce-username"
 )
@@ -489,11 +405,16 @@ Resources: `examples/`, `docs/subflow-library.md`, `docs/orchestration-guide.md`
 
 **NEVER loop over triggered records.** `$Record` = single record; platform handles batching.
 
-| Pattern                | OK? | Notes                             |
-| ---------------------- | --- | --------------------------------- |
-| `$Record.FieldName`    | ✅  | Direct access                     |
-| Loop over `$Record__c` | ❌  | Process Builder pattern, not Flow |
-| Loop over `$Record`    | ❌  | $Record is single, not collection |
+| Pattern                          | OK? | Notes                                                     |
+| -------------------------------- | --- | --------------------------------------------------------- |
+| `$Record.FieldName`              | ✅  | Direct field access                                       |
+| `$Record.Lookup__r.FieldName`    | ✅  | Relationship traversal — NO Get Records needed            |
+| `$Record.Account__r.Owner.Name`  | ✅  | Multi-level traversal (up to 5 levels)                    |
+| Get Records for `$Record` lookup | ❌  | Wastes SOQL — use `$Record.Relationship__r.Field` instead |
+| Loop over `$Record__c`           | ❌  | Process Builder pattern, not Flow                         |
+| Loop over `$Record`              | ❌  | $Record is single, not collection                         |
+
+**`$Record` relationship traversal**: In record-triggered flows, `$Record` provides access to related records through lookup/master-detail fields WITHOUT a Get Records element. Use `{!$Record.Contact__r.FirstName}` instead of querying Contact separately. Only use Get Records when you need related records that are NOT accessible through `$Record` lookups (e.g., child records, or records with no relationship to the trigger object).
 
 **Loops for RELATED records only**: Get Records → Loop collection → Assignment → DML after loop
 
@@ -503,13 +424,13 @@ Resources: `examples/`, `docs/subflow-library.md`, `docs/orchestration-guide.md`
 
 ### recordLookups Best Practices
 
-| Element                            | Recommendation                          | Why                                    |
-| ---------------------------------- | --------------------------------------- | -------------------------------------- |
-| `getFirstRecordOnly`               | Set to `true` for single-record queries | Avoids collection overhead             |
-| `storeOutputAutomatically`         | Set to `false`, use `outputReference`   | Prevents data leaks, explicit variable |
-| `assignNullValuesIfNoRecordsFound` | Set to `false`                          | Preserves previous variable value      |
-| `faultConnector`                   | Always include                          | Handle query failures gracefully       |
-| `filterLogic`                      | Use `and` for multiple filters          | Clear filter behavior                  |
+| Element                            | Recommendation                          | Why                                                                                                                                                    |
+| ---------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `getFirstRecordOnly`               | Set to `true` for single-record queries | Avoids collection overhead                                                                                                                             |
+| `storeOutputAutomatically`         | Set to `true` (default)                 | Simpler, modern approach — auto-stores all fields. Only set to `false` with explicit field selection when handling sensitive data in system-mode flows |
+| `assignNullValuesIfNoRecordsFound` | Set to `false`                          | Preserves previous variable value                                                                                                                      |
+| `faultConnector`                   | Always include                          | Handle query failures gracefully                                                                                                                       |
+| `filterLogic`                      | Use `and` for multiple filters          | Clear filter behavior                                                                                                                                  |
 
 ### Critical Requirements
 
@@ -576,7 +497,189 @@ screens → start → status → subflows → textTemplates → variables → wa
 | "Parent.Field doesn't exist"    | Use TWO Get Records (child then parent)                 |
 | `$Record__c` loop fails         | Use `$Record` directly (single context, not collection) |
 
+### Error → Solution Quick Reference
+
+| Error Message                                       | Solution                                                                     |
+| --------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `Duplicate developer name: X`                       | Screen field already created this reference — don't add a separate variable  |
+| `Can't use object field with sObjectInputReference` | Remove `object` property when using `inputReference`                         |
+| `isCollection invalid in FlowConstant`              | Use Decision + Variable counter instead of a constant collection             |
+| `Invalid element reference X not found`             | Check all element names are unique and connectors point to existing elements |
+| Flow won't open in Flow Builder                     | Add all empty element type arrays to flow metadata                           |
+| Silent failure on `metadata_update`                 | Read current state first with `metadata_read`; build iteratively             |
+| Required field missing                              | Add `processMetadataValues: []` to every element                             |
+
 **XML Gotchas**: See `docs/xml-gotchas.md` (in cirra-ai-sf-flow)
+
+---
+
+## ⚠️ Critical Lessons Learned (Metadata API Flows)
+
+These lessons apply when creating or updating flows via `metadata_create` / `metadata_update` (JSON format). They are based on real-world failures and must be followed to avoid deployment errors.
+
+### Lesson 1: Screen Field Names ARE Element References
+
+Screen fields automatically create element references with their field name. Do **NOT** create a separate variable for screen fields — this causes a `Duplicate developer name` error.
+
+```json
+// WRONG: Don't create variable with same name as screen field
+{ "screens": [{ "fields": [{ "name": "User_Input" }] }],
+  "variables": [{ "name": "User_Input" }]  // DUPLICATE ERROR }
+
+// CORRECT: Reference the screen field directly
+{ "formulas": [{ "expression": "{!User_Input} & \" suffix\"" }] }
+```
+
+### Lesson 2: Collection DML — Cannot Use Both `object` and `inputReference`
+
+When creating records from a collection using `inputReference`, do **NOT** include the `object` field. Define `objectType` on the variable instead.
+
+```json
+// WRONG:
+{ "name": "Create_All", "object": "Account", "inputReference": "Var_Col" }
+
+// CORRECT: objectType goes on the variable, not the create element
+{ "variables": [{ "name": "Var_Col", "dataType": "SObject",
+    "objectType": "Account", "isCollection": true }],
+  "recordCreates": [{ "name": "Create_All", "inputReference": "Var_Col" }] }
+```
+
+### Lesson 3: Constants Cannot Be Collections
+
+Flow constants cannot be collections or SObjects. Use a Decision + Counter Variable instead.
+
+### Lesson 4: Read Current State Before Complex Updates
+
+**ALWAYS** call `metadata_read` immediately before `metadata_update` for complex changes. Salesforce replaces the entire flow version on update — working with stale metadata will overwrite recent changes.
+
+1. Call `metadata_read` to get current state
+2. Analyze current elements and dependencies
+3. Modify the retrieved metadata
+4. Call `metadata_update` with complete state
+
+### Lesson 5: All Element Names Must Be Globally Unique
+
+Every element name in a Flow must be unique across **ALL** element types. Use prefixes to enforce this:
+
+| Element Type  | Naming Convention | Example             |
+| ------------- | ----------------- | ------------------- |
+| Variables     | `Var_*`           | `Var_Account_Id`    |
+| Formulas      | `Formula_*`       | `Formula_Full_Name` |
+| Screens       | `Screen_*`        | `Screen_Welcome`    |
+| Decisions     | `Decision_*`      | `Decision_Route`    |
+| Assignments   | `Assign_*`        | `Assign_Defaults`   |
+| Choices       | `Choice_*`        | `Choice_Option_A`   |
+| Screen Fields | Descriptive       | `Account_Name`      |
+
+### Lesson 6: Build Flows Iteratively, Not All At Once
+
+- **Phase 1 — Shell**: `metadata_create` with minimal structure. Test: Does it open in Flow Builder?
+- **Phase 2 — Basic Navigation**: Add first screen and routing. Test: Can you navigate through it?
+- **Phase 3 — Core Logic**: Add record lookups and variables. Test: Does data flow correctly?
+- **Phase 4 — Advanced Features**: Add formulas, loops, calculations. Test: Do calculations work?
+
+**Red flags**: Creating 100+ line JSON on first attempt. Adding 5+ new element types at once. Not testing in Flow Builder between changes.
+
+### Lesson 7: Collection DML Pattern — Build, Gather, Execute
+
+Never create records one-by-one in a loop. Build a collection, then execute a single DML operation:
+
+1. **Build_Record** — Assign field values to `Var_Current_Record` (single SObject variable)
+2. **Add_To_Collection** — Use operator `Add` to append to the collection variable
+3. **After loop exits** — Single `recordCreates` with `inputReference` pointing to the collection
+
+Synchronous DML limit: 150 statements. Creating 10 records individually = 10 DML. Creating 10 records via collection = 1 DML.
+
+### Lesson 8: `processMetadataValues` — Always Include Empty Array
+
+Every Flow element **MUST** have a `processMetadataValues` property, even if it's an empty array. Without it, Salesforce may fail silently or discard the element.
+
+```json
+{ "name": "Element_Name", "processMetadataValues": [] }
+```
+
+### Lesson 9: Empty Arrays for All Element Type Collections
+
+Include **ALL** element type arrays in your flow metadata, even if empty. Missing arrays can cause silent failures, elements being deleted, or flows that won't save.
+
+```json
+{
+  "assignments": [],
+  "choices": [],
+  "decisions": [],
+  "formulas": [],
+  "loops": [],
+  "recordCreates": [],
+  "recordDeletes": [],
+  "recordLookups": [],
+  "recordUpdates": [],
+  "screens": [],
+  "variables": [],
+  "textTemplates": []
+}
+```
+
+### Lesson 10: Connector Chains — Every Element Needs a Path
+
+Every element (except the final one) must have a connector to the next element. Mental checklist for each element:
+
+- Does it have a `connector`?
+- If it's a decision, does it have a `defaultConnector`?
+- Does the `targetReference` point to an existing element?
+- Is this intentionally the final element (screen with `allowFinish: true`)?
+
+### Flow Shell Template (JSON for `metadata_create`)
+
+Always start with this complete template — include **ALL** empty arrays:
+
+```json
+{
+  "fullName": "PLACEHOLDER",
+  "label": "PLACEHOLDER",
+  "apiVersion": 65,
+  "processType": "Flow",
+  "status": "Draft",
+  "interviewLabel": "PLACEHOLDER {!$Flow.CurrentDateTime}",
+  "environments": ["Default"],
+  "processMetadataValues": [
+    { "name": "BuilderType", "value": { "stringValue": "LightningFlowBuilder" } },
+    { "name": "CanvasMode", "value": { "stringValue": "AUTO_LAYOUT_CANVAS" } }
+  ],
+  "start": {
+    "locationX": 0,
+    "locationY": 0,
+    "connector": { "targetReference": "FIRST_ELEMENT" },
+    "filters": [],
+    "processMetadataValues": []
+  },
+  "assignments": [],
+  "choices": [],
+  "decisions": [],
+  "formulas": [],
+  "loops": [],
+  "recordCreates": [],
+  "recordDeletes": [],
+  "recordLookups": [],
+  "recordUpdates": [],
+  "screens": [],
+  "variables": [],
+  "textTemplates": []
+}
+```
+
+### Flow Element Types Reference
+
+| Element Type   | Purpose               | Key Notes                                                                    |
+| -------------- | --------------------- | ---------------------------------------------------------------------------- |
+| Start          | Entry point           | Contains connector to first element; record-triggered adds filters/object    |
+| Variables      | Store values          | Counter vars: `dataType` Number, `scale` 0. Collections: `isCollection` true |
+| Screens        | User interface        | Fields auto-create element references — do NOT create duplicate variables    |
+| Decisions      | Branching logic       | Must always include `defaultConnector`                                       |
+| Record Lookups | Query Salesforce data | Use `storeOutputAutomatically: false` for security                           |
+| Record Creates | Insert new records    | Use `inputReference` for collections — never combine with `object` field     |
+| Assignments    | Set variable values   | Operators: `Assign`, `Add`, `AssignCount`                                    |
+| Loops          | Iterate collections   | Auto-creates `currentItem_{LoopName}` variable                               |
+| Formulas       | Computed values       | Use `{!VarName}` syntax to reference other elements                          |
 
 ## Edge Cases
 
@@ -621,24 +724,16 @@ Note: do **not** include `FullName` or `Metadata` in multi-record queries — on
 ### Create a new flow
 
 ```
-metadata_create(type="Flow", metadata=[{"fullName": "Flow_Name", "apiVersion": "65.0", "label": "Flow Name", "processType": "AutoLaunchedFlow", "status": "Draft", ...}])
+metadata_create(type="Flow", metadata=[{"fullName": "Flow_Name", "content": "[flow-xml]"}])
 ```
 
-> **API version**: Always specify `"apiVersion": "65.0"` (or current) explicitly. If omitted, `metadata_create` defaults to API v49.0, which lacks modern flow features.
->
-> **InvalidDraft status**: Salesforce auto-classifies a Flow as `InvalidDraft` (not `Draft`) when it has `status: Draft` but no trigger configuration (no `start` element with `triggerType`, or no `processType` that implies auto-launch). This is expected Salesforce behavior — the flow becomes `Draft` once a valid trigger or entry condition is added.
+### Update a flow (creates a new version)
 
-### Update a flow
-
-> **Version behavior**: A new version is only created when the **latest version is Active**. If the latest version is already a **Draft**, the update **replaces it in-place** with no version history preserved. Always check the latest version status first with `tooling_api_query` on FlowDefinition.
-
-1. Check current status: `tooling_api_query(sObject="FlowDefinition", fields=["DeveloperName","LatestVersion.Status","LatestVersion.VersionNumber"], whereClause="DeveloperName='Flow_Name'")`
-2. Retrieve current metadata: `metadata_read(type="Flow", fullNames=["Flow_Name"])`
-3. Apply changes to the metadata object
-4. Deploy: `metadata_update(type="Flow", metadata=[{...}], upsert=True)`
+1. Retrieve current metadata: `metadata_read(type="Flow", fullNames=["Flow_Name"])`
+2. Apply changes to the metadata object
+3. Deploy: `metadata_update(type="Flow", metadata=[{...}], upsert=True)`
    - **Do NOT change the `fullName`** — version numbers are managed automatically
    - In production: deploy as `status: Draft` and ask user to activate manually if you get an error
-   - If latest version is Draft, warn the user that the update will overwrite the existing Draft
 
 ### Activate / deactivate a flow version
 
@@ -694,16 +789,12 @@ metadata_list(
 ### Example 3: Deploy Generated Flow
 
 ```python
-# Deploy flow as structured metadata (NOT raw XML in "content")
+# After generating Auto_Lead_Assignment.flow-meta.xml
 metadata_create(
     type="Flow",
     metadata=[{
         "fullName": "Auto_Lead_Assignment",
-        "apiVersion": "65.0",
-        "label": "Auto Lead Assignment",
-        "processType": "AutoLaunchedFlow",
-        "status": "Draft",
-        # ... remaining Flow properties as JSON ...
+        "content": "<Flow ...>[full XML here]</Flow>"
     }],
     sf_user="prod-username"
 )

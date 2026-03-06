@@ -1,7 +1,7 @@
 ---
 name: cirra-ai-sf-metadata
 metadata:
-  version: 1.0.0
+  version: 1.1.0
 description: >
   Salesforce metadata operations expert. Use when creating custom objects, fields,
   validation rules, record types, permission sets, or querying org metadata
@@ -69,6 +69,37 @@ cirra-ai-sf-data requires objects deployed to org. Always deploy metadata BEFORE
 ## CRITICAL: Field-Level Security
 
 **Deployed fields are INVISIBLE until FLS is configured!** Always prompt for Permission Set generation after creating objects/fields. See the Permission Set Auto-Generation section below.
+
+---
+
+## ⚠️ CRITICAL: Cost-Effective Approaches — Avoid Profile/FLS API Updates
+
+**Each Profile or FLS API call consumes Cirra AI credits.** Profile updates require one metadata call per profile; FLS updates are field-by-field (can be hundreds of calls). Total cost can be very high for seemingly simple operations.
+
+### What NOT To Do
+
+- Update profiles directly via `metadata_update`
+- Modify field-level security field-by-field across profiles
+- Remove access via FLS updates
+- Mass update permissions across multiple profiles
+
+### What TO Do Instead
+
+**Option 1 (Recommended — Low Cost)**: Create Permission Sets
+
+- Single creation operation via `metadata_create`
+- Can be assigned to users easily
+- More maintainable and self-documenting
+- Much lower credit cost
+
+**Option 2 (Manual — Zero Cost)**: Provide step-by-step instructions for the user to make changes in Salesforce Setup UI. Zero Cirra AI credits consumed.
+
+### When Profile/FLS Updates ARE Acceptable
+
+- The user explicitly confirms they want to spend the credits
+- The operation is small (1–2 profiles, a handful of fields)
+- There's no alternative approach that makes sense
+- The user has been warned about the cost
 
 ---
 
@@ -214,6 +245,33 @@ metadata_create(
   }],
   sf_user="<sf_user>"
 )
+```
+
+### Phase 3.5: Schema Validation (Pre-Deploy)
+
+Before calling `metadata_create`, validate JSON payloads against the bundled
+JSON Schemas in `references/`:
+
+| Metadata Type | Schema File                                 |
+| ------------- | ------------------------------------------- |
+| Layout        | `references/layout-metadata-schema.json`    |
+| FlexiPage     | `references/flexipage-metadata-schema.json` |
+| Profile       | See `cirra-ai-sf-permissions` skill         |
+| PermissionSet | See `cirra-ai-sf-permissions` skill         |
+
+These schemas validate required fields, valid enum values, correct nesting
+(e.g., Layout → LayoutSection → LayoutColumn → LayoutItem), and type shapes.
+
+To refresh any schema from a live org (requires sf CLI):
+
+```bash
+scripts/pull_schema.sh --type Layout myOrg     # specific org
+scripts/pull_schema.sh --type FlexiPage
+scripts/pull_schema.sh --type CustomObject
+scripts/pull_schema.sh --type CustomField
+scripts/pull_schema.sh --type ValidationRule
+scripts/pull_schema.sh --type RecordType
+scripts/pull_schema.sh --type QuickAction
 ```
 
 ### Phase 4: Validation & Scoring
@@ -397,6 +455,58 @@ Parameters:
 | `SObject type 'X' not supported`  | Deploy metadata first                       |
 | `Element X is duplicated`         | Check for duplicate field names             |
 | `cirra_ai_init not called`        | Always call `cirra_ai_init()` FIRST         |
+
+---
+
+## Page Layout & Actions Management
+
+Always follow this investigation sequence before making any changes to page layouts or actions.
+
+### Investigation Sequence
+
+**Step 1: Check for Lightning Record Pages FIRST**
+
+Modern Salesforce orgs primarily use Lightning Record Pages with Dynamic Actions, not Classic Page Layouts. List all FlexiPages for the object before touching any classic layout:
+
+```
+tooling_api_query(
+  sObject="FlexiPage",
+  fields=["Id", "DeveloperName", "MasterLabel", "EntityDefinitionId"],
+  whereClause="EntityDefinitionId = '<ObjectApiName>'",
+  sf_user="<sf_user>"
+)
+```
+
+**Step 2: Examine the Lightning Page Structure**
+
+Read the FlexiPage metadata and look for `enableActionsConfiguration: true` in the `force:highlightsPanel` component. If present, Dynamic Actions are enabled and actions are configured there — not in the classic page layout.
+
+```
+metadata_read(
+  type="FlexiPage",
+  fullNames=["<FlexiPageDeveloperName>"],
+  sf_user="<sf_user>"
+)
+```
+
+**Step 3: Only Check Classic Layouts if No Lightning Page Found**
+
+Classic layout actions are in `platformActionList.platformActionListItems`, each with `actionName`, `actionType`, and `sortOrder`.
+
+### Action Update Patterns
+
+| Pattern                             | When to Use                        | Update Method                                                                             |
+| ----------------------------------- | ---------------------------------- | ----------------------------------------------------------------------------------------- |
+| Lightning Page with Dynamic Actions | `enableActionsConfiguration: true` | Add action to `actionNames.valueList.valueListItems`; provide complete `flexiPageRegions` |
+| Classic Page Layout                 | No Lightning page found            | Replace entire `platformActionList` array; re-number all `sortOrder` values sequentially  |
+
+### Common Pitfalls
+
+- **Not checking for Lightning pages first** — always check FlexiPages before modifying classic layouts
+- **Using `targetRecordType` on Update actions** — causes `INVALID_TYPE_FOR_OPERATION` error; remove it
+- **Not updating all `sortOrder` values** — causes `DUPLICATE_VALUE` errors; replace entire array
+- **Forgetting `enableActionsConfiguration` flag** — always check this property before deciding how to update
+- **Using `standardLabel` unknowingly** — it overrides your custom label; omit or set deliberately
 
 ---
 
