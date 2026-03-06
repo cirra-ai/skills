@@ -12,7 +12,6 @@
         <locationY>50</locationY>
         <object>{{PLATFORM_EVENT_NAME}}__e</object>
         <triggerType>PlatformEvent</triggerType>
-        <bulkSupport>true</bulkSupport>
         <connector>
             <targetReference>Decision_Check_Event_Criteria</targetReference>
         </connector>

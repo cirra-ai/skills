@@ -1,0 +1,23 @@
+#!/bin/bash
+# Pre-commit hook: prevent new files from being added directly in plugins/
+#
+# The plugins/ directory contains generated copies of skills.
+# All edits should be made in skills/ instead.
+
+staged_plugin_files=$(git diff --cached --name-only --diff-filter=ACM | grep '^plugins/' || true)
+
+if [ -n "$staged_plugin_files" ]; then
+    echo ""
+    echo "ERROR: You are committing files directly in plugins/"
+    echo ""
+    echo "The plugins/ directory contains generated copies."
+    echo "Edit the source files in skills/ instead:"
+    echo ""
+    echo "$staged_plugin_files" | while read -r f; do
+        # Try to suggest the correct path
+        echo "  $f"
+    done
+    echo ""
+    echo "If this is intentional (e.g. a build step), use: git commit --no-verify"
+    exit 1
+fi
