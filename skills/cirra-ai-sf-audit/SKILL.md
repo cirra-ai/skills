@@ -140,6 +140,17 @@ In **both** modes, always use MCP tools (`soql_query`, `tooling_api_query`,
 for **bulk metadata retrieval** (downloading all Apex bodies, Flow XML, LWC
 source, etc.) because it is significantly faster and avoids per-record API calls.
 
+**Local mode shortcut**: When `EXEC_MODE = local`, run `scripts/extract_data.sh`
+to pull all inventory counts, raw query results, and bulk metadata in one pass:
+
+```bash
+./scripts/extract_data.sh --target-org <alias-or-username> --output-dir audit_output
+```
+
+This produces `counts.json`, raw JSON in `audit_output/raw/`, and source files
+in `audit_output/intermediate/`. The AI agent then scores the extracted data
+and writes scored JSON for `scripts/generate_reports.py`.
+
 ## Known MCP limitations and required workarounds
 
 These apply in both modes for all MCP-based calls:
