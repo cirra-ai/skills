@@ -72,7 +72,7 @@ _FIELD_REF_TAGS = frozenset({
 })
 
 # Matches $Record.Field__c, {!var.Field__c}, or currentItem.Field__c patterns.
-_FIELD_REF_RE = re.compile(r"(?:\$Record|currentItem|\{![^}]+)\.\w+__c\b")
+_FIELD_REF_RE = re.compile(r"(?:\$Record|currentItem|\{![^}.]+)\.\w+__c\b")
 
 
 def _get_custom_field_refs(root: ET.Element) -> list[str]:
