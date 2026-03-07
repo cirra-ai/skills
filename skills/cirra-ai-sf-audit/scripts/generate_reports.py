@@ -110,13 +110,13 @@ def load_inputs(input_dir):
 # ── Score computation ───────────────────────────────────────────────────────
 
 
-def compute_domain_score(items, max_score_key="max_score", score_key="score"):
+def compute_domain_score(items, max_score_key="max_score", score_key="score", default_max=100):
     """Compute average percentage for a list of scored items."""
     if not items:
         return 0.0
     total_pct = 0.0
     for item in items:
-        max_s = item.get(max_score_key, 100)
+        max_s = item.get(max_score_key, default_max)
         s = item.get(score_key, 0)
         total_pct += (s / max_s * 100) if max_s > 0 else 0
     return round(total_pct / len(items), 1)
@@ -126,26 +126,24 @@ def compute_summary(data):
     """Compute the full audit summary from loaded data."""
     counts = data["counts"]
 
+    # Domain-specific max scores (Apex=150, Flows=110, LWC=165, Metadata=120)
+    domain_config = [
+        ("apex", "apex_scores", 150),
+        ("flows", "flow_scores", 110),
+        ("lwc", "lwc_scores", 165),
+        ("metadata", "metadata_scores", 120),
+    ]
+
     domain_scores = {}
-    for domain, items_key in [
-        ("apex", "apex_scores"),
-        ("flows", "flow_scores"),
-        ("lwc", "lwc_scores"),
-        ("metadata", "metadata_scores"),
-    ]:
+    for domain, items_key, default_max in domain_config:
         items = data.get(items_key, [])
         domain_scores[domain] = compute_domain_score(
-            items, max_score_key="max_score", score_key="score"
+            items, max_score_key="max_score", score_key="score", default_max=default_max
         )
 
     # Overall = average of domain percentages (only domains with data)
     active_scores = []
-    for domain, items_key in [
-        ("apex", "apex_scores"),
-        ("flows", "flow_scores"),
-        ("lwc", "lwc_scores"),
-        ("metadata", "metadata_scores"),
-    ]:
+    for domain, items_key, _default_max in domain_config:
         if data.get(items_key):
             active_scores.append(domain_scores[domain])
 
@@ -153,16 +151,11 @@ def compute_summary(data):
 
     # Below-threshold counts (<70%)
     below_threshold = {}
-    for domain, items_key in [
-        ("apex", "apex_scores"),
-        ("flows", "flow_scores"),
-        ("lwc", "lwc_scores"),
-        ("metadata", "metadata_scores"),
-    ]:
+    for domain, items_key, default_max in domain_config:
         items = data.get(items_key, [])
         count = 0
         for item in items:
-            max_s = item.get("max_score", 100)
+            max_s = item.get("max_score", default_max)
             s = item.get("score", 0)
             if max_s > 0 and (s / max_s * 100) < 70:
                 count += 1
@@ -177,12 +170,7 @@ def compute_summary(data):
 
     # Top issues by domain
     top_issues = {}
-    for domain, items_key in [
-        ("apex", "apex_scores"),
-        ("flows", "flow_scores"),
-        ("lwc", "lwc_scores"),
-        ("metadata", "metadata_scores"),
-    ]:
+    for domain, items_key, _default_max in domain_config:
         issue_counts = {}
         for item in data.get(items_key, []):
             for issue in item.get("issues", []):
@@ -263,18 +251,23 @@ def _findings_html(findings):
     return "\n".join(parts)
 
 
-def _recommendations_html(data):
-    """Build the top-10 recommendations section."""
-    recs = []
+def _recommendations_list(data):
+    """Build the top-10 recommendations sorted by priority.
 
-    # Collect from below-threshold items
+    Returns a list of plain-text recommendation strings (no HTML markup).
+    CRITICAL permission findings rank highest so they aren't buried by
+    low-scoring domain items.
+    """
+    scored_recs = []  # list of (priority, text)
+
+    # Below-threshold domain items: priority based on how far below 70%
     for domain, items_key, default_max in [
         ("Apex", "apex_scores", 150),
         ("Flows", "flow_scores", 110),
         ("LWC", "lwc_scores", 165),
         ("Metadata", "metadata_scores", 120),
     ]:
-        for item in sorted(data.get(items_key, []), key=lambda x: x.get("score", 0)):
+        for item in data.get(items_key, []):
             s = item.get("score", 0)
             max_s = item.get("max_score", default_max)
             pct = (s / max_s * 100) if max_s > 0 else 0
@@ -284,26 +277,38 @@ def _recommendations_html(data):
                 issues = item.get("issues", [])
                 if issues:
                     top_issue = issues[0] if isinstance(issues[0], str) else issues[0].get("message", "")
-                recs.append(f"[{domain}] Fix <strong>{_esc(name)}</strong> (score {s}/{max_s}). {_esc(top_issue)}")
+                # Priority: 20-69 based on percentage (lower = higher rank)
+                priority = 20 + pct
+                issue_suffix = f" {top_issue}" if top_issue else ""
+                scored_recs.append((
+                    priority,
+                    f"[{domain}] Fix {name} (score {s}/{max_s}).{issue_suffix}",
+                ))
 
-    # Add permission findings (CRITICAL first)
-    for f in sorted(
-        data.get("permission_findings", []),
-        key=lambda x: {"CRITICAL": 0, "HIGH": 1, "MEDIUM": 2, "LOW": 3}.get(
-            x.get("severity", "LOW").upper(), 4
-        ),
-    ):
-        recs.append(f"[Permissions] {_esc(f.get('message', f.get('finding', '')))}")
+    # Permission findings: CRITICAL=0, HIGH=5, MEDIUM=30, LOW=50
+    sev_priority = {"CRITICAL": 0, "HIGH": 5, "MEDIUM": 30, "LOW": 50}
+    for f in data.get("permission_findings", []):
+        sev = f.get("severity", "LOW").upper()
+        scored_recs.append((
+            sev_priority.get(sev, 50),
+            f"[Permissions] {f.get('message', f.get('finding', ''))}",
+        ))
 
-    # Legacy automation
+    # Legacy automation: moderate priority
     pb_count = len(data.get("process_builders", []))
     wr_count = len(data.get("workflow_rules", []))
     if pb_count:
-        recs.append(f"[Automation] Migrate {pb_count} active Process Builder(s) to Flow")
+        scored_recs.append((35, f"[Automation] Migrate {pb_count} active Process Builder(s) to Flow"))
     if wr_count:
-        recs.append(f"[Automation] Migrate {wr_count} Workflow Rule(s) to Flow")
+        scored_recs.append((35, f"[Automation] Migrate {wr_count} Workflow Rule(s) to Flow"))
 
-    recs = recs[:10]
+    scored_recs.sort(key=lambda x: x[0])
+    return [text for _, text in scored_recs[:10]]
+
+
+def _recommendations_html(data):
+    """Build the top-10 recommendations section as HTML."""
+    recs = _recommendations_list(data)
     if not recs:
         return "<p>No recommendations — org is in great shape.</p>"
 
@@ -312,7 +317,7 @@ def _recommendations_html(data):
         parts.append(
             f'<div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:10px">'
             f'<div class="rec-num">{i}</div>'
-            f"<div>{rec}</div></div>"
+            f"<div>{_esc(rec)}</div></div>"
         )
     return "\n".join(parts)
 
@@ -344,7 +349,7 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
     ]
     for key, label in inv_map:
         val = counts.get(key, 0)
-        inv_lines.append(f"<li><strong>{val}</strong> {label}</li>")
+        inv_lines.append(f"<li><strong>{_esc(val)}</strong> {label}</li>")
     sections.append(
         f'<div class="card"><h2>Executive Summary</h2>'
         f'<ul>{"".join(inv_lines)}</ul></div>'
@@ -395,7 +400,7 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
     # ── Apex Triggers ──
     if data.get("trigger_findings"):
         rows = []
-        for item in data["trigger_findings"]:
+        for item in sorted(data["trigger_findings"], key=lambda x: x.get("name", "")):
             findings_str = "; ".join(
                 f.get("message", f.get("finding", ""))
                 for f in item.get("findings", [])[:3]
@@ -439,7 +444,7 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
     # ── Process Builders ──
     if data.get("process_builders"):
         rows = []
-        for item in data["process_builders"]:
+        for item in sorted(data["process_builders"], key=lambda x: x.get("name", "")):
             rows.append([
                 _esc(item.get("name", "")),
                 _esc(item.get("object", "")),
@@ -472,9 +477,18 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
 
     # ── Permissions ──
     if data.get("permission_findings"):
+        sorted_findings = sorted(
+            data["permission_findings"],
+            key=lambda x: (
+                {"CRITICAL": 0, "HIGH": 1, "MEDIUM": 2, "LOW": 3}.get(
+                    x.get("severity", "LOW").upper(), 4
+                ),
+                x.get("name", ""),
+            ),
+        )
         sections.append(
             f'<div class="card"><h2>Profiles &amp; Permissions</h2>'
-            f"{_findings_html(data['permission_findings'])}</div>"
+            f"{_findings_html(sorted_findings)}</div>"
         )
 
     # ── Metadata / Data Model ──
@@ -500,7 +514,7 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
     # ── Validation Rules ──
     if data.get("validation_rules"):
         rows = []
-        for item in data["validation_rules"]:
+        for item in sorted(data["validation_rules"], key=lambda x: x.get("name", "")):
             findings_str = "; ".join(
                 f.get("message", f.get("finding", ""))
                 for f in item.get("findings", [])[:3]
@@ -525,7 +539,7 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
     # ── Workflow Rules ──
     if data.get("workflow_rules"):
         rows = []
-        for item in data["workflow_rules"]:
+        for item in sorted(data["workflow_rules"], key=lambda x: x.get("name", "")):
             rows.append([
                 _esc(item.get("name", "")),
                 _esc(item.get("object", "")),
@@ -765,14 +779,120 @@ def generate_docx(data, summary, org_name, org_id, instance, run_date, output_pa
             row[1].text = f"{item.get('score', 0)}/{item.get('max_score', max_label)}"
             row[2].text = issues_str
 
+    # Apex Triggers
+    if data.get("trigger_findings"):
+        doc.add_heading("Apex Triggers", level=1)
+        table = doc.add_table(rows=1, cols=5)
+        table.alignment = WD_TABLE_ALIGNMENT.CENTER
+        hdr = table.rows[0].cells
+        for i, h in enumerate(["Name", "Object", "Events", "Severity", "Findings"]):
+            hdr[i].text = h
+            for run in hdr[i].paragraphs[0].runs:
+                run.font.bold = True
+        for item in sorted(data["trigger_findings"], key=lambda x: x.get("name", "")):
+            findings = item.get("findings", [])
+            findings_str = "; ".join(
+                f.get("message", f.get("finding", "")) for f in findings[:3]
+            )
+            sev = max(
+                (f.get("severity", "LOW") for f in findings),
+                key=lambda s: {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1}.get(s.upper(), 0),
+                default="LOW",
+            ) if findings else "LOW"
+            row = table.add_row().cells
+            row[0].text = item.get("name", "")
+            row[1].text = item.get("object", "")
+            row[2].text = item.get("events", "")
+            row[3].text = sev
+            row[4].text = findings_str
+
+    # Process Builders
+    if data.get("process_builders"):
+        doc.add_heading("Process Builders", level=1)
+        table = doc.add_table(rows=1, cols=5)
+        table.alignment = WD_TABLE_ALIGNMENT.CENTER
+        hdr = table.rows[0].cells
+        for i, h in enumerate(["Name", "Object", "Criteria", "Actions", "Migration Priority"]):
+            hdr[i].text = h
+            for run in hdr[i].paragraphs[0].runs:
+                run.font.bold = True
+        for item in sorted(data["process_builders"], key=lambda x: x.get("name", "")):
+            row = table.add_row().cells
+            row[0].text = item.get("name", "")
+            row[1].text = item.get("object", "")
+            row[2].text = str(item.get("criteria_count", ""))
+            row[3].text = item.get("actions_summary", "")
+            row[4].text = item.get("migration_priority", "HIGH")
+
     # Permission Findings
     if data.get("permission_findings"):
         doc.add_heading("Profiles & Permissions", level=1)
-        for f in data["permission_findings"]:
+        for f in sorted(
+            data["permission_findings"],
+            key=lambda x: (
+                {"CRITICAL": 0, "HIGH": 1, "MEDIUM": 2, "LOW": 3}.get(
+                    x.get("severity", "LOW").upper(), 4
+                ),
+                x.get("name", ""),
+            ),
+        ):
             doc.add_paragraph(
                 f"[{f.get('severity', 'MEDIUM')}] {f.get('message', f.get('finding', ''))}",
                 style="List Bullet",
             )
+
+    # Validation Rules
+    if data.get("validation_rules"):
+        doc.add_heading("Validation Rules", level=1)
+        table = doc.add_table(rows=1, cols=5)
+        table.alignment = WD_TABLE_ALIGNMENT.CENTER
+        hdr = table.rows[0].cells
+        for i, h in enumerate(["Name", "Object", "Active", "Severity", "Findings"]):
+            hdr[i].text = h
+            for run in hdr[i].paragraphs[0].runs:
+                run.font.bold = True
+        for item in sorted(data["validation_rules"], key=lambda x: x.get("name", "")):
+            findings = item.get("findings", [])
+            findings_str = "; ".join(
+                f.get("message", f.get("finding", "")) for f in findings[:3]
+            )
+            sev = max(
+                (f.get("severity", "LOW") for f in findings),
+                key=lambda s: {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1}.get(s.upper(), 0),
+                default="LOW",
+            ) if findings else "LOW"
+            row = table.add_row().cells
+            row[0].text = item.get("name", "")
+            row[1].text = item.get("object", "")
+            row[2].text = str(item.get("active", ""))
+            row[3].text = sev
+            row[4].text = findings_str
+
+    # Workflow Rules
+    if data.get("workflow_rules"):
+        doc.add_heading("Workflow Rules", level=1)
+        table = doc.add_table(rows=1, cols=4)
+        table.alignment = WD_TABLE_ALIGNMENT.CENTER
+        hdr = table.rows[0].cells
+        for i, h in enumerate(["Name", "Object", "Action Types", "Migration Priority"]):
+            hdr[i].text = h
+            for run in hdr[i].paragraphs[0].runs:
+                run.font.bold = True
+        for item in sorted(data["workflow_rules"], key=lambda x: x.get("name", "")):
+            row = table.add_row().cells
+            row[0].text = item.get("name", "")
+            row[1].text = item.get("object", "")
+            row[2].text = item.get("action_types", "")
+            row[3].text = item.get("migration_priority", "HIGH")
+
+    # Recommendations
+    doc.add_heading("Recommendations", level=1)
+    rec_data = _recommendations_list(data)
+    if rec_data:
+        for rec in rec_data:
+            doc.add_paragraph(rec, style="List Number")
+    else:
+        doc.add_paragraph("No recommendations — org is in great shape.")
 
     # Footer
     doc.add_paragraph("")
@@ -1034,8 +1154,8 @@ def generate_xlsx(data, summary, org_name, org_id, instance, run_date, output_pa
 
 def generate_json_summary(summary, run_date, output_path):
     """Generate the JSON audit summary."""
-    summary_out = {**summary, "generated_date": run_date}
-    Path(output_path).write_text(json.dumps(summary_out, indent=2, default=str), encoding="utf-8")
+    output = {**summary, "generated_date": run_date}
+    Path(output_path).write_text(json.dumps(output, indent=2, default=str), encoding="utf-8")
     return output_path
 
 

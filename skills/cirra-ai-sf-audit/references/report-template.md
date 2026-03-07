@@ -27,13 +27,13 @@ These values were extracted directly from the Cirra AI logo (assets/icon-large.p
 
 ### Severity / Score colours
 
-| Level      | Condition | Badge background | Badge text / border |
-| ---------- | --------- | ---------------- | ------------------- |
-| Excellent  | ≥ 80 %    | `#E8FBF9`        | `#14DDDD`           |
-| Good       | 70 – 79 % | `#E9F7EF`        | `#27AE60`           |
-| Acceptable | 60 – 69 % | `#FEF3CD`        | `#F39C12`           |
-| Warning    | 40 – 59 % | `#FEF9E7`        | `#E67E22`           |
-| Critical   | < 40 %    | `#FDE8E8`        | `#E74C3C`           |
+| Level             | Condition | Badge background | Badge text / border |
+| ----------------- | --------- | ---------------- | ------------------- |
+| Excellent         | ≥ 80 %    | `#E8FBF9`        | `#14DDDD`           |
+| Good              | 70 – 79 % | `#E9F7EF`        | `#27AE60`           |
+| Acceptable        | 60 – 69 % | `#FEF3CD`        | `#F39C12`           |
+| Needs Improvement | 40 – 59 % | `#FEF9E7`        | `#E67E22`           |
+| Critical          | < 40 %    | `#FDE8E8`        | `#E74C3C`           |
 
 **Finding severity left-border colours** (same palette, findings panel):
 
@@ -225,6 +225,10 @@ thead th {
 
 ## 3. Word Document (docx-js)
 
+> **Note:** This section documents patterns for JavaScript-based generators
+> using `docx-js`. The bundled Python generator (`scripts/generate_reports.py`)
+> uses `python-docx` — see the script source for python-docx equivalents.
+
 ### Page setup (always explicit — docx-js defaults to A4)
 
 ```javascript
@@ -287,10 +291,10 @@ new Table({
 ```javascript
 function scoreColor(score, max) {
   const pct = (score / max) * 100;
-  if (pct >= 80) return '14DDDD'; // Excellent — teal
+  if (pct >= 80) return '14DDDD'; // Excellent — cyan
   if (pct >= 70) return '27AE60'; // Good — green
   if (pct >= 60) return 'F39C12'; // Acceptable — amber
-  if (pct >= 40) return 'E67E22'; // Warning — orange
+  if (pct >= 40) return 'E67E22'; // Needs Improvement — orange
   return 'E74C3C'; // Critical — red
 }
 ```

@@ -223,7 +223,7 @@ tooling_api_query: SELECT COUNT(Id) total FROM LightningComponentBundle WHERE Na
 tooling_api_query: SELECT COUNT(Id) total FROM CustomObject WHERE NamespacePrefix = null
 tooling_api_query: SELECT COUNT(Id) total FROM ValidationRule WHERE NamespacePrefix = null
 tooling_api_query: SELECT COUNT(Id) total FROM WorkflowRule WHERE NamespacePrefix = null
-soql_query: SELECT COUNT(Id) total FROM PermissionSet WHERE IsOwnedByProfile = false AND NamespacePrefix = null
+soql_query: SELECT COUNT(Id) total FROM PermissionSet WHERE IsOwnedByProfile = false AND NamespacePrefix = null AND Type != 'Group'
 soql_query: SELECT COUNT(Id) total FROM PermissionSetGroup
 soql_query: SELECT COUNT(Id) total FROM Profile
 ```
