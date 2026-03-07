@@ -183,3 +183,53 @@ def test_resolve_local_ref():
     schema = {"$ref": "#/$defs/Name"}
     resolved = mod._resolve_local_ref(schema, root)
     assert resolved == {"required": ["label"], "properties": {}}
+
+
+def test_fallback_validator_denies_invalid_payload(monkeypatch):
+    """Ensure fallback path catches missing required fields end-to-end."""
+    import builtins
+
+    real_import = builtins.__import__
+
+    def _block_jsonschema(name, *args, **kwargs):
+        if name == "jsonschema":
+            raise ImportError("mocked")
+        return real_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", _block_jsonschema)
+
+    output = _hook_output(
+        "mcp__cirra_ai__metadata_create",
+        {
+            "type": "RecordType",
+            "metadata": [{"fullName": "Account.Enterprise"}],  # missing active, label
+        },
+    )
+    assert _decision(output) == "deny"
+    reason = output["hookSpecificOutput"]["permissionDecisionReason"]
+    assert "required" in reason.lower()
+
+
+def test_fallback_validator_allows_valid_payload(monkeypatch):
+    """Ensure fallback path passes a well-formed payload."""
+    import builtins
+
+    real_import = builtins.__import__
+
+    def _block_jsonschema(name, *args, **kwargs):
+        if name == "jsonschema":
+            raise ImportError("mocked")
+        return real_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", _block_jsonschema)
+
+    output = _hook_output(
+        "mcp__cirra_ai__metadata_create",
+        {
+            "type": "RecordType",
+            "metadata": [
+                {"fullName": "Account.Enterprise", "active": True, "label": "Enterprise"}
+            ],
+        },
+    )
+    assert _decision(output) == "allow"
