@@ -115,6 +115,51 @@ def _extract_metadata_items(tool_input: dict) -> list[dict]:
     return []
 
 
+def _resolve_schema_root(schema: dict) -> dict:
+    """Resolve a local $ref root (for example #/$defs/RecordType) when present."""
+    ref = schema.get("$ref")
+    if not isinstance(ref, str) or not ref.startswith("#/"):
+        return schema
+
+    node: dict | list = schema
+    for part in ref[2:].split("/"):
+        if not isinstance(node, dict) or part not in node:
+            return schema
+        node = node[part]
+    return node if isinstance(node, dict) else schema
+
+
+def _basic_schema_validate(item: dict, schema: dict) -> list[str]:
+    """Fallback validator when jsonschema is unavailable.
+
+    Supports required field checks and simple primitive type checks used by tests.
+    """
+    errors: list[str] = []
+    root = _resolve_schema_root(schema)
+    required = root.get("required", []) if isinstance(root, dict) else []
+    properties = root.get("properties", {}) if isinstance(root, dict) else {}
+
+    for field in required:
+        if field not in item:
+            errors.append(f"(root): {field!r} is a required property")
+
+    for field, rules in properties.items():
+        if field not in item or not isinstance(rules, dict):
+            continue
+        expected = rules.get("type")
+        value = item[field]
+        if expected == "boolean" and not isinstance(value, bool):
+            errors.append(f"{field}: {value!r} is not of type 'boolean'")
+        elif expected == "string" and not isinstance(value, str):
+            errors.append(f"{field}: {value!r} is not of type 'string'")
+        elif expected == "array" and not isinstance(value, list):
+            errors.append(f"{field}: {value!r} is not of type 'array'")
+        elif expected == "integer" and not isinstance(value, int):
+            errors.append(f"{field}: {value!r} is not of type 'integer'")
+
+    return errors
+
+
 def _validate_schema(metadata_type: str, tool_input: dict) -> str | None:
     """Run JSON Schema validation on metadata items.
 
@@ -124,7 +169,7 @@ def _validate_schema(metadata_type: str, tool_input: dict) -> str | None:
     try:
         import jsonschema
     except ImportError:
-        return None
+        jsonschema = None
 
     schema = _load_schema(metadata_type)
     if schema is None:
@@ -136,12 +181,16 @@ def _validate_schema(metadata_type: str, tool_input: dict) -> str | None:
 
     errors: list[str] = []
     for i, item in enumerate(items):
-        try:
-            jsonschema.validate(instance=item, schema=schema)
-        except jsonschema.ValidationError as exc:
-            path = " → ".join(str(p) for p in exc.absolute_path) if exc.absolute_path else "(root)"
-            name = item.get("fullName", item.get("FullName", f"item[{i}]"))
-            errors.append(f"'{name}' at {path}: {exc.message}")
+        name = item.get("fullName", item.get("FullName", f"item[{i}]"))
+        if jsonschema is not None:
+            try:
+                jsonschema.validate(instance=item, schema=schema)
+            except jsonschema.ValidationError as exc:
+                path = " → ".join(str(p) for p in exc.absolute_path) if exc.absolute_path else "(root)"
+                errors.append(f"'{name}' at {path}: {exc.message}")
+        else:
+            for err in _basic_schema_validate(item, schema):
+                errors.append(f"'{name}' at {err}")
 
     if not errors:
         return None

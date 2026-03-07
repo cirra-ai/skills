@@ -1,0 +1,7 @@
+{
+  "fullName": "Invoice_Close_Reason_Required",
+  "active": true,
+  "errorConditionFormula": "",
+  "errorMessage": "Close reason is required",
+  "description": ""
+}
