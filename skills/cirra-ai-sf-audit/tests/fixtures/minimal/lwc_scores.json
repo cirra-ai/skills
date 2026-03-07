@@ -1,0 +1,8 @@
+[
+  {
+    "name": "accountDashboard",
+    "score": 130,
+    "max_score": 165,
+    "issues": ["Missing error handling in wire adapter", "No loading state displayed"]
+  }
+]

@@ -1,0 +1,20 @@
+[
+  {
+    "name": "AccountService",
+    "score": 120,
+    "max_score": 150,
+    "issues": ["Missing null checks in helper method", "No test class found"]
+  },
+  {
+    "name": "ContactTriggerHandler",
+    "score": 95,
+    "max_score": 150,
+    "issues": ["SOQL inside loop (line 42)", "Missing bulkification", "No error handling"]
+  },
+  {
+    "name": "BatchProcessRecords",
+    "score": 140,
+    "max_score": 150,
+    "issues": ["Outdated API version (48.0)"]
+  }
+]

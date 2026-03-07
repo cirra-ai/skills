@@ -14,6 +14,8 @@ Run a comprehensive Salesforce org audit that inventories and evaluates all majo
 - **Automation overlap detection**: Identifies objects with multiple automation types active (triggers, flows, PBs, workflow rules)
 - **Report generation**: Word (.docx), Excel (.xlsx), and HTML reports with per-component scores and findings
 - **Actionable summary**: Overall health score, components needing attention, findings by severity, migration priorities
+- **Incremental audits**: Re-score only components that changed since the last audit, carrying forward unchanged scores
+- **Three execution modes**: Works with local SFDX repos (fastest), Salesforce CLI, or MCP-only (cloud environments)
 
 ## Installation
 
@@ -35,6 +37,27 @@ Use the pre-built command:
 Skill: cirra-ai-sf-audit
 Request: "Audit my Salesforce org"
 ```
+
+### Incremental Audit
+
+To update a previous audit (only re-scores changed components):
+
+```
+Audit my Salesforce org. Previous audit is at ~/audits/2026-01/audit_output/
+```
+
+## Execution Modes
+
+| Mode        | When                                  | Speed   |
+| ----------- | ------------------------------------- | ------- |
+| `sfdx-repo` | Working directory is an SFDX project  | Fastest |
+| `cli`       | Salesforce CLI installed and authed   | Fast    |
+| `cloud`     | MCP-only (Cowork, cloud environments) | Slowest |
+
+The skill auto-detects the best available mode. In `sfdx-repo` mode, metadata
+is read directly from disk with no API calls for body retrieval. In `cli` mode,
+bulk retrieval uses the Salesforce CLI. In `cloud` mode, everything goes through
+MCP with cursor pagination.
 
 ## Cross-Skill Integration
 

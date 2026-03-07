@@ -1,0 +1,19 @@
+[
+  {
+    "name": "Require_Amount",
+    "object": "Opportunity",
+    "active": true,
+    "findings": [
+      {
+        "severity": "MEDIUM",
+        "message": "No bypass mechanism ($Permission or custom setting)"
+      }
+    ]
+  },
+  {
+    "name": "Old_Email_Check",
+    "object": "Contact",
+    "active": false,
+    "findings": [{ "severity": "LOW", "message": "Inactive — cleanup candidate" }]
+  }
+]

@@ -1,0 +1,8 @@
+[
+  {
+    "name": "Set_Default_Status",
+    "object": "Case",
+    "action_types": "Field Update",
+    "migration_priority": "HIGH"
+  }
+]

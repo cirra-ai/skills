@@ -32,8 +32,6 @@ from typing import Any
 VALID_DML_OPERATIONS = ("insert", "update", "delete", "upsert")
 SOBJECT_NAME_PATTERN = re.compile(r"^[A-Za-z][A-Za-z0-9_]*(__c|__mdt|__e|__b|__x)?$")
 
-SUPPORTED_TOOLS = ("soql_query", "sobject_dml")
-
 PII_PATTERNS = {
     "SSN": re.compile(r"\b\d{3}-\d{2}-\d{4}\b"),
     "Credit card": re.compile(r"\b\d{4}[-\s]?\d{4}[-\s]?\d{4}[-\s]?\d{4}\b"),
@@ -95,6 +93,7 @@ def validate_data_params(input_data: dict[str, Any]) -> dict[str, Any]:
     elif tool == "sobject_dml":
         operation = params.get("operation", "")
         records = params.get("records", [])
+        record_ids = params.get("recordIds", [])
         ext_id_field = params.get("externalIdField")
 
         # Valid operation
@@ -104,12 +103,50 @@ def validate_data_params(input_data: dict[str, Any]) -> dict[str, Any]:
                            f"Expected one of: {', '.join(VALID_DML_OPERATIONS)}"
             })
 
-        # Records array
-        if not isinstance(records, list) or len(records) == 0:
+        # Delete uses recordIds (string array), not records
+        if operation == "delete":
+            if not isinstance(record_ids, list) or len(record_ids) == 0:
+                # Fall back to checking records for backward compat
+                if not isinstance(records, list) or len(records) == 0:
+                    errors.append({"message": "Delete requires 'recordIds' (string array of Ids)"})
+                else:
+                    if len(records) > 200:
+                        errors.append({
+                            "message": f"Too many records ({len(records)}). "
+                                       f"MCP server limit is 200 per call — split into batches"
+                        })
+                    missing_id = [
+                        i for i, r in enumerate(records)
+                        if isinstance(r, dict) and "Id" not in r
+                    ]
+                    if missing_id:
+                        errors.append({
+                            "message": f"{len(missing_id)} record(s) missing 'Id' field "
+                                       f"for {operation} operation"
+                        })
+                    warnings.append({
+                        "message": "Delete should use 'recordIds' parameter (string array) "
+                                   "instead of 'records' — e.g. recordIds=[\"001xx...\", \"001yy...\"]"
+                    })
+            elif len(record_ids) > 200:
+                errors.append({
+                    "message": f"Too many recordIds ({len(record_ids)}). "
+                               f"MCP server limit is 200 per call — split into batches"
+                })
+
+        # Records array for non-delete operations
+        elif not isinstance(records, list) or len(records) == 0:
             errors.append({"message": "Empty or missing records array"})
         else:
-            # Update/delete must have Id
-            if operation in ("update", "delete"):
+            # Check 200-record limit
+            if len(records) > 200:
+                errors.append({
+                    "message": f"Too many records ({len(records)}). "
+                               f"MCP server limit is 200 per call — split into batches"
+                })
+
+            # Update must have Id
+            if operation == "update":
                 missing_id = [
                     i for i, r in enumerate(records)
                     if isinstance(r, dict) and "Id" not in r
@@ -235,7 +272,3 @@ class MCPDataValidator:
             Pass/fail result with errors and warnings.
         """
         return validate_data_params(input_data)
-
-
-# Backward compatibility alias
-MCPOperationValidator = MCPDataValidator

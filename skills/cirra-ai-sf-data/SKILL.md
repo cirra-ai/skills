@@ -78,27 +78,29 @@ cirra_ai_init -> cirra-ai-sf-metadata -> cirra-ai-sf-data (SOQL/DML) -> cirra-ai
 
 **cirra-ai-sf-data operates on REMOTE org data.** Objects/fields must exist before cirra-ai-sf-data can create records.
 
-| Error                               | Meaning                           | Fix                                                          |
-| ----------------------------------- | --------------------------------- | ------------------------------------------------------------ |
-| `INVALID_FIELD`                     | Field doesn't exist or FLS blocks | Use `sobject_describe` to verify field names                 |
-| `MALFORMED_QUERY`                   | Invalid SOQL syntax               | Check relationship names, field types in SOQL pattern        |
-| `FIELD_CUSTOM_VALIDATION_EXCEPTION` | Validation rule triggered         | Use valid data matching validation logic                     |
-| `REQUIRED_FIELD_MISSING`            | Required field not set            | Include all required fields in records                       |
-| `INVALID_CROSS_REFERENCE_KEY`       | Invalid relationship ID           | Verify parent record exists before inserting child           |
-| `TOO_MANY_SOQL_QUERIES`             | 100 query limit                   | Batch queries, use relationships to avoid multiple queries   |
-| `TOO_MANY_DML_STATEMENTS`           | 150 DML limit                     | Batch records in single sobject_dml call, not multiple calls |
+| Error                               | Meaning                           | Fix                                                         |
+| ----------------------------------- | --------------------------------- | ----------------------------------------------------------- |
+| `INVALID_FIELD`                     | Field doesn't exist or FLS blocks | Use `sobject_describe` to verify field names                |
+| `MALFORMED_QUERY`                   | Invalid SOQL syntax               | Check relationship names, field types in SOQL pattern       |
+| `FIELD_CUSTOM_VALIDATION_EXCEPTION` | Validation rule triggered         | Use valid data matching validation logic                    |
+| `REQUIRED_FIELD_MISSING`            | Required field not set            | Include all required fields in records                      |
+| `INVALID_CROSS_REFERENCE_KEY`       | Invalid relationship ID           | Verify parent record exists before inserting child          |
+| `TOO_MANY_SOQL_QUERIES`             | 100 query limit                   | Batch queries, use relationships to avoid multiple queries  |
+| `TOO_MANY_DML_STATEMENTS`           | 150 DML limit                     | Batch records in single sobject_dml call (max 200 per call) |
+| `EXCEEDED_ID_LIMIT`                 | > 200 records in one DML call     | Split into batches of <= 200 records                        |
 
 ---
 
 ## Key Insights
 
-| Insight                    | Why                                                  | Action                                                              |
-| -------------------------- | ---------------------------------------------------- | ------------------------------------------------------------------- |
-| **Test with 201+ records** | Crosses 200-record batch boundary                    | Always bulk test with 201+ records                                  |
-| **FLS blocks access**      | "Field does not exist" often = FLS not missing field | Query using user context; not all fields visible                    |
-| **Cleanup is essential**   | Test isolation and data hygiene                      | Always provide cleanup SOQL queries                                 |
-| **Batch limit is 200**     | Salesforce batch processing boundary                 | Break operations into 200-record chunks if needed                   |
-| **Single call efficiency** | Avoid governor limits                                | Use single `sobject_dml` call with 200+ records, not multiple calls |
+| Insight                    | Why                                                  | Action                                                        |
+| -------------------------- | ---------------------------------------------------- | ------------------------------------------------------------- |
+| **Test with 201+ records** | Crosses 200-record batch boundary                    | Always bulk test with 201+ records (split into 200+1 batches) |
+| **FLS blocks access**      | "Field does not exist" often = FLS not missing field | Query using user context; not all fields visible              |
+| **Cleanup is essential**   | Test isolation and data hygiene                      | Always provide cleanup SOQL queries                           |
+| **DML batch limit is 200** | MCP server enforces 200-record max per call          | Split operations into <= 200-record batches                   |
+| **Query default is 100**   | `soql_query` returns max 100 records by default      | Set explicit `limit` param; paginate with `Id > '<last>'`     |
+| **Delete uses recordIds**  | Delete param differs from insert/update              | Use `recordIds: ["id1", "id2"]` string array, not `records`   |
 
 ---
 
@@ -323,10 +325,13 @@ Parameters:
   - sObject: "Account" (required)
   - fields: ["Id", "Name", "Industry"] (optional; uses SELECT *)
   - whereClause: "Industry='Technology'" (optional — omit for no filter; do NOT pass empty string "")
-  - limit: 1000 (optional; default varies)
+  - limit: 100 (optional; default is 100 — set explicitly for larger result sets)
   - orderBy: "Name ASC" (optional)
   - sf_user: Connection identifier
 ```
+
+> **Pagination**: For queries returning > 100 records, use `orderBy="Id ASC"` and paginate
+> with `whereClause="Id > '<last_id_from_previous_batch>'"` in follow-up queries.
 
 > **whereClause caveat**: Never pass an empty string `""` for `whereClause` — it generates malformed SQL (`WHERE ""`). Either omit the parameter entirely or use `"Id != null"` to select all records.
 
@@ -351,10 +356,14 @@ soql_query(
 Parameters:
   - sObject: "Account" (required)
   - operation: "insert"|"update"|"delete"|"upsert" (required)
-  - records: [...] (array of record objects, required)
+  - records: [...] (array of record objects; used for insert/update/upsert, max 200 per call)
+  - recordIds: ["id1", "id2"] (string array; used for delete only, max 200 per call)
   - externalIdField: "ExternalId__c" (required for upsert)
   - sf_user: Connection identifier
 ```
+
+> **200-record limit**: The MCP server rejects calls with > 200 records (`EXCEEDED_ID_LIMIT`).
+> Split larger operations into batches of <= 200.
 
 **Example 1: Insert Records**
 
@@ -397,10 +406,7 @@ sobject_dml(
 sobject_dml(
   sObject="Account",
   operation="delete",
-  records=[
-    {"Id": "001xx000003DHP"},
-    {"Id": "001xx000003DHQ"}
-  ],
+  recordIds=["001xx000003DHP", "001xx000003DHQ"],
   sf_user="prod"
 )
 ```
@@ -490,15 +496,27 @@ Instead of running Apex factories, use `sobject_dml` directly:
 
 **Example: Create 201 Accounts (crossing batch boundary)**
 
+The MCP server enforces a 200-record limit per call. Split into batches:
+
 ```
+// Batch 1: records 1-200
 sobject_dml(
   sObject="Account",
   operation="insert",
   records=[
-    // Generate 201 account records with unique names
     {"Name": "Test Account 1", "Industry": "Technology"},
     {"Name": "Test Account 2", "Industry": "Finance"},
-    // ... up to 201 records
+    // ... up to 200 records
+  ],
+  sf_user="prod"
+)
+
+// Batch 2: record 201
+sobject_dml(
+  sObject="Account",
+  operation="insert",
+  records=[
+    {"Name": "Test Account 201", "Industry": "Retail"}
   ],
   sf_user="prod"
 )
@@ -640,7 +658,8 @@ The following features from the original sf CLI-based skills are **NOT supported
 | `REQUIRED_FIELD_MISSING`            | Required field not set    | Include all required fields in records array             |
 | `INVALID_CROSS_REFERENCE_KEY`       | Invalid relationship ID   | Verify parent record exists; query first                 |
 | `TOO_MANY_SOQL_QUERIES`             | 100 query limit           | Combine queries using relationships                      |
-| `TOO_MANY_DML_STATEMENTS`           | 150 DML limit             | Use single `sobject_dml` call with array of 200+ records |
+| `TOO_MANY_DML_STATEMENTS`           | 150 DML limit             | Use single `sobject_dml` call (max 200 records per call) |
+| `EXCEEDED_ID_LIMIT`                 | > 200 records in DML call | Split into batches of <= 200 records                     |
 | `cirra_ai_init not called`          | Session not initialized   | Always call `cirra_ai_init()` FIRST                      |
 
 ---
@@ -651,7 +670,7 @@ Reference [Salesforce Governor Limits](https://developer.salesforce.com/docs/atl
 
 **Key limits**: SOQL 100/200 (sync/async) | DML 150 | Records 10K | Bulk API 10M records/day
 
-**Cirra AI Optimization**: Single `sobject_dml` calls with 200+ records count as ONE DML statement toward limit.
+**Cirra AI Limit**: `sobject_dml` accepts max 200 records per call. For larger operations, split into batches of <= 200. Each batch counts as ONE DML statement toward the governor limit.
 
 ---
 
@@ -723,7 +742,7 @@ No data files should be written outside the output directory tree. This ensures 
 ## Notes
 
 - **API Version**: Operations use org's default API version (recommend 62.0+)
-- **Bulk Operations**: Single `sobject_dml` call with 200+ records optimizes DML limits
+- **Bulk Operations**: `sobject_dml` accepts max 200 records per call; split larger operations into batches
 - **User Context**: Queries respect user's field-level security
 - **Test Isolation**: Track created record IDs for cleanup
 - **Sensitive Data**: Never include real PII in test data
