@@ -112,6 +112,11 @@ def validate_data_params(input_data: dict[str, Any]) -> dict[str, Any]:
                 if not isinstance(records, list) or len(records) == 0:
                     errors.append({"message": "Delete requires 'recordIds' (string array of Ids)"})
                 else:
+                    if len(records) > 200:
+                        errors.append({
+                            "message": f"Too many records ({len(records)}). "
+                                       f"MCP server limit is 200 per call — split into batches"
+                        })
                     missing_id = [
                         i for i, r in enumerate(records)
                         if isinstance(r, dict) and "Id" not in r

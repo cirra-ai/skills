@@ -262,6 +262,13 @@ class TestDmlInvalid:
         assert r["status"] == "fail"
         assert any("200" in m for m in _error_messages(r))
 
+    def test_delete_legacy_records_over_200_fails(self):
+        """TC-MD15: Delete with > 200 legacy records also fails."""
+        records = [{"Id": f"001xx{i:04d}"} for i in range(201)]
+        r = _validate(_sobject_dml("Account", "delete", records))
+        assert r["status"] == "fail"
+        assert any("200" in m for m in _error_messages(r))
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # 6. sobject_dml — WARNINGS (non-blocking)
