@@ -10,7 +10,7 @@ Lightning Web Components development skill with PICKLES architecture methodology
 - **Wire Service Patterns**: @wire decorators for Apex & GraphQL data fetching
 - **Jest Testing**: Comprehensive unit test generation with async patterns
 - **Spring '26 Features**: TypeScript, lwc:on directive, GraphQL mutations, Agentforce discoverability
-- **SLDS Linting**: Automated validation via `post-tool-validate.py` on every Write/Edit
+- **SLDS Linting**: Automated validation on every component you create or edit
 
 ## Installation
 
@@ -96,45 +96,16 @@ S → Security     │ Enforce permissions, FLS, and data protection
 | `typescript-component/`  | TypeScript support (Spring '26) |
 | `message-channel/`       | Lightning Message Service       |
 
-## Validation Hooks
+## Automatic Validation
 
-This plugin ships Python validation scripts in `scripts/` that run automatically after every `Write` or `Edit` tool call on LWC files (`.html`, `.css`, `.js`). All hooks are **advisory** — they provide feedback but never block operations.
+Components are automatically validated every time you create or edit an LWC file. Checks are **advisory** — they provide feedback but never block operations. Validation covers:
 
-### Active hook: `post-tool-validate.py`
+- **SLDS 2 compliance**: Valid class names, styling hooks, no deprecated SLDS 1 patterns
+- **Accessibility**: ARIA labels/roles, alt-text, keyboard navigation
+- **Dark mode readiness**: No hardcoded colors, CSS variables only
+- **Template anti-patterns**: Catches common AI-generated mistakes like inline expressions, missing loop keys, and invalid ternary operators
 
-Triggered by `hooks/hooks.json` on `PostToolUse` for `Write|Edit`. Runs a two-phase SLDS 2 validation pipeline and outputs a scored report to the transcript.
-
-**Phase 1 — `validate_slds.py`: SLDS 2 static analysis**
-
-| Category            | Points | What it checks                                    |
-| ------------------- | ------ | ------------------------------------------------- |
-| SLDS Class Usage    | 25     | Valid `slds-*` class names, proper utility usage  |
-| Accessibility       | 25     | ARIA labels/roles, alt-text, keyboard navigation  |
-| Dark Mode Readiness | 25     | No hardcoded hex/RGB colors, CSS variables only   |
-| SLDS Migration      | 20     | No deprecated SLDS 1 patterns or tokens           |
-| Styling Hooks       | 20     | Proper `--slds-g-*` variable usage with fallbacks |
-| Component Structure | 15     | Use of `lightning-*` base components              |
-| Performance         | 10     | Efficient selectors, no `!important`              |
-| PICKLES Compliance  | 25     | Architecture methodology adherence (optional)     |
-
-**Phase 2 — `template_validator.py`: LWC template anti-pattern detection**
-
-Catches mistakes AI models commonly make when generating LWC templates:
-
-- **Inline expressions**: `{item.field + ' suffix'}` (not valid in LWC templates)
-- **Ternary operators**: `{condition ? 'a' : 'b'}` (use getter or `lwc:if` instead)
-- **Missing `key` on loops**: `for:each` without `key` attribute
-- **Direct DOM access**: `document.querySelector` instead of `this.template.querySelector`
-- **`@track` on primitives**: unnecessary in modern LWC
-
-**Scoring** maps to 1–5 star rating with per-category breakdown and prioritised issue list.
-
-### Other scripts
-
-| Script                   | Purpose                                                     |
-| ------------------------ | ----------------------------------------------------------- |
-| `slds_linter_wrapper.py` | Wraps `@salesforce-ux/slds-linter` npm package if installed |
-| `lwc-lsp-validate.py`    | LWC Language Server protocol validation                     |
+Results appear as a scored report with a star rating and prioritised issue list.
 
 ## Cross-Skill Integration
 
@@ -171,7 +142,47 @@ Catches mistakes AI models commonly make when generating LWC templates:
 - Cirra AI MCP Server
 - Target Salesforce org
 - API Version 65.0+ (Winter '26), 66.0+ recommended (Spring '26)
-- Node.js 18+ (for Jest tests)
+- Node.js 18+ (for running Jest tests locally)
+
+## For Contributors
+
+### Validation Hooks
+
+This skill ships Python validation scripts in `scripts/` that run automatically after every `Write` or `Edit` tool call on LWC files (`.html`, `.css`, `.js`).
+
+#### Active hook: `post-tool-validate.py`
+
+Triggered by `hooks/hooks.json` on `PostToolUse` for `Write|Edit`. Runs a two-phase SLDS 2 validation pipeline and outputs a scored report to the transcript.
+
+**Phase 1 — `validate_slds.py`: SLDS 2 static analysis**
+
+| Category            | Points | What it checks                                    |
+| ------------------- | ------ | ------------------------------------------------- |
+| SLDS Class Usage    | 25     | Valid `slds-*` class names, proper utility usage  |
+| Accessibility       | 25     | ARIA labels/roles, alt-text, keyboard navigation  |
+| Dark Mode Readiness | 25     | No hardcoded hex/RGB colors, CSS variables only   |
+| SLDS Migration      | 20     | No deprecated SLDS 1 patterns or tokens           |
+| Styling Hooks       | 20     | Proper `--slds-g-*` variable usage with fallbacks |
+| Component Structure | 15     | Use of `lightning-*` base components              |
+| Performance         | 10     | Efficient selectors, no `!important`              |
+| PICKLES Compliance  | 25     | Architecture methodology adherence (optional)     |
+
+**Phase 2 — `template_validator.py`: LWC template anti-pattern detection**
+
+Catches mistakes AI models commonly make when generating LWC templates:
+
+- **Inline expressions**: `{item.field + ' suffix'}` (not valid in LWC templates)
+- **Ternary operators**: `{condition ? 'a' : 'b'}` (use getter or `lwc:if` instead)
+- **Missing `key` on loops**: `for:each` without `key` attribute
+- **Direct DOM access**: `document.querySelector` instead of `this.template.querySelector`
+- **`@track` on primitives**: unnecessary in modern LWC
+
+### Scripts
+
+| Script                   | Purpose                                                     |
+| ------------------------ | ----------------------------------------------------------- |
+| `slds_linter_wrapper.py` | Wraps `@salesforce-ux/slds-linter` npm package if installed |
+| `lwc-lsp-validate.py`    | LWC Language Server protocol validation                     |
 
 ## License
 

@@ -65,7 +65,19 @@ Request: "Create 251 test Account records with varying Industries for trigger te
 | cirra-ai-sf-permissions | Permission analysis queries                              |
 | cirra-ai-sf-diagram     | Visualize query results as diagrams                      |
 
-## Cirra AI MCP Tools
+## Automatic Validation
+
+This skill automatically validates SOQL queries and data operations as you work, checking for common issues like unbounded queries, hardcoded IDs, non-indexed filter fields, and missing LIMIT clauses. No setup is required — validation runs in the background and surfaces recommendations inline.
+
+## Requirements
+
+- Claude Cowork or Claude Code with skill plugins enabled
+- Cirra AI MCP Server
+- Target Salesforce org
+
+## Cirra AI MCP Tools — for developers
+
+> This section is for Salesforce developers building integrations. Admins can skip it.
 
 | Operation | MCP Tool                                   |
 | --------- | ------------------------------------------ |
@@ -77,11 +89,11 @@ Request: "Create 251 test Account records with varying Industries for trigger te
 | Describe  | `sobject_describe(sObject)`                |
 | Tooling   | `tooling_api_query(sObject, fields)`       |
 
-## Validation Scripts
+## For Contributors
+
+### Validation Scripts
 
 This skill ships Python validation scripts in `scripts/` for SOQL and data operation validation. These are available for manual use and can be integrated with plugin hooks.
-
-### Available Scripts
 
 | Script                       | Purpose                                                        |
 | ---------------------------- | -------------------------------------------------------------- |
@@ -112,12 +124,6 @@ Validate a data operation payload before calling the MCP tool:
 echo '{"tool":"soql_query","params":{"sObject":"Account","fields":["Id","Name"],"whereClause":"Industry = '\''Technology'\''"}}' \
   | python scripts/mcp_validator_cli.py --format report
 ```
-
-## Requirements
-
-- Claude Cowork or Claude Code with skill plugins enabled
-- Cirra AI MCP Server
-- Target Salesforce org
 
 ## License
 

@@ -113,15 +113,38 @@ Always deploy custom objects/fields BEFORE flows that reference them.
 - [LWC Integration](references/lwc-integration-guide.md) - Screen components
 - [Testing Guide](references/testing-guide.md) - Validation strategies
 
-## Validation Hooks
+## Automatic Validation
 
-This plugin ships Python validation scripts in `scripts/` that run automatically at two points. Validation is **skill-scoped** — the pre-deployment hook only registers while the cirra-ai-sf-flow skill is active, so there is no overhead when doing unrelated work.
+Flows are automatically validated as you work:
 
-Use [`/validate-flow`](#validate-flow-command) for on-demand checks at any time.
+- **Before deployment**: Critical issues (DML in loops, missing fault paths) block deployment until fixed. Lower-severity issues are flagged as warnings.
+- **After writing**: Every Flow file you create or edit is scored against the 110-point rubric with a per-category breakdown.
 
-### Hook 1: `pre-mcp-validate.py` — pre-deployment (blocking)
+Use `/validate-flow` at any time for on-demand checks:
 
-Defined in `skills/cirra-ai-sf-flow/SKILL.md` frontmatter as a **skill-scoped PreToolUse hook**. Fires before every `metadata_create`, `metadata_update`, and `tooling_api_dml` call while the Flow skill is active.
+| Invocation                                                        | What happens                                    |
+| ----------------------------------------------------------------- | ----------------------------------------------- |
+| `/validate-flow Auto_Lead_Assignment`                             | Fetches the flow from your org and validates it |
+| `/validate-flow force-app/.../Auto_Lead_Assignment.flow-meta.xml` | Validates a local file                          |
+| `/validate-flow Auto_Lead_Assignment,Screen_Case_Intake`          | Validates multiple flows with a summary table   |
+| `/validate-flow All`                                              | Validates all flows in the org, sorted by score |
+
+## Requirements
+
+- Claude Cowork or Claude Code with skill plugins enabled
+- Cirra AI MCP Server
+- Target Salesforce org
+  - API Version 65.0+ (Winter '26)
+
+## For Contributors
+
+### Validation Hooks
+
+This skill ships Python validation scripts in `scripts/` that run automatically at two points. Validation is **skill-scoped** — the pre-deployment hook only registers while the cirra-ai-sf-flow skill is active.
+
+#### Hook 1: `pre-mcp-validate.py` — pre-deployment (blocking)
+
+Defined in `SKILL.md` frontmatter as a skill-scoped PreToolUse hook. Fires before every `metadata_create`, `metadata_update`, and `tooling_api_dml` call while the Flow skill is active.
 
 | Result                                                   | Action                                       |
 | -------------------------------------------------------- | -------------------------------------------- |
@@ -130,9 +153,9 @@ Defined in `skills/cirra-ai-sf-flow/SKILL.md` frontmatter as a **skill-scoped Pr
 | Pass                                                     | Allows deployment with score summary         |
 | Non-Flow type (ApexClass, CustomObject, etc.)            | Passes through silently                      |
 
-### Hook 2: `post-tool-validate.py` — post-write (advisory)
+#### Hook 2: `post-tool-validate.py` — post-write (advisory)
 
-Triggered by `hooks/hooks.json` on `PostToolUse` for `Write|Edit`. Runs `EnhancedFlowValidator` on any `.flow-meta.xml` file written to the local working folder and outputs a scored report to the transcript.
+Triggered by `hooks/hooks.json` on `PostToolUse` for `Write|Edit`. Runs `EnhancedFlowValidator` on any `.flow-meta.xml` file and outputs a scored report to the transcript.
 
 **`validate_flow.py`: 110-point static analysis**
 
@@ -145,22 +168,7 @@ Triggered by `hooks/hooks.json` on `PostToolUse` for `Write|Edit`. Runs `Enhance
 | Error Handling & Observability | 15     | Fault connectors on all DML/queries, unhandled paths                |
 | Security & Governance          | 10     | Sharing mode, hardcoded IDs, API version ≥ 59.0                     |
 
-**Scoring thresholds**: 88+ (80%) required for deployment. Score maps to star rating (Excellent / Very Good / Good / Needs Work / Critical Issues) with per-category breakdown and prioritised issue list.
-
-## /validate-flow Command
-
-On-demand validation command. Accepts a flow API name, local file path, comma-separated list, or `All`:
-
-| Invocation                                                        | What happens                                                               |
-| ----------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| `/validate-flow Auto_Lead_Assignment`                             | Fetches `Auto_Lead_Assignment` XML from org via `metadata_read`, validates |
-| `/validate-flow force-app/.../Auto_Lead_Assignment.flow-meta.xml` | Reads local file, validates                                                |
-| `/validate-flow Auto_Lead_Assignment,Screen_Case_Intake`          | Validates each in sequence, shows summary table                            |
-| `/validate-flow All`                                              | Validates all Flow records in the org, summary sorted by score             |
-
-The command uses `validate_flow_cli.py` under the hood — the same 110-point pipeline as the hooks.
-
-### Other scripts
+### Scripts
 
 | Script                   | Purpose                                                                    |
 | ------------------------ | -------------------------------------------------------------------------- |
@@ -168,13 +176,6 @@ The command uses `validate_flow_cli.py` under the hood — the same 110-point pi
 | `pre-mcp-validate.py`    | PreToolUse hook adapter — translates hook stdin to FlowMCPValidator format |
 | `post-write-validate.py` | Legacy hook (Write only). Not wired in hooks.json                          |
 | `mcp_validator_cli.py`   | Manual pre-flight check for MCP Flow deployment calls                      |
-
-## Requirements
-
-- Claude Cowork or Claude Code with skill plugins enabled
-- Cirra AI MCP Server
-- Target Salesforce org
-  - API Version 65.0+ (Winter '26)
 
 ## License
 

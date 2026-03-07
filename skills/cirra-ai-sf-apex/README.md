@@ -79,81 +79,22 @@ The skill generates:
 | `queueable.cls`      | Queueable async job               |
 | `test-class.cls`     | Test class with data factory      |
 
-## Validation Hooks
+## Automatic Validation
 
-This plugin ships Python validation scripts in `scripts/` that run automatically at two points. Validation is **skill-scoped** — the pre-deployment hook only registers while the cirra-ai-sf-apex skill is active, so there is no overhead when doing unrelated work.
+Apex code is automatically validated as you work:
 
-Use [`/validate-apex`](#validate-apex-command) for on-demand checks at any time.
+- **Before deployment**: Critical issues (SOQL/DML in loops, injection risks) block deployment until fixed. Lower-severity issues are flagged as warnings.
+- **After writing**: Every Apex file you create or edit is scored against the 150-point rubric with a per-category breakdown.
+- **AI anti-pattern detection**: Catches common AI-generated mistakes like invalid Java types, hallucinated methods, and unsafe Map access.
 
-### Hook 1: `pre-mcp-validate.py` — pre-deployment (blocking)
+Use `/validate-apex` at any time for on-demand checks:
 
-Defined in `skills/cirra-ai-sf-apex/SKILL.md` frontmatter as a **skill-scoped PreToolUse hook**. Fires before every `metadata_create`, `metadata_update`, and `tooling_api_dml` call while the Apex skill is active.
-
-| Result                                              | Action                                       |
-| --------------------------------------------------- | -------------------------------------------- |
-| Critical/High issues (SOQL/DML in loops, injection) | Blocks deployment, surfaces issues to Claude |
-| Score < 67%                                         | Allows deployment with advisory warning      |
-| Pass                                                | Allows deployment with score summary         |
-| Non-Apex type (Flow, CustomObject, etc.)            | Passes through silently                      |
-
-### Hook 2: `post-tool-validate.py` — post-write (advisory)
-
-Triggered by `hooks/hooks.json` on `PostToolUse` for `Write|Edit`. Runs a two-phase validation pipeline and outputs a scored report to the transcript.
-
-**Phase 1 — `validate_apex.py`: 150-point static analysis**
-
-| Category       | Points | What it checks                              |
-| -------------- | ------ | ------------------------------------------- |
-| Bulkification  | 25     | SOQL/DML inside loops                       |
-| Security       | 25     | Sharing keywords, SOQL injection risk       |
-| Testing        | 25     | Test methods, assertions, coverage patterns |
-| Architecture   | 20     | SOLID principles, separation of concerns    |
-| Clean Code     | 20     | PascalCase classes, camelCase methods       |
-| Error Handling | 15     | Empty catch blocks, exception patterns      |
-| Performance    | 10     | Async patterns, governor limit awareness    |
-| Documentation  | 10     | ApexDoc on public methods                   |
-
-**Phase 1.5 — `llm_pattern_validator.py`: LLM anti-pattern detection**
-
-Catches mistakes that AI models commonly make when generating Apex:
-
-- **Java types**: `ArrayList`, `HashMap`, `StringBuilder`, etc. (don't exist in Apex)
-- **Hallucinated methods**: `stream()`, `collect()`, `addMilliseconds()`, `getOrDefault()`, `entrySet()`, `String.matches()`, etc.
-- **Unsafe Map access**: `map.get(key).method()` without null check or `containsKey()`
-- **SOQL field gaps**: queries with very few fields where subsequent code accesses many more
-
-**Phase 2 — Scoring and output**
-
-Score is mapped to a 1–5 star rating (Excellent / Very Good / Good / Needs Work / Critical Issues) with a per-category breakdown and prioritised issue list (up to 12 issues, sorted by severity).
-
-## /validate-apex Command
-
-On-demand validation command. Accepts a class name, local file path, comma-separated list, or `All`:
-
-| Invocation                           | What happens                                                        |
-| ------------------------------------ | ------------------------------------------------------------------- |
-| `/validate-apex MyClass`             | Fetches `MyClass` body from org via `tooling_api_query`, validates  |
-| `/validate-apex path/to/MyClass.cls` | Reads local file, validates                                         |
-| `/validate-apex MyClass,OtherClass`  | Validates each in sequence, shows summary table                     |
-| `/validate-apex All`                 | Validates all ApexClass records in the org, summary sorted by score |
-
-The command uses `validate_apex_cli.py` under the hood — the same 150-point + LLM anti-pattern pipeline as the hooks.
-
-### Other scripts
-
-| Script                   | Purpose                                                                 |
-| ------------------------ | ----------------------------------------------------------------------- |
-| `validate_apex_cli.py`   | Standalone script used by `/validate-apex` — takes a file path argument |
-| `pre-mcp-validate.py`    | PreToolUse hook adapter — translates hook stdin to mcp_validator format |
-| `post-write-validate.py` | Legacy hook (Write only, no LLM check). Not wired in hooks.json         |
-| `mcp_validator_cli.py`   | Manual pre-flight check for MCP metadata deployment calls               |
-
-**Manual MCP pre-flight** — validate an Apex deployment payload before calling the MCP tool:
-
-```bash
-echo '{"tool":"metadata_create","params":{"type":"ApexClass","metadata":[{"fullName":"MyClass","body":"public class MyClass {}"}]}}' \
-  | python scripts/mcp_validator_cli.py --format report
-```
+| Invocation                           | What happens                                           |
+| ------------------------------------ | ------------------------------------------------------ |
+| `/validate-apex MyClass`             | Fetches the class from your org and validates it       |
+| `/validate-apex path/to/MyClass.cls` | Validates a local file                                 |
+| `/validate-apex MyClass,OtherClass`  | Validates multiple classes with a summary table        |
+| `/validate-apex All`                 | Validates all Apex classes in the org, sorted by score |
 
 ## Cross-Skill Integration
 
@@ -186,10 +127,66 @@ This plugin is designed for use with Cirra AI, a commercial product developed by
 
 For credits see [CREDITS](CREDITS.md)
 
-## Contributor Integration Testing (Actual Org)
+## For Contributors
 
-This section is primarily for open-source contributors to this repository.
-If you are using the skill as a customer, you usually do not need to run these tests.
+### Validation Hooks
+
+This skill ships Python validation scripts in `scripts/` that run automatically at two points. Validation is **skill-scoped** — the pre-deployment hook only registers while the cirra-ai-sf-apex skill is active.
+
+#### Hook 1: `pre-mcp-validate.py` — pre-deployment (blocking)
+
+Defined in `SKILL.md` frontmatter as a skill-scoped PreToolUse hook. Fires before every `metadata_create`, `metadata_update`, and `tooling_api_dml` call while the Apex skill is active.
+
+| Result                                              | Action                                       |
+| --------------------------------------------------- | -------------------------------------------- |
+| Critical/High issues (SOQL/DML in loops, injection) | Blocks deployment, surfaces issues to Claude |
+| Score < 67%                                         | Allows deployment with advisory warning      |
+| Pass                                                | Allows deployment with score summary         |
+| Non-Apex type (Flow, CustomObject, etc.)            | Passes through silently                      |
+
+#### Hook 2: `post-tool-validate.py` — post-write (advisory)
+
+Triggered by `hooks/hooks.json` on `PostToolUse` for `Write|Edit`. Runs a two-phase validation pipeline and outputs a scored report to the transcript.
+
+**Phase 1 — `validate_apex.py`: 150-point static analysis**
+
+| Category       | Points | What it checks                              |
+| -------------- | ------ | ------------------------------------------- |
+| Bulkification  | 25     | SOQL/DML inside loops                       |
+| Security       | 25     | Sharing keywords, SOQL injection risk       |
+| Testing        | 25     | Test methods, assertions, coverage patterns |
+| Architecture   | 20     | SOLID principles, separation of concerns    |
+| Clean Code     | 20     | PascalCase classes, camelCase methods       |
+| Error Handling | 15     | Empty catch blocks, exception patterns      |
+| Performance    | 10     | Async patterns, governor limit awareness    |
+| Documentation  | 10     | ApexDoc on public methods                   |
+
+**Phase 1.5 — `llm_pattern_validator.py`: LLM anti-pattern detection**
+
+Catches mistakes that AI models commonly make when generating Apex:
+
+- **Java types**: `ArrayList`, `HashMap`, `StringBuilder`, etc. (don't exist in Apex)
+- **Hallucinated methods**: `stream()`, `collect()`, `addMilliseconds()`, `getOrDefault()`, `entrySet()`, `String.matches()`, etc.
+- **Unsafe Map access**: `map.get(key).method()` without null check or `containsKey()`
+- **SOQL field gaps**: queries with very few fields where subsequent code accesses many more
+
+### Scripts
+
+| Script                   | Purpose                                                                 |
+| ------------------------ | ----------------------------------------------------------------------- |
+| `validate_apex_cli.py`   | Standalone script used by `/validate-apex` — takes a file path argument |
+| `pre-mcp-validate.py`    | PreToolUse hook adapter — translates hook stdin to mcp_validator format |
+| `post-write-validate.py` | Legacy hook (Write only, no LLM check). Not wired in hooks.json         |
+| `mcp_validator_cli.py`   | Manual pre-flight check for MCP metadata deployment calls               |
+
+**Manual MCP pre-flight** — validate an Apex deployment payload before calling the MCP tool:
+
+```bash
+echo '{"tool":"metadata_create","params":{"type":"ApexClass","metadata":[{"fullName":"MyClass","body":"public class MyClass {}"}]}}' \
+  | python scripts/mcp_validator_cli.py --format report
+```
+
+### Integration Testing (Actual Org)
 
 To validate end-to-end behavior in a real Salesforce org (LLM prompt → MCP calls → deployed metadata → org verification), use:
 
