@@ -94,7 +94,7 @@ def main() -> int:
             lines.append(f"• ...and {len(blocking) - 5} more critical issues")
 
         reason = (
-            f"Apex validation blocked deployment of '{full_name}' "
+            f"Apex validation found critical issues for '{full_name}' "
             f"(score: {score}/{max_score}, {pct:.0f}%).\n\n"
             f"Critical issues must be fixed before deploying:\n"
             + "\n".join(lines)
