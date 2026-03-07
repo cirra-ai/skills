@@ -889,8 +889,8 @@ def generate_docx(data, summary, org_name, org_id, instance, run_date, output_pa
     doc.add_heading("Recommendations", level=1)
     rec_data = _recommendations_list(data)
     if rec_data:
-        for i, rec in enumerate(rec_data, 1):
-            doc.add_paragraph(f"{i}. {rec}", style="List Number")
+        for rec in rec_data:
+            doc.add_paragraph(rec, style="List Number")
     else:
         doc.add_paragraph("No recommendations — org is in great shape.")
 
