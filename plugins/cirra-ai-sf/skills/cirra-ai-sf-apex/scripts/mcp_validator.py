@@ -72,7 +72,7 @@ def _extract_code_body(tool: str, params: dict[str, Any]) -> tuple[str, str, str
 
         if isinstance(record, dict):
             body = record.get("Body", record.get("body", ""))
-            full_name = record.get("FullName", record.get("fullName", ""))
+            full_name = record.get("Name", record.get("FullName", record.get("fullName", "")))
 
     return metadata_type, body, full_name
 
@@ -137,6 +137,7 @@ def _basic_loop_map(body: str) -> list[bool]:
             paren_depth = 0  # reset paren tracking for this loop header
 
         braceless_body = False
+        loop_scope_opened_line = False
         for ch in clean:
             if ch == "(":
                 paren_depth += 1
@@ -144,6 +145,8 @@ def _basic_loop_map(body: str) -> list[bool]:
                 paren_depth = max(0, paren_depth - 1)
             elif ch == "{":
                 brace_stack.append(bool(pending_loop))
+                if pending_loop:
+                    loop_scope_opened_line = True
                 pending_loop = False
             elif ch == "}":
                 if brace_stack:
@@ -154,7 +157,7 @@ def _basic_loop_map(body: str) -> list[bool]:
                 braceless_body = True
                 pending_loop = False
 
-        result.append(any(brace_stack) or braceless_body)
+        result.append(any(brace_stack) or braceless_body or loop_scope_opened_line)
 
     return result
 

@@ -3,14 +3,15 @@
 Live integration test for Apex deployment via Cirra AI MCP Server.
 Run interactively in a Claude Code or Codex session with MCP access and the `cirra-ai-sf-apex` skill active.
 
-## Purpose
+## Test Summary (Last Run: 2026-03-07)
 
-Validate that an LLM can:
-
-1. Apply the Apex skill workflow
-2. Deploy Apex artifacts to a real org
-3. Verify outcomes in the org
-4. Catch and handle negative cases
+| #   | Test                                        | Result | Details                                           |
+| --- | ------------------------------------------- | ------ | ------------------------------------------------- |
+| 1   | Clean pre-existing test artifacts           | PASS   | No TEST\_\* classes or triggers found             |
+| 2   | Deploy valid Apex class via tooling_api_dml | PASS   | Created successfully, 150/150                     |
+| 3   | Deploy valid trigger via tooling_api_dml    | PASS   | Created, status Active                            |
+| 4   | DML-in-loop class blocked by validator      | PASS   | Validator detects CRITICAL (140/150), hook denies |
+| 5   | Missing sharing class allowed with advisory | PASS   | Validator warns (145/150), deploy allowed         |
 
 ## Prerequisites
 
@@ -54,17 +55,23 @@ tooling_api_query(
 
 Expected: 0 records, or delete found records before proceeding.
 
-## Step 2: Deploy Valid Apex Class via metadata_create
+## Step 2: Deploy Valid Apex Class via tooling_api_dml
+
+> **Note**: Apex classes must be deployed via `tooling_api_dml`, not `metadata_create`.
+> The Metadata API does not support the `body` field for ApexClass — it returns
+> `"Element body invalid at this location in type ApexClass"`.
 
 Deploy:
 
 ```python
-metadata_create(
-    type="ApexClass",
-    metadata=[{
-        "fullName": "TEST_AccountService_Valid",
-        "body": "public with sharing class TEST_AccountService_Valid { public static Integer process(List<Account> records) { if (records == null) return 0; Integer countProcessed = 0; for (Account a : records) { if (a.Name != null) { a.Name = a.Name.trim(); countProcessed++; } } return countProcessed; } }"
-    }]
+tooling_api_dml(
+    operation="insert",
+    sObject="ApexClass",
+    record={
+        "Name": "TEST_AccountService_Valid",
+        "Body": "public with sharing class TEST_AccountService_Valid { public static Integer process(List<Account> records) { if (records == null) return 0; Integer countProcessed = 0; for (Account a : records) { if (a.Name != null) { a.Name = a.Name.trim(); countProcessed++; } } return countProcessed; } }",
+        "Status": "Active"
+    }
 )
 ```
 
@@ -125,18 +132,20 @@ Expected: 1 record found, status active.
 Attempt to deploy:
 
 ```python
-metadata_create(
-    type="ApexClass",
-    metadata=[{
-        "fullName": "TEST_Bad_DmlInLoop",
-        "body": "public with sharing class TEST_Bad_DmlInLoop { public static void run(List<Account> accounts) { for (Account a : accounts) { update a; } } }"
-    }]
+tooling_api_dml(
+    operation="insert",
+    sObject="ApexClass",
+    record={
+        "Name": "TEST_Bad_DmlInLoop",
+        "Body": "public with sharing class TEST_Bad_DmlInLoop { public static void run(List<Account> accounts) { for (Account a : accounts) { update a; } } }",
+        "Status": "Active"
+    }
 )
 ```
 
 Expected:
 
-- Pre-MCP validator denies deployment (CRITICAL bulkification issue)
+- Pre-MCP validator denies deployment (CRITICAL bulkification issue, score 140/150)
 - No class record is created
 
 Verify:
@@ -156,18 +165,20 @@ Expected: 0 records.
 Deploy:
 
 ```python
-metadata_create(
-    type="ApexClass",
-    metadata=[{
-        "fullName": "TEST_MissingSharing",
-        "body": "public class TEST_MissingSharing { public static void run() { System.debug('x'); } }"
-    }]
+tooling_api_dml(
+    operation="insert",
+    sObject="ApexClass",
+    record={
+        "Name": "TEST_MissingSharing",
+        "Body": "public class TEST_MissingSharing { public static void run() { System.debug('x'); } }",
+        "Status": "Active"
+    }
 )
 ```
 
 Expected:
 
-- Deployment is allowed (warning/advisory path)
+- Deployment is allowed (warning/advisory path, score 145/150)
 - Class exists in org after deployment
 
 Verify:
@@ -206,3 +217,9 @@ Expected cleanup target:
 - Critical negative case is blocked before deploy
 - Advisory warning case is allowed
 - LLM reports each result and matches expected behavior
+
+## Key Insights from Testing
+
+1. **Apex requires Tooling API, not Metadata API**: `metadata_create` does not support the `body` field for `ApexClass`. Always use `tooling_api_dml` with `insert` for new Apex classes and triggers.
+2. **Validator `full_name` extraction**: The `tooling_api_dml` record uses `Name` (not `FullName`). The validator must check `Name` first when extracting the class/trigger name.
+3. **Plugins must stay in sync**: The `plugins/` directory contains a copy of the validator scripts. If `skills/` is updated but `plugins/` is not rebuilt, the deployed hook uses stale code. This caused the DML-in-loop check to fail silently in prior runs.
