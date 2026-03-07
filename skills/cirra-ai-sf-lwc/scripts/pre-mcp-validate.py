@@ -7,6 +7,7 @@ targeting LightningComponentBundle.  Extracts the payload from the MCP
 parameters and validates it using the SLDS + template analysis pipeline.
 
 Decisions:
+  - Validation error (empty bundle, etc.)   → deny deployment
   - Critical template issues                → deny deployment
   - Score < 67%                             → allow with warning
   - Pass                                    → allow with score summary
@@ -67,8 +68,14 @@ def main() -> int:
     status = result.get("status", "")
 
     # Not an LWC type — skip
-    if status in ("skipped", "error"):
+    if status == "skipped":
         print(json.dumps(_allow()))
+        return 0
+
+    # Validation error (e.g. empty bundle, unsupported tool) — deny
+    if status == "error":
+        message = result.get("message", "LWC validation error")
+        print(json.dumps(_deny(message)))
         return 0
 
     # Scored result
