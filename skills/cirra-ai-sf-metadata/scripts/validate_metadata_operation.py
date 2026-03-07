@@ -77,10 +77,11 @@ class MetadataOperationValidator:
 
     def _check_security(self):
         # ValidationRule formula scanning for fragile syntax patterns.
-        formula = str(self.payload.get("errorConditionFormula", ""))
-        formula_findings = analyze_formula_safety(formula)
-        for finding in formula_findings:
-            self._deduct("security", 5, finding, "warning")
+        if self.metadata_type == "ValidationRule":
+            formula = str(self.payload.get("errorConditionFormula", ""))
+            formula_findings = analyze_formula_safety(formula)
+            for finding in formula_findings:
+                self._deduct("security", 5, finding, "warning")
 
         # PermissionSet should avoid granting ModifyAllData by default.
         if self.metadata_type == "PermissionSet":

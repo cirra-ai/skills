@@ -154,7 +154,7 @@ def _basic_schema_validate(item: dict, schema: dict) -> list[str]:
             errors.append(f"{field}: {value!r} is not of type 'string'")
         elif expected == "array" and not isinstance(value, list):
             errors.append(f"{field}: {value!r} is not of type 'array'")
-        elif expected == "integer" and not isinstance(value, int):
+        elif expected == "integer" and (not isinstance(value, int) or isinstance(value, bool)):
             errors.append(f"{field}: {value!r} is not of type 'integer'")
 
     return errors

@@ -33,7 +33,7 @@ def _extract_metadata(tool: str, params: dict[str, Any]) -> tuple[str, dict[str,
                 payload = first
                 full_name = str(first.get("fullName", ""))
 
-    if tool == "tooling_api_dml":
+    elif tool == "tooling_api_dml":
         sobject = params.get("sObject", "")
         record = params.get("record", {})
         metadata_type = sobject
@@ -78,7 +78,8 @@ def validate_metadata_deployment(input_data: dict[str, Any]) -> dict[str, Any]:
         return {**base, "message": "Missing or empty metadata payload"}
 
     result = MetadataOperationValidator(metadata_type, payload).validate()
-    return {**base, **result, "status": "scored"}
+    quality_status = result.pop("status", "unknown")
+    return {**base, **result, "status": "scored", "quality_status": quality_status}
 
 
 class MetadataMCPValidator:

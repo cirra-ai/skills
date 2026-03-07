@@ -49,3 +49,9 @@ def test_response_contains_required_metadata_keys():
     r = MetadataMCPValidator().validate(_valid_create_input())
     for key in ("tier", "tool", "metadata_type", "status", "validator"):
         assert key in r
+
+
+def test_quality_status_preserved_alongside_mcp_status():
+    r = MetadataMCPValidator().validate(_valid_create_input())
+    assert r["status"] == "scored"
+    assert r["quality_status"] in ("pass", "needs_attention", "critical")
