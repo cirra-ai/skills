@@ -1,0 +1,9 @@
+{
+  "fullName": "Invoice__c.Amount__c",
+  "label": "Amount",
+  "type": "Currency",
+  "precision": 18,
+  "scale": 2,
+  "required": false,
+  "description": "Stores the invoice amount"
+}
