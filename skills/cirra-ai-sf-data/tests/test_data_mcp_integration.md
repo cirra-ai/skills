@@ -254,6 +254,11 @@ sobject_dml(
 
 Expected: API error — `REQUIRED_FIELD_MISSING` (Account.Name is required).
 
+> **Test interaction warning**: If the Apex trigger `TEST_AccountTrigger_Valid` from the
+> Apex integration test is active in the org, it auto-fills blank Account Names with
+> `'Test Account'`, causing this step to succeed instead of returning `REQUIRED_FIELD_MISSING`.
+> Ensure no before-insert triggers on Account are active when running this test in isolation.
+
 ## Step 14: Insert with Invalid Field Name (Negative)
 
 ```

@@ -72,7 +72,7 @@ def _extract_code_body(tool: str, params: dict[str, Any]) -> tuple[str, str, str
 
         if isinstance(record, dict):
             body = record.get("Body", record.get("body", ""))
-            full_name = record.get("FullName", record.get("fullName", ""))
+            full_name = record.get("Name", record.get("FullName", record.get("fullName", "")))
 
     return metadata_type, body, full_name
 
