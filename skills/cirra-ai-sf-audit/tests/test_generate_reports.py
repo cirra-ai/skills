@@ -90,10 +90,11 @@ def test_compute_summary_severity_counts(gen):
 
 
 def test_score_rating_boundaries(gen):
-    assert gen.score_rating(90)[0] == "Excellent"
-    assert gen.score_rating(89)[0] == "Good"
-    assert gen.score_rating(75)[0] == "Good"
-    assert gen.score_rating(74)[0] == "Acceptable"
+    assert gen.score_rating(100)[0] == "Excellent"
+    assert gen.score_rating(80)[0] == "Excellent"
+    assert gen.score_rating(79)[0] == "Good"
+    assert gen.score_rating(70)[0] == "Good"
+    assert gen.score_rating(69)[0] == "Acceptable"
     assert gen.score_rating(60)[0] == "Acceptable"
     assert gen.score_rating(59)[0] == "Needs Improvement"
     assert gen.score_rating(40)[0] == "Needs Improvement"
@@ -179,6 +180,15 @@ def test_generate_json_summary(gen, output_dir):
         "generated_date",
     ]:
         assert key in result, f"Missing key in JSON summary: {key}"
+
+
+def test_generate_json_summary_does_not_mutate_input(gen, output_dir):
+    data = gen.load_inputs(str(FIXTURES_DIR))
+    summary = gen.compute_summary(data)
+    output_dir.mkdir(parents=True)
+    json_path = output_dir / "summary.json"
+    gen.generate_json_summary(summary, "2026-03-06", json_path)
+    assert "generated_date" not in summary
 
 
 # ── Empty data handling ─────────────────────────────────────────────────────

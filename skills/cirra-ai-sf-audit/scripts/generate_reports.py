@@ -48,8 +48,8 @@ BORDER = "#E0E4EA"
 MUTED = "#6B7280"
 
 SCORE_THRESHOLDS = [
-    (90, "Excellent", "#E8FBF9", "#14DDDD"),
-    (75, "Good", "#E9F7EF", "#27AE60"),
+    (80, "Excellent", "#E8FBF9", "#14DDDD"),
+    (70, "Good", "#E9F7EF", "#27AE60"),
     (60, "Acceptable", "#FEF3CD", "#F39C12"),
     (40, "Needs Improvement", "#FEF9E7", "#E67E22"),
     (0, "Critical", "#FDE8E8", "#E74C3C"),
@@ -268,7 +268,7 @@ def _recommendations_html(summary, data):
     recs = []
 
     # Collect from below-threshold items
-    for domain, items_key, max_s in [
+    for domain, items_key, default_max in [
         ("Apex", "apex_scores", 150),
         ("Flows", "flow_scores", 110),
         ("LWC", "lwc_scores", 165),
@@ -276,6 +276,7 @@ def _recommendations_html(summary, data):
     ]:
         for item in sorted(data.get(items_key, []), key=lambda x: x.get("score", 0)):
             s = item.get("score", 0)
+            max_s = item.get("max_score", default_max)
             pct = (s / max_s * 100) if max_s > 0 else 0
             if pct < 70:
                 name = item.get("name", "Unknown")
@@ -1033,8 +1034,8 @@ def generate_xlsx(data, summary, org_name, org_id, instance, run_date, output_pa
 
 def generate_json_summary(summary, run_date, output_path):
     """Generate the JSON audit summary."""
-    summary["generated_date"] = run_date
-    Path(output_path).write_text(json.dumps(summary, indent=2, default=str), encoding="utf-8")
+    output = {**summary, "generated_date": run_date}
+    Path(output_path).write_text(json.dumps(output, indent=2, default=str), encoding="utf-8")
     return output_path
 
 

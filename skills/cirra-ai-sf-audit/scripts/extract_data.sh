@@ -189,25 +189,32 @@ print(url.replace('https://', '').split('.')[0] if url else '')
 " <<< "$ORG_INFO" 2>/dev/null || echo "")
 fi
 
-cat > "$OUTPUT_DIR/counts.json" <<COUNTS_EOF
-{
-  "org_name": "$ORG_NAME",
-  "org_id": "$ORG_ID",
-  "instance": "$INSTANCE",
-  "apex_classes": $APEX_CLASSES,
-  "apex_triggers": $APEX_TRIGGERS,
-  "active_flows": $ACTIVE_FLOWS,
-  "process_builders": $PROCESS_BUILDERS,
-  "lwc_bundles": $LWC_BUNDLES,
-  "custom_objects": $CUSTOM_OBJECTS,
-  "validation_rules": $VALIDATION_RULES,
-  "workflow_rules": $WORKFLOW_RULES,
-  "permission_sets": $PERMISSION_SETS,
-  "permission_set_groups": $PERMISSION_SET_GROUPS,
-  "profiles": $PROFILES,
-  "active_users": $ACTIVE_USERS
+# Build counts.json via Python to ensure proper JSON escaping of string values
+python3 -c "
+import json, sys
+data = {
+    'org_name': sys.argv[1],
+    'org_id': sys.argv[2],
+    'instance': sys.argv[3],
+    'apex_classes': int(sys.argv[4]),
+    'apex_triggers': int(sys.argv[5]),
+    'active_flows': int(sys.argv[6]),
+    'process_builders': int(sys.argv[7]),
+    'lwc_bundles': int(sys.argv[8]),
+    'custom_objects': int(sys.argv[9]),
+    'validation_rules': int(sys.argv[10]),
+    'workflow_rules': int(sys.argv[11]),
+    'permission_sets': int(sys.argv[12]),
+    'permission_set_groups': int(sys.argv[13]),
+    'profiles': int(sys.argv[14]),
+    'active_users': int(sys.argv[15]),
 }
-COUNTS_EOF
+json.dump(data, open(sys.argv[16], 'w'), indent=2)
+" "$ORG_NAME" "$ORG_ID" "$INSTANCE" \
+  "$APEX_CLASSES" "$APEX_TRIGGERS" "$ACTIVE_FLOWS" "$PROCESS_BUILDERS" \
+  "$LWC_BUNDLES" "$CUSTOM_OBJECTS" "$VALIDATION_RULES" "$WORKFLOW_RULES" \
+  "$PERMISSION_SETS" "$PERMISSION_SET_GROUPS" "$PROFILES" "$ACTIVE_USERS" \
+  "$OUTPUT_DIR/counts.json"
 
 echo "  Inventory: $APEX_CLASSES Apex classes, $APEX_TRIGGERS triggers, $ACTIVE_FLOWS flows, $LWC_BUNDLES LWC, $CUSTOM_OBJECTS objects"
 
