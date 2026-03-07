@@ -45,26 +45,11 @@ echo ""
 "$SCRIPT_DIR/sync-plugin-skills.sh"
 echo ""
 
-# Directories to exclude from zips
-EXCLUDE_PATTERNS=(
-  "*.DS_Store"
-  "*__MACOSX*"
-  "*.pyc"
-  "*__pycache__*"
-  "*.ruff_cache*"
-  "*/tests/*"
-  "*/fixtures/*"
-)
-
-build_exclude_args() {
-  local args=()
-  for pattern in "${EXCLUDE_PATTERNS[@]}"; do
-    args+=(-x "$pattern")
-  done
-  echo "${args[@]}"
-}
-
-EXCLUDE_ARGS=$(build_exclude_args)
+# Directories to exclude from zips — built as an array to avoid glob expansion
+EXCLUDE_ARGS=()
+for _pat in "*.DS_Store" "*__MACOSX*" "*.pyc" "*__pycache__*" "*.ruff_cache*" "*/tests/*" "*/fixtures/*"; do
+  EXCLUDE_ARGS+=(-x "$_pat")
+done
 
 echo "=== Packaging Cirra AI Plugins ==="
 echo ""
@@ -88,7 +73,7 @@ for plugin_json in "$REPO_ROOT"/plugins/*/.claude-plugin/plugin.json; do
 
   echo "  Packaging $plugin_name..."
 
-  (cd "$REPO_ROOT/plugins" && zip -r -q "$PLUGINS_OUT_DIR/$plugin_name.zip" "$plugin_name" $EXCLUDE_ARGS)
+  (cd "$REPO_ROOT/plugins" && zip -r -q "$PLUGINS_OUT_DIR/$plugin_name.zip" "$plugin_name" "${EXCLUDE_ARGS[@]}")
 done
 
 echo ""
