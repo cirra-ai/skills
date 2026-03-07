@@ -10,26 +10,11 @@ PLUGINS_DIR="$REPO_ROOT/install/plugins"
 rm -rf "$PLUGINS_DIR"
 mkdir -p "$PLUGINS_DIR"
 
-# Directories to exclude from zips
-EXCLUDE_PATTERNS=(
-  "*.DS_Store"
-  "*__MACOSX*"
-  "*.pyc"
-  "*__pycache__*"
-  "*.ruff_cache*"
-  "*/tests/*"
-  "*/fixtures/*"
-)
-
-build_exclude_args() {
-  local args=()
-  for pattern in "${EXCLUDE_PATTERNS[@]}"; do
-    args+=(-x "$pattern")
-  done
-  echo "${args[@]}"
-}
-
-EXCLUDE_ARGS=$(build_exclude_args)
+# Directories to exclude from zips — built as an array to avoid glob expansion
+EXCLUDE_ARGS=()
+for _pat in "*.DS_Store" "*__MACOSX*" "*.pyc" "*__pycache__*" "*.ruff_cache*" "*/tests/*" "*/fixtures/*"; do
+  EXCLUDE_ARGS+=(-x "$_pat")
+done
 
 echo "=== Packaging Cirra AI Plugins ==="
 echo ""
@@ -52,7 +37,7 @@ for plugin_json in "$REPO_ROOT"/*/.claude-plugin/plugin.json; do
   PLUGIN_COUNT=$((PLUGIN_COUNT + 1))
 
   echo "  Packaging $plugin_name..."
-  (cd "$REPO_ROOT" && zip -r -q "$PLUGINS_DIR/$plugin_name.zip" "$plugin_name" $EXCLUDE_ARGS)
+  (cd "$REPO_ROOT" && zip -r -q "$PLUGINS_DIR/$plugin_name.zip" "$plugin_name" "${EXCLUDE_ARGS[@]}")
 done
 
 echo ""
@@ -69,7 +54,7 @@ done
 # Include the root marketplace.json
 BUNDLE_ARGS+=(".claude-plugin")
 
-(cd "$REPO_ROOT" && zip -r -q "$PLUGINS_DIR/cirra-ai-sf-skills.zip" "${BUNDLE_ARGS[@]}" $EXCLUDE_ARGS)
+(cd "$REPO_ROOT" && zip -r -q "$PLUGINS_DIR/cirra-ai-sf-skills.zip" "${BUNDLE_ARGS[@]}" "${EXCLUDE_ARGS[@]}")
 
 echo ""
 echo "=== Done ==="
