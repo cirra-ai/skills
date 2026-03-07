@@ -1,0 +1,26 @@
+[
+  {
+    "type": "permission_set",
+    "name": "Full_Access_PS",
+    "label": "Full Access",
+    "assignments": 3,
+    "severity": "CRITICAL",
+    "message": "Non-admin Permission Set with ModifyAllData enabled"
+  },
+  {
+    "type": "profile",
+    "name": "Custom Sales Profile",
+    "user_type": "Standard",
+    "key_permissions": "ViewAllData",
+    "severity": "HIGH",
+    "message": "Custom Profile with ViewAllData — use Permission Sets instead"
+  },
+  {
+    "type": "permission_set",
+    "name": "Unused_PS",
+    "label": "Unused Permissions",
+    "assignments": 0,
+    "severity": "LOW",
+    "message": "Orphaned Permission Set with 0 assignments"
+  }
+]

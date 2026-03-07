@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Project__c",
+    "score": 90,
+    "max_score": 120,
+    "field_count": 25,
+    "relationship_count": 3,
+    "issues": ["Missing description on 5 custom fields"]
+  },
+  {
+    "name": "Invoice__c",
+    "score": 55,
+    "max_score": 120,
+    "field_count": 42,
+    "relationship_count": 1,
+    "issues": [
+      "No help text on user-facing fields",
+      "Missing object description",
+      "Outdated API version"
+    ]
+  }
+]

@@ -1,0 +1,19 @@
+[
+  {
+    "name": "Account_Update_Flow",
+    "process_type": "RecordTriggeredFlow",
+    "score": 85,
+    "max_score": 110,
+    "issues": ["No fault path on DML element"]
+  },
+  {
+    "name": "Lead_Screen_Flow",
+    "score": 60,
+    "max_score": 110,
+    "issues": [
+      "Hardcoded Record Type ID",
+      "No input validation on screen",
+      "Missing fault connector"
+    ]
+  }
+]

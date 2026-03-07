@@ -1,0 +1,14 @@
+[
+  {
+    "name": "ContactTrigger",
+    "object": "Contact",
+    "events": "before insert, before update",
+    "findings": [
+      {
+        "severity": "HIGH",
+        "message": "Logic inside trigger body instead of handler class"
+      },
+      { "severity": "MEDIUM", "message": "Missing before/after context checks" }
+    ]
+  }
+]

@@ -1,0 +1,17 @@
+{
+  "org_name": "Test Org",
+  "org_id": "00D000000000001AAA",
+  "instance": "CS42",
+  "apex_classes": 3,
+  "apex_triggers": 1,
+  "active_flows": 2,
+  "process_builders": 1,
+  "lwc_bundles": 1,
+  "custom_objects": 2,
+  "validation_rules": 2,
+  "workflow_rules": 1,
+  "permission_sets": 2,
+  "permission_set_groups": 1,
+  "profiles": 3,
+  "active_users": 10
+}
