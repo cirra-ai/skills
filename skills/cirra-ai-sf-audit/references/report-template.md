@@ -29,9 +29,9 @@ These values were extracted directly from the Cirra AI logo (assets/icon-large.p
 
 | Level      | Condition | Badge background | Badge text / border |
 | ---------- | --------- | ---------------- | ------------------- |
-| Excellent  | ≥ 90 %    | `#E8FBF9`        | `#14DDDD`           |
-| Good       | 75 – 89 % | `#E9F7EF`        | `#27AE60`           |
-| Acceptable | 60 – 74 % | `#FEF3CD`        | `#F39C12`           |
+| Excellent  | ≥ 80 %    | `#E8FBF9`        | `#14DDDD`           |
+| Good       | 70 – 79 % | `#E9F7EF`        | `#27AE60`           |
+| Acceptable | 60 – 69 % | `#FEF3CD`        | `#F39C12`           |
 | Warning    | 40 – 59 % | `#FEF9E7`        | `#E67E22`           |
 | Critical   | < 40 %    | `#FDE8E8`        | `#E74C3C`           |
 
@@ -287,7 +287,8 @@ new Table({
 ```javascript
 function scoreColor(score, max) {
   const pct = (score / max) * 100;
-  if (pct >= 80) return '27AE60'; // Excellent — green
+  if (pct >= 80) return '14DDDD'; // Excellent — teal
+  if (pct >= 70) return '27AE60'; // Good — green
   if (pct >= 60) return 'F39C12'; // Acceptable — amber
   if (pct >= 40) return 'E67E22'; // Warning — orange
   return 'E74C3C'; // Critical — red

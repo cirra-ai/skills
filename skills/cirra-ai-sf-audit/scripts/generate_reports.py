@@ -100,7 +100,7 @@ def load_inputs(input_dir):
     for key, filename in INPUT_FILES.items():
         fpath = input_path / filename
         if fpath.exists():
-            with open(fpath) as f:
+            with open(fpath, encoding="utf-8") as f:
                 data[key] = json.load(f)
         else:
             data[key] = {} if key == "counts" else []
@@ -1034,8 +1034,8 @@ def generate_xlsx(data, summary, org_name, org_id, instance, run_date, output_pa
 
 def generate_json_summary(summary, run_date, output_path):
     """Generate the JSON audit summary."""
-    summary["generated_date"] = run_date
-    Path(output_path).write_text(json.dumps(summary, indent=2, default=str), encoding="utf-8")
+    summary_out = {**summary, "generated_date": run_date}
+    Path(output_path).write_text(json.dumps(summary_out, indent=2, default=str), encoding="utf-8")
     return output_path
 
 

@@ -68,21 +68,25 @@ fi
 query_tooling() {
   local soql="$1"
   local outfile="$2"
-  sf data query --use-tooling-api \
+  if ! sf data query --use-tooling-api \
     -q "$soql" \
     --target-org "$TARGET_ORG" \
     --json \
-    > "$outfile" 2>/dev/null || true
+    > "$outfile" 2>&1; then
+    echo "WARNING: Tooling API query failed: $soql" >&2
+  fi
 }
 
 query_soql() {
   local soql="$1"
   local outfile="$2"
-  sf data query \
+  if ! sf data query \
     -q "$soql" \
     --target-org "$TARGET_ORG" \
     --json \
-    > "$outfile" 2>/dev/null || true
+    > "$outfile" 2>&1; then
+    echo "WARNING: SOQL query failed: $soql" >&2
+  fi
 }
 
 # Helper: extract count from CLI JSON output
