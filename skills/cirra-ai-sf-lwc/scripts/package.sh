@@ -17,6 +17,8 @@ EXCLUDE_PATTERNS=(
   "*.pyc"
   "*__pycache__*"
   "*.ruff_cache*"
+  "*/tests/*"
+  "*/fixtures/*"
 )
 
 build_exclude_args() {
