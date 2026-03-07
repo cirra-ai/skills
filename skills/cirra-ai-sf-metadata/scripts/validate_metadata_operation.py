@@ -114,9 +114,9 @@ class MetadataOperationValidator:
         total = sum(info["score"] for info in self.categories.values())
         if any(issue["severity"] == "critical" for issue in self.issues):
             status = "critical"
-        elif total >= 96:
+        elif total >= MAX_SCORE * 0.8:
             status = "pass"
-        elif total >= 72:
+        elif total >= MAX_SCORE * 0.6:
             status = "needs_attention"
         else:
             status = "fail"

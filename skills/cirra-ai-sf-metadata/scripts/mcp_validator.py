@@ -14,9 +14,9 @@ _spec = importlib.util.spec_from_file_location("validate_metadata_operation", _V
 _mod = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_mod)
 MetadataOperationValidator = _mod.MetadataOperationValidator
+SUPPORTED_METADATA_TYPES = _mod.SUPPORTED_METADATA_TYPES
 
 SUPPORTED_TOOLS = ("metadata_create", "metadata_update", "tooling_api_dml")
-TARGET_METADATA_TYPES = ("CustomObject", "CustomField", "ValidationRule", "RecordType", "PermissionSet")
 
 
 def _extract_metadata(tool: str, params: dict[str, Any]) -> tuple[str, dict[str, Any], str, int]:
@@ -72,7 +72,7 @@ def validate_metadata_deployment(input_data: dict[str, Any]) -> dict[str, Any]:
     if not metadata_type:
         return {**base, "message": "Could not determine metadata type from MCP payload"}
 
-    if metadata_type not in TARGET_METADATA_TYPES:
+    if metadata_type not in SUPPORTED_METADATA_TYPES:
         return {
             **base,
             "status": "skipped",
