@@ -15,6 +15,7 @@ import json
 import os
 import subprocess
 import sys
+from typing import Any
 
 _PLUGIN_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _REPO_ROOT = os.path.dirname(os.path.dirname(_PLUGIN_ROOT))
@@ -68,8 +69,7 @@ def _deny(reason: str) -> dict:
 
 def _metadata_type(tool_name: str, tool_input: dict) -> str:
     """Extract the metadata type from hook input fields."""
-    parts = tool_name.split("__", 2)
-    base_tool = parts[2] if tool_name.startswith("mcp__") and len(parts) > 2 else tool_name
+    base_tool = tool_name.split("__")[-1] if tool_name.startswith("mcp__") else tool_name
 
     if base_tool in ("metadata_create", "metadata_update"):
         return tool_input.get("type", "")
@@ -115,65 +115,20 @@ def _extract_metadata_items(tool_input: dict) -> list[dict]:
     return []
 
 
-def _resolve_schema_root(schema: dict) -> dict:
-    """Resolve a local $ref root (for example #/$defs/RecordType) when present."""
-    ref = schema.get("$ref")
-    if not isinstance(ref, str) or not ref.startswith("#/"):
-        return schema
-
-    node: dict | list = schema
-    for part in ref[2:].split("/"):
-        if not isinstance(node, dict) or part not in node:
-            return schema
-        node = node[part]
-    return node if isinstance(node, dict) else schema
-
-
-def _basic_schema_validate(item: dict, schema: dict) -> list[str]:
-    """Fallback validator when jsonschema is unavailable.
-
-    Supports required field checks and simple primitive type checks used by tests.
-    """
-    errors: list[str] = []
-    root = _resolve_schema_root(schema)
-    required = root.get("required", []) if isinstance(root, dict) else []
-    properties = root.get("properties", {}) if isinstance(root, dict) else {}
-
-    for field in required:
-        if field not in item:
-            errors.append(f"(root): {field!r} is a required property")
-
-    for field, rules in properties.items():
-        if field not in item or not isinstance(rules, dict):
-            continue
-        expected = rules.get("type")
-        value = item[field]
-        if expected == "boolean" and not isinstance(value, bool):
-            errors.append(f"{field}: {value!r} is not of type 'boolean'")
-        elif expected == "string" and not isinstance(value, str):
-            errors.append(f"{field}: {value!r} is not of type 'string'")
-        elif expected == "array" and not isinstance(value, list):
-            errors.append(f"{field}: {value!r} is not of type 'array'")
-        elif expected == "integer" and (not isinstance(value, int) or isinstance(value, bool)):
-            errors.append(f"{field}: {value!r} is not of type 'integer'")
-
-    return errors
-
-
 def _validate_schema(metadata_type: str, tool_input: dict) -> str | None:
     """Run JSON Schema validation on metadata items.
 
     Returns an error message string if validation fails, or None if it passes
     (or if no schema is available for the type).
     """
+    schema = _load_schema(metadata_type)
+    if schema is None:
+        return None
+
     try:
         import jsonschema
     except ImportError:
         jsonschema = None
-
-    schema = _load_schema(metadata_type)
-    if schema is None:
-        return None
 
     items = _extract_metadata_items(tool_input)
     if not items:
@@ -181,16 +136,15 @@ def _validate_schema(metadata_type: str, tool_input: dict) -> str | None:
 
     errors: list[str] = []
     for i, item in enumerate(items):
-        name = item.get("fullName", item.get("FullName", f"item[{i}]"))
         if jsonschema is not None:
             try:
                 jsonschema.validate(instance=item, schema=schema)
             except jsonschema.ValidationError as exc:
                 path = " → ".join(str(p) for p in exc.absolute_path) if exc.absolute_path else "(root)"
+                name = item.get("fullName", item.get("FullName", f"item[{i}]"))
                 errors.append(f"'{name}' at {path}: {exc.message}")
         else:
-            for err in _basic_schema_validate(item, schema):
-                errors.append(f"'{name}' at {err}")
+            errors.extend(_basic_schema_errors(item, schema, i))
 
     if not errors:
         return None
@@ -200,6 +154,69 @@ def _validate_schema(metadata_type: str, tool_input: dict) -> str | None:
     if len(errors) > 5:
         detail += f"\n• ...and {len(errors) - 5} more errors"
     return header + detail
+
+
+def _basic_schema_errors(item: dict, schema: dict, index: int) -> list[str]:
+    """Lightweight fallback validation for required/type fields.
+
+    Used when jsonschema is unavailable in local environments.
+    """
+    errs: list[str] = []
+    name = item.get("fullName", item.get("FullName", f"item[{index}]"))
+
+    schema = _resolve_local_ref(schema, schema)
+
+    required = schema.get("required", [])
+    for field in required:
+        if field not in item:
+            errs.append(f"'{name}' at {field}: is a required property")
+
+    type_map = {
+        "boolean": bool,
+        "string": str,
+        "number": (int, float),
+        "integer": int,
+        "object": dict,
+        "array": list,
+    }
+    root_schema = schema
+    properties = schema.get("properties", {})
+    for field, rules in properties.items():
+        if field not in item or not isinstance(rules, dict):
+            continue
+        rules = _resolve_local_ref(rules, root_schema)
+        expected_type = rules.get("type")
+        if not isinstance(expected_type, str):
+            continue
+        expected_py = type_map.get(expected_type)
+        if expected_py is None:
+            continue
+        value = item[field]
+        if isinstance(value, bool) and expected_type in ("integer", "number"):
+            errs.append(
+                f"'{name}' at {field}: {value!r} is not of type '{expected_type}'"
+            )
+        elif not isinstance(value, expected_py):
+            errs.append(
+                f"'{name}' at {field}: {value!r} is not of type '{expected_type}'"
+            )
+
+    return errs
+
+
+def _resolve_local_ref(schema: dict, root_schema: dict) -> dict:
+    """Resolve simple local ``$ref`` pointers like ``#/$defs/Type``."""
+    ref = schema.get("$ref") if isinstance(schema, dict) else None
+    if not ref or not ref.startswith("#/"):
+        return schema
+
+    node: Any = root_schema
+    for part in ref[2:].split("/"):
+        if isinstance(node, dict) and part in node:
+            node = node[part]
+        else:
+            return schema
+    return node if isinstance(node, dict) else schema
 
 
 def main() -> int:

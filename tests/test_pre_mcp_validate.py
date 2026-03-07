@@ -132,12 +132,61 @@ def test_metadata_type_unknown_tool():
     assert mod._metadata_type("mcp__cirra_ai__soql_query", {"query": "SELECT Id FROM Account"}) == ""
 
 
-# ── Fallback validator (when jsonschema is unavailable) ───────────────────────
+# ── Fallback validation (jsonschema unavailable) ─────────────────────────────
+
+
+def test_basic_schema_errors_catches_missing_required():
+    schema = {"required": ["fullName", "label"], "properties": {}}
+    errs = mod._basic_schema_errors({"fullName": "Foo"}, schema, 0)
+    assert any("label" in e and "required" in e for e in errs)
+
+
+def test_basic_schema_errors_catches_wrong_type():
+    schema = {
+        "required": [],
+        "properties": {"active": {"type": "boolean"}},
+    }
+    errs = mod._basic_schema_errors({"active": "yes"}, schema, 0)
+    assert any("active" in e and "boolean" in e for e in errs)
+
+
+def test_basic_schema_errors_rejects_bool_as_integer():
+    schema = {
+        "required": [],
+        "properties": {"count": {"type": "integer"}},
+    }
+    errs = mod._basic_schema_errors({"count": True}, schema, 0)
+    assert any("count" in e and "integer" in e for e in errs)
+
+
+def test_basic_schema_errors_skips_union_type_array():
+    schema = {
+        "required": [],
+        "properties": {"name": {"type": ["string", "null"]}},
+    }
+    errs = mod._basic_schema_errors({"name": None}, schema, 0)
+    assert errs == []
+
+
+def test_basic_schema_errors_resolves_property_level_ref():
+    schema = {
+        "$defs": {"BoolType": {"type": "boolean"}},
+        "required": [],
+        "properties": {"active": {"$ref": "#/$defs/BoolType"}},
+    }
+    errs = mod._basic_schema_errors({"active": "yes"}, schema, 0)
+    assert any("active" in e and "boolean" in e for e in errs)
+
+
+def test_resolve_local_ref():
+    root = {"$defs": {"Name": {"required": ["label"], "properties": {}}}}
+    schema = {"$ref": "#/$defs/Name"}
+    resolved = mod._resolve_local_ref(schema, root)
+    assert resolved == {"required": ["label"], "properties": {}}
 
 
 def test_fallback_validator_denies_invalid_payload(monkeypatch):
-    """Ensure _basic_schema_validate catches missing required fields."""
-    # Force the jsonschema import to fail inside _validate_schema
+    """Ensure fallback path catches missing required fields end-to-end."""
     import builtins
 
     real_import = builtins.__import__
@@ -162,7 +211,7 @@ def test_fallback_validator_denies_invalid_payload(monkeypatch):
 
 
 def test_fallback_validator_allows_valid_payload(monkeypatch):
-    """Ensure _basic_schema_validate passes a well-formed payload."""
+    """Ensure fallback path passes a well-formed payload."""
     import builtins
 
     real_import = builtins.__import__
