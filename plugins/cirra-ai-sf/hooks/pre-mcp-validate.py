@@ -179,10 +179,12 @@ def _basic_schema_errors(item: dict, schema: dict, index: int) -> list[str]:
         "object": dict,
         "array": list,
     }
+    root_schema = schema
     properties = schema.get("properties", {})
     for field, rules in properties.items():
         if field not in item or not isinstance(rules, dict):
             continue
+        rules = _resolve_local_ref(rules, root_schema)
         expected_type = rules.get("type")
         if not isinstance(expected_type, str):
             continue

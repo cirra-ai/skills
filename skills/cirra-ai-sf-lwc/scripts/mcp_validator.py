@@ -51,7 +51,8 @@ def _extract_payload(tool: str, params: dict[str, Any]) -> tuple[str, str, str]:
         record = params.get("record", {})
         if isinstance(record, dict):
             full_name = record.get("FullName", "") or record.get("DeveloperName", "")
-            content = record.get("Body", "") or record.get("Metadata", "")
+            raw = record.get("Body", "") or record.get("Metadata", "")
+            content = raw if isinstance(raw, str) else ""
 
     return metadata_type, content, full_name
 

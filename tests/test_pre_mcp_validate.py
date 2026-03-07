@@ -168,6 +168,16 @@ def test_basic_schema_errors_skips_union_type_array():
     assert errs == []
 
 
+def test_basic_schema_errors_resolves_property_level_ref():
+    schema = {
+        "$defs": {"BoolType": {"type": "boolean"}},
+        "required": [],
+        "properties": {"active": {"$ref": "#/$defs/BoolType"}},
+    }
+    errs = mod._basic_schema_errors({"active": "yes"}, schema, 0)
+    assert any("active" in e and "boolean" in e for e in errs)
+
+
 def test_resolve_local_ref():
     root = {"$defs": {"Name": {"required": ["label"], "properties": {}}}}
     schema = {"$ref": "#/$defs/Name"}

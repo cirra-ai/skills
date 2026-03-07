@@ -50,6 +50,22 @@ def test_missing_or_empty_payload_data_returns_error():
     assert isinstance(result["message"], str)
 
 
+def test_tooling_dml_dict_metadata_returns_error():
+    """Tooling API Metadata field is often a dict, not a string."""
+    result = LWCMCPValidator().validate({
+        "tool": "tooling_api_dml",
+        "params": {
+            "sObject": "LightningComponentBundle",
+            "record": {
+                "FullName": "c/testCmp",
+                "Metadata": {"apiVersion": 62.0},
+            },
+        },
+    })
+    assert result["status"] == "error"
+    assert "empty" in result["message"].lower() or "missing" in result["message"].lower()
+
+
 def test_result_includes_required_metadata_keys():
     result = LWCMCPValidator().validate(_valid_payload())
     for key in ("tier", "tool", "metadata_type", "status", "validator"):
