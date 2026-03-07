@@ -284,7 +284,7 @@ def _recommendations_html(summary, data):
                 issues = item.get("issues", [])
                 if issues:
                     top_issue = issues[0] if isinstance(issues[0], str) else issues[0].get("message", "")
-                recs.append(f"[{domain}] Fix **{_esc(name)}** (score {s}/{max_s}). {_esc(top_issue)}")
+                recs.append(f"[{domain}] Fix <strong>{_esc(name)}</strong> (score {s}/{max_s}). {_esc(top_issue)}")
 
     # Add permission findings (CRITICAL first)
     for f in sorted(
