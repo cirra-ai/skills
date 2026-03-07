@@ -65,28 +65,37 @@ if command -v jq >/dev/null 2>&1; then
 fi
 
 # Helper: run a SOQL/Tooling query via CLI and save raw JSON
+# Stdout (JSON) goes to outfile; stderr is captured and shown on failure.
 query_tooling() {
   local soql="$1"
   local outfile="$2"
+  local tmp_err
+  tmp_err="$(mktemp)"
   if ! sf data query --use-tooling-api \
     -q "$soql" \
     --target-org "$TARGET_ORG" \
     --json \
-    > "$outfile" 2>&1; then
+    > "$outfile" 2>"$tmp_err"; then
     echo "WARNING: Tooling API query failed: $soql" >&2
+    [[ -s "$tmp_err" ]] && cat "$tmp_err" >&2
   fi
+  rm -f "$tmp_err"
 }
 
 query_soql() {
   local soql="$1"
   local outfile="$2"
+  local tmp_err
+  tmp_err="$(mktemp)"
   if ! sf data query \
     -q "$soql" \
     --target-org "$TARGET_ORG" \
     --json \
-    > "$outfile" 2>&1; then
+    > "$outfile" 2>"$tmp_err"; then
     echo "WARNING: SOQL query failed: $soql" >&2
+    [[ -s "$tmp_err" ]] && cat "$tmp_err" >&2
   fi
+  rm -f "$tmp_err"
 }
 
 # Helper: extract count from CLI JSON output
