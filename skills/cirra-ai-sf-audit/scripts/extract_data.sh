@@ -224,25 +224,25 @@ echo ""
 echo "Phase 2: Retrieving Apex class source..."
 sf project retrieve start -m ApexClass \
   --target-org "$TARGET_ORG" \
-  -o "$OUTPUT_DIR/intermediate/apex" \
+  --output-dir "$OUTPUT_DIR/intermediate/apex" \
   2>/dev/null || echo "  WARN: Apex class retrieval failed (may be empty)"
 
 echo "Phase 3: Retrieving Apex trigger source..."
 sf project retrieve start -m ApexTrigger \
   --target-org "$TARGET_ORG" \
-  -o "$OUTPUT_DIR/intermediate/triggers" \
+  --output-dir "$OUTPUT_DIR/intermediate/triggers" \
   2>/dev/null || echo "  WARN: Apex trigger retrieval failed (may be empty)"
 
 echo "Phase 4: Retrieving Flow definitions..."
 sf project retrieve start -m Flow \
   --target-org "$TARGET_ORG" \
-  -o "$OUTPUT_DIR/intermediate/flows" \
+  --output-dir "$OUTPUT_DIR/intermediate/flows" \
   2>/dev/null || echo "  WARN: Flow retrieval failed (may be empty)"
 
 echo "Phase 5: Retrieving LWC bundles..."
 sf project retrieve start -m LightningComponentBundle \
   --target-org "$TARGET_ORG" \
-  -o "$OUTPUT_DIR/intermediate/lwc" \
+  --output-dir "$OUTPUT_DIR/intermediate/lwc" \
   2>/dev/null || echo "  WARN: LWC retrieval failed (may be empty)"
 
 # ── Phase 6: Detail queries (permissions, metadata) ───────────────────────
