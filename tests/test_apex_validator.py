@@ -202,6 +202,33 @@ def test_while_loop_with_inline_body_dml_flagged():
     assert len(_bulk_criticals(result)) == 1
 
 
+def test_for_loop_single_line_braces_dml_flagged():
+    """DML in a single-line braced for-loop must be flagged."""
+    result = _validate(
+        """public with sharing class Bad {
+    /** @description Bad */
+    public static void bad(List<Account> accs) {
+        for (Account a : accs) { update a; }
+    }
+}"""
+    )
+    assert len(_bulk_criticals(result)) == 1
+
+
+def test_while_loop_single_line_braces_dml_flagged():
+    """DML in a single-line braced while-loop must be flagged."""
+    result = _validate(
+        """public with sharing class Bad {
+    /** @description Bad */
+    public static void bad(List<Account> accs) {
+        Integer i = 0;
+        while (i < accs.size()) { update accs[i]; i++; }
+    }
+}"""
+    )
+    assert len(_bulk_criticals(result)) == 1
+
+
 def test_inline_comment_do_keyword_not_flagged():
     """'do' inside an inline comment must not trigger the loop detector."""
     result = _validate(
