@@ -39,13 +39,14 @@ def _mcp_update(metadata_type: str, full_name: str, body: str) -> dict:
     )
 
 
-def _mcp_tooling_dml(sobject: str, full_name: str, body: str) -> dict:
+def _mcp_tooling_dml(sobject: str, full_name: str, body: str, *, use_name_key: bool = False) -> dict:
+    record_key = "Name" if use_name_key else "FullName"
     return ApexMCPValidator().validate(
         {
             "tool": "tooling_api_dml",
             "params": {
                 "sObject": sobject,
-                "record": {"FullName": full_name, "Body": body},
+                "record": {record_key: full_name, "Body": body},
             },
         }
     )
@@ -69,6 +70,13 @@ class TestSingleCallScoring:
         r = _mcp_tooling_dml("ApexTrigger", "AccountTrigger", body)
         assert r["status"] == "scored"
         assert r["metadata_type"] == "ApexTrigger"
+
+    def test_tooling_dml_name_key_extracts_full_name(self):
+        """Tooling API records use 'Name' not 'FullName' — verify extraction."""
+        body = _read_fixture("perfect_service.cls")
+        r = _mcp_tooling_dml("ApexClass", "MyService", body, use_name_key=True)
+        assert r["status"] == "scored"
+        assert r["full_name"] == "MyService"
 
 
 class TestErrorAndSkipPaths:
