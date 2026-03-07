@@ -251,7 +251,7 @@ def _findings_html(findings):
     return "\n".join(parts)
 
 
-def _recommendations_list(summary, data):
+def _recommendations_list(data):
     """Build the top-10 recommendations sorted by priority.
 
     Returns a list of plain-text recommendation strings (no HTML markup).
@@ -306,9 +306,9 @@ def _recommendations_list(summary, data):
     return [text for _, text in scored_recs[:10]]
 
 
-def _recommendations_html(summary, data):
+def _recommendations_html(data):
     """Build the top-10 recommendations section as HTML."""
-    recs = _recommendations_list(summary, data)
+    recs = _recommendations_list(data)
     if not recs:
         return "<p>No recommendations — org is in great shape.</p>"
 
@@ -554,7 +554,7 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
     # ── Recommendations ──
     sections.append(
         f'<div class="card"><h2>Recommendations</h2>'
-        f"{_recommendations_html(summary, data)}</div>"
+        f"{_recommendations_html(data)}</div>"
     )
 
     body = "\n".join(sections)
@@ -877,7 +877,7 @@ def generate_docx(data, summary, org_name, org_id, instance, run_date, output_pa
 
     # Recommendations
     doc.add_heading("Recommendations", level=1)
-    rec_data = _recommendations_list(summary, data)
+    rec_data = _recommendations_list(data)
     if rec_data:
         for i, rec in enumerate(rec_data, 1):
             doc.add_paragraph(f"{i}. {rec}", style="List Number")
