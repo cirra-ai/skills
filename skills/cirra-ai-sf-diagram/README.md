@@ -52,7 +52,9 @@ Request: "Create a JWT Bearer OAuth flow diagram"
 | cirra-ai-sf-metadata    | Get real object/field definitions for ERD diagrams |
 | cirra-ai-sf-permissions | Get permission data for hierarchy visualizations   |
 
-## Cirra AI MCP Tools (for org discovery)
+## Cirra AI MCP Tools — for developers
+
+> This section is for Salesforce developers building integrations. Admins can skip it.
 
 | Operation       | MCP Tool                                    |
 | --------------- | ------------------------------------------- |

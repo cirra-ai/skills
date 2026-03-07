@@ -9,6 +9,9 @@ appropriate sub-skill validator script for deeper analysis.
 Currently registered delegates:
   - cirra-ai-sf-apex: ApexClass, ApexTrigger
   - cirra-ai-sf-flow: Flow, FlowDefinition
+  - cirra-ai-sf-data: soql_query, sobject_dml (routed by tool name)
+  - cirra-ai-sf-lwc: LightningComponentBundle
+  - cirra-ai-sf-metadata: CustomObject, CustomField, ValidationRule, RecordType, PermissionSet
 """
 
 import json
@@ -25,8 +28,21 @@ _REPO_ROOT = os.path.dirname(os.path.dirname(_PLUGIN_ROOT))
 _DELEGATES: dict[str, str] = {
     "ApexClass":      "skills/cirra-ai-sf-apex/scripts/pre-mcp-validate.py",
     "ApexTrigger":    "skills/cirra-ai-sf-apex/scripts/pre-mcp-validate.py",
-    "Flow":           "skills/cirra-ai-sf-flow/scripts/pre-mcp-validate.py",
-    "FlowDefinition": "skills/cirra-ai-sf-flow/scripts/pre-mcp-validate.py",
+    "Flow":                       "skills/cirra-ai-sf-flow/scripts/pre-mcp-validate.py",
+    "FlowDefinition":             "skills/cirra-ai-sf-flow/scripts/pre-mcp-validate.py",
+    "LightningComponentBundle":   "skills/cirra-ai-sf-lwc/scripts/pre-mcp-validate.py",
+    "CustomObject":               "skills/cirra-ai-sf-metadata/scripts/pre-mcp-validate.py",
+    "CustomField":                "skills/cirra-ai-sf-metadata/scripts/pre-mcp-validate.py",
+    "ValidationRule":             "skills/cirra-ai-sf-metadata/scripts/pre-mcp-validate.py",
+    "RecordType":                 "skills/cirra-ai-sf-metadata/scripts/pre-mcp-validate.py",
+    "PermissionSet":              "skills/cirra-ai-sf-metadata/scripts/pre-mcp-validate.py",
+}
+
+# Map base tool names to their validator script (relative to _PLUGIN_ROOT).
+# Used for tools like soql_query / sobject_dml that aren't metadata types.
+_TOOL_DELEGATES: dict[str, str] = {
+    "soql_query":  "skills/cirra-ai-sf-data/scripts/pre-mcp-validate.py",
+    "sobject_dml": "skills/cirra-ai-sf-data/scripts/pre-mcp-validate.py",
 }
 
 # Map metadata types to their JSON Schema file (relative to _REPO_ROOT).
@@ -227,8 +243,30 @@ def main() -> int:
         print(json.dumps(_allow()))
         return 0
 
+    tool_name = hook_input.get("tool_name", "")
     tool_input = hook_input.get("tool_input", {})
-    metadata_type = _metadata_type(hook_input.get("tool_name", ""), tool_input)
+
+    # --- Delegate by base tool name (data operations) ---
+    parts = tool_name.split("__", 2)
+    base_tool = parts[2] if tool_name.startswith("mcp__") and len(parts) > 2 else tool_name
+
+    tool_delegate = _TOOL_DELEGATES.get(base_tool)
+    if tool_delegate:
+        script_path = os.path.join(_PLUGIN_ROOT, tool_delegate)
+        result = subprocess.run(
+            [sys.executable, script_path],
+            input=raw,
+            capture_output=True,
+        )
+        output = result.stdout.strip()
+        if output:
+            print(output.decode("utf-8", errors="replace"))
+        else:
+            print(json.dumps(_allow()))
+        return 0
+
+    # --- Delegate by metadata type (Apex, Flow, etc.) ---
+    metadata_type = _metadata_type(tool_name, tool_input)
 
     if not metadata_type:
         print(json.dumps(_allow()))

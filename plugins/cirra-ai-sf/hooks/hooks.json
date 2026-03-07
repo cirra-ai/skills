@@ -2,7 +2,7 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "mcp__.*__metadata_create|mcp__.*__metadata_update|mcp__.*__tooling_api_dml",
+        "matcher": "mcp__.*__metadata_create|mcp__.*__metadata_update|mcp__.*__tooling_api_dml|mcp__.*__soql_query|mcp__.*__sobject_dml",
         "hooks": [
           {
             "type": "command",

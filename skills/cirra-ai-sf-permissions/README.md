@@ -51,7 +51,9 @@ Request: "Who has delete access to the Account object?"
 | cirra-ai-sf-diagram  | Visualize permission hierarchies as Mermaid diagrams |
 | cirra-ai-sf-data     | Query user assignments in bulk                       |
 
-## Cirra AI MCP Tools
+## Cirra AI MCP Tools — for developers
+
+> This section is for Salesforce developers building integrations. Admins can skip it.
 
 | Operation         | MCP Tool                                  |
 | ----------------- | ----------------------------------------- |
