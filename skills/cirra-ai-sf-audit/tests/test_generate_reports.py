@@ -90,10 +90,11 @@ def test_compute_summary_severity_counts(gen):
 
 
 def test_score_rating_boundaries(gen):
+    assert gen.score_rating(80)[0] == "Excellent"
     assert gen.score_rating(90)[0] == "Excellent"
-    assert gen.score_rating(89)[0] == "Good"
-    assert gen.score_rating(75)[0] == "Good"
-    assert gen.score_rating(74)[0] == "Acceptable"
+    assert gen.score_rating(79)[0] == "Good"
+    assert gen.score_rating(70)[0] == "Good"
+    assert gen.score_rating(69)[0] == "Acceptable"
     assert gen.score_rating(60)[0] == "Acceptable"
     assert gen.score_rating(59)[0] == "Needs Improvement"
     assert gen.score_rating(40)[0] == "Needs Improvement"
