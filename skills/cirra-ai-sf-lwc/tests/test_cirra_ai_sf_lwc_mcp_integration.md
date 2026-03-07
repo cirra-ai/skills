@@ -21,7 +21,7 @@
 
 Use this prompt in contributor testing sessions:
 
-> "Generate and deploy an LWC bundle named `c/integrationTestCard` using `metadata_create` with type `LightningComponentBundle`. Include minimal valid `html`, `js`, `css`, and `meta.xml` content. After deployment, run validation and report score and issues."
+> "Generate and deploy an LWC bundle named `c/integrationTestCard` using `metadata_create` with type `LightningComponentBundle`. Include minimal valid `html`, `js`, and `css` resources with Base64-encoded sources. Set `apiVersion`, `isExposed`, and `targets` on the bundle (do NOT include a `meta.xml` resource — it is auto-generated). After deployment, run validation and report score and issues."
 
 ## Positive Scenarios
 
@@ -41,7 +41,7 @@ Use this prompt in contributor testing sessions:
        metadata=[{
            "fullName": "integrationTestCard",
            "apiVersion": 62,
-           "isExposed": true,
+           "isExposed": True,
            "masterLabel": "integrationTestCard",
            "description": "MCP integration test component",
            "targets": {"target": ["lightning__AppPage"]},
