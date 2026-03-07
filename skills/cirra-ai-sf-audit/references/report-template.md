@@ -287,9 +287,10 @@ new Table({
 ```javascript
 function scoreColor(score, max) {
   const pct = (score / max) * 100;
-  if (pct >= 80) return '27AE60'; // Excellent — green
+  if (pct >= 80) return '14DDDD'; // Excellent — cyan
+  if (pct >= 70) return '27AE60'; // Good — green
   if (pct >= 60) return 'F39C12'; // Acceptable — amber
-  if (pct >= 40) return 'E67E22'; // Warning — orange
+  if (pct >= 40) return 'E67E22'; // Needs Improvement — orange
   return 'E74C3C'; // Critical — red
 }
 ```
