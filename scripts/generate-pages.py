@@ -85,11 +85,13 @@ def find_skills() -> list[dict]:
         name = skill_dir.name
         readme = skill_dir / "README.md"
         description = _readme_first_paragraph(readme) if readme.exists() else ""
+        version = _skill_version(skill_md)
         # Derive primary keyword from skill name (strip known prefixes)
         main_kw = name.removeprefix("cirra-ai-sf-").removeprefix("cirra-ai-")
         skills.append({
             "name": name,
             "description": description,
+            "version": version,
             "keywords": [main_kw] if main_kw and main_kw != name else [],
         })
     return skills
@@ -115,6 +117,26 @@ def _readme_first_paragraph(readme_path: Path) -> str:
             break
         para.append(stripped)
     return " ".join(para)
+
+
+def _skill_version(skill_md: Path) -> str:
+    """Extract version from SKILL.md YAML frontmatter (metadata.version)."""
+    text = skill_md.read_text()
+    if not text.startswith("---\n"):
+        return ""
+    end = text.find("\n---\n", 4)
+    if end < 0:
+        return ""
+    in_metadata = False
+    for line in text[4:end].splitlines():
+        if line.rstrip() == "metadata:":
+            in_metadata = True
+            continue
+        if in_metadata and line.startswith("  version:"):
+            return line.split(":", 1)[1].strip()
+        if in_metadata and line and not line[0].isspace():
+            in_metadata = False
+    return ""
 
 
 # ---------------------------------------------------------------------------
@@ -166,7 +188,7 @@ def _skill_card(skill: dict) -> str:
     if len(desc) > 200:
         desc = desc[:197].rstrip() + "\u2026"
     desc = _esc(desc)
-    tags = _tags_html(skill["keywords"], extra=["skill-only"])
+    tags = _tags_html(skill["keywords"], version=skill.get("version", ""), extra=["skill-only"])
     dl_url = f"{DL_BASE}/{skill['name']}-skill.zip"
     return f"""\
       <div class="card">
