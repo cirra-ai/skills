@@ -10,6 +10,8 @@ Currently registered delegates:
   - cirra-ai-sf-apex: ApexClass, ApexTrigger
   - cirra-ai-sf-flow: Flow, FlowDefinition
   - cirra-ai-sf-data: soql_query, sobject_dml (routed by tool name)
+  - cirra-ai-sf-lwc: LightningComponentBundle
+  - cirra-ai-sf-metadata: CustomObject, CustomField, ValidationRule, RecordType, PermissionSet
 """
 
 import json
@@ -26,8 +28,14 @@ _REPO_ROOT = os.path.dirname(os.path.dirname(_PLUGIN_ROOT))
 _DELEGATES: dict[str, str] = {
     "ApexClass":      "skills/cirra-ai-sf-apex/scripts/pre-mcp-validate.py",
     "ApexTrigger":    "skills/cirra-ai-sf-apex/scripts/pre-mcp-validate.py",
-    "Flow":           "skills/cirra-ai-sf-flow/scripts/pre-mcp-validate.py",
-    "FlowDefinition": "skills/cirra-ai-sf-flow/scripts/pre-mcp-validate.py",
+    "Flow":                       "skills/cirra-ai-sf-flow/scripts/pre-mcp-validate.py",
+    "FlowDefinition":             "skills/cirra-ai-sf-flow/scripts/pre-mcp-validate.py",
+    "LightningComponentBundle":   "skills/cirra-ai-sf-lwc/scripts/pre-mcp-validate.py",
+    "CustomObject":               "skills/cirra-ai-sf-metadata/scripts/pre-mcp-validate.py",
+    "CustomField":                "skills/cirra-ai-sf-metadata/scripts/pre-mcp-validate.py",
+    "ValidationRule":             "skills/cirra-ai-sf-metadata/scripts/pre-mcp-validate.py",
+    "RecordType":                 "skills/cirra-ai-sf-metadata/scripts/pre-mcp-validate.py",
+    "PermissionSet":              "skills/cirra-ai-sf-metadata/scripts/pre-mcp-validate.py",
 }
 
 # Map base tool names to their validator script (relative to _PLUGIN_ROOT).
