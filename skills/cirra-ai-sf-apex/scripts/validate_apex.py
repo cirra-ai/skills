@@ -195,7 +195,10 @@ class ApexValidator:
                 or braceless_body_line
                 or loop_scope_opened_line
             )
-            loop_start = next((ln for t, ln in brace_stack if t == "loop"), loop_header_line if braceless_body_line else 0)
+            loop_start = next(
+                (ln for t, ln in brace_stack if t == "loop"),
+                loop_header_line if (braceless_body_line or loop_scope_opened_line) else 0,
+            )
             result.append((in_loop, loop_start, outer_loop_active))
 
         return result

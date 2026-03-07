@@ -84,18 +84,14 @@ class TestSecurityChecks:
         warns = _warning_messages(r)
         assert any("sharing" in m.lower() for m in warns)
 
-    def test_test_class_without_sharing_not_warned(self):
+    def test_test_class_without_sharing_not_warned(self, tmp_path):
         code = """@isTest
 private class AccountServiceTest {
     @isTest
     static void itWorks() {}
 }"""
-        path = os.path.join(FIXTURES_DIR, "tmp_test_class.cls")
-        with open(path, "w", encoding="utf-8") as f:
-            f.write(code)
-        try:
-            r = ApexValidator(path).validate()
-            warns = _warning_messages(r)
-            assert not any("sharing" in m.lower() for m in warns)
-        finally:
-            os.unlink(path)
+        path = tmp_path / "tmp_test_class.cls"
+        path.write_text(code, encoding="utf-8")
+        r = ApexValidator(str(path)).validate()
+        warns = _warning_messages(r)
+        assert not any("sharing" in m.lower() for m in warns)
