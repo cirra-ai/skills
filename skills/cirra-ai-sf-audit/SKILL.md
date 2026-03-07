@@ -9,7 +9,7 @@ description: >
   health, generate an org inventory, run an org health check, audit permissions,
   review the data model, or audit apex flows and lwc.
 metadata:
-  version: 2.1.0
+  version: 1.0.0
 ---
 
 # cirra-ai-sf-audit: Salesforce Org Audit

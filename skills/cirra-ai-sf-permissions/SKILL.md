@@ -1,7 +1,7 @@
 ---
 name: cirra-ai-sf-permissions
 metadata:
-  version: 1.0.0
+  version: 1.1.0
 description: >
   Permission Set analysis, hierarchy viewer, and "Who has X?" auditing.
   Use when analyzing permissions, visualizing PS/PSG hierarchies, finding
