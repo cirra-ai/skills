@@ -16,9 +16,10 @@ def test_braceless_loop_detected():
     assert any("braceless loop" in f for f in findings)
 
 
-def test_comment_false_positive_is_ignored():
-    findings = analyze_formula_safety("// for(i=0;i<1;i++){insert rec;}\nTRUE")
-    assert findings == []
+def test_url_with_double_slash_not_treated_as_comment():
+    """Salesforce formulas have no // comment syntax; content after // is kept."""
+    findings = analyze_formula_safety('HYPERLINK("https://example.com")')
+    assert not any("double equals" in f for f in findings)
 
 
 def test_do_while_style_detected():

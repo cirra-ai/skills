@@ -94,8 +94,8 @@ class MetadataOperationValidator:
             self._deduct("documentation", 4, "Description is missing or empty", "warning")
 
     def _check_deployability(self):
-        if self.metadata_type == "CustomObject":
-            if self.payload.get("deploymentStatus") not in {"Deployed", "InDevelopment"}:
+        if self.metadata_type == "CustomObject" and "deploymentStatus" in self.payload:
+            if self.payload["deploymentStatus"] not in {"Deployed", "InDevelopment"}:
                 self._deduct("deployability", 8, "deploymentStatus should be Deployed or InDevelopment", "critical")
 
     def _check_maintainability(self):
@@ -137,22 +137,14 @@ def analyze_formula_safety(formula: str) -> list[str]:
         return []
 
     findings: list[str] = []
-    scrubbed = _strip_line_comments(formula)
 
-    if re.search(r"for\s*\([^)]*\)\s*\{[^}]*\}", scrubbed, re.IGNORECASE):
+    if re.search(r"for\s*\([^)]*\)\s*\{[^}]*\}", formula, re.IGNORECASE):
         findings.append("single-line braced loop syntax found")
-    if re.search(r"for\s*\([^)]*\)\s*[^\s{]", scrubbed, re.IGNORECASE):
+    if re.search(r"for\s*\([^)]*\)\s*[^\s{]", formula, re.IGNORECASE):
         findings.append("braceless loop syntax found")
-    if re.search(r"do\s*\{[\s\S]*?\}\s*while\s*\([^)]*\)", scrubbed, re.IGNORECASE):
+    if re.search(r"do\s*\{[\s\S]*?\}\s*while\s*\([^)]*\)", formula, re.IGNORECASE):
         findings.append("do/while loop style found")
-    if "==" in scrubbed:
+    if "==" in formula:
         findings.append("double equals operator found")
 
     return findings
-
-
-def _strip_line_comments(text: str) -> str:
-    lines: list[str] = []
-    for line in text.splitlines() or [text]:
-        lines.append(line.split("//", 1)[0])
-    return "\n".join(lines)
