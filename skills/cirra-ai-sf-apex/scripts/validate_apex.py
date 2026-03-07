@@ -149,6 +149,7 @@ class ApexValidator:
             is_comment = stripped.startswith("//") or stripped.startswith("*") or stripped.startswith("/*")
 
             braceless_body_line = False  # set when ';' ends a braceless loop body
+            loop_scope_opened_line = False  # set when a loop scope opens on this line
             # Capture outer loop context BEFORE this line potentially starts a new loop.
             # Used to distinguish a standalone for-each (outer_loop_active=False) from
             # one that is nested inside an enclosing loop (outer_loop_active=True).
@@ -176,6 +177,7 @@ class ApexValidator:
                     elif char == "{":
                         if pending_loop:
                             brace_stack.append(("loop", loop_header_line))
+                            loop_scope_opened_line = True
                             pending_loop = False
                         else:
                             brace_stack.append(("other", i))
@@ -188,8 +190,15 @@ class ApexValidator:
                         braceless_body_line = True
                         pending_loop = False
 
-            in_loop = any(t == "loop" for t, _ in brace_stack) or braceless_body_line
-            loop_start = next((ln for t, ln in brace_stack if t == "loop"), loop_header_line if braceless_body_line else 0)
+            in_loop = (
+                any(t == "loop" for t, _ in brace_stack)
+                or braceless_body_line
+                or loop_scope_opened_line
+            )
+            loop_start = next(
+                (ln for t, ln in brace_stack if t == "loop"),
+                loop_header_line if (braceless_body_line or loop_scope_opened_line) else 0,
+            )
             result.append((in_loop, loop_start, outer_loop_active))
 
         return result
