@@ -92,7 +92,12 @@ for skill_md in "$REPO_ROOT"/skills/*/SKILL.md; do
   tmp_dir="$(mktemp -d)"
 
   # Copy everything from the skill directory into the tmp dir, excluding tests
-  rsync -a --exclude='tests' --exclude='fixtures' --exclude='__pycache__' "$skill_dir/" "$tmp_dir/"
+  if command -v rsync >/dev/null 2>&1; then
+    rsync -a --exclude='tests' --exclude='fixtures' --exclude='__pycache__' "$skill_dir/" "$tmp_dir/"
+  else
+    cp -R "$skill_dir"/. "$tmp_dir/"
+    rm -rf "$tmp_dir/tests" "$tmp_dir/fixtures" "$tmp_dir/__pycache__"
+  fi
 
   # Copy shared icons from any plugin that references this skill
   # Look for icons in plugins/*/assets/

@@ -1,0 +1,9 @@
+<template>
+  <section class="slds-card">
+    <template if:true="{hasRecords}">
+      <ul for:each="{records}" for:item="record">
+        <li key="{record.id}">{record.name}</li>
+      </ul>
+    </template>
+  </section>
+</template>

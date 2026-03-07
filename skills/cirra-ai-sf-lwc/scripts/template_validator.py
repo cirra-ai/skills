@@ -264,9 +264,30 @@ class LWCTemplateValidator:
             # Detect for:each start
             foreach_match = re.search(r'for:each=\{([^}]+)\}\s+for:item="([^"]+)"', line)
             if foreach_match:
-                in_foreach = True
                 foreach_line = i
                 foreach_item = foreach_match.group(2)
+
+                # If key is present on the same line, no warning is needed.
+                if "key=" in line or "key =" in line:
+                    in_foreach = False
+                    continue
+
+                # Single-line iteration blocks can close on the same line.
+                if ">" in line and "</" in line:
+                    self.issues.append(
+                        {
+                            "severity": "WARNING",
+                            "category": "iteration",
+                            "message": f"for:each iteration (line {foreach_line}) may be missing key attribute",
+                            "line": i,
+                            "fix": f"Add key={{{foreach_item}.id}} to identify each item uniquely",
+                            "source": "template-validator",
+                        }
+                    )
+                    in_foreach = False
+                    continue
+
+                in_foreach = True
                 continue
 
             if in_foreach:
