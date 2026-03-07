@@ -54,4 +54,27 @@ def test_response_contains_required_metadata_keys():
 def test_quality_status_preserved_alongside_mcp_status():
     r = MetadataMCPValidator().validate(_valid_create_input())
     assert r["status"] == "scored"
-    assert r["quality_status"] in ("pass", "needs_attention", "critical")
+    assert r["quality_status"] in ("pass", "needs_attention", "critical", "fail")
+
+
+def test_single_item_batch_has_no_warning():
+    r = MetadataMCPValidator().validate(_valid_create_input())
+    assert "batch_warning" not in r
+
+
+def test_multi_item_batch_includes_warning():
+    r = MetadataMCPValidator().validate(
+        {
+            "tool": "metadata_create",
+            "params": {
+                "type": "CustomField",
+                "metadata": [
+                    {"fullName": "A__c.F1__c", "label": "F1", "type": "Text", "description": "d"},
+                    {"fullName": "A__c.F2__c", "label": "F2", "type": "Text", "description": "d"},
+                ],
+            },
+        }
+    )
+    assert r["status"] == "scored"
+    assert "batch_warning" in r
+    assert "2" in r["batch_warning"]

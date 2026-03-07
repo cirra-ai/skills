@@ -6,7 +6,6 @@ from __future__ import annotations
 import re
 from typing import Any
 
-MAX_SCORE = 120
 CATEGORIES = {
     "schema": 20,
     "naming": 20,
@@ -15,6 +14,7 @@ CATEGORIES = {
     "deployability": 20,
     "maintainability": 20,
 }
+MAX_SCORE = sum(CATEGORIES.values())
 
 SUPPORTED_METADATA_TYPES = {
     "CustomObject",
@@ -119,7 +119,7 @@ class MetadataOperationValidator:
         elif total >= 72:
             status = "needs_attention"
         else:
-            status = "critical"
+            status = "fail"
         return {
             "metadata_type": self.metadata_type,
             "overall_score": total,
