@@ -10,7 +10,7 @@ Lightning Web Components development skill with PICKLES architecture methodology
 - **Wire Service Patterns**: @wire decorators for Apex & GraphQL data fetching
 - **Jest Testing**: Comprehensive unit test generation with async patterns
 - **Spring '26 Features**: TypeScript, lwc:on directive, GraphQL mutations, Agentforce discoverability
-- **SLDS Linting**: Automated validation on every component you create or edit
+- **SLDS Linting**: 165-point SLDS 2 compliance and accessibility rubric
 
 ## Installation
 
@@ -148,11 +148,11 @@ Results appear as a scored report with a star rating and prioritised issue list.
 
 ### Validation Hooks
 
-This skill ships Python validation scripts in `scripts/` that run automatically after every `Write` or `Edit` tool call on LWC files (`.html`, `.css`, `.js`).
+This skill ships Python validation scripts in `scripts/` for SLDS 2 compliance checking.
 
-#### Active hook: `post-tool-validate.py`
+#### `post-tool-validate.py` — post-write (advisory, not wired by default)
 
-Triggered by `hooks/hooks.json` on `PostToolUse` for `Write|Edit`. Runs a two-phase SLDS 2 validation pipeline and outputs a scored report to the transcript.
+Available for PostToolUse `Write|Edit` integration but **not currently registered** in `hooks/hooks.json`. When enabled, runs a two-phase SLDS 2 validation pipeline and outputs a scored report to the transcript.
 
 **Phase 1 — `validate_slds.py`: SLDS 2 static analysis**
 

@@ -65,9 +65,9 @@ Request: "Create 251 test Account records with varying Industries for trigger te
 | cirra-ai-sf-permissions | Permission analysis queries                              |
 | cirra-ai-sf-diagram     | Visualize query results as diagrams                      |
 
-## Automatic Validation
+## Validation
 
-This skill automatically validates SOQL queries and data operations as you work, checking for common issues like unbounded queries, hardcoded IDs, non-indexed filter fields, and missing LIMIT clauses. No setup is required — validation runs in the background and surfaces recommendations inline.
+This skill includes validation scripts that check SOQL queries and data operations for common issues like unbounded queries, hardcoded IDs, non-indexed filter fields, and missing LIMIT clauses. See the [For Contributors](#for-contributors) section for details on the available scripts and hook integration.
 
 ## Requirements
 
