@@ -263,7 +263,7 @@ def _findings_html(findings):
     return "\n".join(parts)
 
 
-def _recommendations_html(summary, data):
+def _recommendations_html(data):
     """Build the top-10 recommendations section."""
     recs = []
 
@@ -540,7 +540,7 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
     # ── Recommendations ──
     sections.append(
         f'<div class="card"><h2>Recommendations</h2>'
-        f"{_recommendations_html(summary, data)}</div>"
+        f"{_recommendations_html(data)}</div>"
     )
 
     body = "\n".join(sections)

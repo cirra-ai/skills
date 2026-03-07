@@ -32,8 +32,6 @@ from typing import Any
 VALID_DML_OPERATIONS = ("insert", "update", "delete", "upsert")
 SOBJECT_NAME_PATTERN = re.compile(r"^[A-Za-z][A-Za-z0-9_]*(__c|__mdt|__e|__b|__x)?$")
 
-SUPPORTED_TOOLS = ("soql_query", "sobject_dml")
-
 PII_PATTERNS = {
     "SSN": re.compile(r"\b\d{3}-\d{2}-\d{4}\b"),
     "Credit card": re.compile(r"\b\d{4}[-\s]?\d{4}[-\s]?\d{4}[-\s]?\d{4}\b"),
@@ -274,7 +272,3 @@ class MCPDataValidator:
             Pass/fail result with errors and warnings.
         """
         return validate_data_params(input_data)
-
-
-# Backward compatibility alias
-MCPOperationValidator = MCPDataValidator
