@@ -159,6 +159,15 @@ def test_basic_schema_errors_rejects_bool_as_integer():
     assert any("count" in e and "integer" in e for e in errs)
 
 
+def test_basic_schema_errors_skips_union_type_array():
+    schema = {
+        "required": [],
+        "properties": {"name": {"type": ["string", "null"]}},
+    }
+    errs = mod._basic_schema_errors({"name": None}, schema, 0)
+    assert errs == []
+
+
 def test_resolve_local_ref():
     root = {"$defs": {"Name": {"required": ["label"], "properties": {}}}}
     schema = {"$ref": "#/$defs/Name"}

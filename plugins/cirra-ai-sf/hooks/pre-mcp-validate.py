@@ -184,6 +184,8 @@ def _basic_schema_errors(item: dict, schema: dict, index: int) -> list[str]:
         if field not in item or not isinstance(rules, dict):
             continue
         expected_type = rules.get("type")
+        if not isinstance(expected_type, str):
+            continue
         expected_py = type_map.get(expected_type)
         if expected_py is None:
             continue
