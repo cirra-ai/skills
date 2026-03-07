@@ -185,3 +185,19 @@ MIT License — see [LICENSE](LICENSE) for details.
 This plugin is designed for use with Cirra AI, a commercial product developed by Cirra AI, Inc. The plugin and its contents are provided independently and are not part of the Cirra AI product itself. Use of Cirra AI is subject to its own separate terms and conditions.
 
 For credits see [CREDITS](CREDITS.md)
+
+## Contributor Integration Testing (Actual Org)
+
+This section is primarily for open-source contributors to this repository.
+If you are using the skill as a customer, you usually do not need to run these tests.
+
+To validate end-to-end behavior in a real Salesforce org (LLM prompt → MCP calls → deployed metadata → org verification), use:
+
+- [`tests/test_apex_mcp_integration.md`](tests/test_apex_mcp_integration.md)
+
+The protocol includes:
+
+- a reusable prompt for running the test in an LLM session
+- positive deployment scenarios
+- negative scenarios (critical/advisory findings)
+- verification queries and optional cleanup steps
