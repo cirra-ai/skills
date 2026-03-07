@@ -5,30 +5,30 @@ Run interactively in a Claude Code session with MCP access.
 
 ## Test Summary (Last Run: 2026-03-06, org: admin@demo2.cirra.ai.dev)
 
-| #   | Test                                             | Result | Details |
-| --- | ------------------------------------------------ | ------ | ------- |
-| 1   | Clean pre-existing test artifacts                | PASS   | 0 pre-existing records |
-| 2   | Describe Account object                          | PASS   | Name, Industry, BillingCity, AnnualRevenue confirmed |
-| 3   | Insert 5 test accounts                           | PASS   | 5/5 created |
-| 4   | Query inserted accounts (basic)                  | PASS   | 5 records with correct values |
-| 5   | Query with WHERE + ORDER BY + LIMIT              | PASS   | 3 records, correct order (5M, 3M, 2.5M) |
-| 6   | Query with relationship (child-to-parent)        | PASS   | Account.Name = DATATEST_Account_001 |
-| 7   | Query with aggregate (COUNT, GROUP BY)           | PASS   | Tech(2), Healthcare(2), Finance(1) |
-| 8   | Update records by Id                             | PASS   | 2/2 updated |
-| 9   | Verify update                                    | PASS   | Oakland, Brooklyn confirmed |
-| 10  | Create external ID field for upsert              | PASS   | DATATEST_ExtId__c created |
-| 11  | Upsert records (insert + update in one call)     | PASS   | 2 created, then 1 updated + 1 created |
-| 12  | Verify upsert results                            | PASS   | EXT-001 updated, EXT-002/003 present |
-| 13  | Insert with missing required field (negative)    | PASS   | REQUIRED_FIELD_MISSING returned |
-| 14  | Insert with invalid field name (negative)        | PASS   | INVALID_FIELD returned |
-| 15  | Query with malformed SOQL (negative)             | PASS   | MALFORMED_QUERY returned |
-| 16  | Pre-flight validator catches missing sObject      | PASS   | Offline validation only (see note) |
-| 17  | Pre-flight validator catches PII                 | PASS   | Offline validation only (see note) |
-| 18  | Pre-flight validator catches invalid DML op      | PASS   | Offline validation only (see note) |
-| 19  | Bulk insert 201 records (batch boundary)         | PASS   | Split into 200+1 batches (see Key Insights) |
-| 20  | Query bulk records with pagination               | PASS   | 50 returned with LIMIT 50, COUNT=201 |
-| 21  | Delete bulk records                              | PASS   | 200+1 deleted in 2 batches |
-| 22  | Cleanup — remove all test artifacts              | PASS   | 0 records remain, custom field deleted |
+| #   | Test                                          | Result | Details                                              |
+| --- | --------------------------------------------- | ------ | ---------------------------------------------------- |
+| 1   | Clean pre-existing test artifacts             | PASS   | 0 pre-existing records                               |
+| 2   | Describe Account object                       | PASS   | Name, Industry, BillingCity, AnnualRevenue confirmed |
+| 3   | Insert 5 test accounts                        | PASS   | 5/5 created                                          |
+| 4   | Query inserted accounts (basic)               | PASS   | 5 records with correct values                        |
+| 5   | Query with WHERE + ORDER BY + LIMIT           | PASS   | 3 records, correct order (5M, 3M, 2.5M)              |
+| 6   | Query with relationship (child-to-parent)     | PASS   | Account.Name = DATATEST_Account_001                  |
+| 7   | Query with aggregate (COUNT, GROUP BY)        | PASS   | Tech(2), Healthcare(2), Finance(1)                   |
+| 8   | Update records by Id                          | PASS   | 2/2 updated                                          |
+| 9   | Verify update                                 | PASS   | Oakland, Brooklyn confirmed                          |
+| 10  | Create external ID field for upsert           | PASS   | DATATEST_ExtId\_\_c created                          |
+| 11  | Upsert records (insert + update in one call)  | PASS   | 2 created, then 1 updated + 1 created                |
+| 12  | Verify upsert results                         | PASS   | EXT-001 updated, EXT-002/003 present                 |
+| 13  | Insert with missing required field (negative) | PASS   | REQUIRED_FIELD_MISSING returned                      |
+| 14  | Insert with invalid field name (negative)     | PASS   | INVALID_FIELD returned                               |
+| 15  | Query with malformed SOQL (negative)          | PASS   | MALFORMED_QUERY returned                             |
+| 16  | Pre-flight validator catches missing sObject  | PASS   | Offline validation only (see note)                   |
+| 17  | Pre-flight validator catches PII              | PASS   | Offline validation only (see note)                   |
+| 18  | Pre-flight validator catches invalid DML op   | PASS   | Offline validation only (see note)                   |
+| 19  | Bulk insert 201 records (batch boundary)      | PASS   | Split into 200+1 batches (see Key Insights)          |
+| 20  | Query bulk records with pagination            | PASS   | 50 returned with LIMIT 50, COUNT=201                 |
+| 21  | Delete bulk records                           | PASS   | 200+1 deleted in 2 batches                           |
+| 22  | Cleanup — remove all test artifacts           | PASS   | 0 records remain, custom field deleted               |
 
 ## Prerequisites
 
@@ -56,6 +56,7 @@ sobject_describe(sObject="Account")
 ```
 
 Expected:
+
 - Returns field list including Name, Industry, BillingCity, AnnualRevenue
 - Response includes field types, required flags, and relationship metadata
 
@@ -102,6 +103,7 @@ soql_query(
 ```
 
 Expected:
+
 - 3 records returned (out of 4 matching the WHERE)
 - Ordered by AnnualRevenue descending: Finance (5M), Healthcare Boston (3M), Healthcare NY (2.5M)
 
@@ -233,6 +235,7 @@ soql_query(
 ```
 
 Expected:
+
 - EXT-001: Name = "DATATEST_Upsert_Updated", Industry = "Energy"
 - EXT-002: Name = "DATATEST_Upsert_New_2", Industry = "Retail"
 - EXT-003: Name = "DATATEST_Upsert_New_3", Industry = "Media"
@@ -443,13 +446,13 @@ metadata_delete(type="CustomField", fullNames=["Account.DATATEST_ExtId__c"])
 
 ## Error Handling Observations
 
-| Observation | Expected | Actual | Notes |
-| ----------- | -------- | ------ | ----- |
-| 201-record insert | Single call succeeds | `EXCEEDED_ID_LIMIT` error | MCP server enforces 200-record max per call |
-| Delete uses `recordIds` | `records` param with `{"Id": "..."}` | `recordIds` string array | Different param than insert/update |
-| `soql_query` default limit | Unlimited | 100 records | Must set explicit `limit` or paginate with `Id >` |
-| Aggregate queries | `groupBy` as param | Works correctly | COUNT + GROUP BY returns expected groups |
-| `==` in WHERE clause | MALFORMED_QUERY | MALFORMED_QUERY | Correctly rejected by Salesforce API |
+| Observation                | Expected                             | Actual                    | Notes                                             |
+| -------------------------- | ------------------------------------ | ------------------------- | ------------------------------------------------- |
+| 201-record insert          | Single call succeeds                 | `EXCEEDED_ID_LIMIT` error | MCP server enforces 200-record max per call       |
+| Delete uses `recordIds`    | `records` param with `{"Id": "..."}` | `recordIds` string array  | Different param than insert/update                |
+| `soql_query` default limit | Unlimited                            | 100 records               | Must set explicit `limit` or paginate with `Id >` |
+| Aggregate queries          | `groupBy` as param                   | Works correctly           | COUNT + GROUP BY returns expected groups          |
+| `==` in WHERE clause       | MALFORMED_QUERY                      | MALFORMED_QUERY           | Correctly rejected by Salesforce API              |
 
 ## Key Insights from Testing
 

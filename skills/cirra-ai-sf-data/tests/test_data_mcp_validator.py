@@ -149,10 +149,24 @@ class TestDmlValid:
         r = _validate(_sobject_dml("Account", "update", [{"Id": "001xx", "Name": "Updated"}]))
         assert r["status"] == "pass"
 
-    def test_delete_with_id_passes(self):
-        """TC-MD3: Delete with Id passes."""
+    def test_delete_with_record_ids_passes(self):
+        """TC-MD3: Delete with recordIds passes."""
+        r = _validate({
+            "tool": "sobject_dml",
+            "params": {
+                "sObject": "Account",
+                "operation": "delete",
+                "recordIds": ["001xx", "001yy"],
+                "sf_user": "test@example.com",
+            },
+        })
+        assert r["status"] == "pass"
+
+    def test_delete_with_records_passes_with_warning(self):
+        """TC-MD3b: Delete with records (legacy) passes but warns."""
         r = _validate(_sobject_dml("Account", "delete", [{"Id": "001xx"}]))
         assert r["status"] == "pass"
+        assert any("recordIds" in m for m in _warning_messages(r))
 
     def test_upsert_with_ext_id_passes(self):
         """TC-MD4: Upsert with externalIdField passes."""
@@ -195,10 +209,17 @@ class TestDmlInvalid:
         assert any("Id" in m for m in _error_messages(r))
 
     def test_delete_missing_id_fails(self):
-        """TC-MD9: Delete without Id fails."""
-        r = _validate(_sobject_dml("Account", "delete", [{"Name": "No Id"}]))
+        """TC-MD9: Delete without recordIds or records with Id fails."""
+        r = _validate({
+            "tool": "sobject_dml",
+            "params": {
+                "sObject": "Account",
+                "operation": "delete",
+                "sf_user": "test@example.com",
+            },
+        })
         assert r["status"] == "fail"
-        assert any("Id" in m for m in _error_messages(r))
+        assert any("recordIds" in m.lower() or "Id" in m for m in _error_messages(r))
 
     def test_upsert_missing_ext_id_field_fails(self):
         """TC-MD10: Upsert without externalIdField fails."""
@@ -213,6 +234,33 @@ class TestDmlInvalid:
         }})
         assert r["status"] == "fail"
         assert any("sObject" in m for m in _error_messages(r))
+
+    def test_insert_over_200_records_fails(self):
+        """TC-MD12: Insert with > 200 records fails."""
+        records = [{"Name": f"Acc {i}"} for i in range(201)]
+        r = _validate(_sobject_dml("Account", "insert", records))
+        assert r["status"] == "fail"
+        assert any("200" in m for m in _error_messages(r))
+
+    def test_insert_exactly_200_passes(self):
+        """TC-MD13: Insert with exactly 200 records passes."""
+        records = [{"Name": f"Acc {i}"} for i in range(200)]
+        r = _validate(_sobject_dml("Account", "insert", records))
+        assert r["status"] == "pass"
+
+    def test_delete_over_200_record_ids_fails(self):
+        """TC-MD14: Delete with > 200 recordIds fails."""
+        r = _validate({
+            "tool": "sobject_dml",
+            "params": {
+                "sObject": "Account",
+                "operation": "delete",
+                "recordIds": [f"001xx{i:04d}" for i in range(201)],
+                "sf_user": "test@example.com",
+            },
+        })
+        assert r["status"] == "fail"
+        assert any("200" in m for m in _error_messages(r))
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
