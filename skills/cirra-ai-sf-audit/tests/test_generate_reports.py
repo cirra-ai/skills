@@ -90,8 +90,8 @@ def test_compute_summary_severity_counts(gen):
 
 
 def test_score_rating_boundaries(gen):
+    assert gen.score_rating(100)[0] == "Excellent"
     assert gen.score_rating(80)[0] == "Excellent"
-    assert gen.score_rating(90)[0] == "Excellent"
     assert gen.score_rating(79)[0] == "Good"
     assert gen.score_rating(70)[0] == "Good"
     assert gen.score_rating(69)[0] == "Acceptable"
@@ -112,7 +112,7 @@ def test_generate_html_creates_file(gen, output_dir):
     html_path = output_dir / "report.html"
     gen.generate_html(data, summary, "Test Org", "00D001", "CS42", "2026-03-06", html_path)
     assert html_path.exists()
-    content = html_path.read_text()
+    content = html_path.read_text(encoding="utf-8")
     assert len(content) > 500
     assert "Test Org" in content
     assert "00D001" in content
@@ -128,7 +128,7 @@ def test_html_contains_all_sections(gen, output_dir):
     output_dir.mkdir(parents=True)
     html_path = output_dir / "report.html"
     gen.generate_html(data, summary, "Test Org", "", "", "2026-01-01", html_path)
-    content = html_path.read_text()
+    content = html_path.read_text(encoding="utf-8")
     for section in [
         "Executive Summary",
         "Domain Scores",
@@ -154,7 +154,7 @@ def test_html_escapes_special_chars(gen, output_dir):
     output_dir.mkdir(parents=True)
     html_path = output_dir / "report.html"
     gen.generate_html(data, summary, "Test Org", "", "", "2026-01-01", html_path)
-    content = html_path.read_text()
+    content = html_path.read_text(encoding="utf-8")
     assert "<script>alert" not in content
     assert "&lt;script&gt;" in content
 
@@ -169,7 +169,7 @@ def test_generate_json_summary(gen, output_dir):
     json_path = output_dir / "summary.json"
     gen.generate_json_summary(summary, "2026-03-06", json_path)
     assert json_path.exists()
-    result = json.loads(json_path.read_text())
+    result = json.loads(json_path.read_text(encoding="utf-8"))
     for key in [
         "overall_score",
         "overall_rating",
@@ -180,6 +180,15 @@ def test_generate_json_summary(gen, output_dir):
         "generated_date",
     ]:
         assert key in result, f"Missing key in JSON summary: {key}"
+
+
+def test_generate_json_summary_does_not_mutate_input(gen, output_dir):
+    data = gen.load_inputs(str(FIXTURES_DIR))
+    summary = gen.compute_summary(data)
+    output_dir.mkdir(parents=True)
+    json_path = output_dir / "summary.json"
+    gen.generate_json_summary(summary, "2026-03-06", json_path)
+    assert "generated_date" not in summary
 
 
 # ── Empty data handling ─────────────────────────────────────────────────────
@@ -194,7 +203,7 @@ def test_generates_reports_with_empty_data(gen, output_dir, tmp_path):
     html_path = output_dir / "report.html"
     gen.generate_html(data, summary, "Empty Org", "", "", "2026-01-01", html_path)
     assert html_path.exists()
-    content = html_path.read_text()
+    content = html_path.read_text(encoding="utf-8")
     assert "Empty Org" in content
 
 
@@ -206,5 +215,5 @@ def test_json_summary_with_empty_data(gen, output_dir, tmp_path):
     output_dir.mkdir(parents=True)
     json_path = output_dir / "summary.json"
     gen.generate_json_summary(summary, "2026-01-01", json_path)
-    result = json.loads(json_path.read_text())
+    result = json.loads(json_path.read_text(encoding="utf-8"))
     assert result["overall_score"] == 0.0
