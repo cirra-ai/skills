@@ -782,10 +782,10 @@ def generate_docx(data, summary, org_name, org_id, instance, run_date, output_pa
     # Apex Triggers
     if data.get("trigger_findings"):
         doc.add_heading("Apex Triggers", level=1)
-        table = doc.add_table(rows=1, cols=4)
+        table = doc.add_table(rows=1, cols=5)
         table.alignment = WD_TABLE_ALIGNMENT.CENTER
         hdr = table.rows[0].cells
-        for i, h in enumerate(["Name", "Object", "Severity", "Findings"]):
+        for i, h in enumerate(["Name", "Object", "Events", "Severity", "Findings"]):
             hdr[i].text = h
             for run in hdr[i].paragraphs[0].runs:
                 run.font.bold = True
@@ -802,16 +802,17 @@ def generate_docx(data, summary, org_name, org_id, instance, run_date, output_pa
             row = table.add_row().cells
             row[0].text = item.get("name", "")
             row[1].text = item.get("object", "")
-            row[2].text = sev
-            row[3].text = findings_str
+            row[2].text = item.get("events", "")
+            row[3].text = sev
+            row[4].text = findings_str
 
     # Process Builders
     if data.get("process_builders"):
         doc.add_heading("Process Builders", level=1)
-        table = doc.add_table(rows=1, cols=4)
+        table = doc.add_table(rows=1, cols=5)
         table.alignment = WD_TABLE_ALIGNMENT.CENTER
         hdr = table.rows[0].cells
-        for i, h in enumerate(["Name", "Object", "Criteria", "Migration Priority"]):
+        for i, h in enumerate(["Name", "Object", "Criteria", "Actions", "Migration Priority"]):
             hdr[i].text = h
             for run in hdr[i].paragraphs[0].runs:
                 run.font.bold = True
@@ -820,7 +821,8 @@ def generate_docx(data, summary, org_name, org_id, instance, run_date, output_pa
             row[0].text = item.get("name", "")
             row[1].text = item.get("object", "")
             row[2].text = str(item.get("criteria_count", ""))
-            row[3].text = item.get("migration_priority", "HIGH")
+            row[3].text = item.get("actions_summary", "")
+            row[4].text = item.get("migration_priority", "HIGH")
 
     # Permission Findings
     if data.get("permission_findings"):
@@ -842,30 +844,37 @@ def generate_docx(data, summary, org_name, org_id, instance, run_date, output_pa
     # Validation Rules
     if data.get("validation_rules"):
         doc.add_heading("Validation Rules", level=1)
-        table = doc.add_table(rows=1, cols=4)
+        table = doc.add_table(rows=1, cols=5)
         table.alignment = WD_TABLE_ALIGNMENT.CENTER
         hdr = table.rows[0].cells
-        for i, h in enumerate(["Name", "Object", "Active", "Findings"]):
+        for i, h in enumerate(["Name", "Object", "Active", "Severity", "Findings"]):
             hdr[i].text = h
             for run in hdr[i].paragraphs[0].runs:
                 run.font.bold = True
         for item in sorted(data["validation_rules"], key=lambda x: x.get("name", "")):
+            findings = item.get("findings", [])
             findings_str = "; ".join(
-                f.get("message", f.get("finding", "")) for f in item.get("findings", [])[:3]
+                f.get("message", f.get("finding", "")) for f in findings[:3]
             )
+            sev = max(
+                (f.get("severity", "LOW") for f in findings),
+                key=lambda s: {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1}.get(s.upper(), 0),
+                default="LOW",
+            ) if findings else "LOW"
             row = table.add_row().cells
             row[0].text = item.get("name", "")
             row[1].text = item.get("object", "")
             row[2].text = str(item.get("active", ""))
-            row[3].text = findings_str
+            row[3].text = sev
+            row[4].text = findings_str
 
     # Workflow Rules
     if data.get("workflow_rules"):
         doc.add_heading("Workflow Rules", level=1)
-        table = doc.add_table(rows=1, cols=3)
+        table = doc.add_table(rows=1, cols=4)
         table.alignment = WD_TABLE_ALIGNMENT.CENTER
         hdr = table.rows[0].cells
-        for i, h in enumerate(["Name", "Object", "Migration Priority"]):
+        for i, h in enumerate(["Name", "Object", "Action Types", "Migration Priority"]):
             hdr[i].text = h
             for run in hdr[i].paragraphs[0].runs:
                 run.font.bold = True
@@ -873,7 +882,8 @@ def generate_docx(data, summary, org_name, org_id, instance, run_date, output_pa
             row = table.add_row().cells
             row[0].text = item.get("name", "")
             row[1].text = item.get("object", "")
-            row[2].text = item.get("migration_priority", "HIGH")
+            row[2].text = item.get("action_types", "")
+            row[3].text = item.get("migration_priority", "HIGH")
 
     # Recommendations
     doc.add_heading("Recommendations", level=1)
