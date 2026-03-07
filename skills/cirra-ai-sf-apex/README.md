@@ -81,10 +81,9 @@ The skill generates:
 
 ## Automatic Validation
 
-Apex code is automatically validated as you work:
+Apex code is automatically validated before deployment:
 
 - **Before deployment**: Critical issues (SOQL/DML in loops, injection risks) block deployment until fixed. Lower-severity issues are flagged as warnings.
-- **After writing**: Every Apex file you create or edit is scored against the 150-point rubric with a per-category breakdown.
 - **AI anti-pattern detection**: Catches common AI-generated mistakes like invalid Java types, hallucinated methods, and unsafe Map access.
 
 Use `/validate-apex` at any time for on-demand checks:
@@ -131,11 +130,11 @@ For credits see [CREDITS](CREDITS.md)
 
 ### Validation Hooks
 
-This skill ships Python validation scripts in `scripts/` that run automatically at two points. Validation is **skill-scoped** — the pre-deployment hook only registers while the cirra-ai-sf-apex skill is active.
+This skill ships Python validation scripts in `scripts/`. The pre-deployment hook is registered at the plugin level in `hooks/hooks.json` and is **type-scoped** — it inspects the metadata type in each MCP call and only validates Apex payloads.
 
 #### Hook 1: `pre-mcp-validate.py` — pre-deployment (blocking)
 
-Defined in `SKILL.md` frontmatter as a skill-scoped PreToolUse hook. Fires before every `metadata_create`, `metadata_update`, and `tooling_api_dml` call while the Apex skill is active.
+Registered in `hooks/hooks.json` as a plugin-level PreToolUse hook. Fires before every `metadata_create`, `metadata_update`, and `tooling_api_dml` call. The script inspects the metadata type and only validates Apex payloads; non-Apex types pass through silently.
 
 | Result                                              | Action                                       |
 | --------------------------------------------------- | -------------------------------------------- |
@@ -144,9 +143,9 @@ Defined in `SKILL.md` frontmatter as a skill-scoped PreToolUse hook. Fires befor
 | Pass                                                | Allows deployment with score summary         |
 | Non-Apex type (Flow, CustomObject, etc.)            | Passes through silently                      |
 
-#### Hook 2: `post-tool-validate.py` — post-write (advisory)
+#### Hook 2: `post-tool-validate.py` — post-write (advisory, not wired by default)
 
-Triggered by `hooks/hooks.json` on `PostToolUse` for `Write|Edit`. Runs a two-phase validation pipeline and outputs a scored report to the transcript.
+Available for PostToolUse `Write|Edit` integration but **not currently registered** in `hooks/hooks.json`. When enabled, runs a two-phase validation pipeline and outputs a scored report to the transcript.
 
 **Phase 1 — `validate_apex.py`: 150-point static analysis**
 
@@ -187,6 +186,9 @@ echo '{"tool":"metadata_create","params":{"type":"ApexClass","metadata":[{"fullN
 ```
 
 ### Integration Testing (Actual Org)
+
+This section is primarily for open-source contributors to this repository.
+If you are using the skill as an end user, you do not need to run these tests.
 
 To validate end-to-end behavior in a real Salesforce org (LLM prompt → MCP calls → deployed metadata → org verification), use:
 

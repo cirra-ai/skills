@@ -96,16 +96,16 @@ S → Security     │ Enforce permissions, FLS, and data protection
 | `typescript-component/`  | TypeScript support (Spring '26) |
 | `message-channel/`       | Lightning Message Service       |
 
-## Automatic Validation
+## Validation
 
-Components are automatically validated every time you create or edit an LWC file. Checks are **advisory** — they provide feedback but never block operations. Validation covers:
+The skill includes validation scripts that check LWC components against a 165-point SLDS 2 rubric. Checks are **advisory** — they provide feedback but never block operations. Validation covers:
 
 - **SLDS 2 compliance**: Valid class names, styling hooks, no deprecated SLDS 1 patterns
 - **Accessibility**: ARIA labels/roles, alt-text, keyboard navigation
 - **Dark mode readiness**: No hardcoded colors, CSS variables only
 - **Template anti-patterns**: Catches common AI-generated mistakes like inline expressions, missing loop keys, and invalid ternary operators
 
-Results appear as a scored report with a star rating and prioritised issue list.
+Results appear as a scored report with a star rating and prioritised issue list. See the [For Contributors](#for-contributors) section for details on wiring up automated validation hooks.
 
 ## Cross-Skill Integration
 

@@ -115,10 +115,9 @@ Always deploy custom objects/fields BEFORE flows that reference them.
 
 ## Automatic Validation
 
-Flows are automatically validated as you work:
+Flows are automatically validated before deployment:
 
 - **Before deployment**: Critical issues (DML in loops, missing fault paths) block deployment until fixed. Lower-severity issues are flagged as warnings.
-- **After writing**: Every Flow file you create or edit is scored against the 110-point rubric with a per-category breakdown.
 
 Use `/validate-flow` at any time for on-demand checks:
 
@@ -140,11 +139,11 @@ Use `/validate-flow` at any time for on-demand checks:
 
 ### Validation Hooks
 
-This skill ships Python validation scripts in `scripts/` that run automatically at two points. Validation is **skill-scoped** — the pre-deployment hook only registers while the cirra-ai-sf-flow skill is active.
+This skill ships Python validation scripts in `scripts/`. The pre-deployment hook is registered at the plugin level in `hooks/hooks.json` and is **type-scoped** — it inspects the metadata type in each MCP call and only validates Flow payloads.
 
 #### Hook 1: `pre-mcp-validate.py` — pre-deployment (blocking)
 
-Defined in `SKILL.md` frontmatter as a skill-scoped PreToolUse hook. Fires before every `metadata_create`, `metadata_update`, and `tooling_api_dml` call while the Flow skill is active.
+Registered in `hooks/hooks.json` as a plugin-level PreToolUse hook. Fires before every `metadata_create`, `metadata_update`, and `tooling_api_dml` call. The script inspects the metadata type and only validates Flow payloads; non-Flow types pass through silently.
 
 | Result                                                   | Action                                       |
 | -------------------------------------------------------- | -------------------------------------------- |
@@ -153,9 +152,9 @@ Defined in `SKILL.md` frontmatter as a skill-scoped PreToolUse hook. Fires befor
 | Pass                                                     | Allows deployment with score summary         |
 | Non-Flow type (ApexClass, CustomObject, etc.)            | Passes through silently                      |
 
-#### Hook 2: `post-tool-validate.py` — post-write (advisory)
+#### Hook 2: `post-tool-validate.py` — post-write (advisory, not wired by default)
 
-Triggered by `hooks/hooks.json` on `PostToolUse` for `Write|Edit`. Runs `EnhancedFlowValidator` on any `.flow-meta.xml` file and outputs a scored report to the transcript.
+Available for PostToolUse `Write|Edit` integration but **not currently registered** in `hooks/hooks.json`. When enabled, runs `EnhancedFlowValidator` on any `.flow-meta.xml` file and outputs a scored report to the transcript.
 
 **`validate_flow.py`: 110-point static analysis**
 
