@@ -32,6 +32,7 @@ def test_supported_tool_with_valid_payload_scores():
 def test_unsupported_tool_returns_error():
     result = LWCMCPValidator().validate({"tool": "soql_query", "params": {}})
     assert result["status"] == "error"
+    assert isinstance(result["message"], str)
 
 
 def test_non_target_metadata_type_is_skipped():
@@ -46,6 +47,7 @@ def test_missing_or_empty_payload_data_returns_error():
     payload["params"]["metadata"][0]["content"] = ""
     result = LWCMCPValidator().validate(payload)
     assert result["status"] == "error"
+    assert isinstance(result["message"], str)
 
 
 def test_result_includes_required_metadata_keys():

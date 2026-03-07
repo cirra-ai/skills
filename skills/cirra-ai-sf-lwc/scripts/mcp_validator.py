@@ -8,8 +8,12 @@ returns a stable, machine-readable result for orchestration logic.
 from __future__ import annotations
 
 import os
+import sys
 import tempfile
+from pathlib import Path
 from typing import Any
+
+_SCRIPT_DIR = str(Path(__file__).resolve().parent)
 
 SUPPORTED_TOOLS = ("metadata_create", "metadata_update", "tooling_api_dml")
 TARGET_METADATA_TYPE = "LightningComponentBundle"
@@ -71,7 +75,7 @@ class LWCMCPValidator:
             return {
                 **base,
                 "status": "error",
-                "errors": [{"message": f"Unsupported tool '{tool}'"}],
+                "message": f"Unsupported tool '{tool}'",
             }
 
         metadata_type, content, full_name = _extract_payload(tool, params)
@@ -90,10 +94,12 @@ class LWCMCPValidator:
             return {
                 **base,
                 "status": "error",
-                "errors": [{"message": "Missing or empty LWC payload content"}],
+                "message": "Missing or empty LWC payload content",
             }
 
         try:
+            if _SCRIPT_DIR not in sys.path:
+                sys.path.insert(0, _SCRIPT_DIR)
             from template_validator import LWCTemplateValidator
             from validate_slds import SLDSValidator
 
@@ -105,7 +111,10 @@ class LWCMCPValidator:
                 slds = SLDSValidator(temp_path).validate()
                 template = LWCTemplateValidator(temp_path).validate()
             finally:
-                os.unlink(temp_path)
+                try:
+                    os.unlink(temp_path)
+                except OSError:
+                    pass
 
             max_score = slds.get("max_score", 0) or 1
             base_score = slds.get("score", 0)
@@ -127,7 +136,7 @@ class LWCMCPValidator:
             return {
                 **base,
                 "status": "error",
-                "errors": [{"message": f"Validation failed: {exc}"}],
+                "message": f"Validation failed: {exc}",
             }
 
 
