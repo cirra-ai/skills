@@ -165,6 +165,12 @@ def test_for_each_with_key_no_warning(tmp_path):
     assert key_issues == []
 
 
+def test_single_line_for_each_without_key_warns_regression(tmp_path):
+    html = '<template><ul for:each={items} for:item="item"><li>{item.name}</li></ul></template>'
+    issues = issues_of(tmp_path, html)
+    assert any(i["category"] == "iteration" for i in issues)
+
+
 # ── File errors ───────────────────────────────────────────────────────────────
 
 
