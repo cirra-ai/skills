@@ -187,9 +187,14 @@ def _basic_schema_errors(item: dict, schema: dict, index: int) -> list[str]:
         expected_py = type_map.get(expected_type)
         if expected_py is None:
             continue
-        if not isinstance(item[field], expected_py):
+        value = item[field]
+        if isinstance(value, bool) and expected_type in ("integer", "number"):
             errs.append(
-                f"'{name}' at {field}: {item[field]!r} is not of type '{expected_type}'"
+                f"'{name}' at {field}: {value!r} is not of type '{expected_type}'"
+            )
+        elif not isinstance(value, expected_py):
+            errs.append(
+                f"'{name}' at {field}: {value!r} is not of type '{expected_type}'"
             )
 
     return errs

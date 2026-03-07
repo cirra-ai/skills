@@ -110,7 +110,7 @@ class LWCMCPValidator:
             max_score = slds.get("max_score", 0) or 1
             base_score = slds.get("score", 0)
             critical = [i for i in template.get("issues", []) if i.get("severity") == "CRITICAL"]
-            warnings = [i for i in template.get("issues", []) if i.get("severity") != "CRITICAL"]
+            warnings = [i for i in template.get("issues", []) if i.get("severity") == "WARNING"]
 
             adjusted_score = max(0, base_score - (len(critical) * 3))
 
