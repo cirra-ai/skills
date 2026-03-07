@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 #
-# extract_data.sh — Bulk data extraction for Salesforce org audit (local mode)
+# extract_data.sh — Bulk data extraction for Salesforce org audit (CLI mode)
 #
 # Pulls raw metadata and SOQL results via the Salesforce CLI (`sf`).
-# Only used when EXEC_MODE=local (CLI is authenticated and org-aligned).
+# Only used when EXEC_MODE=cli (CLI is authenticated and org-aligned).
 # In cloud mode the AI agent extracts data via MCP tools instead.
 #
 # Usage:
@@ -94,12 +94,12 @@ extract_count() {
     python3 -c "
 import json, sys
 try:
-    d = json.load(open('$file'))
+    d = json.load(open(sys.argv[1]))
     recs = d.get('result', {}).get('records', [])
     print(recs[0].get('expr0', 0) if recs else 0)
 except Exception:
     print(0)
-" 2>/dev/null || echo "0"
+" "$file" 2>/dev/null || echo "0"
   fi
 }
 
@@ -122,7 +122,7 @@ query_tooling "SELECT COUNT(Id) FROM FlowDefinition WHERE ActiveVersionId != nul
   "$RAW_DIR/count_active_flows.json"
 
 # Process Builders: active Flows with ProcessType = 'Workflow'
-query_tooling "SELECT COUNT(Id) FROM Flow WHERE Status = 'Active' AND ProcessType = 'Workflow'" \
+query_tooling "SELECT COUNT(Id) FROM Flow WHERE Status = 'Active' AND ProcessType = 'Workflow' AND NamespacePrefix = null" \
   "$RAW_DIR/count_process_builders.json"
 
 query_tooling "SELECT COUNT(Id) FROM LightningComponentBundle WHERE NamespacePrefix = null" \
@@ -263,7 +263,7 @@ query_tooling "SELECT Id, DeveloperName, MasterLabel, ActiveVersionId, ProcessTy
   "$RAW_DIR/flow_definitions.json"
 
 # Active flow details (includes Process Builders)
-query_tooling "SELECT Id, Definition.DeveloperName, ProcessType, Status, VersionNumber FROM Flow WHERE Status = 'Active' ORDER BY Definition.DeveloperName" \
+query_tooling "SELECT Id, Definition.DeveloperName, ProcessType, Status, VersionNumber FROM Flow WHERE Status = 'Active' AND Definition.NamespacePrefix = null ORDER BY Definition.DeveloperName" \
   "$RAW_DIR/active_flows.json"
 
 # LWC bundles

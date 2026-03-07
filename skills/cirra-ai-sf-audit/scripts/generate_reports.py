@@ -100,7 +100,7 @@ def load_inputs(input_dir):
     for key, filename in INPUT_FILES.items():
         fpath = input_path / filename
         if fpath.exists():
-            with open(fpath) as f:
+            with open(fpath, encoding="utf-8") as f:
                 data[key] = json.load(f)
         else:
             data[key] = {} if key == "counts" else []
@@ -110,13 +110,13 @@ def load_inputs(input_dir):
 # ── Score computation ───────────────────────────────────────────────────────
 
 
-def compute_domain_score(items, max_score_key="max_score", score_key="score"):
+def compute_domain_score(items, max_score_key="max_score", score_key="score", default_max=100):
     """Compute average percentage for a list of scored items."""
     if not items:
         return 0.0
     total_pct = 0.0
     for item in items:
-        max_s = item.get(max_score_key, 100)
+        max_s = item.get(max_score_key, default_max)
         s = item.get(score_key, 0)
         total_pct += (s / max_s * 100) if max_s > 0 else 0
     return round(total_pct / len(items), 1)
@@ -126,26 +126,24 @@ def compute_summary(data):
     """Compute the full audit summary from loaded data."""
     counts = data["counts"]
 
+    # Domain-specific max scores (Apex=150, Flows=110, LWC=165, Metadata=120)
+    domain_config = [
+        ("apex", "apex_scores", 150),
+        ("flows", "flow_scores", 110),
+        ("lwc", "lwc_scores", 165),
+        ("metadata", "metadata_scores", 120),
+    ]
+
     domain_scores = {}
-    for domain, items_key in [
-        ("apex", "apex_scores"),
-        ("flows", "flow_scores"),
-        ("lwc", "lwc_scores"),
-        ("metadata", "metadata_scores"),
-    ]:
+    for domain, items_key, default_max in domain_config:
         items = data.get(items_key, [])
         domain_scores[domain] = compute_domain_score(
-            items, max_score_key="max_score", score_key="score"
+            items, max_score_key="max_score", score_key="score", default_max=default_max
         )
 
     # Overall = average of domain percentages (only domains with data)
     active_scores = []
-    for domain, items_key in [
-        ("apex", "apex_scores"),
-        ("flows", "flow_scores"),
-        ("lwc", "lwc_scores"),
-        ("metadata", "metadata_scores"),
-    ]:
+    for domain, items_key, _default_max in domain_config:
         if data.get(items_key):
             active_scores.append(domain_scores[domain])
 
@@ -153,16 +151,11 @@ def compute_summary(data):
 
     # Below-threshold counts (<70%)
     below_threshold = {}
-    for domain, items_key in [
-        ("apex", "apex_scores"),
-        ("flows", "flow_scores"),
-        ("lwc", "lwc_scores"),
-        ("metadata", "metadata_scores"),
-    ]:
+    for domain, items_key, default_max in domain_config:
         items = data.get(items_key, [])
         count = 0
         for item in items:
-            max_s = item.get("max_score", 100)
+            max_s = item.get("max_score", default_max)
             s = item.get("score", 0)
             if max_s > 0 and (s / max_s * 100) < 70:
                 count += 1
@@ -177,12 +170,7 @@ def compute_summary(data):
 
     # Top issues by domain
     top_issues = {}
-    for domain, items_key in [
-        ("apex", "apex_scores"),
-        ("flows", "flow_scores"),
-        ("lwc", "lwc_scores"),
-        ("metadata", "metadata_scores"),
-    ]:
+    for domain, items_key, _default_max in domain_config:
         issue_counts = {}
         for item in data.get(items_key, []):
             for issue in item.get("issues", []):
@@ -344,7 +332,7 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
     ]
     for key, label in inv_map:
         val = counts.get(key, 0)
-        inv_lines.append(f"<li><strong>{val}</strong> {label}</li>")
+        inv_lines.append(f"<li><strong>{_esc(val)}</strong> {label}</li>")
     sections.append(
         f'<div class="card"><h2>Executive Summary</h2>'
         f'<ul>{"".join(inv_lines)}</ul></div>'
@@ -395,7 +383,7 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
     # ── Apex Triggers ──
     if data.get("trigger_findings"):
         rows = []
-        for item in data["trigger_findings"]:
+        for item in sorted(data["trigger_findings"], key=lambda x: x.get("name", "")):
             findings_str = "; ".join(
                 f.get("message", f.get("finding", ""))
                 for f in item.get("findings", [])[:3]
@@ -439,7 +427,7 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
     # ── Process Builders ──
     if data.get("process_builders"):
         rows = []
-        for item in data["process_builders"]:
+        for item in sorted(data["process_builders"], key=lambda x: x.get("name", "")):
             rows.append([
                 _esc(item.get("name", "")),
                 _esc(item.get("object", "")),
@@ -472,9 +460,18 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
 
     # ── Permissions ──
     if data.get("permission_findings"):
+        sorted_findings = sorted(
+            data["permission_findings"],
+            key=lambda x: (
+                {"CRITICAL": 0, "HIGH": 1, "MEDIUM": 2, "LOW": 3}.get(
+                    x.get("severity", "LOW").upper(), 4
+                ),
+                x.get("name", ""),
+            ),
+        )
         sections.append(
             f'<div class="card"><h2>Profiles &amp; Permissions</h2>'
-            f"{_findings_html(data['permission_findings'])}</div>"
+            f"{_findings_html(sorted_findings)}</div>"
         )
 
     # ── Metadata / Data Model ──
@@ -500,7 +497,7 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
     # ── Validation Rules ──
     if data.get("validation_rules"):
         rows = []
-        for item in data["validation_rules"]:
+        for item in sorted(data["validation_rules"], key=lambda x: x.get("name", "")):
             findings_str = "; ".join(
                 f.get("message", f.get("finding", ""))
                 for f in item.get("findings", [])[:3]
@@ -525,7 +522,7 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
     # ── Workflow Rules ──
     if data.get("workflow_rules"):
         rows = []
-        for item in data["workflow_rules"]:
+        for item in sorted(data["workflow_rules"], key=lambda x: x.get("name", "")):
             rows.append([
                 _esc(item.get("name", "")),
                 _esc(item.get("object", "")),
