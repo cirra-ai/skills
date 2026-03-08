@@ -242,7 +242,7 @@ For proper revenue calculations:
 
 ```javascript
 {
-  "RecordTypeId": "012Ho000001bKakIAE",
+  "RecordTypeId": "<query_dynamically>",
   "kugo2p__Account__c": "001xxx",
   "kugo2p__Opportunity__c": "006xxx",
   "kugo2p__QuoteName__c": "Q4 2025 Quote",
