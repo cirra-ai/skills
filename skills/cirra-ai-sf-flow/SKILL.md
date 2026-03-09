@@ -83,7 +83,7 @@ See `references/orchestration.md` for extended orchestration patterns including 
 | **Test with 251**        | Batch boundary at 200. Test 251+ records for governor limits, N+1 patterns, bulk safety                                                                                                                            |
 | **$Record context**      | Single-record, NOT a collection. Platform handles batching. Never loop over $Record                                                                                                                                |
 | **$Record traversal**    | `$Record` supports relationship traversal: `{!$Record.Contact__r.FirstName}`, `{!$Record.Account__r.Name}`. Do NOT use Get Records for data already available through `$Record` lookups — this wastes a SOQL query |
-| **Transform vs Loop**    | Transform: data mapping/shaping (30-50% faster). Loop: per-record decisions, counters, varying logic. See `references/transform-vs-loop-guide.md`                                                                   |
+| **Transform vs Loop**    | Transform: data mapping/shaping (30-50% faster). Loop: per-record decisions, counters, varying logic. See `references/transform-vs-loop-guide.md`                                                                  |
 
 ---
 
@@ -847,8 +847,8 @@ Embed custom Lightning Web Components in Flow Screens for rich, interactive UIs.
 
 ### Templates
 
-| Template                             | Purpose                            |
-| ------------------------------------ | ---------------------------------- |
+| Template                          | Purpose                            |
+| --------------------------------- | ---------------------------------- |
 | `assets/screen-flow-with-lwc.xml` | Flow embedding LWC component       |
 | `assets/apex-action-template.xml` | Flow calling Apex @InvocableMethod |
 
@@ -873,11 +873,11 @@ Embed custom Lightning Web Components in Flow Screens for rich, interactive UIs.
 
 ### Documentation
 
-| Resource              | Location                                                                                            |
-| --------------------- | --------------------------------------------------------------------------------------------------- |
-| LWC Integration Guide | [references/lwc-integration-guide.md](references/lwc-integration-guide.md)                                      |
+| Resource              | Location                                                                                                |
+| --------------------- | ------------------------------------------------------------------------------------------------------- |
+| LWC Integration Guide | [references/lwc-integration-guide.md](references/lwc-integration-guide.md)                              |
 | LWC Component Setup   | [cirra-ai-sf-lwc/assets/flow-integration-guide.md](../cirra-ai-sf-lwc/assets/flow-integration-guide.md) |
-| Triangle Architecture | [references/triangle-pattern.md](references/triangle-pattern.md)                                                |
+| Triangle Architecture | [references/triangle-pattern.md](references/triangle-pattern.md)                                        |
 
 ---
 
@@ -908,11 +908,11 @@ Call Apex `@InvocableMethod` classes from Flow for complex business logic.
 
 ### Documentation
 
-| Resource                    | Location                                                                                  |
-| --------------------------- | ----------------------------------------------------------------------------------------- |
-| Apex Action Template        | `assets/apex-action-template.xml`                                                              |
+| Resource                    | Location                                                                                              |
+| --------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Apex Action Template        | `assets/apex-action-template.xml`                                                                     |
 | Apex @InvocableMethod Guide | [cirra-ai-sf-apex/references/flow-integration.md](../cirra-ai-sf-apex/references/flow-integration.md) |
-| Triangle Architecture       | [references/triangle-pattern.md](references/triangle-pattern.md)                              |
+| Triangle Architecture       | [references/triangle-pattern.md](references/triangle-pattern.md)                                      |
 
 ### ⚠️ Flows for Agentforce
 

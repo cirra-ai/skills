@@ -747,13 +747,13 @@ Make components discoverable by Agentforce agents:
 
 ### Documentation Files
 
-| Resource                                                                   | Purpose                                                               |
-| -------------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| [references/component-patterns.md](references/component-patterns.md)         | Complete code examples (Wire, GraphQL, Modal, Navigation, TypeScript) |
-| [references/lms-guide.md](references/lms-guide.md)                           | Lightning Message Service deep dive                                   |
-| [references/jest-testing.md](references/jest-testing.md)                     | Advanced testing patterns (James Simone)                              |
-| [references/accessibility-guide.md](references/accessibility-guide.md)       | WCAG compliance, ARIA patterns, focus management                      |
-| [references/performance-guide.md](references/performance-guide.md)           | Dark mode migration, lazy loading, optimization                       |
+| Resource                                                                       | Purpose                                                               |
+| ------------------------------------------------------------------------------ | --------------------------------------------------------------------- |
+| [references/component-patterns.md](references/component-patterns.md)           | Complete code examples (Wire, GraphQL, Modal, Navigation, TypeScript) |
+| [references/lms-guide.md](references/lms-guide.md)                             | Lightning Message Service deep dive                                   |
+| [references/jest-testing.md](references/jest-testing.md)                       | Advanced testing patterns (James Simone)                              |
+| [references/accessibility-guide.md](references/accessibility-guide.md)         | WCAG compliance, ARIA patterns, focus management                      |
+| [references/performance-guide.md](references/performance-guide.md)             | Dark mode migration, lazy loading, optimization                       |
 | [assets/state-management.md](assets/state-management.md)                       | @track, Singleton Store, @lwc/state, Platform State Managers          |
 | [assets/template-anti-patterns.md](assets/template-anti-patterns.md)           | LLM template mistakes (inline expressions, ternary operators)         |
 | [assets/async-notification-patterns.md](assets/async-notification-patterns.md) | Platform Events + empApi subscription patterns                        |
