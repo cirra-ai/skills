@@ -94,7 +94,7 @@ Rolls up to Opportunity:
 ```javascript
 // For recurring products (subscriptions, support, services)
 {
-  "Product2Id": "01txxx",
+  "PricebookEntryId": "01uxxx",
   "Quantity": 1,
   "UnitPrice": 2000,
   "kuga_sub__Renew__c": true  // REQUIRED for recurring!
@@ -102,7 +102,7 @@ Rolls up to Opportunity:
 
 // For one-time products (hardware, implementation, licenses)
 {
-  "Product2Id": "01txxx",
+  "PricebookEntryId": "01uxxx",
   "Quantity": 1,
   "UnitPrice": 15000,
   "kuga_sub__Renew__c": false  // or omit (defaults to false)

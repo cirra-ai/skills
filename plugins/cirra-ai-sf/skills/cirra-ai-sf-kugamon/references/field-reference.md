@@ -79,7 +79,7 @@ These are **populated by Kugamon automation** based on `kuga_sub__Renew__c`:
 | `kuga_sub__Service__c`             | Is this a service?        | Formula field         | Formula field         |
 | `kuga_sub__NetAmount__c`           | Net amount                | Total after discounts | Total after discounts |
 
-## Quote Fields (kugo2p**SalesQuote**c)
+## Quote Fields (`kugo2p__SalesQuote__c`)
 
 ### Required Fields for Creation
 
@@ -108,7 +108,7 @@ These are **populated by Kugamon automation** based on `kuga_sub__Renew__c`:
 | `kugo2p__SubtotalAmount__c` | Subtotal     | Calculated from line items                       |
 | `kugo2p__NetAmount__c`      | Net amount   | Total after discounts/taxes                      |
 
-## Quote Line Item Object (kugo2p**SalesQuoteServiceLine**c)
+## Quote Line Item Object (`kugo2p__SalesQuoteServiceLine__c`)
 
 ### Key Fields
 
