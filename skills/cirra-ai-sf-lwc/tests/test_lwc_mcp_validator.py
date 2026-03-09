@@ -70,3 +70,61 @@ def test_result_includes_required_metadata_keys():
     result = LWCMCPValidator().validate(_valid_payload())
     for key in ("tier", "tool", "metadata_type", "status", "validator"):
         assert key in result
+
+
+def test_lwc_resources_dict_format_is_scored():
+    """lwcResources sent as {"lwcResource": [...]} dict (actual MCP format) must be scored."""
+    payload = {
+        "tool": "metadata_create",
+        "params": {
+            "type": "LightningComponentBundle",
+            "metadata": [
+                {
+                    "fullName": "c/myComponent",
+                    "lwcResources": {
+                        "lwcResource": [
+                            {
+                                "filePath": "lwc/myComponent/myComponent.html",
+                                "source": "<template><p>{greeting}</p></template>",
+                            },
+                            {
+                                "filePath": "lwc/myComponent/myComponent.js",
+                                "source": "import { LightningElement, api } from 'lwc';\nexport default class MyComponent extends LightningElement { @api greeting = 'Hello'; }",
+                            },
+                        ]
+                    },
+                }
+            ],
+        },
+    }
+    result = LWCMCPValidator().validate(payload)
+    assert result["status"] == "scored", (
+        f"Expected 'scored' but got '{result['status']}': {result.get('message', '')}"
+    )
+    assert result["score"] > 0
+
+
+def test_lwc_resources_list_format_is_scored():
+    """lwcResources sent as a flat list (legacy format) must also be scored."""
+    payload = {
+        "tool": "metadata_create",
+        "params": {
+            "type": "LightningComponentBundle",
+            "metadata": [
+                {
+                    "fullName": "c/myComponent",
+                    "lwcResources": [
+                        {
+                            "filePath": "lwc/myComponent/myComponent.html",
+                            "source": "<template><p>{greeting}</p></template>",
+                        }
+                    ],
+                }
+            ],
+        },
+    }
+    result = LWCMCPValidator().validate(payload)
+    assert result["status"] == "scored", (
+        f"Expected 'scored' but got '{result['status']}': {result.get('message', '')}"
+    )
+    assert result["score"] > 0

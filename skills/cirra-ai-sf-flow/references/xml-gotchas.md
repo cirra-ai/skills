@@ -562,3 +562,98 @@ Even for simple pass-through flows, add at least one assignment:
 
 - **Problem**: Custom objects may not exist in target org
 - **Solution**: When testing flow generation/deployment, prefer standard objects (Account, Contact, Opportunity, Task) for guaranteed deployability
+
+---
+
+## Date Field Assignment Values
+
+**⚠️ SERIALIZATION ERROR**: Using `<stringValue>` for a Date-type field in an assignment causes the API to reject the entire flow with a serialization error.
+
+### What Doesn't Work
+
+```xml
+<!-- ❌ THIS WILL FAIL — Date fields require dateValue, not stringValue -->
+<assignments>
+    <assignmentItems>
+        <assignToReference>$Record.CloseDate</assignToReference>
+        <operator>Assign</operator>
+        <value>
+            <stringValue>2025-12-31</stringValue>  <!-- WRONG type for Date field -->
+        </value>
+    </assignmentItems>
+</assignments>
+```
+
+**Error**: The API returns a serialization error and the flow is NOT created.
+
+### What Works
+
+```xml
+<!-- ✅ CORRECT — use dateValue for Date type fields -->
+<assignments>
+    <assignmentItems>
+        <assignToReference>$Record.CloseDate</assignToReference>
+        <operator>Assign</operator>
+        <value>
+            <dateValue>2025-12-31</dateValue>
+        </value>
+    </assignmentItems>
+</assignments>
+```
+
+### Rule
+
+| Field Type    | Correct XML Element |
+|---------------|---------------------|
+| Text, Picklist, Id | `<stringValue>` |
+| Number, Currency  | `<numberValue>`  |
+| Boolean           | `<booleanValue>` |
+| Date              | `<dateValue>`    |
+| DateTime          | `<dateTimeValue>`|
+
+- The element name must match the Salesforce field type exactly.
+- Mismatched value types cause a serialization error at deploy time, not an `InvalidDraft` status.
+
+---
+
+## Scheduled Flow: `startDate` and `startTime` Must Be Inside `<schedule>`
+
+**⚠️ DEPLOYMENT BLOCKER**: Placing `startDate` and `startTime` as direct children of `<start>` causes a serialization error. They must be nested inside a `<schedule>` sub-element.
+
+### What Doesn't Work
+
+```xml
+<!-- ❌ THIS WILL FAIL — startDate/startTime are NOT direct children of <start> -->
+<start>
+    <object>Opportunity</object>
+    <triggerType>Scheduled</triggerType>
+    <startDate>2025-01-01</startDate>    <!-- WRONG location -->
+    <startTime>08:00:00.000Z</startTime> <!-- WRONG location -->
+    <frequency>Daily</frequency>         <!-- WRONG location -->
+</start>
+```
+
+**Error**: The API returns a serialization error and the flow is NOT created.
+
+### What Works
+
+```xml
+<!-- ✅ CORRECT — startDate, startTime, frequency go inside <schedule> -->
+<start>
+    <object>Opportunity</object>
+    <triggerType>Scheduled</triggerType>
+    <schedule>
+        <frequency>Daily</frequency>
+        <startDate>2025-01-01</startDate>
+        <startTime>08:00:00.000Z</startTime>
+    </schedule>
+</start>
+```
+
+### Notes
+
+- The `<schedule>` element is required for all scheduled flows (`triggerType: Scheduled`).
+- Child elements inside `<schedule>` must be in alphabetical order: `frequency`, `startDate`, `startTime`.
+- `startTime` must be in `HH:mm:ss.000Z` format.
+- Omitting `<schedule>` entirely causes a serialization error (flow NOT created).
+- Omitting `triggerType: Scheduled` on a scheduled flow also causes a serialization error.
