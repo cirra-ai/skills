@@ -742,4 +742,4 @@ tooling_api_dml(operation="delete", sObject="ApexTrigger", record={"Id": "<trigg
 - **Code as String**: Generate all Apex as strings, deploy via metadata_create/update
 - **No Local Files**: Apex code is NOT saved to local file system - lives only in Salesforce org via Metadata API
 - **Org-wide audit**: Use the `/audit-org` command in the `cirra-ai-sf` plugin for a full org audit
-- **Validation hook**: scope-limited to this skill — only active when cirra-ai-sf-apex skill is in use; use `python scripts/validate_apex_cli.py ...` for on-demand checks
+- **Validation hook**: runs for Apex-related metadata operations (for example `ApexClass` and `ApexTrigger`) via the plugin-level PreToolUse hook, independent of the active skill; use `python scripts/validate_apex_cli.py ...` for on-demand checks

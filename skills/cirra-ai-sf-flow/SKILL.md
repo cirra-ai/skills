@@ -997,4 +997,4 @@ Flow Created  →  Deployed to Org  →  Action Definition Created  →  Agent C
 - Valid Salesforce username for `sf_user` parameter
 - **Audit Output**: All audit intermediate files go to `--output-dir` by default
 
-**Validation hook**: Scope-limited to this skill — `pre-mcp-validate.py` only fires while cirra-ai-sf-flow is active; use `python scripts/validate_flow_cli.py ...` for on-demand checks.
+**Validation hook**: Implemented at the plugin level via the PreToolUse hook — `pre-mcp-validate.py` is dispatched based on tool and metadata type (for example `Flow` and `FlowDefinition`) and runs whenever those operations occur, regardless of which skill is active. Use `python scripts/validate_flow_cli.py ...` for additional on-demand checks.
