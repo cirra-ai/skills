@@ -61,18 +61,17 @@ This initializes your Salesforce org connection. It must be called once per sess
 
 ## ⚠️ CRITICAL: Orchestration Order
 
-**cirra-ai-sf-metadata → cirra-ai-sf-flow → cirra-ai-sf-deploy → cirra-ai-sf-data** (you are here: cirra-ai-sf-flow with Cirra AI)
+**cirra-ai-sf-metadata → cirra-ai-sf-flow → cirra-ai-sf-data** (you are here: cirra-ai-sf-flow with Cirra AI)
 
 ⚠️ Flow references custom object/fields? Create with cirra-ai-sf-metadata FIRST. Deploy objects BEFORE flows.
 
 ```
 1. cirra-ai-sf-metadata  → Create objects/fields (local)
 2. cirra-ai-sf-flow      ◀── YOU ARE HERE (create flow, deploy via Cirra AI)
-3. cirra-ai-sf-deploy    → Optional additional deployment (already deployed via metadata_create)
-4. cirra-ai-sf-data      → Create test data (remote - objects must exist!)
+3. cirra-ai-sf-data      → Create test data (remote - objects must exist!)
 ```
 
-See `docs/orchestration.md` for extended orchestration patterns including Agentforce.
+See `references/orchestration.md` for extended orchestration patterns including Agentforce.
 
 ---
 
@@ -84,7 +83,7 @@ See `docs/orchestration.md` for extended orchestration patterns including Agentf
 | **Test with 251**        | Batch boundary at 200. Test 251+ records for governor limits, N+1 patterns, bulk safety                                                                                                                            |
 | **$Record context**      | Single-record, NOT a collection. Platform handles batching. Never loop over $Record                                                                                                                                |
 | **$Record traversal**    | `$Record` supports relationship traversal: `{!$Record.Contact__r.FirstName}`, `{!$Record.Account__r.Name}`. Do NOT use Get Records for data already available through `$Record` lookups — this wastes a SOQL query |
-| **Transform vs Loop**    | Transform: data mapping/shaping (30-50% faster). Loop: per-record decisions, counters, varying logic. See `docs/transform-vs-loop-guide.md`                                                                        |
+| **Transform vs Loop**    | Transform: data mapping/shaping (30-50% faster). Loop: per-record decisions, counters, varying logic. See `references/transform-vs-loop-guide.md`                                                                   |
 
 ---
 
@@ -92,24 +91,24 @@ See `docs/orchestration.md` for extended orchestration patterns including Agentf
 
 ### Phase 1: Requirements Gathering
 
-**Before building, evaluate alternatives**: See `docs/flow-best-practices.md` Section 1 "When NOT to Use Flow" - sometimes a Formula Field, Validation Rule, or Roll-Up Summary Field is the better choice.
+**Before building, evaluate alternatives**: See `references/flow-best-practices.md` Section 1 "When NOT to Use Flow" - sometimes a Formula Field, Validation Rule, or Roll-Up Summary Field is the better choice.
 
-Use **AskUserQuestion** to gather:
+If the request is underspecified, ask concise follow-up questions to gather:
 
 - Flow type (Screen, Record-Triggered After/Before Save/Delete, Platform Event, Autolaunched, Scheduled)
 - Primary purpose (one sentence)
 - Trigger object/conditions (if record-triggered)
 
-**Pre-Development Planning**: For complex flows, document requirements and sketch logic before building. See `docs/flow-best-practices.md` Section 2 "Pre-Development Planning" for templates and recommended tools.
+**Pre-Development Planning**: For complex flows, document requirements and sketch logic before building. See `references/flow-best-practices.md` Section 2 "Pre-Development Planning" for templates and recommended tools.
 
 **Then**:
 
 1. **Initialize**: Call `cirra_ai_init()` with no parameters. If a default org is configured, confirm with the user. If no default, ask for the Salesforce user/alias before proceeding.
 2. Use `sobject_describe` to verify object/field existence before referencing
 3. Use `metadata_list` to check existing flows: `metadata_list(type="Flow")`
-4. Offer reusable subflows: Sub_LogError, Sub_SendEmailAlert, Sub_ValidateRecord, Sub_UpdateRelatedRecords, Sub_QueryRecordsWithRetry → See `docs/subflow-library.md` (in cirra-ai-sf-flow folder)
-5. If complex automation: Reference `docs/governance-checklist.md` (in cirra-ai-sf-flow folder)
-6. Create TodoWrite tasks: Gather requirements ✓, Select template, Generate XML, Validate, Deploy, Test
+4. Offer reusable subflows: Sub_LogError, Sub_SendEmailAlert, Sub_ValidateRecord, Sub_UpdateRelatedRecords, Sub_QueryRecordsWithRetry → See `references/subflow-library.md`
+5. If complex automation: Reference `references/governance-checklist.md`
+6. Keep an internal checklist: Gather requirements, select template, generate XML, validate, deploy, test
 
 ### Phase 2: Flow Design & Template Selection
 
@@ -123,7 +122,7 @@ Use **AskUserQuestion** to gather:
 | Scheduled | `scheduled-flow-template.xml` |
 | Wait Elements | `wait-template.xml` |
 
-**Element Pattern Templates** (`templates/elements/`):
+**Element Pattern Templates** (`assets/elements/`):
 | Element | Template | Purpose |
 |---------|----------|---------|
 | Loop | `loop-pattern.xml` | Complete loop with nextValueConnector/noMoreValuesConnector |
@@ -132,10 +131,10 @@ Use **AskUserQuestion** to gather:
 
 **Template Path Resolution** (try in order):
 
-1. **Plugin folder**: `${CLAUDE_PLUGIN_ROOT}/templates/[template].xml`
-2. **Project folder**: `[project-root]/cirra-ai-sf-flow/templates/[template].xml`
+1. Resolve paths relative to the skill root under `assets/[template]`
+2. For element snippets, resolve paths under `assets/elements/[template]`
 
-**Example**: `Read: ${CLAUDE_PLUGIN_ROOT}/templates/record-triggered-flow-template.xml`
+**Example**: `Read: assets/record-triggered-after-save.xml`
 
 **Naming Convention** (Recommended Prefixes):
 
@@ -161,7 +160,7 @@ Rule: `allowFinish="true"` required on all screens. Connector present → "Next"
 
 **Orchestration**: For complex flows (multiple objects/steps), suggest Parent-Child or Sequential pattern.
 
-- **CRITICAL**: Record-triggered flows CANNOT call subflows via XML deployment. Use inline orchestration instead. See `docs/xml-gotchas.md` (in cirra-ai-sf-flow) and `docs/orchestration-guide.md` (in cirra-ai-sf-flow)
+- **CRITICAL**: Record-triggered flows CANNOT call subflows via XML deployment. Use inline orchestration instead. See `references/xml-gotchas.md` and `references/orchestration-guide.md`
 
 ### Phase 3: Flow Generation & Deployment (via Cirra AI)
 
@@ -239,8 +238,8 @@ tooling_api_query(
 
 **For Review** — validate an existing flow from the org or a local file before modifying:
 
-- `/validate-flow <FlowApiName>` — fetch and validate a single flow from the org
-- `/validate-flow All` — full org audit sorted by score
+- `python scripts/validate_flow_cli.py <FlowApiName>` — fetch and validate a single flow from the org
+- `python scripts/validate_flow_cli.py All` — full org audit sorted by score
 
 **Validation (STRICT MODE)**:
 
@@ -362,11 +361,11 @@ sobject_describe(
 
 **For Agentforce Flows**: Variable names must match Agent Script input/output names exactly.
 
-For complex flows: `docs/governance-checklist.md` (in cirra-ai-sf-flow)
+For complex flows: `references/governance-checklist.md`
 
 ### Phase 5: Testing & Documentation
 
-**Type-specific testing**: See `docs/testing-guide.md` | `docs/testing-checklist.md` | `docs/wait-patterns.md` (Wait element guidance)
+**Type-specific testing**: See `references/testing-guide.md` | `references/testing-checklist.md` | `references/wait-patterns.md` (Wait element guidance)
 
 Quick reference:
 
@@ -375,7 +374,7 @@ Quick reference:
 - **Autolaunched**: Apex test class, edge cases, bulkification
 - **Scheduled**: Verify schedule, manual Run first, monitor logs
 
-**Best Practices**: See `docs/flow-best-practices.md` (in cirra-ai-sf-flow) for:
+**Best Practices**: See `references/flow-best-practices.md` for:
 
 - Three-tier error handling strategy
 - Multi-step DML rollback patterns
@@ -396,7 +395,7 @@ Quick reference:
   Navigate: Setup → Process Automation → Flows → "[FlowName]"
 
 Next Steps: Test (unit, bulk, security), Review docs, Activate if Draft, Monitor logs
-Resources: `examples/`, `docs/subflow-library.md`, `docs/orchestration-guide.md`, `docs/governance-checklist.md` (in cirra-ai-sf-flow folder)
+Resources: `assets/`, `references/subflow-library.md`, `references/orchestration-guide.md`, `references/governance-checklist.md`
 ```
 
 ## Best Practices (Built-In Enforcement)
@@ -480,7 +479,7 @@ screens → start → status → subflows → textTemplates → variables → wa
 - **Button Names (v2.0.0)**: `Action_[Verb]_[Object]` (e.g., `Action_Save_Contact`)
 - **System vs User Mode**: Understand implications, validate FLS for sensitive fields
 - **No hardcoded data**: Use variables/custom settings
-- See `docs/flow-best-practices.md` (in cirra-ai-sf-flow) for comprehensive guidance
+- See `references/flow-best-practices.md` for comprehensive guidance
 
 ## Common Error Patterns
 
@@ -509,7 +508,7 @@ screens → start → status → subflows → textTemplates → variables → wa
 | Silent failure on `metadata_update`                 | Read current state first with `metadata_read`; build iteratively             |
 | Required field missing                              | Add `processMetadataValues: []` to every element                             |
 
-**XML Gotchas**: See `docs/xml-gotchas.md` (in cirra-ai-sf-flow)
+**XML Gotchas**: See `references/xml-gotchas.md`
 
 ---
 
@@ -836,7 +835,6 @@ tooling_api_query(
 | From cirra-ai-sf-flow | To Skill               | When                                                |
 | --------------------- | ---------------------- | --------------------------------------------------- |
 | cirra-ai-sf-flow      | → cirra-ai-sf-metadata | "Describe Invoice\_\_c" (verify fields before flow) |
-| cirra-ai-sf-flow      | → cirra-ai-sf-deploy   | "Deploy flow with --dry-run"                        |
 | cirra-ai-sf-flow      | → cirra-ai-sf-data     | "Create 200 test Accounts" (after deploy)           |
 
 **Deployment**: See Phase 4 above.
@@ -851,8 +849,8 @@ Embed custom Lightning Web Components in Flow Screens for rich, interactive UIs.
 
 | Template                             | Purpose                            |
 | ------------------------------------ | ---------------------------------- |
-| `templates/screen-flow-with-lwc.xml` | Flow embedding LWC component       |
-| `templates/apex-action-template.xml` | Flow calling Apex @InvocableMethod |
+| `assets/screen-flow-with-lwc.xml` | Flow embedding LWC component       |
+| `assets/apex-action-template.xml` | Flow calling Apex @InvocableMethod |
 
 ### Flow XML Pattern
 
@@ -877,9 +875,9 @@ Embed custom Lightning Web Components in Flow Screens for rich, interactive UIs.
 
 | Resource              | Location                                                                                            |
 | --------------------- | --------------------------------------------------------------------------------------------------- |
-| LWC Integration Guide | [docs/lwc-integration-guide.md](docs/lwc-integration-guide.md)                                      |
-| LWC Component Setup   | [cirra-ai-sf-lwc/docs/flow-integration-guide.md](../cirra-ai-sf-lwc/docs/flow-integration-guide.md) |
-| Triangle Architecture | [docs/triangle-pattern.md](docs/triangle-pattern.md)                                                |
+| LWC Integration Guide | [references/lwc-integration-guide.md](references/lwc-integration-guide.md)                                      |
+| LWC Component Setup   | [cirra-ai-sf-lwc/assets/flow-integration-guide.md](../cirra-ai-sf-lwc/assets/flow-integration-guide.md) |
+| Triangle Architecture | [references/triangle-pattern.md](references/triangle-pattern.md)                                                |
 
 ---
 
@@ -912,9 +910,9 @@ Call Apex `@InvocableMethod` classes from Flow for complex business logic.
 
 | Resource                    | Location                                                                                  |
 | --------------------------- | ----------------------------------------------------------------------------------------- |
-| Apex Action Template        | `templates/apex-action-template.xml`                                                      |
-| Apex @InvocableMethod Guide | [cirra-ai-sf-apex/docs/flow-integration.md](../cirra-ai-sf-apex/docs/flow-integration.md) |
-| Triangle Architecture       | [docs/triangle-pattern.md](docs/triangle-pattern.md)                                      |
+| Apex Action Template        | `assets/apex-action-template.xml`                                                              |
+| Apex @InvocableMethod Guide | [cirra-ai-sf-apex/references/flow-integration.md](../cirra-ai-sf-apex/references/flow-integration.md) |
+| Triangle Architecture       | [references/triangle-pattern.md](references/triangle-pattern.md)                              |
 
 ### ⚠️ Flows for Agentforce
 
@@ -999,4 +997,4 @@ Flow Created  →  Deployed to Org  →  Action Definition Created  →  Agent C
 - Valid Salesforce username for `sf_user` parameter
 - **Audit Output**: All audit intermediate files go to `--output-dir` by default
 
-**Validation hook**: Scope-limited to this skill — `pre-mcp-validate.py` only fires while cirra-ai-sf-flow is active; use `/validate-flow` for on-demand checks.
+**Validation hook**: Scope-limited to this skill — `pre-mcp-validate.py` only fires while cirra-ai-sf-flow is active; use `python scripts/validate_flow_cli.py ...` for on-demand checks.

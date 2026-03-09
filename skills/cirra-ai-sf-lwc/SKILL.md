@@ -80,8 +80,10 @@ Expert frontend engineer specializing in Lightning Web Components for Salesforce
 **ALWAYS start with**:
 
 ```
-cirra_ai_init(cirra_ai_team="[YOUR_TEAM_ID]", sf_user="[YOUR_ORG_ALIAS]")
+cirra_ai_init()
 ```
+
+If you need a non-default team or org, pass `cirra_ai_team` and/or `sf_user` explicitly when switching context.
 
 ---
 
@@ -115,7 +117,7 @@ The **PICKLES Framework** provides a structured approach to designing robust Lig
 | **E - Execution**   | Lazy load with `lwc:if`, cache computed values, avoid infinite loops       |
 | **S - Security**    | `WITH SECURITY_ENFORCED`, input validation, FLS/CRUD checks                |
 
-**For detailed PICKLES implementation patterns, see [resources/component-patterns.md](resources/component-patterns.md)**
+**For detailed PICKLES implementation patterns, see [references/component-patterns.md](references/component-patterns.md)**
 
 ---
 
@@ -133,7 +135,7 @@ The **PICKLES Framework** provides a structured approach to designing robust Lig
 
 **Quick Decision**: Use `@wire` for read-only display with auto-refresh. Use imperative for user actions, DML, or when you need control over timing.
 
-**For complete comparison with code examples and decision tree, see [resources/component-patterns.md](resources/component-patterns.md#wire-vs-imperative-apex-calls)**
+**For complete comparison with code examples and decision tree, see [references/component-patterns.md](references/component-patterns.md#wire-vs-imperative-apex-calls)**
 
 ### Data Source Decision Tree
 
@@ -179,7 +181,7 @@ The **PICKLES Framework** provides a structured approach to designing robust Lig
 - Different DOM trees? → Use Lightning Message Service
 - LWC ↔ Aura/VF? → Use Lightning Message Service
 
-**For complete sibling communication code example, see [resources/component-patterns.md](resources/component-patterns.md#sibling-communication-via-parent)**
+**For complete sibling communication code example, see [references/component-patterns.md](references/component-patterns.md#sibling-communication-via-parent)**
 
 ### Lifecycle Hook Guidance
 
@@ -192,8 +194,8 @@ The **PICKLES Framework** provides a structured approach to designing robust Lig
 
 **For complete code examples (Wire Service, GraphQL, Modal, Navigation, TypeScript), see:**
 
-- [resources/component-patterns.md](resources/component-patterns.md) - Comprehensive patterns with full source code
-- [resources/lms-guide.md](resources/lms-guide.md) - Lightning Message Service deep dive
+- [references/component-patterns.md](references/component-patterns.md) - Comprehensive patterns with full source code
+- [references/lms-guide.md](references/lms-guide.md) - Lightning Message Service deep dive
 
 ---
 
@@ -273,7 +275,7 @@ Dark mode is exclusive to SLDS 2 themes. Components must use global styling hook
 }
 ```
 
-**For complete styling hooks reference and migration guide, see [resources/performance-guide.md](resources/performance-guide.md)**
+**For complete styling hooks reference and migration guide, see [references/performance-guide.md](references/performance-guide.md)**
 
 ---
 
@@ -334,7 +336,7 @@ describe('c-my-component', () => {
 });
 ```
 
-**For complete testing patterns (ResizeObserver polyfill, advanced mocks, event testing), see [resources/jest-testing.md](resources/jest-testing.md)**
+**For complete testing patterns (ResizeObserver polyfill, advanced mocks, event testing), see [references/jest-testing.md](references/jest-testing.md)**
 
 ### Local Test Execution
 
@@ -370,7 +372,7 @@ WCAG compliance is mandatory for all components.
 <div aria-live="polite" class="slds-assistive-text">{statusMessage}</div>
 ```
 
-**For comprehensive accessibility guide (focus management, ARIA patterns, screen reader testing), see [resources/accessibility-guide.md](resources/accessibility-guide.md)**
+**For comprehensive accessibility guide (focus management, ARIA patterns, screen reader testing), see [references/accessibility-guide.md](references/accessibility-guide.md)**
 
 ---
 
@@ -414,8 +416,10 @@ WCAG compliance is mandatory for all components.
 **FIRST**: Call `cirra_ai_init`:
 
 ```
-Use: cirra_ai_init(cirra_ai_team="your-team-id", sf_user="your-org-alias")
+Use: cirra_ai_init()
 ```
+
+If you need to override the default connection, pass `cirra_ai_team` and/or `sf_user` explicitly.
 
 Then generate the LWC bundle:
 
@@ -628,8 +632,8 @@ handleNext() {
 
 **For complete Flow integration patterns, see:**
 
-- [docs/flow-integration-guide.md](docs/flow-integration-guide.md)
-- [docs/triangle-pattern.md](docs/triangle-pattern.md)
+- [assets/flow-integration-guide.md](assets/flow-integration-guide.md)
+- [assets/triangle-pattern.md](assets/triangle-pattern.md)
 
 ---
 
@@ -693,7 +697,7 @@ Make components discoverable by Agentforce agents:
 - Detailed property descriptions
 - Semantic naming conventions
 
-**For TypeScript patterns and advanced configurations, see [resources/component-patterns.md](resources/component-patterns.md)**
+**For TypeScript patterns and advanced configurations, see [references/component-patterns.md](references/component-patterns.md)**
 
 ---
 
@@ -745,16 +749,16 @@ Make components discoverable by Agentforce agents:
 
 | Resource                                                                   | Purpose                                                               |
 | -------------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| [resources/component-patterns.md](resources/component-patterns.md)         | Complete code examples (Wire, GraphQL, Modal, Navigation, TypeScript) |
-| [resources/lms-guide.md](resources/lms-guide.md)                           | Lightning Message Service deep dive                                   |
-| [resources/jest-testing.md](resources/jest-testing.md)                     | Advanced testing patterns (James Simone)                              |
-| [resources/accessibility-guide.md](resources/accessibility-guide.md)       | WCAG compliance, ARIA patterns, focus management                      |
-| [resources/performance-guide.md](resources/performance-guide.md)           | Dark mode migration, lazy loading, optimization                       |
-| [docs/state-management.md](docs/state-management.md)                       | @track, Singleton Store, @lwc/state, Platform State Managers          |
-| [docs/template-anti-patterns.md](docs/template-anti-patterns.md)           | LLM template mistakes (inline expressions, ternary operators)         |
-| [docs/async-notification-patterns.md](docs/async-notification-patterns.md) | Platform Events + empApi subscription patterns                        |
-| [docs/flow-integration-guide.md](docs/flow-integration-guide.md)           | Flow-LWC communication, apex:// type bindings                         |
-| [docs/triangle-pattern.md](docs/triangle-pattern.md)                       | Triangle pattern for LWC component design                             |
+| [references/component-patterns.md](references/component-patterns.md)         | Complete code examples (Wire, GraphQL, Modal, Navigation, TypeScript) |
+| [references/lms-guide.md](references/lms-guide.md)                           | Lightning Message Service deep dive                                   |
+| [references/jest-testing.md](references/jest-testing.md)                     | Advanced testing patterns (James Simone)                              |
+| [references/accessibility-guide.md](references/accessibility-guide.md)       | WCAG compliance, ARIA patterns, focus management                      |
+| [references/performance-guide.md](references/performance-guide.md)           | Dark mode migration, lazy loading, optimization                       |
+| [assets/state-management.md](assets/state-management.md)                       | @track, Singleton Store, @lwc/state, Platform State Managers          |
+| [assets/template-anti-patterns.md](assets/template-anti-patterns.md)           | LLM template mistakes (inline expressions, ternary operators)         |
+| [assets/async-notification-patterns.md](assets/async-notification-patterns.md) | Platform Events + empApi subscription patterns                        |
+| [assets/flow-integration-guide.md](assets/flow-integration-guide.md)           | Flow-LWC communication, apex:// type bindings                         |
+| [assets/triangle-pattern.md](assets/triangle-pattern.md)                       | Triangle pattern for LWC component design                             |
 
 ### External References
 

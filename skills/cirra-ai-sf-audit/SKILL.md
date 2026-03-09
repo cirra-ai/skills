@@ -105,9 +105,10 @@ If the CLI is present, verify the target org is usable:
 sf org display --target-org <alias-or-username> --json 2>/dev/null
 ```
 
-Compare the OrgId from `sf org display` against `cirra_ai_init()`. If they
-match, set `EXEC_MODE = cli`. If they differ, warn the user and fall back
-to `cloud`.
+Compare the target org from `sf org display` against the org selected during
+`cirra_ai_init()`. If the tool response exposes an OrgId, compare OrgIds; if it
+only exposes username/alias, compare that instead. If they differ, warn the
+user and fall back to `cloud`.
 
 **In this mode:**
 

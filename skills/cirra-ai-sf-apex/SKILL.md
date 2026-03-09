@@ -38,7 +38,7 @@ cirra_ai_init()
 
 Do **not** ask for org details before calling `cirra_ai_init()`.
 
-**Then** use **AskUserQuestion** to gather (for code generation tasks):
+**Then**, if the request is underspecified, ask concise follow-up questions covering:
 
 - Class type (Trigger, Service, Selector, Batch, Queueable, Test, Controller)
 - Primary purpose (one sentence)
@@ -49,7 +49,7 @@ Do **not** ask for org details before calling `cirra_ai_init()`.
 
 1. Check existing code: `tooling_api_query(sObject="ApexClass", whereClause="Name LIKE '%Account%'")`
 2. Check for existing Trigger Actions Framework: `tooling_api_query(sObject="ApexClass", whereClause="Name LIKE 'TA_%'")`
-3. Create TodoWrite tasks
+3. Keep an internal checklist for requirements, generation, validation, deployment, and testing
 
 ---
 
@@ -84,10 +84,10 @@ Do **not** ask for org details before calling `cirra_ai_init()`.
 
 **For Review**:
 
-1. Use `/validate-apex <ClassName>` to fetch and score existing code from the org in one step
+1. Run the bundled validator (`python scripts/validate_apex_cli.py <ClassName>`) to fetch and score existing code from the org in one step
 2. Or query manually: `tooling_api_query(sObject="ApexClass", fields=["Id","FullName","Name","Body","Metadata"], whereClause="Id = '<classId>'")`
 3. Analyze against best practices and generate improvement report with specific fixes
-4. For bulk audit: `/validate-apex All` or `/validate-apex Class1,Class2,Class3`
+4. For bulk review, run `python scripts/validate_apex_cli.py All` or `python scripts/validate_apex_cli.py Class1,Class2,Class3`
 
 **Run Validation**:
 
@@ -166,7 +166,8 @@ Generate Apex code as a STRING with full ApexDoc comments and validation.
 
 > **Automatic validation**: a PreToolUse hook runs `pre-mcp-validate.py` before every
 > `metadata_create`/`metadata_update` call. Critical issues (SOQL/DML in loops, injection)
-> block deployment automatically. To validate explicitly before deploying, use `/validate-apex <ClassName>`.
+> block deployment automatically. To validate explicitly before deploying, run
+> `python scripts/validate_apex_cli.py <ClassName>` or validate the generated source in-process.
 
 ```
 metadata_create(
@@ -741,4 +742,4 @@ tooling_api_dml(operation="delete", sObject="ApexTrigger", record={"Id": "<trigg
 - **Code as String**: Generate all Apex as strings, deploy via metadata_create/update
 - **No Local Files**: Apex code is NOT saved to local file system - lives only in Salesforce org via Metadata API
 - **Org-wide audit**: Use the `/audit-org` command in the `cirra-ai-sf` plugin for a full org audit
-- **Validation hook**: scope-limited to this skill — only active when cirra-ai-sf-apex skill is in use; use `/validate-apex` for on-demand checks
+- **Validation hook**: scope-limited to this skill — only active when cirra-ai-sf-apex skill is in use; use `python scripts/validate_apex_cli.py ...` for on-demand checks

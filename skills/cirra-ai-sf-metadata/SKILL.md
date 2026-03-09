@@ -247,7 +247,7 @@ metadata_create(
 )
 ```
 
-### Phase 3.5: Schema Validation (Pre-Deploy)
+### Phase 3.6: Schema Validation (Pre-Deploy)
 
 Before calling `metadata_create`, validate JSON payloads against the bundled
 JSON Schemas in `references/`:
