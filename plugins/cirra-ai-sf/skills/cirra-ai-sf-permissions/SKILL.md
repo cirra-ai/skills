@@ -1,7 +1,7 @@
 ---
 name: cirra-ai-sf-permissions
 metadata:
-  version: 1.0.0
+  version: 1.1.1
 description: >
   Permission Set analysis, hierarchy viewer, and "Who has X?" auditing.
   Use when analyzing permissions, visualizing PS/PSG hierarchies, finding
@@ -409,12 +409,13 @@ Examples:
 
 ## Troubleshooting
 
-| Issue                           | Solution                                 |
-| ------------------------------- | ---------------------------------------- |
-| No results for permission query | Check if PS exists; use correct API name |
-| Missing field permissions       | FLS may be controlled at Profile level   |
-| PSG shows "Outdated"            | PSG needs to be recalculated in Setup    |
-| Can't find user's permissions   | Check both direct PS and PSG assignments |
+| Issue                                              | Solution                                                                                                                                                                                                                                                                                                                                                   |
+| -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| No results for permission query                    | Check if PS exists; use correct API name                                                                                                                                                                                                                                                                                                                   |
+| Missing field permissions                          | FLS may be controlled at Profile level                                                                                                                                                                                                                                                                                                                     |
+| PSG shows "Outdated"                               | PSG needs to be recalculated in Setup                                                                                                                                                                                                                                                                                                                      |
+| Can't find user's permissions                      | Check both direct PS and PSG assignments                                                                                                                                                                                                                                                                                                                   |
+| `metadata_read` fails silently on a PS that exists | The record may be a Permission Set **Group** (`Type = 'Group'`). Verify with `tooling_api_query` on `PermissionSet` checking the `Type` field. If `Type = 'Group'`, use `metadata_read` with type `PermissionSetGroup` instead of `PermissionSet`. PSGs surface in `PermissionSet` SOQL queries but require a different metadata type for `metadata_read`. |
 
 ---
 
@@ -446,10 +447,16 @@ The following developer-focused features from the original sf-permissions are **
 - **Permissions are additive**: Permission Sets can only grant, never revoke access
 - **Profile-owned PS**: Each Profile has an auto-created PS. Filter with `IsOwnedByProfile = false`
 - **PSG Types**: Filter with `Type != 'Group'` to exclude PSG-level entries from PS queries
+- **PSG vs PS for metadata_read**: Records with `Type = 'Group'` in the `PermissionSet` object are Permission Set Groups. Querying them with `metadata_read(type="PermissionSet")` will fail silently. Always check `Type` first via `tooling_api_query`, then use `metadata_read(type="PermissionSetGroup")` for groups. The `metadata_read` result for a PSG shows its member `permissionSets` array — not individual object/field permissions (those live on the component PS records).
 - **Remote Org Only**: All operations target remote orgs via Cirra AI MCP Server
 
 ---
 
 ## License
 
-MIT License - See LICENSE file for details.
+MIT License — see [LICENSE](LICENSE) for details.
+
+This skill is designed for use with Cirra AI, a commercial product developed by Cirra AI, Inc.
+The skill and its contents are provided independently and are not part of the Cirra AI product itself.
+Use of Cirra AI is subject to its own separate terms and conditions.
+For credits and attribution see [CREDITS.md](CREDITS.md).
