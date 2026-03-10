@@ -9,6 +9,7 @@ on:
     paths:
       - "skills/**"
       - "shared/assets/**"
+  workflow_dispatch:
 
 permissions:
   contents: write
