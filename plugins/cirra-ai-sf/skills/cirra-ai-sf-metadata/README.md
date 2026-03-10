@@ -52,7 +52,9 @@ Request: "Create a custom object called Invoice__c with Amount, Status, and Due 
 | cirra-ai-sf-apex        | Create Apex classes and triggers                   |
 | cirra-ai-sf-flow        | Create and validate Flows                          |
 
-## Cirra AI MCP Tools
+## Cirra AI MCP Tools — for developers
+
+> This section is for Salesforce developers building integrations. Admins can skip it.
 
 | Operation       | MCP Tool                             |
 | --------------- | ------------------------------------ |

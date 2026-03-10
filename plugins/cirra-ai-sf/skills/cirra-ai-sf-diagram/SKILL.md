@@ -1,7 +1,7 @@
 ---
 name: cirra-ai-sf-diagram
 metadata:
-  version: 1.0.0
+  version: 1.1.0
 description: >
   Creates Salesforce architecture diagrams using Mermaid with ASCII fallback.
   Use when visualizing OAuth flows, data models (ERDs), integration sequences,

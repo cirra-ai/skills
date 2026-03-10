@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
 """
-PreToolUse hook adapter for Apex MCP deployment validation.
+PreToolUse hook adapter for LWC MCP deployment validation.
 
-Fires before metadata_create, metadata_update, or tooling_api_dml calls.
-Extracts the Apex code body from the MCP payload and validates it using
-the 150-point static analysis pipeline.
+Fires before metadata_create, metadata_update, or tooling_api_dml calls
+targeting LightningComponentBundle.  Extracts the payload from the MCP
+parameters and validates it using the SLDS + template analysis pipeline.
 
 Decisions:
-  - CRITICAL/HIGH issues (SOQL/DML in loops, injection)  → deny deployment
-  - Score < 67% (< 100/150)                              → allow with warning
-  - Pass                                                 → allow with score summary
-  - Non-Apex type or validator unavailable               → allow silently
+  - Validation error (empty bundle, etc.)   → deny deployment
+  - Critical template issues                → deny deployment
+  - Score < 67%                             → allow with warning
+  - Pass                                    → allow with score summary
+  - Non-LWC type or validator unavailable   → allow silently
 """
 
 import json
@@ -20,7 +21,7 @@ import sys
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, SCRIPT_DIR)
 
-THRESHOLD_PCT = 67  # block advisory below this percentage
+THRESHOLD_PCT = 67  # advisory warning below this percentage
 
 
 def _allow(context: str = "") -> dict:
@@ -50,51 +51,49 @@ def main() -> int:
     tool_name = hook_input.get("tool_name", "")
     tool_input = hook_input.get("tool_input", {})
 
-    # Strip mcp__<server>__  prefix → base tool name.
-    # Server names may contain underscores (e.g. mcp__cirra_ai__metadata_create),
-    # so split on __ with maxsplit=2 rather than using a character-class regex.
+    # Strip mcp__<server>__ prefix → base tool name.
     parts = tool_name.split("__", 2)
     base_tool = parts[2] if tool_name.startswith("mcp__") and len(parts) > 2 else tool_name
 
     validator_input = {"tool": base_tool, "params": tool_input}
 
     try:
-        from mcp_validator import ApexMCPValidator
+        from mcp_validator import LWCMCPValidator
 
-        result = ApexMCPValidator().validate(validator_input)
+        result = LWCMCPValidator().validate(validator_input)
     except (ImportError, Exception):
-        # Validator unavailable — allow through silently
         print(json.dumps(_allow()))
         return 0
 
     status = result.get("status", "")
 
-    # Not an Apex type — skip
-    if status in ("skipped", "error"):
+    # Not an LWC type — skip
+    if status == "skipped":
         print(json.dumps(_allow()))
         return 0
 
+    # Validation error (e.g. empty bundle, unsupported tool) — deny
+    if status == "error":
+        message = result.get("message", "LWC validation error")
+        print(json.dumps(_deny(message)))
+        return 0
+
     # Scored result
-    score = result.get("score", result.get("overall_score", 0))
-    max_score = result.get("max_score", result.get("total_max", 150))
-    full_name = result.get("full_name", "class")
+    score = result.get("score", 0)
+    max_score = result.get("max_score", 1)
+    full_name = result.get("full_name", "component")
     issues = result.get("issues", [])
-    critical_issues = result.get("critical_issues", [])
-    all_issues = critical_issues + issues
     pct = (score / max_score * 100) if max_score > 0 else 0
 
-    # Critical/High issues → deny
-    blocking = [i for i in all_issues if i.get("severity") in ("CRITICAL", "HIGH")]
-    if blocking:
-        lines = []
-        for issue in blocking[:5]:
-            loc = f" (line {issue['line']})" if issue.get("line") else ""
-            lines.append(f"• {issue['message']}{loc}")
-        if len(blocking) > 5:
-            lines.append(f"• ...and {len(blocking) - 5} more critical issues")
+    # Critical issues → deny
+    critical = [i for i in issues if i.get("severity") == "CRITICAL"]
+    if critical:
+        lines = [f"• {i['message']}" for i in critical[:5]]
+        if len(critical) > 5:
+            lines.append(f"• ...and {len(critical) - 5} more critical issues")
 
         reason = (
-            f"Apex validation found critical issues for '{full_name}' "
+            f"LWC validation found critical issues for '{full_name}' "
             f"(score: {score}/{max_score}, {pct:.0f}%).\n\n"
             f"Critical issues must be fixed before deploying:\n"
             + "\n".join(lines)
@@ -104,14 +103,15 @@ def main() -> int:
 
     # Below threshold — allow with advisory warning
     if pct < THRESHOLD_PCT:
-        top = all_issues[:4]
+        warnings = [i for i in issues if i.get("severity") == "WARNING"]
+        top = warnings[:4]
         issue_lines = [f"• {i['message']}" for i in top]
-        if len(all_issues) > 4:
-            issue_lines.append(f"• ...and {len(all_issues) - 4} more issues")
+        if len(warnings) > 4:
+            issue_lines.append(f"• ...and {len(warnings) - 4} more issues")
         summary = "\n".join(issue_lines)
 
         context = (
-            f"⚠️ Apex score below threshold for '{full_name}': "
+            f"⚠️ LWC score below threshold for '{full_name}': "
             f"{score}/{max_score} ({pct:.0f}% — threshold is {THRESHOLD_PCT}%). "
             f"Consider fixing before deploying:\n{summary}"
         )
@@ -126,7 +126,7 @@ def main() -> int:
     else:
         stars = "⭐⭐⭐"
 
-    print(json.dumps(_allow(f"✅ Apex validation passed for '{full_name}': {score}/{max_score} {stars}")))
+    print(json.dumps(_allow(f"✅ LWC validation passed for '{full_name}': {score}/{max_score} {stars}")))
     return 0
 
 
