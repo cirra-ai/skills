@@ -30,12 +30,12 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Package plugins and skills
+        run: ./scripts/package-all.sh
+
       - name: Verify plugin skills are in sync
         if: github.event_name == 'release'
         run: scripts/sync-plugin-skills.sh --check
-
-      - name: Package plugins and skills
-        run: ./scripts/package-all.sh
 
       - name: Attach zips to published release
         if: github.event_name == 'release'
