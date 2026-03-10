@@ -449,6 +449,27 @@ generate reports based on what Phase A collected. Mark unscored domains as
 
 ## Phase C — Deep Dive
 
+> **MANDATORY: Score EVERY component. No sampling. No shortcuts.**
+>
+> When the user approves a full audit, you MUST individually fetch, read, and
+> score **every single** Apex class, trigger, Flow, and LWC component in the
+> org (minus the generated/skip list and managed packages). Do NOT:
+>
+> - Score a "representative sample" and extrapolate
+> - Score only the first N items and summarize the rest
+> - Skip items because the org is large or you are running low on context
+> - Group multiple components into a single score
+> - Estimate scores based on metadata (size, API version) without reading the body
+>
+> The batch sizes (20 for Apex, 10 for Flows/LWC) are **checkpointing
+> intervals**, not limits. After each batch, update `audit_state.md` and
+> continue to the next batch until every component is scored.
+>
+> **Completeness check:** Before marking any sub-phase complete, compare the
+> count of scored components against the inventory count from Phase A. If they
+> do not match (after accounting for skipped/generated items), you are not done.
+> Keep processing until: `scored + skipped = inventory count`.
+
 Update `audit_state.md` after completing each sub-phase. If the conversation
 gets interrupted (context compaction, session end), the next session can
 resume from the state file.
@@ -460,7 +481,7 @@ previous scores for unchanged components. Mark removed components.
 
 ### C1 — Apex Classes (deep)
 
-Process local classes in batches of 20. For each batch:
+**Score every local class.** Process in batches of 20 (for checkpointing). For each batch:
 
 1. Fetch `Body`:
    - **sfdx-repo**: read from `force-app/main/default/classes/<ClassName>.cls`
@@ -475,15 +496,20 @@ Process local classes in batches of 20. For each batch:
 **Skip any class on the generated/skip list.** Note its name and reason in
 `audit_state.md` but do not score it.
 
-After all classes are scored, compute:
+**Continue batches until every local class is scored.** Then compute:
 
 - Mean and median score
 - Count below 70 (needs attention), below 50 (critical)
 - Top 5 most common issue types across all classes
 
+**Verify:** `scored_count + skipped_count == Phase A local class count`.
+If not, identify and score the missing classes before proceeding.
+
 Update `audit_state.md`: mark C1 complete, record aggregate stats.
 
 ### C2 — Apex Triggers (deep)
+
+**Score every local trigger.** Follow the same completeness rules as C1.
 
 1. Fetch trigger metadata:
    ```
@@ -506,10 +532,13 @@ Update `audit_state.md`: mark C1 complete, record aggregate stats.
 | Missing before/after context checks                             | MEDIUM   |
 | ApiVersion < 55.0                                               | LOW      |
 
+**Verify:** `scored_count == Phase A local trigger count`.
+
 Update `audit_state.md`: mark C2 complete.
 
 ### C3 — Flows (deep)
 
+**Score every active Flow** (excluding Process Builders — those go to C4).
 Use the Flow ID list from Phase A4.
 
 1. Fetch flow definitions:
@@ -522,6 +551,9 @@ Use the Flow ID list from Phase A4.
 4. Separate Process Builders (`ProcessType = 'Workflow'`) — inventory only,
    no Flow rubric score (see C4)
 5. After every 10 flows, update `audit_state.md`
+
+**Continue until every active Flow is scored.** Then verify:
+`scored_flows + process_builders == Phase A active flow count`.
 
 Update `audit_state.md`: mark C3 complete.
 
@@ -542,6 +574,8 @@ Update `audit_state.md`: mark C4 complete.
 
 ### C5 — LWC (deep)
 
+**Score every local LWC component.** Follow the same completeness rules as C1.
+
 1. Fetch component source:
    - **sfdx-repo**: read from `force-app/main/default/lwc/<Name>/`
    - **cli**: `sf project retrieve start -m LightningComponentBundle --target-org <org>`
@@ -550,6 +584,9 @@ Update `audit_state.md`: mark C4 complete.
 2. Write each to `./audit_output/intermediate/lwc/<DeveloperName>/`
 3. Score using the 165-point rubric from `cirra-ai-sf-lwc`
 4. After every 10 components, update `audit_state.md`
+
+**Continue until every LWC component is scored.** Then verify:
+`scored_count == Phase A local LWC count`.
 
 Update `audit_state.md`: mark C5 complete.
 
@@ -605,7 +642,7 @@ Update `audit_state.md`: mark C6 complete.
 
 ### C7 — Data Model and Validation Rules
 
-Paginate `CustomObject` where `NamespacePrefix = null`.
+**Score every local custom object.** Paginate `CustomObject` where `NamespacePrefix = null`.
 
 For each custom object:
 
@@ -661,6 +698,24 @@ Findings:
 | Multiple automation types on same object (Workflow + Flow + PB) | CRITICAL |
 
 Update `audit_state.md`: mark C8 complete.
+
+---
+
+## Phase C9 — Completeness Gate (before reports)
+
+Before proceeding to Phase D, verify that every scoreable domain is complete.
+Read `audit_state.md` and check:
+
+| Domain       | Expected (from Phase A) | Scored | Skipped | Match? |
+| ------------ | ----------------------- | ------ | ------- | ------ |
+| Apex Classes | {A1 local count}        | {n}    | {n}     | Y/N    |
+| Triggers     | {A1 count}              | {n}    | —       | Y/N    |
+| Flows        | {A4 flow count}         | {n}    | —       | Y/N    |
+| LWC          | {A4 lwc count}          | {n}    | —       | Y/N    |
+| Objects      | {A1 count}              | {n}    | —       | Y/N    |
+
+**If any row shows "N", go back and score the missing components before
+generating reports.** Do not generate partial reports for a full audit.
 
 ---
 
