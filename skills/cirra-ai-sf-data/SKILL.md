@@ -716,7 +716,8 @@ Code Deployment Validated: [metadata_type]
 ## Dependencies
 
 - **Cirra AI MCP Server** (required): All data operations use Cirra AI tools
-  - Initialize with: `cirra_ai_init(team, user)`
+  - Initialize with: `cirra_ai_init()`
+  - If you need a non-default connection, pass `cirra_ai_team` and/or `sf_user`
   - Tools: soql_query, sobject_dml, sobject_describe, tooling_api_query
 
 - **sf-metadata** (optional): Query object/field structure
