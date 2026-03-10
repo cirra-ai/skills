@@ -5,15 +5,15 @@ Run interactively in a Claude Code session with MCP access.
 
 ## Test Summary (Last Run: 2026-03-07)
 
-| #   | Test                                                                       | Result | Details                                                |
-| --- | -------------------------------------------------------------------------- | ------ | ------------------------------------------------------ |
-| 1   | Clean pre-existing test artifacts                                          | PASS   | No TEST\_\* flows or fields found                      |
-| 2   | Create TEST_Priority\_\_c on Lead                                          | PASS   | `sobject_field_create` succeeded                       |
-| 3   | Deploy 5 valid flows (before-save, after-save, screen, scheduled, complex) | PASS   | All 5 returned `success: true` (with locationX/Y fix)  |
+| #   | Test                                                                       | Result | Details                                                                                   |
+| --- | -------------------------------------------------------------------------- | ------ | ----------------------------------------------------------------------------------------- |
+| 1   | Clean pre-existing test artifacts                                          | PASS   | No TEST\_\* flows or fields found                                                         |
+| 2   | Create TEST_Priority\_\_c on Lead                                          | PASS   | `sobject_field_create` succeeded                                                          |
+| 3   | Deploy 5 valid flows (before-save, after-save, screen, scheduled, complex) | PASS   | All 5 returned `success: true` (with locationX/Y fix)                                     |
 | 4   | Deploy 1 invalid flow (scheduled, missing triggerType)                     | PASS   | API rejected with serialization error or returned InvalidDraft (deploy blocked or broken) |
-| 5   | Query flow status via Tooling API                                          | PASS   | 5 valid flows = Draft (invalid flow not created)       |
-| 6   | Verify all valid flows are Draft                                           | PASS   | All 5 flows confirmed Draft                            |
-| 7   | Deploy flow with missing custom field (TEST_Invalid\_\_c)                  | PASS   | API accepted, Status = InvalidDraft                    |
+| 5   | Query flow status via Tooling API                                          | PASS   | 5 valid flows = Draft (invalid flow: not created or InvalidDraft)                         |
+| 6   | Verify all valid flows are Draft                                           | PASS   | All 5 flows confirmed Draft                                                               |
+| 7   | Deploy flow with missing custom field (TEST_Invalid\_\_c)                  | PASS   | API accepted, Status = InvalidDraft                                                       |
 
 ## Key Insights from Testing
 
@@ -71,6 +71,7 @@ Expected: All 5 return `success: true`.
 Deploy `TEST_Sched_Missing_Trigger_Type` — a scheduled flow WITHOUT `triggerType: Scheduled`.
 
 Expected: One of two outcomes depending on API version:
+
 - **API 62.0+**: The flow is rejected outright with a serialization error (flow NOT created, no record in Tooling API).
 - **Earlier API versions**: The flow may be created with `Status: "InvalidDraft"` rather than being rejected.
 
@@ -89,7 +90,7 @@ tooling_api_query(
 Expected results:
 
 - 5 flows with `Status: "Draft"` (valid)
-- 0 records for `TEST_Sched_Missing_Trigger_Type` (rejected, not created)
+- `TEST_Sched_Missing_Trigger_Type`: either 0 records (rejected outright on API 62.0+) or 1 record with `Status: "InvalidDraft"` (earlier APIs). Either outcome confirms the flow is non-functional.
 
 ## Step 6: Deploy Flow With Missing Custom Field (Negative Test)
 

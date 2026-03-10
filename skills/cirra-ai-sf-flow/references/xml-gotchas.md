@@ -603,13 +603,13 @@ Even for simple pass-through flows, add at least one assignment:
 
 ### Rule
 
-| Field Type    | Correct XML Element |
-|---------------|---------------------|
-| Text, Picklist, Id | `<stringValue>` |
-| Number, Currency  | `<numberValue>`  |
-| Boolean           | `<booleanValue>` |
-| Date              | `<dateValue>`    |
-| DateTime          | `<dateTimeValue>`|
+| Field Type         | Correct XML Element |
+| ------------------ | ------------------- |
+| Text, Picklist, Id | `<stringValue>`     |
+| Number, Currency   | `<numberValue>`     |
+| Boolean            | `<booleanValue>`    |
+| Date               | `<dateValue>`       |
+| DateTime           | `<dateTimeValue>`   |
 
 - The element name must match the Salesforce field type exactly.
 - Mismatched value types cause a serialization error at deploy time, not an `InvalidDraft` status.
@@ -656,4 +656,4 @@ Even for simple pass-through flows, add at least one assignment:
 - Child elements inside `<schedule>` must be in alphabetical order: `frequency`, `startDate`, `startTime`.
 - `startTime` must be in `HH:mm:ss.000Z` format.
 - Omitting `<schedule>` entirely causes a serialization error (flow NOT created).
-- Omitting `triggerType: Scheduled` on a scheduled flow also causes a serialization error.
+- Omitting `triggerType: Scheduled` on a scheduled flow causes a serialization error on API 62.0+. On earlier API versions, the flow may instead be created with `Status: "InvalidDraft"`.
