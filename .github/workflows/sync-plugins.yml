@@ -1,0 +1,34 @@
+name: Sync plugin skills
+
+# After a PR merges to main, ensure plugins/ copies and shared assets stay in
+# sync with skills/. If the sync script produces changes, commit and push them.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "skills/**"
+      - "shared/assets/**"
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Sync skills into plugins
+        run: scripts/sync-plugin-skills.sh
+
+      - name: Commit and push if changed
+        run: |
+          test -z "$(git status --porcelain plugins/ skills/*/assets/)" && exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add plugins/ skills/*/assets/
+          git commit -m "chore: sync plugin skills and shared assets"
+          git push

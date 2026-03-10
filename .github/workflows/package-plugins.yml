@@ -30,6 +30,10 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Verify plugin skills are in sync
+        if: github.event_name == 'release'
+        run: scripts/sync-plugin-skills.sh --check
+
       - name: Package plugins and skills
         run: ./scripts/package-all.sh
 
