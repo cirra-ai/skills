@@ -36,7 +36,15 @@ def _extract_payload(tool: str, params: dict[str, Any]) -> tuple[str, str, str]:
                 content = first.get("content", "") or first.get("body", "") or first.get("html", "")
 
                 if not content:
-                    resources = first.get("lwcResources", [])
+                    resources_raw = first.get("lwcResources", [])
+                    # The MCP tool sends {"lwcResource": [...]} (dict), not a flat list.
+                    # Handle both formats for forward compatibility.
+                    if isinstance(resources_raw, dict):
+                        resources = resources_raw.get("lwcResource", [])
+                    elif isinstance(resources_raw, list):
+                        resources = resources_raw
+                    else:
+                        resources = []
                     if isinstance(resources, list):
                         html_sources = [
                             r.get("source", "")
