@@ -468,7 +468,7 @@ generate reports based on what Phase A collected. Mark unscored domains as
 > **Completeness check:** Before marking any sub-phase complete, compare the
 > count of scored components against the inventory count from Phase A. If they
 > do not match (after accounting for skipped/generated items), you are not done.
-> Keep processing until: `scored + skipped = inventory count`.
+> Keep processing until: `scored + skipped == inventory count`.
 
 Update `audit_state.md` after completing each sub-phase. If the conversation
 gets interrupted (context compaction, session end), the next session can
@@ -532,7 +532,7 @@ Update `audit_state.md`: mark C1 complete, record aggregate stats.
 | Missing before/after context checks                             | MEDIUM   |
 | ApiVersion < 55.0                                               | LOW      |
 
-**Verify:** `scored_count == Phase A local trigger count`.
+**Verify:** `scored_count + skipped_count == Phase A local trigger count`.
 
 Update `audit_state.md`: mark C2 complete.
 
@@ -553,7 +553,8 @@ Use the Flow ID list from Phase A4.
 5. After every 10 flows, update `audit_state.md`
 
 **Continue until every active Flow is scored.** Then verify:
-`scored_flows + process_builders == Phase A active flow count`.
+`scored_flows == Phase A active Flow count` and
+`process_builders == Phase A Process Builder count`.
 
 Update `audit_state.md`: mark C3 complete.
 
@@ -586,7 +587,7 @@ Update `audit_state.md`: mark C4 complete.
 4. After every 10 components, update `audit_state.md`
 
 **Continue until every LWC component is scored.** Then verify:
-`scored_count == Phase A local LWC count`.
+`scored_count + skipped_count == Phase A local LWC count`.
 
 Update `audit_state.md`: mark C5 complete.
 
@@ -676,6 +677,8 @@ Cross-object analysis (beyond per-object scoring):
 - Outdated API versions (< 55.0)
 - Objects with > 100 custom fields (complexity risk)
 
+**Verify:** `scored_count + skipped_count == Phase A local custom object count`.
+
 Update `audit_state.md`: mark C7 complete.
 
 ### C8 — Workflow Rules
@@ -703,19 +706,22 @@ Update `audit_state.md`: mark C8 complete.
 
 ## Phase C9 — Completeness Gate (before reports)
 
-Before proceeding to Phase D, verify that every scoreable domain is complete.
-Read `audit_state.md` and check:
+Before proceeding to Phase D, verify that every **user-approved** domain is
+complete. Read `audit_state.md` and check only the domains the user selected
+in Phase B. (For a full audit, check all rows; for a selective audit like
+"just Apex and Flows", check only the approved domains.)
 
-| Domain       | Expected (from Phase A) | Scored | Skipped | Match? |
-| ------------ | ----------------------- | ------ | ------- | ------ |
-| Apex Classes | {A1 local count}        | {n}    | {n}     | Y/N    |
-| Triggers     | {A1 count}              | {n}    | —       | Y/N    |
-| Flows        | {A4 flow count}         | {n}    | —       | Y/N    |
-| LWC          | {A4 lwc count}          | {n}    | —       | Y/N    |
-| Objects      | {A1 count}              | {n}    | —       | Y/N    |
+| Domain       | Expected (from Phase A)        | Scored | Skipped | Match? |
+| ------------ | ------------------------------ | ------ | ------- | ------ |
+| Apex Classes | {A1 local Apex class count}    | {n}    | {n}     | Y/N    |
+| Triggers     | {A1 local Apex trigger count}  | {n}    | {n}     | Y/N    |
+| Flows        | {A4 active Flow count}         | {n}    | {n}     | Y/N    |
+| LWC          | {A4 local LWC count}           | {n}    | {n}     | Y/N    |
+| Objects      | {A1 local custom object count} | {n}    | {n}     | Y/N    |
 
-**If any row shows "N", go back and score the missing components before
-generating reports.** Do not generate partial reports for a full audit.
+**If any approved-domain row shows "N", go back and score the missing
+components before generating reports.** Domains the user excluded in Phase B
+should be marked "Not audited" and do not block report generation.
 
 ---
 
