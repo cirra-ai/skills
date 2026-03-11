@@ -18,7 +18,7 @@ Expert Salesforce Flow Builder with deep knowledge of best practices, bulkificat
 
 ```
 1. Call cirra_ai_init (REQUIRED - one per session)
-2. Generate Flow XML
+2. Generate Flow metadata (JSON object — NOT XML)
 3. Deploy via metadata_create tool (Cirra AI MCP Server)
 4. Retrieve existing flows via metadata_read or metadata_list (Cirra AI MCP Server)
 5. Query Flow metadata via tooling_api_query for FlowDefinition
@@ -31,7 +31,7 @@ Expert Salesforce Flow Builder with deep knowledge of best practices, bulkificat
 
 ## Core Responsibilities
 
-1. **Flow Generation**: Create well-structured Flow metadata XML from requirements
+1. **Flow Generation**: Create well-structured Flow metadata (JSON) from requirements
 2. **Strict Validation**: Enforce best practices with comprehensive checks and scoring
 3. **Cirra AI Integration**: Deploy via metadata_create, retrieve via metadata_read/metadata_list
 4. **Testing Guidance**: Provide type-specific testing checklists and verification steps
@@ -108,7 +108,7 @@ If the request is underspecified, ask concise follow-up questions to gather:
 3. Use `metadata_list` to check existing flows: `metadata_list(type="Flow")`
 4. Offer reusable subflows: Sub_LogError, Sub_SendEmailAlert, Sub_ValidateRecord, Sub_UpdateRelatedRecords, Sub_QueryRecordsWithRetry → See `references/subflow-library.md`
 5. If complex automation: Reference `references/governance-checklist.md`
-6. Keep an internal checklist: Gather requirements, select template, generate XML, validate, deploy, test
+6. Keep an internal checklist: Gather requirements, select template, generate flow metadata (JSON), validate, deploy, test
 
 ### Phase 2: Flow Design & Template Selection
 
@@ -160,22 +160,33 @@ Rule: `allowFinish="true"` required on all screens. Connector present → "Next"
 
 **Orchestration**: For complex flows (multiple objects/steps), suggest Parent-Child or Sequential pattern.
 
-- **CRITICAL**: Record-triggered flows CANNOT call subflows via XML deployment. Use inline orchestration instead. See `references/xml-gotchas.md` and `references/orchestration-guide.md`
+- **CRITICAL**: Record-triggered flows CANNOT call subflows via metadata deployment. Use inline orchestration instead. See `references/xml-gotchas.md` and `references/orchestration-guide.md`
 
 ### Phase 3: Flow Generation & Deployment (via Cirra AI)
 
-**Generate flow XML**:
-Generate the complete Flow XML with:
+> **CRITICAL: `metadata_create` requires JSON, NOT XML**
+>
+> The XML templates in `assets/` are for **structural reference only** — to understand
+> element ordering and schema. Do NOT pass XML strings as a `content` property to
+> `metadata_create`. Always construct a **structured JSON object** matching the examples
+> in the instructions returned by `cirra_ai_init` and `metadata_create`.
+>
+> The authoritative format examples are in the `metadata_create` tool instructions
+> (returned at runtime via the Cirra AI MCP Server). Those take precedence over the
+> static XML asset templates in this skill.
+
+**Generate flow metadata**:
+Construct the complete Flow metadata as a JSON object with:
 
 - API Version: 65.0
-- Proper alphabetical element ordering
-- All required metadata fields (label, processType, status, etc.)
+- Proper alphabetical property ordering
+- All required metadata fields (`label`, `processType`, `status`, etc.)
 
 **CRITICAL Requirements**:
 
-- Alphabetical XML element ordering at root level
-- NO `<bulkSupport>` (removed API 60.0+)
-- Auto-Layout: all locationX/Y = 0
+- Alphabetical property ordering at root level
+- NO `bulkSupport` property (removed API 60.0+)
+- Auto-Layout: all `locationX`/`locationY` = 0
 - Fault paths on all DML operations
 
 **Pre-Deployment: Check Prerequisites** (REQUIRED for flows referencing custom fields/objects):
@@ -197,12 +208,29 @@ sobject_describe(sObject="Lead")
 # Initialize connection (ONCE per session)
 cirra_ai_init(sf_user="your-username")
 
-# Create/deploy Flow XML
+# Create/deploy Flow — pass a JSON object, NOT XML
 metadata_create(
     type="Flow",
     metadata=[{
         "fullName": "Auto_Lead_Assignment",
-        "content": "[generated-flow-xml]"
+        "label": "Auto Lead Assignment",
+        "apiVersion": 65,
+        "processType": "AutoLaunchedFlow",
+        "status": "Draft",
+        "environments": ["Default"],
+        "processMetadataValues": [
+            {"name": "BuilderType", "value": {"stringValue": "LightningFlowBuilder"}},
+            {"name": "CanvasMode", "value": {"stringValue": "AUTO_LAYOUT_CANVAS"}}
+        ],
+        "start": {
+            "locationX": 0,
+            "locationY": 0,
+            "object": "Lead",
+            "recordTriggerType": "Create",
+            "triggerType": "RecordAfterSave",
+            "connector": {"targetReference": "First_Element_Name"}
+        }
+        # ... remaining flow elements as JSON properties
     }],
     sf_user="your-username"
 )
@@ -243,8 +271,8 @@ tooling_api_query(
 
 **Validation (STRICT MODE)**:
 
-- **BLOCK**: XML invalid, missing required fields (apiVersion/label/processType/status), API <65.0, broken refs, DML in loops
-- **WARN**: Element ordering, deprecated elements, non-zero coords, missing fault paths, unused vars, naming violations
+- **BLOCK**: Invalid structure, missing required fields (apiVersion/label/processType/status), API <65.0, broken refs, DML in loops
+- **WARN**: Property ordering, deprecated properties, non-zero coords, missing fault paths, unused vars, naming violations
 
 **New v2.0.0 Validations**:
 
@@ -271,7 +299,7 @@ Score: 92/110 ⭐⭐⭐⭐ Very Good
 
 ### ⛔ GENERATION GUARDRAILS (MANDATORY)
 
-**BEFORE generating ANY Flow XML, Claude MUST verify no anti-patterns are introduced.**
+**BEFORE generating ANY Flow metadata, Claude MUST verify no anti-patterns are introduced.**
 
 If ANY of these patterns would be generated, **STOP and ask the user**:
 
@@ -305,16 +333,21 @@ If ANY of these patterns would be generated, **STOP and ask the user**:
 cirra_ai_init()
 ```
 
-2. **Deploy Flow XML**:
+2. **Deploy Flow metadata** (JSON, not XML):
 
 > **Automatic validation**: A skill-scoped PreToolUse hook runs `pre-mcp-validate.py` before every `metadata_create`, `metadata_update`, and `tooling_api_dml` call while this skill is active. It blocks deployment for CRITICAL/HIGH issues (DML in loops, missing fault paths) and warns when score is below 80% (88/110).
 
 ```python
+# Pass a structured JSON object — see cirra_ai_init instructions for format examples
 metadata_create(
     type="Flow",
     metadata=[{
         "fullName": "Auto_Lead_Assignment",
-        "content": "[flow-xml-content]"
+        "label": "Auto Lead Assignment",
+        "apiVersion": 65,
+        "processType": "AutoLaunchedFlow",
+        "status": "Draft",
+        # ... full flow structure as JSON properties
     }],
     sf_user="your-salesforce-username"
 )
@@ -440,12 +473,12 @@ Resources: `assets/`, `references/subflow-library.md`, `references/orchestration
   - ⚠️ **Fault connectors CANNOT self-reference** - Error: "element cannot be connected to itself"
   - Route fault connectors to a DIFFERENT element (dedicated error handler)
 - **Auto-Layout**: All locationX/Y = 0 (cleaner git diffs)
-  - UI may show "Free-Form" dropdown, but locationX/Y = 0 IS Auto-Layout in XML
+  - UI may show "Free-Form" dropdown, but locationX/Y = 0 IS Auto-Layout in metadata
 - **No Parent Traversal**: Use separate Get Records for relationship field data
 
-### XML Element Ordering (CRITICAL)
+### Property Ordering (CRITICAL)
 
-**All elements of the same type MUST be grouped together. Do NOT scatter elements across the file.**
+**All properties of the same type MUST be grouped together. Do NOT scatter them across the object.**
 
 Complete alphabetical order:
 
@@ -465,7 +498,7 @@ screens → start → status → subflows → textTemplates → variables → wa
 
 - **Batch DML**: Get Records → Assignment → Update Records pattern
 - **Filters over loops**: Use Get Records with filters instead of loops + decisions
-- **Transform element**: Powerful but complex XML - NOT recommended for hand-written flows
+- **Transform element**: Powerful but complex structure - NOT recommended for hand-written flows
 
 ### Design & Security
 
@@ -508,7 +541,7 @@ screens → start → status → subflows → textTemplates → variables → wa
 | Silent failure on `metadata_update`                 | Read current state first with `metadata_read`; build iteratively             |
 | Required field missing                              | Add `processMetadataValues: []` to every element                             |
 
-**XML Gotchas**: See `references/xml-gotchas.md`
+**Metadata Gotchas**: See `references/xml-gotchas.md`
 
 ---
 
@@ -723,7 +756,7 @@ Note: do **not** include `FullName` or `Metadata` in multi-record queries — on
 ### Create a new flow
 
 ```
-metadata_create(type="Flow", metadata=[{"fullName": "Flow_Name", "content": "[flow-xml]"}])
+metadata_create(type="Flow", metadata=[{"fullName": "Flow_Name", "label": "Flow Name", "apiVersion": 65, "processType": "AutoLaunchedFlow", "status": "Draft", ...}])
 ```
 
 ### Update a flow (creates a new version)
@@ -788,12 +821,24 @@ metadata_list(
 ### Example 3: Deploy Generated Flow
 
 ```python
-# After generating Auto_Lead_Assignment.flow-meta.xml
+# Pass flow metadata as a JSON object — NOT XML
 metadata_create(
     type="Flow",
     metadata=[{
         "fullName": "Auto_Lead_Assignment",
-        "content": "<Flow ...>[full XML here]</Flow>"
+        "label": "Auto Lead Assignment",
+        "apiVersion": 65,
+        "processType": "AutoLaunchedFlow",
+        "status": "Draft",
+        "environments": ["Default"],
+        "start": {
+            "locationX": 0, "locationY": 0,
+            "object": "Lead",
+            "recordTriggerType": "Create",
+            "triggerType": "RecordAfterSave",
+            "connector": {"targetReference": "First_Element"}
+        }
+        # ... remaining flow elements
     }],
     sf_user="prod-username"
 )
@@ -802,13 +847,13 @@ metadata_create(
 ### Example 4: Retrieve Existing Flow for Review
 
 ```python
-# Get the XML of an existing flow
+# Get the metadata of an existing flow
 metadata_read(
     type="Flow",
     fullNames=["Auto_Lead_Assignment"],
     sf_user="prod-username"
 )
-# Returns: Complete Flow XML from org
+# Returns: Complete Flow metadata from org (JSON)
 ```
 
 ### Example 5: Query Flow Metadata (Tooling API)
@@ -852,7 +897,9 @@ Embed custom Lightning Web Components in Flow Screens for rich, interactive UIs.
 | `assets/screen-flow-with-lwc.xml` | Flow embedding LWC component       |
 | `assets/apex-action-template.xml` | Flow calling Apex @InvocableMethod |
 
-### Flow XML Pattern
+### Flow Pattern (XML reference — deploy as JSON)
+
+> The XML below shows the structural pattern. When deploying via `metadata_create`, translate to the equivalent JSON object.
 
 ```xml
 <screens>
@@ -885,7 +932,9 @@ Embed custom Lightning Web Components in Flow Screens for rich, interactive UIs.
 
 Call Apex `@InvocableMethod` classes from Flow for complex business logic.
 
-### Flow XML Pattern
+### Flow Pattern (XML reference — deploy as JSON)
+
+> The XML below shows the structural pattern. When deploying via `metadata_create`, translate to the equivalent JSON object.
 
 ```xml
 <actionCalls>
@@ -918,7 +967,7 @@ Call Apex `@InvocableMethod` classes from Flow for complex business logic.
 
 **When creating Flows for Agentforce agents:**
 
-- cirra-ai-sf-flow (this skill) creates the validated Flow XML
+- cirra-ai-sf-flow (this skill) creates the validated Flow metadata (JSON)
 - cirra-ai-sf-flow deploys via Cirra AI metadata_create tool
 - **Action Definition registration required** (see below)
 - Only THEN can agents use `flow://FlowName` targets
