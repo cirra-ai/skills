@@ -158,13 +158,13 @@ def _score_flow_files(flows_dir: Path, threshold_pct: int):
             result = mod.EnhancedFlowValidator(str(fp)).validate()
         except Exception as exc:
             result = {
-                "flow_name": fp.stem,
+                "flow_name": fp.stem.removesuffix(".flow-meta"),
                 "overall_score": 0,
                 "critical_issues": [{"message": f"Validator error: {exc}"}],
                 "warnings": [],
             }
 
-        name = result.get("flow_name", fp.stem.replace(".flow-meta", ""))
+        name = result.get("flow_name", fp.stem.removesuffix(".flow-meta"))
         score = result.get("overall_score", 0)
         max_score = 110
         issues = [

@@ -262,6 +262,22 @@ def test_trigger_findings_preserve_severity(tmp_path):
         assert "message" in f
 
 
+def test_malformed_flow_name_strips_suffix(tmp_path):
+    """Flow error fallback strips .flow-meta from the name."""
+    inter = tmp_path / "intermediate"
+    flow_dir = inter / "flows"
+    flow_dir.mkdir(parents=True)
+    (flow_dir / "Bad_Flow.flow-meta.xml").write_text("not xml")
+
+    output = tmp_path / "output"
+    pre_score_mod.pre_score(inter, output)
+
+    scores = json.loads((output / "flow_scores.json").read_text())
+    assert len(scores) == 1
+    assert scores[0]["name"] == "Bad_Flow"
+    assert ".flow-meta" not in scores[0]["name"]
+
+
 def test_summary_written_to_disk(tmp_path):
     """pre_score_summary.json is written and parseable."""
     inter = _setup_intermediate(tmp_path)
