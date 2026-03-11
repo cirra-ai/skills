@@ -204,10 +204,10 @@ def _score_lwc_bundles(lwc_dir: Path, threshold_pct: int):
         if not bundle_dir.is_dir():
             continue
 
-        # Validate each file in the bundle, collect all deductions.
+        # Validate each file in the bundle; average per-file scores.
         all_issues = []
         max_score = 165
-        total_deductions = 0
+        file_scores = []
 
         for ext in ("*.html", "*.css", "*.js"):
             for fp in bundle_dir.glob(ext):
@@ -225,8 +225,7 @@ def _score_lwc_bundles(lwc_dir: Path, threshold_pct: int):
                         ],
                     }
 
-                file_deductions = max_score - result.get("score", max_score)
-                total_deductions += file_deductions
+                file_scores.append(result.get("score", 0))
 
                 for issue in result.get("issues", []):
                     msg = (
@@ -236,7 +235,13 @@ def _score_lwc_bundles(lwc_dir: Path, threshold_pct: int):
                     )
                     all_issues.append(msg)
 
-        score = max(0, max_score - total_deductions)
+        # Average per-file scores so bundles with multiple files aren't
+        # penalized more than single-file components.
+        score = (
+            round(sum(file_scores) / len(file_scores))
+            if file_scores
+            else max_score
+        )
         name = bundle_dir.name
 
         lwc_scores.append(
@@ -311,7 +316,9 @@ def pre_score(intermediate_dir: Path, output_dir: Path, threshold_pct: int = 70)
         "threshold_pct": threshold_pct,
         "apex": {
             "scored": len(apex_scores),
-            "below_threshold": len(apex_review),
+            "below_threshold": len(
+                [r for r in apex_review if r["domain"] == "apex"]
+            ),
         },
         "triggers": {
             "scored": len(trigger_findings),

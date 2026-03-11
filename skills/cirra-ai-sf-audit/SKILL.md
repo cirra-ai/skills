@@ -531,7 +531,8 @@ generate reports based on what Phase A collected. Mark unscored domains as
 > **Completeness check:** Before marking any sub-phase complete, compare the
 > count of scored components against the inventory count from Phase A. If they
 > do not match (after accounting for skipped/generated items), you are not done.
-> Keep processing until: `scored + skipped == inventory count`.
+> Keep processing until: `scored + skipped + carried_forward == inventory count`.
+> (For fresh audits, `carried_forward` is 0.)
 
 ### Environment-aware processing
 
@@ -612,7 +613,7 @@ FROM ApexClass WHERE NamespacePrefix = null ORDER BY Id`. If the
 - Count below 70 (needs attention), below 50 (critical)
 - Top 5 most common issue types across all classes
 
-**Verify:** `scored_count + skipped_count == Phase A local class count`.
+**Verify:** `scored + skipped + carried_forward == Phase A local class count`.
 If not, identify and score the missing classes before proceeding.
 
 Update `audit_state.md`: mark C1 complete, record aggregate stats.
@@ -644,7 +645,7 @@ Update `audit_state.md`: mark C1 complete, record aggregate stats.
 | Missing before/after context checks                             | MEDIUM   |
 | ApiVersion < 55.0                                               | LOW      |
 
-**Verify:** `scored_count + skipped_count == Phase A local trigger count`.
+**Verify:** `scored + skipped + carried_forward == Phase A local trigger count`.
 
 Update `audit_state.md`: mark C2 complete.
 
@@ -665,7 +666,7 @@ Use the Flow ID list from Phase A4.
 5. After every 10 flows, update `audit_state.md`
 
 **Continue until every active Flow is scored.** Then verify:
-`scored_flows == Phase A active Flow count` and
+`scored_flows + skipped_flows + carried_forward == Phase A active Flow count` and
 `process_builders == Phase A Process Builder count`.
 
 Update `audit_state.md`: mark C3 complete.
@@ -699,7 +700,7 @@ Update `audit_state.md`: mark C4 complete.
 4. After every 10 components, update `audit_state.md`
 
 **Continue until every LWC component is scored.** Then verify:
-`scored_count + skipped_count == Phase A local LWC count`.
+`scored + skipped + carried_forward == Phase A local LWC count`.
 
 Update `audit_state.md`: mark C5 complete.
 
@@ -789,7 +790,7 @@ Cross-object analysis (beyond per-object scoring):
 - Outdated API versions (< 55.0)
 - Objects with > 100 custom fields (complexity risk)
 
-**Verify:** `scored_count + skipped_count == Phase A local custom object count`.
+**Verify:** `scored + skipped + carried_forward == Phase A local custom object count`.
 
 Update `audit_state.md`: mark C7 complete.
 
@@ -823,13 +824,16 @@ complete. Read `audit_state.md` and check only the domains the user selected
 in Phase B. (For a full audit, check all rows; for a selective audit like
 "just Apex and Flows", check only the approved domains.)
 
-| Domain       | Expected (from Phase A)        | Scored | Skipped | Match? |
-| ------------ | ------------------------------ | ------ | ------- | ------ |
-| Apex Classes | {A1 local Apex class count}    | {n}    | {n}     | Y/N    |
-| Triggers     | {A1 local Apex trigger count}  | {n}    | {n}     | Y/N    |
-| Flows        | {A4 active Flow count}         | {n}    | {n}     | Y/N    |
-| LWC          | {A4 local LWC count}           | {n}    | {n}     | Y/N    |
-| Objects      | {A1 local custom object count} | {n}    | {n}     | Y/N    |
+| Domain       | Expected (from Phase A)        | Scored | Skipped | Carried Fwd | Match? |
+| ------------ | ------------------------------ | ------ | ------- | ----------- | ------ |
+| Apex Classes | {A1 local Apex class count}    | {n}    | {n}     | {n}         | Y/N    |
+| Triggers     | {A1 local Apex trigger count}  | {n}    | {n}     | {n}         | Y/N    |
+| Flows        | {A4 active Flow count}         | {n}    | {n}     | {n}         | Y/N    |
+| LWC          | {A4 local LWC count}           | {n}    | {n}     | {n}         | Y/N    |
+| Objects      | {A1 local custom object count} | {n}    | {n}     | {n}         | Y/N    |
+
+Match = `Scored + Skipped + Carried Fwd == Expected`. (For fresh audits,
+Carried Fwd is 0 for all rows.)
 
 **If any approved-domain row shows "N", go back and score the missing
 components before generating reports.** Domains the user excluded in Phase B
