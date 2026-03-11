@@ -1,7 +1,7 @@
 ---
 name: cirra-ai-sf-data
 metadata:
-  version: 1.1.0
+  version: 1.1.1
 description: >
   Salesforce data and SOQL expert with pre-flight validation. Use when building,
   optimizing, or executing SOQL queries (with or without running them), creating
@@ -93,14 +93,14 @@ cirra_ai_init -> cirra-ai-sf-metadata -> cirra-ai-sf-data (SOQL/DML) -> cirra-ai
 
 ## Key Insights
 
-| Insight                    | Why                                                  | Action                                                        |
-| -------------------------- | ---------------------------------------------------- | ------------------------------------------------------------- |
-| **Test with 201+ records** | Crosses 200-record batch boundary                    | Always bulk test with 201+ records (split into 200+1 batches) |
-| **FLS blocks access**      | "Field does not exist" often = FLS not missing field | Query using user context; not all fields visible              |
-| **Cleanup is essential**   | Test isolation and data hygiene                      | Always provide cleanup SOQL queries                           |
-| **DML batch limit is 200** | MCP server enforces 200-record max per call          | Split operations into <= 200-record batches                   |
-| **Query default is 100**   | `soql_query` returns max 100 records by default      | Set explicit `limit` param; paginate with `Id > '<last>'`     |
-| **Delete uses recordIds**  | Delete param differs from insert/update              | Use `recordIds: ["id1", "id2"]` string array, not `records`   |
+| Insight                    | Why                                                  | Action                                                                           |
+| -------------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------- |
+| **Test with 201+ records** | Crosses 200-record batch boundary                    | Always bulk test with 201+ records (split into 200+1 batches)                    |
+| **FLS blocks access**      | "Field does not exist" often = FLS not missing field | Query using user context; not all fields visible                                 |
+| **Cleanup is essential**   | Test isolation and data hygiene                      | Always provide cleanup SOQL queries                                              |
+| **DML batch limit is 200** | MCP server enforces 200-record max per call          | Split operations into <= 200-record batches                                      |
+| **Query default is 100**   | `soql_query` returns max 100 records by default      | Set explicit `limit` param; use artifact retrieval or `Id > '<last>'` pagination |
+| **Delete uses recordIds**  | Delete param differs from insert/update              | Use `recordIds: ["id1", "id2"]` string array, not `records`                      |
 
 ---
 
@@ -330,8 +330,17 @@ Parameters:
   - sf_user: Connection identifier
 ```
 
-> **Pagination**: For queries returning > 100 records, use `orderBy="Id ASC"` and paginate
-> with `whereClause="Id > '<last_id_from_previous_batch>'"` in follow-up queries.
+> **Large results**: When a response includes `instructions.artifactId`, the
+> full result exceeded ~75 k and was stored as an artifact. Retrieve it via:
+>
+> - **URL fetch** (if available): download from `instructions.artifactUrl`
+> - **`fetch_more` tool**: `fetch_more(artifactId=instructions.artifactId)`
+>   for the full result, or with `cursor=_pagination.nextCursor` for the
+>   next page.
+>
+> **Legacy pagination** (no artifact metadata in response): use
+> `orderBy="Id ASC"` and paginate with
+> `whereClause="Id > '<last_id_from_previous_batch>'"` in follow-up queries.
 
 > **whereClause caveat**: Never pass an empty string `""` for `whereClause` — it generates malformed SQL (`WHERE ""`). Either omit the parameter entirely or use `"Id != null"` to select all records.
 
