@@ -325,13 +325,14 @@ no longer appears in the current full inventory count.
 **Flows:**
 
 ```
-tooling_api_query: SELECT Id, DeveloperName, ProcessType, ActiveVersionId
+tooling_api_query: SELECT Id, DeveloperName, ActiveVersionId,
+  ActiveVersion.VersionNumber, ActiveVersion.ProcessType
   FROM FlowDefinition
   WHERE ActiveVersionId != null AND NamespacePrefix = null
   ORDER BY Id
 ```
 
-Separate by `ProcessType`: Flows vs Process Builders.
+Separate by `ActiveVersion.ProcessType`: Flows vs Process Builders.
 
 **LWC:**
 
