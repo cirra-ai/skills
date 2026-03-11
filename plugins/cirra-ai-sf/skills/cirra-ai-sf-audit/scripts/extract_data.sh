@@ -273,7 +273,7 @@ query_tooling "SELECT Id, Name, TableEnumOrId, ApiVersion, Status FROM ApexTrigg
   "$RAW_DIR/apex_triggers.json"
 
 # Flow definitions
-query_tooling "SELECT Id, DeveloperName, MasterLabel, ActiveVersionId, ActiveVersion.VersionNumber, ActiveVersion.ProcessType FROM FlowDefinition WHERE ActiveVersionId != null AND NamespacePrefix = null ORDER BY DeveloperName" \
+query_tooling "SELECT Id, DeveloperName, MasterLabel, ActiveVersionId, ProcessType FROM FlowDefinition WHERE ActiveVersionId != null AND NamespacePrefix = null ORDER BY DeveloperName" \
   "$RAW_DIR/flow_definitions.json"
 
 # Active flow details (includes Process Builders)
