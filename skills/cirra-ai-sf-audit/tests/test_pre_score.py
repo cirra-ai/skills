@@ -232,6 +232,36 @@ def test_malformed_file_does_not_crash(tmp_path):
     assert scores[0]["name"] == "Broken"
 
 
+def test_lwc_bundle_with_no_scoreable_files(tmp_path):
+    """LWC bundle dir with no .html/.css/.js gets score 0, not max."""
+    inter = tmp_path / "intermediate"
+    lwc_dir = inter / "lwc" / "emptyBundle"
+    lwc_dir.mkdir(parents=True)
+    (lwc_dir / "emptyBundle.json").write_text("{}")  # non-scoreable file
+
+    output = tmp_path / "output"
+    pre_score_mod.pre_score(inter, output)
+
+    scores = json.loads((output / "lwc_scores.json").read_text())
+    assert len(scores) == 1
+    assert scores[0]["name"] == "emptyBundle"
+    assert scores[0]["score"] == 0
+
+
+def test_trigger_findings_preserve_severity(tmp_path):
+    """Trigger findings preserve the severity from the validator."""
+    inter = _setup_intermediate(tmp_path)
+    output = tmp_path / "output"
+
+    pre_score_mod.pre_score(inter, output)
+
+    findings = json.loads((output / "trigger_findings.json").read_text())
+    assert len(findings) == 1
+    for f in findings[0]["findings"]:
+        assert "severity" in f
+        assert "message" in f
+
+
 def test_summary_written_to_disk(tmp_path):
     """pre_score_summary.json is written and parseable."""
     inter = _setup_intermediate(tmp_path)

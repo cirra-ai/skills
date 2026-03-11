@@ -512,9 +512,9 @@ generate reports based on what Phase A collected. Mark unscored domains as
 
 ## Phase C — Deep Dive
 
-> **MANDATORY: Score EVERY component. No sampling. No shortcuts.**
+> **MANDATORY (when user chose "Score all" in A6): Score EVERY component. No sampling. No shortcuts.**
 >
-> When the user approves a full audit, you MUST individually fetch, read, and
+> When the user chose "Score all" in A6, you MUST individually fetch, read, and
 > score **every single** Apex class, trigger, Flow, and LWC component in the
 > org (minus the generated/skip list and managed packages). Do NOT:
 >

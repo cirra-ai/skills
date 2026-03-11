@@ -40,6 +40,8 @@ def _load_module(rel_path: str):
     if not path.exists():
         return None
     spec = importlib.util.spec_from_file_location(path.stem, path)
+    if spec is None or spec.loader is None:
+        return None
     module = importlib.util.module_from_spec(spec)
     # Some validators insert their own dir onto sys.path; make sure that
     # works even when loaded from here.
@@ -92,14 +94,25 @@ def _score_apex_files(apex_dir: Path, trigger_dir: Path, threshold_pct: int):
             ]
 
             if is_trigger:
+                # Preserve original severity from validator; default MEDIUM.
+                raw_issues = result.get("issues", [])
+                findings = []
+                for ri in raw_issues:
+                    if isinstance(ri, dict):
+                        findings.append(
+                            {
+                                "severity": ri.get("severity", "MEDIUM"),
+                                "message": ri.get("message", str(ri)),
+                            }
+                        )
+                    else:
+                        findings.append({"severity": "MEDIUM", "message": str(ri)})
                 trigger_findings.append(
                     {
                         "name": name,
                         "object": "",
                         "events": "",
-                        "findings": [
-                            {"severity": "MEDIUM", "message": m} for m in issues
-                        ],
+                        "findings": findings,
                     }
                 )
             else:
@@ -236,11 +249,10 @@ def _score_lwc_bundles(lwc_dir: Path, threshold_pct: int):
                     all_issues.append(msg)
 
         # Average per-file scores so bundles with multiple files aren't
-        # penalized more than single-file components.
+        # penalized more than single-file components.  Bundles with no
+        # scoreable files (no .html/.css/.js) get 0 so they are flagged.
         score = (
-            round(sum(file_scores) / len(file_scores))
-            if file_scores
-            else max_score
+            round(sum(file_scores) / len(file_scores)) if file_scores else 0
         )
         name = bundle_dir.name
 
