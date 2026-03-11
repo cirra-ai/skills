@@ -400,10 +400,10 @@ Examples:
 | cirra-ai-sf-data     | -> cirra-ai-sf-permissions | "Query user assignments in bulk"            |
 | cirra-ai-sf-diagram  | -> cirra-ai-sf-permissions | "Visualize permission hierarchy as Mermaid" |
 
-| From cirra-ai-sf-permissions | To Skill                | When                           |
-| ---------------------------- | ----------------------- | ------------------------------ |
-| cirra-ai-sf-permissions      | -> cirra-ai-sf-metadata | Generate Permission Set XML    |
-| cirra-ai-sf-permissions      | -> cirra-ai-sf-diagram  | Create hierarchy visualization |
+| From cirra-ai-sf-permissions | To Skill                | When                             |
+| ---------------------------- | ----------------------- | -------------------------------- |
+| cirra-ai-sf-permissions      | -> cirra-ai-sf-metadata | Generate Permission Set metadata |
+| cirra-ai-sf-permissions      | -> cirra-ai-sf-diagram  | Create hierarchy visualization   |
 
 ---
 
