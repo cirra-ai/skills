@@ -168,12 +168,8 @@ Rule: `allowFinish="true"` required on all screens. Connector present → "Next"
 >
 > The XML templates in `assets/` are for **structural reference only** — to understand
 > element ordering and schema. Do NOT pass XML strings as a `content` property to
-> `metadata_create`. Always construct a **structured JSON object** matching the examples
-> in the instructions returned by `cirra_ai_init` and `metadata_create`.
->
-> The authoritative format examples are in the `metadata_create` tool instructions
-> (returned at runtime via the Cirra AI MCP Server). Those take precedence over the
-> static XML asset templates in this skill.
+> `metadata_create`. Always construct a **structured JSON object** using the format
+> reference and examples below.
 
 **Generate flow metadata**:
 Construct the complete Flow metadata as a JSON object with:
@@ -188,6 +184,140 @@ Construct the complete Flow metadata as a JSON object with:
 - NO `bulkSupport` property (removed API 60.0+)
 - Auto-Layout: all `locationX`/`locationY` = 0
 - Fault paths on all DML operations
+
+#### JSON Format Reference
+
+Every flow JSON object follows this structure. Only include properties that have values — omit empty arrays.
+
+**Required top-level properties**:
+
+```json
+{
+  "fullName": "Flow_API_Name",
+  "apiVersion": 65,
+  "description": "What this flow does",
+  "environments": ["Default"],
+  "interviewLabel": "Flow Label {!$Flow.CurrentDateTime}",
+  "label": "Flow Label",
+  "processMetadataValues": [
+    {"name": "BuilderType", "value": {"stringValue": "LightningFlowBuilder"}},
+    {"name": "CanvasMode", "value": {"stringValue": "AUTO_LAYOUT_CANVAS"}}
+  ],
+  "processType": "AutoLaunchedFlow",
+  "start": { ... },
+  "status": "Draft"
+}
+```
+
+**`start` element patterns**:
+
+```json
+// Record-triggered (after save)
+"start": {
+  "locationX": 0, "locationY": 0,
+  "object": "Case",
+  "recordTriggerType": "Update",
+  "triggerType": "RecordAfterSave",
+  "filterLogic": "and",
+  "filters": [
+    {"field": "Status", "operator": "EqualTo", "value": {"stringValue": "Closed"}}
+  ],
+  "connector": {"targetReference": "First_Element"}
+}
+
+// Autolaunched (no trigger)
+"start": {
+  "locationX": 0, "locationY": 0,
+  "connector": {"targetReference": "First_Element"}
+}
+
+// Screen flow
+"start": {
+  "locationX": 0, "locationY": 0,
+  "connector": {"targetReference": "First_Screen"}
+}
+```
+
+**Element arrays** (include only what the flow uses):
+
+```json
+// Decisions
+"decisions": [{
+  "name": "Check_Status",
+  "label": "Check Status",
+  "locationX": 0, "locationY": 0,
+  "defaultConnectorLabel": "Default Outcome",
+  "rules": [{
+    "name": "Is_Active",
+    "conditionLogic": "and",
+    "conditions": [{
+      "leftValueReference": "$Record.Status",
+      "operator": "EqualTo",
+      "rightValue": {"stringValue": "Active"}
+    }],
+    "connector": {"targetReference": "Next_Element"},
+    "label": "Active"
+  }]
+}]
+
+// Record operations (MUST have faultConnector)
+"recordCreates": [{
+  "name": "Create_Task",
+  "label": "Create Task",
+  "locationX": 0, "locationY": 0,
+  "object": "Task",
+  "inputAssignments": [
+    {"field": "Subject", "value": {"stringValue": "Follow up"}},
+    {"field": "WhoId", "value": {"elementReference": "$Record.Id"}}
+  ],
+  "connector": {"targetReference": "Next_Element"},
+  "faultConnector": {"targetReference": "Handle_Error"}
+}]
+
+// Action calls (e.g., send email)
+"actionCalls": [{
+  "name": "Send_Email",
+  "label": "Send Email",
+  "locationX": 0, "locationY": 0,
+  "actionName": "emailSimple",
+  "actionType": "emailSimple",
+  "flowTransactionModel": "CurrentTransaction",
+  "inputParameters": [
+    {"name": "emailAddresses", "value": {"stringValue": "admin@example.com"}},
+    {"name": "emailSubject", "value": {"stringValue": "Alert"}},
+    {"name": "emailBody", "value": {"stringValue": "Details: {!$Record.Name}"}}
+  ],
+  "faultConnector": {"targetReference": "Handle_Error"}
+}]
+
+// Variables
+"variables": [{
+  "name": "var_AccountName",
+  "dataType": "String",
+  "isCollection": false,
+  "isInput": true,
+  "isOutput": false
+}]
+
+// Assignments
+"assignments": [{
+  "name": "Set_Message",
+  "label": "Set Message",
+  "locationX": 0, "locationY": 0,
+  "assignmentItems": [
+    {"assignToReference": "var_Message", "operator": "Assign", "value": {"stringValue": "Done"}}
+  ],
+  "connector": {"targetReference": "Next_Element"}
+}]
+```
+
+**Value reference patterns**:
+
+- Literal string: `{"stringValue": "text"}`
+- Literal boolean: `{"booleanValue": true}`
+- Literal number: `{"numberValue": 100}`
+- Variable/field reference: `{"elementReference": "var_Name"}` or `{"elementReference": "$Record.FieldName"}`
+- Prior value (record-triggered): `{"elementReference": "$Record__Prior.FieldName"}`
 
 **Pre-Deployment: Check Prerequisites** (REQUIRED for flows referencing custom fields/objects):
 
@@ -215,22 +345,23 @@ metadata_create(
         "fullName": "Auto_Lead_Assignment",
         "label": "Auto Lead Assignment",
         "apiVersion": 65,
-        "processType": "AutoLaunchedFlow",
-        "status": "Draft",
+        "description": "Assigns new leads to the appropriate queue based on region",
         "environments": ["Default"],
         "processMetadataValues": [
             {"name": "BuilderType", "value": {"stringValue": "LightningFlowBuilder"}},
             {"name": "CanvasMode", "value": {"stringValue": "AUTO_LAYOUT_CANVAS"}}
         ],
+        "processType": "AutoLaunchedFlow",
         "start": {
-            "locationX": 0,
-            "locationY": 0,
+            "locationX": 0, "locationY": 0,
             "object": "Lead",
             "recordTriggerType": "Create",
             "triggerType": "RecordAfterSave",
-            "connector": {"targetReference": "First_Element_Name"}
-        }
-        # ... remaining flow elements as JSON properties
+            "connector": {"targetReference": "Check_Region"}
+        },
+        "decisions": [...],
+        "recordUpdates": [...],
+        "status": "Draft"
     }],
     sf_user="your-username"
 )
@@ -818,27 +949,79 @@ metadata_list(
 # Returns: All Flow metadata objects in org
 ```
 
-### Example 3: Deploy Generated Flow
+### Example 3: Deploy a Complete Record-Triggered Flow
 
 ```python
-# Pass flow metadata as a JSON object — NOT XML
+# Complete example: notify managers when case category changes
 metadata_create(
     type="Flow",
     metadata=[{
-        "fullName": "Auto_Lead_Assignment",
-        "label": "Auto Lead Assignment",
+        "fullName": "Case_Category_Change_Alert",
         "apiVersion": 65,
-        "processType": "AutoLaunchedFlow",
-        "status": "Draft",
+        "description": "Sends email when Case Category changes from Billing to Channel",
         "environments": ["Default"],
+        "interviewLabel": "Case Category Change Alert {!$Flow.CurrentDateTime}",
+        "label": "Case Category Change Alert",
+        "processMetadataValues": [
+            {"name": "BuilderType", "value": {"stringValue": "LightningFlowBuilder"}},
+            {"name": "CanvasMode", "value": {"stringValue": "AUTO_LAYOUT_CANVAS"}}
+        ],
+        "processType": "AutoLaunchedFlow",
         "start": {
             "locationX": 0, "locationY": 0,
-            "object": "Lead",
-            "recordTriggerType": "Create",
-            "triggerType": "RecordAfterSave",
-            "connector": {"targetReference": "First_Element"}
-        }
-        # ... remaining flow elements
+            "connector": {"targetReference": "Check_Previous_Category"},
+            "filterLogic": "and",
+            "filters": [
+                {"field": "Case_Category__c", "operator": "EqualTo", "value": {"stringValue": "Channel"}},
+                {"field": "Case_Category__c", "operator": "IsChanged", "value": {"booleanValue": True}}
+            ],
+            "object": "Case",
+            "recordTriggerType": "Update",
+            "triggerType": "RecordAfterSave"
+        },
+        "decisions": [{
+            "name": "Check_Previous_Category",
+            "label": "Check Previous Category",
+            "locationX": 0, "locationY": 0,
+            "defaultConnectorLabel": "Default Outcome",
+            "rules": [{
+                "name": "Was_Billing",
+                "conditionLogic": "and",
+                "conditions": [{
+                    "leftValueReference": "$Record__Prior.Case_Category__c",
+                    "operator": "EqualTo",
+                    "rightValue": {"stringValue": "Billing"}
+                }],
+                "connector": {"targetReference": "Send_Email_Action"},
+                "label": "Was Billing"
+            }]
+        }],
+        "actionCalls": [{
+            "name": "Send_Email_Action",
+            "label": "Send Email",
+            "locationX": 0, "locationY": 0,
+            "actionName": "emailSimple",
+            "actionType": "emailSimple",
+            "flowTransactionModel": "CurrentTransaction",
+            "inputParameters": [
+                {"name": "emailAddresses", "value": {"stringValue": "support-managers@example.com"}},
+                {"name": "emailSubject", "value": {"stringValue": "Case Category Changed to Channel"}},
+                {"name": "emailBody", "value": {"stringValue": "Case {!$Record.CaseNumber} category changed from Billing to Channel."}}
+            ],
+            "faultConnector": {"targetReference": "Log_Error"}
+        }],
+        "recordCreates": [{
+            "name": "Log_Error",
+            "label": "Log Error",
+            "locationX": 0, "locationY": 0,
+            "object": "Flow_Error__c",
+            "inputAssignments": [
+                {"field": "Flow_Name__c", "value": {"stringValue": "Case_Category_Change_Alert"}},
+                {"field": "Context_Record_Id__c", "value": {"elementReference": "$Record.Id"}},
+                {"field": "Error_Source__c", "value": {"stringValue": "Send_Email_Action"}}
+            ]
+        }],
+        "status": "Draft"
     }],
     sf_user="prod-username"
 )
