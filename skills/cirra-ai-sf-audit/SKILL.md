@@ -185,13 +185,45 @@ Track these categories in `audit_state.md` and in the final reports.
 
 ---
 
-## Known MCP limitations — apply in all phases
+## Handling large MCP responses
 
-1. **Response truncation** — paginate with `ORDER BY Id` + `Id > '<lastId>'`,
-   limit 50–100 rows per call.
-2. **Flow single-row constraint** — Tooling query on `Flow` with `Metadata`
+When an MCP tool response exceeds ~75 k characters, the server returns a
+**truncated preview** plus retrieval metadata instead of the full result:
+
+```json
+{
+  "records": [
+    /* up to 3 preview records */
+  ],
+  "instructions": {
+    "artifactId": "abc123",
+    "artifactUrl": "https://..."
+  },
+  "_pagination": {
+    "nextCursor": "cursor_string"
+  }
+}
+```
+
+When you see `instructions.artifactId` in a response, the full data was NOT
+returned inline. Retrieve it using the strategy that matches your environment:
+
+| Environment                          | Retrieval strategy                                                                                         |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| Claude Code / Cowork / Codex         | Fetch `instructions.artifactUrl`, write JSON to `./audit_output/intermediate/`, run `pre_score.py` on disk |
+| Claude (conversational, URL capable) | Fetch `instructions.artifactUrl` to get the full result                                                    |
+| ChatGPT / no URL fetch               | Call `fetch_more(artifactId=instructions.artifactId)` for the full artifact                                |
+| Pagination (any environment)         | Call `fetch_more(artifactId=..., cursor=_pagination.nextCursor)` for the next page                         |
+
+**Legacy fallback** — if the response does NOT contain `instructions`,
+paginate manually with `ORDER BY Id` + `Id > '<lastId>'`, 50–100 rows per
+call. This applies to older MCP server versions.
+
+### Additional MCP constraints
+
+1. **Flow single-row constraint** — Tooling query on `Flow` with `Metadata`
    returns only one row. Fetch Flow IDs first, then one row per ID.
-3. **Permission queries** — PermissionSet/PSG datasets hit limits quickly.
+2. **Permission queries** — PermissionSet/PSG datasets hit limits quickly.
    Use cursor windows and persist per-batch.
 
 ---
@@ -374,6 +406,34 @@ AUDIT_TYPE: fresh | incremental (previous: {PREV_DATE})
 -> Awaiting user approval for Deep Dive (Phase B)
 ```
 
+### A6 — Scale Gate
+
+After writing `audit_state.md`, check whether the org is large enough to
+warrant special handling. Count the scoreable components per domain:
+
+| Domain       | Count | Over 10? |
+| ------------ | ----- | -------- |
+| Apex Classes | {n}   | Y/N      |
+| Triggers     | {n}   | Y/N      |
+| Flows        | {n}   | Y/N      |
+| LWC          | {n}   | Y/N      |
+| Objects      | {n}   | Y/N      |
+
+**If ANY domain exceeds 10**, inform the user before proceeding to Phase B:
+
+> I found **{total}** components to score across **{domains}** domains.
+>
+> - **"Score all"** — I'll score every component.
+> - **"Score a sample"** — I'll score the top 10 per domain ranked by risk
+>   (old API version, large size, naming anomalies). The rest get surface
+>   metrics only.
+> - **"Quick pass only"** — Report with inventory data, no body downloads.
+
+Record the user's choice in `audit_state.md` under `## Scoring Strategy`
+(`full | sample | quick_pass`). Phase B and Phase C reference this value.
+
+**If no domain exceeds 10**, proceed directly to Phase B.
+
 ### Generated / skip list
 
 The following classes should be **noted but not scored** in the Deep Dive.
@@ -439,6 +499,9 @@ will be skipped unless you ask me to include them.
 - "Just show me the quick pass results" — lightweight report from Phase A
   data only, no body downloads
 
+[If the user chose "Score a sample" in A6, remind them here:
+"You selected sample scoring — I'll score the top 10 per domain by risk."]
+
 ---
 
 If the user says "just quick pass results", skip to Phase D (reports) and
@@ -470,6 +533,48 @@ generate reports based on what Phase A collected. Mark unscored domains as
 > do not match (after accounting for skipped/generated items), you are not done.
 > Keep processing until: `scored + skipped == inventory count`.
 
+### Environment-aware processing
+
+Choose your processing strategy based on what the environment supports:
+
+**Strategy A — Pre-score on disk** (Claude Code, Cowork, Codex — filesystem
+and Python available):
+
+1. Fetch all bodies to `./audit_output/intermediate/` (via artifact URL, CLI
+   bulk retrieve, or local filesystem — whichever mode applies)
+2. Run the pre-scoring orchestrator:
+   ```bash
+   python scripts/pre_score.py \
+     --intermediate-dir ./audit_output/intermediate \
+     --output-dir ./audit_output \
+     --threshold 70
+   ```
+3. Read `./audit_output/pre_score_summary.json`. Only review components
+   listed in `needs_llm_review` (those scoring below 70% of max). Accept all
+   other scores as-is — **do not load their bodies into context**.
+4. For flagged components: read the body, apply the domain rubric, adjust the
+   score if the script produced a false positive, and record the final score.
+5. Write the final JSON score files and proceed to Phase C9 / Phase D.
+
+This strategy keeps component bodies **out of context entirely** for the
+majority of components, allowing audits of 500+ component orgs.
+
+**Strategy B — Batch in context** (Claude, ChatGPT — no filesystem):
+
+1. Process components in batches of **5** (not 20). For each component:
+   a. Fetch the body (via artifact URL, `fetch_more`, or direct query)
+   b. Score it against the rubric
+   c. Record the score in `audit_state.md` under `## Scores Accumulated`
+   as one row: `| Name | Score/Max | Top Issue |`
+   d. **Discard the body** before loading the next component
+2. Never hold more than 2 component bodies in context simultaneously.
+3. After each batch of 5, update `audit_state.md` with progress.
+
+**How to detect the environment:** If you can write files to disk and execute
+`python --version`, use Strategy A. Otherwise, use Strategy B.
+
+---
+
 Update `audit_state.md` after completing each sub-phase. If the conversation
 gets interrupted (context compaction, session end), the next session can
 resume from the state file.
@@ -487,7 +592,12 @@ previous scores for unchanged components. Mark removed components.
    - **sfdx-repo**: read from `force-app/main/default/classes/<ClassName>.cls`
    - **cli**: `sf project retrieve start -m ApexClass --target-org <org>`
      (bulk, one CLI call for all classes)
-   - **cloud**: `SELECT Body FROM ApexClass WHERE Id = '<id>'` one at a time
+   - **cloud**: bulk query first — `tooling_api_query: SELECT Id, Name, Body
+FROM ApexClass WHERE NamespacePrefix = null ORDER BY Id`. If the
+     response contains `instructions.artifactId`, retrieve via artifact URL
+     or `fetch_more` (see "Handling large MCP responses"). Fall back to
+     `SELECT Body FROM ApexClass WHERE Id = '<id>'` one at a time only if
+     bulk query is not available.
 2. Write each body to `./audit_output/intermediate/apex/<ClassName>.cls`
 3. Score using the 150-point rubric from `cirra-ai-sf-apex`
 4. Track: class name, score, top 3 issues
@@ -519,7 +629,9 @@ Update `audit_state.md`: mark C1 complete, record aggregate stats.
 2. Fetch `Body`:
    - **sfdx-repo**: read from `force-app/main/default/triggers/<Name>.trigger`
    - **cli**: `sf project retrieve start -m ApexTrigger --target-org <org>`
-   - **cloud**: `SELECT Body FROM ApexTrigger WHERE Id = '<id>'` one at a time
+   - **cloud**: bulk query with artifact retrieval (same pattern as C1).
+     Fall back to `SELECT Body FROM ApexTrigger WHERE Id = '<id>'` one at a
+     time if needed.
 3. Write each to `./audit_output/intermediate/triggers/<TriggerName>.trigger`
 4. Score against the Apex rubric where applicable. Also flag trigger-specific
    issues:
@@ -863,9 +975,12 @@ Update `audit_state.md`: mark all phases complete.
 
 - metadata_create
 - metadata_update
+- fetch_more — retrieve full data from large responses (used when the client
+  cannot fetch artifact URLs directly)
 
 ### Local execution tools
 
+- Python 3 — for `pre_score.py` and `generate_reports.py` (Strategy A only)
 - Salesforce CLI (`sf`) — for `cli` mode bulk retrieval and queries
 - `jq` (optional) — for post-processing CLI JSON exports
 - `git` — for `sfdx-repo` mode incremental delta detection
