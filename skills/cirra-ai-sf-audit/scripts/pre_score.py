@@ -112,6 +112,8 @@ def _score_apex_files(apex_dir: Path, trigger_dir: Path, threshold_pct: int):
                         "name": name,
                         "object": "",
                         "events": "",
+                        "score": score,
+                        "max_score": max_score,
                         "findings": findings,
                     }
                 )

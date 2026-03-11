@@ -141,6 +141,9 @@ def test_trigger_findings_schema(tmp_path):
     entry = findings[0]
     assert entry["name"] == "AccountTrigger"
     assert "findings" in entry
+    assert "score" in entry
+    assert "max_score" in entry
+    assert entry["max_score"] == 150
 
 
 def test_flow_scores_schema(tmp_path):
