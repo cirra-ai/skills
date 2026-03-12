@@ -132,12 +132,14 @@ If the request is underspecified, ask concise follow-up questions to gather:
 | Delete Records | `record-delete-pattern.xml` | Filter-based and reference-based delete patterns            |
 
 **JSON Deployment Reference** (`assets/json-deployment-reference.md`):
-Covers XML-to-JSON translation, property placement rules, start patterns for all flow types, entry conditions (filterFormula vs filters), value reference patterns, and element JSON examples.
+Covers XML-to-JSON translation, property placement rules, start patterns for all flow types, entry conditions (filterFormula vs filters), value reference patterns, and element JSON examples. **For `metadata_create` deployments, this reference alone is usually sufficient** — the XML templates are optional structural references for complex or unfamiliar flow types.
 
 **Template Path Resolution** (try in order):
 
 1. Resolve paths relative to the skill root under `assets/[template]`
 2. For element snippets, resolve paths under `assets/elements/[template]`
+
+**When to read XML templates**: Only when dealing with complex or unfamiliar element patterns (e.g., wait elements, advanced screen flows). For standard record-triggered, autolaunched, and scheduled flows, the JSON deployment reference has all the patterns needed.
 
 **Example**: `Read: assets/record-triggered-after-save.xml`
 
@@ -1077,13 +1079,13 @@ Use `out_` prefix for output variables to distinguish them in Action Definition 
 
 ### Formula Expression Limitations in Flows
 
-Flow formulas have more limited function support than formula fields. Avoid:
+Flow formulas have more limited function support than formula fields. The table below applies to **formula variables and formula elements within the flow**, NOT to `filterFormula` entry conditions:
 
-| Function                  | Status         | Alternative                            |
-| ------------------------- | -------------- | -------------------------------------- |
-| `BLANKVALUE()`            | ❌ Not in Flow | Use Decision element or `IF()`         |
-| `CASESAFEID()`            | ❌ Not in Flow | ID variables handle this automatically |
-| `ISNEW()` / `ISCHANGED()` | ❌ Not in Flow | Use `$Record__Prior` comparisons       |
+| Function                  | In `filterFormula` (entry conditions) | In flow formulas/variables | Alternative for flow formulas          |
+| ------------------------- | ------------------------------------- | -------------------------- | -------------------------------------- |
+| `ISNEW()` / `ISCHANGED()` | ✅ Supported                          | ❌ Not supported           | Use `$Record__Prior` comparisons       |
+| `BLANKVALUE()`            | ✅ Supported                          | ❌ Not supported           | Use Decision element or `IF()`         |
+| `CASESAFEID()`            | ❌ Not supported                      | ❌ Not supported           | ID variables handle this automatically |
 
 ### Action Definition Registration (REQUIRED)
 
