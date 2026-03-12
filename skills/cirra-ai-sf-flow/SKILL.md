@@ -129,6 +129,9 @@ If the request is underspecified, ask concise follow-up questions to gather:
 | Get Records | `get-records-pattern.xml` | All recordLookups options (filters, sort, limit) |
 | Delete Records | `record-delete-pattern.xml` | Filter-based and reference-based delete patterns |
 
+**JSON Deployment Reference** (`assets/json-deployment-reference.md`):
+Covers XML-to-JSON translation, property placement rules, start patterns for all flow types, entry conditions (filterFormula vs filters), value reference patterns, and element JSON examples.
+
 **Template Path Resolution** (try in order):
 
 1. Resolve paths relative to the skill root under `assets/[template]`
@@ -191,161 +194,24 @@ Construct the complete Flow metadata as a JSON object with:
 
 #### JSON Format Reference
 
-Every flow JSON object follows this structure. Only include properties that have values — omit empty arrays.
+> **Read `assets/json-deployment-reference.md` for the complete reference** — it covers
+> XML-to-JSON translation, start patterns for all flow types, entry conditions,
+> value references, and element JSON examples.
 
-> **Property placement rules** — these properties belong ONLY inside `start`, never at the top level:
->
-> - `triggerType` (e.g., `"RecordAfterSave"`, `"Scheduled"`)
-> - `recordTriggerType` (e.g., `"Create"`, `"Update"`, `"CreateAndUpdate"`)
-> - `object` (the trigger object)
-> - `schedule` (for scheduled flows)
-> - `filters` / `filterFormula` / `filterLogic` (entry conditions)
->
-> Top-level properties are: `fullName`, `apiVersion`, `label`, `description`, `processType`, `status`, `start`, element arrays, etc.
+**Essential rules** (always apply):
 
-**Required top-level properties**:
-
-```json
-{
-  "fullName": "Flow_API_Name",
-  "apiVersion": 65,
-  "description": "What this flow does",
-  "environments": ["Default"],
-  "interviewLabel": "Flow Label {!$Flow.CurrentDateTime}",
-  "label": "Flow Label",
-  "processMetadataValues": [
-    {"name": "BuilderType", "value": {"stringValue": "LightningFlowBuilder"}},
-    {"name": "CanvasMode", "value": {"stringValue": "AUTO_LAYOUT_CANVAS"}}
-  ],
-  "processType": "AutoLaunchedFlow",
-  "start": { ... },
-  "status": "Draft"
-}
-```
-
-**`start` element patterns**:
-
-```json
-// Record-triggered (after save) — using filterFormula (preferred for complex conditions)
-"start": {
-  "locationX": 0, "locationY": 0,
-  "object": "Case",
-  "recordTriggerType": "Update",
-  "triggerType": "RecordAfterSave",
-  "filterFormula": "AND({!$Record.Status} = 'Closed', NOT({!$Record.Already_Processed__c}))",
-  "connector": {"targetReference": "First_Element"}
-}
-
-// Record-triggered (after save) — using filters array (simpler conditions)
-"start": {
-  "locationX": 0, "locationY": 0,
-  "object": "Case",
-  "recordTriggerType": "Update",
-  "triggerType": "RecordAfterSave",
-  "filterLogic": "and",
-  "filters": [
-    {"field": "Status", "operator": "EqualTo", "value": {"stringValue": "Closed"}}
-  ],
-  "connector": {"targetReference": "First_Element"}
-}
-
-// Autolaunched (no trigger)
-"start": {
-  "locationX": 0, "locationY": 0,
-  "connector": {"targetReference": "First_Element"}
-}
-
-// Screen flow
-"start": {
-  "locationX": 0, "locationY": 0,
-  "connector": {"targetReference": "First_Screen"}
-}
-```
-
-> **Entry condition tip**: Use `filterFormula` for compound or negated conditions (supports `AND()`, `OR()`, `NOT()`, `ISBLANK()`). Use `filters` array for simple field comparisons.
-
-**Element arrays** (include only what the flow uses):
-
-```json
-// Decisions
-"decisions": [{
-  "name": "Check_Status",
-  "label": "Check Status",
-  "locationX": 0, "locationY": 0,
-  "defaultConnectorLabel": "Default Outcome",
-  "rules": [{
-    "name": "Is_Active",
-    "conditionLogic": "and",
-    "conditions": [{
-      "leftValueReference": "$Record.Status",
-      "operator": "EqualTo",
-      "rightValue": {"stringValue": "Active"}
-    }],
-    "connector": {"targetReference": "Next_Element"},
-    "label": "Active"
-  }]
-}]
-
-// Record operations (MUST have faultConnector)
-"recordCreates": [{
-  "name": "Create_Task",
-  "label": "Create Task",
-  "locationX": 0, "locationY": 0,
-  "object": "Task",
-  "inputAssignments": [
-    {"field": "Subject", "value": {"stringValue": "Follow up"}},
-    {"field": "WhoId", "value": {"elementReference": "$Record.Id"}}
-  ],
-  "connector": {"targetReference": "Next_Element"},
-  "faultConnector": {"targetReference": "Handle_Error"}
-}]
-
-// Action calls (e.g., send email)
-"actionCalls": [{
-  "name": "Send_Email",
-  "label": "Send Email",
-  "locationX": 0, "locationY": 0,
-  "actionName": "emailSimple",
-  "actionType": "emailSimple",
-  "flowTransactionModel": "CurrentTransaction",
-  "inputParameters": [
-    {"name": "emailAddresses", "value": {"stringValue": "admin@example.com"}},
-    {"name": "emailSubject", "value": {"stringValue": "Alert"}},
-    {"name": "emailBody", "value": {"stringValue": "Details: {!$Record.Name}"}}
-  ],
-  "faultConnector": {"targetReference": "Handle_Error"}
-}]
-
-// Variables
-"variables": [{
-  "name": "var_AccountName",
-  "dataType": "String",
-  "isCollection": false,
-  "isInput": true,
-  "isOutput": false
-}]
-
-// Assignments
-"assignments": [{
-  "name": "Set_Message",
-  "label": "Set Message",
-  "locationX": 0, "locationY": 0,
-  "assignmentItems": [
-    {"assignToReference": "var_Message", "operator": "Assign", "value": {"stringValue": "Done"}}
-  ],
-  "connector": {"targetReference": "Next_Element"}
-}]
-```
-
-**Value reference patterns**:
-
-- Literal string: `{"stringValue": "text"}`
-- Literal boolean: `{"booleanValue": true}`
-- Literal number: `{"numberValue": 100}`
-- Variable/field reference: `{"elementReference": "var_Name"}` or `{"elementReference": "$Record.FieldName"}`
-- Prior value (record-triggered): `{"elementReference": "$Record__Prior.FieldName"}`
-
-> **Merge fields in strings**: `stringValue` supports merge field syntax — e.g., `{"stringValue": "Hello {!$Record.Name}"}`. Use this for email subjects, bodies, and labels instead of creating formula variables for simple string interpolation.
+1. **Format**: `metadata_create` requires a JSON object, NOT XML. The XML templates
+   in `assets/` show structure; translate using the reference above.
+2. **Property placement**: `triggerType`, `recordTriggerType`, `object`, `schedule`,
+   `filters`/`filterFormula`/`filterLogic` belong ONLY inside `start`, never at top level.
+3. **Value wrappers**: `{"stringValue": "text"}`, `{"booleanValue": true}`,
+   `{"numberValue": 100}`, `{"elementReference": "var_Name"}`.
+4. **Merge fields**: `stringValue` supports `{!$Record.Name}` syntax — no need for
+   formula variables for simple string interpolation.
+5. **Entry conditions**: Use `filterFormula` for compound/negated conditions
+   (`AND()`, `OR()`, `NOT()`). Use `filters` array for simple field comparisons.
+6. **Shell template**: Start from the Flow Shell Template below (Lesson 9) for the
+   complete JSON boilerplate with all element arrays.
 
 **Pre-Deployment: Check Prerequisites** (REQUIRED for flows referencing custom fields/objects):
 
