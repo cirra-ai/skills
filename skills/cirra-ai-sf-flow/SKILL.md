@@ -16,7 +16,7 @@ Expert Salesforce Flow Builder with deep knowledge of best practices, bulkificat
 
 **Flow Creation & Deployment Workflow:**
 
-```
+```text
 1. Call cirra_ai_init (REQUIRED - one per session)
 2. Generate Flow metadata (JSON object — NOT XML)
 3. Deploy via metadata_create tool (Cirra AI MCP Server)
@@ -65,7 +65,7 @@ This initializes your Salesforce org connection. It must be called once per sess
 
 ⚠️ Flow references custom object/fields? Create with cirra-ai-sf-metadata FIRST. Deploy objects BEFORE flows.
 
-```
+```text
 1. cirra-ai-sf-metadata  → Create objects/fields (local)
 2. cirra-ai-sf-flow      ◀── YOU ARE HERE (create flow, deploy via Cirra AI)
 3. cirra-ai-sf-data      → Create test data (remote - objects must exist!)
@@ -113,21 +113,23 @@ If the request is underspecified, ask concise follow-up questions to gather:
 ### Phase 2: Flow Design & Template Selection
 
 **Select template**:
-| Flow Type | Template File |
-|-----------|---------------|
-| Screen | `screen-flow-template.xml` |
-| Record-Triggered | `record-triggered-*.xml` |
-| Platform Event | `platform-event-flow-template.xml` |
-| Autolaunched | `autolaunched-flow-template.xml` |
-| Scheduled | `scheduled-flow-template.xml` |
-| Wait Elements | `wait-template.xml` |
+
+| Flow Type        | Template File                      |
+| ---------------- | ---------------------------------- |
+| Screen           | `screen-flow-template.xml`         |
+| Record-Triggered | `record-triggered-*.xml`           |
+| Platform Event   | `platform-event-flow-template.xml` |
+| Autolaunched     | `autolaunched-flow-template.xml`   |
+| Scheduled        | `scheduled-flow-template.xml`      |
+| Wait Elements    | `wait-template.xml`                |
 
 **Element Pattern Templates** (`assets/elements/`):
-| Element | Template | Purpose |
-|---------|----------|---------|
-| Loop | `loop-pattern.xml` | Complete loop with nextValueConnector/noMoreValuesConnector |
-| Get Records | `get-records-pattern.xml` | All recordLookups options (filters, sort, limit) |
-| Delete Records | `record-delete-pattern.xml` | Filter-based and reference-based delete patterns |
+
+| Element        | Template                    | Purpose                                                     |
+| -------------- | --------------------------- | ----------------------------------------------------------- |
+| Loop           | `loop-pattern.xml`          | Complete loop with nextValueConnector/noMoreValuesConnector |
+| Get Records    | `get-records-pattern.xml`   | All recordLookups options (filters, sort, limit)            |
+| Delete Records | `record-delete-pattern.xml` | Filter-based and reference-based delete patterns            |
 
 **JSON Deployment Reference** (`assets/json-deployment-reference.md`):
 Covers XML-to-JSON translation, property placement rules, start patterns for all flow types, entry conditions (filterFormula vs filters), value reference patterns, and element JSON examples.
@@ -153,11 +155,12 @@ Covers XML-to-JSON translation, property placement rules, start patterns for all
 **Format**: `[Prefix]_Object_Action` using PascalCase (e.g., `Auto_Lead_Priority_Assignment`)
 
 **Screen Flow Button Config** (CRITICAL):
-| Screen | allowBack | allowFinish | Result |
-|--------|-----------|-------------|--------|
-| First | false | true | "Next" only |
-| Middle | true | true | "Previous" + "Next" |
-| Last | true | true | "Finish" |
+
+| Screen | allowBack | allowFinish | Result              |
+| ------ | --------- | ----------- | ------------------- |
+| First  | false     | true        | "Next" only         |
+| Middle | true      | true        | "Previous" + "Next" |
+| Last   | true      | true        | "Finish"            |
 
 Rule: `allowFinish="true"` required on all screens. Connector present → "Next", absent → "Finish".
 
@@ -310,7 +313,7 @@ tooling_api_query(
 
 **Validation Report Format** (6-Category Scoring 0-110):
 
-```
+```text
 Score: 92/110 ⭐⭐⭐⭐ Very Good
 ├─ Design & Naming: 18/20 (90%)
 ├─ Logic & Structure: 20/20 (100%)
@@ -358,7 +361,7 @@ If ANY of these patterns would be generated, **STOP and ask the user**:
 cirra_ai_init()
 ```
 
-2. **Deploy Flow metadata** (JSON, not XML):
+1. **Deploy Flow metadata** (JSON, not XML):
 
 > **Automatic validation**: A skill-scoped PreToolUse hook runs `pre-mcp-validate.py` before every `metadata_create`, `metadata_update`, and `tooling_api_dml` call while this skill is active. It blocks deployment for CRITICAL/HIGH issues (DML in loops, missing fault paths) and warns when score is below 80% (88/110).
 
@@ -378,7 +381,7 @@ metadata_create(
 )
 ```
 
-3. **Retrieve existing flows** (to review or modify):
+1. **Retrieve existing flows** (to review or modify):
 
 ```python
 metadata_read(
@@ -388,7 +391,7 @@ metadata_read(
 )
 ```
 
-4. **List all flows** (for reference):
+1. **List all flows** (for reference):
 
 ```python
 metadata_list(
@@ -397,7 +400,7 @@ metadata_list(
 )
 ```
 
-5. **Query Flow metadata** (Tooling API):
+1. **Query Flow metadata** (Tooling API):
 
 ```python
 tooling_api_query(
@@ -408,7 +411,7 @@ tooling_api_query(
 )
 ```
 
-6. **Verify object/fields before flow creation**:
+1. **Verify object/fields before flow creation**:
 
 ```python
 sobject_describe(
