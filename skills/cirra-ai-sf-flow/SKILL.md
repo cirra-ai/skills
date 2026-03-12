@@ -1,7 +1,7 @@
 ---
 name: cirra-ai-sf-flow
 metadata:
-  version: 1.2.1
+  version: 1.2.2
 description: >
   Creates and validates Salesforce flows with 110-point scoring and Winter '26
   best practices using Cirra AI MCP Server. Use when building record-triggered flows,
@@ -16,7 +16,7 @@ Expert Salesforce Flow Builder with deep knowledge of best practices, bulkificat
 
 **Flow Creation & Deployment Workflow:**
 
-```
+```text
 1. Call cirra_ai_init (REQUIRED - one per session)
 2. Generate Flow metadata (JSON object — NOT XML)
 3. Deploy via metadata_create tool (Cirra AI MCP Server)
@@ -65,7 +65,7 @@ This initializes your Salesforce org connection. It must be called once per sess
 
 ⚠️ Flow references custom object/fields? Create with cirra-ai-sf-metadata FIRST. Deploy objects BEFORE flows.
 
-```
+```text
 1. cirra-ai-sf-metadata  → Create objects/fields (local)
 2. cirra-ai-sf-flow      ◀── YOU ARE HERE (create flow, deploy via Cirra AI)
 3. cirra-ai-sf-data      → Create test data (remote - objects must exist!)
@@ -113,26 +113,33 @@ If the request is underspecified, ask concise follow-up questions to gather:
 ### Phase 2: Flow Design & Template Selection
 
 **Select template**:
-| Flow Type | Template File |
-|-----------|---------------|
-| Screen | `screen-flow-template.xml` |
-| Record-Triggered | `record-triggered-*.xml` |
-| Platform Event | `platform-event-flow-template.xml` |
-| Autolaunched | `autolaunched-flow-template.xml` |
-| Scheduled | `scheduled-flow-template.xml` |
-| Wait Elements | `wait-template.xml` |
+
+| Flow Type        | Template File                      |
+| ---------------- | ---------------------------------- |
+| Screen           | `screen-flow-template.xml`         |
+| Record-Triggered | `record-triggered-*.xml`           |
+| Platform Event   | `platform-event-flow-template.xml` |
+| Autolaunched     | `autolaunched-flow-template.xml`   |
+| Scheduled        | `scheduled-flow-template.xml`      |
+| Wait Elements    | `wait-template.xml`                |
 
 **Element Pattern Templates** (`assets/elements/`):
-| Element | Template | Purpose |
-|---------|----------|---------|
-| Loop | `loop-pattern.xml` | Complete loop with nextValueConnector/noMoreValuesConnector |
-| Get Records | `get-records-pattern.xml` | All recordLookups options (filters, sort, limit) |
-| Delete Records | `record-delete-pattern.xml` | Filter-based and reference-based delete patterns |
+
+| Element        | Template                    | Purpose                                                     |
+| -------------- | --------------------------- | ----------------------------------------------------------- |
+| Loop           | `loop-pattern.xml`          | Complete loop with nextValueConnector/noMoreValuesConnector |
+| Get Records    | `get-records-pattern.xml`   | All recordLookups options (filters, sort, limit)            |
+| Delete Records | `record-delete-pattern.xml` | Filter-based and reference-based delete patterns            |
+
+**JSON Deployment Reference** (`assets/json-deployment-reference.md`):
+Covers XML-to-JSON translation, property placement rules, start patterns for all flow types, entry conditions (filterFormula vs filters), value reference patterns, and element JSON examples. **For `metadata_create` deployments, this reference alone is usually sufficient** — the XML templates are optional structural references for complex or unfamiliar flow types.
 
 **Template Path Resolution** (try in order):
 
 1. Resolve paths relative to the skill root under `assets/[template]`
 2. For element snippets, resolve paths under `assets/elements/[template]`
+
+**When to read XML templates**: Only when dealing with complex or unfamiliar element patterns (e.g., wait elements, advanced screen flows). For standard record-triggered, autolaunched, and scheduled flows, the JSON deployment reference has all the patterns needed.
 
 **Example**: `Read: assets/record-triggered-after-save.xml`
 
@@ -150,11 +157,12 @@ If the request is underspecified, ask concise follow-up questions to gather:
 **Format**: `[Prefix]_Object_Action` using PascalCase (e.g., `Auto_Lead_Priority_Assignment`)
 
 **Screen Flow Button Config** (CRITICAL):
-| Screen | allowBack | allowFinish | Result |
-|--------|-----------|-------------|--------|
-| First | false | true | "Next" only |
-| Middle | true | true | "Previous" + "Next" |
-| Last | true | true | "Finish" |
+
+| Screen | allowBack | allowFinish | Result              |
+| ------ | --------- | ----------- | ------------------- |
+| First  | false     | true        | "Next" only         |
+| Middle | true      | true        | "Previous" + "Next" |
+| Last   | true      | true        | "Finish"            |
 
 Rule: `allowFinish="true"` required on all screens. Connector present → "Next", absent → "Finish".
 
@@ -191,137 +199,24 @@ Construct the complete Flow metadata as a JSON object with:
 
 #### JSON Format Reference
 
-Every flow JSON object follows this structure. Only include properties that have values — omit empty arrays.
+> **Read `assets/json-deployment-reference.md` for the complete reference** — it covers
+> XML-to-JSON translation, start patterns for all flow types, entry conditions,
+> value references, and element JSON examples.
 
-**Required top-level properties**:
+**Essential rules** (always apply):
 
-```json
-{
-  "fullName": "Flow_API_Name",
-  "apiVersion": 65,
-  "description": "What this flow does",
-  "environments": ["Default"],
-  "interviewLabel": "Flow Label {!$Flow.CurrentDateTime}",
-  "label": "Flow Label",
-  "processMetadataValues": [
-    {"name": "BuilderType", "value": {"stringValue": "LightningFlowBuilder"}},
-    {"name": "CanvasMode", "value": {"stringValue": "AUTO_LAYOUT_CANVAS"}}
-  ],
-  "processType": "AutoLaunchedFlow",
-  "start": { ... },
-  "status": "Draft"
-}
-```
-
-**`start` element patterns**:
-
-```json
-// Record-triggered (after save)
-"start": {
-  "locationX": 0, "locationY": 0,
-  "object": "Case",
-  "recordTriggerType": "Update",
-  "triggerType": "RecordAfterSave",
-  "filterLogic": "and",
-  "filters": [
-    {"field": "Status", "operator": "EqualTo", "value": {"stringValue": "Closed"}}
-  ],
-  "connector": {"targetReference": "First_Element"}
-}
-
-// Autolaunched (no trigger)
-"start": {
-  "locationX": 0, "locationY": 0,
-  "connector": {"targetReference": "First_Element"}
-}
-
-// Screen flow
-"start": {
-  "locationX": 0, "locationY": 0,
-  "connector": {"targetReference": "First_Screen"}
-}
-```
-
-**Element arrays** (include only what the flow uses):
-
-```json
-// Decisions
-"decisions": [{
-  "name": "Check_Status",
-  "label": "Check Status",
-  "locationX": 0, "locationY": 0,
-  "defaultConnectorLabel": "Default Outcome",
-  "rules": [{
-    "name": "Is_Active",
-    "conditionLogic": "and",
-    "conditions": [{
-      "leftValueReference": "$Record.Status",
-      "operator": "EqualTo",
-      "rightValue": {"stringValue": "Active"}
-    }],
-    "connector": {"targetReference": "Next_Element"},
-    "label": "Active"
-  }]
-}]
-
-// Record operations (MUST have faultConnector)
-"recordCreates": [{
-  "name": "Create_Task",
-  "label": "Create Task",
-  "locationX": 0, "locationY": 0,
-  "object": "Task",
-  "inputAssignments": [
-    {"field": "Subject", "value": {"stringValue": "Follow up"}},
-    {"field": "WhoId", "value": {"elementReference": "$Record.Id"}}
-  ],
-  "connector": {"targetReference": "Next_Element"},
-  "faultConnector": {"targetReference": "Handle_Error"}
-}]
-
-// Action calls (e.g., send email)
-"actionCalls": [{
-  "name": "Send_Email",
-  "label": "Send Email",
-  "locationX": 0, "locationY": 0,
-  "actionName": "emailSimple",
-  "actionType": "emailSimple",
-  "flowTransactionModel": "CurrentTransaction",
-  "inputParameters": [
-    {"name": "emailAddresses", "value": {"stringValue": "admin@example.com"}},
-    {"name": "emailSubject", "value": {"stringValue": "Alert"}},
-    {"name": "emailBody", "value": {"stringValue": "Details: {!$Record.Name}"}}
-  ],
-  "faultConnector": {"targetReference": "Handle_Error"}
-}]
-
-// Variables
-"variables": [{
-  "name": "var_AccountName",
-  "dataType": "String",
-  "isCollection": false,
-  "isInput": true,
-  "isOutput": false
-}]
-
-// Assignments
-"assignments": [{
-  "name": "Set_Message",
-  "label": "Set Message",
-  "locationX": 0, "locationY": 0,
-  "assignmentItems": [
-    {"assignToReference": "var_Message", "operator": "Assign", "value": {"stringValue": "Done"}}
-  ],
-  "connector": {"targetReference": "Next_Element"}
-}]
-```
-
-**Value reference patterns**:
-
-- Literal string: `{"stringValue": "text"}`
-- Literal boolean: `{"booleanValue": true}`
-- Literal number: `{"numberValue": 100}`
-- Variable/field reference: `{"elementReference": "var_Name"}` or `{"elementReference": "$Record.FieldName"}`
-- Prior value (record-triggered): `{"elementReference": "$Record__Prior.FieldName"}`
+1. **Format**: `metadata_create` requires a JSON object, NOT XML. The XML templates
+   in `assets/` show structure; translate using the reference above.
+2. **Property placement**: `triggerType`, `recordTriggerType`, `object`, `schedule`,
+   `filters`/`filterFormula`/`filterLogic` belong ONLY inside `start`, never at top level.
+3. **Value wrappers**: `{"stringValue": "text"}`, `{"booleanValue": true}`,
+   `{"numberValue": 100}`, `{"elementReference": "var_Name"}`.
+4. **Merge fields**: `stringValue` supports `{!$Record.Name}` syntax — no need for
+   formula variables for simple string interpolation.
+5. **Entry conditions**: Use `filterFormula` for compound/negated conditions
+   (`AND()`, `OR()`, `NOT()`). Use `filters` array for simple field comparisons.
+6. **Shell template**: Start from the Flow Shell Template below (Lesson 9) for the
+   complete JSON boilerplate with all element arrays.
 
 **Pre-Deployment: Check Prerequisites** (REQUIRED for flows referencing custom fields/objects):
 
@@ -420,7 +315,7 @@ tooling_api_query(
 
 **Validation Report Format** (6-Category Scoring 0-110):
 
-```
+```text
 Score: 92/110 ⭐⭐⭐⭐ Very Good
 ├─ Design & Naming: 18/20 (90%)
 ├─ Logic & Structure: 20/20 (100%)
@@ -468,7 +363,7 @@ If ANY of these patterns would be generated, **STOP and ask the user**:
 cirra_ai_init()
 ```
 
-2. **Deploy Flow metadata** (JSON, not XML):
+1. **Deploy Flow metadata** (JSON, not XML):
 
 > **Automatic validation**: A skill-scoped PreToolUse hook runs `pre-mcp-validate.py` before every `metadata_create`, `metadata_update`, and `tooling_api_dml` call while this skill is active. It blocks deployment for CRITICAL/HIGH issues (DML in loops, missing fault paths) and warns when score is below 80% (88/110).
 
@@ -488,7 +383,7 @@ metadata_create(
 )
 ```
 
-3. **Retrieve existing flows** (to review or modify):
+1. **Retrieve existing flows** (to review or modify):
 
 ```python
 metadata_read(
@@ -498,7 +393,7 @@ metadata_read(
 )
 ```
 
-4. **List all flows** (for reference):
+1. **List all flows** (for reference):
 
 ```python
 metadata_list(
@@ -507,7 +402,7 @@ metadata_list(
 )
 ```
 
-5. **Query Flow metadata** (Tooling API):
+1. **Query Flow metadata** (Tooling API):
 
 ```python
 tooling_api_query(
@@ -518,7 +413,7 @@ tooling_api_query(
 )
 ```
 
-6. **Verify object/fields before flow creation**:
+1. **Verify object/fields before flow creation**:
 
 ```python
 sobject_describe(
@@ -1184,13 +1079,13 @@ Use `out_` prefix for output variables to distinguish them in Action Definition 
 
 ### Formula Expression Limitations in Flows
 
-Flow formulas have more limited function support than formula fields. Avoid:
+Flow formulas have more limited function support than formula fields. The table below applies to **formula variables and formula elements within the flow**, NOT to `filterFormula` entry conditions:
 
-| Function                  | Status         | Alternative                            |
-| ------------------------- | -------------- | -------------------------------------- |
-| `BLANKVALUE()`            | ❌ Not in Flow | Use Decision element or `IF()`         |
-| `CASESAFEID()`            | ❌ Not in Flow | ID variables handle this automatically |
-| `ISNEW()` / `ISCHANGED()` | ❌ Not in Flow | Use `$Record__Prior` comparisons       |
+| Function                  | In `filterFormula` (entry conditions) | In flow formulas/variables | Alternative for flow formulas          |
+| ------------------------- | ------------------------------------- | -------------------------- | -------------------------------------- |
+| `ISNEW()` / `ISCHANGED()` | ✅ Supported                          | ❌ Not supported           | Use `$Record__Prior` comparisons       |
+| `BLANKVALUE()`            | ✅ Supported                          | ❌ Not supported           | Use Decision element or `IF()`         |
+| `CASESAFEID()`            | ❌ Not supported                      | ❌ Not supported           | ID variables handle this automatically |
 
 ### Action Definition Registration (REQUIRED)
 
