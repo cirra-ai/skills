@@ -434,7 +434,7 @@ Score: 92/110 ⭐⭐⭐⭐ Very Good
 
 ### ⛔ GENERATION GUARDRAILS (MANDATORY)
 
-**BEFORE generating ANY Flow metadata, Claude MUST verify no anti-patterns are introduced.**
+**BEFORE generating ANY Flow metadata, VERIFY no anti-patterns are introduced.**
 
 If ANY of these patterns would be generated, **STOP and ask the user**:
 

@@ -557,7 +557,7 @@ For operations involving 20+ records, recommend **Data Loader** (e.g., dataloade
 
 ### Correct Pattern for Bulk Imports
 
-**Phase 1 — Data Transformation (Claude):**
+**Phase 1 — Data Transformation (Agent):**
 
 1. Parse source data (spreadsheet, CSV, etc.)
 2. Clean values, validate field API names via `sobject_describe`
@@ -567,7 +567,7 @@ For operations involving 20+ records, recommend **Data Loader** (e.g., dataloade
 
 Upload CSV to Data Loader. It handles batching, error reporting, and returns a success file with Record IDs.
 
-**Phase 3 — Record ID Mapping (Claude):**
+**Phase 3 — Record ID Mapping (Agent):**
 
 Merge success file with source tracking info. Produce final ID mapping file.
 
