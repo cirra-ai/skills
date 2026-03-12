@@ -1,7 +1,7 @@
 ---
 name: cirra-ai-sf-apex
 metadata:
-  version: 1.1.0
+  version: 1.1.1
 description: >
   Generates and reviews Salesforce Apex code with 2025 best practices and 150-point
   scoring using Cirra AI MCP Server metadata API. Use when writing Apex classes, triggers,
@@ -107,7 +107,7 @@ Score: XX/150 ⭐⭐⭐⭐ Rating
 
 ### ⛔ GENERATION GUARDRAILS (MANDATORY)
 
-**BEFORE generating ANY Apex code, Claude MUST verify no anti-patterns are introduced.**
+**BEFORE generating ANY Apex code, VERIFY no anti-patterns are introduced.**
 
 If ANY of these patterns would be generated, **STOP and ask the user**:
 
@@ -625,7 +625,7 @@ accounts = (List<Account>) Security.stripInaccessible(AccessType.READABLE, accou
 
 ## Glossary of MCP Terms
 
-- **MCP**: Model Context Protocol - allows Claude to access external applications like Salesforce
+- **MCP**: Model Context Protocol - allows the agent to access external applications like Salesforce
 - **Cirra AI**: AI assistant that provides the Salesforce Admin MCP server
 - **Metadata API**: Programmatic interface to deploy/retrieve Apex, triggers, config
 - **Tooling API**: Query and update (via DML) metadata objects like ApexClass, ApexTrigger, ApexTestResult

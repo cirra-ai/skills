@@ -1,7 +1,7 @@
 ---
 name: cirra-ai-sf-permissions
 metadata:
-  version: 1.1.1
+  version: 1.1.2
 description: >
   Permission Set analysis, hierarchy viewer, and "Who has X?" auditing.
   Use when analyzing permissions, visualizing PS/PSG hierarchies, finding
@@ -400,10 +400,10 @@ Examples:
 | cirra-ai-sf-data     | -> cirra-ai-sf-permissions | "Query user assignments in bulk"            |
 | cirra-ai-sf-diagram  | -> cirra-ai-sf-permissions | "Visualize permission hierarchy as Mermaid" |
 
-| From cirra-ai-sf-permissions | To Skill                | When                           |
-| ---------------------------- | ----------------------- | ------------------------------ |
-| cirra-ai-sf-permissions      | -> cirra-ai-sf-metadata | Generate Permission Set XML    |
-| cirra-ai-sf-permissions      | -> cirra-ai-sf-diagram  | Create hierarchy visualization |
+| From cirra-ai-sf-permissions | To Skill                | When                             |
+| ---------------------------- | ----------------------- | -------------------------------- |
+| cirra-ai-sf-permissions      | -> cirra-ai-sf-metadata | Generate Permission Set metadata |
+| cirra-ai-sf-permissions      | -> cirra-ai-sf-diagram  | Create hierarchy visualization   |
 
 ---
 

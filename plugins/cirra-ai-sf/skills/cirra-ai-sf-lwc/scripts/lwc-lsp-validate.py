@@ -7,7 +7,7 @@ This PostToolUse hook validates LWC JavaScript files (.js) after Write/Edit
 operations using the LWC Language Server (@salesforce/lwc-language-server).
 
 Behavior (Auto-fix loop):
-- Outputs errors to Claude so it can automatically fix them
+- Outputs errors to the agent so it can automatically fix them
 - Repeats until valid or max attempts reached
 - Complements existing 165-point SLDS 2 validation
 
@@ -117,7 +117,7 @@ def format_lwc_diagnostics(
     """
     Format LSP validation result for Claude Code hooks.
 
-    This output is designed to be understood by Claude so it can
+    This output is designed to be understood by the agent so it can
     automatically fix any issues found.
     """
     # If LSP had an error
@@ -141,7 +141,7 @@ def format_lwc_diagnostics(
     error_count = sum(1 for d in diagnostics if d.get("severity", 1) == SEVERITY_ERROR)
     warning_count = sum(1 for d in diagnostics if d.get("severity", 2) == SEVERITY_WARNING)
 
-    # Build output for Claude
+    # Build output for the agent
     lines = []
 
     # Header
@@ -180,7 +180,7 @@ def format_lwc_diagnostics(
             )
         lines.append("")
 
-    # Instructions for Claude
+    # Instructions for the agent
     if error_count > 0:
         lines.append("ACTION REQUIRED:")
         lines.append("Please fix the LWC JavaScript errors above and try again.")
@@ -279,7 +279,7 @@ def main():
         reset_attempt_count(file_path)
         sys.exit(0)
 
-    # Output diagnostics for Claude
+    # Output diagnostics for the agent
     print(output)
 
 
