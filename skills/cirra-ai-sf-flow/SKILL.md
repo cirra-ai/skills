@@ -1,7 +1,7 @@
 ---
 name: cirra-ai-sf-flow
 metadata:
-  version: 1.2.0
+  version: 1.2.1
 description: >
   Creates and validates Salesforce flows with 110-point scoring and Winter '26
   best practices using Cirra AI MCP Server. Use when building record-triggered flows,
@@ -18,7 +18,7 @@ Expert Salesforce Flow Builder with deep knowledge of best practices, bulkificat
 
 ```
 1. Call cirra_ai_init (REQUIRED - one per session)
-2. Generate Flow XML
+2. Generate Flow metadata (JSON object — NOT XML)
 3. Deploy via metadata_create tool (Cirra AI MCP Server)
 4. Retrieve existing flows via metadata_read or metadata_list (Cirra AI MCP Server)
 5. Query Flow metadata via tooling_api_query for FlowDefinition
@@ -31,7 +31,7 @@ Expert Salesforce Flow Builder with deep knowledge of best practices, bulkificat
 
 ## Core Responsibilities
 
-1. **Flow Generation**: Create well-structured Flow metadata XML from requirements
+1. **Flow Generation**: Create well-structured Flow metadata (JSON) from requirements
 2. **Strict Validation**: Enforce best practices with comprehensive checks and scoring
 3. **Cirra AI Integration**: Deploy via metadata_create, retrieve via metadata_read/metadata_list
 4. **Testing Guidance**: Provide type-specific testing checklists and verification steps
@@ -108,7 +108,7 @@ If the request is underspecified, ask concise follow-up questions to gather:
 3. Use `metadata_list` to check existing flows: `metadata_list(type="Flow")`
 4. Offer reusable subflows: Sub_LogError, Sub_SendEmailAlert, Sub_ValidateRecord, Sub_UpdateRelatedRecords, Sub_QueryRecordsWithRetry → See `references/subflow-library.md`
 5. If complex automation: Reference `references/governance-checklist.md`
-6. Keep an internal checklist: Gather requirements, select template, generate XML, validate, deploy, test
+6. Keep an internal checklist: Gather requirements, select template, generate flow metadata (JSON), validate, deploy, test
 
 ### Phase 2: Flow Design & Template Selection
 
@@ -160,23 +160,168 @@ Rule: `allowFinish="true"` required on all screens. Connector present → "Next"
 
 **Orchestration**: For complex flows (multiple objects/steps), suggest Parent-Child or Sequential pattern.
 
-- **CRITICAL**: Record-triggered flows CANNOT call subflows via XML deployment. Use inline orchestration instead. See `references/xml-gotchas.md` and `references/orchestration-guide.md`
+- **CRITICAL**: Record-triggered flows CANNOT call subflows via metadata deployment. Use inline orchestration instead. See `references/xml-gotchas.md` and `references/orchestration-guide.md`
 
 ### Phase 3: Flow Generation & Deployment (via Cirra AI)
 
-**Generate flow XML**:
-Generate the complete Flow XML with:
+> **Two deployment formats — know which to use:**
+>
+> | Path                                     | Format          | When                              |
+> | ---------------------------------------- | --------------- | --------------------------------- |
+> | `metadata_create` / `metadata_update`    | **JSON object** | Deploying via Cirra AI MCP Server |
+> | Writing `.flow-meta.xml` to `force-app/` | **XML**         | Source-controlled project files   |
+>
+> **CRITICAL**: Do NOT pass XML strings to `metadata_create`. It requires a structured
+> JSON object — use the format reference and examples below. The XML templates in
+> `assets/` are the correct reference when writing local `.flow-meta.xml` files.
+
+**Generate flow metadata**:
+Construct the complete Flow metadata as a JSON object with:
 
 - API Version: 65.0
-- Proper alphabetical element ordering
-- All required metadata fields (label, processType, status, etc.)
+- Proper alphabetical property ordering
+- All required metadata fields (`label`, `processType`, `status`, etc.)
 
 **CRITICAL Requirements**:
 
-- Alphabetical XML element ordering at root level
-- NO `<bulkSupport>` (removed API 60.0+)
-- Auto-Layout: all locationX/Y = 0
+- Alphabetical property ordering at root level
+- NO `bulkSupport` property (removed API 60.0+)
+- Auto-Layout: all `locationX`/`locationY` = 0
 - Fault paths on all DML operations
+
+#### JSON Format Reference
+
+Every flow JSON object follows this structure. Only include properties that have values — omit empty arrays.
+
+**Required top-level properties**:
+
+```json
+{
+  "fullName": "Flow_API_Name",
+  "apiVersion": 65,
+  "description": "What this flow does",
+  "environments": ["Default"],
+  "interviewLabel": "Flow Label {!$Flow.CurrentDateTime}",
+  "label": "Flow Label",
+  "processMetadataValues": [
+    {"name": "BuilderType", "value": {"stringValue": "LightningFlowBuilder"}},
+    {"name": "CanvasMode", "value": {"stringValue": "AUTO_LAYOUT_CANVAS"}}
+  ],
+  "processType": "AutoLaunchedFlow",
+  "start": { ... },
+  "status": "Draft"
+}
+```
+
+**`start` element patterns**:
+
+```json
+// Record-triggered (after save)
+"start": {
+  "locationX": 0, "locationY": 0,
+  "object": "Case",
+  "recordTriggerType": "Update",
+  "triggerType": "RecordAfterSave",
+  "filterLogic": "and",
+  "filters": [
+    {"field": "Status", "operator": "EqualTo", "value": {"stringValue": "Closed"}}
+  ],
+  "connector": {"targetReference": "First_Element"}
+}
+
+// Autolaunched (no trigger)
+"start": {
+  "locationX": 0, "locationY": 0,
+  "connector": {"targetReference": "First_Element"}
+}
+
+// Screen flow
+"start": {
+  "locationX": 0, "locationY": 0,
+  "connector": {"targetReference": "First_Screen"}
+}
+```
+
+**Element arrays** (include only what the flow uses):
+
+```json
+// Decisions
+"decisions": [{
+  "name": "Check_Status",
+  "label": "Check Status",
+  "locationX": 0, "locationY": 0,
+  "defaultConnectorLabel": "Default Outcome",
+  "rules": [{
+    "name": "Is_Active",
+    "conditionLogic": "and",
+    "conditions": [{
+      "leftValueReference": "$Record.Status",
+      "operator": "EqualTo",
+      "rightValue": {"stringValue": "Active"}
+    }],
+    "connector": {"targetReference": "Next_Element"},
+    "label": "Active"
+  }]
+}]
+
+// Record operations (MUST have faultConnector)
+"recordCreates": [{
+  "name": "Create_Task",
+  "label": "Create Task",
+  "locationX": 0, "locationY": 0,
+  "object": "Task",
+  "inputAssignments": [
+    {"field": "Subject", "value": {"stringValue": "Follow up"}},
+    {"field": "WhoId", "value": {"elementReference": "$Record.Id"}}
+  ],
+  "connector": {"targetReference": "Next_Element"},
+  "faultConnector": {"targetReference": "Handle_Error"}
+}]
+
+// Action calls (e.g., send email)
+"actionCalls": [{
+  "name": "Send_Email",
+  "label": "Send Email",
+  "locationX": 0, "locationY": 0,
+  "actionName": "emailSimple",
+  "actionType": "emailSimple",
+  "flowTransactionModel": "CurrentTransaction",
+  "inputParameters": [
+    {"name": "emailAddresses", "value": {"stringValue": "admin@example.com"}},
+    {"name": "emailSubject", "value": {"stringValue": "Alert"}},
+    {"name": "emailBody", "value": {"stringValue": "Details: {!$Record.Name}"}}
+  ],
+  "faultConnector": {"targetReference": "Handle_Error"}
+}]
+
+// Variables
+"variables": [{
+  "name": "var_AccountName",
+  "dataType": "String",
+  "isCollection": false,
+  "isInput": true,
+  "isOutput": false
+}]
+
+// Assignments
+"assignments": [{
+  "name": "Set_Message",
+  "label": "Set Message",
+  "locationX": 0, "locationY": 0,
+  "assignmentItems": [
+    {"assignToReference": "var_Message", "operator": "Assign", "value": {"stringValue": "Done"}}
+  ],
+  "connector": {"targetReference": "Next_Element"}
+}]
+```
+
+**Value reference patterns**:
+
+- Literal string: `{"stringValue": "text"}`
+- Literal boolean: `{"booleanValue": true}`
+- Literal number: `{"numberValue": 100}`
+- Variable/field reference: `{"elementReference": "var_Name"}` or `{"elementReference": "$Record.FieldName"}`
+- Prior value (record-triggered): `{"elementReference": "$Record__Prior.FieldName"}`
 
 **Pre-Deployment: Check Prerequisites** (REQUIRED for flows referencing custom fields/objects):
 
@@ -197,12 +342,30 @@ sobject_describe(sObject="Lead")
 # Initialize connection (ONCE per session)
 cirra_ai_init(sf_user="your-username")
 
-# Create/deploy Flow XML
+# Create/deploy Flow — pass a JSON object, NOT XML
 metadata_create(
     type="Flow",
     metadata=[{
         "fullName": "Auto_Lead_Assignment",
-        "content": "[generated-flow-xml]"
+        "label": "Auto Lead Assignment",
+        "apiVersion": 65,
+        "description": "Assigns new leads to the appropriate queue based on region",
+        "environments": ["Default"],
+        "processMetadataValues": [
+            {"name": "BuilderType", "value": {"stringValue": "LightningFlowBuilder"}},
+            {"name": "CanvasMode", "value": {"stringValue": "AUTO_LAYOUT_CANVAS"}}
+        ],
+        "processType": "AutoLaunchedFlow",
+        "start": {
+            "locationX": 0, "locationY": 0,
+            "object": "Lead",
+            "recordTriggerType": "Create",
+            "triggerType": "RecordAfterSave",
+            "connector": {"targetReference": "Check_Region"}
+        },
+        "decisions": [...],
+        "recordUpdates": [...],
+        "status": "Draft"
     }],
     sf_user="your-username"
 )
@@ -243,8 +406,8 @@ tooling_api_query(
 
 **Validation (STRICT MODE)**:
 
-- **BLOCK**: XML invalid, missing required fields (apiVersion/label/processType/status), API <65.0, broken refs, DML in loops
-- **WARN**: Element ordering, deprecated elements, non-zero coords, missing fault paths, unused vars, naming violations
+- **BLOCK**: Invalid structure, missing required fields (apiVersion/label/processType/status), API <65.0, broken refs, DML in loops
+- **WARN**: Property ordering, deprecated properties, non-zero coords, missing fault paths, unused vars, naming violations
 
 **New v2.0.0 Validations**:
 
@@ -271,7 +434,7 @@ Score: 92/110 ⭐⭐⭐⭐ Very Good
 
 ### ⛔ GENERATION GUARDRAILS (MANDATORY)
 
-**BEFORE generating ANY Flow XML, Claude MUST verify no anti-patterns are introduced.**
+**BEFORE generating ANY Flow metadata, VERIFY no anti-patterns are introduced.**
 
 If ANY of these patterns would be generated, **STOP and ask the user**:
 
@@ -305,16 +468,21 @@ If ANY of these patterns would be generated, **STOP and ask the user**:
 cirra_ai_init()
 ```
 
-2. **Deploy Flow XML**:
+2. **Deploy Flow metadata** (JSON, not XML):
 
 > **Automatic validation**: A skill-scoped PreToolUse hook runs `pre-mcp-validate.py` before every `metadata_create`, `metadata_update`, and `tooling_api_dml` call while this skill is active. It blocks deployment for CRITICAL/HIGH issues (DML in loops, missing fault paths) and warns when score is below 80% (88/110).
 
 ```python
+# Pass a structured JSON object — see cirra_ai_init instructions for format examples
 metadata_create(
     type="Flow",
     metadata=[{
         "fullName": "Auto_Lead_Assignment",
-        "content": "[flow-xml-content]"
+        "label": "Auto Lead Assignment",
+        "apiVersion": 65,
+        "processType": "AutoLaunchedFlow",
+        "status": "Draft",
+        # ... full flow structure as JSON properties
     }],
     sf_user="your-salesforce-username"
 )
@@ -440,12 +608,12 @@ Resources: `assets/`, `references/subflow-library.md`, `references/orchestration
   - ⚠️ **Fault connectors CANNOT self-reference** - Error: "element cannot be connected to itself"
   - Route fault connectors to a DIFFERENT element (dedicated error handler)
 - **Auto-Layout**: All locationX/Y = 0 (cleaner git diffs)
-  - UI may show "Free-Form" dropdown, but locationX/Y = 0 IS Auto-Layout in XML
+  - UI may show "Free-Form" dropdown, but locationX/Y = 0 IS Auto-Layout in metadata
 - **No Parent Traversal**: Use separate Get Records for relationship field data
 
-### XML Element Ordering (CRITICAL)
+### Property Ordering (CRITICAL)
 
-**All elements of the same type MUST be grouped together. Do NOT scatter elements across the file.**
+**All properties of the same type MUST be grouped together. Do NOT scatter them across the object.**
 
 Complete alphabetical order:
 
@@ -465,7 +633,7 @@ screens → start → status → subflows → textTemplates → variables → wa
 
 - **Batch DML**: Get Records → Assignment → Update Records pattern
 - **Filters over loops**: Use Get Records with filters instead of loops + decisions
-- **Transform element**: Powerful but complex XML - NOT recommended for hand-written flows
+- **Transform element**: Powerful but complex structure - NOT recommended for hand-written flows
 
 ### Design & Security
 
@@ -508,7 +676,7 @@ screens → start → status → subflows → textTemplates → variables → wa
 | Silent failure on `metadata_update`                 | Read current state first with `metadata_read`; build iteratively             |
 | Required field missing                              | Add `processMetadataValues: []` to every element                             |
 
-**XML Gotchas**: See `references/xml-gotchas.md`
+**Metadata Gotchas**: See `references/xml-gotchas.md`
 
 ---
 
@@ -723,7 +891,7 @@ Note: do **not** include `FullName` or `Metadata` in multi-record queries — on
 ### Create a new flow
 
 ```
-metadata_create(type="Flow", metadata=[{"fullName": "Flow_Name", "content": "[flow-xml]"}])
+metadata_create(type="Flow", metadata=[{"fullName": "Flow_Name", "label": "Flow Name", "apiVersion": 65, "processType": "AutoLaunchedFlow", "status": "Draft", ...}])
 ```
 
 ### Update a flow (creates a new version)
@@ -785,15 +953,79 @@ metadata_list(
 # Returns: All Flow metadata objects in org
 ```
 
-### Example 3: Deploy Generated Flow
+### Example 3: Deploy a Complete Record-Triggered Flow
 
 ```python
-# After generating Auto_Lead_Assignment.flow-meta.xml
+# Complete example: notify managers when case category changes
 metadata_create(
     type="Flow",
     metadata=[{
-        "fullName": "Auto_Lead_Assignment",
-        "content": "<Flow ...>[full XML here]</Flow>"
+        "fullName": "Case_Category_Change_Alert",
+        "apiVersion": 65,
+        "description": "Sends email when Case Category changes from Billing to Channel",
+        "environments": ["Default"],
+        "interviewLabel": "Case Category Change Alert {!$Flow.CurrentDateTime}",
+        "label": "Case Category Change Alert",
+        "processMetadataValues": [
+            {"name": "BuilderType", "value": {"stringValue": "LightningFlowBuilder"}},
+            {"name": "CanvasMode", "value": {"stringValue": "AUTO_LAYOUT_CANVAS"}}
+        ],
+        "processType": "AutoLaunchedFlow",
+        "start": {
+            "locationX": 0, "locationY": 0,
+            "connector": {"targetReference": "Check_Previous_Category"},
+            "filterLogic": "and",
+            "filters": [
+                {"field": "Case_Category__c", "operator": "EqualTo", "value": {"stringValue": "Channel"}},
+                {"field": "Case_Category__c", "operator": "IsChanged", "value": {"booleanValue": True}}
+            ],
+            "object": "Case",
+            "recordTriggerType": "Update",
+            "triggerType": "RecordAfterSave"
+        },
+        "decisions": [{
+            "name": "Check_Previous_Category",
+            "label": "Check Previous Category",
+            "locationX": 0, "locationY": 0,
+            "defaultConnectorLabel": "Default Outcome",
+            "rules": [{
+                "name": "Was_Billing",
+                "conditionLogic": "and",
+                "conditions": [{
+                    "leftValueReference": "$Record__Prior.Case_Category__c",
+                    "operator": "EqualTo",
+                    "rightValue": {"stringValue": "Billing"}
+                }],
+                "connector": {"targetReference": "Send_Email_Action"},
+                "label": "Was Billing"
+            }]
+        }],
+        "actionCalls": [{
+            "name": "Send_Email_Action",
+            "label": "Send Email",
+            "locationX": 0, "locationY": 0,
+            "actionName": "emailSimple",
+            "actionType": "emailSimple",
+            "flowTransactionModel": "CurrentTransaction",
+            "inputParameters": [
+                {"name": "emailAddresses", "value": {"stringValue": "support-managers@example.com"}},
+                {"name": "emailSubject", "value": {"stringValue": "Case Category Changed to Channel"}},
+                {"name": "emailBody", "value": {"stringValue": "Case {!$Record.CaseNumber} category changed from Billing to Channel."}}
+            ],
+            "faultConnector": {"targetReference": "Log_Error"}
+        }],
+        "recordCreates": [{
+            "name": "Log_Error",
+            "label": "Log Error",
+            "locationX": 0, "locationY": 0,
+            "object": "Flow_Error__c",
+            "inputAssignments": [
+                {"field": "Flow_Name__c", "value": {"stringValue": "Case_Category_Change_Alert"}},
+                {"field": "Context_Record_Id__c", "value": {"elementReference": "$Record.Id"}},
+                {"field": "Error_Source__c", "value": {"stringValue": "Send_Email_Action"}}
+            ]
+        }],
+        "status": "Draft"
     }],
     sf_user="prod-username"
 )
@@ -802,13 +1034,13 @@ metadata_create(
 ### Example 4: Retrieve Existing Flow for Review
 
 ```python
-# Get the XML of an existing flow
+# Get the metadata of an existing flow
 metadata_read(
     type="Flow",
     fullNames=["Auto_Lead_Assignment"],
     sf_user="prod-username"
 )
-# Returns: Complete Flow XML from org
+# Returns: Complete Flow metadata from org (JSON)
 ```
 
 ### Example 5: Query Flow Metadata (Tooling API)
@@ -852,7 +1084,9 @@ Embed custom Lightning Web Components in Flow Screens for rich, interactive UIs.
 | `assets/screen-flow-with-lwc.xml` | Flow embedding LWC component       |
 | `assets/apex-action-template.xml` | Flow calling Apex @InvocableMethod |
 
-### Flow XML Pattern
+### Flow Pattern (XML reference — deploy as JSON)
+
+> The XML below shows the structural pattern. When deploying via `metadata_create`, translate to the equivalent JSON object.
 
 ```xml
 <screens>
@@ -885,7 +1119,9 @@ Embed custom Lightning Web Components in Flow Screens for rich, interactive UIs.
 
 Call Apex `@InvocableMethod` classes from Flow for complex business logic.
 
-### Flow XML Pattern
+### Flow Pattern (XML reference — deploy as JSON)
+
+> The XML below shows the structural pattern. When deploying via `metadata_create`, translate to the equivalent JSON object.
 
 ```xml
 <actionCalls>
@@ -918,7 +1154,7 @@ Call Apex `@InvocableMethod` classes from Flow for complex business logic.
 
 **When creating Flows for Agentforce agents:**
 
-- cirra-ai-sf-flow (this skill) creates the validated Flow XML
+- cirra-ai-sf-flow (this skill) creates the validated Flow metadata (JSON)
 - cirra-ai-sf-flow deploys via Cirra AI metadata_create tool
 - **Action Definition registration required** (see below)
 - Only THEN can agents use `flow://FlowName` targets
