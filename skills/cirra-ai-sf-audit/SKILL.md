@@ -9,7 +9,7 @@ description: >
   health, generate an org inventory, run an org health check, audit permissions,
   review the data model, or audit apex flows and lwc.
 metadata:
-  version: 1.1.0
+  version: 1.1.1
 ---
 
 # cirra-ai-sf-audit: Salesforce Org Audit
@@ -208,12 +208,12 @@ When an MCP tool response exceeds ~75 k characters, the server returns a
 When you see `instructions.artifactId` in a response, the full data was NOT
 returned inline. Retrieve it using the strategy that matches your environment:
 
-| Environment                          | Retrieval strategy                                                                                         |
-| ------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
-| Claude Code / Cowork / Codex         | Fetch `instructions.artifactUrl`, write JSON to `./audit_output/intermediate/`, run `pre_score.py` on disk |
-| Claude (conversational, URL capable) | Fetch `instructions.artifactUrl` to get the full result                                                    |
-| ChatGPT / no URL fetch               | Call `fetch_more(artifactId=instructions.artifactId)` for the full artifact                                |
-| Pagination (any environment)         | Call `fetch_more(artifactId=..., cursor=_pagination.nextCursor)` for the next page                         |
+| Environment                            | Retrieval strategy                                                                                         |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| IDE-based (Claude Code, Cowork, Codex) | Fetch `instructions.artifactUrl`, write JSON to `./audit_output/intermediate/`, run `pre_score.py` on disk |
+| Conversational (URL-capable)           | Fetch `instructions.artifactUrl` to get the full result                                                    |
+| Conversational (no URL fetch)          | Call `fetch_more(artifactId=instructions.artifactId)` for the full artifact                                |
+| Pagination (any environment)           | Call `fetch_more(artifactId=..., cursor=_pagination.nextCursor)` for the next page                         |
 
 **Legacy fallback** — if the response does NOT contain `instructions`,
 paginate manually with `ORDER BY Id` + `Id > '<lastId>'`, 50–100 rows per
@@ -539,8 +539,8 @@ generate reports based on what Phase A collected. Mark unscored domains as
 
 Choose your processing strategy based on what the environment supports:
 
-**Strategy A — Pre-score on disk** (Claude Code, Cowork, Codex — filesystem
-and Python available):
+**Strategy A — Pre-score on disk** (IDE-based — filesystem and Python
+available):
 
 1. Fetch all bodies to `./audit_output/intermediate/` (via artifact URL, CLI
    bulk retrieve, or local filesystem — whichever mode applies)
@@ -561,7 +561,7 @@ and Python available):
 This strategy keeps component bodies **out of context entirely** for the
 majority of components, allowing audits of 500+ component orgs.
 
-**Strategy B — Batch in context** (Claude, ChatGPT — no filesystem):
+**Strategy B — Batch in context** (conversational — no filesystem):
 
 1. Process components in batches of **5** (not 20). For each component:
    a. Fetch the body (via artifact URL, `fetch_more`, or direct query)

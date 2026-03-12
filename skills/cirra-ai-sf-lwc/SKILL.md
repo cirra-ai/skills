@@ -1,7 +1,7 @@
 ---
 name: cirra-ai-sf-lwc
 metadata:
-  version: 1.1.0
+  version: 1.1.1
 description: >
   Lightning Web Components development skill with PICKLES architecture methodology,
   component scaffolding, wire service patterns, event handling, Apex integration,
@@ -36,7 +36,7 @@ Expert frontend engineer specializing in Lightning Web Components for Salesforce
 
 | Task                         | Original (CLI)                                        | New (Cirra AI)                                         |
 | ---------------------------- | ----------------------------------------------------- | ------------------------------------------------------ |
-| **Generate Component**       | `sf lightning generate component`                     | Claude generates files directly                        |
+| **Generate Component**       | `sf lightning generate component`                     | Generate files directly                                |
 | **Deploy Component**         | `sf project deploy start -m LightningComponentBundle` | `metadata_create` with type "LightningComponentBundle" |
 | **Query Component Metadata** | `sf data query --use-tooling-api`                     | `tooling_api_query` for LightningComponentBundle       |
 | **Describe sObjects**        | `sf sobject describe Account`                         | `sobject_describe` tool                                |
@@ -46,13 +46,13 @@ Expert frontend engineer specializing in Lightning Web Components for Salesforce
 ### Deployment Process
 
 ```
-1. Claude generates LWC bundle files (JS, HTML, CSS, meta.xml)
+1. Generate LWC bundle files (JS, HTML, CSS, meta.xml)
    ↓
 2. User reviews generated code (PICKLES + SLDS 2 validation)
    ↓
-3. Claude calls cirra_ai_init() to authenticate with target org
+3. Call cirra_ai_init() to authenticate with target org
    ↓
-4. Claude calls metadata_create with:
+4. Call metadata_create with:
    - type: "LightningComponentBundle"
    - metadata: [{ fullName: "c/componentName", ...bundle files }]
    ↓
@@ -63,17 +63,17 @@ Expert frontend engineer specializing in Lightning Web Components for Salesforce
 
 ### MCP Tools Mapping
 
-| Operation              | CLI Command                                           | MCP Tool            | Example                                                                              |
-| ---------------------- | ----------------------------------------------------- | ------------------- | ------------------------------------------------------------------------------------ |
-| Generate component     | `sf lightning generate component`                     | (Claude generates)  | Claude writes JS/HTML/CSS/meta.xml directly                                          |
-| Deploy component       | `sf project deploy start -m LightningComponentBundle` | `metadata_create`   | `metadata_create(type="LightningComponentBundle", metadata=[...])`                   |
-| Update component       | `sf project deploy` (existing)                        | `metadata_update`   | `metadata_update(type="LightningComponentBundle", metadata=[...])`                   |
-| Retrieve component     | `sf project retrieve`                                 | `metadata_read`     | `metadata_read(type="LightningComponentBundle", fullNames=["c/accountDashboard"])`   |
-| List components        | `sf metadata list`                                    | `metadata_list`     | `metadata_list(type="LightningComponentBundle")`                                     |
-| Query metadata objects | `sf data query --use-tooling-api`                     | `tooling_api_query` | `tooling_api_query(sObject="LightningComponentBundle", whereClause="...")`           |
-| Describe sObject       | `sf sobject describe`                                 | `sobject_describe`  | `sobject_describe(sObject="Account")`                                                |
-| Query data             | `sf data query`                                       | `soql_query`        | `soql_query(sObject="Account", fields=["Id","Name"], whereClause="Industry='Tech'")` |
-| Delete component       | `sf project delete`                                   | `metadata_delete`   | `metadata_delete(type="LightningComponentBundle", fullNames=["c/accountDashboard"])` |
+| Operation              | CLI Command                                           | MCP Tool             | Example                                                                              |
+| ---------------------- | ----------------------------------------------------- | -------------------- | ------------------------------------------------------------------------------------ |
+| Generate component     | `sf lightning generate component`                     | (generated directly) | Write JS/HTML/CSS/meta.xml directly                                                  |
+| Deploy component       | `sf project deploy start -m LightningComponentBundle` | `metadata_create`    | `metadata_create(type="LightningComponentBundle", metadata=[...])`                   |
+| Update component       | `sf project deploy` (existing)                        | `metadata_update`    | `metadata_update(type="LightningComponentBundle", metadata=[...])`                   |
+| Retrieve component     | `sf project retrieve`                                 | `metadata_read`      | `metadata_read(type="LightningComponentBundle", fullNames=["c/accountDashboard"])`   |
+| List components        | `sf metadata list`                                    | `metadata_list`      | `metadata_list(type="LightningComponentBundle")`                                     |
+| Query metadata objects | `sf data query --use-tooling-api`                     | `tooling_api_query`  | `tooling_api_query(sObject="LightningComponentBundle", whereClause="...")`           |
+| Describe sObject       | `sf sobject describe`                                 | `sobject_describe`   | `sobject_describe(sObject="Account")`                                                |
+| Query data             | `sf data query`                                       | `soql_query`         | `soql_query(sObject="Account", fields=["Id","Name"], whereClause="Industry='Tech'")` |
+| Delete component       | `sf project delete`                                   | `metadata_delete`    | `metadata_delete(type="LightningComponentBundle", fullNames=["c/accountDashboard"])` |
 
 ### Required Initialization
 
@@ -426,7 +426,7 @@ Then generate the LWC bundle:
 ```
 User: "Generate an accountDashboard LWC component for displaying account metrics"
 
-Claude:
+Agent:
 1. Generates accountDashboard.js (with @wire, event handling)
 2. Generates accountDashboard.html (SLDS 2 structure)
 3. Generates accountDashboard.css (dark mode variables)
@@ -714,14 +714,14 @@ Make components discoverable by Agentforce agents:
 
 ## Limitations & Workarounds
 
-| Feature                     | CLI Support                                           | MCP Support                              | Workaround                                        |
-| --------------------------- | ----------------------------------------------------- | ---------------------------------------- | ------------------------------------------------- |
-| Local file scaffolding      | `sf lightning generate component`                     | ❌ Not available                         | Claude generates code as strings, writes via Edit |
-| Automatic file sync         | `force-app/main/default/lwc/`                         | ❌ Not available                         | Generate as strings, deploy via metadata_create   |
-| LWC Jest runner             | `sf lightning lwc test run`                           | ❌ Not available                         | Run `npm run test` locally                        |
-| Component metadata deploy   | `sf project deploy start -m LightningComponentBundle` | ✅ `metadata_create` / `metadata_update` | Full support via MCP                              |
-| Component metadata retrieve | `sf project retrieve`                                 | ✅ `metadata_read`                       | Full support via MCP                              |
-| List deployed components    | `sf metadata list`                                    | ✅ `metadata_list`                       | Full support via MCP                              |
+| Feature                     | CLI Support                                           | MCP Support                              | Workaround                                      |
+| --------------------------- | ----------------------------------------------------- | ---------------------------------------- | ----------------------------------------------- |
+| Local file scaffolding      | `sf lightning generate component`                     | ❌ Not available                         | Generate code as strings, write via Edit        |
+| Automatic file sync         | `force-app/main/default/lwc/`                         | ❌ Not available                         | Generate as strings, deploy via metadata_create |
+| LWC Jest runner             | `sf lightning lwc test run`                           | ❌ Not available                         | Run `npm run test` locally                      |
+| Component metadata deploy   | `sf project deploy start -m LightningComponentBundle` | ✅ `metadata_create` / `metadata_update` | Full support via MCP                            |
+| Component metadata retrieve | `sf project retrieve`                                 | ✅ `metadata_read`                       | Full support via MCP                            |
+| List deployed components    | `sf metadata list`                                    | ✅ `metadata_list`                       | Full support via MCP                            |
 
 ---
 

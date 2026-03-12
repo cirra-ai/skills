@@ -39,7 +39,7 @@ User: "Export the Sales_Manager PS for documentation"
 ```
 User: "Give me a complete picture of permissions in my org"
 
-Claude:
+Agent:
 1. Runs hierarchy viewer to show all PS/PSG
 2. Identifies PSGs with "Outdated" status
 3. Counts users per PS
@@ -51,7 +51,7 @@ Claude:
 ```
 User: "Find all PS that grant ModifyAllData"
 
-Claude:
+Agent:
 1. Queries PermissionSet for PermissionsModifyAllData = true
 2. Lists PS names and assigned user counts
 3. Flags any non-admin PS with this powerful permission
@@ -62,7 +62,7 @@ Claude:
 ```
 User: "Create a PS for contractors with read-only Account access"
 
-Claude:
+Agent:
 1. Uses permission_generator.py to create XML
 2. Sets Account object to Read-only (no Create/Edit/Delete)
 3. Outputs .permissionset-meta.xml file
