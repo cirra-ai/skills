@@ -1,7 +1,7 @@
 ---
 name: cirra-ai-sf-flow
 metadata:
-  version: 1.2.1
+  version: 1.2.2
 description: >
   Creates and validates Salesforce flows with 110-point scoring and Winter '26
   best practices using Cirra AI MCP Server. Use when building record-triggered flows,
@@ -193,6 +193,16 @@ Construct the complete Flow metadata as a JSON object with:
 
 Every flow JSON object follows this structure. Only include properties that have values — omit empty arrays.
 
+> **Property placement rules** — these properties belong ONLY inside `start`, never at the top level:
+>
+> - `triggerType` (e.g., `"RecordAfterSave"`, `"Scheduled"`)
+> - `recordTriggerType` (e.g., `"Create"`, `"Update"`, `"CreateAndUpdate"`)
+> - `object` (the trigger object)
+> - `schedule` (for scheduled flows)
+> - `filters` / `filterFormula` / `filterLogic` (entry conditions)
+>
+> Top-level properties are: `fullName`, `apiVersion`, `label`, `description`, `processType`, `status`, `start`, element arrays, etc.
+
 **Required top-level properties**:
 
 ```json
@@ -216,7 +226,17 @@ Every flow JSON object follows this structure. Only include properties that have
 **`start` element patterns**:
 
 ```json
-// Record-triggered (after save)
+// Record-triggered (after save) — using filterFormula (preferred for complex conditions)
+"start": {
+  "locationX": 0, "locationY": 0,
+  "object": "Case",
+  "recordTriggerType": "Update",
+  "triggerType": "RecordAfterSave",
+  "filterFormula": "AND({!$Record.Status} = 'Closed', NOT({!$Record.Already_Processed__c}))",
+  "connector": {"targetReference": "First_Element"}
+}
+
+// Record-triggered (after save) — using filters array (simpler conditions)
 "start": {
   "locationX": 0, "locationY": 0,
   "object": "Case",
@@ -241,6 +261,8 @@ Every flow JSON object follows this structure. Only include properties that have
   "connector": {"targetReference": "First_Screen"}
 }
 ```
+
+> **Entry condition tip**: Use `filterFormula` for compound or negated conditions (supports `AND()`, `OR()`, `NOT()`, `ISBLANK()`). Use `filters` array for simple field comparisons.
 
 **Element arrays** (include only what the flow uses):
 
@@ -322,6 +344,8 @@ Every flow JSON object follows this structure. Only include properties that have
 - Literal number: `{"numberValue": 100}`
 - Variable/field reference: `{"elementReference": "var_Name"}` or `{"elementReference": "$Record.FieldName"}`
 - Prior value (record-triggered): `{"elementReference": "$Record__Prior.FieldName"}`
+
+> **Merge fields in strings**: `stringValue` supports merge field syntax — e.g., `{"stringValue": "Hello {!$Record.Name}"}`. Use this for email subjects, bodies, and labels instead of creating formula variables for simple string interpolation.
 
 **Pre-Deployment: Check Prerequisites** (REQUIRED for flows referencing custom fields/objects):
 
