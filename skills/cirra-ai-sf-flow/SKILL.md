@@ -164,12 +164,16 @@ Rule: `allowFinish="true"` required on all screens. Connector present → "Next"
 
 ### Phase 3: Flow Generation & Deployment (via Cirra AI)
 
-> **CRITICAL: `metadata_create` requires JSON, NOT XML**
+> **Two deployment formats — know which to use:**
 >
-> The XML templates in `assets/` are for **structural reference only** — to understand
-> element ordering and schema. Do NOT pass XML strings as a `content` property to
-> `metadata_create`. Always construct a **structured JSON object** using the format
-> reference and examples below.
+> | Path                                     | Format          | When                              |
+> | ---------------------------------------- | --------------- | --------------------------------- |
+> | `metadata_create` / `metadata_update`    | **JSON object** | Deploying via Cirra AI MCP Server |
+> | Writing `.flow-meta.xml` to `force-app/` | **XML**         | Source-controlled project files   |
+>
+> **CRITICAL**: Do NOT pass XML strings to `metadata_create`. It requires a structured
+> JSON object — use the format reference and examples below. The XML templates in
+> `assets/` are the correct reference when writing local `.flow-meta.xml` files.
 
 **Generate flow metadata**:
 Construct the complete Flow metadata as a JSON object with:
