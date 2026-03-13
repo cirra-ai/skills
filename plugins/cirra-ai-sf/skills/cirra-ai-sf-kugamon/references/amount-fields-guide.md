@@ -15,14 +15,15 @@ This creates confusion when comparing opportunity amounts to quote totals.
 
 ### On Opportunity (kuga_sub\_\_\* fields)
 
-| Field API Name                                 | Meaning                   | Example                                |
-| ---------------------------------------------- | ------------------------- | -------------------------------------- |
-| `Amount`                                       | **May be MRR or ACV**     | $10,000 (could be monthly or annual)   |
-| `kuga_sub__MonthlyRecurringRevenue__c`         | Monthly recurring revenue | $10,000/month                          |
-| `kuga_sub__AnnualContractValueInitial__c`      | Annual contract value     | $120,000/year                          |
-| `kuga_sub__TotalContractValue__c`              | Total contract value      | $120,000 (1-year) or $360,000 (3-year) |
-| `kuga_sub__AnnualRecurringRevenueCommitted__c` | Annual recurring revenue  | $120,000/year                          |
-| `kuga_sub__NonRecurringRevenue__c`             | One-time fees             | $5,000                                 |
+| Field API Name                                 | Meaning                              | Example                                |
+| ---------------------------------------------- | ------------------------------------ | -------------------------------------- |
+| `Amount`                                       | **Represents MRR (not true Amount)** | $10,000 (monthly recurring)            |
+| `kuga_sub__OpportunityAmount__c`               | **True Opportunity Amount**          | $120,000 (use this instead of Amount)  |
+| `kuga_sub__MonthlyRecurringRevenue__c`         | Monthly recurring revenue            | $10,000/month                          |
+| `kuga_sub__AnnualContractValueInitial__c`      | Annual contract value                | $120,000/year                          |
+| `kuga_sub__TotalContractValue__c`              | Total contract value                 | $120,000 (1-year) or $360,000 (3-year) |
+| `kuga_sub__AnnualRecurringRevenueCommitted__c` | Annual recurring revenue             | $120,000/year                          |
+| `kuga_sub__NonRecurringRevenue__c`             | One-time fees                        | $5,000                                 |
 
 ### On Quote (kugo2p\_\_\* fields)
 
@@ -42,7 +43,9 @@ If ANY `kuga_sub__*` fields are present on the opportunity:
    - `kuga_sub__AnnualContractValueInitial__c` (preferred), OR
    - `kuga_sub__TotalContractValue__c` (if ACV not available)
 
-**Reasoning:** In subscription orgs, `Amount` is often configured to show MRR, while quotes show annual/total values.
+**IMPORTANT:** When `kuga_sub` is installed, the standard `Amount` field represents MRR — always use `kuga_sub__OpportunityAmount__c` for the true Opportunity Amount.
+
+**Reasoning:** In subscription orgs, `Amount` shows MRR, while quotes show annual/total values. The `kuga_sub__OpportunityAmount__c` field stores the actual opportunity amount.
 
 ### When Subscription Fields Do NOT Exist
 
