@@ -20,21 +20,21 @@ Record Types exist on three objects: Opportunity, Kugamon Quote (`kugo2p__SalesQ
 - **DeveloperName:** `New_Business` (query to get the org-specific Id)
 - **When to use:** For new business opportunities with prospects or new customers
 - **Typical scenarios:** First-time sales, new logo acquisitions
-- **Order Release behavior:** Creates Contract, Assets, Subscriptions, and Renewal Opportunity (see subscription-management.md)
+- **Order Release behavior (when Subscription Management is active):** Creates Contract, Assets, Subscriptions, and Renewal Opportunity (see subscription-management.md)
 
 ### Expansion Quote
 
 - **DeveloperName:** `Expansion` (query to get the org-specific Id)
 - **When to use:** For expansion/upsell opportunities with existing customers tied to an existing Contract
 - **Typical scenarios:** Adding new products, increasing quantities, upgrading tiers
-- **Order Release behavior:** Amends existing Contract, creates Assets/Subscriptions assigned to that Contract, adds lines to existing Renewal Opportunity (see subscription-management.md)
+- **Order Release behavior (when Subscription Management is active):** Amends existing Contract, creates Assets/Subscriptions assigned to that Contract, adds lines to existing Renewal Opportunity (see subscription-management.md)
 
 ### Renewal Quote
 
 - **DeveloperName:** `Renewal` (query to get the org-specific Id)
 - **When to use:** For renewal opportunities where existing customers are renewing their contracts
 - **Typical scenarios:** Annual subscription renewals, multi-year contract renewals
-- **Order Release behavior:** Extends or replaces Contract depending on KugamonSettings.ExtendContractOnRenewal (see subscription-management.md)
+- **Order Release behavior (when Subscription Management is active):** Extends or replaces Contract depending on KugamonSettings.ExtendContractOnRenewal (see subscription-management.md)
 
 ## Mapping Opportunity to Quote/Order Record Types
 
@@ -53,11 +53,11 @@ Record Types exist on three objects: Opportunity, Kugamon Quote (`kugo2p__SalesQ
 
 ## Record Type Lifecycle Summary
 
-| Record Type   | Opportunity        | Quote           | Order           | Order Release Creates                                            |
-| ------------- | ------------------ | --------------- | --------------- | ---------------------------------------------------------------- |
-| **New**       | Initial deal       | New quote       | New order       | Contract + Assets + Subscriptions + Renewal Opp                  |
-| **Expansion** | Upsell/cross-sell  | Expansion quote | Expansion order | Amends Contract + Assets + Subscriptions + adds to Renewal Opp   |
-| **Renewal**   | Contract extension | Renewal quote   | Renewal order   | Extends/replaces Contract + Assets + Subscriptions + Renewal Opp |
+| Record Type      | Opportunity        | Quote           | Order           | Order Release Creates (when Subscription Management is active)   |
+| ---------------- | ------------------ | --------------- | --------------- | ---------------------------------------------------------------- |
+| **New Business** | Initial deal       | New quote       | New order       | Contract + Assets + Subscriptions + Renewal Opp                  |
+| **Expansion**    | Upsell/cross-sell  | Expansion quote | Expansion order | Amends Contract + Assets + Subscriptions + adds to Renewal Opp   |
+| **Renewal**      | Contract extension | Renewal quote   | Renewal order   | Extends/replaces Contract + Assets + Subscriptions + Renewal Opp |
 
 ## Key Differences by Record Type
 

@@ -7,7 +7,7 @@ Subscription Management is active when ALL of the following are true:
 1. The `kuga_sub` (Kugamon Subscriptions) package is installed
 2. The Kugamon Settings custom setting `kuga_sub__InitiateOrderSubscriptionManagement__c` is NOT null
 
-**Detection query:**
+**Detection query** (prerequisite 1 is implicitly verified — if this query fails, the `kuga_sub` package is not installed and Subscription Management is not active):
 
 ```sql
 SELECT Id, kuga_sub__InitiateOrderSubscriptionManagement__c, kuga_sub__ExtendContractOnRenewal__c
@@ -214,12 +214,12 @@ LIMIT 1
 
 ## Complete Decision Matrix
 
-| Scenario              | Contract           | Assets                                              | Subscriptions                                | Renewal Opp                          |
-| --------------------- | ------------------ | --------------------------------------------------- | -------------------------------------------- | ------------------------------------ |
-| **New**               | Create new         | Create if AdditionalProductInfo.CreateAsset != null | Create if Product2.CreateSubscription = True | Create new if any lines Renew = True |
-| **Expansion**         | Amend existing     | Create & assign to existing Contract                | Create & assign to existing Contract         | Add lines to existing Renewal Opp    |
-| **Renewal (Extend)**  | Extend existing    | Create                                              | Create                                       | Create replacement Renewal Opp       |
-| **Renewal (Replace)** | Create replacement | Create (same as New)                                | Create (same as New)                         | Create new (same as New)             |
+| Scenario              | Contract           | Assets                                                                        | Subscriptions                                               | Renewal Opp                                         |
+| --------------------- | ------------------ | ----------------------------------------------------------------------------- | ----------------------------------------------------------- | --------------------------------------------------- |
+| **New**               | Create new         | Create if `kugo2p__AdditionalProductDetail__c.kugo2p__CreateAsset__c` != null | Create if `Product2.kuga_sub__CreateSubscription__c` = True | Create new if any lines `kuga_sub__Renew__c` = True |
+| **Expansion**         | Amend existing     | Create & assign to existing Contract                                          | Create & assign to existing Contract                        | Add lines to existing Renewal Opp                   |
+| **Renewal (Extend)**  | Extend existing    | Create                                                                        | Create                                                      | Create replacement Renewal Opp                      |
+| **Renewal (Replace)** | Create replacement | Create (same as New)                                                          | Create (same as New)                                        | Create new (same as New)                            |
 
 ## Troubleshooting Order Release
 

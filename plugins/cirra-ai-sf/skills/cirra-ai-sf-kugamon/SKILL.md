@@ -66,7 +66,7 @@ LIMIT 1
 Set a second session flag:
 
 - `HAS_SUB_MGMT = true` if `kuga_sub__InitiateOrderSubscriptionManagement__c` is NOT null
-- `HAS_SUB_MGMT = false` if the field is null or the setting doesn't exist
+- `HAS_SUB_MGMT = false` if the field is null, the setting doesn't exist, or the query fails (a query failure means the object/field is not present in the org)
 
 **This flag determines whether the Order Release lifecycle (Contracts, Assets, Subscriptions, Renewal Opportunities) is active.**
 
@@ -457,9 +457,9 @@ When a Kugamon Order is Released, the system triggers different behaviors depend
 ### New Record Type — Order Release
 
 1. **Create Contract** — New Contract linked to the Account
-2. **Create Assets** (conditional) — For each Order Product Line where `AdditionalProductInfo.CreateAsset` is NOT null
-3. **Create Subscriptions** (conditional) — For each Order Service Line where `Product2.CreateSubscription` = True
-4. **Create Renewal Opportunity** (conditional) — Future-dated Renewal Opportunity if any Service Lines have `Renew` = True, populated with Opportunity Line Items
+2. **Create Assets** (conditional) — For each Order Product Line where `kugo2p__AdditionalProductDetail__c.kugo2p__CreateAsset__c` is NOT null
+3. **Create Subscriptions** (conditional) — For each Order Service Line where `Product2.kuga_sub__CreateSubscription__c` = True
+4. **Create Renewal Opportunity** (conditional) — Future-dated Renewal Opportunity if any Service Lines have `kuga_sub__Renew__c` = True, populated with Opportunity Line Items
 
 ### Expansion Record Type — Order Release
 
@@ -498,7 +498,9 @@ When a Kugamon Order is Released, the system triggers different behaviors depend
 | Create Subscriptions | Conditional\*\*         | Conditional\*\* (to Contract) | Conditional\*\*                 | Conditional\*\*         |
 | Create Renewal Opp   | Conditional\*\*\* (new) | No (add lines)                | Conditional\*\*\* (replacement) | Conditional\*\*\* (new) |
 
-\*Where `AdditionalProductInfo.CreateAsset` NOT null | **Where `Product2.CreateSubscription` = True | \***Where Service Lines `Renew` = True
+- \* Asset condition: `kugo2p__AdditionalProductDetail__c.kugo2p__CreateAsset__c` is NOT null
+- \*\* Subscription condition: `Product2.kuga_sub__CreateSubscription__c` = True
+- \*\*\* Renewal Opp condition: Order Service Line `kuga_sub__Renew__c` = True
 
 ---
 
