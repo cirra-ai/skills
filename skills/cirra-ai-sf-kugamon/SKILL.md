@@ -15,6 +15,16 @@ description: >
 
 Expert Kugamon CPQ specialist. Create, verify, and manage Salesforce opportunities, quotes, and orders using the Kugamon package (kugo2p) via the Cirra AI MCP Server. Automatically adapts workflows based on whether the kuga_sub (Kugamon Subscriptions) package is installed.
 
+## Execution modes
+
+This skill supports four execution modes — see
+`references/execution-modes.md` for detection logic and full details,
+and `references/mcp-pagination.md` for handling large MCP responses.
+
+All Kugamon operations go through MCP tools regardless of mode.
+
+---
+
 ## Core Responsibilities
 
 1. **Quote Creation**: Create Kugamon quotes from opportunities with proper record type mapping

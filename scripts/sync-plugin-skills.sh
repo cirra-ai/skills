@@ -8,9 +8,10 @@ set -euo pipefail
 # (which clone the repo directly) can find them. This script keeps those
 # copies in sync.
 #
-# Additionally, shared assets (icons from shared/assets/) are copied into
-# each skill's assets/ directory so they're available in Codex and other
-# platforms that consume standalone skills.
+# Additionally, shared assets (icons from shared/assets/) and shared
+# references (markdown from shared/references/) are copied into each
+# skill's assets/ and references/ directories so they're available in
+# Codex and other platforms that consume standalone skills.
 #
 # Matching convention: skills whose name starts with the plugin name are
 # copied into that plugin. E.g. cirra-ai-sf-apex → plugins/cirra-ai-sf/skills/
@@ -22,6 +23,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 SHARED_ASSETS="$REPO_ROOT/shared/assets"
+SHARED_REFERENCES="$REPO_ROOT/shared/references"
 CHECK_ONLY=0
 
 for arg in "$@"; do
@@ -68,6 +70,43 @@ if [[ $CHECK_ONLY -eq 0 ]] && [[ $ASSETS_SYNCED -gt 0 ]]; then
   echo "  Copied $ASSETS_SYNCED shared asset(s) into skills"
 fi
 
+# ── Copy shared references into each skill ───────────────────────────────────
+# Markdown files from shared/references/ are copied into skills/<name>/references/
+# so each skill can reference them (e.g. execution-modes.md, mcp-pagination.md).
+
+REFS_SYNCED=0
+REFS_STALE=0
+
+if [[ -d "$SHARED_REFERENCES" ]]; then
+  for skill_dir in "$REPO_ROOT"/skills/*/; do
+    [[ -d "$skill_dir" ]] || continue
+    skill_refs="$skill_dir/references"
+
+    for ref in "$SHARED_REFERENCES"/*; do
+      [[ -f "$ref" ]] || continue
+      ref_name="$(basename "$ref")"
+      dest="$skill_refs/$ref_name"
+
+      if [[ -f "$dest" ]] && cmp -s "$ref" "$dest"; then
+        continue
+      fi
+
+      if [[ $CHECK_ONLY -eq 1 ]]; then
+        echo "  STALE REF: skills/$(basename "$skill_dir")/references/$ref_name"
+        REFS_STALE=$((REFS_STALE + 1))
+      else
+        mkdir -p "$skill_refs"
+        cp "$ref" "$dest"
+        REFS_SYNCED=$((REFS_SYNCED + 1))
+      fi
+    done
+  done
+fi
+
+if [[ $CHECK_ONLY -eq 0 ]] && [[ $REFS_SYNCED -gt 0 ]]; then
+  echo "  Copied $REFS_SYNCED shared reference(s) into skills"
+fi
+
 # ── Sync skills into plugins ─────────────────────────────────────────────────
 
 SYNCED=0
@@ -111,7 +150,7 @@ for plugin_json in "$REPO_ROOT"/plugins/*/.claude-plugin/plugin.json; do
 done
 
 if [[ $CHECK_ONLY -eq 1 ]]; then
-  total_stale=$((ASSETS_STALE + STALE))
+  total_stale=$((ASSETS_STALE + REFS_STALE + STALE))
   if [[ $total_stale -gt 0 ]]; then
     echo ""
     echo "$total_stale item(s) out of sync. Run 'scripts/sync-plugin-skills.sh' to fix."

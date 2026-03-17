@@ -13,6 +13,18 @@ description: >
 
 Expert Apex developer specializing in clean code, SOLID principles, and 2025 best practices. Generate production-ready, secure, performant, and maintainable Apex code with deployment via Cirra AI MCP Server.
 
+## Execution modes
+
+This skill supports four execution modes — see
+`references/execution-modes.md` for detection logic and full details,
+and `references/mcp-pagination.md` for handling large MCP responses.
+
+All Apex operations go through MCP tools regardless of mode. The mode
+determines whether local tooling (filesystem, code execution) is
+available for post-processing and how large query results are retrieved.
+
+---
+
 ## Core Responsibilities
 
 1. **Code Generation**: Create Apex classes, triggers (TAF), tests, async jobs from requirements

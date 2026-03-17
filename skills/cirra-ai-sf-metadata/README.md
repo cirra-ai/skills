@@ -63,6 +63,19 @@ Request: "Create a custom object called Invoice__c with Amount, Status, and Due 
 | Describe Object | `sobject_describe(sObject)`          |
 | Query Metadata  | `tooling_api_query(sObject, fields)` |
 
+## Execution Modes
+
+| Mode                      | When                                              | Speed   |
+| ------------------------- | ------------------------------------------------- | ------- |
+| `sfdx-repo`               | Working directory is an SFDX project              | Fastest |
+| `cli`                     | Salesforce CLI installed and authed               | Fast    |
+| `mcp-plus-code-execution` | MCP + filesystem + code execution (Cowork, Codex) | Medium  |
+| `mcp-core`                | MCP only, no filesystem (chat interfaces)         | Slowest |
+
+All metadata operations go through MCP tools regardless of mode. The mode
+determines how large responses are handled and whether local tooling is
+available.
+
 ## Requirements
 
 - Claude Cowork or Claude Code with skill plugins enabled
