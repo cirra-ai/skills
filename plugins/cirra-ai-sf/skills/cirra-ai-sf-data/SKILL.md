@@ -91,16 +91,28 @@ cirra_ai_init -> cirra-ai-sf-metadata -> cirra-ai-sf-data (SOQL/DML) -> cirra-ai
 
 ---
 
+## Execution modes
+
+This skill supports four execution modes — see
+`references/execution-modes.md` for detection logic and full details,
+and `references/mcp-pagination.md` for artifact/pagination handling.
+
+All data operations go through MCP tools (`soql_query`, `sobject_dml`,
+etc.) regardless of mode. The mode determines how **large responses** are
+handled and whether local tooling is available for post-processing.
+
+---
+
 ## Key Insights
 
-| Insight                    | Why                                                  | Action                                                                           |
-| -------------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------- |
-| **Test with 201+ records** | Crosses 200-record batch boundary                    | Always bulk test with 201+ records (split into 200+1 batches)                    |
-| **FLS blocks access**      | "Field does not exist" often = FLS not missing field | Query using user context; not all fields visible                                 |
-| **Cleanup is essential**   | Test isolation and data hygiene                      | Always provide cleanup SOQL queries                                              |
-| **DML batch limit is 200** | MCP server enforces 200-record max per call          | Split operations into <= 200-record batches                                      |
-| **Query default is 100**   | `soql_query` returns max 100 records by default      | Set explicit `limit` param; use artifact retrieval or `Id > '<last>'` pagination |
-| **Delete uses recordIds**  | Delete param differs from insert/update              | Use `recordIds: ["id1", "id2"]` string array, not `records`                      |
+| Insight                    | Why                                                  | Action                                                               |
+| -------------------------- | ---------------------------------------------------- | -------------------------------------------------------------------- |
+| **Test with 201+ records** | Crosses 200-record batch boundary                    | Always bulk test with 201+ records (split into 200+1 batches)        |
+| **FLS blocks access**      | "Field does not exist" often = FLS not missing field | Query using user context; not all fields visible                     |
+| **Cleanup is essential**   | Test isolation and data hygiene                      | Always provide cleanup SOQL queries                                  |
+| **DML batch limit is 200** | MCP server enforces 200-record max per call          | Split operations into <= 200-record batches                          |
+| **Query default is 100**   | `soql_query` returns max 100 records by default      | Set explicit `limit` param; use artifact retrieval for large results |
+| **Delete uses recordIds**  | Delete param differs from insert/update              | Use `recordIds: ["id1", "id2"]` string array, not `records`          |
 
 ---
 
@@ -331,16 +343,13 @@ Parameters:
 ```
 
 > **Large results**: When a response includes `instructions.artifactId`, the
-> full result exceeded ~75 k and was stored as an artifact. Retrieve it via:
+> full result exceeded ~75 k and was stored as an artifact. Retrieve it
+> using the strategy for your execution mode — see
+> `references/mcp-pagination.md` for details. In short:
 >
-> - **URL fetch** (if available): download from `instructions.artifactUrl`
-> - **`fetch_more` tool**: `fetch_more(artifactId=instructions.artifactId)`
->   for the full result, or with `cursor=_pagination.nextCursor` for the
->   next page.
->
-> **Legacy pagination** (no artifact metadata in response): use
-> `orderBy="Id ASC"` and paginate with
-> `whereClause="Id > '<last_id_from_previous_batch>'"` in follow-up queries.
+> - **`mcp-plus-code-execution`**: download `instructions.artifactUrl`
+> - **`mcp-core`**: `fetch_more(artifactId=..., cursor=_pagination.nextCursor)`
+>   — cursor is **required**
 
 > **whereClause caveat**: Never pass an empty string `""` for `whereClause` — it generates malformed SQL (`WHERE ""`). Either omit the parameter entirely or use `"Id != null"` to select all records.
 

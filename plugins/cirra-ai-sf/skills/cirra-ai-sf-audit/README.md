@@ -15,7 +15,7 @@ Run a comprehensive Salesforce org audit that inventories and evaluates all majo
 - **Report generation**: Word (.docx), Excel (.xlsx), and HTML reports with per-component scores and findings
 - **Actionable summary**: Overall health score, components needing attention, findings by severity, migration priorities
 - **Incremental audits**: Re-score only components that changed since the last audit, carrying forward unchanged scores
-- **Three execution modes**: Works with local SFDX repos (fastest), Salesforce CLI, or MCP-only (cloud environments)
+- **Four execution modes**: Works with local SFDX repos (fastest), Salesforce CLI, MCP with code execution, or MCP-only
 
 ## Installation
 
@@ -48,16 +48,18 @@ Audit my Salesforce org. Previous audit is at ~/audits/2026-01/audit_output/
 
 ## Execution Modes
 
-| Mode        | When                                  | Speed   |
-| ----------- | ------------------------------------- | ------- |
-| `sfdx-repo` | Working directory is an SFDX project  | Fastest |
-| `cli`       | Salesforce CLI installed and authed   | Fast    |
-| `cloud`     | MCP-only (Cowork, cloud environments) | Slowest |
+| Mode                      | When                                              | Speed   |
+| ------------------------- | ------------------------------------------------- | ------- |
+| `sfdx-repo`               | Working directory is an SFDX project              | Fastest |
+| `cli`                     | Salesforce CLI installed and authed               | Fast    |
+| `mcp-plus-code-execution` | MCP + filesystem + code execution (Cowork, Codex) | Medium  |
+| `mcp-core`                | MCP only, no filesystem (chat interfaces)         | Slowest |
 
 The skill auto-detects the best available mode. In `sfdx-repo` mode, metadata
-is read directly from disk with no API calls for body retrieval. In `cli` mode,
-bulk retrieval uses the Salesforce CLI. In `cloud` mode, everything goes through
-MCP with cursor pagination.
+is read directly from disk. In `cli` mode, bulk retrieval uses the Salesforce
+CLI. In `mcp-plus-code-execution` mode, large responses are downloaded via
+artifact URLs for local processing. In `mcp-core` mode, large responses are
+paged through in-context with `fetch_more`.
 
 ## Cross-Skill Integration
 

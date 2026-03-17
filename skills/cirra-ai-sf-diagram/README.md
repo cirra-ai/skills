@@ -62,6 +62,18 @@ Request: "Create a JWT Bearer OAuth flow diagram"
 | Record Counts   | `soql_query(fields=["COUNT(Id)"])`          |
 | Custom Objects  | `tooling_api_query(sObject="CustomObject")` |
 
+## Execution Modes
+
+| Mode                      | When                                              | Speed   |
+| ------------------------- | ------------------------------------------------- | ------- |
+| `sfdx-repo`               | Working directory is an SFDX project              | Fastest |
+| `cli`                     | Salesforce CLI installed and authed               | Fast    |
+| `mcp-plus-code-execution` | MCP + filesystem + code execution (Cowork, Codex) | Medium  |
+| `mcp-core`                | MCP only, no filesystem (chat interfaces)         | Slowest |
+
+Diagram generation works in all modes. MCP tools are only needed for
+org-connected ERD diagrams.
+
 ## Requirements
 
 - Claude Cowork or Claude Code with skill plugins enabled

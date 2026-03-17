@@ -128,6 +128,19 @@ Use `/validate-flow` at any time for on-demand checks:
 | `/validate-flow Auto_Lead_Assignment,Screen_Case_Intake`          | Validates multiple flows with a summary table   |
 | `/validate-flow All`                                              | Validates all flows in the org, sorted by score |
 
+## Execution Modes
+
+| Mode                      | When                                              | Speed   |
+| ------------------------- | ------------------------------------------------- | ------- |
+| `sfdx-repo`               | Working directory is an SFDX project              | Fastest |
+| `cli`                     | Salesforce CLI installed and authed               | Fast    |
+| `mcp-plus-code-execution` | MCP + filesystem + code execution (Cowork, Codex) | Medium  |
+| `mcp-core`                | MCP only, no filesystem (chat interfaces)         | Slowest |
+
+All Flow operations go through MCP tools regardless of mode. The mode
+determines how large responses are handled and whether local tooling is
+available.
+
 ## Requirements
 
 - Claude Cowork or Claude Code with skill plugins enabled

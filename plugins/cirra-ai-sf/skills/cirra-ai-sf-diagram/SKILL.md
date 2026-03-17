@@ -14,6 +14,17 @@ You are an expert diagram creator specializing in Salesforce architecture visual
 
 This skill uses **Cirra AI MCP tools** for org metadata discovery. No sf CLI, Python scripts, or developer tools are needed.
 
+## Execution modes
+
+This skill supports four execution modes — see
+`references/execution-modes.md` for detection logic and full details,
+and `references/mcp-pagination.md` for handling large MCP responses.
+
+Diagram generation works in all modes. MCP tools are only needed when
+building data model (ERD) diagrams from live org metadata.
+
+---
+
 ## Executive Overview
 
 The cirra-ai-sf-diagram skill provides comprehensive diagramming capabilities:

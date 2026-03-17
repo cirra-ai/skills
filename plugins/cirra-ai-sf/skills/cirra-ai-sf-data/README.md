@@ -55,6 +55,18 @@ Request: "Create 251 test Account records with varying Industries for trigger te
 | Delete           | "Delete all test records with Name LIKE 'Test%'"         |
 | Cleanup          | "Generate cleanup script for all records created today"  |
 
+## Execution Modes
+
+| Mode                      | When                                              | Speed   |
+| ------------------------- | ------------------------------------------------- | ------- |
+| `sfdx-repo`               | Working directory is an SFDX project              | Fastest |
+| `cli`                     | Salesforce CLI installed and authed               | Fast    |
+| `mcp-plus-code-execution` | MCP + filesystem + code execution (Cowork, Codex) | Medium  |
+| `mcp-core`                | MCP only, no filesystem (chat interfaces)         | Slowest |
+
+All data operations go through MCP tools regardless of mode. The mode
+determines how large query results are retrieved — see the skill for details.
+
 ## Related Skills
 
 | Skill                   | When to Use                                              |

@@ -54,92 +54,49 @@ Call `cirra_ai_init()` first if not already done this session.
 
 ---
 
-## Environment detection
+## Execution modes
 
-Determine execution mode once, before Phase A. Three modes are supported:
+Determine execution mode once, before Phase A. Four modes are supported —
+see `references/execution-modes.md` for detection logic and full details.
 
-### Mode 1 — `sfdx-repo` (metadata on disk)
+### Audit-specific mode behaviour
 
-The working directory (or a user-specified path) is a Salesforce DX project
-with metadata already retrieved.
+| Mode                      | Body retrieval                      | Queries                |
+| ------------------------- | ----------------------------------- | ---------------------- |
+| `sfdx-repo`               | Read from disk (no API calls)       | MCP for live-only data |
+| `cli`                     | `sf project retrieve start -m`      | `sf data query --json` |
+| `mcp-plus-code-execution` | MCP tools; download `artifactUrl`   | MCP tools              |
+| `mcp-core`                | MCP tools; `fetch_more` with cursor | MCP tools              |
 
-**Detection:**
+**`sfdx-repo` specifics:**
 
-```bash
-test -f sfdx-project.json && echo "SFDX project found"
-```
+- Read `.cls`, `.trigger`, `.flow-meta.xml`, and LWC bundles from disk.
+- Still use MCP for live-only data: permission assignments, user counts,
+  PSG status, active user queries.
+- For incremental audits: use `git log` to detect changed files (Phase A3).
 
-If found, read `sfdx-project.json` to locate the source directory (usually
-`force-app/main/default`). Verify key subdirectories exist:
+**`cli` specifics:**
 
-```bash
-ls force-app/main/default/classes/ force-app/main/default/triggers/ \
-   force-app/main/default/flows/ force-app/main/default/lwc/ 2>/dev/null
-```
+- Bulk retrieve via `sf project retrieve start -m <type>`.
+- Queries via `sf data query -q "..." --target-org <org> --json`.
+- For incremental audits: filter by `LastModifiedDate` in queries.
 
-Ask the user to confirm: "I found an SFDX project at {path}. Should I use
-the local metadata for the audit? If the repo is out of date with the org,
-results may differ from a live audit."
+**`mcp-plus-code-execution` specifics:**
 
-**In this mode:**
+- Bulk query first (e.g. `tooling_api_query: SELECT Id, Name, Body FROM
+ApexClass WHERE NamespacePrefix = null ORDER BY Id`).
+- When the response includes `instructions.artifactUrl`, download it and
+  write the JSON to `./audit_output/intermediate/` for local processing.
+- Run `pre_score.py` on the downloaded files (Strategy A).
 
-- Read `.cls`, `.trigger`, `.flow-meta.xml`, and LWC bundles directly from disk
-- No API calls for body retrieval — fastest mode
-- Still use MCP for live-only data: permission assignments, user counts, PSG
-  status, active user queries
-- For incremental audits: use `git log` to detect changed files (see Phase A3)
+**`mcp-core` specifics:**
 
-### Mode 2 — `cli` (Salesforce CLI available)
-
-The Salesforce CLI is installed and authenticated to the target org.
-
-**Detection:**
-
-```bash
-command -v sf >/dev/null 2>&1 && sf --version
-```
-
-If the CLI is present, verify the target org is usable:
-
-```bash
-sf org display --target-org <alias-or-username> --json 2>/dev/null
-```
-
-Compare the target org from `sf org display` against the org selected during
-`cirra_ai_init()`. If the tool response exposes an OrgId, compare OrgIds; if it
-only exposes username/alias, compare that instead. If they differ, warn the
-user and fall back to `cloud`.
-
-**In this mode:**
-
-- Bulk retrieve via `sf project retrieve start -m <type>`
-- Queries via `sf data query` with `--json` output
-- Use consistent `sf data query -q "..." --target-org <org> --json` patterns
-  so the user only needs to grant CLI permission once in Claude Code
-- For incremental audits: filter by `LastModifiedDate` in queries
-
-### Mode 3 — `cloud` (MCP only)
-
-Fallback when neither an SFDX project nor an authenticated CLI is available.
-
-**In this mode:**
-
-- All metadata via `tooling_api_query`, `metadata_read`, `soql_query`
-- One record at a time for bodies; cursor pagination for lists
-- For incremental audits: filter by `LastModifiedDate` in queries
-
-### Mode summary
-
-| Mode        | Body retrieval      | Queries         | Speed   |
-| ----------- | ------------------- | --------------- | ------- |
-| `sfdx-repo` | Local filesystem    | MCP (live-only) | Fastest |
-| `cli`       | `sf` CLI bulk       | `sf data query` | Fast    |
-| `cloud`     | MCP (one at a time) | MCP (paginated) | Slowest |
+- Same bulk queries, but page through large responses with
+  `fetch_more(artifactId=..., cursor=_pagination.nextCursor)`.
+- Process in batches of 5; discard bodies between batches (Strategy B).
 
 In all modes, use MCP tools (`soql_query`, `tooling_api_query`,
-`sobject_describe`) for targeted lookups when CLI is not available or not
-needed. The CLI is preferred only for bulk operations because it avoids
-per-record API calls.
+`sobject_describe`) for targeted lookups when CLI is not needed.
 
 ---
 
@@ -164,11 +121,12 @@ From the previous `audit_state.md`, extract:
 
 ### Delta detection (per mode)
 
-| Mode        | How to find changed components                                               |
-| ----------- | ---------------------------------------------------------------------------- |
-| `sfdx-repo` | `git log --after="<prev_date>" --name-only --diff-filter=ACMR -- force-app/` |
-| `cli`       | Add `AND LastModifiedDate > <prev_date>` to Tooling/SOQL queries             |
-| `cloud`     | Add `AND LastModifiedDate > <prev_date>` to Tooling/SOQL queries             |
+| Mode                      | How to find changed components                                               |
+| ------------------------- | ---------------------------------------------------------------------------- |
+| `sfdx-repo`               | `git log --after="<prev_date>" --name-only --diff-filter=ACMR -- force-app/` |
+| `cli`                     | Add `AND LastModifiedDate > <prev_date>` to Tooling/SOQL queries             |
+| `mcp-plus-code-execution` | Add `AND LastModifiedDate > <prev_date>` to Tooling/SOQL queries             |
+| `mcp-core`                | Add `AND LastModifiedDate > <prev_date>` to Tooling/SOQL queries             |
 
 ### Delta categories
 
@@ -187,37 +145,17 @@ Track these categories in `audit_state.md` and in the final reports.
 
 ## Handling large MCP responses
 
-When an MCP tool response exceeds ~75 k characters, the server returns a
-**truncated preview** plus retrieval metadata instead of the full result:
+See `references/mcp-pagination.md` for the full artifact and pagination
+reference. Key points for audits:
 
-```json
-{
-  "records": [
-    /* up to 3 preview records */
-  ],
-  "instructions": {
-    "artifactId": "abc123",
-    "artifactUrl": "https://..."
-  },
-  "_pagination": {
-    "nextCursor": "cursor_string"
-  }
-}
-```
-
-When you see `instructions.artifactId` in a response, the full data was NOT
-returned inline. Retrieve it using the strategy that matches your environment:
-
-| Environment                            | Retrieval strategy                                                                                         |
-| -------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| IDE-based (Claude Code, Cowork, Codex) | Fetch `instructions.artifactUrl`, write JSON to `./audit_output/intermediate/`, run `pre_score.py` on disk |
-| Conversational (URL-capable)           | Fetch `instructions.artifactUrl` to get the full result                                                    |
-| Conversational (no URL fetch)          | Call `fetch_more(artifactId=instructions.artifactId)` for the full artifact                                |
-| Pagination (any environment)           | Call `fetch_more(artifactId=..., cursor=_pagination.nextCursor)` for the next page                         |
-
-**Legacy fallback** — if the response does NOT contain `instructions`,
-paginate manually with `ORDER BY Id` + `Id > '<lastId>'`, 50–100 rows per
-call. This applies to older MCP server versions.
+- **`mcp-plus-code-execution`**: download `instructions.artifactUrl` and
+  write JSON to `./audit_output/intermediate/` for local processing with
+  `pre_score.py`.
+- **`mcp-core`**: page through with
+  `fetch_more(artifactId=..., cursor=_pagination.nextCursor)`. Process in
+  batches of 5; discard bodies between batches.
+- **`sfdx-repo` / `cli`**: bodies come from disk or CLI — artifact
+  responses are uncommon.
 
 ### Additional MCP constraints
 
@@ -245,7 +183,7 @@ The Quick Pass is a lightweight inventory. It fetches only metadata headers
 
 ### A1 — Component counts
 
-**cloud / cli mode** — query counts:
+**cli / MCP modes** — query counts:
 
 ```
 tooling_api_query: SELECT COUNT(Id) total FROM ApexClass WHERE NamespacePrefix = null
@@ -277,7 +215,7 @@ PSGs, user counts).
 
 Fetch name, size, and API version — no body — for all local Apex classes.
 
-**cloud / cli mode:**
+**cli / MCP modes:**
 
 ```
 tooling_api_query: SELECT Id, Name, LengthWithoutComments, ApiVersion
@@ -286,7 +224,8 @@ tooling_api_query: SELECT Id, Name, LengthWithoutComments, ApiVersion
   ORDER BY Id
 ```
 
-Paginate with `Id > '<lastId>'` cursor, 100 rows per call.
+If the response includes `instructions.artifactId`, retrieve using the
+strategy for your execution mode (see `references/mcp-pagination.md`).
 
 **sfdx-repo mode** — read `-meta.xml` files for ApiVersion; use file size as
 a proxy for `LengthWithoutComments`.
@@ -311,7 +250,7 @@ git log --after="<prev_audit_date>" --name-only --diff-filter=ACMR \
 
 Parse the output to identify changed files. Map file paths to component names.
 
-**cli / cloud mode:**
+**cli / MCP modes:**
 
 Add `AND LastModifiedDate > <prev_audit_date>` to the A2 query and equivalent
 queries for triggers, flows, and LWC. Components not in the result set are
@@ -352,7 +291,7 @@ Create `./audit_output/audit_state.md` with the Quick Pass results:
 
 ## Mode
 
-EXEC_MODE: sfdx-repo | cli | cloud
+EXEC_MODE: sfdx-repo | cli | mcp-plus-code-execution | mcp-core
 AUDIT_TYPE: fresh | incremental (previous: {PREV_DATE})
 
 ## Component Inventory (Phase A complete)
@@ -480,7 +419,7 @@ Present something like:
 **Delta since {PREV_DATE}:** {D} components changed, {N} new, {R} removed.
 {U} unchanged scores will be carried forward.
 
-[If cloud mode:]
+[If mcp-plus-code-execution or mcp-core mode:]
 **Estimated cost:** ~{total} sequential API calls.
 For reference: 500 classes ~ 500 API calls ~ 20-40 minutes.
 
@@ -539,11 +478,11 @@ generate reports based on what Phase A collected. Mark unscored domains as
 
 Choose your processing strategy based on what the environment supports:
 
-**Strategy A — Pre-score on disk** (IDE-based — filesystem and Python
-available):
+**Strategy A — Pre-score on disk** (`sfdx-repo`, `cli`, or
+`mcp-plus-code-execution`):
 
-1. Fetch all bodies to `./audit_output/intermediate/` (via artifact URL, CLI
-   bulk retrieve, or local filesystem — whichever mode applies)
+1. Fetch all bodies to `./audit_output/intermediate/` (via local filesystem,
+   CLI bulk retrieve, or `artifactUrl` download — whichever mode applies)
 2. Run the pre-scoring orchestrator:
    ```bash
    python scripts/pre_score.py \
@@ -561,10 +500,10 @@ available):
 This strategy keeps component bodies **out of context entirely** for the
 majority of components, allowing audits of 500+ component orgs.
 
-**Strategy B — Batch in context** (conversational — no filesystem):
+**Strategy B — Batch in context** (`mcp-core`):
 
 1. Process components in batches of **5** (not 20). For each component:
-   a. Fetch the body (via artifact URL, `fetch_more`, or direct query)
+   a. Fetch the body (via `fetch_more` with cursor, or direct query)
    b. Score it against the rubric
    c. Record the score in `audit_state.md` under `## Scores Accumulated`
    as one row: `| Name | Score/Max | Top Issue |`
@@ -572,8 +511,9 @@ majority of components, allowing audits of 500+ component orgs.
 2. Never hold more than 2 component bodies in context simultaneously.
 3. After each batch of 5, update `audit_state.md` with progress.
 
-**How to detect the environment:** If you can write files to disk and execute
-`python --version`, use Strategy A. Otherwise, use Strategy B.
+**How to choose:** Use Strategy A in `sfdx-repo`, `cli`, or
+`mcp-plus-code-execution` mode. Use Strategy B in `mcp-core` mode.
+See `references/execution-modes.md` for detection logic.
 
 ---
 
@@ -594,12 +534,12 @@ previous scores for unchanged components. Mark removed components.
    - **sfdx-repo**: read from `force-app/main/default/classes/<ClassName>.cls`
    - **cli**: `sf project retrieve start -m ApexClass --target-org <org>`
      (bulk, one CLI call for all classes)
-   - **cloud**: bulk query first — `tooling_api_query: SELECT Id, Name, Body
-FROM ApexClass WHERE NamespacePrefix = null ORDER BY Id`. If the
-     response contains `instructions.artifactId`, retrieve via artifact URL
-     or `fetch_more` (see "Handling large MCP responses"). Fall back to
-     `SELECT Body FROM ApexClass WHERE Id = '<id>'` one at a time only if
-     bulk query is not available.
+   - **MCP modes**: bulk query first — `tooling_api_query: SELECT Id, Name,
+Body FROM ApexClass WHERE NamespacePrefix = null ORDER BY Id`. If the
+     response includes `instructions.artifactId`, retrieve using the
+     strategy for your mode (see `references/mcp-pagination.md`). Fall back
+     to `SELECT Body FROM ApexClass WHERE Id = '<id>'` one at a time only
+     if bulk query is not available.
 2. Write each body to `./audit_output/intermediate/apex/<ClassName>.cls`
 3. Score using the 150-point rubric from `cirra-ai-sf-apex`
 4. Track: class name, score, top 3 issues
@@ -631,7 +571,7 @@ Update `audit_state.md`: mark C1 complete, record aggregate stats.
 2. Fetch `Body`:
    - **sfdx-repo**: read from `force-app/main/default/triggers/<Name>.trigger`
    - **cli**: `sf project retrieve start -m ApexTrigger --target-org <org>`
-   - **cloud**: bulk query with artifact retrieval (same pattern as C1).
+   - **MCP modes**: bulk query with artifact retrieval (same pattern as C1).
      Fall back to `SELECT Body FROM ApexTrigger WHERE Id = '<id>'` one at a
      time if needed.
 3. Write each to `./audit_output/intermediate/triggers/<TriggerName>.trigger`
@@ -658,8 +598,8 @@ Use the Flow ID list from Phase A4.
 1. Fetch flow definitions:
    - **sfdx-repo**: read from `force-app/main/default/flows/<Name>.flow-meta.xml`
    - **cli**: `sf project retrieve start -m Flow --target-org <org>`
-   - **cloud**: `tooling_api_query` on `Flow` WHERE `Id = '<id>'` (one row
-     per ID — single-row constraint applies)
+   - **MCP modes**: `tooling_api_query` on `Flow` WHERE `Id = '<id>'` (one
+     row per ID — single-row constraint applies)
 2. Write each to `./audit_output/intermediate/flows/<DeveloperName>.flow-meta.xml`
 3. Score using the 110-point rubric from `cirra-ai-sf-flow`
 4. Separate Process Builders (`ProcessType = 'Workflow'`) — inventory only,
@@ -694,8 +634,8 @@ Update `audit_state.md`: mark C4 complete.
 1. Fetch component source:
    - **sfdx-repo**: read from `force-app/main/default/lwc/<Name>/`
    - **cli**: `sf project retrieve start -m LightningComponentBundle --target-org <org>`
-   - **cloud**: `metadata_read` or `LightningComponentResource` Tooling query
-     grouped by bundle ID
+   - **MCP modes**: `metadata_read` or `LightningComponentResource` Tooling
+     query grouped by bundle ID
 2. Write each to `./audit_output/intermediate/lwc/<DeveloperName>/`
 3. Score using the 165-point rubric from `cirra-ai-sf-lwc`
 4. After every 10 components, update `audit_state.md`
@@ -980,8 +920,8 @@ Update `audit_state.md`: mark all phases complete.
 
 - metadata_create
 - metadata_update
-- fetch_more — retrieve full data from large responses (used when the client
-  cannot fetch artifact URLs directly)
+- fetch_more — paginate through large responses with cursor (`mcp-core`
+  mode; see `references/mcp-pagination.md`)
 
 ### Local execution tools
 
