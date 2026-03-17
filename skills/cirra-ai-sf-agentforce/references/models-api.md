@@ -9,7 +9,7 @@
 
 ## Overview
 
-The **Agentforce Models API** enables native LLM access directly from Apex code without external HTTP callouts. This API is part of the `aiplatform` namespace and provides access to Salesforce-managed AI models.
+The **Agentforce Models API** enables native LLM access directly from Apex code without requiring configuration of external HTTP endpoints (such as Remote Site Settings or named credentials). Calls are handled by Salesforce as platform-native services but still use Apex callout infrastructure, so they count against callout limits and must run in callout-capable contexts when used asynchronously. This API is part of the `aiplatform` namespace and provides access to Salesforce-managed AI models.
 
 ---
 

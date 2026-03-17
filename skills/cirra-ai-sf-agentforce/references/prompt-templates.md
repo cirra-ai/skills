@@ -573,6 +573,11 @@ public class PromptTemplateService {
                 input
             );
 
+        // Ensure a generation was returned before accessing the first element
+        if (result == null || result.generations == null || result.generations.isEmpty()) {
+            return null;
+        }
+
         return result.generations[0].text;
     }
 }

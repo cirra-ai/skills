@@ -545,9 +545,14 @@ Manage agent state via CLI (`cli` mode only — requires agent to be published f
 
 **Tier 2: Detailed References**
 
+| Document                                                 | Description                                                       | Read When                 |
+| -------------------------------------------------------- | ----------------------------------------------------------------- | ------------------------- |
+| [references/cli-commands.md](references/cli-commands.md) | CLI command reference for agent lifecycle, generation, publishing | Using `sf agent` commands |
+
+**Tier 3: Deep-Dive References**
+
 | Document                                                                     | Description                                                            | Read When                             |
 | ---------------------------------------------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------- |
-| [references/cli-commands.md](references/cli-commands.md)                     | CLI command reference for agent lifecycle, generation, publishing      | Using `sf agent` commands             |
 | [references/prompt-templates.md](references/prompt-templates.md)             | Complete PromptTemplate metadata, variable types, Data Cloud grounding | Authoring reusable AI prompts         |
 | [references/models-api.md](references/models-api.md)                         | `aiplatform.ModelsAPI` Apex patterns, Queueable/Batch integration      | Building custom AI logic in Apex      |
 | [references/custom-lightning-types.md](references/custom-lightning-types.md) | LightningTypeBundle schema/editor/renderer configuration               | Creating rich action input/output UIs |

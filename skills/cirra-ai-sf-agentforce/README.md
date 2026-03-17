@@ -17,12 +17,12 @@ Standard Agentforce platform skill for Setup UI-based agent building, PromptTemp
 
 ## What This Skill Does NOT Cover
 
-| Area                                     | Use Instead         |
-| ---------------------------------------- | ------------------- |
-| Agent Script DSL (`.agent` files)        | Agent Script skill  |
-| Agent testing & coverage                 | Agent testing skill |
-| Flow creation for actions                | cirra-ai-sf-flow    |
-| Apex InvocableMethod classes for actions | cirra-ai-sf-apex    |
+| Area                                     | Use Instead                 |
+| ---------------------------------------- | --------------------------- |
+| Agent Script DSL (`.agent` files)        | Agent Script skill          |
+| Agent testing & coverage                 | Out of scope for this skill |
+| Flow creation for actions                | cirra-ai-sf-flow            |
+| Apex InvocableMethod classes for actions | cirra-ai-sf-apex            |
 
 ## Installation
 
@@ -56,11 +56,17 @@ The skill auto-detects the best available mode. In `sfdx-repo` mode, GenAiFuncti
 
 ## Requirements
 
-| Requirement | Value                              |
-| ----------- | ---------------------------------- |
-| API Version | **66.0+** (Spring '26 or later)    |
-| Licenses    | Agentforce, Einstein Generative AI |
-| sf CLI      | v2.x with agent commands           |
+| Requirement | Value                                              |
+| ----------- | -------------------------------------------------- |
+| API Version | **Per feature** (see breakdown below; 66.0+ ideal) |
+| Licenses    | Agentforce, Einstein Generative AI                 |
+| sf CLI      | v2.x with agent commands                           |
+
+**API version breakdown**
+
+- Models API (Apex `aiplatform.ModelsAPI`): **61.0+**
+- Custom Lightning Types (`LightningTypeBundle`): **64.0+**
+- Full Agentforce Builder workflow as described here: **66.0+** (recommended)
 
 ## Scoring System (100 Points)
 
