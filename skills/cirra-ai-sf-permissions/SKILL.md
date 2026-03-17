@@ -28,6 +28,16 @@ The cirra-ai-sf-permissions skill provides comprehensive permission analysis:
 
 ---
 
+## Execution modes
+
+This skill supports four execution modes — see
+`references/execution-modes.md` for detection logic and full details,
+and `references/mcp-pagination.md` for handling large MCP responses.
+
+All permission operations go through MCP tools regardless of mode. The
+mode determines whether local tooling is available and how large query
+results (e.g. PermissionSet/PSG datasets) are retrieved.
+
 ## Execution Model
 
 **REMOTE-ONLY MODE**: Cirra AI MCP operates directly against Salesforce orgs.
