@@ -156,7 +156,7 @@ if [[ $CHECK_ONLY -eq 1 ]]; then
     echo "$total_stale item(s) out of sync. Run 'scripts/sync-plugin-skills.sh' to fix."
     exit 1
   else
-    echo "All plugin skills and shared assets are in sync."
+    echo "All plugin skills, shared assets, and shared references are in sync."
   fi
 else
   if [[ $SYNCED -gt 0 ]]; then
