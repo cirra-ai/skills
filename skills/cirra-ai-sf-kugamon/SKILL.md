@@ -1,19 +1,20 @@
 ---
 name: cirra-ai-sf-kugamon
 metadata:
-  version: 1.1.0
+  version: 1.2.0
 description: >
-  Kugamon CPQ quote management for Salesforce via Cirra AI MCP Server. Use when
-  creating, verifying, or managing opportunities, quotes, and orders with the
-  Kugamon package (kugo2p). Automatically detects whether the kuga_sub
-  (Kugamon Subscriptions) package is installed and adapts the workflow accordingly.
-  Handles renewal, new business, and expansion quotes with proper record type
-  mapping, automatic line item population, and accurate amount field interpretation.
+  Kugamon CPQ quote and subscription management for Salesforce via Cirra AI MCP Server.
+  Use when creating, verifying, or managing opportunities, quotes, orders, contracts,
+  assets, subscriptions, or renewals with the Kugamon package (kugo2p). Automatically
+  detects whether the kuga_sub (Kugamon Subscriptions) package is installed and adapts
+  the workflow accordingly. Handles New, Expansion, and Renewal record types with proper
+  record type mapping, automatic line item population, accurate amount field interpretation,
+  and full Order Release lifecycle (Contract, Asset, Subscription, and Renewal Opportunity creation).
 ---
 
-# cirra-ai-sf-kugamon: Kugamon CPQ Quote Management with Cirra AI
+# cirra-ai-sf-kugamon: Kugamon CPQ Quote & Subscription Management with Cirra AI
 
-Expert Kugamon CPQ specialist. Create, verify, and manage Salesforce opportunities, quotes, and orders using the Kugamon package (kugo2p) via the Cirra AI MCP Server. Automatically adapts workflows based on whether the kuga_sub (Kugamon Subscriptions) package is installed.
+Expert Kugamon CPQ and Subscription Management specialist. Create, verify, and manage Salesforce opportunities, quotes, orders, and the full Order Release lifecycle using the Kugamon package (kugo2p) via the Cirra AI MCP Server. Automatically adapts workflows based on whether the kuga_sub (Kugamon Subscriptions) package is installed.
 
 ## Core Responsibilities
 
@@ -21,6 +22,7 @@ Expert Kugamon CPQ specialist. Create, verify, and manage Salesforce opportuniti
 2. **Line Item Management**: Handle product and service line separation with correct Renew field settings
 3. **Consistency Checking**: Keep quotes and opportunity line items in sync
 4. **Amount Interpretation**: Correctly interpret MRR, ARR, ACV, and TCV fields across subscription and non-subscription orgs
+5. **Subscription Management**: Manage the Order Release lifecycle — Contract creation, Asset creation, Subscription creation, and Renewal Opportunity generation across New, Expansion, and Renewal record types
 
 ---
 
@@ -53,6 +55,21 @@ Set a session flag:
 
 **This flag determines which workflow to follow throughout the entire process.**
 
+**THEN**: If HAS_KUGA_SUB = true, detect Subscription Management:
+
+```sql
+SELECT Id, kuga_sub__InitiateOrderSubscriptionManagement__c
+FROM kuga_sub__KugamonSettings__c
+LIMIT 1
+```
+
+Set a second session flag:
+
+- `HAS_SUB_MGMT = true` if `kuga_sub__InitiateOrderSubscriptionManagement__c` is NOT null
+- `HAS_SUB_MGMT = false` if the field is null, the setting doesn't exist, or the query fails (a query failure means the object/field is not present in the org)
+
+**This flag determines whether the Order Release lifecycle (Contracts, Assets, Subscriptions, Renewal Opportunities) is active.**
+
 ### Phase 2: Creating Opportunities and Line Items (If Needed)
 
 #### Creating the Opportunity
@@ -67,7 +84,7 @@ Set a session flag:
 
 **Recommended Optional Fields:**
 
-- `Amount` — Total opportunity value (will be overridden by line item totals if products are added)
+- `Amount` — Total opportunity value (will be overridden by line item totals if products are added). **Note:** If `HAS_KUGA_SUB = true`, ignore the standard `Amount` field — it is a raw Qty × Price sum that does not factor Service Term and may include non-subscription products. Use `kuga_sub__OpportunityAmount__c` to read the true Opportunity Amount instead.
 - `Type` — Opportunity type (e.g., "New Business", "Existing Business")
 - `RecordTypeId` — Set to match quote type if known (New, Renewal, or Expansion)
 
@@ -155,7 +172,7 @@ When a user requests quote creation, gather complete context.
 ##### If HAS_KUGA_SUB = true:
 
 ```sql
-SELECT Id, Name, AccountId, Amount, StageName, CloseDate, Pricebook2Id, RecordType.Name,
+SELECT Id, Name, AccountId, Amount, kuga_sub__OpportunityAmount__c, StageName, CloseDate, Pricebook2Id, RecordType.Name,
        kuga_sub__MonthlyRecurringRevenue__c, kuga_sub__AnnualContractValueInitial__c,
        kuga_sub__TotalContractValue__c, kuga_sub__AnnualRecurringRevenueCommitted__c,
        kuga_sub__NonRecurringRevenue__c
@@ -273,8 +290,9 @@ ORDER BY kugo2p__Line__c
 
 If subscription fields exist (any `kuga_sub__*` fields present on opportunity):
 
+- **Ignore the standard `Amount` field** — it is a raw Qty × Price sum that does not factor Service Term and may include non-subscription products
+- **Use `kuga_sub__OpportunityAmount__c` for the true Opportunity Amount**
 - Compare `kugo2p__TotalAmount__c` (quote) to `kuga_sub__AnnualContractValueInitial__c` or `kuga_sub__TotalContractValue__c` (opportunity)
-- Note: `Amount` field likely represents MRR, not annual value
 
 If subscription fields do NOT exist:
 
@@ -381,7 +399,7 @@ See references/field-reference.md for complete field details.
 
 **Quote total doesn't match opportunity Amount:**
 
-- **If HAS_KUGA_SUB = true**: Check if subscription fields exist. Amount may be MRR while quote shows ACV.
+- **If HAS_KUGA_SUB = true**: Ignore the standard `Amount` field (raw Qty × Price, unreliable). Compare quote to `kuga_sub__OpportunityAmount__c` or `kuga_sub__AnnualContractValueInitial__c` instead.
 - **If HAS_KUGA_SUB = false**: Quote total should match the sum of all opportunity line item totals.
 
 **Line items not auto-populating:**
@@ -403,6 +421,86 @@ Set `HAS_KUGA_SUB = false` and follow the non-subscription workflow. The Kugamon
 
 **Quote and opportunity line items are out of sync:**
 Follow the Consistency Checking workflow above. Always update BOTH sides unless explicitly told not to.
+
+**Order Release did not create expected Assets/Subscriptions/Renewal Opportunity:**
+
+1. Check Subscription Management is active: Query `kuga_sub__KugamonSettings__c` for `kuga_sub__InitiateOrderSubscriptionManagement__c` — must be NOT null
+2. Assets not created: Check if Order Product Lines' corresponding `kugo2p__AdditionalProductDetail__c.kugo2p__CreateAsset__c` is NOT null
+3. Subscriptions not created: Check if Order Service Lines' corresponding `Product2.kuga_sub__CreateSubscription__c` = True
+4. Renewal Opportunity not created: Check if any Order Service Lines have `kuga_sub__Renew__c` = True
+5. For Expansion Orders: Verify the Order has `Contract Number` and `Renewal Opportunity Name` populated
+6. For Renewal Orders: Verify the Order has `Contract Number` populated
+
+**Renewal Order created a new Contract instead of extending (or vice versa):**
+Check `kuga_sub__ExtendContractOnRenewal__c` in KugamonSettings. True = extend Contract; False = create replacement Contract.
+
+---
+
+## Order Release Lifecycle (Subscription Management)
+
+**PREREQUISITE:** `HAS_SUB_MGMT = true` (Kugamon Subscription Management is active)
+
+When a Kugamon Order is Released, the system triggers different behaviors depending on the Order's Record Type. The Record Type on the Order inherits from the parent Opportunity/Quote Record Type. See references/subscription-management.md for full details.
+
+**Key configuration fields that control behavior:**
+
+| Object                               | Field                                              | Controls                                                    |
+| ------------------------------------ | -------------------------------------------------- | ----------------------------------------------------------- |
+| `kuga_sub__KugamonSettings__c`       | `kuga_sub__InitiateOrderSubscriptionManagement__c` | Enables Subscription Mgmt (must be NOT null)                |
+| `kuga_sub__KugamonSettings__c`       | `kuga_sub__ExtendContractOnRenewal__c`             | True = extend Contract on renewal; False = replace          |
+| `kugo2p__AdditionalProductDetail__c` | `kugo2p__CreateAsset__c`                           | If NOT null, Asset created on Order Product Line release    |
+| `Product2`                           | `kuga_sub__CreateSubscription__c`                  | If True, Subscription created on Order Service Line release |
+| Order Service Line                   | `kuga_sub__Renew__c`                               | If True, generates Renewal Opportunity Line Item            |
+| `kugo2p__SalesOrder__c`              | Contract Number                                    | Links to existing Contract (required for Expansion/Renewal) |
+| `kugo2p__SalesOrder__c`              | Renewal Opportunity Name                           | Links to existing Renewal Opp (used by Expansion)           |
+
+### New Record Type — Order Release
+
+1. **Create Contract** — New Contract linked to the Account
+2. **Create Assets** (conditional) — For each Order Product Line where `kugo2p__AdditionalProductDetail__c.kugo2p__CreateAsset__c` is NOT null
+3. **Create Subscriptions** (conditional) — For each Order Service Line where `Product2.kuga_sub__CreateSubscription__c` = True
+4. **Create Renewal Opportunity** (conditional) — Future-dated Renewal Opportunity if any Service Lines have `kuga_sub__Renew__c` = True, populated with Opportunity Line Items
+
+### Expansion Record Type — Order Release
+
+**Prerequisites:** Order must have `Contract Number` and `Renewal Opportunity Name` populated.
+
+1. **Amend existing Contract** — Contract referenced by Order's `Contract Number` is amended (NOT a new Contract)
+2. **Create Assets** (conditional) — Assigned to the existing Contract
+3. **Create Subscriptions** (conditional) — Assigned to the existing Contract
+4. **Add lines to existing Renewal Opportunity** — Renewable Service Lines added as Opportunity Line Items to the existing Renewal Opportunity
+
+### Renewal Record Type — Order Release
+
+**Prerequisites:** Order must have `Contract Number` populated.
+
+**If `ExtendContractOnRenewal` = True:**
+
+1. **Extend existing Contract** — Amend/extend the existing Contract
+2. **Create Assets** (conditional)
+3. **Create Subscriptions** (conditional)
+4. **Create Replacement Renewal Opportunity** (conditional) — New future-dated Renewal Opportunity replaces the previous one
+
+**If `ExtendContractOnRenewal` = False:**
+
+1. **Amend existing Contract** — Original Contract amended/closed
+2. **Create Replacement Contract** — Brand new Contract created
+3. **Create Assets** (conditional) — Same behavior as New
+4. **Create Subscriptions** (conditional) — Same behavior as New
+5. **Create Renewal Opportunity** (conditional) — Same behavior as New
+
+### Record Type Behavior Matrix
+
+| Action               | New                     | Expansion                     | Renewal (Extend)                | Renewal (Replace)       |
+| -------------------- | ----------------------- | ----------------------------- | ------------------------------- | ----------------------- |
+| Create Contract      | Yes (new)               | No (amend)                    | No (extend)                     | Yes (replacement)       |
+| Create Assets        | Conditional\*           | Conditional\* (to Contract)   | Conditional\*                   | Conditional\*           |
+| Create Subscriptions | Conditional\*\*         | Conditional\*\* (to Contract) | Conditional\*\*                 | Conditional\*\*         |
+| Create Renewal Opp   | Conditional\*\*\* (new) | No (add lines)                | Conditional\*\*\* (replacement) | Conditional\*\*\* (new) |
+
+- \* Asset condition: `kugo2p__AdditionalProductDetail__c.kugo2p__CreateAsset__c` is NOT null
+- \*\* Subscription condition: `Product2.kuga_sub__CreateSubscription__c` = True
+- \*\*\* Renewal Opp condition: Order Service Line `kuga_sub__Renew__c` = True
 
 ---
 
