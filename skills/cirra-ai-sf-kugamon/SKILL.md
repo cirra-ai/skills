@@ -84,7 +84,7 @@ Set a second session flag:
 
 **Recommended Optional Fields:**
 
-- `Amount` — Total opportunity value (will be overridden by line item totals if products are added). **Note:** If `HAS_KUGA_SUB = true`, the standard `Amount` field represents MRR — use `kuga_sub__OpportunityAmount__c` to read the true Opportunity Amount instead.
+- `Amount` — Total opportunity value (will be overridden by line item totals if products are added). **Note:** If `HAS_KUGA_SUB = true`, ignore the standard `Amount` field — it is a raw Qty × Price sum that does not factor Service Term and may include non-subscription products. Use `kuga_sub__OpportunityAmount__c` to read the true Opportunity Amount instead.
 - `Type` — Opportunity type (e.g., "New Business", "Existing Business")
 - `RecordTypeId` — Set to match quote type if known (New, Renewal, or Expansion)
 
@@ -290,9 +290,9 @@ ORDER BY kugo2p__Line__c
 
 If subscription fields exist (any `kuga_sub__*` fields present on opportunity):
 
-- **Use `kuga_sub__OpportunityAmount__c` for the true Opportunity Amount** — the standard `Amount` field represents MRR when kuga_sub is installed
+- **Ignore the standard `Amount` field** — it is a raw Qty × Price sum that does not factor Service Term and may include non-subscription products
+- **Use `kuga_sub__OpportunityAmount__c` for the true Opportunity Amount**
 - Compare `kugo2p__TotalAmount__c` (quote) to `kuga_sub__AnnualContractValueInitial__c` or `kuga_sub__TotalContractValue__c` (opportunity)
-- Note: Standard `Amount` field represents MRR, not annual value — always prefer `kuga_sub__OpportunityAmount__c` when referencing the opportunity's total amount
 
 If subscription fields do NOT exist:
 
@@ -399,7 +399,7 @@ See references/field-reference.md for complete field details.
 
 **Quote total doesn't match opportunity Amount:**
 
-- **If HAS_KUGA_SUB = true**: Check if subscription fields exist. Amount may be MRR while quote shows ACV.
+- **If HAS_KUGA_SUB = true**: Ignore the standard `Amount` field (raw Qty × Price, unreliable). Compare quote to `kuga_sub__OpportunityAmount__c` or `kuga_sub__AnnualContractValueInitial__c` instead.
 - **If HAS_KUGA_SUB = false**: Quote total should match the sum of all opportunity line item totals.
 
 **Line items not auto-populating:**
