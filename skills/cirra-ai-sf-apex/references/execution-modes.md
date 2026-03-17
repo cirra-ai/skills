@@ -44,10 +44,13 @@ The Salesforce CLI (`sf`) is installed and authenticated to the target org.
 
 ```bash
 command -v sf >/dev/null 2>&1 && sf --version
+sf org display --target-org <alias-or-username> --json 2>/dev/null
 ```
 
-Verify the target org matches the org selected during `cirra_ai_init()`.
-If they differ, warn the user and fall back to `mcp-plus-code-execution`.
+Both checks must pass — the CLI must be installed **and** authenticated to
+a usable org. Verify the target org matches the org selected during
+`cirra_ai_init()`. If the CLI is present but not authenticated, or if the
+orgs differ, warn the user and fall back to `mcp-plus-code-execution`.
 
 **Capabilities:**
 
@@ -68,14 +71,18 @@ This is the typical mode in **Claude Code**, **Claude Cowork**, and
 
 **Detection:**
 
-Neither `sfdx-project.json` nor `sf` CLI is available, but:
+Neither `sfdx-project.json` nor an authenticated `sf` CLI is available,
+but the environment supports code execution and file writes:
 
 ```bash
+# Verify code execution
 python3 --version >/dev/null 2>&1 || python --version >/dev/null 2>&1
+# Verify writable filesystem
+test -w . && echo "writable"
 ```
 
-confirms code execution. Being able to write files to disk is the key
-differentiator from `mcp-core`.
+Both checks must pass. Being able to write files to disk **and** execute
+code is the key differentiator from `mcp-core`.
 
 **Capabilities:**
 

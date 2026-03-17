@@ -82,7 +82,7 @@ if [[ -d "$SHARED_REFERENCES" ]]; then
     [[ -d "$skill_dir" ]] || continue
     skill_refs="$skill_dir/references"
 
-    for ref in "$SHARED_REFERENCES"/*; do
+    for ref in "$SHARED_REFERENCES"/*.md; do
       [[ -f "$ref" ]] || continue
       ref_name="$(basename "$ref")"
       dest="$skill_refs/$ref_name"
