@@ -20,7 +20,7 @@ Manage orders, returns, and support cases in Salesforce using the Cirra AI MCP S
 
 1. **Order Status**: Query order details and line items
 2. **Return Creation**: Create ReturnOrder with line items from an existing Order
-3. **Return Label Email**: Send return shipping label to customer (requires flow)
+3. **Return Label Email**: Send return shipping label to customer (flow preferred; Task fallback)
 4. **Case Management**: Create and update support cases linked to returns
 
 ---
@@ -70,13 +70,13 @@ If the flow doesn't exist and the user needs email functionality, see `reference
 
 ### Capability Summary
 
-| Operation               | Requires                            |
-| ----------------------- | ----------------------------------- |
-| Check Order Status      | HAS_ORDERS                          |
-| Create Return           | HAS_ORDERS + HAS_RETURNS            |
-| Email Return Label      | HAS_RETURNS + HAS_RETURN_LABEL_FLOW |
-| Update Case Status      | HAS_CASES                           |
-| Create Case from Return | HAS_RETURNS + HAS_CASES             |
+| Operation               | Requires                                               |
+| ----------------------- | ------------------------------------------------------ |
+| Check Order Status      | HAS_ORDERS                                             |
+| Create Return           | HAS_ORDERS + HAS_RETURNS                               |
+| Email Return Label      | HAS_RETURNS (flow preferred; Task fallback if no flow) |
+| Update Case Status      | HAS_CASES                                              |
+| Create Case from Return | HAS_RETURNS + HAS_CASES                                |
 
 ---
 
@@ -267,7 +267,7 @@ When a user wants to send a return shipping label to a customer:
 
 ### Prerequisites
 
-- `HAS_RETURN_LABEL_FLOW` must be true
+- `HAS_RETURNS` must be true
 - The ReturnOrder must be in "Approved" or "Partially Fulfilled" status
 - If `HAS_LABEL_TRACKING = true`, check that the label hasn't already been sent
 
@@ -294,7 +294,7 @@ Use `soql_query`:
 
 If `HAS_RETURN_LABEL_FLOW = true`, the flow should be triggered. Since the Cirra AI MCP doesn't have a direct "run flow" tool, guide the user to trigger the flow manually or use `tooling_api_dml`.
 
-**Alternative approach (if no flow exists):** Create a Task record as a reminder.
+If `HAS_RETURN_LABEL_FLOW = false`, create a Task record as a fallback so the label can be sent manually.
 
 Use the ReturnOrder `Id` and `ReturnOrderNumber` from the Step 1 query result for all fields below.
 
