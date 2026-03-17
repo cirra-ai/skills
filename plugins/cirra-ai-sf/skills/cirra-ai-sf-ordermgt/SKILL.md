@@ -246,6 +246,7 @@ Query the created return order using `soql_query`:
 - whereClause: `Id = '{return_order_id}'`
 - orderBy: ``
 - groupBy: ``
+- limit: `1`
 
 Then query line items separately:
 
