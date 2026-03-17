@@ -4,11 +4,10 @@ Salesforce Order Management for managing orders, returns, and support cases. Cov
 
 ## Features
 
-- **Order Status**: Query order details, line items, and related Kugamon quotes
+- **Order Status**: Query order details and line items
 - **Return Creation**: Create ReturnOrder with line items from an existing Order
 - **Return Label Email**: Send return shipping labels (requires flow deployment)
 - **Case Management**: Create and update support cases linked to returns
-- **Kugamon Integration**: Automatically enriches order data with quote context when kugo2p is installed
 
 ## Installation
 
@@ -38,14 +37,13 @@ The skill will:
 
 - Connect to your org via `cirra_ai_init()`
 - Detect available objects (Order, ReturnOrder, Case)
-- Detect Kugamon package (kugo2p) for quote enrichment
 - Check for return label email infrastructure
 
 ### 3. Review results
 
 The skill produces:
 
-- Order status with line items and Kugamon quote context
+- Order status with line items
 - Return orders with proper status transitions
 - Support cases linked to return orders
 - Direct links to all records
@@ -54,7 +52,7 @@ The skill produces:
 
 | Operation               | Description                                        |
 | ----------------------- | -------------------------------------------------- |
-| Check Order Status      | Query order details, line items, related quotes    |
+| Check Order Status      | Query order details and line items                 |
 | Create Return           | Create ReturnOrder with line items and reason      |
 | Email Return Label      | Send return label via flow or create Task fallback |
 | Update Case Status      | Update case with transition validation             |
@@ -74,7 +72,6 @@ The skill produces:
 
 | Related Skill        | When to Use                                          |
 | -------------------- | ---------------------------------------------------- |
-| cirra-ai-sf-kugamon  | Quote creation, amount interpretation (MRR/ARR/ACV)  |
 | cirra-ai-sf-data     | Advanced SOQL queries for orders, accounts, contacts |
 | cirra-ai-sf-metadata | Create custom fields or objects for order management |
 | cirra-ai-sf-flow     | Build notification or return label email flows       |

@@ -6,11 +6,10 @@ description: >
   Salesforce Order Management for managing orders, returns, and cases via the
   Cirra AI MCP Server. Use when users ask about order status, want to create
   return orders, send return labels, create or update support cases from returns,
-  or manage the order-to-return-to-case lifecycle. Automatically detects whether
-  the Kugamon (kugo2p) package is installed and enriches order data with quote
-  context. Trigger for any mention of: order status, return order, return label,
-  ReturnOrder, ReturnOrderLineItem, order management, RMA, shipping status,
-  return request, case from return, or order-to-return workflows.
+  or manage the order-to-return-to-case lifecycle. Trigger for any mention of:
+  order status, return order, return label, ReturnOrder, ReturnOrderLineItem,
+  order management, RMA, shipping status, return request, case from return, or
+  order-to-return workflows.
 ---
 
 # cirra-ai-sf-ordermgt: Order Management with Cirra AI
@@ -19,11 +18,10 @@ Manage orders, returns, and support cases in Salesforce using the Cirra AI MCP S
 
 ## Core Responsibilities
 
-1. **Order Status**: Query order details, line items, and related quotes
+1. **Order Status**: Query order details and line items
 2. **Return Creation**: Create ReturnOrder with line items from an existing Order
 3. **Return Label Email**: Send return shipping label to customer (requires flow)
 4. **Case Management**: Create and update support cases linked to returns
-5. **Kugamon Integration**: Enrich order data with Kugamon quote context when installed
 
 ---
 
@@ -55,16 +53,7 @@ Set capability flags:
 
 If ReturnOrder is missing, inform the user that return operations are unavailable because Order Management / Service Cloud is not enabled. The skill can still handle order status checks and general case management.
 
-### Step 2: Detect Kugamon package
-
-Use `sobject_describe` on `Order` and look for any `kugo2p__*` fields.
-
-- `HAS_KUGAMON = true` if any `kugo2p__` prefixed fields exist
-- `HAS_KUGAMON = false` if they do not
-
-**When `HAS_KUGAMON = true`:** Order data is enriched with Kugamon quote context. For quote creation, modification, or amount interpretation, **delegate to the `cirra-ai-sf-kugamon` skill** — do not duplicate that logic here.
-
-### Step 3: Check for return label infrastructure (if HAS_RETURNS = true)
+### Step 2: Check for return label infrastructure (if HAS_RETURNS = true)
 
 Use `sobject_describe` on `ReturnOrder` and look for `LabelEmailSent__c` (Checkbox) and `LabelEmailSentDate__c` (DateTime).
 
@@ -142,31 +131,11 @@ Use `soql_query`:
 - groupBy: ``
 - limit: `200`
 
-### Kugamon enrichment (if HAS_KUGAMON = true)
-
-Query related Kugamon quotes for additional context:
-
-Use `soql_query`:
-
-- sObject: `kugo2p__SalesQuote__c`
-- fields: `["Id", "Name", "kugo2p__QuoteName__c", "kugo2p__TotalAmount__c", "kugo2p__Status__c", "kugo2p__IsPrimary__c"]`
-- whereClause: `kugo2p__Opportunity__r.Id IN (SELECT OpportunityId FROM Order WHERE Id = '{orderId}')`
-- orderBy: `CreatedDate DESC`
-- groupBy: ``
-
-If the subquery approach fails (tool limitation), use a two-step approach:
-
-1. Query the Order to get the related OpportunityId (if the field exists)
-2. Query `kugo2p__SalesQuote__c` where `kugo2p__Opportunity__c = '{opportunityId}'`
-
-Present the Kugamon quote context alongside order details when available.
-
 ### Present results
 
 - Order Number, Status, Total Amount
 - Account name
 - Line items in table format (Product, Quantity, Unit Price, Total)
-- Kugamon quote summary (if available): Quote number, quote total, primary status
 - Links to records using `link_build`
 
 ---
@@ -571,23 +540,6 @@ For all operations, follow these patterns:
 
 ---
 
-## Kugamon Integration Details
-
-When `HAS_KUGAMON = true`:
-
-- **Order Status queries** include Kugamon quote context (quote number, total, status)
-- **Quote creation/modification** is handled by the `cirra-ai-sf-kugamon` skill — do not duplicate. If the user asks to create a quote from an order, delegate to `cirra-ai-sf-kugamon`.
-- **Amount interpretation** follows Kugamon conventions (MRR vs ACV vs TCV). Refer the user to `cirra-ai-sf-kugamon` for amount field analysis.
-- **Order-to-Quote tracing** uses the Opportunity as the link: Order → OpportunityId → `kugo2p__SalesQuote__c.kugo2p__Opportunity__c`
-
-When `HAS_KUGAMON = false`:
-
-- Order data comes from standard objects only
-- No quote enrichment is available
-- Amount fields use standard Salesforce interpretation
-
----
-
 ## When to Load References
 
 - **field-reference.md**: When troubleshooting field errors, understanding object relationships, or needing the full list of available fields on Order, ReturnOrder, or Case
@@ -610,6 +562,3 @@ Standard field but may not be visible in all editions. The case is still created
 
 **Return quantity exceeds original order quantity:**
 Query the OrderItem to get the original Quantity and validate before creating the return.
-
-**Kugamon quote totals don't match order totals:**
-Delegate amount interpretation to `cirra-ai-sf-kugamon`. In subscription orgs, `Amount` may show MRR while quotes show ACV.
