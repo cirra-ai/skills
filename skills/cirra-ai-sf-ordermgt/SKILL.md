@@ -62,7 +62,7 @@ Use `sobject_describe` on `ReturnOrder` and look for `LabelEmailSent__c` (Checkb
 Then check for the return label flow using `tooling_api_query`:
 
 - sObject: `FlowDefinition`
-- whereClause: `DeveloperName = 'Send_Return_Label_Email' AND ActiveVersionNumber != null`
+- whereClause: `DeveloperName = 'Send_Return_Label_Email' AND ActiveVersionId != null`
 
 - `HAS_RETURN_LABEL_FLOW = true` if the query returns a result with an active version
 
@@ -97,6 +97,11 @@ For DML operations, use `sobject_dml` with `sObject`, `operation` (insert/update
 
 **IMPORTANT — Resolved IDs**: When a lookup query accepts both an ID and a human-readable number (e.g., `Id OR OrderNumber`), always use the `Id` returned from the query result for all subsequent operations (DML, child queries, updates). Never pass raw user input (which may be a number, not an ID) into DML or relationship queries.
 
+**IMPORTANT — Input format detection**: Before constructing a whereClause that accepts user input, detect whether the input is a Salesforce ID (15 or 18 alphanumeric characters) or a human-readable number/string. Using `Id = '{value}' OR SomeNumber = '{value}'` causes a `MALFORMED_ID` error when the value is not a valid ID format because Salesforce validates the Id field before evaluating the OR. Instead:
+
+- If input matches a Salesforce ID pattern (15 or 18 alphanumeric chars): use `Id = '{value}'`
+- Otherwise: use the number/name field only (e.g., `OrderNumber = '{value}'`)
+
 ---
 
 ## 1. Check Order Status
@@ -105,18 +110,16 @@ When a user asks about an order's status, shipping, or details:
 
 ### Query the order
 
-The user may provide a Salesforce ID (15/18 chars) or an OrderNumber. Handle both.
+The user may provide a Salesforce ID (15/18 chars) or an OrderNumber. Detect the input format (see Tool Usage Notes) and use the appropriate whereClause.
 
 Use `soql_query`:
 
 - sObject: `Order`
 - fields: `["Id", "OrderNumber", "Status", "TotalAmount", "AccountId", "Account.Name", "EffectiveDate", "EndDate", "Description", "Type"]`
-- whereClause: `Id = '{orderId}' OR OrderNumber = '{orderId}'`
+- whereClause: `Id = '{orderId}'` (if ID format) or `OrderNumber = '{orderId}'` (if number format)
 - orderBy: `OrderNumber`
 - groupBy: ``
 - limit: `1`
-
-If not found by combined clause, try OrderNumber only: `OrderNumber = '{orderId}'`
 
 ### Query line items
 
@@ -162,7 +165,7 @@ Use `soql_query`:
 
 - sObject: `Order`
 - fields: `["Id", "OrderNumber", "Status", "AccountId", "Account.Name", "TotalAmount"]`
-- whereClause: `Id = '{orderId}' OR OrderNumber = '{orderId}'`
+- whereClause: `Id = '{orderId}'` (if ID format) or `OrderNumber = '{orderId}'` (if number format)
 - orderBy: ``
 - groupBy: ``
 - limit: `1`
@@ -279,7 +282,7 @@ Use `soql_query`:
 
 - sObject: `ReturnOrder`
 - fields: `["Id", "ReturnOrderNumber", "OrderId", "Status", "Description"]` (add `LabelEmailSent__c, LabelEmailSentDate__c` if `HAS_LABEL_TRACKING = true`)
-- whereClause: `Id = '{returnOrderId}' OR ReturnOrderNumber = '{returnOrderId}'`
+- whereClause: `Id = '{returnOrderId}'` (if ID format) or `ReturnOrderNumber = '{returnOrderId}'` (if number format)
 - orderBy: ``
 - groupBy: ``
 - limit: `1`
@@ -294,7 +297,24 @@ Use `soql_query`:
 
 If `HAS_RETURN_LABEL_FLOW = true`, the flow should be triggered. Since the Cirra AI MCP doesn't have a direct "run flow" tool, guide the user to trigger the flow manually or use `tooling_api_dml`.
 
-If `HAS_RETURN_LABEL_FLOW = false`, create a Task record as a fallback so the label can be sent manually.
+If `HAS_LABEL_TRACKING = true` and the flow was triggered successfully, update the tracking fields:
+
+Use `sobject_dml`:
+
+- sObject: `ReturnOrder`
+- operation: `update`
+- records:
+  ```json
+  [
+    {
+      "Id": "{returnOrder.Id}",
+      "LabelEmailSent__c": true,
+      "LabelEmailSentDate__c": "<current_datetime_ISO>"
+    }
+  ]
+  ```
+
+If `HAS_RETURN_LABEL_FLOW = false`, create a Task record as a fallback so the label can be sent manually. Do **not** update `LabelEmailSent__c` — no email has actually been sent yet.
 
 Use the ReturnOrder `Id` and `ReturnOrderNumber` from the Step 1 query result for all fields below.
 
@@ -316,23 +336,6 @@ Use `sobject_dml`:
   ]
   ```
 
-If `HAS_LABEL_TRACKING = true`, update the tracking fields:
-
-Use `sobject_dml`:
-
-- sObject: `ReturnOrder`
-- operation: `update`
-- records:
-  ```json
-  [
-    {
-      "Id": "{returnOrder.Id}",
-      "LabelEmailSent__c": true,
-      "LabelEmailSentDate__c": "<current_datetime_ISO>"
-    }
-  ]
-  ```
-
 ---
 
 ## 4. Update Case Status
@@ -347,7 +350,7 @@ Use `soql_query`:
 
 - sObject: `Case`
 - fields: `["Id", "CaseNumber", "Status", "Priority", "OwnerId", "Owner.Name", "Subject", "Description", "IsClosed", "AccountId", "Account.Name"]`
-- whereClause: `Id = '{caseId}' OR CaseNumber = '{caseId}'`
+- whereClause: `Id = '{caseId}'` (if ID format) or `CaseNumber = '{caseId}'` (if number format)
 - orderBy: ``
 - groupBy: ``
 - limit: `1`
@@ -420,7 +423,7 @@ Use `soql_query`:
 
 - sObject: `ReturnOrder`
 - fields: `["Id", "ReturnOrderNumber", "OrderId", "Status", "Description", "AccountId", "Account.Name", "CaseId"]`
-- whereClause: `Id = '{returnOrderId}' OR ReturnOrderNumber = '{returnOrderId}'`
+- whereClause: `Id = '{returnOrderId}'` (if ID format) or `ReturnOrderNumber = '{returnOrderId}'` (if number format)
 - orderBy: ``
 - groupBy: ``
 - limit: `1`
