@@ -45,19 +45,13 @@ Do **not** ask for org details before calling `cirra_ai_init()`.
 
 ### Step 1: Check which objects are available
 
-Use `soql_query`:
-
-- sObject: `EntityDefinition`
-- fields: `["QualifiedApiName", "Label", "IsQueryable"]`
-- whereClause: `QualifiedApiName IN ('Order', 'OrderItem', 'ReturnOrder', 'ReturnOrderLineItem', 'Case', 'CaseComment')`
-- orderBy: ``
-- groupBy: ``
+Use `sobject_describe` on each required object to verify it exists. Call `sobject_describe` for `Order`, `ReturnOrder`, and `Case`. If the call succeeds, the object is available; if it returns an error (object not found), the object is not available in this org.
 
 Set capability flags:
 
-- `HAS_ORDERS = true` if Order and OrderItem are present
-- `HAS_RETURNS = true` if ReturnOrder and ReturnOrderLineItem are present
-- `HAS_CASES = true` if Case is present (almost always true)
+- `HAS_ORDERS = true` if `sobject_describe(sObject="Order")` succeeds
+- `HAS_RETURNS = true` if `sobject_describe(sObject="ReturnOrder")` succeeds
+- `HAS_CASES = true` if `sobject_describe(sObject="Case")` succeeds (almost always true)
 
 If ReturnOrder is missing, inform the user that return operations are unavailable because Order Management / Service Cloud is not enabled. The skill can still handle order status checks and general case management.
 
@@ -76,15 +70,12 @@ Use `sobject_describe` on `ReturnOrder` and look for `LabelEmailSent__c` (Checkb
 
 - `HAS_LABEL_TRACKING = true` if both fields exist
 
-Then check for the return label flow using `soql_query`:
+Then check for the return label flow using `tooling_api_query`:
 
-- sObject: `FlowDefinitionView`
-- fields: `["Id", "ApiName", "Label", "ProcessType"]`
-- whereClause: `ApiName = 'Send_Return_Label_Email' AND IsActive = true`
-- orderBy: ``
-- groupBy: ``
+- sObject: `FlowDefinition`
+- whereClause: `DeveloperName = 'Send_Return_Label_Email' AND ActiveVersionNumber != null`
 
-- `HAS_RETURN_LABEL_FLOW = true` if the flow exists and is active
+- `HAS_RETURN_LABEL_FLOW = true` if the query returns a result with an active version
 
 If the flow doesn't exist and the user needs email functionality, see `references/metadata-setup.md`.
 
@@ -113,7 +104,9 @@ The Cirra AI MCP Server's `soql_query` tool requires structured parameters, not 
 
 The tool does **not** support subqueries in the `fields` array. To get child records (e.g., OrderItems for an Order), run a separate query on the child object with a WHERE filter on the parent ID.
 
-For DML operations, use `sobject_dml` with `sObject`, `operation` (insert/update/delete), and `records` array.
+For DML operations, use `sobject_dml` with `sObject`, `operation` (insert/update/delete/upsert), and `records` array. For delete operations, use `recordIds` (string array of IDs) instead of `records`.
+
+**IMPORTANT — Resolved IDs**: When a lookup query accepts both an ID and a human-readable number (e.g., `Id OR OrderNumber`), always use the `Id` returned from the query result for all subsequent operations (DML, child queries, updates). Never pass raw user input (which may be a number, not an ID) into DML or relationship queries.
 
 ---
 
@@ -138,13 +131,16 @@ If not found by combined clause, try OrderNumber only: `OrderNumber = '{orderId}
 
 ### Query line items
 
+Use the Order `Id` from the query result above (not the raw user input).
+
 Use `soql_query`:
 
 - sObject: `OrderItem`
 - fields: `["Id", "OrderId", "Product2.Name", "Quantity", "UnitPrice", "TotalPrice", "Description"]`
-- whereClause: `OrderId = '{orderId_from_result}'`
+- whereClause: `OrderId = '{order.Id}'`
 - orderBy: `CreatedDate ASC`
 - groupBy: ``
+- limit: `200`
 
 ### Kugamon enrichment (if HAS_KUGAMON = true)
 
@@ -202,15 +198,16 @@ Use `soql_query`:
 - groupBy: ``
 - limit: `1`
 
-**Step 2: Get order line items.**
+**Step 2: Get order line items** (use the Order `Id` from Step 1, not raw user input).
 
 Use `soql_query`:
 
 - sObject: `OrderItem`
 - fields: `["Id", "OrderId", "Product2Id", "Product2.Name", "Quantity", "UnitPrice", "TotalPrice"]`
-- whereClause: `OrderId = '{orderId}'`
+- whereClause: `OrderId = '{order.Id}'`
 - orderBy: `CreatedDate ASC`
 - groupBy: ``
+- limit: `200`
 
 If the user didn't specify a line item, present available items and ask which one(s) to return. If there's only one item, or the user says "auto-detect", use the first item.
 
@@ -269,7 +266,7 @@ If the user didn't specify a line item, present available items and ask which on
 
 - sObject: `ReturnOrder`
 - operation: `delete`
-- records: `[{"Id": "<return_order_id>"}]`
+- recordIds: `["<return_order_id>"]`
 
 ### Verification
 
@@ -288,6 +285,7 @@ Then query line items separately:
 - whereClause: `ReturnOrderId = '{return_order_id}'`
 - orderBy: ``
 - groupBy: ``
+- limit: `200`
 
 Present results with the return order number, status, and a link to the record.
 
@@ -326,7 +324,9 @@ Use `soql_query`:
 
 If `HAS_RETURN_LABEL_FLOW = true`, the flow should be triggered. Since the Cirra AI MCP doesn't have a direct "run flow" tool, guide the user to trigger the flow manually or use `tooling_api_dml`.
 
-**Alternative approach (if no flow exists):** Create a Task record as a reminder:
+**Alternative approach (if no flow exists):** Create a Task record as a reminder.
+
+Use the ReturnOrder `Id` and `ReturnOrderNumber` from the Step 1 query result for all fields below.
 
 Use `sobject_dml`:
 
@@ -336,11 +336,11 @@ Use `sobject_dml`:
   ```json
   [
     {
-      "Subject": "Send Return Label - {returnOrderNumber}",
-      "Description": "Send return shipping label to {customerEmail} for return order {returnOrderNumber}",
+      "Subject": "Send Return Label - {returnOrder.ReturnOrderNumber}",
+      "Description": "Send return shipping label to {customerEmail} for return order {returnOrder.ReturnOrderNumber}",
       "Status": "Open",
       "Priority": "High",
-      "WhatId": "{returnOrderId}",
+      "WhatId": "{returnOrder.Id}",
       "ActivityDate": "<today>"
     }
   ]
@@ -356,7 +356,7 @@ Use `sobject_dml`:
   ```json
   [
     {
-      "Id": "{returnOrderId}",
+      "Id": "{returnOrder.Id}",
       "LabelEmailSent__c": true,
       "LabelEmailSentDate__c": "<current_datetime_ISO>"
     }
@@ -399,6 +399,8 @@ Use `soql_query`:
 
 ### Apply the Update
 
+Use the Case `Id` from the Step 1 query result (not the raw user input, which may be a CaseNumber).
+
 Use `sobject_dml`:
 
 - sObject: `Case`
@@ -407,7 +409,7 @@ Use `sobject_dml`:
   ```json
   [
     {
-      "Id": "{caseId}",
+      "Id": "{case.Id}",
       "Status": "{newStatus}"
     }
   ]
@@ -425,7 +427,7 @@ Use `sobject_dml`:
   ```json
   [
     {
-      "ParentId": "{caseId}",
+      "ParentId": "{case.Id}",
       "CommentBody": "Status changed from {previousStatus} to {newStatus}. Reason: {reason}",
       "IsPublished": true
     }
@@ -453,15 +455,16 @@ Use `soql_query`:
 - groupBy: ``
 - limit: `1`
 
-**Step 2: Get return line items.**
+**Step 2: Get return line items** (use the ReturnOrder `Id` from Step 1, not raw user input).
 
 Use `soql_query`:
 
 - sObject: `ReturnOrderLineItem`
 - fields: `["Id", "Product2Id", "Product2.Name", "QuantityReturned", "Description"]`
-- whereClause: `ReturnOrderId = '{returnOrderId}'`
+- whereClause: `ReturnOrderId = '{returnOrder.Id}'`
 - orderBy: ``
 - groupBy: ``
+- limit: `200`
 
 **Step 3: Business validation:**
 
@@ -505,7 +508,7 @@ Use `sobject_dml`:
   ]
   ```
 
-**Link the case back to the return order:**
+**Link the case back to the return order** (use the ReturnOrder `Id` from Step 1):
 
 Use `sobject_dml`:
 
@@ -515,7 +518,7 @@ Use `sobject_dml`:
   ```json
   [
     {
-      "Id": "{returnOrderId}",
+      "Id": "{returnOrder.Id}",
       "CaseId": "{new_case_id}"
     }
   ]

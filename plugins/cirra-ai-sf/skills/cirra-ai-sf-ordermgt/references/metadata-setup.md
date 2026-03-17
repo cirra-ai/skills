@@ -8,31 +8,29 @@ Optional custom fields and flows for full Order Management functionality. These 
 
 Track whether a return label email has been sent. Use `sobject_field_create`:
 
-```json
-{
-  "object_name": "ReturnOrder",
-  "field_name": "LabelEmailSent",
-  "field_type": "Checkbox",
-  "label": "Label Email Sent",
-  "description": "Indicates whether the return shipping label has been emailed to the customer",
-  "default_value": false,
-  "track_history": true
-}
+```
+sobject_field_create(
+  sObject="ReturnOrder",
+  fieldName="LabelEmailSent__c",
+  fieldType="Checkbox",
+  label="Label Email Sent",
+  description="Indicates whether the return shipping label has been emailed to the customer",
+  defaultValue=false
+)
 ```
 
 ### LabelEmailSentDate\_\_c (DateTime)
 
 Track when the return label email was sent:
 
-```json
-{
-  "object_name": "ReturnOrder",
-  "field_name": "LabelEmailSentDate",
-  "field_type": "DateTime",
-  "label": "Label Email Sent Date",
-  "description": "Date and time when the return shipping label email was sent to the customer",
-  "track_history": true
-}
+```
+sobject_field_create(
+  sObject="ReturnOrder",
+  fieldName="LabelEmailSentDate__c",
+  fieldType="DateTime",
+  label="Label Email Sent Date",
+  description="Date and time when the return shipping label email was sent to the customer"
+)
 ```
 
 ## Flow: Send Return Label Email
@@ -59,7 +57,7 @@ Auto-launched flow that sends an HTML email with return details to the customer.
 - **Sender**: Current User
 - **Body**: HTML formatted with return details and shipping instructions
 
-Use the `cirra-ai-sf-flow` skill to create this flow, or deploy with `metadata_create` using the flow XML.
+Use the `cirra-ai-sf-flow` skill to create this flow. The flow skill handles JSON-based deployment via `metadata_create` — do not use raw XML.
 
 ### Alternative: Manual Email Approach
 
