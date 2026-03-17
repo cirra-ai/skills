@@ -308,7 +308,7 @@ Use `sobject_dml`:
     {
       "Subject": "Send Return Label - {returnOrder.ReturnOrderNumber}",
       "Description": "Send return shipping label to {customerEmail} for return order {returnOrder.ReturnOrderNumber}",
-      "Status": "Open",
+      "Status": "Not Started",
       "Priority": "High",
       "WhatId": "{returnOrder.Id}",
       "ActivityDate": "<today>"
