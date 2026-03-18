@@ -62,6 +62,19 @@ Request: "Who has delete access to the Account object?"
 | Tooling Queries   | `tooling_api_query(sObject, fields)`      |
 | Create PS         | `metadata_create(type="PermissionSet")`   |
 
+## Execution Modes
+
+| Mode                      | When                                              | Speed   |
+| ------------------------- | ------------------------------------------------- | ------- |
+| `sfdx-repo`               | Working directory is an SFDX project              | Fastest |
+| `cli`                     | Salesforce CLI installed and authed               | Fast    |
+| `mcp-plus-code-execution` | MCP + filesystem + code execution (Cowork, Codex) | Medium  |
+| `mcp-core`                | MCP only, no filesystem (chat interfaces)         | Slowest |
+
+All permission operations go through MCP tools regardless of mode. The
+mode determines how large responses (e.g. PermissionSet/PSG datasets)
+are handled.
+
 ## Requirements
 
 - Claude Cowork or Claude Code with skill plugins enabled

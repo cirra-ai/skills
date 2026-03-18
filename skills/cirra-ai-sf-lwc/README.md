@@ -136,6 +136,19 @@ Results appear as a scored report with a star rating and prioritised issue list.
 - [State Management](assets/state-management.md)
 - [Template Anti-Patterns](assets/template-anti-patterns.md)
 
+## Execution Modes
+
+| Mode                      | When                                              | Speed   |
+| ------------------------- | ------------------------------------------------- | ------- |
+| `sfdx-repo`               | Working directory is an SFDX project              | Fastest |
+| `cli`                     | Salesforce CLI installed and authed               | Fast    |
+| `mcp-plus-code-execution` | MCP + filesystem + code execution (Cowork, Codex) | Medium  |
+| `mcp-core`                | MCP only, no filesystem (chat interfaces)         | Slowest |
+
+All LWC operations go through MCP tools regardless of mode. The mode
+determines how large responses are handled and whether local tooling
+(Jest, Node.js) is available.
+
 ## Requirements
 
 - Claude Cowork or Claude Code with skill plugins enabled

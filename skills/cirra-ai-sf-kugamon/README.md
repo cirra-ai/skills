@@ -88,6 +88,17 @@ The skill produces:
 
 - [Kugamon YouTube Channel](https://www.youtube.com/playlist?list=PL63Lb4qcQBZcTLAkBTdyn08bKpHVpy7fx) — Video tutorials and walkthroughs
 
+## Execution Modes
+
+| Mode                      | When                                              | Speed   |
+| ------------------------- | ------------------------------------------------- | ------- |
+| `sfdx-repo`               | Working directory is an SFDX project              | Fastest |
+| `cli`                     | Salesforce CLI installed and authed               | Fast    |
+| `mcp-plus-code-execution` | MCP + filesystem + code execution (Cowork, Codex) | Medium  |
+| `mcp-core`                | MCP only, no filesystem (chat interfaces)         | Slowest |
+
+All Kugamon operations go through MCP tools regardless of mode.
+
 ## Requirements
 
 - Claude Cowork or Claude Code with skill plugins enabled

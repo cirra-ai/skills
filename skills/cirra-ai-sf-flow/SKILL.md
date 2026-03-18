@@ -29,6 +29,18 @@ Expert Salesforce Flow Builder with deep knowledge of best practices, bulkificat
 
 ---
 
+## Execution modes
+
+This skill supports four execution modes — see
+`references/execution-modes.md` for detection logic and full details,
+and `references/mcp-pagination.md` for handling large MCP responses.
+
+All Flow operations go through MCP tools regardless of mode. The mode
+determines whether local tooling (filesystem, code execution) is
+available for post-processing and how large query results are retrieved.
+
+---
+
 ## Core Responsibilities
 
 1. **Flow Generation**: Create well-structured Flow metadata (JSON) from requirements
