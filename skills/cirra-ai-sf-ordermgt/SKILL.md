@@ -402,7 +402,7 @@ Use `sobject_dml`:
     {
       "ParentId": "{case.Id}",
       "CommentBody": "Status changed from {previousStatus} to {newStatus}. Reason: {reason}",
-      "IsPublished": true
+      "IsPublished": false
     }
   ]
   ```
