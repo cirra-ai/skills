@@ -22,6 +22,9 @@
     "kugamon",
     "cpq",
     "quotes",
+    "order-management",
+    "returns",
+    "cases",
     "cirra-ai"
   ],
   "commands": "./commands",
