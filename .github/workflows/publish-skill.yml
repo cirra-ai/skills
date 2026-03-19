@@ -112,11 +112,8 @@ jobs:
           SKILL: ${{ inputs.skill }}
         run: |
           TAG="v${NEW_VERSION}"
+          NOTES=$(printf 'Publish **%s** skill update.\n\nPlugin version: %s → %s\n\nTriggered by: `Publish Skill` workflow' "$SKILL" "$OLD_VERSION" "$NEW_VERSION")
           gh release create "$TAG" \
             --title "$TAG" \
-            --notes "Publish **${SKILL}** skill update.
-
-Plugin version: ${OLD_VERSION} → ${NEW_VERSION}
-
-Triggered by: \`Publish Skill\` workflow" \
+            --notes "$NOTES" \
             --latest

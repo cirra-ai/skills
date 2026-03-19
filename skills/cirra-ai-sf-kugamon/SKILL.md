@@ -1,7 +1,7 @@
 ---
 name: cirra-ai-sf-kugamon
 metadata:
-  version: 1.2.0
+  version: 1.2.1
 description: >
   Kugamon CPQ quote and subscription management for Salesforce via Cirra AI MCP Server.
   Use when creating, verifying, or managing opportunities, quotes, orders, contracts,
