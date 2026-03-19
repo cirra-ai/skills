@@ -313,6 +313,7 @@ scripts/pull_schema.sh --type SharingRules
 ## Creating Permission Sets via MCP
 
 **Step 1 — Create the permission set:**
+
 ```
 metadata_create(
   type="PermissionSet",
@@ -327,6 +328,7 @@ metadata_create(
 ```
 
 **Step 2 — Get the permission set's record ID:**
+
 ```
 soql_query(
   sObject="PermissionSet",
@@ -345,20 +347,21 @@ sobject_dml(
   operation="insert",
   sObject="ObjectPermissions",
   records=[
-    {"ParentId": "0PSXX0000004ABC", "SObjectType": "Account", "PermissionsRead": true, "PermissionsEdit": true, "PermissionsCreate": true, "PermissionsDelete": false, "PermissionsViewAllRecords": false, "PermissionsModifyAllRecords": false}
+    {"ParentId": "0PSXX0000004ABC", "SobjectType": "Account", "PermissionsRead": true, "PermissionsEdit": true, "PermissionsCreate": true, "PermissionsDelete": false, "PermissionsViewAllRecords": false, "PermissionsModifyAllRecords": false}
   ],
   sf_user="<sf_user>"
 )
 ```
 
 For field-level permissions:
+
 ```
 sobject_dml(
   operation="insert",
   sObject="FieldPermissions",
   records=[
-    {"ParentId": "0PSXX0000004ABC", "SObjectType": "Account", "Field": "Account.AnnualRevenue", "PermissionsRead": true, "PermissionsEdit": true},
-    {"ParentId": "0PSXX0000004ABC", "SObjectType": "Account", "Field": "Account.Industry", "PermissionsRead": true, "PermissionsEdit": true}
+    {"ParentId": "0PSXX0000004ABC", "SobjectType": "Account", "Field": "Account.AnnualRevenue", "PermissionsRead": true, "PermissionsEdit": true},
+    {"ParentId": "0PSXX0000004ABC", "SobjectType": "Account", "Field": "Account.Industry", "PermissionsRead": true, "PermissionsEdit": true}
   ],
   sf_user="<sf_user>"
 )
@@ -366,12 +369,25 @@ sobject_dml(
 
 Other permission types that can be added via `sobject_dml`:
 
-| sObject | Purpose | Key fields |
-|---|---|---|
-| `PermissionSetTabSetting` | Tab visibility | `ParentId`, `Name`, `Visibility` |
-| `SetupEntityAccess` | Apex class, VF page, Flow, Custom Permission access | `ParentId`, `SetupEntityId` |
+| sObject                   | Purpose                                             | Key fields                       |
+| ------------------------- | --------------------------------------------------- | -------------------------------- |
+| `PermissionSetTabSetting` | Tab visibility                                      | `ParentId`, `Name`, `Visibility` |
+| `SetupEntityAccess`       | Apex class, VF page, Flow, Custom Permission access | `ParentId`, `SetupEntityId`      |
 
-For system permissions (e.g., ModifyAllData) that have no DML-able object, use `permission_set_update` with a JSON Patch on `userPermissions`.
+For system permissions (e.g., ModifyAllData) that have no DML-able object, use `metadata_update` to patch `userPermissions`:
+
+```
+metadata_update(
+  type="PermissionSet",
+  metadata=[{
+    "fullName": "Sales_Account_Edit",
+    "userPermissions": [
+      {"enabled": true, "name": "ModifyAllData"}
+    ]
+  }],
+  sf_user="<sf_user>"
+)
+```
 
 ---
 
