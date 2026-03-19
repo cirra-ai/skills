@@ -70,11 +70,12 @@ The skill produces:
 
 ## Cross-Skill Integration
 
-| Related Skill        | When to Use                                |
-| -------------------- | ------------------------------------------ |
-| cirra-ai-sf-data     | Query opportunities, accounts, contacts    |
-| cirra-ai-sf-metadata | Describe Kugamon custom objects and fields |
-| cirra-ai-sf-diagram  | Visualize quote-to-order data model        |
+| Related Skill        | When to Use                                   |
+| -------------------- | --------------------------------------------- |
+| cirra-ai-sf-data     | Query opportunities, accounts, contacts       |
+| cirra-ai-sf-metadata | Describe Kugamon custom objects and fields    |
+| cirra-ai-sf-ordermgt | Order returns, cases, and post-sale lifecycle |
+| cirra-ai-sf-diagram  | Visualize quote-to-order data model           |
 
 ## Documentation
 
@@ -86,6 +87,17 @@ The skill produces:
 ## Resources
 
 - [Kugamon YouTube Channel](https://www.youtube.com/playlist?list=PL63Lb4qcQBZcTLAkBTdyn08bKpHVpy7fx) — Video tutorials and walkthroughs
+
+## Execution Modes
+
+| Mode                      | When                                              | Speed   |
+| ------------------------- | ------------------------------------------------- | ------- |
+| `sfdx-repo`               | Working directory is an SFDX project              | Fastest |
+| `cli`                     | Salesforce CLI installed and authed               | Fast    |
+| `mcp-plus-code-execution` | MCP + filesystem + code execution (Cowork, Codex) | Medium  |
+| `mcp-core`                | MCP only, no filesystem (chat interfaces)         | Slowest |
+
+All Kugamon operations go through MCP tools regardless of mode.
 
 ## Requirements
 
