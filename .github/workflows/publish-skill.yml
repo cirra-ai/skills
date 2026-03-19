@@ -33,22 +33,30 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: publish-skill
+  cancel-in-progress: false
+
 jobs:
   publish:
     runs-on: ubuntu-latest
+    if: github.ref_name == 'main'
     steps:
       - uses: actions/checkout@v6
         with:
+          ref: main
           token: ${{ secrets.AUTO_MERGE_PAT }}
 
       - name: Validate skill exists
+        env:
+          SKILL: ${{ inputs.skill }}
         run: |
-          if [[ ! -d "skills/${{ inputs.skill }}" ]]; then
-            echo "::error::Skill '${{ inputs.skill }}' not found in skills/"
+          if [[ ! -d "skills/${SKILL}" ]]; then
+            echo "::error::Skill '${SKILL}' not found in skills/"
             exit 1
           fi
-          if [[ ! -f "skills/${{ inputs.skill }}/SKILL.md" ]]; then
-            echo "::error::SKILL.md not found for '${{ inputs.skill }}'"
+          if [[ ! -f "skills/${SKILL}/SKILL.md" ]]; then
+            echo "::error::SKILL.md not found for '${SKILL}'"
             exit 1
           fi
 
@@ -65,34 +73,39 @@ jobs:
           echo "Plugin version: $CURRENT → $NEW_VERSION"
 
       - name: Bump skill patch version
+        env:
+          SKILL: ${{ inputs.skill }}
         run: |
-          SKILL_MD="skills/${{ inputs.skill }}/SKILL.md"
+          SKILL_MD="skills/${SKILL}/SKILL.md"
           # Extract current version from YAML frontmatter (metadata.version field)
-          CURRENT=$(sed -n '/^---$/,/^---$/p' "$SKILL_MD" | grep -E '^\s+version:' | head -1 | sed 's/.*version:\s*//')
+          CURRENT=$(sed -n '/^---$/,/^---$/p' "$SKILL_MD" | grep -E '^[[:space:]]+version:' | head -1 | sed 's/.*version:[[:space:]]*//' || true)
           if [[ -z "$CURRENT" ]]; then
             echo "::warning::No version found in $SKILL_MD — skipping skill version bump"
             exit 0
           fi
           IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
           NEW_VERSION="${MAJOR}.${MINOR}.$((PATCH + 1))"
-          # Replace the version line in the frontmatter
-          sed -i "s/\(^\s*version:\s*\)${CURRENT}/\1${NEW_VERSION}/" "$SKILL_MD"
+          # Replace the version line in the frontmatter only (between first --- pair)
+          sed -i "/^---$/,/^---$/ s/\(^[[:space:]]*version:[[:space:]]*\)${CURRENT}/\1${NEW_VERSION}/" "$SKILL_MD"
           echo "Skill version: $CURRENT → $NEW_VERSION"
 
       - name: Sync skills into plugins
         run: scripts/sync-plugin-skills.sh
 
       - name: Commit and push
+        env:
+          SKILL: ${{ inputs.skill }}
+          NEW_VERSION: ${{ steps.version.outputs.new_version }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add plugins/ skills/${{ inputs.skill }}/SKILL.md
-          git commit -m "release: publish ${{ inputs.skill }} (v${{ steps.version.outputs.new_version }})"
+          git add plugins/ "skills/${SKILL}/SKILL.md" skills/*/assets/
+          git commit -m "release: publish ${SKILL} (v${NEW_VERSION})"
           git push
 
       - name: Create GitHub release
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.AUTO_MERGE_PAT }}
           NEW_VERSION: ${{ steps.version.outputs.new_version }}
           OLD_VERSION: ${{ steps.version.outputs.old_version }}
           SKILL: ${{ inputs.skill }}
