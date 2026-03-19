@@ -29,6 +29,7 @@ on:
           - cirra-ai-sf-lwc
           - cirra-ai-sf-metadata
           - cirra-ai-sf-permissions
+          - cirra-ai-sf-ordermgt
 
 permissions:
   contents: write
