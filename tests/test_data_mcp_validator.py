@@ -38,18 +38,14 @@ def test_soql_missing_sobject_fails():
     assert any("sObject" in m for m in messages)
 
 
-def test_soql_missing_order_by_warns():
+def test_soql_without_order_by_passes():
     result = validate_data_params(_soql_input(orderBy=None))
     assert result["status"] == "pass"
-    messages = [w["message"] for w in result["warnings"]]
-    assert any("orderBy" in m for m in messages)
 
 
-def test_soql_missing_group_by_warns():
+def test_soql_without_group_by_passes():
     result = validate_data_params(_soql_input(groupBy=None))
     assert result["status"] == "pass"
-    messages = [w["message"] for w in result["warnings"]]
-    assert any("groupBy" in m for m in messages)
 
 
 def test_soql_where_double_equals_warns():

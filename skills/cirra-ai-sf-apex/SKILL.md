@@ -177,28 +177,33 @@ Generate Apex code as a STRING with full ApexDoc comments and validation.
 **Step 2: Deploy via Cirra AI MCP**
 
 > **Automatic validation**: a PreToolUse hook runs `pre-mcp-validate.py` before every
-> `metadata_create`/`metadata_update` call. Critical issues (SOQL/DML in loops, injection)
-> block deployment automatically. To validate explicitly before deploying, run
-> `python scripts/validate_apex_cli.py <ClassName>` or validate the generated source in-process.
+> `metadata_create`/`metadata_update`/`tooling_api_dml` call. Critical issues (SOQL/DML
+> in loops, injection) are flagged automatically.
+
+> **IMPORTANT**: Apex classes MUST be deployed via `tooling_api_dml`, NOT `metadata_create`.
+> The Metadata API does not support the `body`/`Body` field for `ApexClass`. Use the
+> Tooling API pattern below — note `Name` (not `fullName`) and `Body` (capital B).
 
 ```
-metadata_create(
-  type="ApexClass",
-  metadata=[{
-    "fullName": "AccountService",
-    "apiVersion": "65.0",
-    "status": "Active",
-    "body": "[YOUR APEX CODE STRING HERE]"
-  }]
+tooling_api_dml(
+  operation="insert",
+  sObject="ApexClass",
+  record={
+    "Name": "AccountService",
+    "Body": "[YOUR APEX CODE STRING HERE]",
+    "Status": "Active",
+    "ApiVersion": "65.0"
+  }
 )
 ```
 
 **Step 3: Verify Deployment**
 
 ```
-metadata_read(
-  type="ApexClass",
-  fullNames=["AccountService"]
+tooling_api_query(
+  sObject="ApexClass",
+  fields=["Id", "Name", "Status"],
+  whereClause="Name = 'AccountService'"
 )
 ```
 
@@ -286,14 +291,15 @@ public class TA_Account_SetDefaults implements TriggerAction.BeforeInsert {
 **Deploy Action Class**:
 
 ```
-metadata_create(
-  type="ApexClass",
-  metadata=[{
-    "fullName": "TA_Account_SetDefaults",
-    "apiVersion": "65.0",
-    "status": "Active",
-    "body": "[GENERATED APEX CODE]"
-  }]
+tooling_api_dml(
+  operation="insert",
+  sObject="ApexClass",
+  record={
+    "Name": "TA_Account_SetDefaults",
+    "Body": "[GENERATED APEX CODE]",
+    "Status": "Active",
+    "ApiVersion": "65.0"
+  }
 )
 ```
 
@@ -364,14 +370,15 @@ public with sharing class RecordProcessor {
 **Deploy via Cirra AI**:
 
 ```
-metadata_create(
-  type="ApexClass",
-  metadata=[{
-    "fullName": "RecordProcessor",
-    "apiVersion": "65.0",
-    "status": "Active",
-    "body": "[YOUR INVOCABLE METHOD CODE]"
-  }]
+tooling_api_dml(
+  operation="insert",
+  sObject="ApexClass",
+  record={
+    "Name": "RecordProcessor",
+    "Body": "[YOUR INVOCABLE METHOD CODE]",
+    "Status": "Active",
+    "ApiVersion": "65.0"
+  }
 )
 ```
 
@@ -422,14 +429,15 @@ static void testBulk() {
 **Deploy Test Class**:
 
 ```
-metadata_create(
-  type="ApexClass",
-  metadata=[{
-    "fullName": "AccountServiceTest",
-    "apiVersion": "65.0",
-    "status": "Active",
-    "body": "[YOUR TEST CLASS CODE]"
-  }]
+tooling_api_dml(
+  operation="insert",
+  sObject="ApexClass",
+  record={
+    "Name": "AccountServiceTest",
+    "Body": "[YOUR TEST CLASS CODE]",
+    "Status": "Active",
+    "ApiVersion": "65.0"
+  }
 )
 ```
 
@@ -595,8 +603,8 @@ soql_query(
 | `soql_query`        | Test code behavior after deploy      | `soql_query(sObject="Account", whereClause="Id IN :accountIds")`                                                            |
 | `tooling_api_query` | Check existing Apex classes          | `tooling_api_query(sObject="ApexClass", whereClause="Name LIKE 'Account%'")`                                                |
 | `tooling_api_query` | Retrieve class body for review       | `tooling_api_query(sObject="ApexClass", fields=["Id","FullName","Name","Body","Metadata"], whereClause="Id = '<classId>'")` |
-| `metadata_create`   | Deploy new Apex classes/triggers     | `metadata_create(type="ApexClass", metadata=[...])`                                                                         |
-| `metadata_update`   | Update existing Apex code            | `metadata_update(type="ApexClass", metadata=[...])`                                                                         |
+| `tooling_api_dml`   | Deploy new Apex classes/triggers     | `tooling_api_dml(operation="insert", sObject="ApexClass", record={"Name":"MyClass","Body":"...","Status":"Active"})`        |
+| `tooling_api_dml`   | Update existing Apex code            | `tooling_api_dml(operation="update", sObject="ApexClass", record={"Id":"...","Body":"...","Status":"Active"})`              |
 | `tooling_api_dml`   | Perform DML on metadata objects      | `tooling_api_dml(operation="update", sObject="ApexClass", record={...})`                                                    |
 
 ---
