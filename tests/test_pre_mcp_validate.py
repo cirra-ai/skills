@@ -6,11 +6,15 @@ mod = load_script("plugins/cirra-ai-sf/hooks/pre-mcp-validate.py")
 
 
 def _hook_output(tool_name: str, tool_input: dict) -> dict:
-    """Run schema validation via the module helper and return the hook decision."""
+    """Run schema validation via the module helper and return the hook decision.
+
+    Matches the behaviour of main(): schema errors produce allow-with-context
+    (never deny).
+    """
     metadata_type = mod._metadata_type(tool_name, tool_input)
     error = mod._validate_schema(metadata_type, tool_input)
     if error:
-        return mod._deny(error)
+        return mod._allow(f"\U0001f6a8 {error}")
     return mod._allow()
 
 
@@ -38,10 +42,10 @@ def test_valid_recordtype_passes():
     assert _decision(output) == "allow"
 
 
-# ── Schema validation: invalid payload denied ────────────────────────────────
+# ── Schema validation: invalid payload flagged (allow with context) ──────────
 
 
-def test_missing_required_field_denied():
+def test_missing_required_field_flagged():
     output = _hook_output(
         "mcp__cirra_ai__metadata_create",
         {
@@ -54,12 +58,12 @@ def test_missing_required_field_denied():
             ],
         },
     )
-    assert _decision(output) == "deny"
-    reason = output["hookSpecificOutput"]["permissionDecisionReason"]
-    assert "RecordType" in reason
+    assert _decision(output) == "allow"
+    context = output["hookSpecificOutput"]["additionalContext"]
+    assert "RecordType" in context
 
 
-def test_wrong_field_type_denied():
+def test_wrong_field_type_flagged():
     output = _hook_output(
         "mcp__cirra_ai__metadata_create",
         {
@@ -73,9 +77,9 @@ def test_wrong_field_type_denied():
             ],
         },
     )
-    assert _decision(output) == "deny"
-    reason = output["hookSpecificOutput"]["permissionDecisionReason"]
-    assert "active" in reason
+    assert _decision(output) == "allow"
+    context = output["hookSpecificOutput"]["additionalContext"]
+    assert "active" in context
 
 
 # ── No schema available → allow through ──────────────────────────────────────
@@ -103,7 +107,7 @@ def test_empty_metadata_allows():
 # ── tooling_api_dml path ─────────────────────────────────────────────────────
 
 
-def test_tooling_api_dml_invalid_denied():
+def test_tooling_api_dml_invalid_flagged():
     output = _hook_output(
         "mcp__cirra_ai__tooling_api_dml",
         {
@@ -114,7 +118,8 @@ def test_tooling_api_dml_invalid_denied():
             },
         },
     )
-    assert _decision(output) == "deny"
+    assert _decision(output) == "allow"
+    assert "additionalContext" in output["hookSpecificOutput"]
 
 
 # ── metadata_type extraction ─────────────────────────────────────────────────
@@ -185,7 +190,7 @@ def test_resolve_local_ref():
     assert resolved == {"required": ["label"], "properties": {}}
 
 
-def test_fallback_validator_denies_invalid_payload(monkeypatch):
+def test_fallback_validator_flags_invalid_payload(monkeypatch):
     """Ensure fallback path catches missing required fields end-to-end."""
     import builtins
 
@@ -205,9 +210,9 @@ def test_fallback_validator_denies_invalid_payload(monkeypatch):
             "metadata": [{"fullName": "Account.Enterprise"}],  # missing active, label
         },
     )
-    assert _decision(output) == "deny"
-    reason = output["hookSpecificOutput"]["permissionDecisionReason"]
-    assert "required" in reason.lower()
+    assert _decision(output) == "allow"
+    context = output["hookSpecificOutput"]["additionalContext"]
+    assert "required" in context.lower()
 
 
 def test_fallback_validator_allows_valid_payload(monkeypatch):

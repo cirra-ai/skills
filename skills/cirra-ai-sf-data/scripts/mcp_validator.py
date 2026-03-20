@@ -77,12 +77,13 @@ def validate_data_params(input_data: dict[str, Any]) -> dict[str, Any]:
 
     # ── soql_query checks ───────────────────────────────────────────
     if tool == "soql_query":
-        # Required string parameters per MCP schema
-        for req_param in ("orderBy", "groupBy"):
-            if req_param not in params or not isinstance(params[req_param], str):
-                errors.append({
-                    "message": f"Missing required '{req_param}' parameter "
-                               f"(pass empty string if not needed)"
+        # Advisory: orderBy/groupBy are optional in the tool schema.
+        # Flag as warnings so callers are aware, but never block.
+        for opt_param in ("orderBy", "groupBy"):
+            if opt_param not in params or not isinstance(params[opt_param], str):
+                warnings.append({
+                    "message": f"'{opt_param}' parameter not provided "
+                               f"— pass empty string for deterministic results"
                 })
 
         where = params.get("whereClause") or ""

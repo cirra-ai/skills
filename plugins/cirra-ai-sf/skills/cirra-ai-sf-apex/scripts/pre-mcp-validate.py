@@ -7,7 +7,7 @@ Extracts the Apex code body from the MCP payload and validates it using
 the 150-point static analysis pipeline.
 
 Decisions:
-  - CRITICAL/HIGH issues (SOQL/DML in loops, injection)  → deny deployment
+  - CRITICAL/HIGH issues (SOQL/DML in loops, injection)  → allow with critical warning
   - Score < 67% (< 100/150)                              → allow with warning
   - Pass                                                 → allow with score summary
   - Non-Apex type or validator unavailable               → allow silently
@@ -83,7 +83,7 @@ def main() -> int:
     all_issues = critical_issues + issues
     pct = (score / max_score * 100) if max_score > 0 else 0
 
-    # Critical/High issues → deny
+    # Critical/High issues → allow with prominent warning (never block)
     blocking = [i for i in all_issues if i.get("severity") in ("CRITICAL", "HIGH")]
     if blocking:
         lines = []
@@ -93,13 +93,13 @@ def main() -> int:
         if len(blocking) > 5:
             lines.append(f"• ...and {len(blocking) - 5} more critical issues")
 
-        reason = (
-            f"Apex validation found critical issues for '{full_name}' "
+        context = (
+            f"🚨 Apex validation found critical issues for '{full_name}' "
             f"(score: {score}/{max_score}, {pct:.0f}%).\n\n"
-            f"Critical issues must be fixed before deploying:\n"
+            f"Critical issues to fix:\n"
             + "\n".join(lines)
         )
-        print(json.dumps(_deny(reason)))
+        print(json.dumps(_allow(context)))
         return 0
 
     # Below threshold — allow with advisory warning

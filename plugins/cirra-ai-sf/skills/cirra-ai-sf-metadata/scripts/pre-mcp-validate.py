@@ -10,7 +10,7 @@ Runs the MetadataOperationValidator scoring pipeline and converts results
 to hook decisions.
 
 Decisions:
-  - Critical issues (schema/required-field failures)  → deny deployment
+  - Critical issues (schema/required-field failures)  → allow with critical warning
   - Score < 67%                                       → allow with warning
   - Pass                                              → allow with score summary
   - Unsupported type or validator unavailable          → allow silently
@@ -89,21 +89,21 @@ def main() -> int:
         if isinstance(cat, dict):
             all_issues.extend(cat.get("issues", []))
 
-    # Critical issues → deny
+    # Critical issues → allow with prominent warning (never block)
     critical = [i for i in all_issues if i.get("severity") == "critical"]
     if critical:
         lines = [f"• {i['message']}" for i in critical[:5]]
         if len(critical) > 5:
             lines.append(f"• ...and {len(critical) - 5} more critical issues")
 
-        reason = (
-            f"Metadata validation found critical issues for "
+        context = (
+            f"🚨 Metadata validation found critical issues for "
             f"'{metadata_type}:{full_name}' "
             f"(score: {score}/{max_score}, {pct:.0f}%).\n\n"
-            f"Critical issues must be fixed before deploying:\n"
+            f"Critical issues to fix:\n"
             + "\n".join(lines)
         )
-        print(json.dumps(_deny(reason)))
+        print(json.dumps(_allow(context)))
         return 0
 
     # Below threshold — allow with advisory warning
