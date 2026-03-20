@@ -31,16 +31,6 @@ def _allow(context: str = "") -> dict:
     return out
 
 
-def _deny(reason: str) -> dict:
-    return {
-        "hookSpecificOutput": {
-            "hookEventName": "PreToolUse",
-            "permissionDecision": "deny",
-            "permissionDecisionReason": reason,
-        }
-    }
-
-
 def _collect_issues(result: dict) -> list:
     """Collect all issues from validator result.
 

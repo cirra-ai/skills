@@ -27,16 +27,6 @@ def _allow(context: str = "") -> dict:
     return out
 
 
-def _deny(reason: str) -> dict:
-    return {
-        "hookSpecificOutput": {
-            "hookEventName": "PreToolUse",
-            "permissionDecision": "deny",
-            "permissionDecisionReason": reason,
-        }
-    }
-
-
 def main() -> int:
     try:
         hook_input = json.load(sys.stdin)

@@ -73,16 +73,6 @@ def _allow(context: str = "") -> dict:
     return out
 
 
-def _deny(reason: str) -> dict:
-    return {
-        "hookSpecificOutput": {
-            "hookEventName": "PreToolUse",
-            "permissionDecision": "deny",
-            "permissionDecisionReason": reason,
-        }
-    }
-
-
 def _metadata_type(tool_name: str, tool_input: dict) -> str:
     """Extract the metadata type from hook input fields."""
     base_tool = tool_name.split("__")[-1] if tool_name.startswith("mcp__") else tool_name
