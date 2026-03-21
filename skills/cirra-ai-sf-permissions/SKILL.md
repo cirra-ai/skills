@@ -312,6 +312,8 @@ scripts/pull_schema.sh --type SharingRules
 
 ## Creating Permission Sets via MCP
 
+**Step 1 — Create the permission set:**
+
 ```
 metadata_create(
   type="PermissionSet",
@@ -319,18 +321,68 @@ metadata_create(
     "fullName": "Sales_Account_Edit",
     "label": "Sales Account Edit",
     "description": "Grants sales team edit access to Accounts",
-    "objectPermissions": [{
-      "object": "Account",
-      "allowCreate": true,
-      "allowRead": true,
-      "allowEdit": true,
-      "allowDelete": false,
-      "viewAllRecords": false,
-      "modifyAllRecords": false
-    }],
-    "fieldPermissions": [
-      {"field": "Account.AnnualRevenue", "editable": true, "readable": true},
-      {"field": "Account.Industry", "editable": true, "readable": true}
+    "hasActivationRequired": false
+  }],
+  sf_user="<sf_user>"
+)
+```
+
+**Step 2 — Get the permission set's record ID:**
+
+```
+soql_query(
+  sObject="PermissionSet",
+  fields=["Id", "Name"],
+  whereClause="Name = 'Sales_Account_Edit' AND IsOwnedByProfile = false",
+  sf_user="<sf_user>"
+)
+```
+
+**Step 3 — Add permissions via `sobject_dml`:**
+
+Use `sobject_dml` to insert permission records. The `ParentId` must be the Salesforce record ID from step 2 (starts with `0PS`), NOT the API name.
+
+```
+sobject_dml(
+  operation="insert",
+  sObject="ObjectPermissions",
+  records=[
+    {"ParentId": "0PSXX0000004ABC", "SobjectType": "Account", "PermissionsRead": true, "PermissionsEdit": true, "PermissionsCreate": true, "PermissionsDelete": false, "PermissionsViewAllRecords": false, "PermissionsModifyAllRecords": false}
+  ],
+  sf_user="<sf_user>"
+)
+```
+
+For field-level permissions:
+
+```
+sobject_dml(
+  operation="insert",
+  sObject="FieldPermissions",
+  records=[
+    {"ParentId": "0PSXX0000004ABC", "SobjectType": "Account", "Field": "Account.AnnualRevenue", "PermissionsRead": true, "PermissionsEdit": true},
+    {"ParentId": "0PSXX0000004ABC", "SobjectType": "Account", "Field": "Account.Industry", "PermissionsRead": true, "PermissionsEdit": true}
+  ],
+  sf_user="<sf_user>"
+)
+```
+
+Other permission types that can be added via `sobject_dml`:
+
+| sObject                   | Purpose                                             | Key fields                       |
+| ------------------------- | --------------------------------------------------- | -------------------------------- |
+| `PermissionSetTabSetting` | Tab visibility                                      | `ParentId`, `Name`, `Visibility` |
+| `SetupEntityAccess`       | Apex class, VF page, Flow, Custom Permission access | `ParentId`, `SetupEntityId`      |
+
+For system permissions (e.g., ModifyAllData) that have no DML-able object, use `metadata_update` to patch `userPermissions`:
+
+```
+metadata_update(
+  type="PermissionSet",
+  metadata=[{
+    "fullName": "Sales_Account_Edit",
+    "userPermissions": [
+      {"enabled": true, "name": "ModifyAllData"}
     ]
   }],
   sf_user="<sf_user>"

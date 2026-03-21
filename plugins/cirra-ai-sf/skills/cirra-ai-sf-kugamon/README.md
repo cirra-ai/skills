@@ -70,11 +70,12 @@ The skill produces:
 
 ## Cross-Skill Integration
 
-| Related Skill        | When to Use                                |
-| -------------------- | ------------------------------------------ |
-| cirra-ai-sf-data     | Query opportunities, accounts, contacts    |
-| cirra-ai-sf-metadata | Describe Kugamon custom objects and fields |
-| cirra-ai-sf-diagram  | Visualize quote-to-order data model        |
+| Related Skill        | When to Use                                   |
+| -------------------- | --------------------------------------------- |
+| cirra-ai-sf-data     | Query opportunities, accounts, contacts       |
+| cirra-ai-sf-metadata | Describe Kugamon custom objects and fields    |
+| cirra-ai-sf-ordermgt | Order returns, cases, and post-sale lifecycle |
+| cirra-ai-sf-diagram  | Visualize quote-to-order data model           |
 
 ## Documentation
 

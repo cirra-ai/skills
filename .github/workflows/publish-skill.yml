@@ -1,0 +1,119 @@
+name: Publish Skill
+
+# Publish a single skill update without a full release.
+#
+# What it does:
+#   1. Bumps the plugin patch version in plugin.json
+#   2. Bumps the skill's patch version in SKILL.md
+#   3. Syncs skills into plugins/
+#   4. Commits and pushes to main
+#   5. Creates a GitHub release (which triggers Build & Publish to package and deploy)
+#
+# Usage:
+#   gh workflow run publish-skill.yml -f skill=cirra-ai-sf-apex
+
+on:
+  workflow_dispatch:
+    inputs:
+      skill:
+        description: Skill to publish
+        required: true
+        type: choice
+        options:
+          - cirra-ai-sf-apex
+          - cirra-ai-sf-audit
+          - cirra-ai-sf-data
+          - cirra-ai-sf-diagram
+          - cirra-ai-sf-flow
+          - cirra-ai-sf-kugamon
+          - cirra-ai-sf-lwc
+          - cirra-ai-sf-metadata
+          - cirra-ai-sf-permissions
+          - cirra-ai-sf-ordermgt
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-skill
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    if: github.ref_name == 'main'
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+          token: ${{ secrets.AUTO_MERGE_PAT }}
+
+      - name: Validate skill exists
+        env:
+          SKILL: ${{ inputs.skill }}
+        run: |
+          if [[ ! -d "skills/${SKILL}" ]]; then
+            echo "::error::Skill '${SKILL}' not found in skills/"
+            exit 1
+          fi
+          if [[ ! -f "skills/${SKILL}/SKILL.md" ]]; then
+            echo "::error::SKILL.md not found for '${SKILL}'"
+            exit 1
+          fi
+
+      - name: Bump plugin patch version
+        id: version
+        run: |
+          PLUGIN_JSON="plugins/cirra-ai-sf/.claude-plugin/plugin.json"
+          CURRENT=$(jq -r .version "$PLUGIN_JSON")
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+          NEW_VERSION="${MAJOR}.${MINOR}.$((PATCH + 1))"
+          jq --arg v "$NEW_VERSION" '.version = $v' "$PLUGIN_JSON" > tmp.json && mv tmp.json "$PLUGIN_JSON"
+          echo "old_version=$CURRENT" >> "$GITHUB_OUTPUT"
+          echo "new_version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+          echo "Plugin version: $CURRENT → $NEW_VERSION"
+
+      - name: Bump skill patch version
+        env:
+          SKILL: ${{ inputs.skill }}
+        run: |
+          SKILL_MD="skills/${SKILL}/SKILL.md"
+          # Extract current version from YAML frontmatter (metadata.version field)
+          CURRENT=$(sed -n '/^---$/,/^---$/p' "$SKILL_MD" | grep -E '^[[:space:]]+version:' | head -1 | sed 's/.*version:[[:space:]]*//' || true)
+          if [[ -z "$CURRENT" ]]; then
+            echo "::warning::No version found in $SKILL_MD — skipping skill version bump"
+            exit 0
+          fi
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+          NEW_VERSION="${MAJOR}.${MINOR}.$((PATCH + 1))"
+          # Replace the version line in the frontmatter only (between first --- pair)
+          sed -i "/^---$/,/^---$/ s/\(^[[:space:]]*version:[[:space:]]*\)${CURRENT}/\1${NEW_VERSION}/" "$SKILL_MD"
+          echo "Skill version: $CURRENT → $NEW_VERSION"
+
+      - name: Sync skills into plugins
+        run: scripts/sync-plugin-skills.sh
+
+      - name: Commit and push
+        env:
+          SKILL: ${{ inputs.skill }}
+          NEW_VERSION: ${{ steps.version.outputs.new_version }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add plugins/ "skills/${SKILL}/SKILL.md" skills/*/assets/
+          git commit -m "release: publish ${SKILL} (v${NEW_VERSION})"
+          git push
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.AUTO_MERGE_PAT }}
+          NEW_VERSION: ${{ steps.version.outputs.new_version }}
+          OLD_VERSION: ${{ steps.version.outputs.old_version }}
+          SKILL: ${{ inputs.skill }}
+        run: |
+          TAG="v${NEW_VERSION}"
+          NOTES=$(printf 'Publish **%s** skill update.\n\nPlugin version: %s → %s\n\nTriggered by: `Publish Skill` workflow' "$SKILL" "$OLD_VERSION" "$NEW_VERSION")
+          gh release create "$TAG" \
+            --title "$TAG" \
+            --notes "$NOTES" \
+            --latest
