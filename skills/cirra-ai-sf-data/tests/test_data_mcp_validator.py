@@ -81,7 +81,7 @@ class TestSoqlQueryValid:
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# 2. soql_query — INVALID QUERIES FAIL
+# 2. soql_query — MISSING REQUIRED PARAMS FAIL, OPTIONAL PARAMS PASS
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
@@ -92,17 +92,15 @@ class TestSoqlQueryInvalid:
         assert r["status"] == "fail"
         assert any("sObject" in m for m in _error_messages(r))
 
-    def test_missing_order_by_fails(self):
-        """TC-MQ5: Missing orderBy fails."""
-        r = _validate({"tool": "soql_query", "params": {"sObject": "Account", "groupBy": ""}})
-        assert r["status"] == "fail"
-        assert any("orderBy" in m for m in _error_messages(r))
+    def test_missing_order_by_passes(self):
+        """TC-MQ5: Missing orderBy is fine (optional param)."""
+        r = _validate({"tool": "soql_query", "params": {"sObject": "Account", "groupBy": "", "sf_user": "t"}})
+        assert r["status"] == "pass"
 
-    def test_missing_group_by_fails(self):
-        """TC-MQ6: Missing groupBy fails."""
-        r = _validate({"tool": "soql_query", "params": {"sObject": "Account", "orderBy": ""}})
-        assert r["status"] == "fail"
-        assert any("groupBy" in m for m in _error_messages(r))
+    def test_missing_group_by_passes(self):
+        """TC-MQ6: Missing groupBy is fine (optional param)."""
+        r = _validate({"tool": "soql_query", "params": {"sObject": "Account", "orderBy": "", "sf_user": "t"}})
+        assert r["status"] == "pass"
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

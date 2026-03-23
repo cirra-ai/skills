@@ -73,16 +73,6 @@ def _allow(context: str = "") -> dict:
     return out
 
 
-def _deny(reason: str) -> dict:
-    return {
-        "hookSpecificOutput": {
-            "hookEventName": "PreToolUse",
-            "permissionDecision": "deny",
-            "permissionDecisionReason": reason,
-        }
-    }
-
-
 def _metadata_type(tool_name: str, tool_input: dict) -> str:
     """Extract the metadata type from hook input fields."""
     base_tool = tool_name.split("__")[-1] if tool_name.startswith("mcp__") else tool_name
@@ -290,9 +280,10 @@ def main() -> int:
         return 0
 
     # --- JSON Schema validation (for types without a delegate) ---
+    # Flag schema issues but never block the operation.
     schema_error = _validate_schema(metadata_type, tool_input)
     if schema_error:
-        print(json.dumps(_deny(schema_error)))
+        print(json.dumps(_allow(f"🚨 {schema_error}")))
         return 0
 
     print(json.dumps(_allow()))

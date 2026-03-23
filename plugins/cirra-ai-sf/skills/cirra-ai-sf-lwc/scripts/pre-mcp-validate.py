@@ -7,8 +7,8 @@ targeting LightningComponentBundle.  Extracts the payload from the MCP
 parameters and validates it using the SLDS + template analysis pipeline.
 
 Decisions:
-  - Validation error (empty bundle, etc.)   → deny deployment
-  - Critical template issues                → deny deployment
+  - Validation error (empty bundle, etc.)   → allow with error context
+  - Critical template issues                → allow with critical warning
   - Score < 67%                             → allow with warning
   - Pass                                    → allow with score summary
   - Non-LWC type or validator unavailable   → allow silently
@@ -29,16 +29,6 @@ def _allow(context: str = "") -> dict:
     if context:
         out["hookSpecificOutput"]["additionalContext"] = context
     return out
-
-
-def _deny(reason: str) -> dict:
-    return {
-        "hookSpecificOutput": {
-            "hookEventName": "PreToolUse",
-            "permissionDecision": "deny",
-            "permissionDecisionReason": reason,
-        }
-    }
 
 
 def main() -> int:
@@ -72,10 +62,10 @@ def main() -> int:
         print(json.dumps(_allow()))
         return 0
 
-    # Validation error (e.g. empty bundle, unsupported tool) — deny
+    # Validation error (e.g. empty bundle, unsupported tool) — allow with context
     if status == "error":
         message = result.get("message", "LWC validation error")
-        print(json.dumps(_deny(message)))
+        print(json.dumps(_allow(f"🚨 LWC validation error: {message}")))
         return 0
 
     # Scored result
@@ -85,20 +75,20 @@ def main() -> int:
     issues = result.get("issues", [])
     pct = (score / max_score * 100) if max_score > 0 else 0
 
-    # Critical issues → deny
+    # Critical issues → allow with prominent warning (never block)
     critical = [i for i in issues if i.get("severity") == "CRITICAL"]
     if critical:
         lines = [f"• {i['message']}" for i in critical[:5]]
         if len(critical) > 5:
             lines.append(f"• ...and {len(critical) - 5} more critical issues")
 
-        reason = (
-            f"LWC validation found critical issues for '{full_name}' "
+        context = (
+            f"🚨 LWC validation found critical issues for '{full_name}' "
             f"(score: {score}/{max_score}, {pct:.0f}%).\n\n"
-            f"Critical issues must be fixed before deploying:\n"
+            f"Critical issues to fix:\n"
             + "\n".join(lines)
         )
-        print(json.dumps(_deny(reason)))
+        print(json.dumps(_allow(context)))
         return 0
 
     # Below threshold — allow with advisory warning

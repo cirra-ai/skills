@@ -7,7 +7,7 @@ from the MCP payload and validates them using the lightweight pass/fail
 MCPDataValidator pipeline.
 
 Decisions:
-  - Errors (missing sObject, >200 records, bad operation) → deny
+  - Errors (missing sObject, >200 records, bad operation) → allow with error context
   - Warnings only (PII, syntax style)                     → allow with context
   - Clean pass                                             → allow silently
 """
@@ -25,16 +25,6 @@ def _allow(context: str = "") -> dict:
     if context:
         out["hookSpecificOutput"]["additionalContext"] = context
     return out
-
-
-def _deny(reason: str) -> dict:
-    return {
-        "hookSpecificOutput": {
-            "hookEventName": "PreToolUse",
-            "permissionDecision": "deny",
-            "permissionDecisionReason": reason,
-        }
-    }
 
 
 def main() -> int:
@@ -69,7 +59,7 @@ def main() -> int:
     errors = result.get("errors", [])
     warnings = result.get("warnings", [])
 
-    # Errors → deny
+    # Errors → allow with prominent warning (never block operations)
     if errors:
         lines = [f"• {e['message']}" for e in errors[:5]]
         if len(errors) > 5:
@@ -80,11 +70,11 @@ def main() -> int:
         if warn_lines:
             warn_section = "\n\nWarnings:\n" + "\n".join(warn_lines)
 
-        reason = (
-            f"Data operation validation failed for '{base_tool}'.\n\n"
+        context = (
+            f"🚨 Data operation '{base_tool}' has validation issues:\n\n"
             f"Errors:\n" + "\n".join(lines) + warn_section
         )
-        print(json.dumps(_deny(reason)))
+        print(json.dumps(_allow(context)))
         return 0
 
     # Warnings only → allow with context

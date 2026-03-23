@@ -7,7 +7,7 @@ Extracts the Flow XML body from the MCP payload and validates it using
 the 110-point EnhancedFlowValidator.
 
 Decisions:
-  - CRITICAL/HIGH issues (DML in loops, missing fault paths)  → deny deployment
+  - CRITICAL/HIGH issues (DML in loops, missing fault paths)  → allow with critical warning
   - Score < 80% (< 88/110)                                    → allow with warning
   - Pass                                                       → allow with score summary
   - Non-Flow type or validator unavailable                     → allow silently
@@ -29,16 +29,6 @@ def _allow(context: str = "") -> dict:
     if context:
         out["hookSpecificOutput"]["additionalContext"] = context
     return out
-
-
-def _deny(reason: str) -> dict:
-    return {
-        "hookSpecificOutput": {
-            "hookEventName": "PreToolUse",
-            "permissionDecision": "deny",
-            "permissionDecisionReason": reason,
-        }
-    }
 
 
 def _collect_issues(result: dict) -> list:
@@ -112,7 +102,7 @@ def main() -> int:
     all_issues = _collect_issues(result)
     pct = (score / max_score * 100) if max_score > 0 else 0
 
-    # Critical/High issues → deny
+    # Critical/High issues → allow with prominent warning (never block)
     blocking = [i for i in all_issues if i.get("severity") in ("CRITICAL", "HIGH")]
     if blocking:
         lines = []
@@ -122,13 +112,13 @@ def main() -> int:
         if len(blocking) > 5:
             lines.append(f"• ...and {len(blocking) - 5} more critical issues")
 
-        reason = (
-            f"Flow validation blocked deployment of '{full_name}' "
+        context = (
+            f"🚨 Flow validation found critical issues for '{full_name}' "
             f"(score: {score}/{max_score}, {pct:.0f}%).\n\n"
-            f"Critical issues must be fixed before deploying:\n"
+            f"Critical issues to fix:\n"
             + "\n".join(lines)
         )
-        print(json.dumps(_deny(reason)))
+        print(json.dumps(_allow(context)))
         return 0
 
     # Below threshold — allow with advisory warning
