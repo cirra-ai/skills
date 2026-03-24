@@ -1,7 +1,7 @@
 ---
 name: cirra-ai-sf-apex
 metadata:
-  version: 1.2.0
+  version: 1.3.0
 description: >
   Generates and reviews Salesforce Apex code with 2025 best practices and 150-point
   scoring using Cirra AI MCP Server metadata API. Use when writing Apex classes, triggers,
@@ -30,7 +30,23 @@ available for post-processing and how large query results are retrieved.
 1. **Code Generation**: Create Apex classes, triggers (TAF), tests, async jobs from requirements
 2. **Code Review**: Analyze existing Apex for best practices violations with actionable fixes
 3. **Validation & Scoring**: Score code against 8 categories (0-150 points)
-4. **Metadata Deployment**: Deploy via Cirra AI MCP Server (metadata_create/metadata_update/metadata_read)
+4. **Deployment**: Deploy Apex classes and triggers via `tooling_api_dml` (Tooling API). Use `metadata_create`/`metadata_update` only for non-Apex metadata (Custom Objects, fields, etc.)
+
+---
+
+## Fast Path (Simple Requests)
+
+For simple, self-contained requests (utility class, hello-world, single-method class, quick test), skip Phases 1-3 and go straight to generate + deploy:
+
+1. Call `cirra_ai_init()` (always required)
+2. Generate the code as a string
+3. Run guardrail checks (anti-patterns only — skip full 150-point scoring)
+4. Deploy via `tooling_api_dml`
+5. Verify deployment
+
+**Use the fast path when**: the request is explicit, the class is self-contained, and there are no ambiguous requirements to clarify.
+
+**Use the full 5-phase workflow when**: the request involves multiple classes, triggers, complex business logic, integrations, or underspecified requirements.
 
 ---
 
@@ -216,6 +232,13 @@ tooling_api_query(
 )
 ```
 
+**Error Handling**: If `tooling_api_dml` returns an error:
+
+- `INVALID_TYPE` or `NOT_FOUND` for `ApexClass` → verify the sObject name is exactly `ApexClass` (case-sensitive) and that `Status` and `ApiVersion` are included
+- `DUPLICATE_VALUE` → a class with that `Name` already exists; query for the existing Id and use `operation="update"` instead
+- Compilation errors → read the error message, fix the Apex code string, and retry the `tooling_api_dml` call
+- Do **not** fall back to `metadata_create` for Apex classes — it does not support the `Body` field
+
 ---
 
 ### Phase 5: Documentation & Testing Guidance
@@ -225,7 +248,7 @@ tooling_api_query(
 ```
 ✓ Apex Code Complete: [ClassName]
   Type: [type] | API: 65.0
-  Deployment: VIA CIRRA AI MCP (metadata_create)
+  Deployment: VIA CIRRA AI MCP (tooling_api_dml)
   Test Class: [TestClassName]
   Validation: PASSED (Score: XX/150)
 
@@ -248,6 +271,8 @@ Next Steps: Run tests via Cirra AI, verify via metadata_read, monitor logs
 | **Documentation**  | 10     | ApexDoc on classes/methods; meaningful params                                    |
 
 **Thresholds**: ✅ 90+ (Deploy) | ⚠️ 67-89 (Review) | ❌ <67 (Block - fix required)
+
+**Exemption for trivial classes**: Simple utility classes, hello-world examples, and single-purpose test helpers are exempt from the <67 block threshold. Score them for informational purposes but do not block deployment. The guardrail anti-pattern checks (SOQL in loops, missing sharing, etc.) still apply regardless of complexity.
 
 ---
 
@@ -740,15 +765,15 @@ tooling_api_dml(operation="delete", sObject="ApexTrigger", record={"Id": "<trigg
 - cirra_ai_init
 - soql_query
 - tooling_api_query
-- metadata_create
-- metadata_update
-- metadata_read
+- tooling_api_dml
 
 #### Optional
 
 - sobject_describe
+- metadata_create (for non-Apex metadata only)
+- metadata_update (for non-Apex metadata only)
+- metadata_read
 - metadata_delete
-- tooling_api_dml
 - sobjects_list
 
 ---
@@ -757,9 +782,9 @@ tooling_api_dml(operation="delete", sObject="ApexTrigger", record={"Id": "<trigg
 
 - **API Version**: Deploy with 65.0 by default. If the org runs an older release, match the org's API version: `soql_query(sObject="Organization", fields=["ApiVersion"])`
 - **TAF Optional**: Prefer TAF when package is installed, use standard trigger pattern as fallback
-- **Scoring**: Block deployment if score < 67
+- **Scoring**: Block deployment if score < 67 (exempt trivial/test classes — see scoring thresholds)
 - **MCP Initialization**: ALWAYS call `cirra_ai_init` first
-- **Code as String**: Generate all Apex as strings, deploy via metadata_create/update
-- **No Local Files**: Apex code is NOT saved to local file system - lives only in Salesforce org via Metadata API
+- **Code as String**: Generate all Apex as strings, deploy via `tooling_api_dml`
+- **No Local Files**: Apex code is NOT saved to local file system - lives only in Salesforce org via Tooling API
 - **Org-wide audit**: Use the `/audit-org` command in the `cirra-ai-sf` plugin for a full org audit
 - **Validation hook**: runs for Apex-related metadata operations (for example `ApexClass` and `ApexTrigger`) via the plugin-level PreToolUse hook, independent of the active skill; use `python scripts/validate_apex_cli.py ...` for on-demand checks
