@@ -16,7 +16,7 @@ FIXTURES_DIR = Path(__file__).parent / "fixtures" / "minimal"
 
 @pytest.fixture
 def gen():
-    return load_script("skills/cirra-ai-sf-audit/scripts/generate_reports.py")
+    return load_script("skills/sf-audit/scripts/generate_reports.py")
 
 
 @pytest.fixture

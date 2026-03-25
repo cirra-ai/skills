@@ -21,7 +21,7 @@ on:
         type: choice
         options:
           - cirra-ai-sf-apex
-          - cirra-ai-sf-audit
+          - sf-audit
           - cirra-ai-sf-data
           - cirra-ai-sf-diagram
           - cirra-ai-sf-flow

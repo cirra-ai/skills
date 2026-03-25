@@ -15,6 +15,419 @@ description: >
 
 Expert Apex developer specializing in clean code, SOLID principles, and 2025 best practices. Generate production-ready, secure, performant, and maintainable Apex code with deployment via Cirra AI MCP Server.
 
+## Dispatch
+
+Parse `$ARGUMENTS` to determine which action workflow to run:
+
+| First argument or intent | Workflow |
+|---|---|
+| `create`, new class/trigger request | Create Apex |
+| `update`, modify existing code | Update Apex |
+| `validate`, review, score | Validate Apex |
+| _(no argument or unclear)_ | Ask the user (see below) |
+
+When intent is unclear, present:
+
+> What would you like to do?
+> 1. **Create** — generate a new Apex class or trigger
+> 2. **Update** — fetch, modify, validate, and redeploy
+> 3. **Validate** — score existing Apex code
+
+---
+
+## Create Apex
+
+Create a new Apex class or trigger following 2025 best practices.
+
+### 1. Gather requirements
+
+Use AskUserQuestion to collect:
+
+- **Type**: Trigger, Service, Selector, Batch, Queueable, Test, or other
+- **Primary purpose**: one sentence description
+- **Target object(s)**: which Salesforce objects are involved
+- **Special requirements**: async, scheduled, invocable, aura-enabled, etc.
+
+If the type is **Trigger**, also ask:
+
+- Which trigger events are needed (before insert, after update, etc.)
+- Whether the Trigger Actions Framework (TAF) is installed in the org
+
+### 2. Check for existing Apex
+
+Before generating, confirm nothing already exists with that name.
+
+**For a class**:
+
+```
+tooling_api_query(
+  sObject="ApexClass",
+  whereClause="Name = '<ClassName>'",
+  fields=["Name", "ApiVersion"]
+)
+```
+
+**For a trigger**:
+
+```
+tooling_api_query(
+  sObject="ApexTrigger",
+  whereClause="Name = '<TriggerName>'",
+  fields=["Name", "TableEnumOrId", "ApiVersion"]
+)
+```
+
+If either already exists, suggest the Update Apex workflow instead.
+
+### 3. Generate
+
+#### For a trigger
+
+Follow the **MANDATORY DELIVERABLES** rule: never put logic directly in the trigger body.
+
+**Check TAF installation** (if unknown):
+
+```
+tooling_api_query(
+  sObject="InstalledSubscriberPackage",
+  whereClause="Name = 'Trigger Actions Framework'"
+)
+```
+
+- **TAF installed** → generate a thin TAF trigger (`new MetadataTriggerHandler().run()`) + one or more `TA_Object_Purpose` action classes
+- **TAF not installed** → generate a thin trigger that delegates to an `ObjectTriggerHandler` class
+
+Also generate a corresponding test class covering the trigger and its handler/action.
+
+#### For a class
+
+Create the class and its test class following the sf-apex skill guidelines:
+
+- Proper naming conventions (PascalCase, type suffix where applicable)
+- ApexDoc comments on all public methods
+- Bulkification patterns (no SOQL/DML in loops)
+- Corresponding test class with 90%+ coverage patterns
+
+### 4. Validate before deploying
+
+Write the generated code to a temp file and validate:
+
+```bash
+# For a class:
+python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_apex_cli.py" "/tmp/<ClassName>.cls"
+
+# For a trigger:
+python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_apex_cli.py" "/tmp/<TriggerName>.trigger"
+```
+
+Fix any CRITICAL or HIGH issues before proceeding. The pre-deployment hook will also validate automatically when `tooling_api_dml` is called.
+
+### 5. Deploy
+
+#### Trigger
+
+**Deploy the handler/action class(es) first** — the trigger body references them and Salesforce will reject the trigger if they don't exist yet:
+
+```
+tooling_api_dml(
+  operation="insert",
+  sObject="ApexClass",
+  record={
+    "Name": "<HandlerOrActionClassName>",
+    "Body": "<class body>",
+    "Status": "Active",
+    "ApiVersion": "65.0"
+  }
+)
+```
+
+Then deploy the trigger:
+
+```
+tooling_api_dml(
+  operation="insert",
+  sObject="ApexTrigger",
+  record={
+    "Name": "<ObjectName>Trigger",
+    "TableEnumOrId": "<ObjectApiName>",
+    "Body": "<trigger body>",
+    "Status": "Active",
+    "ApiVersion": "65.0"
+  }
+)
+```
+
+> **Note (TAF only)**: For TAF triggers (`new MetadataTriggerHandler().run()`), deploy order between the trigger and action classes does not matter because `MetadataTriggerHandler` comes from the installed package and is already present in the org.
+
+#### Class
+
+```
+tooling_api_dml(
+  operation="insert",
+  sObject="ApexClass",
+  record={
+    "Name": "<ClassName>",
+    "Body": "<class body>",
+    "Status": "Active",
+    "ApiVersion": "65.0"
+  }
+)
+```
+
+Deploy the test class separately.
+
+### 6. Report
+
+Show the final validation score and deployment status. For TAF triggers, remind the user that a `Trigger_Action__mdt` custom metadata record must be created for each action class to activate it.
+
+---
+
+## Update Apex
+
+Fetch, modify, validate, and redeploy an existing Apex class or trigger.
+
+### Parsing the request
+
+The argument should be a class or trigger name: `$sf-apex update MyClass do X` or `$sf-apex update AccountTrigger add after update handling`
+
+If no name is given, ask the user which class or trigger to update and what changes are needed.
+
+### 1. Fetch the current implementation
+
+First try `ApexClass`. If not found, try `ApexTrigger`.
+
+**Try class first**:
+
+```
+tooling_api_query(
+  sObject="ApexClass",
+  whereClause="Name = '<Name>'",
+  fields=["Id", "Name", "Body", "ApiVersion"]
+)
+```
+
+**If not found, try trigger**:
+
+```
+tooling_api_query(
+  sObject="ApexTrigger",
+  whereClause="Name = '<Name>'",
+  fields=["Id", "Name", "TableEnumOrId", "Body", "ApiVersion"]
+)
+```
+
+If neither is found, suggest the Create Apex workflow instead.
+
+### 2. Read and understand
+
+Review the existing code before making any changes. Understand:
+
+- What the class/trigger currently does
+- Existing patterns and conventions in use
+- What the requested change affects
+
+For triggers, also check whether related handler/action classes need updating.
+
+### 3. Apply changes
+
+Modify the code following sf-apex skill guidelines. Preserve:
+
+- Existing ApexDoc comments (update where relevant)
+- Existing test coverage patterns
+- Naming conventions already in use
+
+For triggers: keep logic out of the trigger body — route to handler or TAF action classes instead.
+
+### 4. Validate before deploying
+
+Write the updated code to a temp file and validate:
+
+```bash
+# For a class:
+python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_apex_cli.py" "/tmp/<Name>.cls"
+
+# For a trigger:
+python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_apex_cli.py" "/tmp/<Name>.trigger"
+```
+
+Fix any CRITICAL or HIGH issues before proceeding. The pre-deployment hook will also validate automatically when `tooling_api_dml` is called.
+
+### 5. Deploy
+
+#### Updated class
+
+```
+tooling_api_dml(
+  operation="update",
+  sObject="ApexClass",
+  record={
+    "Id": "<classId>",
+    "Name": "<ClassName>",
+    "Body": "<updated body>",
+    "Status": "Active"
+  }
+)
+```
+
+#### Updated trigger
+
+```
+tooling_api_dml(
+  operation="update",
+  sObject="ApexTrigger",
+  record={
+    "Id": "<triggerId>",
+    "Name": "<TriggerName>",
+    "TableEnumOrId": "<ObjectApiName>",
+    "Body": "<updated body>",
+    "Status": "Active"
+  }
+)
+```
+
+If related handler/action classes were also modified, deploy each of those as separate `ApexClass` updates.
+
+### 6. Report
+
+Summarise the changes made and show the final validation score.
+
+---
+
+## Validate Apex
+
+Validate one or more Apex classes or triggers using the 150-point static analysis pipeline and return a scored report.
+
+### Parsing the request
+
+| Input after `$sf-apex validate`              | Interpretation                                        |
+| -------------------------------------------- | ----------------------------------------------------- |
+| `MyClass`                                    | Class or trigger name — fetch body from org, validate |
+| `<path>/MyClass.cls` (ends `.cls`)           | Local class file — validate directly                  |
+| `<path>/MyTrigger.trigger` (ends `.trigger`) | Local trigger file — validate directly                |
+| `MyClass,AccountTrigger,OtherClass`          | Comma-separated list — bulk fetch, validate each      |
+| `All`                                        | All ApexClass **and** ApexTrigger records in the org  |
+| _(no argument)_                              | Ask the user what to validate                         |
+
+### Validation script
+
+The validation script is at `${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_apex_cli.py`. Locate it with:
+
+```bash
+# $CLAUDE_PLUGIN_ROOT is set by Claude Code when the plugin is active.
+# If not set, find the script:
+find ~/.claude/plugins -name "validate_apex_cli.py" 2>/dev/null | grep sf-apex | head -1
+```
+
+### Local file
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_apex_cli.py" "<file_path>"
+```
+
+### Class or trigger name (fetch from org)
+
+1. Try to fetch as a class first:
+
+```
+tooling_api_query(
+  sObject="ApexClass",
+  whereClause="Name = '<Name>'",
+  fields=["Name", "Body"]
+)
+```
+
+If no result, try as a trigger:
+
+```
+tooling_api_query(
+  sObject="ApexTrigger",
+  whereClause="Name = '<Name>'",
+  fields=["Name", "Body"]
+)
+```
+
+If neither returns a result, tell the user the name was not found in the org.
+
+2. Write the body to a temp file using the appropriate extension:
+
+```
+Write /tmp/validate_<Name>.cls    ← for a class
+Write /tmp/validate_<Name>.trigger  ← for a trigger
+```
+
+3. Validate:
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_apex_cli.py" "/tmp/validate_<Name>.cls"
+# or
+python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_apex_cli.py" "/tmp/validate_<Name>.trigger"
+```
+
+4. Delete the temp file after validation.
+
+### Comma-separated list
+
+Each name may be a class or a trigger. Fetch all in a single query per sObject type, then merge the results.
+
+**Fetch all as classes**:
+
+```
+tooling_api_query(
+  sObject="ApexClass",
+  fields=["Name", "Body"],
+  whereClause="Name IN ('Name1', 'Name2', 'Name3')"
+)
+```
+
+**Fetch any remaining names as triggers** (names not matched above):
+
+```
+tooling_api_query(
+  sObject="ApexTrigger",
+  fields=["Name", "Body"],
+  whereClause="Name IN ('Name1', 'Name2', 'Name3')"
+)
+```
+
+**Fallback**: If either bulk fetch fails (timeout or size error), fall back to individual queries per name using the class-or-trigger lookup above.
+
+Validate each body (write → validate → delete), using `.cls` for classes and `.trigger` for triggers. After all are validated, show a summary table sorted by score ascending (worst first):
+
+| Name           | Type    | Score   | %   | Status             |
+| -------------- | ------- | ------- | --- | ------------------ |
+| WeakClass      | Class   | 58/150  | 39% | ❌ Below threshold |
+| AccountTrigger | Trigger | 102/150 | 68% | ✅ Pass            |
+| MyClass        | Class   | 125/150 | 83% | ✅ Pass            |
+
+### All
+
+1. Fetch all class names and all trigger names in parallel:
+
+```
+tooling_api_query(sObject="ApexClass", fields=["Name"], limit=500)
+tooling_api_query(sObject="ApexTrigger", fields=["Name"], limit=200)
+```
+
+2. Fetch bodies in batches of 50 (large bodies can make bigger batches fail):
+
+```
+tooling_api_query(
+  sObject="ApexClass",
+  fields=["Name", "Body"],
+  whereClause="Name IN (<50 names>)"
+)
+```
+
+Repeat with `ApexTrigger` for trigger names.
+
+**Backoff strategy**: If a batch of 50 fails (timeout or response size error), retry with 20 names, then 10, then fall back to individual queries for that batch.
+
+3. Validate each body (write → validate → delete), using `.cls` or `.trigger` extension as appropriate.
+4. Show the summary table (classes and triggers together) sorted by score ascending.
+5. Highlight any below 100/150 (67%) as requiring attention.
+
+---
+
 ## Execution modes
 
 This skill supports four execution modes — see
@@ -804,5 +1217,5 @@ tooling_api_dml(operation="delete", sObject="ApexTrigger", record={"Id": "<trigg
 - **MCP Initialization**: ALWAYS call `cirra_ai_init` first
 - **Code as String**: Generate all Apex as strings, deploy via `tooling_api_dml`
 - **No Local Files**: Apex code is NOT saved to local file system - lives only in Salesforce org via Tooling API
-- **Org-wide audit**: Use the `/audit-org` command in the `cirra-ai-sf` plugin for a full org audit
+- **Org-wide audit**: Use the `/audit-org` command in the `cirra-ai-sf` plugin for a full org audit (or `$sf-audit`)
 - **Validation hook**: runs for Apex-related metadata operations (for example `ApexClass` and `ApexTrigger`) via the plugin-level PreToolUse hook, independent of the active skill; use `python scripts/validate_apex_cli.py ...` for on-demand checks

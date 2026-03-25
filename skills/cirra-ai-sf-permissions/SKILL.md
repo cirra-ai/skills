@@ -24,7 +24,7 @@ The cirra-ai-sf-permissions skill provides comprehensive permission analysis:
 - **User Analyzer**: Show all permissions assigned to a specific user
 - **Security Audit**: Identify overly broad permissions, unused PS, and security risks
 - **Permission Set Creation**: Generate Permission Sets via `metadata_create`
-- **Integration**: Works with cirra-ai-sf-metadata, sf-data, cirra-ai-sf-diagram skills
+- **Integration**: Works with cirra-ai-sf-metadata, sf-data, sf-diagram skills
 
 ---
 

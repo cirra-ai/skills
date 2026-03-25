@@ -4,7 +4,7 @@ import json
 
 from conftest import load_script
 
-pre_score_mod = load_script("skills/cirra-ai-sf-audit/scripts/pre_score.py")
+pre_score_mod = load_script("skills/sf-audit/scripts/pre_score.py")
 
 
 # ---------------------------------------------------------------------------

@@ -1,16 +1,266 @@
 ---
-name: cirra-ai-sf-flow
+name: sf-flow
+plugin: cirra-ai-sf
+argument-hint: '[create|update|validate] <FlowName> ...'
 metadata:
-  version: 1.4.0
+  version: 2.0.0
 description: >
   Creates and validates Salesforce flows with 110-point scoring and Winter '26
   best practices using Cirra AI MCP Server. Use when building record-triggered flows,
   screen flows, autolaunched flows, scheduled flows, or reviewing existing flow performance.
 ---
 
-# cirra-ai-sf-flow: Salesforce Flow Creation and Validation (Cirra AI)
+# Salesforce Flow Development and Review
 
 Expert Salesforce Flow Builder with deep knowledge of best practices, bulkification, and Winter '26 (API 65.0) metadata. Create production-ready, performant, secure, and maintainable flows using Cirra AI MCP Server for deployment.
+
+## Dispatch
+
+Parse `$ARGUMENTS` to determine the action:
+
+| First argument or intent | Workflow |
+|---|---|
+| `create`, new flow request | Create Flow |
+| `update`, modify existing flow | Update Flow |
+| `validate`, review, score | Validate Flow |
+| _(no argument or unclear)_ | Ask the user (see below) |
+
+When intent is unclear, present:
+
+> What would you like to do?
+> 1. **Create** — generate a new Flow
+> 2. **Update** — fetch, modify, validate, and redeploy
+> 3. **Validate** — score an existing Flow
+
+---
+
+## Action Workflow: Create Flow
+
+Create a new Flow following Winter '26 best practices.
+
+### Step 1. Gather requirements
+
+Use AskUserQuestion to collect:
+
+- **Flow type**: Record-Triggered, Screen, Autolaunched, Scheduled, or Platform Event-Triggered
+- **Trigger object** (if record-triggered): which Salesforce object
+- **Trigger event** (if record-triggered): before save, after save, or both
+- **Primary purpose**: one sentence description
+- **Special requirements**: subflows, invocable actions, external callouts, etc.
+
+### Step 2. Check for existing flow
+
+Before generating, confirm the flow doesn't already exist:
+
+```
+metadata_list(
+  type="Flow",
+  sf_user="<sf_user>"
+)
+```
+
+If it exists, suggest running with `update <FlowApiName>` instead.
+
+### Step 3. Generate
+
+Create the flow XML following the sf-flow skill guidelines (see Workflow Design section below):
+
+- Proper API naming conventions (snake_case with descriptive prefix)
+- Fault paths on all DML and callout elements
+- Bulkification patterns (no DML or SOQL in loops)
+- Description and labels on all elements
+- `runInMode="SystemModeWithoutSharing"` only where justified
+
+### Step 4. Validate before deploying
+
+Write the generated XML to a temp file and validate:
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_flow_cli.py" "/tmp/<FlowApiName>.flow-meta.xml"
+```
+
+Fix any CRITICAL or HIGH issues before proceeding. The pre-deployment hook will also validate automatically when `metadata_create` is called.
+
+### Step 5. Deploy
+
+```
+metadata_create(
+  type="Flow",
+  metadata=[{"fullName": "<FlowApiName>", "body": "<flow XML>"}]
+)
+```
+
+### Step 6. Report
+
+Show the final validation score and deployment status.
+
+---
+
+## Action Workflow: Update Flow
+
+Fetch, modify, validate, and redeploy an existing Salesforce Flow.
+
+### Parsing the request
+
+The argument should be a flow API name: `update Auto_Lead_Assignment do X`
+
+If no flow name is given, ask the user which flow to update and what changes are needed.
+
+### Step 1. Fetch the current implementation
+
+```
+metadata_read(
+  type="Flow",
+  fullNames=["<FlowApiName>"],
+  sf_user="<sf_user>"
+)
+```
+
+If the flow is not found, suggest running with `create` instead.
+
+### Step 2. Read and understand
+
+Review the existing flow XML before making any changes. Understand:
+
+- Flow type and trigger configuration
+- Existing element names and labels
+- What the requested change affects
+
+### Step 3. Apply changes
+
+Modify the flow following sf-flow skill guidelines. Preserve:
+
+- Existing element names and API references (other flows/components may reference them)
+- Existing fault paths and error handling
+- Description and label conventions already in use
+
+### Step 4. Validate before deploying
+
+Write the updated XML to a temp file and validate:
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_flow_cli.py" "/tmp/<FlowApiName>.flow-meta.xml"
+```
+
+Fix any CRITICAL or HIGH issues before proceeding. The pre-deployment hook will also validate automatically when `metadata_update` is called.
+
+### Step 5. Deploy
+
+```
+metadata_update(
+  type="Flow",
+  metadata=[{"fullName": "<FlowApiName>", "body": "<updated XML>"}]
+)
+```
+
+### Step 6. Report
+
+Summarise the changes made and show the final validation score.
+
+---
+
+## Action Workflow: Validate Flow
+
+Validate one or more Flows using the 110-point static analysis pipeline and return a scored report.
+
+### Parsing the request
+
+| Input after `validate`                                                               | Interpretation                                   |
+| ------------------------------------------------------------------------------------ | ------------------------------------------------ |
+| `Auto_Lead_Assignment`                                                               | Flow API name — fetch XML from org, validate     |
+| `force-app/.../Auto_Lead_Assignment.flow-meta.xml` (ends `.flow-meta.xml` or `.xml`) | Local file — validate directly                   |
+| `Auto_Lead_Assignment,Screen_Case_Intake`                                            | Comma-separated list — bulk fetch, validate each |
+| `All`                                                                                | All Flow records in the org                      |
+| _(no argument)_                                                                      | Ask the user what to validate                    |
+
+### Validation script
+
+The validation script is at `${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_flow_cli.py`. Locate it with:
+
+```bash
+# $CLAUDE_PLUGIN_ROOT is set by Claude Code when the plugin is active.
+# If not set, find the script:
+find ~/.claude/plugins -name "validate_flow_cli.py" 2>/dev/null | grep sf-flow | head -1
+```
+
+### Local file
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_flow_cli.py" "<file_path>"
+```
+
+### Flow API name (fetch from org)
+
+1. Fetch the Flow XML:
+
+```
+metadata_read(
+  type="Flow",
+  fullNames=["<FlowApiName>"],
+  sf_user="<sf_user>"
+)
+```
+
+2. Write the XML content to a temp file:
+
+```
+Write /tmp/validate_<FlowApiName>.flow-meta.xml  ← the flow XML
+```
+
+3. Validate:
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_flow_cli.py" "/tmp/validate_<FlowApiName>.flow-meta.xml"
+```
+
+4. Delete the temp file after validation.
+
+### Comma-separated list
+
+Fetch all flow XML bodies in a single call:
+
+```
+metadata_read(
+  type="Flow",
+  fullNames=["Flow1", "Flow2", "Flow3"],
+  sf_user="<sf_user>"
+)
+```
+
+**Fallback**: If the bulk read fails (timeout or size error), fall back to individual `metadata_read` calls per flow.
+
+Validate each flow body (write → validate → delete). After all flows are validated, show a summary table sorted by score ascending (worst first):
+
+| Flow                        | Score  | %   | Status             |
+| --------------------------- | ------ | --- | ------------------ |
+| Before_Opportunity_Validate | 72/110 | 65% | Below threshold |
+| Auto_Lead_Assignment        | 98/110 | 89% | Pass            |
+
+### All
+
+1. Fetch all flow names:
+
+```
+metadata_list(type="Flow", sf_user="<sf_user>")
+```
+
+2. Fetch flow XML in batches of 20 (large flows can make bigger batches fail):
+
+```
+metadata_read(
+  type="Flow",
+  fullNames=["Flow1", ..., "Flow20"],
+  sf_user="<sf_user>"
+)
+```
+
+**Backoff strategy**: If a batch of 20 fails (timeout or response size error), retry with 10, then 5, then fall back to individual reads for that batch.
+
+3. Validate each flow (write → validate → delete).
+4. Show the summary table sorted by score ascending.
+5. Highlight any below 88/110 (80%) as requiring attention.
+
+---
 
 ## 📋 Quick Reference: Validation and Deployment
 
