@@ -95,12 +95,12 @@ The skill generates:
 | sf-apex     | Create @InvocableMethod for complex logic |
 | sf-lwc               | Create screen components for custom UI    |
 | sf-metadata | Deploy custom objects BEFORE flows        |
-| cirra-ai-sf-deploy   | Deploy flows to org                       |
+| sf-deploy   | Deploy flows to org                       |
 
 ## Orchestration Order
 
 ```
-sf-metadata → sf-flow → cirra-ai-sf-deploy → sf-data
+sf-metadata → sf-flow → sf-deploy → sf-data
 ```
 
 Always deploy custom objects/fields BEFORE flows that reference them.

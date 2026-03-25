@@ -38,7 +38,7 @@ Comprehensive guide to debugging Apex code, LSP validation, dependency managemen
 2. sf-metadata: Create Permission Sets
    └─> Grant FLS on custom fields
 
-3. cirra-ai-sf-deploy: Deploy fields + Permission Sets
+3. sf-deploy: Deploy fields + Permission Sets
    └─> metadata_create(type="CustomField", ...)
 
 4. sf-apex: Deploy Apex classes/triggers
@@ -172,7 +172,7 @@ Error: Average test coverage across all Apex Classes and Triggers is 68%, at lea
 1. Identify uncovered classes:
 
    ```
-   # Test execution: use cirra-ai-sf-testing skill or Salesforce Setup
+   # Test execution: use sf-testing skill or Salesforce Setup
    ```
 
 2. Add missing test classes
@@ -230,7 +230,7 @@ Error: FIELD_CUSTOM_VALIDATION_EXCEPTION: Annual Revenue must be greater than 0
 # Create trace flag
 sobject_dml(operation="insert", sobjectType="TraceFlag", records=[{StartDate: "2025-01-01T00:00:00Z", EndDate: "2025-01-02T00:00:00Z", LogType: "USER_DEBUG", TracedEntityId: "<USER_ID>", DebugLevelId: "<DEBUG_LEVEL_ID>"}])
 
-# Debug logs: use cirra-ai-sf-debug skill or Salesforce Setup
+# Debug logs: use sf-debug skill or Salesforce Setup
 ```
 
 ---
@@ -467,7 +467,7 @@ static void setup() {
 **Via Cirra AI MCP:**
 
 ```
-# Test execution: use cirra-ai-sf-testing skill or Salesforce Setup
+# Test execution: use sf-testing skill or Salesforce Setup
 # Run tests from Salesforce Setup → Apex Test Execution
 # Or use Developer Console → Test → Run All
 ```

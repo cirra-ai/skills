@@ -1357,7 +1357,7 @@ original end date is null (new contracts)."
 
 - [ ] Test with bulk data (200+ records)
 - [ ] Keep flows in Draft until fully tested
-- [ ] **Always use cirra-ai-sf-deploy skill** - never direct CLI commands
+- [ ] **Always use sf-deploy skill** - never direct CLI commands
 
 ---
 

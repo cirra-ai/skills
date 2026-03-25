@@ -114,7 +114,7 @@ Results appear as a scored report with a star rating and prioritised issue list.
 | sf-apex     | Create @AuraEnabled controllers   |
 | sf-flow     | Embed components in Flow screens  |
 | sf-metadata | Create Lightning Message Channels |
-| cirra-ai-sf-deploy   | Deploy component to org           |
+| sf-deploy   | Deploy component to org           |
 
 ## Spring '26 Features (API 66.0)
 

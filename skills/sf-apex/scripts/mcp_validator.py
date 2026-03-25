@@ -11,7 +11,7 @@ the MCP params, writes to a temp file, and delegates to the local
 ApexValidator (150-point scoring).
 
 For data operation validation (soql_query, sobject_dml), use
-cirra-ai-sf-data instead.
+sf-data instead.
 
 Input format:
 {
@@ -348,7 +348,7 @@ class ApexMCPValidator:
                 "status": "error",
                 "message": f"Tool '{tool}' is not a deployment tool. "
                            f"Expected one of: {', '.join(SUPPORTED_TOOLS)}. "
-                           f"For data operations, use cirra-ai-sf-data.",
+                           f"For data operations, use sf-data.",
             }
 
         return validate_apex_deployment(input_data)

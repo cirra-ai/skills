@@ -16,7 +16,7 @@ This document details how sf-flow fits into the multi-skill workflow for Salesfo
 │  2. sf-flow  ◀── YOU ARE HERE                                     │
 │     └── Create flow definitions (LOCAL files)                               │
 │                                                                             │
-│  3. cirra-ai-sf-deploy                                                      │
+│  3. sf-deploy                                                      │
 │     └── Deploy all metadata (REMOTE)                                        │
 │                                                                             │
 │  4. sf-data                                                        │
@@ -79,10 +79,10 @@ When building agents with Flow actions:
 │  1. sf-metadata                                                    │
 │     └── Create object/field definitions                                     │
 │                                                                             │
-│  2. cirra-ai-sf-connected-apps (if external API)                            │
+│  2. sf-connected-apps (if external API)                            │
 │     └── Create OAuth Connected App                                          │
 │                                                                             │
-│  3. cirra-ai-sf-integration (if external API)                               │
+│  3. sf-integration (if external API)                               │
 │     └── Create Named Credential + External Service                          │
 │                                                                             │
 │  4. sf-apex (if custom logic needed)                               │
@@ -91,13 +91,13 @@ When building agents with Flow actions:
 │  5. sf-flow  ◀── YOU ARE HERE                                     │
 │     └── Create Flow (HTTP Callout, Apex wrapper, or standard)               │
 │                                                                             │
-│  6. cirra-ai-sf-deploy                                                      │
+│  6. sf-deploy                                                      │
 │     └── Deploy all metadata                                                 │
 │                                                                             │
 │  7. Agentforce Agent                                                        │
 │     └── Create agent with flow:// target                                    │
 │                                                                             │
-│  8. cirra-ai-sf-deploy                                                      │
+│  8. sf-deploy                                                      │
 │     └── Publish agent (metadata_create via Cirra AI MCP)                    │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -145,7 +145,7 @@ actions:
 | Error                       | Cause                    | Fix                                       |
 | --------------------------- | ------------------------ | ----------------------------------------- |
 | "Internal Error" on publish | Variable name mismatch   | Match Flow var names exactly              |
-| "Flow not found"            | Flow not deployed        | Deploy flow with cirra-ai-sf-deploy first |
+| "Flow not found"            | Flow not deployed        | Deploy flow with sf-deploy first |
 | Agent can't read output     | Missing `isOutput: true` | Add output flag to Flow variable          |
 
 ---
@@ -155,12 +155,12 @@ actions:
 | From Skill              | To sf-flow | When                                 |
 | ----------------------- | ------------------- | ------------------------------------ |
 | sf-apex        | → sf-flow  | "Create Flow wrapper for Apex logic" |
-| cirra-ai-sf-integration | → sf-flow  | "Create HTTP Callout Flow"           |
+| sf-integration | → sf-flow  | "Create HTTP Callout Flow"           |
 
 | From sf-flow | To Skill               | When                                                |
 | --------------------- | ---------------------- | --------------------------------------------------- |
 | sf-flow      | → sf-metadata | "Describe Invoice\_\_c" (verify fields before flow) |
-| sf-flow      | → cirra-ai-sf-deploy   | "Deploy flow with checkOnly"                        |
+| sf-flow      | → sf-deploy   | "Deploy flow with checkOnly"                        |
 | sf-flow      | → sf-data              | "Create 200 test Accounts" (after deploy)           |
 
 ---

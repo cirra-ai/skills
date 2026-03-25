@@ -1236,7 +1236,7 @@ tooling_api_query(
 | From Skill              | To sf-flow | When                                 |
 | ----------------------- | ------------------- | ------------------------------------ |
 | sf-apex        | → sf-flow  | "Create Flow wrapper for Apex logic" |
-| cirra-ai-sf-integration | → sf-flow  | "Create HTTP Callout Flow"           |
+| sf-integration | → sf-flow  | "Create HTTP Callout Flow"           |
 
 | From sf-flow | To Skill               | When                                                |
 | --------------------- | ---------------------- | --------------------------------------------------- |

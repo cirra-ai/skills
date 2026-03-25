@@ -16,7 +16,7 @@ This document details how sf-data fits into the multi-skill workflow for Salesfo
 │  2. sf-flow                                                                 │
 │     └── Create flow definitions (LOCAL files)                               │
 │                                                                             │
-│  3. cirra-ai-sf-deploy                                                               │
+│  3. sf-deploy                                                               │
 │     └── Deploy all metadata (REMOTE)                                        │
 │                                                                             │
 │  4. sf-data  ◀── YOU ARE HERE (LAST!)                                      │
@@ -38,7 +38,7 @@ This document details how sf-data fits into the multi-skill workflow for Salesfo
 ```
 ERROR: "SObject type 'Quote__c' is not supported"
 CAUSE: Quote__c object was never deployed to the org
-FIX:   Run cirra-ai-sf-deploy BEFORE sf-data
+FIX:   Run sf-deploy BEFORE sf-data
 ```
 
 ---
@@ -47,7 +47,7 @@ FIX:   Run cirra-ai-sf-deploy BEFORE sf-data
 
 | Error                                      | Cause                          | Fix                                 |
 | ------------------------------------------ | ------------------------------ | ----------------------------------- |
-| `SObject type 'X' not supported`           | Object not deployed            | Deploy via cirra-ai-sf-deploy first |
+| `SObject type 'X' not supported`           | Object not deployed            | Deploy via sf-deploy first |
 | `INVALID_FIELD: No such column 'Field__c'` | Field not deployed OR FLS      | Deploy field + Permission Set       |
 | `REQUIRED_FIELD_MISSING`                   | Validation rule requires field | Include all required fields         |
 | `FIELD_CUSTOM_VALIDATION_EXCEPTION`        | Validation rule triggered      | Use valid test data values          |
@@ -61,7 +61,7 @@ When testing triggers or flows, always create test data AFTER deployment:
 ```
 1. sf-apex   → Create trigger handler class
 2. sf-flow   → Create record-triggered flow
-3. cirra-ai-sf-deploy → Deploy trigger + flow + objects
+3. sf-deploy → Deploy trigger + flow + objects
 4. sf-data   ◀── CREATE TEST DATA NOW
               └── Triggers and flows will fire!
 ```
@@ -104,12 +104,12 @@ sobject_dml(
 | ------------------- | ---------- | -------------------------------------------------- |
 | sf-apex    | → sf-data  | "Create 251 Accounts for bulk testing"             |
 | sf-flow    | → sf-data  | "Create Opportunities with StageName='Closed Won'" |
-| cirra-ai-sf-testing | → sf-data  | "Generate test records for test class"             |
+| sf-testing | → sf-data  | "Generate test records for test class"             |
 
 | From sf-data | To Skill               | When                                                |
 | ------------ | ---------------------- | --------------------------------------------------- |
 | sf-data      | → sf-metadata | "Describe Invoice\_\_c" (discover object structure) |
-| sf-data      | → cirra-ai-sf-deploy   | "Redeploy field after adding validation rule"       |
+| sf-data      | → sf-deploy   | "Redeploy field after adding validation rule"       |
 
 ---
 
@@ -140,7 +140,7 @@ Test Data Factory classes work with sf-data:
 ```
 sf-apex:  Creates TestDataFactory_Account.cls
           ↓
-cirra-ai-sf-deploy: Deploys factory class
+sf-deploy: Deploys factory class
           ↓
 sf-data:  Calls factory via Anonymous Apex
           ↓
@@ -162,8 +162,8 @@ After testing, clean up in reverse order:
 
 ```
 1. sf-data   → Delete test records
-2. cirra-ai-sf-deploy → Deactivate flows (if needed)
-3. cirra-ai-sf-deploy → Remove test metadata (if needed)
+2. sf-deploy → Deactivate flows (if needed)
+3. sf-deploy → Remove test metadata (if needed)
 ```
 
 **Cleanup command:**

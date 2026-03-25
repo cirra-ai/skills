@@ -22,7 +22,7 @@ on:
         options:
           - sf-apex
           - sf-audit
-          - cirra-ai-sf-data
+          - sf-data
           - sf-diagram
           - sf-flow
           - sf-kugamon

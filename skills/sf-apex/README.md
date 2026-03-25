@@ -101,8 +101,8 @@ Use `/validate-apex` at any time for on-demand checks:
 | ------------------- | ------------------------------------------- |
 | sf-flow    | Create Flow to call @InvocableMethod        |
 | sf-lwc              | Create LWC to call @AuraEnabled controllers |
-| cirra-ai-sf-testing | Run tests and analyze coverage              |
-| cirra-ai-sf-deploy  | Deploy Apex to org                          |
+| sf-testing | Run tests and analyze coverage              |
+| sf-deploy  | Deploy Apex to org                          |
 
 ## Documentation
 

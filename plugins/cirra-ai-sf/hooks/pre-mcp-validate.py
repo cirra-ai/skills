@@ -9,8 +9,8 @@ appropriate sub-skill validator script for deeper analysis.
 Currently registered delegates:
   - sf-apex: ApexClass, ApexTrigger
   - sf-flow: Flow, FlowDefinition
-  - cirra-ai-sf-data: soql_query, sobject_dml (routed by tool name)
-  - cirra-ai-sf-lwc: LightningComponentBundle
+  - sf-data: soql_query, sobject_dml (routed by tool name)
+  - sf-lwc: LightningComponentBundle
   - sf-metadata: CustomObject, CustomField, ValidationRule, RecordType, PermissionSet
 """
 
@@ -30,7 +30,7 @@ _DELEGATES: dict[str, str] = {
     "ApexTrigger":    "skills/sf-apex/scripts/pre-mcp-validate.py",
     "Flow":                       "skills/sf-flow/scripts/pre-mcp-validate.py",
     "FlowDefinition":             "skills/sf-flow/scripts/pre-mcp-validate.py",
-    "LightningComponentBundle":   "skills/cirra-ai-sf-lwc/scripts/pre-mcp-validate.py",
+    "LightningComponentBundle":   "skills/sf-lwc/scripts/pre-mcp-validate.py",
     "CustomObject":               "skills/sf-metadata/scripts/pre-mcp-validate.py",
     "CustomField":                "skills/sf-metadata/scripts/pre-mcp-validate.py",
     "ValidationRule":             "skills/sf-metadata/scripts/pre-mcp-validate.py",
@@ -41,8 +41,8 @@ _DELEGATES: dict[str, str] = {
 # Map base tool names to their validator script (relative to _PLUGIN_ROOT).
 # Used for tools like soql_query / sobject_dml that aren't metadata types.
 _TOOL_DELEGATES: dict[str, str] = {
-    "soql_query":  "skills/cirra-ai-sf-data/scripts/pre-mcp-validate.py",
-    "sobject_dml": "skills/cirra-ai-sf-data/scripts/pre-mcp-validate.py",
+    "soql_query":  "skills/sf-data/scripts/pre-mcp-validate.py",
+    "sobject_dml": "skills/sf-data/scripts/pre-mcp-validate.py",
 }
 
 # Map metadata types to their JSON Schema file (relative to _REPO_ROOT).
