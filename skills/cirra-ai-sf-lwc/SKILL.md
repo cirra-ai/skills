@@ -1,7 +1,7 @@
 ---
 name: cirra-ai-sf-lwc
 metadata:
-  version: 1.2.0
+  version: 1.3.0
 description: >
   Lightning Web Components development skill with PICKLES architecture methodology,
   component scaffolding, wire service patterns, event handling, Apex integration,
@@ -95,7 +95,23 @@ available for post-processing and how large query results are retrieved.
 cirra_ai_init()
 ```
 
-If you need a non-default team or org, pass `cirra_ai_team` and/or `sf_user` explicitly when switching context.
+Call with no parameters — uses the default org. If a default is configured, confirm with the user before proceeding. If no default is configured, ask for the Salesforce user/alias.
+
+---
+
+## Fast Path (Simple Requests)
+
+For simple, self-contained components (static display, single-field input, basic wrapper, quick prototype), bypass the full PICKLES design methodology and 165-point scoring while still performing initialization and mandatory checks, then generate + deploy:
+
+1. Call `cirra_ai_init()` (always required)
+2. Generate the LWC bundle (JS, HTML, CSS, meta.xml)
+3. Run basic checks (accessibility attributes, no hardcoded colors)
+4. Deploy via `metadata_create`
+5. Verify deployment
+
+**Use the fast path when**: the request is explicit, the component is self-contained with no complex data binding, and there are no ambiguous requirements.
+
+**Use the full PICKLES workflow when**: the component involves Apex/GraphQL integration, complex state management, cross-component communication, or underspecified requirements.
 
 ---
 
@@ -233,6 +249,8 @@ The cirra-ai-sf-lwc skill includes automated SLDS 2 validation that ensures dark
 ⚠️ 100-149 pts → Good component, minor styling issues to address
 ❌  <100 pts   → Needs significant SLDS 2 cleanup before deploy
 ```
+
+**Exemption for trivial components**: Simple display components, wrappers, and prototypes are exempt from the <100 block threshold. Score them for informational purposes but do not block deployment. Basic accessibility and dark mode checks still apply regardless of complexity.
 
 **CLI usage**: `validate_slds.py` validates a **single file** (not a directory):
 

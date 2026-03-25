@@ -499,6 +499,20 @@ Call with no parameters — uses the default org. If a default is configured, co
 
 This initializes the connection to Cirra AI MCP Server and provides access to all Salesforce metadata operations.
 
+### API Routing — Which Tool for Which Metadata Type
+
+Different metadata types require different APIs. Using the wrong one causes silent failures or missing fields:
+
+| Metadata Type                 | Correct Tool      | Why                                                 |
+| ----------------------------- | ----------------- | --------------------------------------------------- |
+| `ApexClass`, `ApexTrigger`    | `tooling_api_dml` | Metadata API does not support `Body` field for Apex |
+| `Flow`                        | `metadata_create` | Tooling API's `Flow` object is read-only            |
+| `LightningComponentBundle`    | `metadata_create` | Requires Base64-encoded sources in metadata format  |
+| `CustomObject`, `CustomField` | `metadata_create` | Standard Metadata API types                         |
+| `PermissionSet`               | `metadata_create` | Standard Metadata API type                          |
+| `ValidationRule`              | `metadata_create` | Standard Metadata API type                          |
+| Data records (Account, etc.)  | `sobject_dml`     | REST API for record-level CRUD (not metadata)       |
+
 ### MCP Tools Mapping
 
 | Operation           | MCP Tool            | Example                                                                                                                         |

@@ -1,7 +1,7 @@
 ---
 name: cirra-ai-sf-metadata
 metadata:
-  version: 1.2.0
+  version: 1.3.0
 description: >
   Salesforce metadata operations expert. Use when creating custom objects, fields,
   validation rules, record types, permission sets, or querying org metadata
@@ -110,6 +110,21 @@ cirra-ai-sf-data requires objects deployed to org. Always deploy metadata BEFORE
 - The operation is small (1–2 profiles, a handful of fields)
 - There's no alternative approach that makes sense
 - The user has been warned about the cost
+
+---
+
+## Fast Path (Simple Requests)
+
+For simple, self-contained metadata operations (single custom field, straightforward permission set, quick object describe), bypass the full 5-phase workflow while still performing initialization:
+
+1. Call `cirra_ai_init()` (always required)
+2. Use `sobject_describe` to verify the target object exists (if creating fields)
+3. Deploy via `metadata_create`
+4. Prompt for Permission Set if creating fields (FLS is still required)
+
+**Use the fast path when**: the request is a single, unambiguous metadata operation (e.g., "add a checkbox field to Account").
+
+**Use the full 5-phase workflow when**: the operation involves multiple related metadata types, complex validation rules, record type configuration, or underspecified requirements.
 
 ---
 
@@ -320,6 +335,8 @@ Check FLS by querying Permission Set assignments if needed.
 **Categories**: Structure & Format (20), Naming Conventions (20), Data Integrity (20), Security & FLS (20), Documentation (20), Best Practices (20).
 
 **Thresholds**: 108+ Excellent | 96+ Good | 84+ Acceptable | <72 BLOCKED
+
+**Exemption for trivial operations**: Single-field additions, test metadata, and throwaway configurations are exempt from the <72 block threshold. Score them for informational purposes but do not block deployment. Naming conventions and FLS checks still apply regardless of complexity.
 
 ### Category Details
 
