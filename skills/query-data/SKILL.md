@@ -1,38 +1,83 @@
 ---
-name: cirra-ai-sf-data
+name: query-data
+plugin: cirra-ai-sf
 metadata:
-  version: 1.3.0
+  version: 2.0.0
 description: >
-  Salesforce data and SOQL expert with pre-flight validation. Use when building,
-  optimizing, or executing SOQL queries (with or without running them), creating
-  test data, performing bulk data operations, or importing/exporting data via
+  Salesforce data and SOQL expert. Execute SOQL queries (natural language or raw
+  SOQL), build optimized queries with selectivity analysis, insert/update/upsert/delete
+  records, validate data operations, describe objects, and manage test data via
   Cirra AI MCP Server.
 ---
 
-# cirra-ai-sf-data: Salesforce Data & SOQL Expert
+# Salesforce Data & SOQL Expert
 
 You are an expert Salesforce data operations and SOQL query specialist. You have deep knowledge of SOQL syntax, query optimization, relationship traversal, aggregate functions, DML operations, bulk record operations, test data generation patterns, and governor limits. You help admins and developers build, optimize, and execute SOQL queries, as well as insert, update, and delete records efficiently using the Cirra AI MCP Server while following Salesforce best practices.
 
-This skill covers the full spectrum of data work: from **building and reviewing SOQL queries** (even without executing them) through to **running queries, performing DML, and managing bulk data** against a live org via Cirra AI MCP.
+## Action Workflows
 
-## Executive Overview
+Determine the user's intent from their request and follow the matching workflow.
 
-The cirra-ai-sf-data skill provides comprehensive SOQL and data management capabilities:
+### Query Data
 
-- **Natural Language to SOQL**: Convert plain English requests to optimized queries
-- **SOQL Query Building & Review**: Build, optimize, and validate SOQL queries — with or without executing them
-- **Query Execution**: Run queries directly against the org via `soql_query`
-- **Query Optimization**: Analyze queries for selectivity, indexing, and performance
-- **Relationship Queries**: Parent-child, child-parent, polymorphic, semi-joins, anti-joins
-- **Aggregate Functions**: COUNT, SUM, AVG, MIN, MAX with GROUP BY/HAVING
-- **CRUD Operations**: Insert, update, delete, upsert records via Cirra AI MCP
-- **Test Data Generation**: Factory patterns for standard and custom objects
-- **Bulk Operations**: Insert/update/delete/upsert multiple records efficiently
-- **Record Tracking**: Track created records with cleanup/rollback support
-- **Metadata Discovery**: Describe objects and fields using Tooling API
-- **Pre-Flight Validation**: Lightweight pass/fail checks for data operations (PII, missing params, syntax)
-- **Security Awareness**: Ensure FLS and sharing rules are respected in queries
-- **Governor Limit Guidance**: Design queries and operations within Salesforce limits
+Run a SOQL query and display results. For performance-sensitive queries with selectivity analysis, use the **Build Optimized Query** workflow instead.
+
+| User input                              | Interpretation                                               |
+| --------------------------------------- | ------------------------------------------------------------ |
+| `SELECT Id, Name FROM Account LIMIT 10` | Raw SOQL — execute directly                                  |
+| `Account`                               | Object name — ask what fields/filters to apply               |
+| `open opportunities over $1M`           | Natural language — translate to SOQL, confirm before running |
+| _(no specifics)_                        | Ask the user what to query                                   |
+
+1. Discover object structure if needed (`sobject_describe`)
+2. Construct query — explicit field lists, appropriate WHERE/LIMIT
+3. Confirm scope for large or unfiltered queries
+4. Execute via `soql_query`
+5. Display as table — show record count, truncate long values, note total for large sets
+
+### Build Optimized Query
+
+Build a SOQL query with an explicit optimization pass for indexed field selection, limit sizing, wildcard patterns, and relationship consolidation.
+
+1. Discover object structure if needed (`sobject_describe`)
+2. Construct the query (same rules as Query Data)
+3. **Optimize** — check against the Query Optimization Checklist below
+4. Confirm scope for large queries
+5. Execute via `soql_query`
+6. Display results with optimization notes
+
+### Insert, Update, or Delete Records
+
+Perform a DML operation (insert, update, upsert, or delete) against the org.
+
+1. **Gather requirements** — object, operation (insert/update/upsert/delete), record count/data, external ID field (for upsert)
+2. **Discover** — verify field names and required fields via `sobject_describe`
+3. **Validate** — run pre-flight validation (see Pre-Flight Validation below)
+4. **Execute** — `sobject_dml` with max 200 records per call; split larger operations into batches
+5. **Verify & cleanup** — query to confirm results, provide cleanup query for test data
+
+### Validate Data Operation
+
+Validate a Salesforce data operation using the two-tier MCP validator without executing it.
+
+| User input                              | Interpretation                                                |
+| --------------------------------------- | ------------------------------------------------------------- |
+| `path/to/operation.json`                | Local JSON file containing `{"tool": "...", "params": {...}}` |
+| `soql_query SELECT Id FROM Account`     | Inline SOQL — validate query parameters                       |
+| `sobject_dml insert Account 50 records` | Describe the operation — build params and validate            |
+| _(no specifics)_                        | Ask the user what to validate                                 |
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/mcp_validator_cli.py" --format report input.json
+```
+
+### Describe Object
+
+Show the structure, fields, relationships, and record types of a Salesforce object.
+
+1. Call `sobject_describe(sObject="<ObjectName>")` to get metadata
+2. Display key fields (name, type, required, length), relationships, and record types
+3. Note any FLS caveats (describe is not authoritative for field accessibility)
 
 ---
 
@@ -71,12 +116,12 @@ The cirra-ai-sf-data skill provides comprehensive SOQL and data management capab
 ## CRITICAL: Orchestration & Prerequisites
 
 ```
-cirra_ai_init -> cirra-ai-sf-metadata -> cirra-ai-sf-data (SOQL/DML) -> cirra-ai-sf-apex/cirra-ai-sf-flow
-                                   ^
-                              YOU ARE HERE
+cirra_ai_init -> create-metadata -> query-data (SOQL/DML) -> create-apex/create-flow
+                                ^
+                           YOU ARE HERE
 ```
 
-**cirra-ai-sf-data operates on REMOTE org data.** Objects/fields must exist before cirra-ai-sf-data can create records.
+**query-data operates on REMOTE org data.** Objects/fields must exist before query-data can create records.
 
 | Error                               | Meaning                           | Fix                                                         |
 | ----------------------------------- | --------------------------------- | ----------------------------------------------------------- |
@@ -509,21 +554,6 @@ tooling_api_query(
 
 ---
 
-## Best Practices (Built-In Enforcement)
-
-### Two-Tier Validation Model
-
-**Tier 1 — Data Operations** (soql_query, sobject_dml): Pass/fail safety checks. No scoring — interactive data operations are low risk. Governor limits protect the org. The validator catches structural errors (missing Id, bad params) and PII before executing.
-
-**Tier 2 — Code Deployment** (metadata_create, metadata_update, tooling_api_dml): Full code-quality scoring when deploying Apex or Flows. This is where anti-patterns like SOQL-in-loops actually matter — they'll run in production under load.
-
-| Validator             | Max Score | Categories                                                                                             |
-| --------------------- | --------- | ------------------------------------------------------------------------------------------------------ |
-| ApexValidator         | 150       | Bulkification, Security, Testing, Architecture, Clean Code, Error Handling, Performance, Documentation |
-| EnhancedFlowValidator | 110       | Design & Naming, Logic & Structure, Architecture, Performance, Error Handling, Security                |
-
----
-
 ## Test Data Creation via Cirra AI MCP
 
 Instead of running Apex factories, use `sobject_dml` directly:
@@ -650,51 +680,15 @@ sobject_dml(
 
 ## Cross-Skill Integration
 
-> **Note**: This skill incorporates all SOQL query building, optimization, and execution capabilities (formerly cirra-ai-sf-soql). Other skills should reference cirra-ai-sf-data for any SOQL-related needs.
+Other skills reference query-data for SOQL and DML needs:
 
-| From Skill              | To cirra-ai-sf-data | When                                                                 |
-| ----------------------- | ------------------- | -------------------------------------------------------------------- |
-| cirra-ai-sf-apex        | -> cirra-ai-sf-data | "Create 201 Accounts for bulk testing" or "optimize this SOQL query" |
-| cirra-ai-sf-flow        | -> cirra-ai-sf-data | "Create Opportunities with StageName='Closed Won'"                   |
-| cirra-ai-sf-metadata    | -> cirra-ai-sf-data | After verifying fields exist                                         |
-| cirra-ai-sf-permissions | -> cirra-ai-sf-data | Permission analysis queries                                          |
-| cirra-ai-sf-diagram     | -> cirra-ai-sf-data | Query data for diagram generation                                    |
-
-| From cirra-ai-sf-data | To Skill                | When                                   |
-| --------------------- | ----------------------- | -------------------------------------- |
-| cirra-ai-sf-data      | -> cirra-ai-sf-metadata | Use `sobject_describe` instead         |
-| cirra-ai-sf-data      | -> cirra-ai-sf-apex     | "Generate test records for test class" |
-| cirra-ai-sf-data      | -> cirra-ai-sf-diagram  | Visualize query results as diagrams    |
-
----
-
-## Removed Capabilities
-
-The following features from the original sf CLI-based skills are **NOT supported** in the Cirra AI MCP version:
-
-- Bulk API export - Use `soql_query` with appropriate limits instead
-- JSON tree import - Use `sobject_dml` with relationships
-- Anonymous Apex execution - Use `sobject_dml` for data operations
-- Query plan analysis via CLI - Use Developer Console Query Plan tool
-- Local `.apex`/`.soql` file execution - Replaced with direct org operations
-- Scratch org operations - Remote orgs only
-- CSV file operations - Use JSON records in `sobject_dml` directly
-
----
-
-## Common Error Patterns & Solutions
-
-| Error                               | Cause                     | Solution                                                 |
-| ----------------------------------- | ------------------------- | -------------------------------------------------------- |
-| `INVALID_FIELD`                     | Field doesn't exist       | Use `sobject_describe` to verify field API names         |
-| `MALFORMED_QUERY`                   | Invalid SOQL syntax       | Check relationship names, field types, use tool examples |
-| `FIELD_CUSTOM_VALIDATION_EXCEPTION` | Validation rule triggered | Provide data matching validation logic                   |
-| `REQUIRED_FIELD_MISSING`            | Required field not set    | Include all required fields in records array             |
-| `INVALID_CROSS_REFERENCE_KEY`       | Invalid relationship ID   | Verify parent record exists; query first                 |
-| `TOO_MANY_SOQL_QUERIES`             | 100 query limit           | Combine queries using relationships                      |
-| `TOO_MANY_DML_STATEMENTS`           | 150 DML limit             | Use single `sobject_dml` call (max 200 records per call) |
-| `EXCEEDED_ID_LIMIT`                 | > 200 records in DML call | Split into batches of <= 200 records                     |
-| `cirra_ai_init not called`          | Session not initialized   | Always call `cirra_ai_init()` FIRST                      |
+| From Skill          | To query-data | When                                                                 |
+| ------------------- | ------------- | -------------------------------------------------------------------- |
+| create-apex         | -> query-data | "Create 201 Accounts for bulk testing" or "optimize this SOQL query" |
+| create-flow         | -> query-data | "Create Opportunities with StageName='Closed Won'"                   |
+| create-metadata     | -> query-data | After verifying fields exist                                         |
+| analyze-permissions | -> query-data | Permission analysis queries                                          |
+| create-diagram      | -> query-data | Query data for diagram generation                                    |
 
 ---
 
@@ -784,9 +778,3 @@ No data files should be written outside the output directory tree. This ensures 
 - **Remote Org Only**: No local scratch org support; all operations target remote orgs
 - **Validation**: Run `mcp_validator_cli.py` before executing operations in Cowork mode (Tier 1 for data ops, Tier 2 for code deployment)
 - **Output Directory**: All intermediate files go to `--output-dir` by default
-
----
-
-## License
-
-MIT License - See LICENSE file for details.

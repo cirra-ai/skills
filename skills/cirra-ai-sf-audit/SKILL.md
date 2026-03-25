@@ -891,7 +891,7 @@ Update `audit_state.md`: mark all phases complete.
 | Fix or review an LWC component      | `cirra-ai-sf-lwc`         |
 | Fix a permission or Profile issue   | `cirra-ai-sf-permissions` |
 | Fix a metadata / data model issue   | `cirra-ai-sf-metadata`    |
-| Query or update data                | `cirra-ai-sf-data`        |
+| Query or update data                | `query-data`              |
 | Visualize architecture or hierarchy | `cirra-ai-sf-diagram`     |
 
 ## Build order (when fixing issues)

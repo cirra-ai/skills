@@ -1,8 +1,8 @@
-"""Tests for skills/cirra-ai-sf-data/scripts/soql_validator.py"""
+"""Tests for skills/query-data/scripts/soql_validator.py"""
 
 from conftest import load_script
 
-mod = load_script("skills/cirra-ai-sf-data/scripts/soql_validator.py")
+mod = load_script("skills/query-data/scripts/soql_validator.py")
 SOQLValidator = mod.SOQLValidator
 
 

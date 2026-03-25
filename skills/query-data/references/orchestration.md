@@ -1,6 +1,6 @@
-# Multi-Skill Orchestration: cirra-ai-sf-data Perspective
+# Multi-Skill Orchestration: query-data Perspective
 
-This document details how cirra-ai-sf-data fits into the multi-skill workflow for Salesforce development.
+This document details how query-data fits into the multi-skill workflow for Salesforce development.
 
 ---
 
@@ -19,16 +19,16 @@ This document details how cirra-ai-sf-data fits into the multi-skill workflow fo
 │  3. cirra-ai-sf-deploy                                                               │
 │     └── Deploy all metadata (REMOTE)                                        │
 │                                                                             │
-│  4. cirra-ai-sf-data  ◀── YOU ARE HERE (LAST!)                                      │
+│  4. query-data  ◀── YOU ARE HERE (LAST!)                                      │
 │     └── Create test data (REMOTE - objects must exist!)                     │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## ⚠️ Why cirra-ai-sf-data Goes LAST
+## ⚠️ Why query-data Goes LAST
 
-**cirra-ai-sf-data operates on REMOTE org data.** Objects/fields must be deployed before cirra-ai-sf-data can:
+**query-data operates on REMOTE org data.** Objects/fields must be deployed before query-data can:
 
 - Insert records
 - Query existing data
@@ -38,7 +38,7 @@ This document details how cirra-ai-sf-data fits into the multi-skill workflow fo
 ```
 ERROR: "SObject type 'Quote__c' is not supported"
 CAUSE: Quote__c object was never deployed to the org
-FIX:   Run cirra-ai-sf-deploy BEFORE cirra-ai-sf-data
+FIX:   Run cirra-ai-sf-deploy BEFORE query-data
 ```
 
 ---
@@ -62,7 +62,7 @@ When testing triggers or flows, always create test data AFTER deployment:
 1. cirra-ai-sf-apex   → Create trigger handler class
 2. cirra-ai-sf-flow   → Create record-triggered flow
 3. cirra-ai-sf-deploy → Deploy trigger + flow + objects
-4. cirra-ai-sf-data   ◀── CREATE TEST DATA NOW
+4. query-data   ◀── CREATE TEST DATA NOW
               └── Triggers and flows will fire!
 ```
 
@@ -100,16 +100,16 @@ sobject_dml(
 
 ## Cross-Skill Integration Table
 
-| From Skill          | To cirra-ai-sf-data | When                                               |
-| ------------------- | ------------------- | -------------------------------------------------- |
-| cirra-ai-sf-apex    | → cirra-ai-sf-data  | "Create 251 Accounts for bulk testing"             |
-| cirra-ai-sf-flow    | → cirra-ai-sf-data  | "Create Opportunities with StageName='Closed Won'" |
-| cirra-ai-sf-testing | → cirra-ai-sf-data  | "Generate test records for test class"             |
+| From Skill          | To query-data | When                                               |
+| ------------------- | ------------- | -------------------------------------------------- |
+| cirra-ai-sf-apex    | → query-data  | "Create 251 Accounts for bulk testing"             |
+| cirra-ai-sf-flow    | → query-data  | "Create Opportunities with StageName='Closed Won'" |
+| cirra-ai-sf-testing | → query-data  | "Generate test records for test class"             |
 
-| From cirra-ai-sf-data | To Skill               | When                                                |
-| --------------------- | ---------------------- | --------------------------------------------------- |
-| cirra-ai-sf-data      | → cirra-ai-sf-metadata | "Describe Invoice\_\_c" (discover object structure) |
-| cirra-ai-sf-data      | → cirra-ai-sf-deploy   | "Redeploy field after adding validation rule"       |
+| From query-data | To Skill               | When                                                |
+| --------------- | ---------------------- | --------------------------------------------------- |
+| query-data      | → cirra-ai-sf-metadata | "Describe Invoice\_\_c" (discover object structure) |
+| query-data      | → cirra-ai-sf-deploy   | "Redeploy field after adding validation rule"       |
 
 ---
 
@@ -135,14 +135,14 @@ tooling_api_query(
 
 ## Factory Pattern Integration
 
-Test Data Factory classes work with cirra-ai-sf-data:
+Test Data Factory classes work with query-data:
 
 ```
 cirra-ai-sf-apex:  Creates TestDataFactory_Account.cls
           ↓
 cirra-ai-sf-deploy: Deploys factory class
           ↓
-cirra-ai-sf-data:  Calls factory via Anonymous Apex
+query-data:  Calls factory via Anonymous Apex
           ↓
           251 records created → triggers fire → flows run
 ```
@@ -161,7 +161,7 @@ System.debug('Created ' + accounts.size() + ' accounts');
 After testing, clean up in reverse order:
 
 ```
-1. cirra-ai-sf-data   → Delete test records
+1. query-data   → Delete test records
 2. cirra-ai-sf-deploy → Deactivate flows (if needed)
 3. cirra-ai-sf-deploy → Remove test metadata (if needed)
 ```
@@ -184,8 +184,8 @@ sobject_dml(
 
 ## Related Documentation
 
-| Topic              | Location                                          |
-| ------------------ | ------------------------------------------------- |
-| Test data patterns | `cirra-ai-sf-data/docs/test-data-patterns.md`     |
-| Cleanup guide      | `cirra-ai-sf-data/docs/cleanup-rollback-guide.md` |
-| Factory templates  | `cirra-ai-sf-data/templates/factories/`           |
+| Topic              | Location                                    |
+| ------------------ | ------------------------------------------- |
+| Test data patterns | `query-data/docs/test-data-patterns.md`     |
+| Cleanup guide      | `query-data/docs/cleanup-rollback-guide.md` |
+| Factory templates  | `query-data/templates/factories/`           |

@@ -1,4 +1,4 @@
-# cirra-ai-sf-data
+# query-data
 
 Salesforce data and SOQL expert skill for Claude Cowork and Claude Code. Build, optimize, and execute SOQL queries, manage data operations, generate test data, and validate operations via the Cirra AI MCP Server.
 
@@ -37,7 +37,7 @@ Use one of the pre-built commands
 Invoke the skill:
 
 ```
-Skill: cirra-ai-sf-data
+Skill: query-data
 Request: "Create 251 test Account records with varying Industries for trigger testing in my dev sandbox"
 ```
 

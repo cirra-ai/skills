@@ -10,7 +10,7 @@ Covers:
 
 from conftest import load_script
 
-mod = load_script("skills/cirra-ai-sf-data/scripts/mcp_validator.py")
+mod = load_script("skills/query-data/scripts/mcp_validator.py")
 MCPDataValidator = mod.MCPDataValidator
 
 
