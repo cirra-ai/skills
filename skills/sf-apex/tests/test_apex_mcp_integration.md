@@ -1,7 +1,7 @@
 # Apex MCP Integration Test Protocol
 
 Live integration test for Apex deployment via Cirra AI MCP Server.
-Run interactively in a Claude Code or Codex session with MCP access and the `cirra-ai-sf-apex` skill active.
+Run interactively in a Claude Code or Codex session with MCP access and the `sf-apex` skill active.
 
 ## Test Summary (Last Run: 2026-03-07)
 
@@ -24,8 +24,8 @@ Run interactively in a Claude Code or Codex session with MCP access and the `cir
 Use this prompt in a fresh session:
 
 ```text
-Use the cirra-ai-sf-apex skill and run the full Apex MCP integration protocol at:
-skills/cirra-ai-sf-apex/tests/test_apex_mcp_integration.md
+Use the sf-apex skill and run the full Apex MCP integration protocol at:
+skills/sf-apex/tests/test_apex_mcp_integration.md
 
 Requirements:
 - Execute each step against my connected sandbox org

@@ -111,7 +111,7 @@ Results appear as a scored report with a star rating and prioritised issue list.
 
 | Related Skill        | When to Use                       |
 | -------------------- | --------------------------------- |
-| cirra-ai-sf-apex     | Create @AuraEnabled controllers   |
+| sf-apex     | Create @AuraEnabled controllers   |
 | cirra-ai-sf-flow     | Embed components in Flow screens  |
 | cirra-ai-sf-metadata | Create Lightning Message Channels |
 | cirra-ai-sf-deploy   | Deploy component to org           |

@@ -6,7 +6,7 @@ MCP Data Validator script
 Command-line entry point for validating Cirra AI MCP data operation parameters.
 
 Validates soql_query and sobject_dml calls with lightweight pass/fail checks.
-For code deployment validation (Apex, Flows), use cirra-ai-sf-apex or cirra-ai-sf-flow.
+For code deployment validation (Apex, Flows), use sf-apex or cirra-ai-sf-flow.
 
 Usage:
   # JSON from stdin

@@ -4,7 +4,7 @@ import os
 
 from conftest import load_script
 
-mod = load_script("skills/cirra-ai-sf-apex/scripts/validate_apex.py")
+mod = load_script("skills/sf-apex/scripts/validate_apex.py")
 ApexValidator = mod.ApexValidator
 
 FIXTURES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures")

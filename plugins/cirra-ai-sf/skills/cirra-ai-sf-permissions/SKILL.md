@@ -458,7 +458,7 @@ Examples:
 | From Skill           | To cirra-ai-sf-permissions | When                                        |
 | -------------------- | -------------------------- | ------------------------------------------- |
 | cirra-ai-sf-metadata | -> cirra-ai-sf-permissions | "Create Permission Set for new object"      |
-| cirra-ai-sf-apex     | -> cirra-ai-sf-permissions | "Grant access to Apex class"                |
+| sf-apex     | -> cirra-ai-sf-permissions | "Grant access to Apex class"                |
 | sf-data              | -> cirra-ai-sf-permissions | "Query user assignments in bulk"            |
 | cirra-ai-sf-diagram  | -> cirra-ai-sf-permissions | "Visualize permission hierarchy as Mermaid" |
 

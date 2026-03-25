@@ -323,14 +323,14 @@ This initializes your Salesforce org connection. It must be called once per sess
 
 ## ⚠️ CRITICAL: Orchestration Order
 
-**cirra-ai-sf-metadata → cirra-ai-sf-flow → sf-data** (you are here: cirra-ai-sf-flow with Cirra AI)
+**cirra-ai-sf-metadata → sf-flow → sf-data** (you are here: sf-flow with Cirra AI)
 
 ⚠️ Flow references custom object/fields? Create with cirra-ai-sf-metadata FIRST. Deploy objects BEFORE flows.
 
 ```text
 1. cirra-ai-sf-metadata  → Create objects/fields (local)
-2. cirra-ai-sf-flow      ◀── YOU ARE HERE (create flow, deploy via Cirra AI)
-3. sf-data      → Create test data (remote - objects must exist!)
+2. sf-flow               ◀── YOU ARE HERE (create flow, deploy via Cirra AI)
+3. sf-data               → Create test data (remote - objects must exist!)
 ```
 
 See `references/orchestration.md` for extended orchestration patterns including Agentforce.
@@ -1235,7 +1235,7 @@ tooling_api_query(
 
 | From Skill              | To cirra-ai-sf-flow | When                                 |
 | ----------------------- | ------------------- | ------------------------------------ |
-| cirra-ai-sf-apex        | → cirra-ai-sf-flow  | "Create Flow wrapper for Apex logic" |
+| sf-apex        | → cirra-ai-sf-flow  | "Create Flow wrapper for Apex logic" |
 | cirra-ai-sf-integration | → cirra-ai-sf-flow  | "Create HTTP Callout Flow"           |
 
 | From cirra-ai-sf-flow | To Skill               | When                                                |
@@ -1321,7 +1321,7 @@ Call Apex `@InvocableMethod` classes from Flow for complex business logic.
 | Resource                    | Location                                                                                              |
 | --------------------------- | ----------------------------------------------------------------------------------------------------- |
 | Apex Action Template        | `assets/apex-action-template.xml`                                                                     |
-| Apex @InvocableMethod Guide | [cirra-ai-sf-apex/references/flow-integration.md](../cirra-ai-sf-apex/references/flow-integration.md) |
+| Apex @InvocableMethod Guide | [sf-apex/references/flow-integration.md](../sf-apex/references/flow-integration.md) |
 | Triangle Architecture       | [references/triangle-pattern.md](references/triangle-pattern.md)                                      |
 
 ### ⚠️ Flows for Agentforce

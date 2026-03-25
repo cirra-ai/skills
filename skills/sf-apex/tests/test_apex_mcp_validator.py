@@ -4,7 +4,7 @@ import os
 
 from conftest import load_script
 
-mod = load_script("skills/cirra-ai-sf-apex/scripts/mcp_validator.py")
+mod = load_script("skills/sf-apex/scripts/mcp_validator.py")
 ApexMCPValidator = mod.ApexMCPValidator
 
 FIXTURES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures")

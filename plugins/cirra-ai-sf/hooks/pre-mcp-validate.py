@@ -7,7 +7,7 @@ JSON Schema validation on the metadata payload, then delegates to the
 appropriate sub-skill validator script for deeper analysis.
 
 Currently registered delegates:
-  - cirra-ai-sf-apex: ApexClass, ApexTrigger
+  - sf-apex: ApexClass, ApexTrigger
   - cirra-ai-sf-flow: Flow, FlowDefinition
   - cirra-ai-sf-data: soql_query, sobject_dml (routed by tool name)
   - cirra-ai-sf-lwc: LightningComponentBundle
@@ -26,8 +26,8 @@ _REPO_ROOT = os.path.dirname(os.path.dirname(_PLUGIN_ROOT))
 # Map metadata types to their validator script (relative to _PLUGIN_ROOT).
 # Add new entries here as sub-skills gain their own pre-deploy validators.
 _DELEGATES: dict[str, str] = {
-    "ApexClass":      "skills/cirra-ai-sf-apex/scripts/pre-mcp-validate.py",
-    "ApexTrigger":    "skills/cirra-ai-sf-apex/scripts/pre-mcp-validate.py",
+    "ApexClass":      "skills/sf-apex/scripts/pre-mcp-validate.py",
+    "ApexTrigger":    "skills/sf-apex/scripts/pre-mcp-validate.py",
     "Flow":                       "skills/cirra-ai-sf-flow/scripts/pre-mcp-validate.py",
     "FlowDefinition":             "skills/cirra-ai-sf-flow/scripts/pre-mcp-validate.py",
     "LightningComponentBundle":   "skills/cirra-ai-sf-lwc/scripts/pre-mcp-validate.py",

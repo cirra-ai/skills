@@ -46,6 +46,272 @@ available for post-processing and how large query results are retrieved.
 
 ---
 
+## Create LWC Workflow
+
+Create a new Lightning Web Component following PICKLES architecture and Spring '26 best practices.
+
+### 1. Gather requirements
+
+Use AskUserQuestion to collect:
+
+- **Component purpose**: one sentence description
+- **Target placement**: App Page, Record Page, Home Page, or Flow Screen
+- **Data source**: Lightning Data Service (LDS), Apex @wire, GraphQL, or none
+- **Target object(s)** (if data-driven): which Salesforce objects
+- **Special requirements**: dark mode, accessibility, LMS events, TypeScript, Agentforce discoverability, etc.
+
+### 2. Check for existing component
+
+Before generating, confirm nothing already exists with that name.
+
+```
+tooling_api_query(
+  sObject="LightningComponentBundle",
+  whereClause="DeveloperName = '<ComponentName>'",
+  fields=["DeveloperName", "ApiVersion"]
+)
+```
+
+If it already exists, suggest `update <ComponentName>` instead.
+
+### 3. Generate the bundle
+
+Apply the PICKLES framework from the sf-lwc skill. Generate all four files:
+
+#### `<componentName>.html`
+
+- SLDS 2 markup with `lightning-*` base components
+- No hardcoded colors — use CSS styling hooks (`--slds-g-*` variables)
+- Accessibility: ARIA labels/roles, keyboard navigation, `lwc:if` instead of ternary
+
+#### `<componentName>.js`
+
+- `@wire` decorators for data fetching (LDS or Apex)
+- `@api` for parent→child props, `CustomEvent` for child→parent
+- Error state handling for wire adapters
+- No `@track` on primitives (unnecessary in modern LWC)
+
+#### `<componentName>.css`
+
+- CSS styling hooks only — no hardcoded hex or RGB values
+- Dark mode ready via `--slds-g-*` variable fallbacks
+
+#### `<componentName>.js-meta.xml`
+
+- Correct `targets` for the intended placement
+- `targetConfigs` with typed properties where applicable
+- `isExposed: true` for App Builder drag-and-drop
+
+### 4. Validate before deploying
+
+Write each file to a temp directory and validate:
+
+```bash
+# Locate the validator
+VALIDATOR=$(find ~/.claude/plugins -name "validate_slds.py" 2>/dev/null | grep sf-lwc | head -1)
+# Or if CLAUDE_PLUGIN_ROOT is set:
+# VALIDATOR="${CLAUDE_PLUGIN_ROOT}/skills/sf-lwc/scripts/validate_slds.py"
+
+python3 "$VALIDATOR" "/tmp/<componentName>/<componentName>.html"
+python3 "$VALIDATOR" "/tmp/<componentName>/<componentName>.css"
+python3 "$VALIDATOR" "/tmp/<componentName>/<componentName>.js"
+```
+
+Fix any CRITICAL issues before proceeding. Advisory warnings can be noted in the report.
+
+### 5. Deploy
+
+```
+metadata_create(
+  type="LightningComponentBundle",
+  metadata=[{
+    "fullName": "c/<componentName>",
+    "html": "<html content>",
+    "css": "<css content>",
+    "js": "<js content>",
+    "meta": "<meta.xml content>"
+  }]
+)
+```
+
+### 6. Report
+
+Show the per-file validation scores and deployment status. If the component exposes `lightning__agentforce` capability, remind the user to add an agent action in Setup to make it discoverable.
+
+---
+
+## Update LWC Workflow
+
+Fetch, modify, validate, and redeploy an existing Lightning Web Component.
+
+### Parsing the request
+
+The argument should be a component name followed by the requested changes: `update accountDashboard add a search filter` or `update contactCard fix dark mode colors`.
+
+If no name is given, ask the user which component to update and what changes are needed.
+
+### 1. Fetch the current bundle
+
+```
+metadata_read(
+  type="LightningComponentBundle",
+  fullNames=["c/<ComponentName>"]
+)
+```
+
+If not found, suggest `create <ComponentName>` instead.
+
+### 2. Read and understand
+
+Review the existing files before making any changes. Understand:
+
+- What the component currently does
+- Existing SLDS classes, CSS variables, and styling patterns in use
+- Wire adapters and data flow
+- Event handling and component communication patterns
+- What the requested change affects
+
+### 3. Apply changes
+
+Modify the relevant file(s) following sf-lwc skill guidelines:
+
+- Preserve existing SLDS classes and wire patterns (update where relevant)
+- Maintain accessibility attributes
+- Do not introduce hardcoded colors — keep CSS hooks
+- If changing `targets` in meta.xml, verify all existing placements remain valid
+
+### 4. Validate before deploying
+
+Write the modified file(s) to a temp directory and validate:
+
+```bash
+# Locate the validator
+VALIDATOR=$(find ~/.claude/plugins -name "validate_slds.py" 2>/dev/null | grep sf-lwc | head -1)
+
+# Validate each modified file (skip unchanged ones)
+python3 "$VALIDATOR" "/tmp/<ComponentName>/<componentName>.html"
+python3 "$VALIDATOR" "/tmp/<ComponentName>/<componentName>.css"
+python3 "$VALIDATOR" "/tmp/<ComponentName>/<componentName>.js"
+```
+
+Fix any CRITICAL issues before proceeding.
+
+### 5. Deploy
+
+```
+metadata_update(
+  type="LightningComponentBundle",
+  metadata=[{
+    "fullName": "c/<ComponentName>",
+    "html": "<updated html>",
+    "css": "<updated css>",
+    "js": "<updated js>",
+    "meta": "<updated meta.xml>"
+  }]
+)
+```
+
+### 6. Report
+
+Summarise the changes made and show the final validation scores per file.
+
+---
+
+## Validate LWC Workflow
+
+Validate one or more Lightning Web Components using the SLDS 2 static analysis pipeline and return a scored report.
+
+### Parsing the request
+
+| Input after `validate` | Interpretation |
+|---|---|
+| `accountDashboard` | Component name — fetch bundle from org, validate |
+| `force-app/.../accountDashboard.html` (ends `.html`, `.css`, or `.js`) | Local file — validate directly |
+| `accountDashboard,contactCard` | Comma-separated list — bulk fetch, validate each |
+| `All` | All LightningComponentBundle records in the org |
+| _(no argument)_ | Ask the user what to validate |
+
+### Validation script
+
+```bash
+# $CLAUDE_PLUGIN_ROOT is set by Claude Code when the plugin is active.
+# If not set, find the script:
+VALIDATOR=$(find ~/.claude/plugins -name "validate_slds.py" 2>/dev/null | grep sf-lwc | head -1)
+```
+
+### Local file
+
+```bash
+python3 "$VALIDATOR" "<file_path>"
+```
+
+### Component name (fetch from org)
+
+1. Fetch the component bundle:
+
+```
+metadata_read(
+  type="LightningComponentBundle",
+  fullNames=["c/<ComponentName>"]
+)
+```
+
+If not found, tell the user the component was not found in the org.
+
+2. Write the bundle files to a temp directory:
+
+```
+Write /tmp/validate_<ComponentName>/<componentName>.html
+Write /tmp/validate_<ComponentName>/<componentName>.css
+Write /tmp/validate_<ComponentName>/<componentName>.js
+```
+
+3. Validate each file:
+
+```bash
+python3 "$VALIDATOR" "/tmp/validate_<ComponentName>/<componentName>.html"
+python3 "$VALIDATOR" "/tmp/validate_<ComponentName>/<componentName>.css"
+python3 "$VALIDATOR" "/tmp/validate_<ComponentName>/<componentName>.js"
+```
+
+4. Delete the temp directory after validation.
+
+5. Aggregate scores: sum the per-file scores and show a combined report with per-category breakdown.
+
+### Comma-separated list
+
+Fetch all bundles in individual `metadata_read` calls (LightningComponentBundle doesn't support bulk reads reliably):
+
+```
+metadata_read(type="LightningComponentBundle", fullNames=["c/<Name1>"])
+metadata_read(type="LightningComponentBundle", fullNames=["c/<Name2>"])
+```
+
+Validate each bundle (write → validate → delete). After all are validated, show a summary table sorted by score ascending (worst first):
+
+| Component | HTML | CSS | JS | Combined | Status |
+|---|---|---|---|---|---|
+| weakDashboard | 45/165 | 60/165 | 55/165 | avg 53% | ❌ Below threshold |
+| accountCard | 140/165 | 155/165 | 148/165 | avg 90% | ✅ Pass |
+
+### All
+
+1. List all deployed components:
+
+```
+metadata_list(type="LightningComponentBundle")
+```
+
+2. Fetch and validate each component bundle in batches of 10.
+
+**Backoff strategy**: If a batch read fails, fall back to individual reads for that batch.
+
+3. Validate each bundle (write → validate → delete).
+4. Show the summary table sorted by combined score ascending.
+5. Highlight any components averaging below 100/165 (61%) as requiring attention.
+
+---
+
 ## Core Responsibilities
 
 1. **Component Scaffolding**: Generate complete LWC bundles (JS, HTML, CSS, meta.xml)
@@ -249,7 +515,7 @@ The **PICKLES Framework** provides a structured approach to designing robust Lig
 
 ## SLDS 2 Validation (165-Point Scoring)
 
-The cirra-ai-sf-lwc skill includes automated SLDS 2 validation that ensures dark mode compatibility, accessibility, and modern styling.
+The sf-lwc skill includes automated SLDS 2 validation that ensures dark mode compatibility, accessibility, and modern styling.
 
 | Category                | Points | Key Checks                                        |
 | ----------------------- | ------ | ------------------------------------------------- |

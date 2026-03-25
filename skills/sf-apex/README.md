@@ -1,4 +1,4 @@
-# cirra-ai-sf-apex
+# sf-apex
 
 Generates and reviews Salesforce Apex code with 2025 best practices and 150-point scoring. Build production-ready, secure, and maintainable Apex.
 
@@ -31,7 +31,7 @@ Use one of the pre-built commands
 #### In other tools
 
 ```
-Skill: cirra-ai-sf-apex
+Skill: sf-apex
 Request: "Create an AccountService class with CRUD methods"
 ```
 

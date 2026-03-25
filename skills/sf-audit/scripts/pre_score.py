@@ -60,7 +60,7 @@ def _load_module(rel_path: str):
 
 def _score_apex_files(apex_dir: Path, trigger_dir: Path, threshold_pct: int):
     """Score .cls and .trigger files with the Apex validator."""
-    mod = _load_module("cirra-ai-sf-apex/scripts/validate_apex.py")
+    mod = _load_module("sf-apex/scripts/validate_apex.py")
     if mod is None:
         return [], [], []
 

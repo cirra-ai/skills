@@ -279,7 +279,7 @@ def validate_flow_deployment(input_data: dict[str, Any]) -> dict[str, Any]:
             "validator": None,
             "status": "skipped",
             "message": f"Not a Flow metadata type ('{metadata_type}'). "
-                       f"Use cirra-ai-sf-apex for Apex validation.",
+                       f"Use sf-apex for Apex validation.",
         }
 
     if not body or not body.strip():

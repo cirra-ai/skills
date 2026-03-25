@@ -59,7 +59,7 @@ FIX:   Run cirra-ai-sf-deploy BEFORE sf-data
 When testing triggers or flows, always create test data AFTER deployment:
 
 ```
-1. cirra-ai-sf-apex   → Create trigger handler class
+1. sf-apex   → Create trigger handler class
 2. cirra-ai-sf-flow   → Create record-triggered flow
 3. cirra-ai-sf-deploy → Deploy trigger + flow + objects
 4. sf-data   ◀── CREATE TEST DATA NOW
@@ -102,7 +102,7 @@ sobject_dml(
 
 | From Skill          | To sf-data | When                                               |
 | ------------------- | ---------- | -------------------------------------------------- |
-| cirra-ai-sf-apex    | → sf-data  | "Create 251 Accounts for bulk testing"             |
+| sf-apex    | → sf-data  | "Create 251 Accounts for bulk testing"             |
 | cirra-ai-sf-flow    | → sf-data  | "Create Opportunities with StageName='Closed Won'" |
 | cirra-ai-sf-testing | → sf-data  | "Generate test records for test class"             |
 
@@ -138,7 +138,7 @@ tooling_api_query(
 Test Data Factory classes work with sf-data:
 
 ```
-cirra-ai-sf-apex:  Creates TestDataFactory_Account.cls
+sf-apex:  Creates TestDataFactory_Account.cls
           ↓
 cirra-ai-sf-deploy: Deploys factory class
           ↓

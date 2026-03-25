@@ -2,7 +2,7 @@
 
 Salesforce orchestrator plugin for Claude Cowork. Coordinates the individual Salesforce skills (Apex, Flow, Data/SOQL, Metadata, Permissions, Diagrams, and others) into a unified admin suite.
 
-When installed, this plugin routes tasks to the appropriate skill based on context — e.g., Apex code reviews go to `cirra-ai-sf-apex`, data operations go to `sf-data`, metadata queries go to `cirra-ai-sf-metadata`.
+When installed, this plugin routes tasks to the appropriate skill based on context — e.g., Apex code reviews go to `sf-apex`, data operations go to `sf-data`, metadata queries go to `cirra-ai-sf-metadata`.
 
 Each skill also works independently without the orchestrator.
 
@@ -10,7 +10,7 @@ Each skill also works independently without the orchestrator.
 
 | Skill                                                               | Description                                                                     |
 | ------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| [cirra-ai-sf-apex](skills/cirra-ai-sf-apex/README.md)               | Create, update and review Apex classes and triggers                             |
+| [sf-apex](skills/sf-apex/README.md)               | Create, update and review Apex classes and triggers                             |
 | [cirra-ai-sf-flow](skills/cirra-ai-sf-flow/README.md)               | Create, update and review flows                                                 |
 | [sf-data](skills/sf-data/README.md)                                 | SOQL query building/optimization/execution, DML operations, test data factories |
 | [cirra-ai-sf-lwc](skills/cirra-ai-sf-lwc/README.md)                 | Lightning Web Components development                                            |

@@ -1,4 +1,4 @@
-"""Tests for skills/cirra-ai-sf-apex/scripts/validate_apex.py"""
+"""Tests for skills/sf-apex/scripts/validate_apex.py"""
 
 import os
 import tempfile
@@ -6,7 +6,7 @@ import tempfile
 from conftest import load_script
 
 mod = load_script(
-    "skills/cirra-ai-sf-apex/scripts/validate_apex.py"
+    "skills/sf-apex/scripts/validate_apex.py"
 )
 ApexValidator = mod.ApexValidator
 

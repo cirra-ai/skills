@@ -85,7 +85,7 @@ When building agents with Flow actions:
 │  3. cirra-ai-sf-integration (if external API)                               │
 │     └── Create Named Credential + External Service                          │
 │                                                                             │
-│  4. cirra-ai-sf-apex (if custom logic needed)                               │
+│  4. sf-apex (if custom logic needed)                               │
 │     └── Create @InvocableMethod classes                                     │
 │                                                                             │
 │  5. cirra-ai-sf-flow  ◀── YOU ARE HERE                                     │
@@ -154,7 +154,7 @@ actions:
 
 | From Skill              | To cirra-ai-sf-flow | When                                 |
 | ----------------------- | ------------------- | ------------------------------------ |
-| cirra-ai-sf-apex        | → cirra-ai-sf-flow  | "Create Flow wrapper for Apex logic" |
+| sf-apex        | → cirra-ai-sf-flow  | "Create Flow wrapper for Apex logic" |
 | cirra-ai-sf-integration | → cirra-ai-sf-flow  | "Create HTTP Callout Flow"           |
 
 | From cirra-ai-sf-flow | To Skill               | When                                                |

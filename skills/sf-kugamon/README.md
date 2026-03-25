@@ -75,7 +75,7 @@ The skill produces:
 | sf-data              | Query opportunities, accounts, contacts       |
 | cirra-ai-sf-metadata | Describe Kugamon custom objects and fields    |
 | sf-orders            | Order returns, cases, and post-sale lifecycle |
-| cirra-ai-sf-diagram  | Visualize quote-to-order data model           |
+| sf-diagram           | Visualize quote-to-order data model           |
 
 ## Documentation
 

@@ -1,4 +1,4 @@
-# cirra-ai-sf-audit
+# sf-audit
 
 Run a comprehensive Salesforce org audit that inventories and evaluates all major metadata categories: Apex classes, Apex triggers, Flows, Process Builders, Workflow Rules, LWC components, custom objects and fields, validation rules, Profiles, and Permission Sets. Generates Word, Excel, and HTML reports.
 
@@ -34,7 +34,7 @@ Use the pre-built command:
 ### In OpenAI Codex or other tools
 
 ```
-Skill: cirra-ai-sf-audit
+Skill: sf-audit
 Request: "Audit my Salesforce org"
 ```
 
@@ -65,13 +65,13 @@ paged through in-context with `fetch_more`.
 
 | Related Skill           | When to Use                                         |
 | ----------------------- | --------------------------------------------------- |
-| cirra-ai-sf-apex        | Fix or review Apex classes/triggers in the audit    |
-| cirra-ai-sf-flow        | Fix or review Flows found in the audit              |
-| cirra-ai-sf-lwc         | Fix or review LWC components found in the audit     |
-| cirra-ai-sf-permissions | Fix permission or Profile issues found in the audit |
-| cirra-ai-sf-metadata    | Fix data model issues found in the audit            |
+| sf-apex        | Fix or review Apex classes/triggers in the audit    |
+| sf-flow        | Fix or review Flows found in the audit              |
+| sf-lwc         | Fix or review LWC components found in the audit     |
+| sf-permissions | Fix permission or Profile issues found in the audit |
+| sf-metadata    | Fix data model issues found in the audit            |
 | sf-data                 | Query or update data after fixing issues            |
-| cirra-ai-sf-diagram     | Visualize architecture or permission hierarchies    |
+| sf-diagram     | Visualize architecture or permission hierarchies    |
 
 ## Requirements
 

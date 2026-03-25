@@ -458,14 +458,14 @@ Examples:
 | From Skill           | To cirra-ai-sf-permissions | When                                        |
 | -------------------- | -------------------------- | ------------------------------------------- |
 | cirra-ai-sf-metadata | -> cirra-ai-sf-permissions | "Create Permission Set for new object"      |
-| cirra-ai-sf-apex     | -> cirra-ai-sf-permissions | "Grant access to Apex class"                |
+| sf-apex     | -> cirra-ai-sf-permissions | "Grant access to Apex class"                |
 | sf-data              | -> cirra-ai-sf-permissions | "Query user assignments in bulk"            |
-| cirra-ai-sf-diagram  | -> cirra-ai-sf-permissions | "Visualize permission hierarchy as Mermaid" |
+| sf-diagram           | -> cirra-ai-sf-permissions | "Visualize permission hierarchy as Mermaid" |
 
 | From cirra-ai-sf-permissions | To Skill                | When                             |
 | ---------------------------- | ----------------------- | -------------------------------- |
 | cirra-ai-sf-permissions      | -> cirra-ai-sf-metadata | Generate Permission Set metadata |
-| cirra-ai-sf-permissions      | -> cirra-ai-sf-diagram  | Create hierarchy visualization   |
+| cirra-ai-sf-permissions      | -> sf-diagram           | Create hierarchy visualization   |
 
 ---
 
@@ -500,7 +500,7 @@ The following developer-focused features from the original sf-permissions are **
   - Tools: soql_query, tooling_api_query, metadata_create
 
 - **cirra-ai-sf-metadata** (optional): For creating Permission Sets
-- **cirra-ai-sf-diagram** (optional): For visualizing permission hierarchies as Mermaid diagrams
+- **sf-diagram** (optional): For visualizing permission hierarchies as Mermaid diagrams
 
 ---
 

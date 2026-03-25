@@ -15,7 +15,7 @@ set -euo pipefail
 #
 # Skill-to-plugin matching (checked in order):
 #   1. `plugin:` key in SKILL.md frontmatter (e.g. plugin: cirra-ai-sf)
-#   2. Directory name prefix (e.g. cirra-ai-sf-apex → plugins/cirra-ai-sf/)
+#   2. Directory name prefix (e.g. sf-apex → plugins/cirra-ai-sf/)
 #
 # Usage:
 #   scripts/sync-plugin-skills.sh           # sync all plugins

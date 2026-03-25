@@ -41,7 +41,7 @@ Comprehensive guide to debugging Apex code, LSP validation, dependency managemen
 3. cirra-ai-sf-deploy: Deploy fields + Permission Sets
    └─> metadata_create(type="CustomField", ...)
 
-4. cirra-ai-sf-apex: Deploy Apex classes/triggers
+4. sf-apex: Deploy Apex classes/triggers
    └─> tooling_api_dml(operation="insert", sObject="ApexClass", record={"Name":"MyClass","Body":"...","Status":"Active","ApiVersion":"65.0"})
 
 5. sf-data: Create test data

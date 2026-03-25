@@ -11,7 +11,7 @@ fail or leak data. Running an inefficient query interactively is fine; governor
 limits protect you.
 
 For code deployment validation (Apex, Flows), use the validators in
-cirra-ai-sf-apex or cirra-ai-sf-flow respectively.
+sf-apex or cirra-ai-sf-flow respectively.
 
 Input format:
 {
@@ -185,7 +185,7 @@ def validate_data_params(input_data: dict[str, Any]) -> dict[str, Any]:
         errors.append({
             "message": f"Tool '{tool}' is not a data operation. "
                        f"Expected 'soql_query' or 'sobject_dml'. "
-                       f"For code deployment validation, use cirra-ai-sf-apex "
+                       f"For code deployment validation, use sf-apex "
                        f"or cirra-ai-sf-flow."
         })
 

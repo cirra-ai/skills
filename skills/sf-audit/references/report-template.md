@@ -1,6 +1,6 @@
 # Cirra AI — Audit Report Template Guide
 
-This is the default report template for the `cirra-ai-sf-audit` skill. It
+This is the default report template for the `sf-audit` skill. It
 defines brand tokens, colours, CSS classes, Word/Excel styles, and layout
 conventions. If the user provides their own template, use that instead —
 user-provided templates always take precedence over this default.

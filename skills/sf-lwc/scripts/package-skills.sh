@@ -46,7 +46,7 @@ for skill_md in "$REPO_ROOT"/*/skills/*/SKILL.md; do
   plugin_dir="$(dirname "$(dirname "$skill_dir")")"
   plugin_name="$(basename "$plugin_dir")"
 
-  # Skip directories with spaces (e.g. "cirra-ai-sf-apex 2") — likely artifacts
+  # Skip directories with spaces (e.g. "sf-apex 2") — likely artifacts
   if [[ "$plugin_name" == *" "* ]]; then
     echo "  Skipping '$plugin_name' (contains spaces, likely artifact)"
     continue
