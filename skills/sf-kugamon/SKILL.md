@@ -1,7 +1,9 @@
 ---
-name: cirra-ai-sf-kugamon
+name: sf-kugamon
+plugin: cirra-ai-sf
+argument-hint: '[quote|order|contract|renewal|subscription] ...'
 metadata:
-  version: 1.2.1
+  version: 2.0.0
 description: >
   Kugamon CPQ quote and subscription management for Salesforce via Cirra AI MCP Server.
   Use when creating, verifying, or managing opportunities, quotes, orders, contracts,
@@ -12,7 +14,7 @@ description: >
   and full Order Release lifecycle (Contract, Asset, Subscription, and Renewal Opportunity creation).
 ---
 
-# cirra-ai-sf-kugamon: Kugamon CPQ Quote & Subscription Management with Cirra AI
+# Salesforce Kugamon CPQ Expert
 
 Expert Kugamon CPQ and Subscription Management specialist. Create, verify, and manage Salesforce opportunities, quotes, orders, and the full Order Release lifecycle using the Kugamon package (kugo2p) via the Cirra AI MCP Server. Automatically adapts workflows based on whether the kuga_sub (Kugamon Subscriptions) package is installed.
 

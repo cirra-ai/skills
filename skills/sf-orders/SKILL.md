@@ -1,7 +1,9 @@
 ---
-name: cirra-ai-sf-ordermgt
+name: sf-orders
+plugin: cirra-ai-sf
+argument-hint: '[order|return|case] ...'
 metadata:
-  version: 1.0.0
+  version: 2.0.0
 description: >
   Salesforce Order Management for managing orders, returns, and cases via the
   Cirra AI MCP Server. Use when users ask about order status, want to create
@@ -12,7 +14,7 @@ description: >
   order-to-return workflows.
 ---
 
-# cirra-ai-sf-ordermgt: Order Management with Cirra AI
+# Salesforce Order Management Expert
 
 Manage orders, returns, and support cases in Salesforce using the Cirra AI MCP Server. Covers the full order-to-return-to-case lifecycle using standard Salesforce objects (Order, ReturnOrder, ReturnOrderLineItem, Case).
 

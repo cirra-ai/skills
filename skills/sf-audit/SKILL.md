@@ -1,5 +1,7 @@
 ---
-name: cirra-ai-sf-audit
+name: sf-audit
+plugin: cirra-ai-sf
+argument-hint: '[full|apex|flow|lwc|metadata|permissions] ...'
 description: >
   Run a comprehensive Salesforce org audit. Inventories and scores Apex classes,
   Apex triggers, Flows, Process Builders, Workflow Rules, LWC components, custom
@@ -9,17 +11,17 @@ description: >
   health, generate an org inventory, run an org health check, audit permissions,
   review the data model, or audit apex flows and lwc.
 metadata:
-  version: 1.1.1
+  version: 2.0.0
 ---
 
-# cirra-ai-sf-audit: Salesforce Org Audit
+# Salesforce Org Audit
 
 Run a comprehensive Salesforce org audit covering code quality, automation
 health, data model design, and the permission model.
 
 **Scoring**: Where a numeric rubric exists, defer to the corresponding domain
-skill (`cirra-ai-sf-apex`, `cirra-ai-sf-flow`, `cirra-ai-sf-lwc`,
-`cirra-ai-sf-metadata`). Do not invent your own criteria.
+skill (`sf-apex`, `sf-flow`, `sf-lwc`,
+`sf-metadata`). Do not invent your own criteria.
 
 For categories without a numeric rubric (Triggers, Workflow Rules, Process
 Builders, Profiles, Validation Rules), produce an inventory with qualitative
@@ -541,7 +543,7 @@ Body FROM ApexClass WHERE NamespacePrefix = null ORDER BY Id`. If the
      to `SELECT Body FROM ApexClass WHERE Id = '<id>'` one at a time only
      if bulk query is not available.
 2. Write each body to `./audit_output/intermediate/apex/<ClassName>.cls`
-3. Score using the 150-point rubric from `cirra-ai-sf-apex`
+3. Score using the 150-point rubric from `sf-apex`
 4. Track: class name, score, top 3 issues
 5. After each batch of 20: update `audit_state.md` with progress and scores
 
@@ -601,7 +603,7 @@ Use the Flow ID list from Phase A4.
    - **MCP modes**: `tooling_api_query` on `Flow` WHERE `Id = '<id>'` (one
      row per ID — single-row constraint applies)
 2. Write each to `./audit_output/intermediate/flows/<DeveloperName>.flow-meta.xml`
-3. Score using the 110-point rubric from `cirra-ai-sf-flow`
+3. Score using the 110-point rubric from `sf-flow`
 4. Separate Process Builders (`ProcessType = 'Workflow'`) — inventory only,
    no Flow rubric score (see C4)
 5. After every 10 flows, update `audit_state.md`
@@ -637,7 +639,7 @@ Update `audit_state.md`: mark C4 complete.
    - **MCP modes**: `metadata_read` or `LightningComponentResource` Tooling
      query grouped by bundle ID
 2. Write each to `./audit_output/intermediate/lwc/<DeveloperName>/`
-3. Score using the 165-point rubric from `cirra-ai-sf-lwc`
+3. Score using the 165-point rubric from `sf-lwc`
 4. After every 10 components, update `audit_state.md`
 
 **Continue until every LWC component is scored.** Then verify:
@@ -886,9 +888,9 @@ Update `audit_state.md`: mark all phases complete.
 
 | Request                             | Skill                     |
 | ----------------------------------- | ------------------------- |
-| Fix or review an Apex class/trigger | `cirra-ai-sf-apex`        |
-| Fix or review a Flow                | `cirra-ai-sf-flow`        |
-| Fix or review an LWC component      | `cirra-ai-sf-lwc`         |
+| Fix or review an Apex class/trigger | `sf-apex`        |
+| Fix or review a Flow                | `sf-flow`        |
+| Fix or review an LWC component      | `sf-lwc`         |
 | Fix a permission or Profile issue   | `cirra-ai-sf-permissions` |
 | Fix a metadata / data model issue   | `cirra-ai-sf-metadata`    |
 | Query or update data                | `sf-data`                 |

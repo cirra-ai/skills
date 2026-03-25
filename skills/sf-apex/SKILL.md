@@ -1,7 +1,9 @@
 ---
-name: cirra-ai-sf-apex
+name: sf-apex
+plugin: cirra-ai-sf
+argument-hint: '[create|update|validate] [class|trigger|test-class] <Name|path> ...'
 metadata:
-  version: 1.3.0
+  version: 2.0.0
 description: >
   Generates and reviews Salesforce Apex code with 2025 best practices and 150-point
   scoring using Cirra AI MCP Server metadata API. Use when writing Apex classes, triggers,
@@ -9,7 +11,7 @@ description: >
   and SOLID principles.
 ---
 
-# cirra-ai-sf-apex: Salesforce Apex Code Generation and Review with Cirra AI
+# Salesforce Apex Code Generation and Review
 
 Expert Apex developer specializing in clean code, SOLID principles, and 2025 best practices. Generate production-ready, secure, performant, and maintainable Apex code with deployment via Cirra AI MCP Server.
 

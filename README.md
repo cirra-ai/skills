@@ -41,7 +41,7 @@ The following skills are available or planned:
 | [cirra-ai-sf-metadata](skills/cirra-ai-sf-metadata/README.md)       | Metadata creation, org queries, permission set generation                                                                            |
 | [cirra-ai-sf-permissions](skills/cirra-ai-sf-permissions/README.md) | Permission Set analysis, hierarchy viewer, "Who has X?" auditing                                                                     |
 | [cirra-ai-sf-diagram](skills/cirra-ai-sf-diagram/README.md)         | Salesforce architecture diagrams (ERDs, OAuth flows, integrations) in Mermaid                                                        |
-| [cirra-ai-sf-kugamon](skills/cirra-ai-sf-kugamon/README.md)         | Kugamon CPQ quote management — create, verify, and manage opportunities, quotes, and orders with [Kugamon](https://www.kugamon.com/) |
+| [sf-kugamon](skills/sf-kugamon/README.md)                           | Kugamon CPQ quote management — create, verify, and manage opportunities, quotes, and orders with [Kugamon](https://www.kugamon.com/) |
 
 The skills can either be installed individually, or as a bundle. See details for each AI platform below.
 

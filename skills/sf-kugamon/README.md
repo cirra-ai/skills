@@ -1,4 +1,4 @@
-# cirra-ai-sf-kugamon
+# sf-kugamon
 
 Kugamon CPQ quote management for Salesforce. Create, verify, and manage opportunities, quotes, and orders using the Kugamon package (kugo2p) via the Cirra AI MCP Server.
 
@@ -21,14 +21,14 @@ For full installation instructions (Claude Cowork, OpenAI, browser), see the [ro
 #### In Claude Cowork or Claude Code
 
 ```
-Skill: cirra-ai-sf-kugamon
+Skill: sf-kugamon
 Request: "Create a renewal quote for opportunity Acme Corp - Annual Subscription"
 ```
 
 #### In other tools
 
 ```
-Skill: cirra-ai-sf-kugamon
+Skill: sf-kugamon
 Request: "Create a new business quote for this opportunity"
 ```
 
@@ -74,7 +74,7 @@ The skill produces:
 | -------------------- | --------------------------------------------- |
 | sf-data              | Query opportunities, accounts, contacts       |
 | cirra-ai-sf-metadata | Describe Kugamon custom objects and fields    |
-| cirra-ai-sf-ordermgt | Order returns, cases, and post-sale lifecycle |
+| sf-orders            | Order returns, cases, and post-sale lifecycle |
 | cirra-ai-sf-diagram  | Visualize quote-to-order data model           |
 
 ## Documentation

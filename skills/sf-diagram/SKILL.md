@@ -1,14 +1,16 @@
 ---
-name: cirra-ai-sf-diagram
+name: sf-diagram
+plugin: cirra-ai-sf
+argument-hint: '[oauth|erd|integration|landscape|hierarchy|agentforce] ...'
 metadata:
-  version: 1.1.0
+  version: 2.0.0
 description: >
   Creates Salesforce architecture diagrams using Mermaid with ASCII fallback.
   Use when visualizing OAuth flows, data models (ERDs), integration sequences,
   system landscapes, role hierarchies, or Agentforce agent architectures.
 ---
 
-# cirra-ai-sf-diagram: Salesforce Diagram Generation
+# Salesforce Diagram Generation
 
 You are an expert diagram creator specializing in Salesforce architecture visualization. Generate clear, accurate, production-ready diagrams using Mermaid syntax with ASCII fallback for terminal compatibility. You can auto-discover org metadata via the Cirra AI MCP Server to build accurate data model diagrams.
 
@@ -25,9 +27,25 @@ building data model (ERD) diagrams from live org metadata.
 
 ---
 
+## Dispatch
+
+Parse `$ARGUMENTS` to determine the diagram type before gathering further requirements:
+
+| Input in `$ARGUMENTS`        | Diagram type                        |
+| ----------------------------- | ----------------------------------- |
+| `oauth` / `JWT Bearer` / etc. | OAuth flow diagram                  |
+| `erd` / object names          | ERD / data model diagram            |
+| `integration` / system names  | Integration sequence diagram        |
+| `landscape`                   | System landscape / architecture     |
+| `hierarchy` / `role`          | Role / permission hierarchy diagram |
+| `agentforce`                  | Agentforce agent flow diagram       |
+| _(no argument)_               | Ask what type of diagram to create  |
+
+---
+
 ## Executive Overview
 
-The cirra-ai-sf-diagram skill provides comprehensive diagramming capabilities:
+The sf-diagram skill provides comprehensive diagramming capabilities:
 
 - **OAuth Flows**: Authorization Code, JWT Bearer, PKCE, Client Credentials, Device Flow
 - **Data Models (ERD)**: Object relationships with color coding by type
@@ -53,7 +71,7 @@ The cirra-ai-sf-diagram skill provides comprehensive diagramming capabilities:
 
 ---
 
-## Workflow (5-Phase Pattern)
+## Action Workflow
 
 ### Phase 1: Initialize & Gather Requirements
 
@@ -327,16 +345,16 @@ Score: XX/80 - Rating
 
 ## Cross-Skill Integration
 
-| From Skill              | To cirra-ai-sf-diagram | When                                      |
-| ----------------------- | ---------------------- | ----------------------------------------- |
-| cirra-ai-sf-metadata    | -> cirra-ai-sf-diagram | Get real object/field definitions for ERD |
-| cirra-ai-sf-permissions | -> cirra-ai-sf-diagram | Visualize permission hierarchy            |
-| cirra-ai-sf-flow        | -> cirra-ai-sf-diagram | Document Flow logic as flowchart          |
+| From Skill              | To sf-diagram | When                                      |
+| ----------------------- | ------------- | ----------------------------------------- |
+| cirra-ai-sf-metadata    | -> sf-diagram | Get real object/field definitions for ERD |
+| cirra-ai-sf-permissions | -> sf-diagram | Visualize permission hierarchy            |
+| cirra-ai-sf-flow        | -> sf-diagram | Document Flow logic as flowchart          |
 
-| From cirra-ai-sf-diagram | To Skill                   | When                                        |
-| ------------------------ | -------------------------- | ------------------------------------------- |
-| cirra-ai-sf-diagram      | -> cirra-ai-sf-metadata    | Need object structure for ERD               |
-| cirra-ai-sf-diagram      | -> cirra-ai-sf-permissions | Need permission data for hierarchy diagrams |
+| From sf-diagram | To Skill                   | When                                        |
+| --------------- | -------------------------- | ------------------------------------------- |
+| sf-diagram      | -> cirra-ai-sf-metadata    | Need object structure for ERD               |
+| sf-diagram      | -> cirra-ai-sf-permissions | Need permission data for hierarchy diagrams |
 
 ---
 
