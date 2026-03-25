@@ -2,7 +2,7 @@
 
 Salesforce data and SOQL expert skill for Claude Cowork and Claude Code. Build, optimize, and execute SOQL queries, manage data operations, generate test data, and validate operations via the Cirra AI MCP Server.
 
-> **Note**: This skill incorporates all SOQL query capabilities (formerly cirra-ai-sf-soql). Use this skill for any SOQL-related work — building queries, optimizing them, or executing them.
+> **Note**: This skill incorporates all SOQL query capabilities (formerly sf-data). Use this skill for any SOQL-related work — building queries, optimizing them, or executing them.
 
 ## Features
 
@@ -69,13 +69,13 @@ determines how large query results are retrieved — see the skill for details.
 
 ## Related Skills
 
-| Skill                   | When to Use                                              |
-| ----------------------- | -------------------------------------------------------- |
-| cirra-ai-sf-apex        | Create and validate Apex code, triggers, test classes    |
-| cirra-ai-sf-flow        | Create and validate Salesforce Flows                     |
-| cirra-ai-sf-metadata    | Describe objects, fields, permission sets, profiles etc. |
-| cirra-ai-sf-permissions | Permission analysis queries                              |
-| cirra-ai-sf-diagram     | Visualize query results as diagrams                      |
+| Skill          | When to Use                                              |
+| -------------- | -------------------------------------------------------- |
+| sf-apex        | Create and validate Apex code, triggers, test classes    |
+| sf-flow        | Create and validate Salesforce Flows                     |
+| sf-metadata    | Describe objects, fields, permission sets, profiles etc. |
+| sf-permissions | Permission analysis queries                              |
+| sf-diagram     | Visualize query results as diagrams                      |
 
 ## Validation
 

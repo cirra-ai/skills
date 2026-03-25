@@ -94,12 +94,12 @@ whether Apex deployed successfully.
 
 ### Skills Covered
 
-| Skill            | Create           | Validate           | Update                  | Audit   |
-| ---------------- | ---------------- | ------------------ | ----------------------- | ------- |
-| cirra-ai-sf-data | Phase 1 (insert) | Phase 2 (query)    | Phase 3 (update/upsert) | Phase 4 |
-| cirra-ai-sf-apex | Phase 1 (create) | Phase 2 (validate) | Phase 3 (update)        | Phase 4 |
-| cirra-ai-sf-flow | Phase 1 (create) | Phase 2 (validate) | Phase 3 (update)        | Phase 4 |
-| cirra-ai-sf-lwc  | Phase 1 (create) | Phase 2 (validate) | Phase 3 (update)        | Phase 4 |
+| Skill   | Create           | Validate           | Update                  | Audit   |
+| ------- | ---------------- | ------------------ | ----------------------- | ------- |
+| sf-data | Phase 1 (insert) | Phase 2 (query)    | Phase 3 (update/upsert) | Phase 4 |
+| sf-apex | Phase 1 (create) | Phase 2 (validate) | Phase 3 (update)        | Phase 4 |
+| sf-flow | Phase 1 (create) | Phase 2 (validate) | Phase 3 (update)        | Phase 4 |
+| sf-lwc  | Phase 1 (create) | Phase 2 (validate) | Phase 3 (update)        | Phase 4 |
 
 ### Commands Covered
 

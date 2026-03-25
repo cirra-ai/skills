@@ -46,61 +46,61 @@ XSD_NS = "http://www.w3.org/2001/XMLSchema"
 # Metadata types and their XSD type prefixes. The key is the CLI-friendly
 # name; the value is (type_prefix, root_type_name, skill_dir, output_filename).
 METADATA_TYPES = {
-    "Flow": ("Flow", "Flow", "cirra-ai-sf-flow", "flow-metadata-schema.json"),
+    "Flow": ("Flow", "Flow", "sf-flow", "flow-metadata-schema.json"),
     "PermissionSet": (
         "PermissionSet",
         "PermissionSet",
-        "cirra-ai-sf-permissions",
+        "sf-permissions",
         "permissionset-metadata-schema.json",
     ),
-    "Profile": ("Profile", "Profile", "cirra-ai-sf-permissions", "profile-metadata-schema.json"),
-    "Layout": ("Layout", "Layout", "cirra-ai-sf-metadata", "layout-metadata-schema.json"),
+    "Profile": ("Profile", "Profile", "sf-permissions", "profile-metadata-schema.json"),
+    "Layout": ("Layout", "Layout", "sf-metadata", "layout-metadata-schema.json"),
     "FlexiPage": (
         "FlexiPage",
         "FlexiPage",
-        "cirra-ai-sf-metadata",
+        "sf-metadata",
         "flexipage-metadata-schema.json",
     ),
     "CustomObject": (
         "CustomObject",
         "CustomObject",
-        "cirra-ai-sf-metadata",
+        "sf-metadata",
         "customobject-metadata-schema.json",
     ),
     "CustomField": (
         "CustomField",
         "CustomField",
-        "cirra-ai-sf-metadata",
+        "sf-metadata",
         "customfield-metadata-schema.json",
     ),
     "ValidationRule": (
         "ValidationRule",
         "ValidationRule",
-        "cirra-ai-sf-metadata",
+        "sf-metadata",
         "validationrule-metadata-schema.json",
     ),
     "RecordType": (
         "RecordType",
         "RecordType",
-        "cirra-ai-sf-metadata",
+        "sf-metadata",
         "recordtype-metadata-schema.json",
     ),
     "QuickAction": (
         "QuickAction",
         "QuickAction",
-        "cirra-ai-sf-metadata",
+        "sf-metadata",
         "quickaction-metadata-schema.json",
     ),
     "PermissionSetGroup": (
         "PermissionSetGroup",
         "PermissionSetGroup",
-        "cirra-ai-sf-permissions",
+        "sf-permissions",
         "permissionsetgroup-metadata-schema.json",
     ),
     "SharingRules": (
         "SharingRules",
         "SharingRules",
-        "cirra-ai-sf-permissions",
+        "sf-permissions",
         "sharingrules-metadata-schema.json",
     ),
 }

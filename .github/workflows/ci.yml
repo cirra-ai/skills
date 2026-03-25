@@ -52,4 +52,4 @@ jobs:
         run: python -m pip install -r requirements-dev.txt
 
       - name: Run unit tests
-        run: pytest tests/ skills/cirra-ai-sf-flow/tests/ skills/cirra-ai-sf-apex/tests/ skills/cirra-ai-sf-lwc/tests/ skills/cirra-ai-sf-metadata/tests/ -v
+        run: pytest tests/ skills/sf-flow/tests/ skills/sf-apex/tests/ skills/sf-lwc/tests/ skills/sf-metadata/tests/ -v

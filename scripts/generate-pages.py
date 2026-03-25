@@ -87,7 +87,7 @@ def find_skills() -> list[dict]:
         description = _readme_first_paragraph(readme) if readme.exists() else ""
         version = _skill_version(skill_md)
         # Derive primary keyword from skill name (strip known prefixes)
-        main_kw = name.removeprefix("cirra-ai-sf-").removeprefix("cirra-ai-")
+        main_kw = name.removeprefix("sf-sf-").removeprefix("cirra-ai-")
         skills.append({
             "name": name,
             "description": description,
