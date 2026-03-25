@@ -1,4 +1,4 @@
-# cirra-ai-sf-ordermgt
+# sf-orders
 
 Salesforce Order Management for managing orders, returns, and support cases. Covers the full order-to-return-to-case lifecycle using the Cirra AI MCP Server.
 
@@ -20,14 +20,14 @@ For full installation instructions (Claude Cowork, OpenAI, browser), see the [ro
 #### In Claude Cowork or Claude Code
 
 ```
-Skill: cirra-ai-sf-ordermgt
+Skill: sf-orders
 Request: "Check the status of order 00000100"
 ```
 
 #### In other tools
 
 ```
-Skill: cirra-ai-sf-ordermgt
+Skill: sf-orders
 Request: "Create a return for order 00000100 — the product was defective"
 ```
 

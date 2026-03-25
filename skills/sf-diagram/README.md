@@ -1,4 +1,4 @@
-# cirra-ai-sf-diagram
+# sf-diagram
 
 Salesforce architecture diagram generation skill for Claude Cowork and Claude Code. Create Mermaid diagrams for OAuth flows, data models (ERDs), integration sequences, system landscapes, and role hierarchies.
 
@@ -30,7 +30,7 @@ Use the pre-built command
 Invoke the skill:
 
 ```
-Skill: cirra-ai-sf-diagram
+Skill: sf-diagram
 Request: "Create a JWT Bearer OAuth flow diagram"
 ```
 

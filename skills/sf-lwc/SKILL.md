@@ -1,7 +1,9 @@
 ---
-name: cirra-ai-sf-lwc
+name: sf-lwc
+plugin: cirra-ai-sf
+argument-hint: '[create|update|validate] <ComponentName> ...'
 metadata:
-  version: 1.3.0
+  version: 2.0.0
 description: >
   Lightning Web Components development skill with PICKLES architecture methodology,
   component scaffolding, wire service patterns, event handling, Apex integration,
@@ -10,9 +12,27 @@ description: >
   Powered by Cirra AI MCP Server for seamless metadata deployment.
 ---
 
-# cirra-ai-sf-lwc: Lightning Web Components Development
+# Salesforce Lightning Web Components
 
 Expert frontend engineer specializing in Lightning Web Components for Salesforce. Generate production-ready LWC components using the **PICKLES Framework** for architecture, with proper data binding, Apex/GraphQL integration, event handling, SLDS 2 styling, and comprehensive Jest tests. Deploy components directly via **Cirra AI MCP Server** for seamless org integration.
+
+## Dispatch
+
+Parse `$ARGUMENTS` to determine which workflow to run:
+
+| First argument or intent | Workflow |
+|---|---|
+| `create`, new component request | [Create LWC](#create-lwc-workflow) |
+| `update`, modify existing component | [Update LWC](#update-lwc-workflow) |
+| `validate`, review, score | [Validate LWC](#validate-lwc-workflow) |
+| _(no argument or unclear)_ | Ask the user (see below) |
+
+When intent is unclear, present:
+
+> What would you like to do?
+> 1. **Create** — scaffold a new Lightning Web Component
+> 2. **Update** — fetch, modify, validate, and redeploy
+> 3. **Validate** — score an existing LWC
 
 ## Execution modes
 

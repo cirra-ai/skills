@@ -705,7 +705,7 @@ For each custom object:
 
 1. `sobject_describe(sObject="<ApiName>")` — get field count, relationship
    count, record type count
-2. Score against the 120-point rubric from `cirra-ai-sf-metadata`
+2. Score against the 120-point rubric from `sf-metadata`
 3. Write summary to `./audit_output/intermediate/metadata/<ObjectApiName>.md`
 
 Validation rules:
@@ -891,10 +891,10 @@ Update `audit_state.md`: mark all phases complete.
 | Fix or review an Apex class/trigger | `sf-apex`        |
 | Fix or review a Flow                | `sf-flow`        |
 | Fix or review an LWC component      | `sf-lwc`         |
-| Fix a permission or Profile issue   | `cirra-ai-sf-permissions` |
-| Fix a metadata / data model issue   | `cirra-ai-sf-metadata`    |
+| Fix a permission or Profile issue   | `sf-permissions` |
+| Fix a metadata / data model issue   | `sf-metadata`    |
 | Query or update data                | `sf-data`                 |
-| Visualize architecture or hierarchy | `cirra-ai-sf-diagram`     |
+| Visualize architecture or hierarchy | `sf-diagram`     |
 
 ## Build order (when fixing issues)
 

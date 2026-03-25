@@ -52,7 +52,7 @@ for md_file in $(grep -rl "$MARKER_PATTERN" \
 
   # Determine the base directory for resolving the shared path.
   # Plugin commands: plugins/cirra-ai-sf/commands/foo.md → base is plugins/cirra-ai-sf
-  # Skills: skills/cirra-ai-sf-audit/SKILL.md → base is skills/cirra-ai-sf-audit
+  # Skills: skills/sf-audit/SKILL.md → base is skills/sf-audit
   md_dir="$(dirname "$md_file")"
   if [[ "$(basename "$md_dir")" == "commands" ]]; then
     base_dir="$(dirname "$md_dir")"
