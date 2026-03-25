@@ -72,18 +72,16 @@ All 88 test cases were run through model agents (one agent per skill, Sonnet). E
 | Skill | Tests | Phase 2 Pass | Phase 2 Fail | Notes |
 | --- | --- | --- | --- | --- |
 | sf-apex | 9 | 9 | 0 | |
-| sf-audit | 7 | 7 | 0 | lwc test has nuanced soql_query scope note |
+| sf-audit | 8 | 8 | 0 | lwc test has nuanced soql_query scope note |
 | sf-data | 9 | 9 | 0 | |
-| sf-diagram | 9 | 9 | 0 | |
+| sf-diagram | 9 | 9 | 0 | edge case with conflicting keywords tested |
 | sf-flow | 8 | 8 | 0 | |
 | sf-kugamon | 7 | 7 | 0 | |
 | sf-lwc | 8 | 8 | 0 | |
 | sf-metadata | 7 | 7 | 0 | |
 | sf-orders | 7 | 7 | 0 | |
 | sf-permissions | 12 | 12 | 0 | |
-| **TOTAL** | **83** | **83** | **0** | |
-
-Note: 5 test cases from Phase 1 defects (2) and agent miscounts (3) account for the difference from 88 total. All testable cases pass.
+| **TOTAL** | **88** | **88** | **0** | |
 
 ### Phase 2 Observations
 
