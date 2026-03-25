@@ -1,7 +1,7 @@
 ---
 name: cirra-ai-sf-data
 metadata:
-  version: 1.2.0
+  version: 1.3.0
 description: >
   Salesforce data and SOQL expert with pre-flight validation. Use when building,
   optimizing, or executing SOQL queries (with or without running them), creating
@@ -116,6 +116,20 @@ handled and whether local tooling is available for post-processing.
 
 ---
 
+## Fast Path (Simple Requests)
+
+For simple, self-contained data operations (quick query, single record insert, ad-hoc data inspection), bypass the full 6-phase workflow while still performing initialization:
+
+1. Call `cirra_ai_init()` (always required)
+2. Run the query or DML operation directly (`soql_query` or `sobject_dml`)
+3. Return results
+
+**Use the fast path when**: the request is a straightforward query or single DML operation with no ambiguity about the target object or fields.
+
+**Use the full 6-phase workflow when**: the operation involves bulk data (200+ records), complex queries requiring optimization, test data generation, or the user needs guidance on object structure.
+
+---
+
 ## Workflow (6-Phase)
 
 **Phase 1: Initialize** -> Call `cirra_ai_init()` with no parameters. If a default org is configured, confirm with the user before proceeding. If no default, ask for the Salesforce user/alias.
@@ -200,6 +214,8 @@ When building or reviewing SOQL queries:
 | **Readability** | 15     | Formatted, meaningful structure                         |
 
 **Thresholds**: 90-100 Production-optimized | 80-89 Good | 70-79 Performance concerns | <70 Needs improvement
+
+**Exemption for trivial queries**: Ad-hoc queries, exploratory data inspection, and test queries are exempt from scoring thresholds. Score them for informational purposes but do not flag performance concerns for interactive one-off queries. Governor limits protect the org.
 
 ---
 
