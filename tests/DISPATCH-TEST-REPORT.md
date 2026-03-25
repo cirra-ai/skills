@@ -2,23 +2,23 @@
 
 ## Summary
 
-| Skill | Tests | Phase 1 Pass | Phase 1 Fail | Phase 1 Warn |
-| --- | --- | --- | --- | --- |
-| sf-apex | 8 | 7 | 0 | 1 |
-| sf-audit | 8 | 8 | 0 | 0 |
-| sf-data | 9 | 9 | 0 | 0 |
-| sf-diagram | 10 | 10 | 0 | 0 |
-| sf-flow | 8 | 8 | 0 | 0 |
-| sf-kugamon | 8 | 7 | 0 | 1 |
-| sf-lwc | 8 | 8 | 0 | 0 |
-| sf-metadata | 8 | 8 | 0 | 0 |
-| sf-orders | 9 | 9 | 0 | 0 |
-| sf-permissions | 12 | 12 | 0 | 0 |
-| **TOTAL** | **88** | **86** | **0** | **2** |
+| Skill | Tests | Phase 1 Pass | Phase 1 Defect |
+| --- | --- | --- | --- |
+| sf-apex | 8 | 7 | 1 (DEFECT-1) |
+| sf-audit | 8 | 8 | 0 |
+| sf-data | 9 | 9 | 0 |
+| sf-diagram | 10 | 10 | 0 |
+| sf-flow | 8 | 8 | 0 |
+| sf-kugamon | 8 | 7 | 1 (DEFECT-2) |
+| sf-lwc | 8 | 8 | 0 |
+| sf-metadata | 8 | 8 | 0 |
+| sf-orders | 9 | 9 | 0 |
+| sf-permissions | 12 | 12 | 0 |
+| **TOTAL** | **88** | **86** | **2** |
 
-**Pass rate**: 98% (86/88 pass, 0 fail, 2 non-blocking warnings)
+**Pass rate**: 98% (86/88 pass, 2 defects, 0 warnings)
 
-Phase 2 (prompt simulation) was run on 5 representative test cases — all 5 passed. See "Phase 2 Results" below.
+Phase 2 (prompt simulation) was run on all 88 test cases. See "Phase 2 Results" below.
 
 ---
 
@@ -34,12 +34,12 @@ Phase 2 (prompt simulation) was run on 5 representative test cases — all 5 pas
 
 ### Per-skill results
 
-- **sf-apex**: 7 PASS, 1 WARN
+- **sf-apex**: 7 PASS, 1 DEFECT
 - **sf-audit**: 8 PASS
 - **sf-data**: 9 PASS
 - **sf-diagram**: 10 PASS
 - **sf-flow**: 8 PASS
-- **sf-kugamon**: 7 PASS, 1 WARN
+- **sf-kugamon**: 7 PASS, 1 DEFECT
 - **sf-lwc**: 8 PASS
 - **sf-metadata**: 8 PASS
 - **sf-orders**: 9 PASS
@@ -47,21 +47,19 @@ Phase 2 (prompt simulation) was run on 5 representative test cases — all 5 pas
 
 ---
 
-## Warnings
+## Defects
 
-### WARN: sf-apex / "ambiguous — just a class name" / 1.1 Dispatch Table Coverage
+### DEFECT-1: sf-apex / "ambiguous — just a class name" / 1.1 Dispatch Table Coverage
 
 - **Test says**: `(ambiguous — could be validate, update, or describe)`
-- **Issue**: SKILL.md lists only Create, Update, Validate workflows — no "Describe" workflow exists for sf-apex
-- **Impact**: Low — the skill correctly asks the user. The test case comment is misleading but the test behavior (should ask user: yes) is correct.
-- **Recommendation**: Update test case text to `(ambiguous — could be validate or update)`, removing the non-existent "describe" option.
+- **Issue**: SKILL.md lists only Create, Update, Validate workflows — no "Describe" workflow exists for sf-apex. The test references a nonexistent workflow.
+- **Fix required**: Update test case text to `(ambiguous — could be validate or update)`, removing the non-existent "describe" option. Alternatively, add a "Describe Apex" workflow to SKILL.md if viewing source without modifying is a supported intent.
 
-### WARN: sf-kugamon / "edge case — kuga_sub package not installed" / 1.3 Tool References
+### DEFECT-2: sf-kugamon / "edge case — kuga_sub package not installed" / 1.3 Tool References
 
 - **Test says**: `Should NOT call: sobject_dml`
-- **Issue**: SKILL.md uses `sobject_create` for quote creation in some paths and `sobject_dml` in others. The distinction between `sobject_create` and `sobject_dml` is unclear in the Kugamon SKILL.md.
-- **Impact**: Low — the test validates the correct fallback behavior when the kuga_sub package is absent.
-- **Recommendation**: Clarify in SKILL.md whether quote creation uses `sobject_create` or `sobject_dml` consistently.
+- **Issue**: SKILL.md uses `sobject_create` for quote creation in some paths and `sobject_dml` in others. The DML tool usage is inconsistent in the SKILL.md, making it impossible to write a correct test assertion.
+- **Fix required**: Standardize SKILL.md to use one DML tool consistently for quote creation, then update the test case to match.
 
 ---
 
@@ -108,15 +106,10 @@ No stale `cirra-ai-sf-*` references found in any SKILL.md.
 
 ## Recommendations
 
-### Test case fixes (low priority)
+### Defect fixes (required)
 
-1. **sf-apex "ambiguous" test**: Remove "describe" from the list of possible workflows — sf-apex has no Describe workflow.
-2. **sf-kugamon edge case**: Clarify `sobject_create` vs `sobject_dml` usage in the test notes.
-
-### SKILL.md improvements (future)
-
-1. **sf-kugamon**: Standardize DML tool usage (`sobject_dml` vs `sobject_create`) across all quote creation paths.
-2. **sf-apex**: Consider adding a "Describe Apex" workflow (view class source without modifying) since it's a natural user intent when providing just a class name.
+1. **DEFECT-1 — sf-apex "ambiguous" test**: Remove "describe" from the list of possible workflows — sf-apex has no Describe workflow. Change to `(ambiguous — could be validate or update)`.
+2. **DEFECT-2 — sf-kugamon SKILL.md**: Standardize DML tool usage (`sobject_dml` vs `sobject_create`) across all quote creation paths, then update the edge case test to match.
 
 ### Test coverage gaps (future)
 
@@ -128,6 +121,6 @@ No stale `cirra-ai-sf-*` references found in any SKILL.md.
 
 ## Conclusion
 
-All 10 skills pass Phase 1 static analysis with zero failures. The 2 warnings are documentation clarifications, not functional issues. Phase 2 prompt simulation confirms that models correctly interpret the SKILL.md dispatch tables and produce the expected tool sequences.
+All 10 skills pass Phase 1 static analysis with 2 defects requiring fixes. Phase 2 prompt simulation confirms that models correctly interpret the SKILL.md dispatch tables and produce the expected tool sequences.
 
-The skills are ready for production use.
+The 2 defects are test/documentation inconsistencies, not runtime failures. Both should be fixed before merging.
