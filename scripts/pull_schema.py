@@ -50,10 +50,10 @@ METADATA_TYPES = {
     "PermissionSet": (
         "PermissionSet",
         "PermissionSet",
-        "cirra-ai-sf-permissions",
+        "sf-permissions",
         "permissionset-metadata-schema.json",
     ),
-    "Profile": ("Profile", "Profile", "cirra-ai-sf-permissions", "profile-metadata-schema.json"),
+    "Profile": ("Profile", "Profile", "sf-permissions", "profile-metadata-schema.json"),
     "Layout": ("Layout", "Layout", "cirra-ai-sf-metadata", "layout-metadata-schema.json"),
     "FlexiPage": (
         "FlexiPage",
@@ -94,13 +94,13 @@ METADATA_TYPES = {
     "PermissionSetGroup": (
         "PermissionSetGroup",
         "PermissionSetGroup",
-        "cirra-ai-sf-permissions",
+        "sf-permissions",
         "permissionsetgroup-metadata-schema.json",
     ),
     "SharingRules": (
         "SharingRules",
         "SharingRules",
-        "cirra-ai-sf-permissions",
+        "sf-permissions",
         "sharingrules-metadata-schema.json",
     ),
 }

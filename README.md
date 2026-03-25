@@ -39,7 +39,7 @@ The following skills are available or planned:
 | [sf-lwc](skills/sf-lwc/README.md)                                   | Lightning Web Components development                                                                                                 |
 | [sf-audit](skills/sf-audit/README.md)                               | Full org audit across Apex, Flows, and LWC with scored reports                                                                       |
 | [cirra-ai-sf-metadata](skills/cirra-ai-sf-metadata/README.md)       | Metadata creation, org queries, permission set generation                                                                            |
-| [cirra-ai-sf-permissions](skills/cirra-ai-sf-permissions/README.md) | Permission Set analysis, hierarchy viewer, "Who has X?" auditing                                                                     |
+| [sf-permissions](skills/sf-permissions/README.md) | Permission Set analysis, hierarchy viewer, "Who has X?" auditing                                                                     |
 | [sf-diagram](skills/sf-diagram/README.md)                           | Salesforce architecture diagrams (ERDs, OAuth flows, integrations) in Mermaid                                                        |
 | [sf-kugamon](skills/sf-kugamon/README.md)                           | Kugamon CPQ quote management — create, verify, and manage opportunities, quotes, and orders with [Kugamon](https://www.kugamon.com/) |
 

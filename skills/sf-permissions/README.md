@@ -1,4 +1,4 @@
-# cirra-ai-sf-permissions
+# sf-permissions
 
 Salesforce permission analysis and auditing skill for Claude Cowork and Claude Code. Analyze Permission Set hierarchies, find "who has access to X?", audit user permissions, and identify security risks via the Cirra AI MCP Server.
 
@@ -29,7 +29,7 @@ Use the pre-built command
 Invoke the skill:
 
 ```
-Skill: cirra-ai-sf-permissions
+Skill: sf-permissions
 Request: "Who has delete access to the Account object?"
 ```
 
@@ -48,7 +48,7 @@ Request: "Who has delete access to the Account object?"
 | Skill                | When to Use                                          |
 | -------------------- | ---------------------------------------------------- |
 | cirra-ai-sf-metadata | Create permission sets and manage metadata           |
-| cirra-ai-sf-diagram  | Visualize permission hierarchies as Mermaid diagrams |
+| sf-diagram           | Visualize permission hierarchies as Mermaid diagrams |
 | sf-data              | Query user assignments in bulk                       |
 
 ## Cirra AI MCP Tools — for developers

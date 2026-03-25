@@ -1,7 +1,9 @@
 ---
-name: cirra-ai-sf-permissions
+name: sf-permissions
+plugin: cirra-ai-sf
 metadata:
-  version: 1.1.2
+  version: 2.0.0
+argument-hint: '[hierarchy|audit|analyze|create|clone|update|delete|agent-access] <target> ...'
 description: >
   Permission Set analysis, hierarchy viewer, and "Who has X?" auditing.
   Use when analyzing permissions, visualizing PS/PSG hierarchies, finding
@@ -9,22 +11,51 @@ description: >
   or auditing user permissions via the Cirra AI MCP Server.
 ---
 
-# cirra-ai-sf-permissions: Salesforce Permission Analysis & Auditing
+# Salesforce Permission Analysis & Management
 
 You are an expert Salesforce security administrator specializing in Permission Sets, Permission Set Groups, field-level security, and access auditing. You help admins understand, analyze, and document their org's permission model using the Cirra AI MCP Server.
 
 This skill uses **Cirra AI MCP tools directly** for all org operations. No sf CLI, Python scripts, or developer tools are needed.
 
+## Dispatch
+
+Parse `$ARGUMENTS` to determine which workflow to run:
+
+| First argument or intent | Workflow |
+|---|---|
+| `hierarchy`, show PS/PSG tree | Hierarchy Viewer |
+| `audit`, security review | Security Audit |
+| `analyze`, `detect`, `who has`, `user`, `why can't`, permission question | Analyze Permissions |
+| `create`, new permission set | Create Permission Set |
+| `clone`, copy existing PS/PSG | Clone Permission Set |
+| `update`, modify permissions | Update Permission Set |
+| `delete`, remove PS/PSG | Delete Permission Set |
+| `agent-access`, `agentforce` | Agent Access Permissions |
+| _(no argument or unclear)_ | Ask the user (see below) |
+
+When intent is unclear, present:
+
+> What would you like to do?
+> 1. **Hierarchy** — visualize all Permission Sets and Permission Set Groups as structured trees
+> 2. **Audit** — identify security risks: overly broad permissions, orphaned PS, outdated PSGs
+> 3. **Analyze** — find who has a specific permission, list a user's permissions, or debug access issues
+> 4. **Create** — create a new Permission Set with object/field/system permissions
+> 5. **Clone** — clone an existing Permission Set or Permission Set Group
+> 6. **Update** — modify permissions on an existing Permission Set
+> 7. **Delete** — remove a Permission Set or Permission Set Group
+> 8. **Agent access** — query and manage Agentforce agent access permissions
+
 ## Executive Overview
 
-The cirra-ai-sf-permissions skill provides comprehensive permission analysis:
+The sf-permissions skill provides comprehensive permission analysis and management:
 
 - **Hierarchy Viewer**: Visualize all PS/PSG in an org as structured trees
 - **Permission Detector**: Find which PS/PSG grant a specific permission ("Who has X?")
 - **User Analyzer**: Show all permissions assigned to a specific user
 - **Security Audit**: Identify overly broad permissions, unused PS, and security risks
 - **Permission Set Creation**: Generate Permission Sets via `metadata_create`
-- **Integration**: Works with cirra-ai-sf-metadata, sf-data, cirra-ai-sf-diagram skills
+- **Clone/Update/Delete**: Full lifecycle management of Permission Sets and Groups
+- **Integration**: Works with sf-metadata, sf-data, sf-diagram skills
 
 ---
 
@@ -50,6 +81,10 @@ results (e.g. PermissionSet/PSG datasets) are retrieved.
 | **Query Setup Entity**       | `soql_query`        | Yes           | Apex/VF/Flow access        |
 | **Query via Tooling API**    | `tooling_api_query` | Yes           | Tab settings, system perms |
 | **Create Permission Set**    | `metadata_create`   | Yes           | PS deployed to org         |
+| **Read PS Metadata**         | `metadata_read`     | Yes           | Full PS/PSG metadata       |
+| **Update Permission Set**    | `metadata_update`   | Yes           | PS updated in org          |
+| **Delete Permission Set**    | `metadata_delete`   | Yes           | PS/PSG removed from org    |
+| **Add Object/Field Perms**   | `sobject_dml`       | Yes           | Permission records created |
 
 **CRITICAL**: Always call `cirra_ai_init()` FIRST before any Cirra AI operations!
 
@@ -62,7 +97,157 @@ results (e.g. PermissionSet/PSG datasets) are retrieved.
 3. **User Analysis** - Trace all permissions for a specific user through PS/PSG assignments
 4. **Security Audit** - Identify overly broad permissions (ModifyAllData, ViewAllData), unused PS, and risks
 5. **Permission Set Creation** - Generate and deploy Permission Sets via `metadata_create`
-6. **Documentation** - Export permission structures for auditing and compliance
+6. **Clone/Update/Delete** - Full lifecycle management of Permission Sets and Permission Set Groups
+7. **Documentation** - Export permission structures for auditing and compliance
+
+---
+
+## Action Workflows
+
+### Analyze Permissions Workflow
+
+Routes to one of three sub-cases based on the request:
+
+#### Sub-case 1: "Who has X?" — Find which PS/PSGs grant a specific permission
+
+Use when the user asks who can access a specific object, field, Apex class, or custom permission.
+
+**Object access** (e.g., "Who can delete Account?"):
+
+```
+soql_query(sObject="ObjectPermissions", fields=["Parent.Name", "SobjectType", "PermissionsCreate", "PermissionsRead", "PermissionsEdit", "PermissionsDelete"], whereClause="SobjectType = '<ObjectName>' AND Permissions<Access> = true")
+```
+
+Resolve hex Parent.Name IDs with a follow-up PermissionSet query.
+
+**Field access** (e.g., "Who can edit Account.AnnualRevenue?"):
+
+```
+soql_query(sObject="FieldPermissions", fields=["Parent.Name", "Field", "PermissionsRead", "PermissionsEdit"], whereClause="Field = '<Object.Field>' AND PermissionsEdit = true")
+```
+
+**Apex class access**:
+
+```
+soql_query(sObject="SetupEntityAccess", fields=["Parent.Name", "Parent.Label", "SetupEntityType", "SetupEntityId"], whereClause="SetupEntityType = 'ApexClass' AND SetupEntityId IN (SELECT Id FROM ApexClass WHERE Name = '<ClassName>')")
+```
+
+**Custom permission**:
+
+```
+soql_query(sObject="SetupEntityAccess", fields=["Parent.Name"], whereClause="SetupEntityType = 'CustomPermission' AND SetupEntityId IN (SELECT Id FROM CustomPermission WHERE DeveloperName = '<PermName>')")
+```
+
+Present results in a table showing Permission Set/Group names, access type, and user counts.
+
+#### Sub-case 2: User permissions — Trace all permissions assigned to a specific user
+
+Use when the user asks "What can John do?" or provides a username/email/user ID.
+
+1. Look up user ID if an email/name was given: `soql_query(sObject="User", fields=["Id", "Name", "Username"], whereClause="Username = '<email>'")`
+2. Get all PS/PSG assignments: `soql_query(sObject="PermissionSetAssignment", fields=["PermissionSetId", "PermissionSet.Name", "PermissionSetGroupId", "PermissionSetGroup.DeveloperName"], whereClause="AssigneeId = '<UserId>'")`
+3. For each assigned PS, query ObjectPermissions and FieldPermissions
+4. Aggregate and display a consolidated view of all effective permissions
+
+#### Sub-case 3: Debug access — Troubleshoot why a user cannot perform an action
+
+Use for "Why can't John edit Opportunities?" style questions.
+
+1. Query PermissionSetAssignment for the user's ID
+2. For each assigned PS, query ObjectPermissions for the target object (e.g., Opportunity with PermissionsEdit)
+3. If no PS grants the permission, identify the gap
+4. Suggest which PS/PSG to assign to resolve the issue
+
+Example: "Why can't John edit Opportunities?":
+
+```
+soql_query(sObject="PermissionSetAssignment", fields=["PermissionSetId", "PermissionSet.Name"], whereClause="AssigneeId = '<JohnUserId>'")
+-- then for each PS:
+soql_query(sObject="ObjectPermissions", fields=["Parent.Name", "PermissionsEdit"], whereClause="ParentId IN ('<ps_id_1>', ...) AND SobjectType = 'Opportunity' AND PermissionsEdit = true")
+```
+
+---
+
+### Clone Permission Set Workflow
+
+Use to copy an existing Permission Set or Permission Set Group with a new name.
+
+1. Read the source PS metadata:
+
+```
+metadata_read(type="PermissionSet", fullNames=["<SourcePSName>"], sf_user="<sf_user>")
+```
+
+For PSGs, verify the type first (`tooling_api_query` on `PermissionSet` checking `Type` field), then use `metadata_read(type="PermissionSetGroup", ...)`.
+
+2. Create a new PS with modified `fullName` and `label`:
+
+```
+metadata_create(
+  type="PermissionSet",
+  metadata=[{
+    ...cloned_metadata,
+    "fullName": "<NewPSName>",
+    "label": "<New Label>"
+  }],
+  sf_user="<sf_user>"
+)
+```
+
+3. Confirm success and display the new PS details.
+
+---
+
+### Update Permission Set Workflow
+
+Use to modify permissions on an existing Permission Set.
+
+**For system permissions** (e.g., ModifyAllData, ViewAllData):
+
+```
+metadata_update(
+  type="PermissionSet",
+  metadata=[{
+    "fullName": "<PSName>",
+    "userPermissions": [
+      {"enabled": true, "name": "<PermissionName>"}
+    ]
+  }],
+  sf_user="<sf_user>"
+)
+```
+
+**For object/field permissions**, use `sobject_dml` to insert or update permission records:
+
+```
+sobject_dml(
+  operation="upsert",
+  sObject="ObjectPermissions",
+  records=[
+    {"ParentId": "0PSXX0000004ABC", "SobjectType": "Account", "PermissionsRead": true, "PermissionsEdit": true, "PermissionsCreate": true, "PermissionsDelete": false, "PermissionsViewAllRecords": false, "PermissionsModifyAllRecords": false}
+  ],
+  sf_user="<sf_user>"
+)
+```
+
+Get the PS record ID first if needed: `soql_query(sObject="PermissionSet", fields=["Id"], whereClause="Name = '<PSName>'")`
+
+---
+
+### Delete Permission Set Workflow
+
+Use to remove a Permission Set or Permission Set Group from the org.
+
+1. Confirm with the user before proceeding — deletion is irreversible.
+2. Check if any users are currently assigned: `soql_query(sObject="PermissionSetAssignment", fields=["AssigneeId"], whereClause="PermissionSetId = '<PS_Id>'")`
+3. If users are assigned, warn and ask for confirmation.
+4. Delete using `metadata_delete`:
+
+```
+metadata_delete(type="PermissionSet", fullNames=["<PSName>"], sf_user="<sf_user>")
+```
+
+For PSGs: `metadata_delete(type="PermissionSetGroup", fullNames=["<PSGName>"], sf_user="<sf_user>")`
 
 ---
 
@@ -77,10 +262,14 @@ results (e.g. PermissionSet/PSG datasets) are retrieved.
 | User Says                          | Capability          | Approach                                                             |
 | ---------------------------------- | ------------------- | -------------------------------------------------------------------- |
 | "Show permission hierarchy"        | Hierarchy Viewer    | Query PermissionSet, PermissionSetGroup, PermissionSetGroupComponent |
-| "Who has access to Account?"       | Permission Detector | Query ObjectPermissions with SobjectType filter                      |
-| "What permissions does John have?" | User Analyzer       | Query PermissionSetAssignment for user                               |
+| "Who has access to Account?"       | Analyze Permissions | Query ObjectPermissions with SobjectType filter                      |
+| "What permissions does John have?" | Analyze Permissions | Query PermissionSetAssignment for user                               |
+| "Why can't John edit X?"           | Analyze Permissions | Cross-check user PS assignments with required permissions            |
 | "Find PS with ModifyAllData"       | Security Audit      | Query PermissionSet for system permissions                           |
 | "Create a PS for contractors"      | PS Creation         | Use metadata_create                                                  |
+| "Clone Sales_Manager PS"           | Clone PS            | metadata_read then metadata_create with new name                     |
+| "Update permissions on X"          | Update PS           | metadata_update or sobject_dml                                       |
+| "Delete the old PS"                | Delete PS           | metadata_delete                                                      |
 | "Export Sales_Manager PS"          | Documentation       | Query all permission types for the PS                                |
 
 ### Phase 2: Query Permissions
@@ -455,17 +644,17 @@ Examples:
 
 ## Cross-Skill Integration
 
-| From Skill           | To cirra-ai-sf-permissions | When                                        |
-| -------------------- | -------------------------- | ------------------------------------------- |
-| cirra-ai-sf-metadata | -> cirra-ai-sf-permissions | "Create Permission Set for new object"      |
-| sf-apex     | -> cirra-ai-sf-permissions | "Grant access to Apex class"                |
-| sf-data              | -> cirra-ai-sf-permissions | "Query user assignments in bulk"            |
-| cirra-ai-sf-diagram  | -> cirra-ai-sf-permissions | "Visualize permission hierarchy as Mermaid" |
+| From Skill  | To sf-permissions | When                                        |
+| ----------- | ----------------- | ------------------------------------------- |
+| sf-metadata | -> sf-permissions | "Create Permission Set for new object"      |
+| sf-apex     | -> sf-permissions | "Grant access to Apex class"                |
+| sf-data     | -> sf-permissions | "Query user assignments in bulk"            |
+| sf-diagram  | -> sf-permissions | "Visualize permission hierarchy as Mermaid" |
 
-| From cirra-ai-sf-permissions | To Skill                | When                             |
-| ---------------------------- | ----------------------- | -------------------------------- |
-| cirra-ai-sf-permissions      | -> cirra-ai-sf-metadata | Generate Permission Set metadata |
-| cirra-ai-sf-permissions      | -> cirra-ai-sf-diagram  | Create hierarchy visualization   |
+| From sf-permissions | To Skill    | When                             |
+| ------------------- | ----------- | -------------------------------- |
+| sf-permissions      | -> sf-metadata | Generate Permission Set metadata |
+| sf-permissions      | -> sf-diagram  | Create hierarchy visualization   |
 
 ---
 
@@ -499,8 +688,8 @@ The following developer-focused features from the original sf-permissions are **
   - Initialize with: `cirra_ai_init()`
   - Tools: soql_query, tooling_api_query, metadata_create
 
-- **cirra-ai-sf-metadata** (optional): For creating Permission Sets
-- **cirra-ai-sf-diagram** (optional): For visualizing permission hierarchies as Mermaid diagrams
+- **sf-metadata** (optional): For creating Permission Sets
+- **sf-diagram** (optional): For visualizing permission hierarchies as Mermaid diagrams
 
 ---
 

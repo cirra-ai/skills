@@ -348,13 +348,13 @@ Score: XX/80 - Rating
 | From Skill              | To sf-diagram | When                                      |
 | ----------------------- | ------------- | ----------------------------------------- |
 | cirra-ai-sf-metadata    | -> sf-diagram | Get real object/field definitions for ERD |
-| cirra-ai-sf-permissions | -> sf-diagram | Visualize permission hierarchy            |
+| sf-permissions | -> sf-diagram | Visualize permission hierarchy            |
 | sf-flow        | -> sf-diagram | Document Flow logic as flowchart          |
 
 | From sf-diagram | To Skill                   | When                                        |
 | --------------- | -------------------------- | ------------------------------------------- |
 | sf-diagram      | -> cirra-ai-sf-metadata    | Need object structure for ERD               |
-| sf-diagram      | -> cirra-ai-sf-permissions | Need permission data for hierarchy diagrams |
+| sf-diagram      | -> sf-permissions | Need permission data for hierarchy diagrams |
 
 ---
 

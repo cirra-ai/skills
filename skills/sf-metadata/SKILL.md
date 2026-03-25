@@ -22,7 +22,7 @@ The cirra-ai-sf-metadata skill provides comprehensive metadata management capabi
 - **Org Querying**: Describe objects, list fields, query metadata using Tooling API
 - **FLS Management**: Auto-generate Permission Sets after creating objects/fields
 - **Validation & Scoring**: Score metadata against 6 categories (0-120 points)
-- **Integration**: Works with sf-data, sf-apex, sf-flow, cirra-ai-sf-permissions skills
+- **Integration**: Works with sf-data, sf-apex, sf-flow, sf-permissions skills
 
 ---
 
@@ -281,8 +281,8 @@ JSON Schemas in `references/`:
 | ------------- | ------------------------------------------- |
 | Layout        | `references/layout-metadata-schema.json`    |
 | FlexiPage     | `references/flexipage-metadata-schema.json` |
-| Profile       | See `cirra-ai-sf-permissions` skill         |
-| PermissionSet | See `cirra-ai-sf-permissions` skill         |
+| Profile       | See `sf-permissions` skill         |
+| PermissionSet | See `sf-permissions` skill         |
 
 These schemas validate required fields, valid enum values, correct nesting
 (e.g., Layout → LayoutSection → LayoutColumn → LayoutItem), and type shapes.
@@ -544,13 +544,13 @@ Classic layout actions are in `platformActionList.platformActionListItems`, each
 | sf-apex        | -> cirra-ai-sf-metadata | "Describe Invoice\_\_c" (discover fields before coding)   |
 | sf-flow        | -> cirra-ai-sf-metadata | "Describe object fields, record types, validation rules"  |
 | sf-data                 | -> cirra-ai-sf-metadata | "Describe Custom_Object\_\_c fields" (discover structure) |
-| cirra-ai-sf-permissions | -> cirra-ai-sf-metadata | "Create Permission Set for new object"                    |
+| sf-permissions | -> cirra-ai-sf-metadata | "Create Permission Set for new object"                    |
 
 | From cirra-ai-sf-metadata | To Skill                   | When                                                   |
 | ------------------------- | -------------------------- | ------------------------------------------------------ |
 | cirra-ai-sf-metadata      | -> sf-flow        | After creating objects/fields that Flow will reference |
 | cirra-ai-sf-metadata      | -> sf-data                 | After deploying metadata, create test data             |
-| cirra-ai-sf-metadata      | -> cirra-ai-sf-permissions | Analyze permission sets in the org                     |
+| cirra-ai-sf-metadata      | -> sf-permissions | Analyze permission sets in the org                     |
 
 ---
 
@@ -583,7 +583,7 @@ The following sf CLI features are **NOT supported** in the Cirra AI MCP version:
   - Initialize with: `cirra_ai_init()`
   - Tools: metadata_create, metadata_update, sobject_describe, tooling_api_query
 
-- **cirra-ai-sf-permissions** (optional): For permission analysis after metadata creation
+- **sf-permissions** (optional): For permission analysis after metadata creation
 
 ---
 

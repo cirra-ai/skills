@@ -54,10 +54,10 @@ _SCHEMAS: dict[str, str] = {
     "QuickAction":       "skills/cirra-ai-sf-metadata/references/quickaction-metadata-schema.json",
     "RecordType":        "skills/cirra-ai-sf-metadata/references/recordtype-metadata-schema.json",
     "ValidationRule":    "skills/cirra-ai-sf-metadata/references/validationrule-metadata-schema.json",
-    "PermissionSet":     "skills/cirra-ai-sf-permissions/references/permissionset-metadata-schema.json",
-    "PermissionSetGroup": "skills/cirra-ai-sf-permissions/references/permissionsetgroup-metadata-schema.json",
-    "Profile":           "skills/cirra-ai-sf-permissions/references/profile-metadata-schema.json",
-    "SharingRules":      "skills/cirra-ai-sf-permissions/references/sharingrules-metadata-schema.json",
+    "PermissionSet":     "skills/sf-permissions/references/permissionset-metadata-schema.json",
+    "PermissionSetGroup": "skills/sf-permissions/references/permissionsetgroup-metadata-schema.json",
+    "Profile":           "skills/sf-permissions/references/profile-metadata-schema.json",
+    "SharingRules":      "skills/sf-permissions/references/sharingrules-metadata-schema.json",
 }
 # Note: Flow and FlowDefinition are NOT in _SCHEMAS because they have
 # delegate validators that provide richer feedback (110-point rubric).

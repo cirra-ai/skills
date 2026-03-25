@@ -28,7 +28,7 @@ on:
           - sf-kugamon
           - sf-lwc
           - cirra-ai-sf-metadata
-          - cirra-ai-sf-permissions
+          - sf-permissions
           - sf-orders
 
 permissions:
