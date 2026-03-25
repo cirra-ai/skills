@@ -131,9 +131,8 @@ No stale `cirra-ai-sf-*` references found in any SKILL.md.
 
 ### Test coverage gaps (future)
 
-1. **Phase 2 coverage**: Only 5 of 88 test cases were run through prompt simulation. Expand to all 88 for full validation.
-2. **Error paths**: No test cases cover MCP tool failures (e.g., `cirra_ai_init()` fails, object doesn't exist, permission denied).
-3. **Multi-turn**: All tests are single-turn. Consider adding tests for multi-turn workflows (user picks from menu, then provides details).
+1. **Error paths**: No test cases cover MCP tool failures (e.g., `cirra_ai_init()` fails, object doesn't exist, permission denied).
+2. **Multi-turn**: All tests are single-turn. Consider adding tests for multi-turn workflows (user picks from menu, then provides details).
 
 ---
 
