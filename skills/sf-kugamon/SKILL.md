@@ -221,6 +221,8 @@ WHERE kugo2p__Opportunity__c = '<opportunity_id>'
 
 **Prerequisites:** Billing address complete, contact identified.
 
+**Tool:** Use `sobject_create` to create the quote record (`kugo2p__SalesQuote__c`). Do NOT use `sobject_dml` for quote creation.
+
 Use only these createable fields:
 
 - `RecordTypeId` — Match to opportunity type (see references/record-types.md)
