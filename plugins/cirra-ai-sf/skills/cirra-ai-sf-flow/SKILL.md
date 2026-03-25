@@ -1,7 +1,7 @@
 ---
 name: cirra-ai-sf-flow
 metadata:
-  version: 1.3.0
+  version: 1.4.0
 description: >
   Creates and validates Salesforce flows with 110-point scoring and Winter '26
   best practices using Cirra AI MCP Server. Use when building record-triggered flows,
@@ -25,7 +25,7 @@ Expert Salesforce Flow Builder with deep knowledge of best practices, bulkificat
 6. Describe objects/fields via sobject_describe before flow creation
 ```
 
-**Scoring**: 110 points across 6 categories. Minimum 88 (80%) for deployment.
+**Scoring**: 110 points across 6 categories. Minimum 88 (80%) for deployment. Trivial flows (single-step automations, test/throwaway flows) are exempt from the minimum threshold — score them for informational purposes but do not block deployment. Guardrail anti-pattern checks (DML in loops, missing fault paths) still apply regardless of complexity.
 
 ---
 
@@ -96,6 +96,23 @@ See `references/orchestration.md` for extended orchestration patterns including 
 | **$Record context**      | Single-record, NOT a collection. Platform handles batching. Never loop over $Record                                                                                                                                |
 | **$Record traversal**    | `$Record` supports relationship traversal: `{!$Record.Contact__r.FirstName}`, `{!$Record.Account__r.Name}`. Do NOT use Get Records for data already available through `$Record` lookups — this wastes a SOQL query |
 | **Transform vs Loop**    | Transform: data mapping/shaping (30-50% faster). Loop: per-record decisions, counters, varying logic. See `references/transform-vs-loop-guide.md`                                                                  |
+
+---
+
+## Fast Path (Simple Requests)
+
+For simple, self-contained flows (single record update, basic field mapping, straightforward screen flow), bypass the detailed requirements/design elaboration and full scoring while still performing initialization and mandatory guardrails, then generate + deploy:
+
+1. Call `cirra_ai_init()` (always required)
+2. Use `sobject_describe` to verify the target object/fields exist
+3. Generate the flow metadata as JSON
+4. Run guardrail checks (anti-patterns only — skip full 110-point scoring)
+5. Deploy via `metadata_create`
+6. Verify deployment
+
+**Use the fast path when**: the request is explicit, the flow is a single straightforward automation, and there are no ambiguous requirements.
+
+**Use the full 5-phase workflow when**: the flow involves multiple decision branches, screen flows with complex logic, subflow orchestration, or underspecified requirements.
 
 ---
 

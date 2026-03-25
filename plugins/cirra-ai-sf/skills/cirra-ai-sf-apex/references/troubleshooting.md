@@ -42,7 +42,7 @@ Comprehensive guide to debugging Apex code, LSP validation, dependency managemen
    └─> metadata_create(type="CustomField", ...)
 
 4. cirra-ai-sf-apex: Deploy Apex classes/triggers
-   └─> metadata_create(type="ApexClass", fullName="MyClass", metadata={...})
+   └─> tooling_api_dml(operation="insert", sObject="ApexClass", record={"Name":"MyClass","Body":"...","Status":"Active","ApiVersion":"65.0"})
 
 5. cirra-ai-sf-data: Create test data
    └─> sobject_dml(operation="insert", sobjectType="Account", records=[{Name: "Test"}])
