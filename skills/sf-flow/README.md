@@ -90,12 +90,12 @@ The skill generates:
 
 ## Cross-Skill Integration
 
-| Related Skill        | When to Use                               |
-| -------------------- | ----------------------------------------- |
-| sf-apex     | Create @InvocableMethod for complex logic |
-| sf-lwc               | Create screen components for custom UI    |
-| sf-metadata | Deploy custom objects BEFORE flows        |
-| sf-deploy   | Deploy flows to org                       |
+| Related Skill | When to Use                               |
+| ------------- | ----------------------------------------- |
+| sf-apex       | Create @InvocableMethod for complex logic |
+| sf-lwc        | Create screen components for custom UI    |
+| sf-metadata   | Deploy custom objects BEFORE flows        |
+| sf-deploy     | Deploy flows to org                       |
 
 ## Orchestration Order
 

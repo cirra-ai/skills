@@ -70,12 +70,12 @@ The skill produces:
 
 ## Cross-Skill Integration
 
-| Related Skill        | When to Use                                   |
-| -------------------- | --------------------------------------------- |
-| sf-data              | Query opportunities, accounts, contacts       |
-| sf-metadata | Describe Kugamon custom objects and fields    |
-| sf-orders            | Order returns, cases, and post-sale lifecycle |
-| sf-diagram           | Visualize quote-to-order data model           |
+| Related Skill | When to Use                                   |
+| ------------- | --------------------------------------------- |
+| sf-data       | Query opportunities, accounts, contacts       |
+| sf-metadata   | Describe Kugamon custom objects and fields    |
+| sf-orders     | Order returns, cases, and post-sale lifecycle |
+| sf-diagram    | Visualize quote-to-order data model           |
 
 ## Documentation
 

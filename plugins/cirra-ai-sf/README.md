@@ -8,11 +8,11 @@ Each skill also works independently without the orchestrator.
 
 ## Skills
 
-| Skill                                                               | Description                                                                     |
-| ------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Skill                                             | Description                                                                     |
+| ------------------------------------------------- | ------------------------------------------------------------------------------- |
 | [sf-apex](skills/sf-apex/README.md)               | Create, update and review Apex classes and triggers                             |
 | [sf-flow](skills/sf-flow/README.md)               | Create, update and review flows                                                 |
-| [sf-data](skills/sf-data/README.md)                                 | SOQL query building/optimization/execution, DML operations, test data factories |
+| [sf-data](skills/sf-data/README.md)               | SOQL query building/optimization/execution, DML operations, test data factories |
 | [sf-lwc](skills/sf-lwc/README.md)                 | Lightning Web Components development                                            |
 | [sf-metadata](skills/sf-metadata/README.md)       | Metadata creation, org queries, permission set generation                       |
 | [sf-permissions](skills/sf-permissions/README.md) | Permission Set analysis, "Who has X?" auditing                                  |

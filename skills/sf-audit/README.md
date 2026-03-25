@@ -63,14 +63,14 @@ paged through in-context with `fetch_more`.
 
 ## Cross-Skill Integration
 
-| Related Skill           | When to Use                                         |
-| ----------------------- | --------------------------------------------------- |
+| Related Skill  | When to Use                                         |
+| -------------- | --------------------------------------------------- |
 | sf-apex        | Fix or review Apex classes/triggers in the audit    |
 | sf-flow        | Fix or review Flows found in the audit              |
 | sf-lwc         | Fix or review LWC components found in the audit     |
 | sf-permissions | Fix permission or Profile issues found in the audit |
 | sf-metadata    | Fix data model issues found in the audit            |
-| sf-data                 | Query or update data after fixing issues            |
+| sf-data        | Query or update data after fixing issues            |
 | sf-diagram     | Visualize architecture or permission hierarchies    |
 
 ## Requirements

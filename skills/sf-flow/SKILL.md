@@ -18,16 +18,17 @@ Expert Salesforce Flow Builder with deep knowledge of best practices, bulkificat
 
 Parse `$ARGUMENTS` to determine the action:
 
-| First argument or intent | Workflow |
-|---|---|
-| `create`, new flow request | Create Flow |
-| `update`, modify existing flow | Update Flow |
-| `validate`, review, score | Validate Flow |
-| _(no argument or unclear)_ | Ask the user (see below) |
+| First argument or intent       | Workflow                 |
+| ------------------------------ | ------------------------ |
+| `create`, new flow request     | Create Flow              |
+| `update`, modify existing flow | Update Flow              |
+| `validate`, review, score      | Validate Flow            |
+| _(no argument or unclear)_     | Ask the user (see below) |
 
 When intent is unclear, present:
 
 > What would you like to do?
+>
 > 1. **Create** — generate a new Flow
 > 2. **Update** — fetch, modify, validate, and redeploy
 > 3. **Validate** — score an existing Flow
@@ -231,8 +232,8 @@ metadata_read(
 
 Validate each flow body (write → validate → delete). After all flows are validated, show a summary table sorted by score ascending (worst first):
 
-| Flow                        | Score  | %   | Status             |
-| --------------------------- | ------ | --- | ------------------ |
+| Flow                        | Score  | %   | Status          |
+| --------------------------- | ------ | --- | --------------- |
 | Before_Opportunity_Validate | 72/110 | 65% | Below threshold |
 | Auto_Lead_Assignment        | 98/110 | 89% | Pass            |
 
@@ -1233,15 +1234,15 @@ tooling_api_query(
 
 ## Cross-Skill Integration
 
-| From Skill              | To sf-flow | When                                 |
-| ----------------------- | ------------------- | ------------------------------------ |
+| From Skill     | To sf-flow | When                                 |
+| -------------- | ---------- | ------------------------------------ |
 | sf-apex        | → sf-flow  | "Create Flow wrapper for Apex logic" |
 | sf-integration | → sf-flow  | "Create HTTP Callout Flow"           |
 
-| From sf-flow | To Skill               | When                                                |
-| --------------------- | ---------------------- | --------------------------------------------------- |
+| From sf-flow | To Skill      | When                                                |
+| ------------ | ------------- | --------------------------------------------------- |
 | sf-flow      | → sf-metadata | "Describe Invoice\_\_c" (verify fields before flow) |
-| sf-flow      | → sf-data              | "Create 200 test Accounts" (after deploy)           |
+| sf-flow      | → sf-data     | "Create 200 test Accounts" (after deploy)           |
 
 **Deployment**: See Phase 4 above.
 
@@ -1281,11 +1282,11 @@ Embed custom Lightning Web Components in Flow Screens for rich, interactive UIs.
 
 ### Documentation
 
-| Resource              | Location                                                                                                |
-| --------------------- | ------------------------------------------------------------------------------------------------------- |
-| LWC Integration Guide | [references/lwc-integration-guide.md](references/lwc-integration-guide.md)                              |
+| Resource              | Location                                                                              |
+| --------------------- | ------------------------------------------------------------------------------------- |
+| LWC Integration Guide | [references/lwc-integration-guide.md](references/lwc-integration-guide.md)            |
 | LWC Component Setup   | [sf-lwc/assets/flow-integration-guide.md](../sf-lwc/assets/flow-integration-guide.md) |
-| Triangle Architecture | [references/triangle-pattern.md](references/triangle-pattern.md)                                        |
+| Triangle Architecture | [references/triangle-pattern.md](references/triangle-pattern.md)                      |
 
 ---
 
@@ -1318,11 +1319,11 @@ Call Apex `@InvocableMethod` classes from Flow for complex business logic.
 
 ### Documentation
 
-| Resource                    | Location                                                                                              |
-| --------------------------- | ----------------------------------------------------------------------------------------------------- |
-| Apex Action Template        | `assets/apex-action-template.xml`                                                                     |
+| Resource                    | Location                                                                            |
+| --------------------------- | ----------------------------------------------------------------------------------- |
+| Apex Action Template        | `assets/apex-action-template.xml`                                                   |
 | Apex @InvocableMethod Guide | [sf-apex/references/flow-integration.md](../sf-apex/references/flow-integration.md) |
-| Triangle Architecture       | [references/triangle-pattern.md](references/triangle-pattern.md)                                      |
+| Triangle Architecture       | [references/triangle-pattern.md](references/triangle-pattern.md)                    |
 
 ### ⚠️ Flows for Agentforce
 
@@ -1390,11 +1391,11 @@ Flow Created  →  Deployed to Org  →  Action Definition Created  →  Agent C
 
 **Why This Matters**: The Action Definition is what exposes the Flow to the agent runtime with proper input/output schema mapping. Without it, `@actions.FlowName` will fail with `ValidationError: Tool target 'FlowName' is not an action definition`.
 
-| Direction                               | Pattern                                             |
-| --------------------------------------- | --------------------------------------------------- |
+| Direction             | Pattern                                             |
+| --------------------- | --------------------------------------------------- |
 | sf-flow → sf-metadata | "Describe Invoice\_\_c" (verify fields before flow) |
-| sf-flow → Cirra AI             | Deploy with validation via metadata_create          |
-| sf-flow → sf-data              | "Create 200 test Accounts" (test data after deploy) |
+| sf-flow → Cirra AI    | Deploy with validation via metadata_create          |
+| sf-flow → sf-data     | "Create 200 test Accounts" (test data after deploy) |
 
 ## Notes
 

@@ -886,14 +886,14 @@ Update `audit_state.md`: mark all phases complete.
 
 ## Routing reference
 
-| Request                             | Skill                     |
-| ----------------------------------- | ------------------------- |
+| Request                             | Skill            |
+| ----------------------------------- | ---------------- |
 | Fix or review an Apex class/trigger | `sf-apex`        |
 | Fix or review a Flow                | `sf-flow`        |
 | Fix or review an LWC component      | `sf-lwc`         |
 | Fix a permission or Profile issue   | `sf-permissions` |
 | Fix a metadata / data model issue   | `sf-metadata`    |
-| Query or update data                | `sf-data`                 |
+| Query or update data                | `sf-data`        |
 | Visualize architecture or hierarchy | `sf-diagram`     |
 
 ## Build order (when fixing issues)

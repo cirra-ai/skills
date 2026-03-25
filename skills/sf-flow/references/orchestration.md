@@ -28,12 +28,12 @@ This document details how sf-flow fits into the multi-skill workflow for Salesfo
 
 ## Why sf-flow Depends on sf-metadata
 
-| sf-flow Uses | From sf-metadata | What Fails Without It                 |
-| --------------------- | ------------------------- | ------------------------------------- |
-| Object references     | Custom Objects            | `Invalid reference: Quote__c`         |
-| Field references      | Custom Fields             | `Field does not exist: Status__c`     |
-| Picklist values       | Picklist Fields           | Flow decision uses non-existent value |
-| Record Types          | Record Type metadata      | `Invalid record type: Inquiry`        |
+| sf-flow Uses      | From sf-metadata     | What Fails Without It                 |
+| ----------------- | -------------------- | ------------------------------------- |
+| Object references | Custom Objects       | `Invalid reference: Quote__c`         |
+| Field references  | Custom Fields        | `Field does not exist: Status__c`     |
+| Picklist values   | Picklist Fields      | Flow decision uses non-existent value |
+| Record Types      | Record Type metadata | `Invalid record type: Inquiry`        |
 
 **Rule**: If your Flow references custom objects or fields, create them with sf-metadata FIRST.
 
@@ -142,26 +142,26 @@ actions:
 
 ### 3. Common Integration Errors
 
-| Error                       | Cause                    | Fix                                       |
-| --------------------------- | ------------------------ | ----------------------------------------- |
-| "Internal Error" on publish | Variable name mismatch   | Match Flow var names exactly              |
+| Error                       | Cause                    | Fix                              |
+| --------------------------- | ------------------------ | -------------------------------- |
+| "Internal Error" on publish | Variable name mismatch   | Match Flow var names exactly     |
 | "Flow not found"            | Flow not deployed        | Deploy flow with sf-deploy first |
-| Agent can't read output     | Missing `isOutput: true` | Add output flag to Flow variable          |
+| Agent can't read output     | Missing `isOutput: true` | Add output flag to Flow variable |
 
 ---
 
 ## Cross-Skill Integration Table
 
-| From Skill              | To sf-flow | When                                 |
-| ----------------------- | ------------------- | ------------------------------------ |
+| From Skill     | To sf-flow | When                                 |
+| -------------- | ---------- | ------------------------------------ |
 | sf-apex        | → sf-flow  | "Create Flow wrapper for Apex logic" |
 | sf-integration | → sf-flow  | "Create HTTP Callout Flow"           |
 
-| From sf-flow | To Skill               | When                                                |
-| --------------------- | ---------------------- | --------------------------------------------------- |
+| From sf-flow | To Skill      | When                                                |
+| ------------ | ------------- | --------------------------------------------------- |
 | sf-flow      | → sf-metadata | "Describe Invoice\_\_c" (verify fields before flow) |
 | sf-flow      | → sf-deploy   | "Deploy flow with checkOnly"                        |
-| sf-flow      | → sf-data              | "Create 200 test Accounts" (after deploy)           |
+| sf-flow      | → sf-data     | "Create 200 test Accounts" (after deploy)           |
 
 ---
 
@@ -194,8 +194,8 @@ When deploying Flows that reference Apex or LWC:
 
 ## Related Documentation
 
-| Topic                               | Location                                              |
-| ----------------------------------- | ----------------------------------------------------- |
+| Topic                               | Location                                     |
+| ----------------------------------- | -------------------------------------------- |
 | Triangle pattern (Flow perspective) | `sf-flow/docs/triangle-pattern.md`           |
 | LWC integration                     | `sf-flow/docs/lwc-integration-guide.md`      |
 | Apex action template                | `sf-flow/templates/apex-action-template.xml` |

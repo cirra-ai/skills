@@ -70,12 +70,12 @@ The skill produces:
 
 ## Cross-Skill Integration
 
-| Related Skill        | When to Use                                          |
-| -------------------- | ---------------------------------------------------- |
-| sf-data              | Advanced SOQL queries for orders, accounts, contacts |
-| sf-metadata | Create custom fields or objects for order management |
-| sf-flow     | Build notification or return label email flows       |
-| sf-diagram           | Visualize order-to-return-to-case data model         |
+| Related Skill | When to Use                                          |
+| ------------- | ---------------------------------------------------- |
+| sf-data       | Advanced SOQL queries for orders, accounts, contacts |
+| sf-metadata   | Create custom fields or objects for order management |
+| sf-flow       | Build notification or return label email flows       |
+| sf-diagram    | Visualize order-to-return-to-case data model         |
 
 ## Documentation
 

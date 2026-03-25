@@ -265,8 +265,8 @@ When deploying integrated triangle solutions:
 
 ## Related Documentation
 
-| Topic                      | Location                                          |
-| -------------------------- | ------------------------------------------------- |
+| Topic                      | Location                                 |
+| -------------------------- | ---------------------------------------- |
 | @InvocableMethod templates | `sf-apex/templates/invocable-method.cls` |
 | Flow integration guide     | `sf-apex/docs/flow-integration.md`       |
 | LWC triangle perspective   | `sf-lwc/docs/triangle-pattern.md`        |

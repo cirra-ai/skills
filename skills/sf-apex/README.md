@@ -97,12 +97,12 @@ Use `/validate-apex` at any time for on-demand checks:
 
 ## Cross-Skill Integration
 
-| Related Skill       | When to Use                                 |
-| ------------------- | ------------------------------------------- |
-| sf-flow    | Create Flow to call @InvocableMethod        |
-| sf-lwc              | Create LWC to call @AuraEnabled controllers |
-| sf-testing | Run tests and analyze coverage              |
-| sf-deploy  | Deploy Apex to org                          |
+| Related Skill | When to Use                                 |
+| ------------- | ------------------------------------------- |
+| sf-flow       | Create Flow to call @InvocableMethod        |
+| sf-lwc        | Create LWC to call @AuraEnabled controllers |
+| sf-testing    | Run tests and analyze coverage              |
+| sf-deploy     | Deploy Apex to org                          |
 
 ## Documentation
 

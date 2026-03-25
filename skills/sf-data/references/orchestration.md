@@ -45,12 +45,12 @@ FIX:   Run sf-deploy BEFORE sf-data
 
 ## Common Errors from Wrong Order
 
-| Error                                      | Cause                          | Fix                                 |
-| ------------------------------------------ | ------------------------------ | ----------------------------------- |
-| `SObject type 'X' not supported`           | Object not deployed            | Deploy via sf-deploy first |
-| `INVALID_FIELD: No such column 'Field__c'` | Field not deployed OR FLS      | Deploy field + Permission Set       |
-| `REQUIRED_FIELD_MISSING`                   | Validation rule requires field | Include all required fields         |
-| `FIELD_CUSTOM_VALIDATION_EXCEPTION`        | Validation rule triggered      | Use valid test data values          |
+| Error                                      | Cause                          | Fix                           |
+| ------------------------------------------ | ------------------------------ | ----------------------------- |
+| `SObject type 'X' not supported`           | Object not deployed            | Deploy via sf-deploy first    |
+| `INVALID_FIELD: No such column 'Field__c'` | Field not deployed OR FLS      | Deploy field + Permission Set |
+| `REQUIRED_FIELD_MISSING`                   | Validation rule requires field | Include all required fields   |
+| `FIELD_CUSTOM_VALIDATION_EXCEPTION`        | Validation rule triggered      | Use valid test data values    |
 
 ---
 
@@ -100,14 +100,14 @@ sobject_dml(
 
 ## Cross-Skill Integration Table
 
-| From Skill          | To sf-data | When                                               |
-| ------------------- | ---------- | -------------------------------------------------- |
+| From Skill | To sf-data | When                                               |
+| ---------- | ---------- | -------------------------------------------------- |
 | sf-apex    | → sf-data  | "Create 251 Accounts for bulk testing"             |
 | sf-flow    | → sf-data  | "Create Opportunities with StageName='Closed Won'" |
 | sf-testing | → sf-data  | "Generate test records for test class"             |
 
-| From sf-data | To Skill               | When                                                |
-| ------------ | ---------------------- | --------------------------------------------------- |
+| From sf-data | To Skill      | When                                                |
+| ------------ | ------------- | --------------------------------------------------- |
 | sf-data      | → sf-metadata | "Describe Invoice\_\_c" (discover object structure) |
 | sf-data      | → sf-deploy   | "Redeploy field after adding validation rule"       |
 

@@ -45,9 +45,9 @@ Request: "Create a custom object called Invoice__c with Amount, Status, and Due 
 
 ## Related Skills
 
-| Skill                   | When to Use                                        |
-| ----------------------- | -------------------------------------------------- |
-| sf-data                 | Query, create records, build/optimize SOQL queries |
+| Skill          | When to Use                                        |
+| -------------- | -------------------------------------------------- |
+| sf-data        | Query, create records, build/optimize SOQL queries |
 | sf-permissions | Analyze and audit permission sets                  |
 | sf-apex        | Create Apex classes and triggers                   |
 | sf-flow        | Create and validate Flows                          |

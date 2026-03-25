@@ -19,16 +19,17 @@ Expert Apex developer specializing in clean code, SOLID principles, and 2025 bes
 
 Parse `$ARGUMENTS` to determine which action workflow to run:
 
-| First argument or intent | Workflow |
-|---|---|
-| `create`, new class/trigger request | Create Apex |
-| `update`, modify existing code | Update Apex |
-| `validate`, review, score | Validate Apex |
-| _(no argument or unclear)_ | Ask the user (see below) |
+| First argument or intent            | Workflow                 |
+| ----------------------------------- | ------------------------ |
+| `create`, new class/trigger request | Create Apex              |
+| `update`, modify existing code      | Update Apex              |
+| `validate`, review, score           | Validate Apex            |
+| _(no argument or unclear)_          | Ask the user (see below) |
 
 When intent is unclear, present:
 
 > What would you like to do?
+>
 > 1. **Create** — generate a new Apex class or trigger
 > 2. **Update** — fetch, modify, validate, and redeploy
 > 3. **Validate** — score existing Apex code

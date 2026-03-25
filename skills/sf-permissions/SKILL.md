@@ -21,21 +21,22 @@ This skill uses **Cirra AI MCP tools directly** for all org operations. No sf CL
 
 Parse `$ARGUMENTS` to determine which workflow to run:
 
-| First argument or intent | Workflow |
-|---|---|
-| `hierarchy`, show PS/PSG tree | Hierarchy Viewer |
-| `audit`, security review | Security Audit |
-| `analyze`, `detect`, `who has`, `user`, `why can't`, permission question | Analyze Permissions |
-| `create`, new permission set | Create Permission Set |
-| `clone`, copy existing PS/PSG | Clone Permission Set |
-| `update`, modify permissions | Update Permission Set |
-| `delete`, remove PS/PSG | Delete Permission Set |
-| `agent-access`, `agentforce` | Agent Access Permissions |
-| _(no argument or unclear)_ | Ask the user (see below) |
+| First argument or intent                                                 | Workflow                 |
+| ------------------------------------------------------------------------ | ------------------------ |
+| `hierarchy`, show PS/PSG tree                                            | Hierarchy Viewer         |
+| `audit`, security review                                                 | Security Audit           |
+| `analyze`, `detect`, `who has`, `user`, `why can't`, permission question | Analyze Permissions      |
+| `create`, new permission set                                             | Create Permission Set    |
+| `clone`, copy existing PS/PSG                                            | Clone Permission Set     |
+| `update`, modify permissions                                             | Update Permission Set    |
+| `delete`, remove PS/PSG                                                  | Delete Permission Set    |
+| `agent-access`, `agentforce`                                             | Agent Access Permissions |
+| _(no argument or unclear)_                                               | Ask the user (see below) |
 
 When intent is unclear, present:
 
 > What would you like to do?
+>
 > 1. **Hierarchy** — visualize all Permission Sets and Permission Set Groups as structured trees
 > 2. **Audit** — identify security risks: overly broad permissions, orphaned PS, outdated PSGs
 > 3. **Analyze** — find who has a specific permission, list a user's permissions, or debug access issues
@@ -651,8 +652,8 @@ Examples:
 | sf-data     | -> sf-permissions | "Query user assignments in bulk"            |
 | sf-diagram  | -> sf-permissions | "Visualize permission hierarchy as Mermaid" |
 
-| From sf-permissions | To Skill    | When                             |
-| ------------------- | ----------- | -------------------------------- |
+| From sf-permissions | To Skill       | When                             |
+| ------------------- | -------------- | -------------------------------- |
 | sf-permissions      | -> sf-metadata | Generate Permission Set metadata |
 | sf-permissions      | -> sf-diagram  | Create hierarchy visualization   |
 

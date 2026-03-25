@@ -20,13 +20,13 @@ This skill uses **Cirra AI MCP tools directly** for all org operations. No sf CL
 
 Parse `$ARGUMENTS` to determine which workflow to follow:
 
-| First argument or intent              | Workflow        |
-| ------------------------------------- | --------------- |
-| `create`, new object/field/rule       | Create Metadata |
-| `update`, modify existing metadata    | Update Metadata |
-| `delete`, remove metadata             | Delete Metadata |
-| `describe`, show object structure     | Describe Object |
-| _(no argument or unclear)_            | Ask the user (see below) |
+| First argument or intent           | Workflow                 |
+| ---------------------------------- | ------------------------ |
+| `create`, new object/field/rule    | Create Metadata          |
+| `update`, modify existing metadata | Update Metadata          |
+| `delete`, remove metadata          | Delete Metadata          |
+| `describe`, show object structure  | Describe Object          |
+| _(no argument or unclear)_         | Ask the user (see below) |
 
 When the intent is unclear, present the options:
 
@@ -73,11 +73,11 @@ Remove metadata from an org.
 
 Describe a Salesforce object and display its metadata structure.
 
-| Input                    | Interpretation                                             |
-| ------------------------ | ---------------------------------------------------------- |
-| `Account`                | Object name — describe it directly                         |
-| `all custom objects`     | List all custom objects first, then describe selected ones |
-| _(no specifics)_         | Ask the user which object to describe                      |
+| Input                | Interpretation                                             |
+| -------------------- | ---------------------------------------------------------- |
+| `Account`            | Object name — describe it directly                         |
+| `all custom objects` | List all custom objects first, then describe selected ones |
+| _(no specifics)_     | Ask the user which object to describe                      |
 
 1. **Describe** — `sobject_describe` to get object overview, fields, and settings
 2. **Display** — present as structured tables: Object Overview, Fields (API Name, Label, Type, Required), Relationships, Record Types
@@ -353,8 +353,8 @@ JSON Schemas in `references/`:
 | ------------- | ------------------------------------------- |
 | Layout        | `references/layout-metadata-schema.json`    |
 | FlexiPage     | `references/flexipage-metadata-schema.json` |
-| Profile       | See `sf-permissions` skill         |
-| PermissionSet | See `sf-permissions` skill         |
+| Profile       | See `sf-permissions` skill                  |
+| PermissionSet | See `sf-permissions` skill                  |
 
 These schemas validate required fields, valid enum values, correct nesting
 (e.g., Layout → LayoutSection → LayoutColumn → LayoutItem), and type shapes.
@@ -611,17 +611,17 @@ Classic layout actions are in `platformActionList.platformActionListItems`, each
 
 ## Cross-Skill Integration
 
-| From Skill              | To sf-metadata | When                                                      |
-| ----------------------- | ----------------------- | --------------------------------------------------------- |
+| From Skill     | To sf-metadata | When                                                      |
+| -------------- | -------------- | --------------------------------------------------------- |
 | sf-apex        | -> sf-metadata | "Describe Invoice\_\_c" (discover fields before coding)   |
 | sf-flow        | -> sf-metadata | "Describe object fields, record types, validation rules"  |
-| sf-data                 | -> sf-metadata | "Describe Custom_Object\_\_c fields" (discover structure) |
+| sf-data        | -> sf-metadata | "Describe Custom_Object\_\_c fields" (discover structure) |
 | sf-permissions | -> sf-metadata | "Create Permission Set for new object"                    |
 
-| From sf-metadata | To Skill                   | When                                                   |
-| ------------------------- | -------------------------- | ------------------------------------------------------ |
+| From sf-metadata | To Skill          | When                                                   |
+| ---------------- | ----------------- | ------------------------------------------------------ |
 | sf-metadata      | -> sf-flow        | After creating objects/fields that Flow will reference |
-| sf-metadata      | -> sf-data                 | After deploying metadata, create test data             |
+| sf-metadata      | -> sf-data        | After deploying metadata, create test data             |
 | sf-metadata      | -> sf-permissions | Analyze permission sets in the org                     |
 
 ---

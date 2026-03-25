@@ -20,16 +20,17 @@ Expert frontend engineer specializing in Lightning Web Components for Salesforce
 
 Parse `$ARGUMENTS` to determine which workflow to run:
 
-| First argument or intent | Workflow |
-|---|---|
-| `create`, new component request | [Create LWC](#create-lwc-workflow) |
-| `update`, modify existing component | [Update LWC](#update-lwc-workflow) |
-| `validate`, review, score | [Validate LWC](#validate-lwc-workflow) |
-| _(no argument or unclear)_ | Ask the user (see below) |
+| First argument or intent            | Workflow                               |
+| ----------------------------------- | -------------------------------------- |
+| `create`, new component request     | [Create LWC](#create-lwc-workflow)     |
+| `update`, modify existing component | [Update LWC](#update-lwc-workflow)     |
+| `validate`, review, score           | [Validate LWC](#validate-lwc-workflow) |
+| _(no argument or unclear)_          | Ask the user (see below)               |
 
 When intent is unclear, present:
 
 > What would you like to do?
+>
 > 1. **Create** — scaffold a new Lightning Web Component
 > 2. **Update** — fetch, modify, validate, and redeploy
 > 3. **Validate** — score an existing LWC
@@ -223,13 +224,13 @@ Validate one or more Lightning Web Components using the SLDS 2 static analysis p
 
 ### Parsing the request
 
-| Input after `validate` | Interpretation |
-|---|---|
-| `accountDashboard` | Component name — fetch bundle from org, validate |
-| `force-app/.../accountDashboard.html` (ends `.html`, `.css`, or `.js`) | Local file — validate directly |
-| `accountDashboard,contactCard` | Comma-separated list — bulk fetch, validate each |
-| `All` | All LightningComponentBundle records in the org |
-| _(no argument)_ | Ask the user what to validate |
+| Input after `validate`                                                 | Interpretation                                   |
+| ---------------------------------------------------------------------- | ------------------------------------------------ |
+| `accountDashboard`                                                     | Component name — fetch bundle from org, validate |
+| `force-app/.../accountDashboard.html` (ends `.html`, `.css`, or `.js`) | Local file — validate directly                   |
+| `accountDashboard,contactCard`                                         | Comma-separated list — bulk fetch, validate each |
+| `All`                                                                  | All LightningComponentBundle records in the org  |
+| _(no argument)_                                                        | Ask the user what to validate                    |
 
 ### Validation script
 
@@ -289,10 +290,10 @@ metadata_read(type="LightningComponentBundle", fullNames=["c/<Name2>"])
 
 Validate each bundle (write → validate → delete). After all are validated, show a summary table sorted by score ascending (worst first):
 
-| Component | HTML | CSS | JS | Combined | Status |
-|---|---|---|---|---|---|
-| weakDashboard | 45/165 | 60/165 | 55/165 | avg 53% | ❌ Below threshold |
-| accountCard | 140/165 | 155/165 | 148/165 | avg 90% | ✅ Pass |
+| Component     | HTML    | CSS     | JS      | Combined | Status             |
+| ------------- | ------- | ------- | ------- | -------- | ------------------ |
+| weakDashboard | 45/165  | 60/165  | 55/165  | avg 53%  | ❌ Below threshold |
+| accountCard   | 140/165 | 155/165 | 148/165 | avg 90%  | ✅ Pass            |
 
 ### All
 

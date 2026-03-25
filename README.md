@@ -31,17 +31,17 @@ All skills are bundled in the `cirra-ai-sf` plugin. They can also be installed i
 
 The following skills are available or planned:
 
-| Skill                                                               | Description                                                                                                                          |
-| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Skill                                             | Description                                                                                                                          |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
 | [sf-apex](skills/sf-apex/README.md)               | Create, update and review Apex classes and triggers                                                                                  |
-| [sf-flow](skills/sf-flow/README.md)                                 | Create, update and review flows. Includes porting from Process Builders                                                              |
-| [sf-data](skills/sf-data/README.md)                                 | SOQL queries, DML operations, test data factories, and pre-flight SOQL validation                                                    |
-| [sf-lwc](skills/sf-lwc/README.md)                                   | Lightning Web Components development                                                                                                 |
-| [sf-audit](skills/sf-audit/README.md)                               | Full org audit across Apex, Flows, and LWC with scored reports                                                                       |
+| [sf-flow](skills/sf-flow/README.md)               | Create, update and review flows. Includes porting from Process Builders                                                              |
+| [sf-data](skills/sf-data/README.md)               | SOQL queries, DML operations, test data factories, and pre-flight SOQL validation                                                    |
+| [sf-lwc](skills/sf-lwc/README.md)                 | Lightning Web Components development                                                                                                 |
+| [sf-audit](skills/sf-audit/README.md)             | Full org audit across Apex, Flows, and LWC with scored reports                                                                       |
 | [sf-metadata](skills/sf-metadata/README.md)       | Metadata creation, org queries, permission set generation                                                                            |
 | [sf-permissions](skills/sf-permissions/README.md) | Permission Set analysis, hierarchy viewer, "Who has X?" auditing                                                                     |
-| [sf-diagram](skills/sf-diagram/README.md)                           | Salesforce architecture diagrams (ERDs, OAuth flows, integrations) in Mermaid                                                        |
-| [sf-kugamon](skills/sf-kugamon/README.md)                           | Kugamon CPQ quote management — create, verify, and manage opportunities, quotes, and orders with [Kugamon](https://www.kugamon.com/) |
+| [sf-diagram](skills/sf-diagram/README.md)         | Salesforce architecture diagrams (ERDs, OAuth flows, integrations) in Mermaid                                                        |
+| [sf-kugamon](skills/sf-kugamon/README.md)         | Kugamon CPQ quote management — create, verify, and manage opportunities, quotes, and orders with [Kugamon](https://www.kugamon.com/) |
 
 The skills can either be installed individually, or as a bundle. See details for each AI platform below.
 

@@ -45,11 +45,11 @@ Request: "Who has delete access to the Account object?"
 
 ## Related Skills
 
-| Skill                | When to Use                                          |
-| -------------------- | ---------------------------------------------------- |
+| Skill       | When to Use                                          |
+| ----------- | ---------------------------------------------------- |
 | sf-metadata | Create permission sets and manage metadata           |
-| sf-diagram           | Visualize permission hierarchies as Mermaid diagrams |
-| sf-data              | Query user assignments in bulk                       |
+| sf-diagram  | Visualize permission hierarchies as Mermaid diagrams |
+| sf-data     | Query user assignments in bulk                       |
 
 ## Cirra AI MCP Tools — for developers
 

@@ -47,8 +47,8 @@ Request: "Create a JWT Bearer OAuth flow diagram"
 
 ## Related Skills
 
-| Skill                   | When to Use                                        |
-| ----------------------- | -------------------------------------------------- |
+| Skill          | When to Use                                        |
+| -------------- | -------------------------------------------------- |
 | sf-metadata    | Get real object/field definitions for ERD diagrams |
 | sf-permissions | Get permission data for hierarchy visualizations   |
 

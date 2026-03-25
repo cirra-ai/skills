@@ -31,7 +31,7 @@ building data model (ERD) diagrams from live org metadata.
 
 Parse `$ARGUMENTS` to determine the diagram type before gathering further requirements:
 
-| Input in `$ARGUMENTS`        | Diagram type                        |
+| Input in `$ARGUMENTS`         | Diagram type                        |
 | ----------------------------- | ----------------------------------- |
 | `oauth` / `JWT Bearer` / etc. | OAuth flow diagram                  |
 | `erd` / object names          | ERD / data model diagram            |
@@ -345,14 +345,14 @@ Score: XX/80 - Rating
 
 ## Cross-Skill Integration
 
-| From Skill              | To sf-diagram | When                                      |
-| ----------------------- | ------------- | ----------------------------------------- |
+| From Skill     | To sf-diagram | When                                      |
+| -------------- | ------------- | ----------------------------------------- |
 | sf-metadata    | -> sf-diagram | Get real object/field definitions for ERD |
 | sf-permissions | -> sf-diagram | Visualize permission hierarchy            |
 | sf-flow        | -> sf-diagram | Document Flow logic as flowchart          |
 
-| From sf-diagram | To Skill                   | When                                        |
-| --------------- | -------------------------- | ------------------------------------------- |
+| From sf-diagram | To Skill          | When                                        |
+| --------------- | ----------------- | ------------------------------------------- |
 | sf-diagram      | -> sf-metadata    | Need object structure for ERD               |
 | sf-diagram      | -> sf-permissions | Need permission data for hierarchy diagrams |
 
