@@ -142,7 +142,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 ## ambiguous — just a class name
 
 - **Input**: `/sf-apex AccountService`
-- **Dispatch**: (ambiguous — could be validate, update, or describe)
+- **Dispatch**: (ambiguous — could be validate or update)
 - **Init required**: no
 - **Init timing**: `after-menu`
 - **Path**: `n/a`
@@ -150,4 +150,4 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Should ask user**: yes
 - **Follow-up skills**: none
 
-**Notes**: A bare class name with no verb doesn't match any dispatch keyword. Should ask whether the user wants to validate, update, or view the class.
+**Notes**: A bare class name with no verb doesn't match any dispatch keyword. Should ask whether the user wants to validate or update the class.
