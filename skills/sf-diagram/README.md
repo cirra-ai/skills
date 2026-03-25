@@ -49,7 +49,7 @@ Request: "Create a JWT Bearer OAuth flow diagram"
 
 | Skill                   | When to Use                                        |
 | ----------------------- | -------------------------------------------------- |
-| cirra-ai-sf-metadata    | Get real object/field definitions for ERD diagrams |
+| sf-metadata    | Get real object/field definitions for ERD diagrams |
 | sf-permissions | Get permission data for hierarchy visualizations   |
 
 ## Cirra AI MCP Tools — for developers

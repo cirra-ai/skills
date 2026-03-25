@@ -27,7 +27,7 @@ on:
           - sf-flow
           - sf-kugamon
           - sf-lwc
-          - cirra-ai-sf-metadata
+          - sf-metadata
           - sf-permissions
           - sf-orders
 

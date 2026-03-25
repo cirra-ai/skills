@@ -10,10 +10,10 @@ Create a Deal Desk workflow test environment with:
 - Contacts as decision makers
 - Opportunities at different stages
 
-## Phase 1: Discovery (cirra-ai-sf-metadata)
+## Phase 1: Discovery (sf-metadata)
 
 ```
-Skill(skill="cirra-ai-sf-metadata")
+Skill(skill="sf-metadata")
 Request: "Describe object Account in org dev - show required fields and picklist values"
 ```
 

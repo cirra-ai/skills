@@ -99,7 +99,7 @@ Sketch your Flow logic before building. Recommended tools:
 
 | Dependency Type       | Check Before Building                                  |
 | --------------------- | ------------------------------------------------------ |
-| Custom Objects/Fields | Do they exist? Create with cirra-ai-sf-metadata first  |
+| Custom Objects/Fields | Do they exist? Create with sf-metadata first  |
 | Custom Metadata Types | Bypass settings, thresholds, config values             |
 | Permission Sets       | Required for System Mode considerations                |
 | External Systems      | Callout endpoints, credentials                         |

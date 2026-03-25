@@ -1,4 +1,4 @@
-# cirra-ai-sf-metadata
+# sf-metadata
 
 Salesforce metadata operations skill for Claude Cowork and Claude Code. Create custom objects, fields, validation rules, record types, and permission sets directly in your org via the Cirra AI MCP Server.
 
@@ -29,7 +29,7 @@ Use one of the pre-built commands
 Invoke the skill:
 
 ```
-Skill: cirra-ai-sf-metadata
+Skill: sf-metadata
 Request: "Create a custom object called Invoice__c with Amount, Status, and Due Date fields"
 ```
 

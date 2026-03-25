@@ -2,7 +2,7 @@
 
 Salesforce orchestrator plugin for Claude Cowork. Coordinates the individual Salesforce skills (Apex, Flow, Data/SOQL, Metadata, Permissions, Diagrams, and others) into a unified admin suite.
 
-When installed, this plugin routes tasks to the appropriate skill based on context — e.g., Apex code reviews go to `sf-apex`, data operations go to `sf-data`, metadata queries go to `cirra-ai-sf-metadata`.
+When installed, this plugin routes tasks to the appropriate skill based on context — e.g., Apex code reviews go to `sf-apex`, data operations go to `sf-data`, metadata queries go to `sf-metadata`.
 
 Each skill also works independently without the orchestrator.
 
@@ -14,7 +14,7 @@ Each skill also works independently without the orchestrator.
 | [sf-flow](skills/sf-flow/README.md)               | Create, update and review flows                                                 |
 | [sf-data](skills/sf-data/README.md)                                 | SOQL query building/optimization/execution, DML operations, test data factories |
 | [cirra-ai-sf-lwc](skills/cirra-ai-sf-lwc/README.md)                 | Lightning Web Components development                                            |
-| [cirra-ai-sf-metadata](skills/cirra-ai-sf-metadata/README.md)       | Metadata creation, org queries, permission set generation                       |
+| [sf-metadata](skills/sf-metadata/README.md)       | Metadata creation, org queries, permission set generation                       |
 | [sf-permissions](skills/sf-permissions/README.md) | Permission Set analysis, "Who has X?" auditing                                  |
 | [cirra-ai-sf-diagram](skills/cirra-ai-sf-diagram/README.md)         | Architecture diagrams (ERDs, OAuth, integrations) in Mermaid                    |
 

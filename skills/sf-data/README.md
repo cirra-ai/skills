@@ -73,7 +73,7 @@ determines how large query results are retrieved — see the skill for details.
 | ----------------------- | -------------------------------------------------------- |
 | sf-apex        | Create and validate Apex code, triggers, test classes    |
 | sf-flow        | Create and validate Salesforce Flows                     |
-| cirra-ai-sf-metadata    | Describe objects, fields, permission sets, profiles etc. |
+| sf-metadata    | Describe objects, fields, permission sets, profiles etc. |
 | sf-permissions | Permission analysis queries                              |
 | sf-diagram              | Visualize query results as diagrams                      |
 

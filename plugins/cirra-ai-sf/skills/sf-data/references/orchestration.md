@@ -10,7 +10,7 @@ This document details how sf-data fits into the multi-skill workflow for Salesfo
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │  STANDARD MULTI-SKILL ORCHESTRATION ORDER                                   │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│  1. cirra-ai-sf-metadata                                                             │
+│  1. sf-metadata                                                             │
 │     └── Create object/field definitions (LOCAL files)                       │
 │                                                                             │
 │  2. sf-flow                                                                 │
@@ -108,7 +108,7 @@ sobject_dml(
 
 | From sf-data | To Skill               | When                                                |
 | ------------ | ---------------------- | --------------------------------------------------- |
-| sf-data      | → cirra-ai-sf-metadata | "Describe Invoice\_\_c" (discover object structure) |
+| sf-data      | → sf-metadata | "Describe Invoice\_\_c" (discover object structure) |
 | sf-data      | → cirra-ai-sf-deploy   | "Redeploy field after adding validation rule"       |
 
 ---

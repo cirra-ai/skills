@@ -7,7 +7,7 @@ from pathlib import Path
 
 from conftest import load_script
 
-mod = load_script("skills/cirra-ai-sf-metadata/scripts/validate_metadata_operation.py")
+mod = load_script("skills/sf-metadata/scripts/validate_metadata_operation.py")
 MetadataOperationValidator = mod.MetadataOperationValidator
 
 FIXTURES = Path(__file__).parent / "fixtures"

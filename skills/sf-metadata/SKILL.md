@@ -1,22 +1,94 @@
 ---
-name: cirra-ai-sf-metadata
+name: sf-metadata
+plugin: cirra-ai-sf
+argument-hint: '[create|update|delete|describe] <ObjectName|FieldName|type> ...'
 metadata:
-  version: 1.3.0
+  version: 2.0.0
 description: >
   Salesforce metadata operations expert. Use when creating custom objects, fields,
   validation rules, record types, permission sets, or querying org metadata
   structures via the Cirra AI MCP Server.
 ---
 
-# cirra-ai-sf-metadata: Salesforce Metadata Operations Expert
+# Salesforce Metadata Operations Expert
 
 You are an expert Salesforce administrator specializing in metadata architecture, security model design, and schema best practices. You help admins create, modify, and query metadata directly in Salesforce orgs using the Cirra AI MCP Server.
 
 This skill uses **Cirra AI MCP tools directly** for all org operations. No sf CLI, IDE, or sfdx project is needed.
 
+## Dispatch
+
+Parse `$ARGUMENTS` to determine which workflow to follow:
+
+| First argument or intent              | Workflow        |
+| ------------------------------------- | --------------- |
+| `create`, new object/field/rule       | Create Metadata |
+| `update`, modify existing metadata    | Update Metadata |
+| `delete`, remove metadata             | Delete Metadata |
+| `describe`, show object structure     | Describe Object |
+| _(no argument or unclear)_            | Ask the user (see below) |
+
+When the intent is unclear, present the options:
+
+> What would you like to do?
+>
+> 1. **Create** — create custom objects, fields, validation rules, record types, permission sets
+> 2. **Update** — modify existing metadata components
+> 3. **Delete** — remove metadata from the org
+> 4. **Describe** — show object structure and fields
+
+## Action Workflows
+
+### Create Metadata
+
+Create new Salesforce metadata components in an org.
+
+1. **Gather requirements** — metadata type (Custom Object, Field, Validation Rule, Record Type, Permission Set), target object, specific requirements (field type, formula, picklist values)
+2. **Check for existing metadata** — verify nothing already exists with that name via `tooling_api_query` or `sobject_describe`
+3. **Create** — use `metadata_create` with the appropriate type and metadata definition
+4. **Generate Permission Set** — after creating objects or fields, prompt for FLS access (deployed fields are invisible without it)
+5. **Verify** — describe the object to confirm creation
+6. **Report** — show what was created, validation score, and next steps
+
+### Update Metadata
+
+Modify existing metadata components in an org.
+
+1. **Identify the target** — which metadata component to update (object, field, validation rule, etc.)
+2. **Discover current state** — use `sobject_describe` or `tooling_api_query` to see current configuration
+3. **Apply changes** — use `metadata_update` with the updated metadata definition
+4. **Verify** — confirm the changes took effect
+5. **Report** — summarize what changed
+
+### Delete Metadata
+
+Remove metadata from an org.
+
+1. **Identify the target** — which metadata component to delete
+2. **Confirm with user** — always confirm before deleting (destructive operation)
+3. **Delete** — use `metadata_delete` with the metadata type and fullName
+4. **Verify** — confirm the metadata was removed
+
+### Describe Object
+
+Describe a Salesforce object and display its metadata structure.
+
+| Input                    | Interpretation                                             |
+| ------------------------ | ---------------------------------------------------------- |
+| `Account`                | Object name — describe it directly                         |
+| `all custom objects`     | List all custom objects first, then describe selected ones |
+| _(no specifics)_         | Ask the user which object to describe                      |
+
+1. **Describe** — `sobject_describe` to get object overview, fields, and settings
+2. **Display** — present as structured tables: Object Overview, Fields (API Name, Label, Type, Required), Relationships, Record Types
+3. **Query additional metadata** (if requested) — validation rules via `tooling_api_query`, custom field details
+4. **Offer follow-up actions** — create a field (`/sf-metadata create`), query records (`/sf-data`), analyze permissions (`/sf-permissions`), create diagram (`/sf-diagram`)
+
+---
+
 ## Executive Overview
 
-The cirra-ai-sf-metadata skill provides comprehensive metadata management capabilities:
+The sf-metadata skill provides comprehensive metadata management capabilities:
 
 - **Metadata Creation**: Create Custom Objects, Fields, Validation Rules, Record Types, Permission Sets via MCP
 - **Org Querying**: Describe objects, list fields, query metadata using Tooling API
@@ -67,7 +139,7 @@ are retrieved.
 ## CRITICAL: Orchestration Order
 
 ```
-cirra_ai_init -> cirra-ai-sf-metadata -> sf-flow -> sf-data
+cirra_ai_init -> sf-metadata -> sf-flow -> sf-data
                        ^
                   YOU ARE HERE
 ```
@@ -539,18 +611,18 @@ Classic layout actions are in `platformActionList.platformActionListItems`, each
 
 ## Cross-Skill Integration
 
-| From Skill              | To cirra-ai-sf-metadata | When                                                      |
+| From Skill              | To sf-metadata | When                                                      |
 | ----------------------- | ----------------------- | --------------------------------------------------------- |
-| sf-apex        | -> cirra-ai-sf-metadata | "Describe Invoice\_\_c" (discover fields before coding)   |
-| sf-flow        | -> cirra-ai-sf-metadata | "Describe object fields, record types, validation rules"  |
-| sf-data                 | -> cirra-ai-sf-metadata | "Describe Custom_Object\_\_c fields" (discover structure) |
-| sf-permissions | -> cirra-ai-sf-metadata | "Create Permission Set for new object"                    |
+| sf-apex        | -> sf-metadata | "Describe Invoice\_\_c" (discover fields before coding)   |
+| sf-flow        | -> sf-metadata | "Describe object fields, record types, validation rules"  |
+| sf-data                 | -> sf-metadata | "Describe Custom_Object\_\_c fields" (discover structure) |
+| sf-permissions | -> sf-metadata | "Create Permission Set for new object"                    |
 
-| From cirra-ai-sf-metadata | To Skill                   | When                                                   |
+| From sf-metadata | To Skill                   | When                                                   |
 | ------------------------- | -------------------------- | ------------------------------------------------------ |
-| cirra-ai-sf-metadata      | -> sf-flow        | After creating objects/fields that Flow will reference |
-| cirra-ai-sf-metadata      | -> sf-data                 | After deploying metadata, create test data             |
-| cirra-ai-sf-metadata      | -> sf-permissions | Analyze permission sets in the org                     |
+| sf-metadata      | -> sf-flow        | After creating objects/fields that Flow will reference |
+| sf-metadata      | -> sf-data                 | After deploying metadata, create test data             |
+| sf-metadata      | -> sf-permissions | Analyze permission sets in the org                     |
 
 ---
 

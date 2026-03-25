@@ -11,7 +11,7 @@ Currently registered delegates:
   - sf-flow: Flow, FlowDefinition
   - cirra-ai-sf-data: soql_query, sobject_dml (routed by tool name)
   - cirra-ai-sf-lwc: LightningComponentBundle
-  - cirra-ai-sf-metadata: CustomObject, CustomField, ValidationRule, RecordType, PermissionSet
+  - sf-metadata: CustomObject, CustomField, ValidationRule, RecordType, PermissionSet
 """
 
 import json
@@ -31,11 +31,11 @@ _DELEGATES: dict[str, str] = {
     "Flow":                       "skills/sf-flow/scripts/pre-mcp-validate.py",
     "FlowDefinition":             "skills/sf-flow/scripts/pre-mcp-validate.py",
     "LightningComponentBundle":   "skills/cirra-ai-sf-lwc/scripts/pre-mcp-validate.py",
-    "CustomObject":               "skills/cirra-ai-sf-metadata/scripts/pre-mcp-validate.py",
-    "CustomField":                "skills/cirra-ai-sf-metadata/scripts/pre-mcp-validate.py",
-    "ValidationRule":             "skills/cirra-ai-sf-metadata/scripts/pre-mcp-validate.py",
-    "RecordType":                 "skills/cirra-ai-sf-metadata/scripts/pre-mcp-validate.py",
-    "PermissionSet":              "skills/cirra-ai-sf-metadata/scripts/pre-mcp-validate.py",
+    "CustomObject":               "skills/sf-metadata/scripts/pre-mcp-validate.py",
+    "CustomField":                "skills/sf-metadata/scripts/pre-mcp-validate.py",
+    "ValidationRule":             "skills/sf-metadata/scripts/pre-mcp-validate.py",
+    "RecordType":                 "skills/sf-metadata/scripts/pre-mcp-validate.py",
+    "PermissionSet":              "skills/sf-metadata/scripts/pre-mcp-validate.py",
 }
 
 # Map base tool names to their validator script (relative to _PLUGIN_ROOT).
@@ -47,13 +47,13 @@ _TOOL_DELEGATES: dict[str, str] = {
 
 # Map metadata types to their JSON Schema file (relative to _REPO_ROOT).
 _SCHEMAS: dict[str, str] = {
-    "CustomField":       "skills/cirra-ai-sf-metadata/references/customfield-metadata-schema.json",
-    "CustomObject":      "skills/cirra-ai-sf-metadata/references/customobject-metadata-schema.json",
-    "FlexiPage":         "skills/cirra-ai-sf-metadata/references/flexipage-metadata-schema.json",
-    "Layout":            "skills/cirra-ai-sf-metadata/references/layout-metadata-schema.json",
-    "QuickAction":       "skills/cirra-ai-sf-metadata/references/quickaction-metadata-schema.json",
-    "RecordType":        "skills/cirra-ai-sf-metadata/references/recordtype-metadata-schema.json",
-    "ValidationRule":    "skills/cirra-ai-sf-metadata/references/validationrule-metadata-schema.json",
+    "CustomField":       "skills/sf-metadata/references/customfield-metadata-schema.json",
+    "CustomObject":      "skills/sf-metadata/references/customobject-metadata-schema.json",
+    "FlexiPage":         "skills/sf-metadata/references/flexipage-metadata-schema.json",
+    "Layout":            "skills/sf-metadata/references/layout-metadata-schema.json",
+    "QuickAction":       "skills/sf-metadata/references/quickaction-metadata-schema.json",
+    "RecordType":        "skills/sf-metadata/references/recordtype-metadata-schema.json",
+    "ValidationRule":    "skills/sf-metadata/references/validationrule-metadata-schema.json",
     "PermissionSet":     "skills/sf-permissions/references/permissionset-metadata-schema.json",
     "PermissionSetGroup": "skills/sf-permissions/references/permissionsetgroup-metadata-schema.json",
     "Profile":           "skills/sf-permissions/references/profile-metadata-schema.json",

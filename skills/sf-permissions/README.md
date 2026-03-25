@@ -47,7 +47,7 @@ Request: "Who has delete access to the Account object?"
 
 | Skill                | When to Use                                          |
 | -------------------- | ---------------------------------------------------- |
-| cirra-ai-sf-metadata | Create permission sets and manage metadata           |
+| sf-metadata | Create permission sets and manage metadata           |
 | sf-diagram           | Visualize permission hierarchies as Mermaid diagrams |
 | sf-data              | Query user assignments in bulk                       |
 

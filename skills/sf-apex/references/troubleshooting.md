@@ -32,10 +32,10 @@ Comprehensive guide to debugging Apex code, LSP validation, dependency managemen
 ### Common Deployment Order
 
 ```
-1. cirra-ai-sf-metadata: Create custom fields
+1. sf-metadata: Create custom fields
    └─> metadata_create(type="CustomField", fullName="Lead.Score__c", metadata={...})
 
-2. cirra-ai-sf-metadata: Create Permission Sets
+2. sf-metadata: Create Permission Sets
    └─> Grant FLS on custom fields
 
 3. cirra-ai-sf-deploy: Deploy fields + Permission Sets
@@ -84,7 +84,7 @@ TA_Account_SetDefaults  Account    TA_Account_SetDefaults
 TA_Lead_CalculateScore  Lead       TA_Lead_CalculateScore
 ```
 
-**If missing, create via cirra-ai-sf-metadata skill.**
+**If missing, create via sf-metadata skill.**
 
 ---
 

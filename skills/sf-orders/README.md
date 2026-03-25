@@ -73,7 +73,7 @@ The skill produces:
 | Related Skill        | When to Use                                          |
 | -------------------- | ---------------------------------------------------- |
 | sf-data              | Advanced SOQL queries for orders, accounts, contacts |
-| cirra-ai-sf-metadata | Create custom fields or objects for order management |
+| sf-metadata | Create custom fields or objects for order management |
 | sf-flow     | Build notification or return label email flows       |
 | sf-diagram           | Visualize order-to-return-to-case data model         |
 

@@ -1,4 +1,4 @@
-# cirra-ai-sf-metadata MCP integration protocol (actual org)
+# sf-metadata MCP integration protocol (actual org)
 
 ## Prerequisites
 
@@ -11,7 +11,7 @@
 Use this prompt as-is for each scenario:
 
 ```text
-Use the cirra-ai-sf-metadata skill.
+Use the sf-metadata skill.
 1) Run cirra_ai_init first.
 2) Validate the metadata payload with the skill MCP validator.
 3) If validation is scored and acceptable, run metadata_create or metadata_update.

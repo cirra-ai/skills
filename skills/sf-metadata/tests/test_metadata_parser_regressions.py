@@ -2,7 +2,7 @@
 
 from conftest import load_script
 
-mod = load_script("skills/cirra-ai-sf-metadata/scripts/validate_metadata_operation.py")
+mod = load_script("skills/sf-metadata/scripts/validate_metadata_operation.py")
 analyze_formula_safety = mod.analyze_formula_safety
 
 

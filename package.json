@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "prepare": "git config core.hooksPath scripts/hooks",
-    "test": "python3 -m pytest tests/ skills/sf-flow/tests/ skills/sf-apex/tests/ skills/sf-lwc/tests/ skills/cirra-ai-sf-metadata/tests/ -v",
+    "test": "python3 -m pytest tests/ skills/sf-flow/tests/ skills/sf-apex/tests/ skills/sf-lwc/tests/ skills/sf-metadata/tests/ -v",
     "lint": "prettier --check . && ruff check .",
     "lint:fix": "prettier --write . && ruff check --fix .",
     "format": "prettier --write . && ruff format ."
