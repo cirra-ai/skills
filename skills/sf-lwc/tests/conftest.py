@@ -1,4 +1,4 @@
-"""Skill-local pytest helpers for cirra-ai-sf-lwc."""
+"""Skill-local pytest helpers for sf-lwc."""
 
 from __future__ import annotations
 

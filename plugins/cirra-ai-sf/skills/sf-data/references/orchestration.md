@@ -13,7 +13,7 @@ This document details how sf-data fits into the multi-skill workflow for Salesfo
 │  1. cirra-ai-sf-metadata                                                             │
 │     └── Create object/field definitions (LOCAL files)                       │
 │                                                                             │
-│  2. cirra-ai-sf-flow                                                                 │
+│  2. sf-flow                                                                 │
 │     └── Create flow definitions (LOCAL files)                               │
 │                                                                             │
 │  3. cirra-ai-sf-deploy                                                               │
@@ -60,7 +60,7 @@ When testing triggers or flows, always create test data AFTER deployment:
 
 ```
 1. sf-apex   → Create trigger handler class
-2. cirra-ai-sf-flow   → Create record-triggered flow
+2. sf-flow   → Create record-triggered flow
 3. cirra-ai-sf-deploy → Deploy trigger + flow + objects
 4. sf-data   ◀── CREATE TEST DATA NOW
               └── Triggers and flows will fire!
@@ -103,7 +103,7 @@ sobject_dml(
 | From Skill          | To sf-data | When                                               |
 | ------------------- | ---------- | -------------------------------------------------- |
 | sf-apex    | → sf-data  | "Create 251 Accounts for bulk testing"             |
-| cirra-ai-sf-flow    | → sf-data  | "Create Opportunities with StageName='Closed Won'" |
+| sf-flow    | → sf-data  | "Create Opportunities with StageName='Closed Won'" |
 | cirra-ai-sf-testing | → sf-data  | "Generate test records for test class"             |
 
 | From sf-data | To Skill               | When                                                |

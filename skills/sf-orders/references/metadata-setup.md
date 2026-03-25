@@ -57,7 +57,7 @@ Auto-launched flow that sends an HTML email with return details to the customer.
 - **Sender**: Current User
 - **Body**: HTML formatted with return details and shipping instructions
 
-Use the `cirra-ai-sf-flow` skill to create this flow. The flow skill handles JSON-based deployment via `metadata_create` — do not use raw XML.
+Use the `sf-flow` skill to create this flow. The flow skill handles JSON-based deployment via `metadata_create` — do not use raw XML.
 
 ### Alternative: Manual Email Approach
 

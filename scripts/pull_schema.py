@@ -46,7 +46,7 @@ XSD_NS = "http://www.w3.org/2001/XMLSchema"
 # Metadata types and their XSD type prefixes. The key is the CLI-friendly
 # name; the value is (type_prefix, root_type_name, skill_dir, output_filename).
 METADATA_TYPES = {
-    "Flow": ("Flow", "Flow", "cirra-ai-sf-flow", "flow-metadata-schema.json"),
+    "Flow": ("Flow", "Flow", "sf-flow", "flow-metadata-schema.json"),
     "PermissionSet": (
         "PermissionSet",
         "PermissionSet",

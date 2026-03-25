@@ -1,6 +1,6 @@
-# Multi-Skill Orchestration: cirra-ai-sf-flow Perspective
+# Multi-Skill Orchestration: sf-flow Perspective
 
-This document details how cirra-ai-sf-flow fits into the multi-skill workflow for Salesforce development.
+This document details how sf-flow fits into the multi-skill workflow for Salesforce development.
 
 ---
 
@@ -13,7 +13,7 @@ This document details how cirra-ai-sf-flow fits into the multi-skill workflow fo
 │  1. cirra-ai-sf-metadata                                                    │
 │     └── Create object/field definitions (LOCAL files)                       │
 │                                                                             │
-│  2. cirra-ai-sf-flow  ◀── YOU ARE HERE                                     │
+│  2. sf-flow  ◀── YOU ARE HERE                                     │
 │     └── Create flow definitions (LOCAL files)                               │
 │                                                                             │
 │  3. cirra-ai-sf-deploy                                                      │
@@ -26,9 +26,9 @@ This document details how cirra-ai-sf-flow fits into the multi-skill workflow fo
 
 ---
 
-## Why cirra-ai-sf-flow Depends on cirra-ai-sf-metadata
+## Why sf-flow Depends on cirra-ai-sf-metadata
 
-| cirra-ai-sf-flow Uses | From cirra-ai-sf-metadata | What Fails Without It                 |
+| sf-flow Uses | From cirra-ai-sf-metadata | What Fails Without It                 |
 | --------------------- | ------------------------- | ------------------------------------- |
 | Object references     | Custom Objects            | `Invalid reference: Quote__c`         |
 | Field references      | Custom Fields             | `Field does not exist: Status__c`     |
@@ -39,7 +39,7 @@ This document details how cirra-ai-sf-flow fits into the multi-skill workflow fo
 
 ---
 
-## cirra-ai-sf-flow's Role in the Triangle Architecture
+## sf-flow's Role in the Triangle Architecture
 
 Flow acts as the **orchestrator** in the Flow-LWC-Apex triangle:
 
@@ -88,7 +88,7 @@ When building agents with Flow actions:
 │  4. sf-apex (if custom logic needed)                               │
 │     └── Create @InvocableMethod classes                                     │
 │                                                                             │
-│  5. cirra-ai-sf-flow  ◀── YOU ARE HERE                                     │
+│  5. sf-flow  ◀── YOU ARE HERE                                     │
 │     └── Create Flow (HTTP Callout, Apex wrapper, or standard)               │
 │                                                                             │
 │  6. cirra-ai-sf-deploy                                                      │
@@ -152,16 +152,16 @@ actions:
 
 ## Cross-Skill Integration Table
 
-| From Skill              | To cirra-ai-sf-flow | When                                 |
+| From Skill              | To sf-flow | When                                 |
 | ----------------------- | ------------------- | ------------------------------------ |
-| sf-apex        | → cirra-ai-sf-flow  | "Create Flow wrapper for Apex logic" |
-| cirra-ai-sf-integration | → cirra-ai-sf-flow  | "Create HTTP Callout Flow"           |
+| sf-apex        | → sf-flow  | "Create Flow wrapper for Apex logic" |
+| cirra-ai-sf-integration | → sf-flow  | "Create HTTP Callout Flow"           |
 
-| From cirra-ai-sf-flow | To Skill               | When                                                |
+| From sf-flow | To Skill               | When                                                |
 | --------------------- | ---------------------- | --------------------------------------------------- |
-| cirra-ai-sf-flow      | → cirra-ai-sf-metadata | "Describe Invoice\_\_c" (verify fields before flow) |
-| cirra-ai-sf-flow      | → cirra-ai-sf-deploy   | "Deploy flow with checkOnly"                        |
-| cirra-ai-sf-flow      | → sf-data              | "Create 200 test Accounts" (after deploy)           |
+| sf-flow      | → cirra-ai-sf-metadata | "Describe Invoice\_\_c" (verify fields before flow) |
+| sf-flow      | → cirra-ai-sf-deploy   | "Deploy flow with checkOnly"                        |
+| sf-flow      | → sf-data              | "Create 200 test Accounts" (after deploy)           |
 
 ---
 
@@ -196,6 +196,6 @@ When deploying Flows that reference Apex or LWC:
 
 | Topic                               | Location                                              |
 | ----------------------------------- | ----------------------------------------------------- |
-| Triangle pattern (Flow perspective) | `cirra-ai-sf-flow/docs/triangle-pattern.md`           |
-| LWC integration                     | `cirra-ai-sf-flow/docs/lwc-integration-guide.md`      |
-| Apex action template                | `cirra-ai-sf-flow/templates/apex-action-template.xml` |
+| Triangle pattern (Flow perspective) | `sf-flow/docs/triangle-pattern.md`           |
+| LWC integration                     | `sf-flow/docs/lwc-integration-guide.md`      |
+| Apex action template                | `sf-flow/templates/apex-action-template.xml` |

@@ -11,7 +11,7 @@ import os
 
 from conftest import load_script
 
-mod = load_script("skills/cirra-ai-sf-flow/scripts/simulate_flow.py")
+mod = load_script("skills/sf-flow/scripts/simulate_flow.py")
 FlowSimulator = mod.FlowSimulator
 
 FIXTURES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures")

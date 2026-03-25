@@ -8,7 +8,7 @@ appropriate sub-skill validator script for deeper analysis.
 
 Currently registered delegates:
   - sf-apex: ApexClass, ApexTrigger
-  - cirra-ai-sf-flow: Flow, FlowDefinition
+  - sf-flow: Flow, FlowDefinition
   - cirra-ai-sf-data: soql_query, sobject_dml (routed by tool name)
   - cirra-ai-sf-lwc: LightningComponentBundle
   - cirra-ai-sf-metadata: CustomObject, CustomField, ValidationRule, RecordType, PermissionSet
@@ -28,8 +28,8 @@ _REPO_ROOT = os.path.dirname(os.path.dirname(_PLUGIN_ROOT))
 _DELEGATES: dict[str, str] = {
     "ApexClass":      "skills/sf-apex/scripts/pre-mcp-validate.py",
     "ApexTrigger":    "skills/sf-apex/scripts/pre-mcp-validate.py",
-    "Flow":                       "skills/cirra-ai-sf-flow/scripts/pre-mcp-validate.py",
-    "FlowDefinition":             "skills/cirra-ai-sf-flow/scripts/pre-mcp-validate.py",
+    "Flow":                       "skills/sf-flow/scripts/pre-mcp-validate.py",
+    "FlowDefinition":             "skills/sf-flow/scripts/pre-mcp-validate.py",
     "LightningComponentBundle":   "skills/cirra-ai-sf-lwc/scripts/pre-mcp-validate.py",
     "CustomObject":               "skills/cirra-ai-sf-metadata/scripts/pre-mcp-validate.py",
     "CustomField":                "skills/cirra-ai-sf-metadata/scripts/pre-mcp-validate.py",

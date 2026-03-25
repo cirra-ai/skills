@@ -11,7 +11,7 @@ Each skill also works independently without the orchestrator.
 | Skill                                                               | Description                                                                     |
 | ------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
 | [sf-apex](skills/sf-apex/README.md)               | Create, update and review Apex classes and triggers                             |
-| [cirra-ai-sf-flow](skills/cirra-ai-sf-flow/README.md)               | Create, update and review flows                                                 |
+| [sf-flow](skills/sf-flow/README.md)               | Create, update and review flows                                                 |
 | [sf-data](skills/sf-data/README.md)                                 | SOQL query building/optimization/execution, DML operations, test data factories |
 | [cirra-ai-sf-lwc](skills/cirra-ai-sf-lwc/README.md)                 | Lightning Web Components development                                            |
 | [cirra-ai-sf-metadata](skills/cirra-ai-sf-metadata/README.md)       | Metadata creation, org queries, permission set generation                       |

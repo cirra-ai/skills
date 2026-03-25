@@ -50,7 +50,7 @@ Request: "Create a custom object called Invoice__c with Amount, Status, and Due 
 | sf-data                 | Query, create records, build/optimize SOQL queries |
 | cirra-ai-sf-permissions | Analyze and audit permission sets                  |
 | sf-apex        | Create Apex classes and triggers                   |
-| cirra-ai-sf-flow        | Create and validate Flows                          |
+| sf-flow        | Create and validate Flows                          |
 
 ## Cirra AI MCP Tools — for developers
 

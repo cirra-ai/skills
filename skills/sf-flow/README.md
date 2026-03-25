@@ -1,4 +1,4 @@
-# cirra-ai-sf-flow
+# sf-flow
 
 Creates and validates Salesforce Flows with 110-point scoring and Winter '26 best practices. Build production-ready, performant, and secure flows.
 
@@ -33,7 +33,7 @@ Use one of the pre-built commands
 #### In other tools
 
 ```
-Skill: cirra-ai-sf-flow
+Skill: sf-flow
 Request: "Create a before-save flow to auto-populate Account fields"
 ```
 
@@ -100,7 +100,7 @@ The skill generates:
 ## Orchestration Order
 
 ```
-cirra-ai-sf-metadata → cirra-ai-sf-flow → cirra-ai-sf-deploy → sf-data
+cirra-ai-sf-metadata → sf-flow → cirra-ai-sf-deploy → sf-data
 ```
 
 Always deploy custom objects/fields BEFORE flows that reference them.

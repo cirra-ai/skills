@@ -401,8 +401,8 @@ When deploying integrated triangle solutions:
 
 | Topic                     | Location                                              |
 | ------------------------- | ----------------------------------------------------- |
-| Apex action template      | `cirra-ai-sf-flow/templates/apex-action-template.xml` |
-| Screen Flow with LWC      | `cirra-ai-sf-flow/templates/screen-flow-with-lwc.xml` |
-| LWC integration guide     | `cirra-ai-sf-flow/docs/lwc-integration-guide.md`      |
+| Apex action template      | `sf-flow/templates/apex-action-template.xml` |
+| Screen Flow with LWC      | `sf-flow/templates/screen-flow-with-lwc.xml` |
+| LWC integration guide     | `sf-flow/docs/lwc-integration-guide.md`      |
 | Apex triangle perspective | `sf-apex/docs/triangle-pattern.md`           |
 | LWC triangle perspective  | `cirra-ai-sf-lwc/docs/triangle-pattern.md`            |

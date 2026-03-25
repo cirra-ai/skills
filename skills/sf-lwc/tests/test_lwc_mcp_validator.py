@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from conftest import load_script
 
-mod = load_script("skills/cirra-ai-sf-lwc/scripts/mcp_validator.py")
+mod = load_script("skills/sf-lwc/scripts/mcp_validator.py")
 LWCMCPValidator = mod.LWCMCPValidator
 
 

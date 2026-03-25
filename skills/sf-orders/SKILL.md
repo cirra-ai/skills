@@ -514,7 +514,7 @@ Note: The CaseId field on ReturnOrder is a standard field. If the update fails (
 
 Slack webhook alerts and other external notifications are not handled by the Cirra AI MCP Server directly. If the user needs notification workflows:
 
-- Use the `cirra-ai-sf-flow` skill to create a notification flow
+- Use the `sf-flow` skill to create a notification flow
 - Platform Events or Custom Notifications are native Salesforce alternatives
 
 ---

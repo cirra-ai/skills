@@ -7,7 +7,7 @@ import json
 
 from conftest import load_script
 
-mod = load_script("skills/cirra-ai-sf-lwc/scripts/post-tool-validate.py")
+mod = load_script("skills/sf-lwc/scripts/post-tool-validate.py")
 
 
 def test_is_lwc_file_supports_expected_extensions():

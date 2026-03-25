@@ -17,7 +17,7 @@ import tempfile
 
 from conftest import load_script
 
-mod = load_script("skills/cirra-ai-sf-flow/scripts/validate_flow_schema.py")
+mod = load_script("skills/sf-flow/scripts/validate_flow_schema.py")
 FlowSchemaValidator = mod.FlowSchemaValidator
 
 SKILL_ROOT = os.path.join(

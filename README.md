@@ -36,7 +36,7 @@ The following skills are available or planned:
 | [sf-apex](skills/sf-apex/README.md)               | Create, update and review Apex classes and triggers                                                                                  |
 | [sf-flow](skills/sf-flow/README.md)                                 | Create, update and review flows. Includes porting from Process Builders                                                              |
 | [sf-data](skills/sf-data/README.md)                                 | SOQL queries, DML operations, test data factories, and pre-flight SOQL validation                                                    |
-| [cirra-ai-sf-lwc](skills/cirra-ai-sf-lwc/README.md)                 | Lightning Web Components development                                                                                                 |
+| [sf-lwc](skills/sf-lwc/README.md)                                   | Lightning Web Components development                                                                                                 |
 | [sf-audit](skills/sf-audit/README.md)                               | Full org audit across Apex, Flows, and LWC with scored reports                                                                       |
 | [cirra-ai-sf-metadata](skills/cirra-ai-sf-metadata/README.md)       | Metadata creation, org queries, permission set generation                                                                            |
 | [cirra-ai-sf-permissions](skills/cirra-ai-sf-permissions/README.md) | Permission Set analysis, hierarchy viewer, "Who has X?" auditing                                                                     |

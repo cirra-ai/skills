@@ -15,7 +15,7 @@ import os
 
 from conftest import load_script
 
-mod = load_script("skills/cirra-ai-sf-flow/scripts/mcp_validator.py")
+mod = load_script("skills/sf-flow/scripts/mcp_validator.py")
 FlowMCPValidator = mod.FlowMCPValidator
 
 FIXTURES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures")

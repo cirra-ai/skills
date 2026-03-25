@@ -145,7 +145,7 @@ def _score_apex_files(apex_dir: Path, trigger_dir: Path, threshold_pct: int):
 
 def _score_flow_files(flows_dir: Path, threshold_pct: int):
     """Score .flow-meta.xml files with the Flow validator."""
-    mod = _load_module("cirra-ai-sf-flow/scripts/validate_flow.py")
+    mod = _load_module("sf-flow/scripts/validate_flow.py")
     if mod is None:
         return [], []
 

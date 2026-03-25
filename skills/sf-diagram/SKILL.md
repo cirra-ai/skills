@@ -349,7 +349,7 @@ Score: XX/80 - Rating
 | ----------------------- | ------------- | ----------------------------------------- |
 | cirra-ai-sf-metadata    | -> sf-diagram | Get real object/field definitions for ERD |
 | cirra-ai-sf-permissions | -> sf-diagram | Visualize permission hierarchy            |
-| cirra-ai-sf-flow        | -> sf-diagram | Document Flow logic as flowchart          |
+| sf-flow        | -> sf-diagram | Document Flow logic as flowchart          |
 
 | From sf-diagram | To Skill                   | When                                        |
 | --------------- | -------------------------- | ------------------------------------------- |

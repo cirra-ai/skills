@@ -856,7 +856,7 @@ HARD-CODED PATTERN AUDIT
 ═══════════════════════════════════════════════════════════
 ```
 
-> **Validator Note**: The cirra-ai-sf-flow validator automatically flags `HardcodedId` and `HardcodedUrl` patterns during analysis.
+> **Validator Note**: The sf-flow validator automatically flags `HardcodedId` and `HardcodedUrl` patterns during analysis.
 
 ### When NOT to Use CMDT
 

@@ -1233,15 +1233,15 @@ tooling_api_query(
 
 ## Cross-Skill Integration
 
-| From Skill              | To cirra-ai-sf-flow | When                                 |
+| From Skill              | To sf-flow | When                                 |
 | ----------------------- | ------------------- | ------------------------------------ |
-| sf-apex        | → cirra-ai-sf-flow  | "Create Flow wrapper for Apex logic" |
-| cirra-ai-sf-integration | → cirra-ai-sf-flow  | "Create HTTP Callout Flow"           |
+| sf-apex        | → sf-flow  | "Create Flow wrapper for Apex logic" |
+| cirra-ai-sf-integration | → sf-flow  | "Create HTTP Callout Flow"           |
 
-| From cirra-ai-sf-flow | To Skill               | When                                                |
+| From sf-flow | To Skill               | When                                                |
 | --------------------- | ---------------------- | --------------------------------------------------- |
-| cirra-ai-sf-flow      | → cirra-ai-sf-metadata | "Describe Invoice\_\_c" (verify fields before flow) |
-| cirra-ai-sf-flow      | → sf-data              | "Create 200 test Accounts" (after deploy)           |
+| sf-flow      | → cirra-ai-sf-metadata | "Describe Invoice\_\_c" (verify fields before flow) |
+| sf-flow      | → sf-data              | "Create 200 test Accounts" (after deploy)           |
 
 **Deployment**: See Phase 4 above.
 
@@ -1284,7 +1284,7 @@ Embed custom Lightning Web Components in Flow Screens for rich, interactive UIs.
 | Resource              | Location                                                                                                |
 | --------------------- | ------------------------------------------------------------------------------------------------------- |
 | LWC Integration Guide | [references/lwc-integration-guide.md](references/lwc-integration-guide.md)                              |
-| LWC Component Setup   | [cirra-ai-sf-lwc/assets/flow-integration-guide.md](../cirra-ai-sf-lwc/assets/flow-integration-guide.md) |
+| LWC Component Setup   | [sf-lwc/assets/flow-integration-guide.md](../sf-lwc/assets/flow-integration-guide.md) |
 | Triangle Architecture | [references/triangle-pattern.md](references/triangle-pattern.md)                                        |
 
 ---
@@ -1328,8 +1328,8 @@ Call Apex `@InvocableMethod` classes from Flow for complex business logic.
 
 **When creating Flows for Agentforce agents:**
 
-- cirra-ai-sf-flow (this skill) creates the validated Flow metadata (JSON)
-- cirra-ai-sf-flow deploys via Cirra AI metadata_create tool
+- sf-flow (this skill) creates the validated Flow metadata (JSON)
+- sf-flow deploys via Cirra AI metadata_create tool
 - **Action Definition registration required** (see below)
 - Only THEN can agents use `flow://FlowName` targets
 
@@ -1372,7 +1372,7 @@ Flow formulas have more limited function support than formula fields. The table 
 
 **Registration Workflow:**
 
-1. **Deploy Flow** to target org via cirra-ai-sf-flow + Cirra AI metadata_create
+1. **Deploy Flow** to target org via sf-flow + Cirra AI metadata_create
 2. Navigate to **Setup > Agentforce > Action Definitions**
 3. Click **"New Action"**, select **"Flow"** as target type
 4. Choose your deployed Flow from the list
@@ -1385,16 +1385,16 @@ Flow formulas have more limited function support than formula fields. The table 
 ```
 Flow Created  →  Deployed to Org  →  Action Definition Created  →  Agent Can Use
      ↑               ↑                        ↑                         ↑
-   cirra-ai-sf-flow  Cirra AI            Setup > Agentforce         @actions.MyAction
+   sf-flow  Cirra AI            Setup > Agentforce         @actions.MyAction
 ```
 
 **Why This Matters**: The Action Definition is what exposes the Flow to the agent runtime with proper input/output schema mapping. Without it, `@actions.FlowName` will fail with `ValidationError: Tool target 'FlowName' is not an action definition`.
 
 | Direction                               | Pattern                                             |
 | --------------------------------------- | --------------------------------------------------- |
-| cirra-ai-sf-flow → cirra-ai-sf-metadata | "Describe Invoice\_\_c" (verify fields before flow) |
-| cirra-ai-sf-flow → Cirra AI             | Deploy with validation via metadata_create          |
-| cirra-ai-sf-flow → sf-data              | "Create 200 test Accounts" (test data after deploy) |
+| sf-flow → cirra-ai-sf-metadata | "Describe Invoice\_\_c" (verify fields before flow) |
+| sf-flow → Cirra AI             | Deploy with validation via metadata_create          |
+| sf-flow → sf-data              | "Create 200 test Accounts" (test data after deploy) |
 
 ## Notes
 

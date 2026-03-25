@@ -77,7 +77,7 @@ class LWCMCPValidator:
             "tool": tool,
             "metadata_type": "",
             "status": "error",
-            "validator": "cirra-ai-sf-lwc.mcp_validator",
+            "validator": "sf-lwc.mcp_validator",
         }
 
         if tool not in SUPPORTED_TOOLS:
