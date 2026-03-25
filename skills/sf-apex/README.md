@@ -100,7 +100,7 @@ Use `/validate-apex` at any time for on-demand checks:
 | Related Skill       | When to Use                                 |
 | ------------------- | ------------------------------------------- |
 | sf-flow    | Create Flow to call @InvocableMethod        |
-| cirra-ai-sf-lwc     | Create LWC to call @AuraEnabled controllers |
+| sf-lwc              | Create LWC to call @AuraEnabled controllers |
 | cirra-ai-sf-testing | Run tests and analyze coverage              |
 | cirra-ai-sf-deploy  | Deploy Apex to org                          |
 
