@@ -72,7 +72,7 @@ The skill produces:
 
 | Related Skill        | When to Use                                   |
 | -------------------- | --------------------------------------------- |
-| query-data           | Query opportunities, accounts, contacts       |
+| sf-data              | Query opportunities, accounts, contacts       |
 | cirra-ai-sf-metadata | Describe Kugamon custom objects and fields    |
 | cirra-ai-sf-ordermgt | Order returns, cases, and post-sale lifecycle |
 | cirra-ai-sf-diagram  | Visualize quote-to-order data model           |

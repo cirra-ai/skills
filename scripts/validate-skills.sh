@@ -156,11 +156,13 @@ for dir in "${skill_dirs[@]}"; do
 
   ref_errors=""
   if [[ $ref_rc -ne 0 ]]; then
-    # Filter known false positives: 'hooks' and 'plugin' are custom frontmatter
-    # extensions not in the agentskills spec. The packaging step strips them.
+    # Filter known false positives: 'hooks', 'plugin', and 'argument-hint' are
+    # Claude Code frontmatter extensions not in the agentskills spec. The
+    # packaging step strips non-standard keys from standalone skill zips.
     ref_errors=$(printf '%s\n' "$ref_output" | grep "^  - " \
-      | grep -v "Unexpected fields in frontmatter: hooks\." \
-      | grep -v "Unexpected fields in frontmatter: plugin\.")
+      | grep -v "Unexpected fields in frontmatter:.*hooks" \
+      | grep -v "Unexpected fields in frontmatter:.*plugin" \
+      | grep -v "Unexpected fields in frontmatter:.*argument-hint")
   fi
 
   # Run custom checks

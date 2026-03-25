@@ -44,7 +44,7 @@ Comprehensive guide to debugging Apex code, LSP validation, dependency managemen
 4. cirra-ai-sf-apex: Deploy Apex classes/triggers
    └─> tooling_api_dml(operation="insert", sObject="ApexClass", record={"Name":"MyClass","Body":"...","Status":"Active","ApiVersion":"65.0"})
 
-5. query-data: Create test data
+5. sf-data: Create test data
    └─> sobject_dml(operation="insert", sobjectType="Account", records=[{Name: "Test"}])
 ```
 

@@ -24,7 +24,7 @@ The cirra-ai-sf-permissions skill provides comprehensive permission analysis:
 - **User Analyzer**: Show all permissions assigned to a specific user
 - **Security Audit**: Identify overly broad permissions, unused PS, and security risks
 - **Permission Set Creation**: Generate Permission Sets via `metadata_create`
-- **Integration**: Works with cirra-ai-sf-metadata, query-data, cirra-ai-sf-diagram skills
+- **Integration**: Works with cirra-ai-sf-metadata, sf-data, cirra-ai-sf-diagram skills
 
 ---
 
@@ -459,7 +459,7 @@ Examples:
 | -------------------- | -------------------------- | ------------------------------------------- |
 | cirra-ai-sf-metadata | -> cirra-ai-sf-permissions | "Create Permission Set for new object"      |
 | cirra-ai-sf-apex     | -> cirra-ai-sf-permissions | "Grant access to Apex class"                |
-| query-data           | -> cirra-ai-sf-permissions | "Query user assignments in bulk"            |
+| sf-data              | -> cirra-ai-sf-permissions | "Query user assignments in bulk"            |
 | cirra-ai-sf-diagram  | -> cirra-ai-sf-permissions | "Visualize permission hierarchy as Mermaid" |
 
 | From cirra-ai-sf-permissions | To Skill                | When                             |

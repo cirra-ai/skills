@@ -70,7 +70,7 @@ paged through in-context with `fetch_more`.
 | cirra-ai-sf-lwc         | Fix or review LWC components found in the audit     |
 | cirra-ai-sf-permissions | Fix permission or Profile issues found in the audit |
 | cirra-ai-sf-metadata    | Fix data model issues found in the audit            |
-| query-data              | Query or update data after fixing issues            |
+| sf-data                 | Query or update data after fixing issues            |
 | cirra-ai-sf-diagram     | Visualize architecture or permission hierarchies    |
 
 ## Requirements

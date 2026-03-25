@@ -1,6 +1,6 @@
 # CRUD Workflow Example
 
-Complete end-to-end example of data operations using query-data skill.
+Complete end-to-end example of data operations using sf-data skill.
 
 ## Scenario
 
@@ -22,7 +22,7 @@ Request: "Describe object Account in org dev - show required fields and picklist
 - Required: Name
 - Picklists: Industry, Type, Rating
 
-## Phase 2: Create Records (query-data)
+## Phase 2: Create Records (sf-data)
 
 ### Cirra AI MCP - Single Record
 

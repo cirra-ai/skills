@@ -73,14 +73,14 @@ This initializes your Salesforce org connection. It must be called once per sess
 
 ## ⚠️ CRITICAL: Orchestration Order
 
-**cirra-ai-sf-metadata → cirra-ai-sf-flow → query-data** (you are here: cirra-ai-sf-flow with Cirra AI)
+**cirra-ai-sf-metadata → cirra-ai-sf-flow → sf-data** (you are here: cirra-ai-sf-flow with Cirra AI)
 
 ⚠️ Flow references custom object/fields? Create with cirra-ai-sf-metadata FIRST. Deploy objects BEFORE flows.
 
 ```text
 1. cirra-ai-sf-metadata  → Create objects/fields (local)
 2. cirra-ai-sf-flow      ◀── YOU ARE HERE (create flow, deploy via Cirra AI)
-3. query-data      → Create test data (remote - objects must exist!)
+3. sf-data      → Create test data (remote - objects must exist!)
 ```
 
 See `references/orchestration.md` for extended orchestration patterns including Agentforce.
@@ -991,7 +991,7 @@ tooling_api_query(
 | From cirra-ai-sf-flow | To Skill               | When                                                |
 | --------------------- | ---------------------- | --------------------------------------------------- |
 | cirra-ai-sf-flow      | → cirra-ai-sf-metadata | "Describe Invoice\_\_c" (verify fields before flow) |
-| cirra-ai-sf-flow      | → query-data           | "Create 200 test Accounts" (after deploy)           |
+| cirra-ai-sf-flow      | → sf-data              | "Create 200 test Accounts" (after deploy)           |
 
 **Deployment**: See Phase 4 above.
 
@@ -1144,11 +1144,11 @@ Flow Created  →  Deployed to Org  →  Action Definition Created  →  Agent C
 | --------------------------------------- | --------------------------------------------------- |
 | cirra-ai-sf-flow → cirra-ai-sf-metadata | "Describe Invoice\_\_c" (verify fields before flow) |
 | cirra-ai-sf-flow → Cirra AI             | Deploy with validation via metadata_create          |
-| cirra-ai-sf-flow → query-data           | "Create 200 test Accounts" (test data after deploy) |
+| cirra-ai-sf-flow → sf-data              | "Create 200 test Accounts" (test data after deploy) |
 
 ## Notes
 
-**Dependencies** (optional): cirra-ai-sf-metadata, query-data | **API**: 65.0 | **Mode**: Strict (warnings block) | **MCP Server**: Cirra AI (required)
+**Dependencies** (optional): cirra-ai-sf-metadata, sf-data | **API**: 65.0 | **Mode**: Strict (warnings block) | **MCP Server**: Cirra AI (required)
 
 **Required Setup**:
 

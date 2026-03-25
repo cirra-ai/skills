@@ -1,8 +1,8 @@
-"""Tests for skills/query-data/scripts/mcp_validator.py"""
+"""Tests for skills/sf-data/scripts/mcp_validator.py"""
 
 from conftest import load_script
 
-mod = load_script("skills/query-data/scripts/mcp_validator.py")
+mod = load_script("skills/sf-data/scripts/mcp_validator.py")
 validate_data_params = mod.validate_data_params
 MCPDataValidator = mod.MCPDataValidator
 

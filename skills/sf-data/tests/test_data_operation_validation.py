@@ -15,7 +15,7 @@ import tempfile
 
 from conftest import load_script
 
-mod = load_script("skills/query-data/scripts/validate_data_operation.py")
+mod = load_script("skills/sf-data/scripts/validate_data_operation.py")
 DataOperationValidator = mod.DataOperationValidator
 
 SKILL_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

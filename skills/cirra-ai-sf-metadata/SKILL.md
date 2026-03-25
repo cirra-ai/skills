@@ -22,7 +22,7 @@ The cirra-ai-sf-metadata skill provides comprehensive metadata management capabi
 - **Org Querying**: Describe objects, list fields, query metadata using Tooling API
 - **FLS Management**: Auto-generate Permission Sets after creating objects/fields
 - **Validation & Scoring**: Score metadata against 6 categories (0-120 points)
-- **Integration**: Works with query-data, cirra-ai-sf-apex, cirra-ai-sf-flow, cirra-ai-sf-permissions skills
+- **Integration**: Works with sf-data, cirra-ai-sf-apex, cirra-ai-sf-flow, cirra-ai-sf-permissions skills
 
 ---
 
@@ -60,19 +60,19 @@ are retrieved.
 4. **Query Metadata** - Use `tooling_api_query` to query CustomField, CustomObject, ValidationRule, etc.
 5. **Permission Set Generation** - Auto-generate Permission Sets after creating objects/fields (FLS)
 6. **Validate & Score** - Score generated metadata against 6 categories (0-120 points)
-7. **Cross-Skill Integration** - Provide metadata discovery for cirra-ai-sf-apex, cirra-ai-sf-flow, query-data
+7. **Cross-Skill Integration** - Provide metadata discovery for cirra-ai-sf-apex, cirra-ai-sf-flow, sf-data
 
 ---
 
 ## CRITICAL: Orchestration Order
 
 ```
-cirra_ai_init -> cirra-ai-sf-metadata -> cirra-ai-sf-flow -> query-data
+cirra_ai_init -> cirra-ai-sf-metadata -> cirra-ai-sf-flow -> sf-data
                        ^
                   YOU ARE HERE
 ```
 
-query-data requires objects deployed to org. Always deploy metadata BEFORE creating test data.
+sf-data requires objects deployed to org. Always deploy metadata BEFORE creating test data.
 
 ---
 
@@ -543,13 +543,13 @@ Classic layout actions are in `platformActionList.platformActionListItems`, each
 | ----------------------- | ----------------------- | --------------------------------------------------------- |
 | cirra-ai-sf-apex        | -> cirra-ai-sf-metadata | "Describe Invoice\_\_c" (discover fields before coding)   |
 | cirra-ai-sf-flow        | -> cirra-ai-sf-metadata | "Describe object fields, record types, validation rules"  |
-| query-data              | -> cirra-ai-sf-metadata | "Describe Custom_Object\_\_c fields" (discover structure) |
+| sf-data                 | -> cirra-ai-sf-metadata | "Describe Custom_Object\_\_c fields" (discover structure) |
 | cirra-ai-sf-permissions | -> cirra-ai-sf-metadata | "Create Permission Set for new object"                    |
 
 | From cirra-ai-sf-metadata | To Skill                   | When                                                   |
 | ------------------------- | -------------------------- | ------------------------------------------------------ |
 | cirra-ai-sf-metadata      | -> cirra-ai-sf-flow        | After creating objects/fields that Flow will reference |
-| cirra-ai-sf-metadata      | -> query-data              | After deploying metadata, create test data             |
+| cirra-ai-sf-metadata      | -> sf-data                 | After deploying metadata, create test data             |
 | cirra-ai-sf-metadata      | -> cirra-ai-sf-permissions | Analyze permission sets in the org                     |
 
 ---
@@ -560,7 +560,7 @@ Classic layout actions are in `platformActionList.platformActionListItems`, each
 | ---------------------------------- | ---------------------------------------- | ------------------------------------------------ |
 | FLS is the Silent Killer           | Deployed fields invisible without FLS    | Always prompt for Permission Set generation      |
 | Required Fields != Permission Sets | Salesforce rejects required fields in PS | Filter out required fields from fieldPermissions |
-| Orchestration Order                | query-data fails if objects not deployed | metadata first, then data                        |
+| Orchestration Order                | sf-data fails if objects not deployed    | metadata first, then data                        |
 
 ---
 

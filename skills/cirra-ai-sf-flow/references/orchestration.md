@@ -19,7 +19,7 @@ This document details how cirra-ai-sf-flow fits into the multi-skill workflow fo
 │  3. cirra-ai-sf-deploy                                                      │
 │     └── Deploy all metadata (REMOTE)                                        │
 │                                                                             │
-│  4. query-data                                                        │
+│  4. sf-data                                                        │
 │     └── Create test data (REMOTE - objects must exist!)                     │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -161,7 +161,7 @@ actions:
 | --------------------- | ---------------------- | --------------------------------------------------- |
 | cirra-ai-sf-flow      | → cirra-ai-sf-metadata | "Describe Invoice\_\_c" (verify fields before flow) |
 | cirra-ai-sf-flow      | → cirra-ai-sf-deploy   | "Deploy flow with checkOnly"                        |
-| cirra-ai-sf-flow      | → query-data           | "Create 200 test Accounts" (after deploy)           |
+| cirra-ai-sf-flow      | → sf-data              | "Create 200 test Accounts" (after deploy)           |
 
 ---
 

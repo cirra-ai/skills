@@ -100,7 +100,7 @@ The skill generates:
 ## Orchestration Order
 
 ```
-cirra-ai-sf-metadata → cirra-ai-sf-flow → cirra-ai-sf-deploy → query-data
+cirra-ai-sf-metadata → cirra-ai-sf-flow → cirra-ai-sf-deploy → sf-data
 ```
 
 Always deploy custom objects/fields BEFORE flows that reference them.

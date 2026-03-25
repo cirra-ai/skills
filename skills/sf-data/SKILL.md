@@ -1,6 +1,7 @@
 ---
-name: query-data
+name: sf-data
 plugin: cirra-ai-sf
+argument-hint: '[query|build-query|insert|update|upsert|delete|validate|describe] ...'
 metadata:
   version: 2.0.0
 description: >
@@ -14,9 +15,30 @@ description: >
 
 You are an expert Salesforce data operations and SOQL query specialist. You have deep knowledge of SOQL syntax, query optimization, relationship traversal, aggregate functions, DML operations, bulk record operations, test data generation patterns, and governor limits. You help admins and developers build, optimize, and execute SOQL queries, as well as insert, update, and delete records efficiently using the Cirra AI MCP Server while following Salesforce best practices.
 
-## Action Workflows
+## Dispatch
 
-Determine the user's intent from their request and follow the matching workflow.
+Parse `$ARGUMENTS` to determine which workflow to follow:
+
+| First argument or intent                  | Workflow                     |
+| ----------------------------------------- | ---------------------------- |
+| `query`, a SOQL string, or an object name | Query Data                   |
+| `build-query`, `optimize`                 | Build Optimized Query        |
+| `insert`, `update`, `upsert`, `delete`    | Insert/Update/Delete Records |
+| `validate`                                | Validate Data Operation      |
+| `describe`                                | Describe Object              |
+| _(no argument or unclear)_                | Ask the user (see below)     |
+
+When the intent is unclear, present the options:
+
+> What would you like to do?
+>
+> 1. **Query** — run a SOQL query
+> 2. **Build query** — build optimized query with selectivity analysis
+> 3. **Insert/update/upsert/delete** — modify data (DML operations)
+> 4. **Validate** — validate query or DML without executing
+> 5. **Describe** — show object structure
+
+## Action Workflows
 
 ### Query Data
 
@@ -116,12 +138,12 @@ Show the structure, fields, relationships, and record types of a Salesforce obje
 ## CRITICAL: Orchestration & Prerequisites
 
 ```
-cirra_ai_init -> create-metadata -> query-data (SOQL/DML) -> create-apex/create-flow
+cirra_ai_init -> create-metadata -> sf-data (SOQL/DML) -> create-apex/create-flow
                                 ^
                            YOU ARE HERE
 ```
 
-**query-data operates on REMOTE org data.** Objects/fields must exist before query-data can create records.
+**sf-data operates on REMOTE org data.** Objects/fields must exist before sf-data can create records.
 
 | Error                               | Meaning                           | Fix                                                         |
 | ----------------------------------- | --------------------------------- | ----------------------------------------------------------- |
@@ -680,15 +702,15 @@ sobject_dml(
 
 ## Cross-Skill Integration
 
-Other skills reference query-data for SOQL and DML needs:
+Other skills reference sf-data for SOQL and DML needs:
 
-| From Skill          | To query-data | When                                                                 |
-| ------------------- | ------------- | -------------------------------------------------------------------- |
-| create-apex         | -> query-data | "Create 201 Accounts for bulk testing" or "optimize this SOQL query" |
-| create-flow         | -> query-data | "Create Opportunities with StageName='Closed Won'"                   |
-| create-metadata     | -> query-data | After verifying fields exist                                         |
-| analyze-permissions | -> query-data | Permission analysis queries                                          |
-| create-diagram      | -> query-data | Query data for diagram generation                                    |
+| From Skill          | To sf-data | When                                                                 |
+| ------------------- | ---------- | -------------------------------------------------------------------- |
+| create-apex         | -> sf-data | "Create 201 Accounts for bulk testing" or "optimize this SOQL query" |
+| create-flow         | -> sf-data | "Create Opportunities with StageName='Closed Won'"                   |
+| create-metadata     | -> sf-data | After verifying fields exist                                         |
+| analyze-permissions | -> sf-data | Permission analysis queries                                          |
+| create-diagram      | -> sf-data | Query data for diagram generation                                    |
 
 ---
 

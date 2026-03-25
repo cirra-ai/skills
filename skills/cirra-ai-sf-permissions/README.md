@@ -49,7 +49,7 @@ Request: "Who has delete access to the Account object?"
 | -------------------- | ---------------------------------------------------- |
 | cirra-ai-sf-metadata | Create permission sets and manage metadata           |
 | cirra-ai-sf-diagram  | Visualize permission hierarchies as Mermaid diagrams |
-| query-data           | Query user assignments in bulk                       |
+| sf-data              | Query user assignments in bulk                       |
 
 ## Cirra AI MCP Tools — for developers
 
