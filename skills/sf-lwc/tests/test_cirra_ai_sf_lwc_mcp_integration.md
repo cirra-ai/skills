@@ -1,4 +1,4 @@
-# cirra-ai-sf-lwc MCP Integration Test Protocol
+# sf-lwc MCP Integration Test Protocol
 
 ## Test Summary (Last Run: 2026-03-07)
 

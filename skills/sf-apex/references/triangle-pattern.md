@@ -269,5 +269,5 @@ When deploying integrated triangle solutions:
 | -------------------------- | ------------------------------------------------- |
 | @InvocableMethod templates | `sf-apex/templates/invocable-method.cls` |
 | Flow integration guide     | `sf-apex/docs/flow-integration.md`       |
-| LWC triangle perspective   | `cirra-ai-sf-lwc/docs/triangle-pattern.md`        |
+| LWC triangle perspective   | `sf-lwc/docs/triangle-pattern.md`        |
 | Flow triangle perspective  | `sf-flow/docs/triangle-pattern.md`       |

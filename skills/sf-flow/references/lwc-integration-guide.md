@@ -474,9 +474,9 @@ Pass Flow context to LWC using record context:
 
 | Integration                  | See Also                                                                                                   |
 | ---------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| LWC Component Setup          | [cirra-ai-sf-lwc/docs/flow-integration-guide.md](../../cirra-ai-sf-lwc/docs/flow-integration-guide.md)     |
+| LWC Component Setup          | [sf-lwc/docs/flow-integration-guide.md](../../sf-lwc/docs/flow-integration-guide.md)     |
 | Full Triangle Architecture   | [triangle-pattern.md](triangle-pattern.md)                                                                 |
-| LWC FlowAttributeChangeEvent | [cirra-ai-sf-lwc/templates/flow-screen-component/](../../cirra-ai-sf-lwc/templates/flow-screen-component/) |
+| LWC FlowAttributeChangeEvent | [sf-lwc/templates/flow-screen-component/](../../sf-lwc/templates/flow-screen-component/) |
 
 ---
 

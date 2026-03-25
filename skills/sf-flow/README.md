@@ -93,7 +93,7 @@ The skill generates:
 | Related Skill        | When to Use                               |
 | -------------------- | ----------------------------------------- |
 | sf-apex     | Create @InvocableMethod for complex logic |
-| cirra-ai-sf-lwc      | Create screen components for custom UI    |
+| sf-lwc               | Create screen components for custom UI    |
 | cirra-ai-sf-metadata | Deploy custom objects BEFORE flows        |
 | cirra-ai-sf-deploy   | Deploy flows to org                       |
 

@@ -1,4 +1,4 @@
-# cirra-ai-sf-lwc
+# sf-lwc
 
 Lightning Web Components development skill with PICKLES architecture methodology, 165-point SLDS 2 scoring, and dark mode support. Build modern, accessible Salesforce UIs.
 
@@ -33,7 +33,7 @@ Use one of the pre-built commands
 #### In other tools
 
 ```
-Skill: cirra-ai-sf-lwc
+Skill: sf-lwc
 Request: "Create a data table component for Account records"
 ```
 

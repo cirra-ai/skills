@@ -405,4 +405,4 @@ When deploying integrated triangle solutions:
 | Screen Flow with LWC      | `sf-flow/templates/screen-flow-with-lwc.xml` |
 | LWC integration guide     | `sf-flow/docs/lwc-integration-guide.md`      |
 | Apex triangle perspective | `sf-apex/docs/triangle-pattern.md`           |
-| LWC triangle perspective  | `cirra-ai-sf-lwc/docs/triangle-pattern.md`            |
+| LWC triangle perspective  | `sf-lwc/docs/triangle-pattern.md`            |

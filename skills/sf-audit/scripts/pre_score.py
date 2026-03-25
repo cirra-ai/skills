@@ -205,7 +205,7 @@ def _score_flow_files(flows_dir: Path, threshold_pct: int):
 
 def _score_lwc_bundles(lwc_dir: Path, threshold_pct: int):
     """Score LWC bundles by validating each file and aggregating per bundle."""
-    mod = _load_module("cirra-ai-sf-lwc/scripts/validate_slds.py")
+    mod = _load_module("sf-lwc/scripts/validate_slds.py")
     if mod is None:
         return [], []
 
