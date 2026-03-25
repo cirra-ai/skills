@@ -36,11 +36,11 @@ available for post-processing and how large query results are retrieved.
 
 ## Fast Path (Simple Requests)
 
-For simple, self-contained requests (utility class, hello-world, single-method class, quick test), skip Phases 1-3 and go straight to generate + deploy:
+For simple, self-contained requests (utility class, hello-world, single-method class, quick test), bypass the detailed requirements/design elaboration and full scoring from Phases 1-3 while still performing initialization and mandatory guardrails, then generate + deploy:
 
-1. Call `cirra_ai_init()` (always required)
+1. Call `cirra_ai_init()` (Phase 1 init; always required)
 2. Generate the code as a string
-3. Run guardrail checks (anti-patterns only — skip full 150-point scoring)
+3. Run mandatory guardrail checks (anti-patterns only — skip full 150-point scoring)
 4. Deploy via `tooling_api_dml`
 5. Verify deployment
 
@@ -234,7 +234,9 @@ tooling_api_query(
 
 **Error Handling**: If `tooling_api_dml` returns an error:
 
-- `INVALID_TYPE` or `NOT_FOUND` for `ApexClass` → verify the sObject name is exactly `ApexClass` (case-sensitive) and that `Status` and `ApiVersion` are included
+- `REQUIRED_FIELD_MISSING` for `ApexClass` → ensure required fields like `Status` and `ApiVersion` are populated on insert or update
+- `INVALID_TYPE` for `ApexClass` → verify the `sObject` name is exactly `ApexClass` (case-sensitive) and that you are calling the Tooling API, not the Metadata or REST sObjects endpoint
+- `NOT_FOUND` → typically occurs when updating or deleting with an `Id` that does not exist or is not visible in the current org; query first to verify the `Id` and context
 - `DUPLICATE_VALUE` → a class with that `Name` already exists; query for the existing Id and use `operation="update"` instead
 - Compilation errors → read the error message, fix the Apex code string, and retry the `tooling_api_dml` call
 - Do **not** fall back to `metadata_create` for Apex classes — it does not support the `Body` field
@@ -252,7 +254,7 @@ tooling_api_query(
   Test Class: [TestClassName]
   Validation: PASSED (Score: XX/150)
 
-Next Steps: Run tests via Cirra AI, verify via metadata_read, monitor logs
+Next Steps: Run tests via Cirra AI, verify via tooling_api_query, monitor logs
 ```
 
 ---
