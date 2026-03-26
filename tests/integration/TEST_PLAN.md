@@ -103,21 +103,21 @@ whether Apex deployed successfully.
 
 ### Skill Dispatch Actions Covered
 
-| Invocation                  | Phase(s) | Test Coverage                                                                  |
-| --------------------------- | -------- | ------------------------------------------------------------------------------ |
-| `/sf-data insert`           | 1, 3     | Single insert, bulk 201+, hierarchy, CSV-style, upsert                         |
-| `/sf-data query`            | 2, 3     | Parent-child, child-parent, aggregate, polymorphic, semi/anti-join             |
-| `/sf-data validate`         | 2        | Pre-flight on insert JSON, SOQL syntax, PII detection                          |
-| `/sf-apex create`           | 1        | Trigger+TAF action, Service, Selector, Batch, Queueable, Invocable, Test class |
-| `/sf-apex validate`         | 2        | Single class, comma-list, `All`                                                |
-| `/sf-apex update`           | 3        | Add method to service, modify trigger action logic                             |
-| `/sf-flow create`           | 1        | Before-save RT, After-save RT, Screen, Autolaunched, Scheduled, Platform Event |
-| `/sf-flow validate`         | 2        | Single flow, comma-list, `All`                                                 |
-| `/sf-flow update`           | 3        | Add decision branch, add error handling, add screen                            |
-| `/sf-lwc create`            | 1        | Wire-based datatable, Form component, Flow screen, Modal, GraphQL              |
-| `/sf-lwc validate`          | 2        | Single component, comma-list, `All`                                            |
-| `/sf-lwc update`            | 3        | Add dark mode CSS, add column, fix accessibility                               |
-| `/sf-audit`                 | 4        | Full org audit with Word/Excel/HTML report generation                          |
+| Invocation          | Phase(s) | Test Coverage                                                                  |
+| ------------------- | -------- | ------------------------------------------------------------------------------ |
+| `/sf-data insert`   | 1, 3     | Single insert, bulk 201+, hierarchy, CSV-style, upsert                         |
+| `/sf-data query`    | 2, 3     | Parent-child, child-parent, aggregate, polymorphic, semi/anti-join             |
+| `/sf-data validate` | 2        | Pre-flight on insert JSON, SOQL syntax, PII detection                          |
+| `/sf-apex create`   | 1        | Trigger+TAF action, Service, Selector, Batch, Queueable, Invocable, Test class |
+| `/sf-apex validate` | 2        | Single class, comma-list, `All`                                                |
+| `/sf-apex update`   | 3        | Add method to service, modify trigger action logic                             |
+| `/sf-flow create`   | 1        | Before-save RT, After-save RT, Screen, Autolaunched, Scheduled, Platform Event |
+| `/sf-flow validate` | 2        | Single flow, comma-list, `All`                                                 |
+| `/sf-flow update`   | 3        | Add decision branch, add error handling, add screen                            |
+| `/sf-lwc create`    | 1        | Wire-based datatable, Form component, Flow screen, Modal, GraphQL              |
+| `/sf-lwc validate`  | 2        | Single component, comma-list, `All`                                            |
+| `/sf-lwc update`    | 3        | Add dark mode CSS, add column, fix accessibility                               |
+| `/sf-audit`         | 4        | Full org audit with Word/Excel/HTML report generation                          |
 
 ### MCP Tools Exercised
 
