@@ -43,13 +43,13 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
-          for zip in install/plugins/*.zip install/skills/*.zip; do
+          for zip in install/plugins/*.zip install/skills/*.skill; do
             gh release upload "${RELEASE_TAG}" "$zip" --clobber
           done
 
       - name: Generate downloads page
         run: |
-          cp install/plugins/*.zip install/skills/*.zip docs/
+          cp install/plugins/*.zip install/skills/*.skill docs/
           bash scripts/generate-pages.sh --dl-base=.
 
       - name: Deploy to Cloudflare Pages
