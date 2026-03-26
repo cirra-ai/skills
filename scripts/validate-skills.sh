@@ -156,7 +156,34 @@ for dir in "${skill_dirs[@]}"; do
 
   ref_errors=""
   if [[ $ref_rc -ne 0 ]]; then
-    ref_errors=$(printf '%s\n' "$ref_output" | grep "^  - ")
+    # Filter known false positives: 'hooks', 'plugin', and 'argument-hint' are
+    # Claude Code frontmatter extensions not in the agentskills spec. The
+    # packaging step strips non-standard keys from standalone skill zips.
+    # Only suppress "Unexpected fields" lines when ALL reported fields are in
+    # the allowlist; otherwise keep the line so real errors aren't hidden.
+    while IFS= read -r line; do
+      [[ "$line" == "  - "* ]] || continue
+      if [[ "$line" == *"Unexpected fields in frontmatter:"* ]]; then
+        unexpected="${line#*Unexpected fields in frontmatter:}"
+        unexpected="${unexpected%%.*}"  # strip ". Only [...]" suffix
+        skip=1
+        IFS=',' read -ra fields <<< "$unexpected"
+        for f in "${fields[@]}"; do
+          f="${f#"${f%%[![:space:]]*}"}"  # trim leading
+          f="${f%"${f##*[![:space:]]}"}"  # trim trailing
+          if [[ "$f" != "hooks" && "$f" != "plugin" && "$f" != "argument-hint" ]]; then
+            skip=0
+            break
+          fi
+        done
+        [[ $skip -eq 1 ]] && continue
+      fi
+      if [[ -z "$ref_errors" ]]; then
+        ref_errors="$line"
+      else
+        ref_errors+=$'\n'"$line"
+      fi
+    done <<< "$(printf '%s\n' "$ref_output" | grep "^  - ")"
   fi
 
   # Run custom checks

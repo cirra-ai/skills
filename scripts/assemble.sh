@@ -33,9 +33,8 @@ MARKER_PATTERN='<!-- AUTO-GENERATED FROM '
 UPDATED=0
 STALE=0
 
-# Search .md files in plugin commands and in skill directories
+# Search .md files in skill directories
 for md_file in $(grep -rl "$MARKER_PATTERN" \
-    "$REPO_ROOT"/plugins/*/commands/*.md \
     "$REPO_ROOT"/skills/*/SKILL.md \
     2>/dev/null); do
   [[ -f "$md_file" ]] || continue
@@ -51,15 +50,9 @@ for md_file in $(grep -rl "$MARKER_PATTERN" \
   fi
 
   # Determine the base directory for resolving the shared path.
-  # Plugin commands: plugins/cirra-ai-sf/commands/foo.md → base is plugins/cirra-ai-sf
-  # Skills: skills/cirra-ai-sf-audit/SKILL.md → base is skills/cirra-ai-sf-audit
+  # Skills: skills/sf-audit/SKILL.md → base is skills/sf-audit
   md_dir="$(dirname "$md_file")"
-  if [[ "$(basename "$md_dir")" == "commands" ]]; then
-    base_dir="$(dirname "$md_dir")"
-  else
-    # SKILL.md sits directly in the skill directory
-    base_dir="$md_dir"
-  fi
+  base_dir="$md_dir"
 
   shared_file="$base_dir/$shared_rel"
 

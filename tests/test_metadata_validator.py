@@ -1,8 +1,8 @@
-"""Root-level tests for cirra-ai-sf-metadata validators."""
+"""Root-level tests for sf-metadata validators."""
 
 from conftest import load_script
 
-mod = load_script("skills/cirra-ai-sf-metadata/scripts/validate_metadata_operation.py")
+mod = load_script("skills/sf-metadata/scripts/validate_metadata_operation.py")
 MetadataOperationValidator = mod.MetadataOperationValidator
 analyze_formula_safety = mod.analyze_formula_safety
 

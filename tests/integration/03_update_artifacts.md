@@ -254,7 +254,7 @@ sobject_dml(
 
 ## 3.13 Verify Updates via Query
 
-**Command**: `/query-data`
+**Command**: `/sf-data`
 
 **Prompt**: Query updated Accounts to verify changes.
 

@@ -54,7 +54,7 @@ mark all metadata tests as BLOCKED, and proceed with data-only tests (01a).
 
 - Record inserted successfully, record ID returned
 - No hook errors or subprocess errors
-  **Verify:** `/query-data` — `SELECT Id, Name FROM Account WHERE Name = 'CirraTest_Smoke' LIMIT 1`
+  **Verify:** `/sf-data` — `SELECT Id, Name FROM Account WHERE Name = 'CirraTest_Smoke' LIMIT 1`
 - Returns exactly 1 record with the matching Name
   **On unexpected failure:** See BUG_INVESTIGATION_GUIDE.md § INVALID_FIELD Errors on DML
 

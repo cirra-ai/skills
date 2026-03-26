@@ -166,7 +166,7 @@
 | Command          | Steps | Passed | Failed | Skipped | Blocked |
 | ---------------- | ----- | ------ | ------ | ------- | ------- |
 | `/insert-data`   |       |        |        |         |         |
-| `/query-data`    |       |        |        |         |         |
+| `/sf-data`       |       |        |        |         |         |
 | `/validate-data` |       |        |        |         |         |
 | `/create-apex`   |       |        |        |         |         |
 | `/update-apex`   |       |        |        |         |         |

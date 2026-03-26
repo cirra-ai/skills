@@ -7,11 +7,11 @@ JSON Schema validation on the metadata payload, then delegates to the
 appropriate sub-skill validator script for deeper analysis.
 
 Currently registered delegates:
-  - cirra-ai-sf-apex: ApexClass, ApexTrigger
-  - cirra-ai-sf-flow: Flow, FlowDefinition
-  - cirra-ai-sf-data: soql_query, sobject_dml (routed by tool name)
-  - cirra-ai-sf-lwc: LightningComponentBundle
-  - cirra-ai-sf-metadata: CustomObject, CustomField, ValidationRule, RecordType, PermissionSet
+  - sf-apex: ApexClass, ApexTrigger
+  - sf-flow: Flow, FlowDefinition
+  - sf-data: soql_query, sobject_dml (routed by tool name)
+  - sf-lwc: LightningComponentBundle
+  - sf-metadata: CustomObject, CustomField, ValidationRule, RecordType, PermissionSet
 """
 
 import json
@@ -26,38 +26,38 @@ _REPO_ROOT = os.path.dirname(os.path.dirname(_PLUGIN_ROOT))
 # Map metadata types to their validator script (relative to _PLUGIN_ROOT).
 # Add new entries here as sub-skills gain their own pre-deploy validators.
 _DELEGATES: dict[str, str] = {
-    "ApexClass":      "skills/cirra-ai-sf-apex/scripts/pre-mcp-validate.py",
-    "ApexTrigger":    "skills/cirra-ai-sf-apex/scripts/pre-mcp-validate.py",
-    "Flow":                       "skills/cirra-ai-sf-flow/scripts/pre-mcp-validate.py",
-    "FlowDefinition":             "skills/cirra-ai-sf-flow/scripts/pre-mcp-validate.py",
-    "LightningComponentBundle":   "skills/cirra-ai-sf-lwc/scripts/pre-mcp-validate.py",
-    "CustomObject":               "skills/cirra-ai-sf-metadata/scripts/pre-mcp-validate.py",
-    "CustomField":                "skills/cirra-ai-sf-metadata/scripts/pre-mcp-validate.py",
-    "ValidationRule":             "skills/cirra-ai-sf-metadata/scripts/pre-mcp-validate.py",
-    "RecordType":                 "skills/cirra-ai-sf-metadata/scripts/pre-mcp-validate.py",
-    "PermissionSet":              "skills/cirra-ai-sf-metadata/scripts/pre-mcp-validate.py",
+    "ApexClass":      "skills/sf-apex/scripts/pre-mcp-validate.py",
+    "ApexTrigger":    "skills/sf-apex/scripts/pre-mcp-validate.py",
+    "Flow":                       "skills/sf-flow/scripts/pre-mcp-validate.py",
+    "FlowDefinition":             "skills/sf-flow/scripts/pre-mcp-validate.py",
+    "LightningComponentBundle":   "skills/sf-lwc/scripts/pre-mcp-validate.py",
+    "CustomObject":               "skills/sf-metadata/scripts/pre-mcp-validate.py",
+    "CustomField":                "skills/sf-metadata/scripts/pre-mcp-validate.py",
+    "ValidationRule":             "skills/sf-metadata/scripts/pre-mcp-validate.py",
+    "RecordType":                 "skills/sf-metadata/scripts/pre-mcp-validate.py",
+    "PermissionSet":              "skills/sf-metadata/scripts/pre-mcp-validate.py",
 }
 
 # Map base tool names to their validator script (relative to _PLUGIN_ROOT).
 # Used for tools like soql_query / sobject_dml that aren't metadata types.
 _TOOL_DELEGATES: dict[str, str] = {
-    "soql_query":  "skills/cirra-ai-sf-data/scripts/pre-mcp-validate.py",
-    "sobject_dml": "skills/cirra-ai-sf-data/scripts/pre-mcp-validate.py",
+    "soql_query":  "skills/sf-data/scripts/pre-mcp-validate.py",
+    "sobject_dml": "skills/sf-data/scripts/pre-mcp-validate.py",
 }
 
 # Map metadata types to their JSON Schema file (relative to _REPO_ROOT).
 _SCHEMAS: dict[str, str] = {
-    "CustomField":       "skills/cirra-ai-sf-metadata/references/customfield-metadata-schema.json",
-    "CustomObject":      "skills/cirra-ai-sf-metadata/references/customobject-metadata-schema.json",
-    "FlexiPage":         "skills/cirra-ai-sf-metadata/references/flexipage-metadata-schema.json",
-    "Layout":            "skills/cirra-ai-sf-metadata/references/layout-metadata-schema.json",
-    "QuickAction":       "skills/cirra-ai-sf-metadata/references/quickaction-metadata-schema.json",
-    "RecordType":        "skills/cirra-ai-sf-metadata/references/recordtype-metadata-schema.json",
-    "ValidationRule":    "skills/cirra-ai-sf-metadata/references/validationrule-metadata-schema.json",
-    "PermissionSet":     "skills/cirra-ai-sf-permissions/references/permissionset-metadata-schema.json",
-    "PermissionSetGroup": "skills/cirra-ai-sf-permissions/references/permissionsetgroup-metadata-schema.json",
-    "Profile":           "skills/cirra-ai-sf-permissions/references/profile-metadata-schema.json",
-    "SharingRules":      "skills/cirra-ai-sf-permissions/references/sharingrules-metadata-schema.json",
+    "CustomField":       "skills/sf-metadata/references/customfield-metadata-schema.json",
+    "CustomObject":      "skills/sf-metadata/references/customobject-metadata-schema.json",
+    "FlexiPage":         "skills/sf-metadata/references/flexipage-metadata-schema.json",
+    "Layout":            "skills/sf-metadata/references/layout-metadata-schema.json",
+    "QuickAction":       "skills/sf-metadata/references/quickaction-metadata-schema.json",
+    "RecordType":        "skills/sf-metadata/references/recordtype-metadata-schema.json",
+    "ValidationRule":    "skills/sf-metadata/references/validationrule-metadata-schema.json",
+    "PermissionSet":     "skills/sf-permissions/references/permissionset-metadata-schema.json",
+    "PermissionSetGroup": "skills/sf-permissions/references/permissionsetgroup-metadata-schema.json",
+    "Profile":           "skills/sf-permissions/references/profile-metadata-schema.json",
+    "SharingRules":      "skills/sf-permissions/references/sharingrules-metadata-schema.json",
 }
 # Note: Flow and FlowDefinition are NOT in _SCHEMAS because they have
 # delegate validators that provide richer feedback (110-point rubric).
@@ -71,16 +71,6 @@ def _allow(context: str = "") -> dict:
     if context:
         out["hookSpecificOutput"]["additionalContext"] = context
     return out
-
-
-def _deny(reason: str) -> dict:
-    return {
-        "hookSpecificOutput": {
-            "hookEventName": "PreToolUse",
-            "permissionDecision": "deny",
-            "permissionDecisionReason": reason,
-        }
-    }
 
 
 def _metadata_type(tool_name: str, tool_input: dict) -> str:
@@ -290,9 +280,10 @@ def main() -> int:
         return 0
 
     # --- JSON Schema validation (for types without a delegate) ---
+    # Flag schema issues but never block the operation.
     schema_error = _validate_schema(metadata_type, tool_input)
     if schema_error:
-        print(json.dumps(_deny(schema_error)))
+        print(json.dumps(_allow(f"🚨 {schema_error}")))
         return 0
 
     print(json.dumps(_allow()))

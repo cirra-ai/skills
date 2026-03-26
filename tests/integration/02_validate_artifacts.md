@@ -1,7 +1,7 @@
 # Phase 2: Validate — Verify All Artifacts
 
 Run after Phase 1 completes. Each step validates artifacts created in Phase 1
-using the `/validate-*` and `/query-data` commands.
+using the `/validate-*` and `/sf-data` commands.
 
 ---
 
@@ -87,7 +87,7 @@ using the `/validate-*` and `/query-data` commands.
 
 ## 2.4 Query Data — Basic Account Query
 
-**Command**: `/query-data`
+**Command**: `/sf-data`
 
 **Prompt**: Query all Accounts where Name starts with 'CirraTest*Account*'. Show
 Id, Name, Industry, AnnualRevenue, BillingCity.
@@ -107,7 +107,7 @@ soql_query(query="SELECT Id, Name, Industry, AnnualRevenue, BillingCity FROM Acc
 
 ## 2.5 Query Data — Parent-to-Child (Subquery)
 
-**Command**: `/query-data`
+**Command**: `/sf-data`
 
 **Prompt**: Query Accounts with their related Contacts using a subquery.
 
@@ -125,7 +125,7 @@ soql_query(query="SELECT Id, Name, (SELECT Id, FirstName, LastName, Title FROM C
 
 ## 2.6 Query Data — Child-to-Parent (Dot Notation)
 
-**Command**: `/query-data`
+**Command**: `/sf-data`
 
 **Prompt**: Query Contacts with their parent Account name.
 
@@ -143,7 +143,7 @@ soql_query(query="SELECT Id, FirstName, LastName, Title, Account.Name, Account.I
 
 ## 2.7 Query Data — Aggregate (GROUP BY)
 
-**Command**: `/query-data`
+**Command**: `/sf-data`
 
 **Prompt**: Get Account count and total AnnualRevenue grouped by Industry.
 
@@ -161,7 +161,7 @@ soql_query(query="SELECT Industry, COUNT(Id) numAccounts, SUM(AnnualRevenue) tot
 
 ## 2.8 Query Data — Semi-Join (Accounts WITH Opportunities)
 
-**Command**: `/query-data`
+**Command**: `/sf-data`
 
 ```
 soql_query(query="SELECT Id, Name FROM Account WHERE Id IN (SELECT AccountId FROM Opportunity WHERE StageName = 'Closed Won') AND Name LIKE 'CirraTest_%'")
@@ -176,7 +176,7 @@ soql_query(query="SELECT Id, Name FROM Account WHERE Id IN (SELECT AccountId FRO
 
 ## 2.9 Query Data — Anti-Join (Accounts WITHOUT Cases)
 
-**Command**: `/query-data`
+**Command**: `/sf-data`
 
 ```
 soql_query(query="SELECT Id, Name FROM Account WHERE Id NOT IN (SELECT AccountId FROM Case WHERE AccountId != null) AND Name LIKE 'CirraTest_Account_%'")
@@ -191,7 +191,7 @@ soql_query(query="SELECT Id, Name FROM Account WHERE Id NOT IN (SELECT AccountId
 
 ## 2.10 Query Data — Polymorphic (Task Who/What)
 
-**Command**: `/query-data`
+**Command**: `/sf-data`
 
 ```
 soql_query(query="SELECT Id, Subject, Who.Name, What.Name, TYPEOF Who WHEN Contact THEN FirstName, LastName, Email WHEN Lead THEN Name, Company END FROM Task WHERE Subject LIKE 'CirraTest_%' LIMIT 20")
@@ -207,7 +207,7 @@ soql_query(query="SELECT Id, Subject, Who.Name, What.Name, TYPEOF Who WHEN Conta
 
 ## 2.11 Query Data — Bulk Records Verification
 
-**Command**: `/query-data`
+**Command**: `/sf-data`
 
 ```
 soql_query(query="SELECT COUNT(Id) total FROM Account WHERE Name LIKE 'CirraTest_Bulk_%'")
@@ -221,7 +221,7 @@ soql_query(query="SELECT COUNT(Id) total FROM Account WHERE Name LIKE 'CirraTest
 
 ## 2.12 Query Data — Hierarchy Verification
 
-**Command**: `/query-data`
+**Command**: `/sf-data`
 
 **Prompt**: Verify the 3-level hierarchy by querying Accounts with their
 Contacts, Opportunities, and Cases.
