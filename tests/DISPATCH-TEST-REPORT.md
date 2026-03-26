@@ -1,87 +1,85 @@
-# Dispatch Test Report — 2026-03-25
+# Dispatch Test Report — 2026-03-26
 
-## Summary
+## Pytest
 
-| Skill          | Tests  | Phase 1 Pass | Phase 1 Defect |
-| -------------- | ------ | ------------ | -------------- |
-| sf-apex        | 9      | 9            | 0              |
-| sf-audit       | 8      | 8            | 0              |
-| sf-data        | 9      | 9            | 0              |
-| sf-diagram     | 10     | 10           | 0              |
-| sf-flow        | 8      | 8            | 0              |
-| sf-kugamon     | 8      | 8            | 0              |
-| sf-lwc         | 8      | 8            | 0              |
-| sf-metadata    | 8      | 8            | 0              |
-| sf-orders      | 9      | 9            | 0              |
-| sf-permissions | 12     | 12           | 0              |
-| **TOTAL**      | **88** | **88**       | **0**          |
+```
+111/111 passed (0.21s)
+```
 
-**Pass rate**: 100% (88/88 pass after defect fixes)
-
-Phase 2 (prompt simulation) was run on all 88 test cases. See "Phase 2 Results" below.
+All unit tests in `tests/` pass: apex validator, data MCP validator, generate pages, metadata validator, pre-MCP validate, SOQL validator, template validator.
 
 ---
 
-## Phase 1 Results (Static Analysis)
+## Phase 1: Static SKILL.md Analysis
 
-### Checks performed per test case
+```
+python3 tests/validate_dispatch_tests.py
+```
 
-1. **Dispatch Table Coverage** — Dispatch value matches a workflow name in SKILL.md
-2. **Argument-Hint Completeness** — first-word keyword appears in argument-hint
-3. **Tool References** — First tool / Should call appear in matched workflow; Should NOT call absent
-4. **Menu Options** — no-args menu matches SKILL.md
-5. **Cross-References** — Follow-up skills exist; no stale `cirra-ai-sf-*` references
+| Skill          | Tests | Pass | Fail |
+|----------------|-------|------|------|
+| sf-apex        | 9     | 9    | 0    |
+| sf-audit       | 8     | 8    | 0    |
+| sf-data        | 9     | 9    | 0    |
+| sf-diagram     | 9     | 9    | 0    |
+| sf-flow        | 8     | 8    | 0    |
+| sf-kugamon     | 7     | 7    | 0    |
+| sf-lwc         | 8     | 8    | 0    |
+| sf-metadata    | 7     | 7    | 0    |
+| sf-orders      | 7     | 7    | 0    |
+| sf-permissions | 12    | 12   | 0    |
+| **TOTAL**      | **84**| **84**| **0**|
 
-### Per-skill results
-
-- **sf-apex**: 9 PASS
-- **sf-audit**: 8 PASS
-- **sf-data**: 9 PASS
-- **sf-diagram**: 10 PASS
-- **sf-flow**: 8 PASS
-- **sf-kugamon**: 8 PASS
-- **sf-lwc**: 8 PASS
-- **sf-metadata**: 8 PASS
-- **sf-orders**: 9 PASS
-- **sf-permissions**: 12 PASS
-
----
-
-## Defects (resolved)
-
-### DEFECT-1: sf-apex / "ambiguous — just a class name" / 1.1 Dispatch Table Coverage
-
-- **Issue**: Test referenced a nonexistent "describe" workflow. SKILL.md only has Create, Update, Validate.
-- **Fix**: Removed "describe" from test case. ([PR #91](https://github.com/cirra-ai/skills/pull/91) — merged)
-
-### DEFECT-2: sf-kugamon / "edge case — kuga_sub package not installed" / 1.3 Tool References
-
-- **Issue**: Test said `Should NOT call: sobject_dml` but `sobject_dml` is the correct tool for inserting data records (quotes). `sobject_create` is for metadata (custom objects/fields), not data records.
-- **Fix**: Standardized SKILL.md to specify `sobject_dml` with `operation: "insert"` for quote creation. Updated test cases to expect `sobject_dml` and exclude `sobject_create`. ([PR #92](https://github.com/cirra-ai/skills/pull/92) — merged)
+**Result: ALL PASS — 0 defects, 0 warnings.**
 
 ---
 
-## Phase 2 Results (Prompt Simulation)
+## Phase 2: Prompt Simulation
 
-All 88 test cases were run through model agents (one agent per skill, Sonnet). Each agent received the full SKILL.md as system context plus all test inputs for that skill, and reported dispatch decisions, tool sequences, and user interaction plans.
+All 84 test cases were run through model agents (one agent per skill, Sonnet). Each agent received the full SKILL.md as system context plus all test inputs for that skill, and reported dispatch decisions, tool sequences, and user interaction plans.
 
 ### Phase 2 Summary
 
-| Skill          | Tests  | Phase 2 Pass | Phase 2 Fail |
-| -------------- | ------ | ------------ | ------------ |
-| sf-apex        | 9      | 9            | 0            |
-| sf-audit       | 8      | 8            | 0            |
-| sf-data        | 9      | 9            | 0            |
-| sf-diagram     | 9      | 9            | 0            |
-| sf-flow        | 8      | 8            | 0            |
-| sf-kugamon     | 7      | 7            | 0            |
-| sf-lwc         | 8      | 8            | 0            |
-| sf-metadata    | 7      | 7            | 0            |
-| sf-orders      | 7      | 7            | 0            |
-| sf-permissions | 12     | 12           | 0            |
-| **TOTAL**      | **88** | **88**       | **0**        |
+| Skill          | Tests | Phase 2 Pass | Phase 2 Fail | Phase 2 Warn |
+|----------------|-------|-------------|-------------|-------------|
+| sf-apex        | 9     | 9           | 0           | 0           |
+| sf-audit       | 8     | 8           | 0           | 0           |
+| sf-data        | 9     | 9           | 0           | 0           |
+| sf-diagram     | 9     | 9           | 0           | 0           |
+| sf-flow        | 8     | 8           | 0           | 0           |
+| sf-kugamon     | 7     | 7           | 0           | 0           |
+| sf-lwc         | 8     | 8           | 0           | 0           |
+| sf-metadata    | 7     | 7           | 0           | 0           |
+| sf-orders      | 7     | 7           | 0           | 0           |
+| sf-permissions | 12    | 12          | 0           | 0           |
+| **TOTAL**      | **84**| **84**      | **0**       | **0**       |
 
-### Phase 2 Observations
+**Result: ALL PASS — 0 failures, 0 warnings.**
+
+### Test Count Verification
+
+File heading counts were cross-checked against agent-reported counts:
+
+```
+File counts:
+  sf-apex:        9 tests    Agent: 9/9 PASS   ✓
+  sf-audit:       8 tests    Agent: 8/8 PASS   ✓
+  sf-data:        9 tests    Agent: 9/9 PASS   ✓
+  sf-diagram:     9 tests    Agent: 9/9 PASS   ✓
+  sf-flow:        8 tests    Agent: 8/8 PASS   ✓
+  sf-kugamon:     7 tests    Agent: 7/7 PASS   ✓
+  sf-lwc:         8 tests    Agent: 8/8 PASS   ✓
+  sf-metadata:    7 tests    Agent: 7/7 PASS   ✓
+  sf-orders:      7 tests    Agent: 7/7 PASS   ✓
+  sf-permissions: 12 tests   Agent: 12/12 PASS ✓
+  Total:          84 tests
+```
+
+Note: The sf-apex agent initially reported "8/8 PASS" in its summary line but actually tested all 9 cases (verified by reviewing all 9 individual case reports). The miscount was in the summary string only, not in coverage.
+
+---
+
+## Phase 2 Observations
 
 1. **Init timing nuance confirmed**: No-argument tests across all skills correctly deferred `cirra_ai_init()` until after the user picks a workflow. This validates the `Init timing: after-menu` field.
 
@@ -106,7 +104,7 @@ All 88 test cases were run through model agents (one agent per skill, Sonnet). E
 All follow-up skills referenced in test cases exist as directories:
 
 | Skill          | References                                            | Valid |
-| -------------- | ----------------------------------------------------- | ----- |
+|----------------|-------------------------------------------------------|-------|
 | sf-audit       | sf-apex, sf-flow, sf-lwc, sf-metadata, sf-permissions | Yes   |
 | sf-data        | sf-metadata                                           | Yes   |
 | sf-diagram     | sf-metadata, sf-permissions, sf-flow                  | Yes   |
@@ -115,6 +113,16 @@ All follow-up skills referenced in test cases exist as directories:
 | sf-permissions | sf-data, sf-diagram, sf-metadata                      | Yes   |
 
 No stale `cirra-ai-sf-*` references found in any SKILL.md.
+
+---
+
+## Failure Details
+
+None.
+
+## Warnings
+
+None.
 
 ---
 
@@ -130,4 +138,4 @@ No stale `cirra-ai-sf-*` references found in any SKILL.md.
 
 ## Conclusion
 
-All 10 skills pass Phase 1 static analysis and Phase 2 prompt simulation with 88/88 tests passing. Two defects were found and fixed during the initial run (nonexistent workflow reference in sf-apex, incorrect DML tool in sf-kugamon tests/SKILL.md).
+All 10 skills pass Phase 1 static analysis and Phase 2 prompt simulation with 84/84 tests passing. No defects or warnings.
