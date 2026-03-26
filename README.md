@@ -52,7 +52,17 @@ To learn more about skills see [What are skills?](https://support.claude.com/en/
 
 First, sign up for a free trial of the [Cirra AI MCP Server](https://cirra.ai/free-trial/) if you have not already.
 
-Then, navigate to [skills.cirra.ai](https://skills.cirra.ai/) for a full install guide and downloadable packages.
+**Claude Code (CLI):**
+
+```
+claude plugin install cirra-ai-sf@cirra-ai
+```
+
+**Claude Cowork:** Ask your AI to "Install the skills from the `cirra-ai/skills` GitHub repo"
+
+**Other platforms:** Navigate to [skills.cirra.ai](https://skills.cirra.ai/) for a full install guide and downloadable packages.
+
+> Installation steps may change as AI clients evolve. If you run into issues, check your AI client's documentation or contact [support@cirra.ai](mailto:support@cirra.ai).
 
 ## Contributing
 
