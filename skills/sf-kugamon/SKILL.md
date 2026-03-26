@@ -149,7 +149,7 @@ Set a second session flag:
 
 ### Phase 3: Discovery & Pre-Creation Checks
 
-When a user requests quote creation, gather complete context.
+When a user requests quote creation, gather complete context. Use `soql_query` for all data retrieval queries in this phase.
 
 **CRITICAL PRE-CREATION CHECKS:**
 
@@ -220,6 +220,8 @@ WHERE kugo2p__Opportunity__c = '<opportunity_id>'
 ### Phase 4: Create the Quote
 
 **Prerequisites:** Billing address complete, contact identified.
+
+**Tool:** Use `sobject_dml` with `operation: "insert"` to create the quote record (`kugo2p__SalesQuote__c`).
 
 Use only these createable fields:
 
