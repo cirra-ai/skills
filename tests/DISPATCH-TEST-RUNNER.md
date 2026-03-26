@@ -125,35 +125,51 @@ Build the prompt that would be sent to a model:
 
 ### 2.3 Simulated Execution
 
-Present the constructed prompt to a model instance with these instructions:
+Present the constructed prompt to a model instance with these instructions.
+
+**CRITICAL**: The agent MUST follow these instructions exactly. Do not allow
+the agent to skip questions, summarize, or say "I checked and it looks fine."
+Every question must have an explicit answer with evidence from the SKILL.md.
 
 ```
 You are tasked to test the **{skill_name}** skill.
 
-You have access to the {skill_name} skill and any skills it explicitly
-references: {referenced_skills}. Ignore any other skills in your environment.
+Read the SKILL.md file at skills/{skill_name}/SKILL.md in full.
+Read the dispatch-tests.md file at skills/{skill_name}/tests/dispatch-tests.md.
 
-The {skill_name} SKILL.md is provided below as your system prompt.
+For EACH test case in dispatch-tests.md, you MUST answer ALL of the
+following questions. Do not skip any question. Do not batch or summarize.
 
-Given this user prompt:
+For each test case, report in this EXACT format:
 
-    {test_input}
+### [test case name]
+- **Dispatch decision**: [exact workflow name you selected]
+- **Init**: [yes/no], [timing: before-workflow/before-menu/after-menu/n/a]
+- **First tool**: [exact tool_name(param=value)] or [n/a]
+- **Full tool sequence**: [tool1 → tool2 → tool3] (every tool, in order)
+- **Ask user**: [yes/no] — [if yes, what exactly would you ask?]
+- **Tools NOT called**: [list every tool from SKILL.md that is irrelevant]
+- **RESULT**: PASS or FAIL
 
-Describe step by step what you would do. Specifically report:
+VERIFICATION RULES — you MUST check each of these:
 
-1. **Dispatch decision**: Which workflow did you select and why?
-2. **Init**: Would you call `cirra_ai_init()` first? Why or why not?
-   At what point — before selecting a workflow, or after?
-3. **Tool sequence**: List every MCP tool you would call, in order,
-   with the exact parameters you'd pass.
-4. **User interaction**: Would you ask the user anything before proceeding?
-   What and why?
-5. **Output format**: How would you present the results?
-6. **Follow-up**: What would you offer as next steps?
-7. **Tools you would NOT call**: List any tools from the skill that are
-   explicitly irrelevant for this input.
+1. Your Dispatch decision must EXACTLY match the test's Dispatch field.
+   If it doesn't, report FAIL and explain the mismatch.
 
-Be precise — include actual tool names and parameter values.
+2. Every tool you list in "Full tool sequence" must appear by name in
+   the SKILL.md (as `tool_name`, tool_name(), or in a code block).
+   If you would call a tool not referenced in SKILL.md, report FAIL.
+
+3. Every tool in the test's "Should NOT call" must be ABSENT from your
+   tool sequence. If you would call a forbidden tool, report FAIL.
+
+4. Your "Ask user" answer must match the test's "Should ask user" field.
+   If the test says "no" but you would ask, or vice versa, report FAIL.
+
+5. At the end, report the EXACT count: "X/Y PASS, Z FAIL".
+   This count MUST equal the number of ## headings in dispatch-tests.md
+   (excluding the file header). If your count doesn't match, you missed
+   a test case — go back and find it.
 ```
 
 ### 2.4 Validation
@@ -180,6 +196,26 @@ For each test case, report: **PASS**, **FAIL** (with specific mismatch), or **WA
 ---
 
 ## Running the Tests
+
+### Programmatic Phase 1 (required — run first)
+
+```bash
+python3 tests/validate_dispatch_tests.py              # all skills
+python3 tests/validate_dispatch_tests.py sf-metadata   # one skill
+```
+
+This script mechanically validates every test case against its SKILL.md.
+No LLM involved — pure string matching. It checks:
+- Dispatch values match SKILL.md dispatch table rows
+- Every tool in Should call / First tool exists in SKILL.md
+- No tool appears in both Should call and Should NOT call
+- Menu options match SKILL.md menu block
+- Follow-up skill directories exist
+- Required fields are present
+- Init timing is consistent with Init required
+
+**Phase 2 agents must NOT run until Phase 1 passes with 0 defects.**
+
 
 ### Quick Run (Phase 1 only)
 

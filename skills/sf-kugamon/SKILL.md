@@ -149,7 +149,7 @@ Set a second session flag:
 
 ### Phase 3: Discovery & Pre-Creation Checks
 
-When a user requests quote creation, gather complete context.
+When a user requests quote creation, gather complete context. Use `soql_query` for all data retrieval queries in this phase.
 
 **CRITICAL PRE-CREATION CHECKS:**
 
