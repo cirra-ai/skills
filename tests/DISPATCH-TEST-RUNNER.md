@@ -45,7 +45,7 @@ Each test case in `dispatch-tests.md` uses this structure:
 | Input | yes | The exact user prompt including `/skill-name` |
 | Dispatch | yes | Expected workflow name from dispatch table, or `(none — present menu)` / `(ambiguous)` |
 | Init required | yes | Whether `cirra_ai_init()` must be called for this operation |
-| Init timing | yes | `before-workflow` = init then execute; `after-menu` = ask user first, init after; `n/a` = no init needed |
+| Init timing | yes | `before-workflow` = init then execute; `before-menu` = init then present menu (when init is needed for capability detection); `after-menu` = present menu first, init after user selects; `n/a` = no init needed |
 | Path | yes | `fast` = simple request, bypass full workflow; `full` = multi-step workflow; `n/a` = no workflow selected |
 | First tool | no | First MCP tool expected after init |
 | Tool params | no | Key parameters for the first tool call |

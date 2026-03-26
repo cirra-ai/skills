@@ -101,7 +101,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Input**: `/sf-orders`
 - **Dispatch**: (no-args menu)
 - **Init required**: yes
-- **Init timing**: after-menu
+- **Init timing**: before-menu (init needed for capability detection before presenting menu)
 - **Path**: n/a
 - **First tool**: `cirra_ai_init`
 - **Tool params**: `(no parameters)`

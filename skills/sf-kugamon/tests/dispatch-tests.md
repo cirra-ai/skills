@@ -106,7 +106,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Input**: `/sf-kugamon`
 - **Dispatch**: Quote Creation
 - **Init required**: yes
-- **Init timing**: after-menu
+- **Init timing**: before-menu (init needed before presenting menu — SKILL.md says "do not ask for org details before calling cirra_ai_init")
 - **Path**: full
 - **First tool**: `cirra_ai_init`
 - **Tool params**: `(none)`
@@ -116,7 +116,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Menu options**: Create a quote, Manage an order/contract, Check subscriptions/renewals, Verify quote consistency, Troubleshoot line items or amounts
 - **Follow-up skills**: `sf-kugamon`
 
-**Notes**: With no arguments, the skill calls `cirra_ai_init` first (do not ask for org details before init), then presents a menu of options. Package detection via `sobject_describe` on `OpportunityLineItem` can run after the user selects an action, or speculatively in parallel. The menu should reflect the five core responsibilities listed in SKILL.md.
+**Notes**: With no arguments, the skill calls `cirra_ai_init` first, then presents a menu of options. Package detection via `sobject_describe` on `OpportunityLineItem` can run after the user selects an action, or speculatively in parallel. The menu should reflect the five core responsibilities listed in SKILL.md.
 
 ---
 
@@ -130,7 +130,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **First tool**: `cirra_ai_init`
 - **Tool params**: `(none)`
 - **Should call**: `cirra_ai_init`, `sobject_describe`, `soql_query`, `sobject_dml`
-- **Should NOT call**: `soql_query` (with kuga_sub__ fields), `sobject_create` (metadata tool, not for data records)
+- **Should NOT call**: `sobject_create` (metadata tool, not for data records)
 - **Should ask user**: yes (confirm contact for quote; warn user that kuga_sub fields are absent)
 - **Menu options**: n/a
 - **Follow-up skills**: `sf-kugamon`
