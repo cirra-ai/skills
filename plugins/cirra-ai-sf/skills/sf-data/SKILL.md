@@ -138,7 +138,7 @@ Show the structure, fields, relationships, and record types of a Salesforce obje
 ## CRITICAL: Orchestration & Prerequisites
 
 ```
-cirra_ai_init -> create-metadata -> sf-data (SOQL/DML) -> create-apex/create-flow
+cirra_ai_init -> sf-metadata -> sf-data (SOQL/DML) -> sf-apex/sf-flow
                                 ^
                            YOU ARE HERE
 ```
@@ -704,13 +704,13 @@ sobject_dml(
 
 Other skills reference sf-data for SOQL and DML needs:
 
-| From Skill          | To sf-data | When                                                                 |
-| ------------------- | ---------- | -------------------------------------------------------------------- |
-| create-apex         | -> sf-data | "Create 201 Accounts for bulk testing" or "optimize this SOQL query" |
-| create-flow         | -> sf-data | "Create Opportunities with StageName='Closed Won'"                   |
-| create-metadata     | -> sf-data | After verifying fields exist                                         |
-| analyze-permissions | -> sf-data | Permission analysis queries                                          |
-| create-diagram      | -> sf-data | Query data for diagram generation                                    |
+| From Skill     | To sf-data | When                                                                 |
+| -------------- | ---------- | -------------------------------------------------------------------- |
+| sf-apex        | -> sf-data | "Create 201 Accounts for bulk testing" or "optimize this SOQL query" |
+| sf-flow        | -> sf-data | "Create Opportunities with StageName='Closed Won'"                   |
+| sf-metadata    | -> sf-data | After verifying fields exist                                         |
+| sf-permissions | -> sf-data | Permission analysis queries                                          |
+| sf-diagram     | -> sf-data | Query data for diagram generation                                    |
 
 ---
 

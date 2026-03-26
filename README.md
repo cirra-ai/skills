@@ -42,6 +42,7 @@ The following skills are available or planned:
 | [sf-permissions](skills/sf-permissions/README.md) | Permission Set analysis, hierarchy viewer, "Who has X?" auditing                                                                     |
 | [sf-diagram](skills/sf-diagram/README.md)         | Salesforce architecture diagrams (ERDs, OAuth flows, integrations) in Mermaid                                                        |
 | [sf-kugamon](skills/sf-kugamon/README.md)         | Kugamon CPQ quote management — create, verify, and manage opportunities, quotes, and orders with [Kugamon](https://www.kugamon.com/) |
+| [sf-orders](skills/sf-orders/README.md)           | Order management — orders, returns, cases, and the order-to-return lifecycle                                                         |
 
 The skills can either be installed individually, or as a bundle. See details for each AI platform below.
 
