@@ -8,7 +8,7 @@ description: >
   Salesforce metadata operations expert. Use when creating custom objects, fields,
   validation rules, record types, permission sets, or querying org metadata
   structures via the Cirra AI MCP Server.
-  Usage: /sf-metadata [create|update|delete|describe] <ObjectName|FieldName|type>
+  Usage: /sf-metadata [create|update|delete|describe] {ObjectName|FieldName|type}
 ---
 
 # Salesforce Metadata Operations Expert

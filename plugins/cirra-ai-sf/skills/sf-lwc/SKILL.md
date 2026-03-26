@@ -10,7 +10,7 @@ description: >
   GraphQL support, and Jest test generation. Build modern Salesforce UIs with
   proper reactivity, accessibility, dark mode compatibility, and performance patterns.
   Powered by Cirra AI MCP Server for seamless metadata deployment.
-  Usage: /sf-lwc [create|update|validate] <ComponentName>
+  Usage: /sf-lwc [create|update|validate] {ComponentName}
 ---
 
 # Salesforce Lightning Web Components

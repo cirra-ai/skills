@@ -12,7 +12,7 @@ description: >
   the workflow accordingly. Handles New, Expansion, and Renewal record types with proper
   record type mapping, automatic line item population, accurate amount field interpretation,
   and full Order Release lifecycle (Contract, Asset, Subscription, and Renewal Opportunity creation).
-  Usage: /sf-kugamon [quote|order|contract|renewal|subscription] <details>
+  Usage: /sf-kugamon [quote|order|contract|renewal|subscription] {details}
 ---
 
 # Salesforce Kugamon CPQ Expert
