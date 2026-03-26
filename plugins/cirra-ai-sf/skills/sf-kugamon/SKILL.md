@@ -1,7 +1,7 @@
 ---
 name: sf-kugamon
 plugin: cirra-ai-sf
-argument-hint: '[quote|order|contract|renewal|subscription] ...'
+argument-hint: '[quote|order|contract|renewal|subscription] {details} ...'
 metadata:
   version: 2.0.1
 description: >

@@ -1,7 +1,7 @@
 ---
 name: sf-orders
 plugin: cirra-ai-sf
-argument-hint: '[order|return|case] ...'
+argument-hint: '[order|return|case] {details} ...'
 metadata:
   version: 2.0.1
 description: >

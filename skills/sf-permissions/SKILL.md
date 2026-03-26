@@ -3,7 +3,7 @@ name: sf-permissions
 plugin: cirra-ai-sf
 metadata:
   version: 2.0.1
-argument-hint: '[hierarchy|audit|analyze|create|clone|update|delete|agent-access] {target} ...'
+argument-hint: '[hierarchy|audit|analyze|create|clone|update|delete|agent-access] ...'
 description: >
   [hierarchy|audit|analyze|create|clone|update|delete|agent-access] ... —
   Permission Set analysis, hierarchy viewer, and "Who has X?" auditing. Use when

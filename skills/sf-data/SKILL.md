@@ -1,7 +1,7 @@
 ---
 name: sf-data
 plugin: cirra-ai-sf
-argument-hint: '[query|build-query|insert|update|upsert|delete|validate|describe] ...'
+argument-hint: '[query|build-query|insert|update|upsert|delete|validate|describe] {target} ...'
 metadata:
   version: 2.0.1
 description: >
