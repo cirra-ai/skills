@@ -279,3 +279,78 @@ Based on failures and warnings, recommend:
 | sf-metadata | `skills/sf-metadata/tests/dispatch-tests.md` | describe, create field, update, delete, no-args, ambiguous, describe-all |
 | sf-orders | `skills/sf-orders/tests/dispatch-tests.md` | (see file) |
 | sf-permissions | `skills/sf-permissions/tests/dispatch-tests.md` | hierarchy, who-has, user trace, debug, audit, create/clone/update/delete PS, agent-access, no-args, NL field access |
+
+---
+
+## Report Documentation Standards
+
+### No unexplained notes
+
+Every entry in the report must be self-contained. Do not add cryptic column values like "edge case with conflicting keywords tested" or "lwc test has nuanced soql_query scope note" without explaining what they mean. If a test case has a nuance worth noting, explain it fully inline:
+
+**Bad**:
+```
+| sf-audit | 8 | 8 | 0 | lwc test has nuanced soql_query scope note |
+```
+
+**Good**:
+```
+| sf-audit | 8 | 8 | 0 |
+```
+With a separate section:
+```
+### sf-audit: soql_query scope in LWC test
+
+The "lwc audit" test specifies `Should NOT call: soql_query` but this
+applies only to the C5 (LWC deep-dive) phase. Phase A inventory always
+calls soql_query for PS/Profile counts. The test's own Notes field
+documents this distinction. Not a defect — the test is correct as written.
+```
+
+### Classify issues correctly
+
+- **PASS**: Test expectations match SKILL.md and model behavior
+- **DEFECT**: A concrete mismatch between test expectations and SKILL.md (or between SKILL.md sections). Requires a fix PR.
+- **WARN**: A behavioral concern that doesn't break the test but suggests a potential improvement. Must include a recommendation.
+
+Do not use "WARN" to paper over issues that are actually defects. If the test references a nonexistent workflow, that's a defect, not a warning.
+
+---
+
+## Test Count Verification
+
+When running Phase 2, agents may miscount tests in their summary lines (e.g., reporting "7/7 PASS" when they actually tested 8 cases). This is a known issue with model-generated summaries.
+
+### Required verification steps
+
+After all Phase 2 agents complete:
+
+1. **Count test cases in each dispatch-tests.md file**:
+   ```
+   For each skills/sf-*/tests/dispatch-tests.md:
+     Count the number of ## headings (excluding the file header)
+   ```
+
+2. **Cross-check against agent reports**: Verify that each agent's reported count matches the actual test count from step 1. If an agent says "7/7 PASS" but the file has 8 test cases, the agent missed one.
+
+3. **Verify total**: Sum all per-skill counts and confirm the total matches. Do not invent explanations for discrepancies (e.g., "agent miscounts account for the difference"). If counts don't match, investigate which test cases were missed and re-run them.
+
+4. **Report actual counts**: The summary table must use actual test counts from the dispatch-tests.md files, not the agents' self-reported counts.
+
+### Example verification
+
+```
+File counts:
+  sf-apex:        9 tests (## headings)
+  sf-audit:       8 tests
+  sf-data:        9 tests
+  ...
+  Total:          88 tests
+
+Agent reports:
+  sf-apex agent:  "9/9 PASS"  ✓ matches
+  sf-audit agent: "7/7 PASS"  ✗ file has 8 — check which test was skipped
+  sf-data agent:  "9/9 PASS"  ✓ matches
+```
+
+If an agent skipped a test, either re-run that specific test or document it as "NOT TESTED" in the report — never silently adjust the numbers.

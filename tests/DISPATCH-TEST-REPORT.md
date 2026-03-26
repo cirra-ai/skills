@@ -71,17 +71,17 @@ All 88 test cases were run through model agents (one agent per skill, Sonnet). E
 
 | Skill | Tests | Phase 2 Pass | Phase 2 Fail | Notes |
 | --- | --- | --- | --- | --- |
-| sf-apex | 9 | 9 | 0 | |
-| sf-audit | 8 | 8 | 0 | lwc test has nuanced soql_query scope note |
-| sf-data | 9 | 9 | 0 | |
-| sf-diagram | 9 | 9 | 0 | edge case with conflicting keywords tested |
-| sf-flow | 8 | 8 | 0 | |
-| sf-kugamon | 7 | 7 | 0 | |
-| sf-lwc | 8 | 8 | 0 | |
-| sf-metadata | 7 | 7 | 0 | |
-| sf-orders | 7 | 7 | 0 | |
-| sf-permissions | 12 | 12 | 0 | |
-| **TOTAL** | **88** | **88** | **0** | |
+| sf-apex | 9 | 9 | 0 |
+| sf-audit | 8 | 8 | 0 |
+| sf-data | 9 | 9 | 0 |
+| sf-diagram | 9 | 9 | 0 |
+| sf-flow | 8 | 8 | 0 |
+| sf-kugamon | 7 | 7 | 0 |
+| sf-lwc | 8 | 8 | 0 |
+| sf-metadata | 7 | 7 | 0 |
+| sf-orders | 7 | 7 | 0 |
+| sf-permissions | 12 | 12 | 0 |
+| **TOTAL** | **88** | **88** | **0** |
 
 ### Phase 2 Observations
 
@@ -124,25 +124,19 @@ No stale `cirra-ai-sf-*` references found in any SKILL.md.
 
 ### Defect fixes (required)
 
-1. **DEFECT-1 — sf-apex "ambiguous" test**: Remove "describe" from the list of possible workflows — sf-apex has no Describe workflow. Change to `(ambiguous — could be validate or update)`.
-2. **DEFECT-2 — sf-kugamon SKILL.md**: Standardize DML tool usage (`sobject_dml` vs `sobject_create`) across all quote creation paths, then update the edge case test to match.
-
-### Test coverage gaps (future)
-
-1. **Phase 2 coverage**: Only 5 of 88 test cases were run through prompt simulation. Expand to all 88 for full validation.
-2. **Error paths**: No test cases cover MCP tool failures (e.g., `cirra_ai_init()` fails, object doesn't exist, permission denied).
-3. **Multi-turn**: All tests are single-turn. Consider adding tests for multi-turn workflows (user picks from menu, then provides details).
-
----
-
-## Conclusion
-
-All 10 skills pass Phase 1 static analysis with 2 defects requiring fixes. Phase 2 prompt simulation (all 83 testable cases) confirms that models correctly interpret the SKILL.md dispatch tables and produce the expected tool sequences, init timing, user interaction patterns, and tool exclusions.
-
-The 2 defects are test/documentation inconsistencies, not runtime failures. Both should be fixed before merging.
+1. **DEFECT-1 — sf-apex "ambiguous" test** ([PR #91](https://github.com/cirra-ai/skills/pull/91)): Remove "describe" from the list of possible workflows — sf-apex has no Describe workflow. Change to `(ambiguous — could be validate or update)`.
+2. **DEFECT-2 — sf-kugamon SKILL.md** ([PR #92](https://github.com/cirra-ai/skills/pull/92)): Standardize DML tool usage — add explicit note that `sobject_create` is the correct tool for quote creation, not `sobject_dml`.
 
 ### Test coverage gaps (future)
 
 1. **Error paths**: No test cases cover MCP tool failures (e.g., `cirra_ai_init()` fails, object doesn't exist, permission denied).
 2. **Multi-turn**: All tests are single-turn. Consider adding tests for multi-turn workflows (user picks from menu, then provides details).
 3. **Batch boundary testing**: sf-data bulk delete tests the 200-record batch concept but doesn't verify exact batching behavior at the boundary (200 vs 201 records).
+
+---
+
+## Conclusion
+
+All 10 skills pass Phase 1 static analysis with 2 defects requiring fixes. Phase 2 prompt simulation (all 88 cases) confirms that models correctly interpret the SKILL.md dispatch tables and produce the expected tool sequences, init timing, user interaction patterns, and tool exclusions.
+
+The 2 defects are test/documentation inconsistencies, not runtime failures. Both have fix PRs open.
