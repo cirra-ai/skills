@@ -70,7 +70,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **First tool**: `cirra_ai_init`
 - **Tool params**: `(no parameters)`
 - **Should call**: `cirra_ai_init`, `sobject_describe`, `soql_query`, `tooling_api_query`, `sobject_dml`
-- **Should NOT call**: `soql_query` (for order lookup — not needed here)
+- **Should NOT call**: `link_build`
 - **Should ask user**: no
 - **Follow-up skills**: `sf-flow`
 
