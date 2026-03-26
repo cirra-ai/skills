@@ -16,11 +16,6 @@ REPO_ROOT = Path(__file__).parent.parent
 SKILLS_DIR = REPO_ROOT / "skills"
 
 
-def extract_backtick_names(text: str) -> set[str]:
-    """Extract all backtick-quoted tool/skill names from a string."""
-    return set(re.findall(r"`([a-z_]+)`", text))
-
-
 def extract_all_tool_refs(text: str) -> set[str]:
     """Extract tool names from SKILL.md — matches backtick-quoted names AND function call patterns.
 
