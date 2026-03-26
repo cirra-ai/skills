@@ -5,7 +5,7 @@ argument-hint: '[create|update|validate] [class|trigger|test-class] {name} ...'
 metadata:
   version: 2.0.1
 description: >
-  [create|update|validate] [class|trigger|test-class] {name} — Generates and reviews
+  [create|update|validate] [class|trigger|test-class] {name} ... — Generates and reviews
   Salesforce Apex code with best practices and 150-point scoring using the Cirra AI
   MCP Server. Use when writing Apex classes, triggers, test classes, batch
   jobs, or reviewing existing Apex code for bulkification, security, and SOLID principles.

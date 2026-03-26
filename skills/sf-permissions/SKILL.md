@@ -5,7 +5,7 @@ metadata:
   version: 2.0.1
 argument-hint: '[hierarchy|audit|analyze|create|clone|update|delete|agent-access] {target} ...'
 description: >
-  [hierarchy|audit|analyze|create|clone|update|delete|agent-access] {target} —
+  [hierarchy|audit|analyze|create|clone|update|delete|agent-access] ... —
   Permission Set analysis, hierarchy viewer, and "Who has X?" auditing. Use when
   analyzing permissions, visualizing PS/PSG hierarchies, finding which Permission Sets
   grant access to specific objects, fields, or Apex classes, or auditing user permissions

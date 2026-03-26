@@ -5,7 +5,7 @@ argument-hint: '[create|update|validate] {ComponentName} ...'
 metadata:
   version: 2.0.1
 description: >
-  [create|update|validate] {ComponentName} — Lightning Web Components development
+  [create|update|validate] {ComponentName} ... — Lightning Web Components development
   with PICKLES architecture methodology, component scaffolding, wire service patterns,
   event handling, Apex integration, GraphQL support, and Jest test generation. Powered
   by Cirra AI MCP Server for seamless metadata deployment.
