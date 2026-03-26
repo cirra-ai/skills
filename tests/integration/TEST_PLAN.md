@@ -18,19 +18,19 @@
 
 ## Overview
 
-This test plan exercises **all 4 skills** and **all 13 commands** in the `cirra-ai-sf`
+This test plan exercises **all 10 unified skills** in the `cirra-ai-sf`
 plugin end-to-end against a live Salesforce org via the Cirra AI MCP Server.
 
 The plan is divided into phases that must run in order:
 
-| Phase         | Script                     | Purpose                                                                  |
-| ------------- | -------------------------- | ------------------------------------------------------------------------ |
-| 0 — Smoke     | `00_smoke_test.md`         | 2-minute gate: verify MCP, data path, and metadata path are functional   |
-| 1a — Data     | `01a_setup_data.md`        | Insert all test data records (runs even if metadata path failed)         |
-| 1b — Metadata | `01b_setup_metadata.md`    | Create Apex, Flows, and LWC (gated on Phase 0 TC-003 passing)            |
-| 2 — Validate  | `02_validate_artifacts.md` | Run every `/validate-*` command and `/query-data` to confirm correctness |
-| 3 — Update    | `03_update_artifacts.md`   | Modify every artifact type and re-validate                               |
-| 4 — Audit     | `04_audit_and_report.md`   | Run `/audit-org`, generate reports, check completeness                   |
+| Phase         | Script                     | Purpose                                                                |
+| ------------- | -------------------------- | ---------------------------------------------------------------------- |
+| 0 — Smoke     | `00_smoke_test.md`         | 2-minute gate: verify MCP, data path, and metadata path are functional |
+| 1a — Data     | `01a_setup_data.md`        | Insert all test data records (runs even if metadata path failed)       |
+| 1b — Metadata | `01b_setup_metadata.md`    | Create Apex, Flows, and LWC (gated on Phase 0 TC-003 passing)          |
+| 2 — Validate  | `02_validate_artifacts.md` | Run every `/validate-*` command and `/sf-data` to confirm correctness  |
+| 3 — Update    | `03_update_artifacts.md`   | Modify every artifact type and re-validate                             |
+| 4 — Audit     | `04_audit_and_report.md`   | Run `/audit-org`, generate reports, check completeness                 |
 
 A cleanup script (`99_cleanup.md`) tears down all test artifacts.
 
@@ -94,30 +94,30 @@ whether Apex deployed successfully.
 
 ### Skills Covered
 
-| Skill            | Create           | Validate           | Update                  | Audit   |
-| ---------------- | ---------------- | ------------------ | ----------------------- | ------- |
-| cirra-ai-sf-data | Phase 1 (insert) | Phase 2 (query)    | Phase 3 (update/upsert) | Phase 4 |
-| cirra-ai-sf-apex | Phase 1 (create) | Phase 2 (validate) | Phase 3 (update)        | Phase 4 |
-| cirra-ai-sf-flow | Phase 1 (create) | Phase 2 (validate) | Phase 3 (update)        | Phase 4 |
-| cirra-ai-sf-lwc  | Phase 1 (create) | Phase 2 (validate) | Phase 3 (update)        | Phase 4 |
+| Skill   | Create           | Validate           | Update                  | Audit   |
+| ------- | ---------------- | ------------------ | ----------------------- | ------- |
+| sf-data | Phase 1 (insert) | Phase 2 (query)    | Phase 3 (update/upsert) | Phase 4 |
+| sf-apex | Phase 1 (create) | Phase 2 (validate) | Phase 3 (update)        | Phase 4 |
+| sf-flow | Phase 1 (create) | Phase 2 (validate) | Phase 3 (update)        | Phase 4 |
+| sf-lwc  | Phase 1 (create) | Phase 2 (validate) | Phase 3 (update)        | Phase 4 |
 
-### Commands Covered
+### Skill Dispatch Actions Covered
 
-| Command          | Phase(s) | Test Coverage                                                                  |
-| ---------------- | -------- | ------------------------------------------------------------------------------ |
-| `/insert-data`   | 1, 3     | Single insert, bulk 201+, hierarchy, CSV-style, upsert                         |
-| `/query-data`    | 2, 3     | Parent-child, child-parent, aggregate, polymorphic, semi/anti-join             |
-| `/validate-data` | 2        | Pre-flight on insert JSON, SOQL syntax, PII detection                          |
-| `/create-apex`   | 1        | Trigger+TAF action, Service, Selector, Batch, Queueable, Invocable, Test class |
-| `/validate-apex` | 2        | Single class, comma-list, `--all`                                              |
-| `/update-apex`   | 3        | Add method to service, modify trigger action logic                             |
-| `/create-flow`   | 1        | Before-save RT, After-save RT, Screen, Autolaunched, Scheduled, Platform Event |
-| `/validate-flow` | 2        | Single flow, comma-list, `--all`                                               |
-| `/update-flow`   | 3        | Add decision branch, add error handling, add screen                            |
-| `/create-lwc`    | 1        | Wire-based datatable, Form component, Flow screen, Modal, GraphQL              |
-| `/validate-lwc`  | 2        | Single component, comma-list, `--all`                                          |
-| `/update-lwc`    | 3        | Add dark mode CSS, add column, fix accessibility                               |
-| `/audit-org`     | 4        | Full org audit with Word/Excel/HTML report generation                          |
+| Invocation          | Phase(s) | Test Coverage                                                                  |
+| ------------------- | -------- | ------------------------------------------------------------------------------ |
+| `/sf-data insert`   | 1, 3     | Single insert, bulk 201+, hierarchy, CSV-style, upsert                         |
+| `/sf-data query`    | 2, 3     | Parent-child, child-parent, aggregate, polymorphic, semi/anti-join             |
+| `/sf-data validate` | 2        | Pre-flight on insert JSON, SOQL syntax, PII detection                          |
+| `/sf-apex create`   | 1        | Trigger+TAF action, Service, Selector, Batch, Queueable, Invocable, Test class |
+| `/sf-apex validate` | 2        | Single class, comma-list, `All`                                                |
+| `/sf-apex update`   | 3        | Add method to service, modify trigger action logic                             |
+| `/sf-flow create`   | 1        | Before-save RT, After-save RT, Screen, Autolaunched, Scheduled, Platform Event |
+| `/sf-flow validate` | 2        | Single flow, comma-list, `All`                                                 |
+| `/sf-flow update`   | 3        | Add decision branch, add error handling, add screen                            |
+| `/sf-lwc create`    | 1        | Wire-based datatable, Form component, Flow screen, Modal, GraphQL              |
+| `/sf-lwc validate`  | 2        | Single component, comma-list, `All`                                            |
+| `/sf-lwc update`    | 3        | Add dark mode CSS, add column, fix accessibility                               |
+| `/sf-audit`         | 4        | Full org audit with Word/Excel/HTML report generation                          |
 
 ### MCP Tools Exercised
 

@@ -1,0 +1,7 @@
+interface:
+  display_name: "Cirra AI Query Data"
+  short_description: "Query, insert, update, and manage Salesforce data using Cirra AI"
+  icon_small: "./assets/icon-small.png"
+  icon_large: "./assets/icon-large.png"
+  brand_color: "#4068EB"
+  default_prompt: "Use $sf-data to manage Salesforce data."

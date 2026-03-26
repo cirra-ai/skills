@@ -10,7 +10,7 @@ name: Publish Skill
 #   5. Creates a GitHub release (which triggers Build & Publish to package and deploy)
 #
 # Usage:
-#   gh workflow run publish-skill.yml -f skill=cirra-ai-sf-apex
+#   gh workflow run publish-skill.yml -f skill=sf-apex
 
 on:
   workflow_dispatch:
@@ -20,16 +20,16 @@ on:
         required: true
         type: choice
         options:
-          - cirra-ai-sf-apex
-          - cirra-ai-sf-audit
-          - cirra-ai-sf-data
-          - cirra-ai-sf-diagram
-          - cirra-ai-sf-flow
-          - cirra-ai-sf-kugamon
-          - cirra-ai-sf-lwc
-          - cirra-ai-sf-metadata
-          - cirra-ai-sf-permissions
-          - cirra-ai-sf-ordermgt
+          - sf-apex
+          - sf-audit
+          - sf-data
+          - sf-diagram
+          - sf-flow
+          - sf-kugamon
+          - sf-lwc
+          - sf-metadata
+          - sf-permissions
+          - sf-orders
 
 permissions:
   contents: write

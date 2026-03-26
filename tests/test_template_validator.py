@@ -1,8 +1,8 @@
-"""Tests for skills/cirra-ai-sf-lwc/scripts/template_validator.py"""
+"""Tests for skills/sf-lwc/scripts/template_validator.py"""
 
 from conftest import load_script
 
-mod = load_script("skills/cirra-ai-sf-lwc/scripts/template_validator.py")
+mod = load_script("skills/sf-lwc/scripts/template_validator.py")
 LWCTemplateValidator = mod.LWCTemplateValidator
 
 
