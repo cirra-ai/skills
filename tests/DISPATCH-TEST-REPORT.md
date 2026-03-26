@@ -2,19 +2,19 @@
 
 ## Summary
 
-| Skill | Tests | Phase 1 Pass | Phase 1 Defect |
-| --- | --- | --- | --- |
-| sf-apex | 9 | 9 | 0 |
-| sf-audit | 8 | 8 | 0 |
-| sf-data | 9 | 9 | 0 |
-| sf-diagram | 10 | 10 | 0 |
-| sf-flow | 8 | 8 | 0 |
-| sf-kugamon | 8 | 8 | 0 |
-| sf-lwc | 8 | 8 | 0 |
-| sf-metadata | 8 | 8 | 0 |
-| sf-orders | 9 | 9 | 0 |
-| sf-permissions | 12 | 12 | 0 |
-| **TOTAL** | **88** | **88** | **0** |
+| Skill          | Tests  | Phase 1 Pass | Phase 1 Defect |
+| -------------- | ------ | ------------ | -------------- |
+| sf-apex        | 9      | 9            | 0              |
+| sf-audit       | 8      | 8            | 0              |
+| sf-data        | 9      | 9            | 0              |
+| sf-diagram     | 10     | 10           | 0              |
+| sf-flow        | 8      | 8            | 0              |
+| sf-kugamon     | 8      | 8            | 0              |
+| sf-lwc         | 8      | 8            | 0              |
+| sf-metadata    | 8      | 8            | 0              |
+| sf-orders      | 9      | 9            | 0              |
+| sf-permissions | 12     | 12           | 0              |
+| **TOTAL**      | **88** | **88**       | **0**          |
 
 **Pass rate**: 100% (88/88 pass after defect fixes)
 
@@ -67,19 +67,19 @@ All 88 test cases were run through model agents (one agent per skill, Sonnet). E
 
 ### Phase 2 Summary
 
-| Skill | Tests | Phase 2 Pass | Phase 2 Fail |
-| --- | --- | --- | --- |
-| sf-apex | 9 | 9 | 0 |
-| sf-audit | 8 | 8 | 0 |
-| sf-data | 9 | 9 | 0 |
-| sf-diagram | 9 | 9 | 0 |
-| sf-flow | 8 | 8 | 0 |
-| sf-kugamon | 7 | 7 | 0 |
-| sf-lwc | 8 | 8 | 0 |
-| sf-metadata | 7 | 7 | 0 |
-| sf-orders | 7 | 7 | 0 |
-| sf-permissions | 12 | 12 | 0 |
-| **TOTAL** | **88** | **88** | **0** |
+| Skill          | Tests  | Phase 2 Pass | Phase 2 Fail |
+| -------------- | ------ | ------------ | ------------ |
+| sf-apex        | 9      | 9            | 0            |
+| sf-audit       | 8      | 8            | 0            |
+| sf-data        | 9      | 9            | 0            |
+| sf-diagram     | 9      | 9            | 0            |
+| sf-flow        | 8      | 8            | 0            |
+| sf-kugamon     | 7      | 7            | 0            |
+| sf-lwc         | 8      | 8            | 0            |
+| sf-metadata    | 7      | 7            | 0            |
+| sf-orders      | 7      | 7            | 0            |
+| sf-permissions | 12     | 12           | 0            |
+| **TOTAL**      | **88** | **88**       | **0**        |
 
 ### Phase 2 Observations
 
@@ -105,14 +105,14 @@ All 88 test cases were run through model agents (one agent per skill, Sonnet). E
 
 All follow-up skills referenced in test cases exist as directories:
 
-| Skill | References | Valid |
-| --- | --- | --- |
-| sf-audit | sf-apex, sf-flow, sf-lwc, sf-metadata, sf-permissions | Yes |
-| sf-data | sf-metadata | Yes |
-| sf-diagram | sf-metadata, sf-permissions, sf-flow | Yes |
-| sf-flow | sf-data, sf-metadata | Yes |
-| sf-metadata | sf-data, sf-permissions, sf-diagram | Yes |
-| sf-permissions | sf-data, sf-diagram, sf-metadata | Yes |
+| Skill          | References                                            | Valid |
+| -------------- | ----------------------------------------------------- | ----- |
+| sf-audit       | sf-apex, sf-flow, sf-lwc, sf-metadata, sf-permissions | Yes   |
+| sf-data        | sf-metadata                                           | Yes   |
+| sf-diagram     | sf-metadata, sf-permissions, sf-flow                  | Yes   |
+| sf-flow        | sf-data, sf-metadata                                  | Yes   |
+| sf-metadata    | sf-data, sf-permissions, sf-diagram                   | Yes   |
+| sf-permissions | sf-data, sf-diagram, sf-metadata                      | Yes   |
 
 No stale `cirra-ai-sf-*` references found in any SKILL.md.
 

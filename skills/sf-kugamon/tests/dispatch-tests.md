@@ -104,10 +104,10 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 ## no arguments — user provides no hint
 
 - **Input**: `/sf-kugamon`
-- **Dispatch**: Quote Creation
+- **Dispatch**: (none — present menu)
 - **Init required**: yes
 - **Init timing**: before-menu (init needed before presenting menu — SKILL.md says "do not ask for org details before calling cirra_ai_init")
-- **Path**: full
+- **Path**: n/a
 - **First tool**: `cirra_ai_init`
 - **Tool params**: `(none)`
 - **Should call**: `cirra_ai_init`, `sobject_describe`

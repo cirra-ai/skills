@@ -151,4 +151,4 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Should NOT call**: `sobject_dml`, `metadata_create`
 - **Follow-up skills**: `sf-data` (run the query once fields/filters are confirmed), `sf-metadata` (inspect Account schema)
 
-**Notes**: A bare object name routes to Query Data per the dispatch table ("an object name"). But the workflow says to "ask what fields/filters to apply" when only an object name is given — don't blindly SELECT * FROM Account.
+**Notes**: A bare object name routes to Query Data per the dispatch table ("an object name"). But the workflow says to "ask what fields/filters to apply" when only an object name is given — don't blindly SELECT \* FROM Account.

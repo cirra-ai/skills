@@ -40,23 +40,23 @@ Each test case in `dispatch-tests.md` uses this structure:
 
 ### Field Definitions
 
-| Field | Required | Description |
-| --- | --- | --- |
-| Input | yes | The exact user prompt including `/skill-name` |
-| Dispatch | yes | Expected workflow name from dispatch table, or `(none — present menu)` / `(ambiguous)` |
-| Init required | yes | Whether `cirra_ai_init()` must be called for this operation |
-| Init timing | yes | `before-workflow` = init then execute; `before-menu` = init then present menu (when init is needed for capability detection); `after-menu` = present menu first, init after user selects; `n/a` = no init needed |
-| Path | yes | `fast` = simple request, bypass full workflow; `full` = multi-step workflow; `n/a` = no workflow selected |
-| First tool | no | First MCP tool expected after init |
-| Tool params | no | Key parameters for the first tool call |
-| Should call | no | Additional tools expected during the workflow |
-| Should NOT call | no | Tools that must NOT be called for this input |
-| Should ask user | yes | Whether the model should prompt for clarification |
-| Menu options | no | Expected menu items (only for no-args/ambiguous tests) |
-| Post-action | no | Required follow-up action (e.g., FLS prompt after field creation) |
-| Batch limit | no | Record batch constraints (for DML operations) |
-| Follow-up skills | no | Skills that should be offered as next steps |
-| Notes | no | Free-text behavioral expectations and edge case notes |
+| Field            | Required | Description                                                                                                                                                                                                      |
+| ---------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Input            | yes      | The exact user prompt including `/skill-name`                                                                                                                                                                    |
+| Dispatch         | yes      | Expected workflow name from dispatch table, or `(none — present menu)` / `(ambiguous)`                                                                                                                           |
+| Init required    | yes      | Whether `cirra_ai_init()` must be called for this operation                                                                                                                                                      |
+| Init timing      | yes      | `before-workflow` = init then execute; `before-menu` = init then present menu (when init is needed for capability detection); `after-menu` = present menu first, init after user selects; `n/a` = no init needed |
+| Path             | yes      | `fast` = simple request, bypass full workflow; `full` = multi-step workflow; `n/a` = no workflow selected                                                                                                        |
+| First tool       | no       | First MCP tool expected after init                                                                                                                                                                               |
+| Tool params      | no       | Key parameters for the first tool call                                                                                                                                                                           |
+| Should call      | no       | Additional tools expected during the workflow                                                                                                                                                                    |
+| Should NOT call  | no       | Tools that must NOT be called for this input                                                                                                                                                                     |
+| Should ask user  | yes      | Whether the model should prompt for clarification                                                                                                                                                                |
+| Menu options     | no       | Expected menu items (only for no-args/ambiguous tests)                                                                                                                                                           |
+| Post-action      | no       | Required follow-up action (e.g., FLS prompt after field creation)                                                                                                                                                |
+| Batch limit      | no       | Record batch constraints (for DML operations)                                                                                                                                                                    |
+| Follow-up skills | no       | Skills that should be offered as next steps                                                                                                                                                                      |
+| Notes            | no       | Free-text behavioral expectations and edge case notes                                                                                                                                                            |
 
 ---
 
@@ -176,18 +176,18 @@ VERIFICATION RULES — you MUST check each of these:
 
 Compare the model's response against the test case expectations:
 
-| Check | Expected (from test case) | Actual (from model response) | Result |
-| --- | --- | --- | --- |
-| Dispatch routing | `Dispatch` field | Model's "Dispatch decision" | PASS/FAIL |
-| Init behavior | `Init required` + `Init timing` | Model's "Init" answer | PASS/FAIL |
-| First tool | `First tool` + `Tool params` | First tool in model's "Tool sequence" | PASS/FAIL |
-| Required tools | `Should call` | Present in model's "Tool sequence" | PASS/FAIL |
-| Excluded tools | `Should NOT call` | Absent from model's "Tool sequence" + "Tools NOT called" | PASS/FAIL |
-| User interaction | `Should ask user` | Model's "User interaction" | PASS/FAIL |
-| Menu content | `Menu options` | Options presented in model's response | PASS/FAIL |
-| Follow-up skills | `Follow-up skills` | Skills mentioned in model's "Follow-up" | PASS/WARN |
-| Post-action | `Post-action` | Present in model's workflow | PASS/FAIL |
-| Notes criteria | `Notes` free-text | Manual review against model behavior | PASS/WARN |
+| Check            | Expected (from test case)       | Actual (from model response)                             | Result    |
+| ---------------- | ------------------------------- | -------------------------------------------------------- | --------- |
+| Dispatch routing | `Dispatch` field                | Model's "Dispatch decision"                              | PASS/FAIL |
+| Init behavior    | `Init required` + `Init timing` | Model's "Init" answer                                    | PASS/FAIL |
+| First tool       | `First tool` + `Tool params`    | First tool in model's "Tool sequence"                    | PASS/FAIL |
+| Required tools   | `Should call`                   | Present in model's "Tool sequence"                       | PASS/FAIL |
+| Excluded tools   | `Should NOT call`               | Absent from model's "Tool sequence" + "Tools NOT called" | PASS/FAIL |
+| User interaction | `Should ask user`               | Model's "User interaction"                               | PASS/FAIL |
+| Menu content     | `Menu options`                  | Options presented in model's response                    | PASS/FAIL |
+| Follow-up skills | `Follow-up skills`              | Skills mentioned in model's "Follow-up"                  | PASS/WARN |
+| Post-action      | `Post-action`                   | Present in model's workflow                              | PASS/FAIL |
+| Notes criteria   | `Notes` free-text               | Manual review against model behavior                     | PASS/WARN |
 
 ### Phase 2 Result
 
@@ -206,6 +206,7 @@ python3 tests/validate_dispatch_tests.py sf-metadata   # one skill
 
 This script mechanically validates every test case against its SKILL.md.
 No LLM involved — pure string matching. It checks:
+
 - Dispatch values match SKILL.md dispatch table rows
 - Every tool in Should call / First tool exists in SKILL.md
 - No tool appears in both Should call and Should NOT call
@@ -215,7 +216,6 @@ No LLM involved — pure string matching. It checks:
 - Init timing is consistent with Init required
 
 **Phase 2 agents must NOT run until Phase 1 passes with 0 defects.**
-
 
 ### Quick Run (Phase 1 only)
 
@@ -303,18 +303,18 @@ Based on failures and warnings, recommend:
 
 ## Skill Coverage
 
-| Skill | Test file | Tests |
-| --- | --- | --- |
-| sf-apex | `skills/sf-apex/tests/dispatch-tests.md` | create trigger, create test-class, update class, validate name, validate file, validate All, no-args, fast path, ambiguous |
-| sf-audit | `skills/sf-audit/tests/dispatch-tests.md` | (see file) |
-| sf-data | `skills/sf-data/tests/dispatch-tests.md` | raw SOQL, NL query, build-query, insert, bulk delete, validate, describe, no-args, bare object |
-| sf-diagram | `skills/sf-diagram/tests/dispatch-tests.md` | (see file) |
-| sf-flow | `skills/sf-flow/tests/dispatch-tests.md` | (see file) |
-| sf-kugamon | `skills/sf-kugamon/tests/dispatch-tests.md` | (see file) |
-| sf-lwc | `skills/sf-lwc/tests/dispatch-tests.md` | (see file) |
-| sf-metadata | `skills/sf-metadata/tests/dispatch-tests.md` | describe, create field, update, delete, no-args, ambiguous, describe-all |
-| sf-orders | `skills/sf-orders/tests/dispatch-tests.md` | (see file) |
-| sf-permissions | `skills/sf-permissions/tests/dispatch-tests.md` | hierarchy, who-has, user trace, debug, audit, create/clone/update/delete PS, agent-access, no-args, NL field access |
+| Skill          | Test file                                       | Tests                                                                                                                      |
+| -------------- | ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| sf-apex        | `skills/sf-apex/tests/dispatch-tests.md`        | create trigger, create test-class, update class, validate name, validate file, validate All, no-args, fast path, ambiguous |
+| sf-audit       | `skills/sf-audit/tests/dispatch-tests.md`       | (see file)                                                                                                                 |
+| sf-data        | `skills/sf-data/tests/dispatch-tests.md`        | raw SOQL, NL query, build-query, insert, bulk delete, validate, describe, no-args, bare object                             |
+| sf-diagram     | `skills/sf-diagram/tests/dispatch-tests.md`     | (see file)                                                                                                                 |
+| sf-flow        | `skills/sf-flow/tests/dispatch-tests.md`        | (see file)                                                                                                                 |
+| sf-kugamon     | `skills/sf-kugamon/tests/dispatch-tests.md`     | (see file)                                                                                                                 |
+| sf-lwc         | `skills/sf-lwc/tests/dispatch-tests.md`         | (see file)                                                                                                                 |
+| sf-metadata    | `skills/sf-metadata/tests/dispatch-tests.md`    | describe, create field, update, delete, no-args, ambiguous, describe-all                                                   |
+| sf-orders      | `skills/sf-orders/tests/dispatch-tests.md`      | (see file)                                                                                                                 |
+| sf-permissions | `skills/sf-permissions/tests/dispatch-tests.md` | hierarchy, who-has, user trace, debug, audit, create/clone/update/delete PS, agent-access, no-args, NL field access        |
 
 ---
 
@@ -325,15 +325,19 @@ Based on failures and warnings, recommend:
 Every entry in the report must be self-contained. Do not add cryptic column values like "edge case with conflicting keywords tested" or "lwc test has nuanced soql_query scope note" without explaining what they mean. If a test case has a nuance worth noting, explain it fully inline:
 
 **Bad**:
+
 ```
 | sf-audit | 8 | 8 | 0 | lwc test has nuanced soql_query scope note |
 ```
 
 **Good**:
+
 ```
 | sf-audit | 8 | 8 | 0 |
 ```
+
 With a separate section:
+
 ```
 ### sf-audit: soql_query scope in LWC test
 
@@ -362,6 +366,7 @@ When running Phase 2, agents may miscount tests in their summary lines (e.g., re
 After all Phase 2 agents complete:
 
 1. **Count test cases in each dispatch-tests.md file**:
+
    ```
    For each skills/sf-*/tests/dispatch-tests.md:
      Count the number of ## headings (excluding the file header)

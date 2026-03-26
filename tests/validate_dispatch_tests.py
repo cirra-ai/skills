@@ -280,8 +280,8 @@ def validate_skill(skill_name: str) -> list[Issue]:
             if "called first" in notes.lower() or "before" in notes.lower():
                 issues.append(Issue(
                     skill_name, name, "1.7 Init Consistency",
-                    f"Init timing is after-menu but Notes describe init being called first. "
-                    f"Should this be before-menu?"
+                    "Init timing is after-menu but Notes describe init being called first. "
+                    "Should this be before-menu?"
                 ))
 
     return issues
