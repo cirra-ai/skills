@@ -3,16 +3,13 @@ name: sf-audit
 plugin: cirra-ai-sf
 argument-hint: '[full|apex|flow|lwc|metadata|permissions] ...'
 description: >
-  Run a comprehensive Salesforce org audit. Inventories and scores Apex classes,
-  Apex triggers, Flows, Process Builders, Workflow Rules, LWC components, custom
-  objects and fields, validation rules, Profiles, and Permission Sets. Generates
-  Word, Excel, and HTML reports. Supports incremental audits that only re-score
-  changed components. Use when asked to audit a Salesforce org, review org
-  health, generate an org inventory, run an org health check, audit permissions,
-  review the data model, or audit apex flows and lwc.
-  Usage: /sf-audit [full|apex|flow|lwc|metadata|permissions]
+  [full|apex|flow|lwc|metadata|permissions] — Run a comprehensive Salesforce org
+  audit. Inventories and scores Apex classes, triggers, Flows, Process Builders,
+  Workflow Rules, LWC components, custom objects/fields, validation rules, Profiles,
+  and Permission Sets. Generates Word, Excel, and HTML reports. Use when asked to
+  audit a Salesforce org, review org health, or run an org health check.
 metadata:
-  version: 2.0.0
+  version: 2.0.1
 ---
 
 # Salesforce Org Audit

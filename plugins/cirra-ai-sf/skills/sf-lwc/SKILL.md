@@ -3,14 +3,12 @@ name: sf-lwc
 plugin: cirra-ai-sf
 argument-hint: '[create|update|validate] {ComponentName} ...'
 metadata:
-  version: 2.0.0
+  version: 2.0.1
 description: >
-  Lightning Web Components development skill with PICKLES architecture methodology,
-  component scaffolding, wire service patterns, event handling, Apex integration,
-  GraphQL support, and Jest test generation. Build modern Salesforce UIs with
-  proper reactivity, accessibility, dark mode compatibility, and performance patterns.
-  Powered by Cirra AI MCP Server for seamless metadata deployment.
-  Usage: /sf-lwc [create|update|validate] {ComponentName}
+  [create|update|validate] {ComponentName} — Lightning Web Components development
+  with PICKLES architecture methodology, component scaffolding, wire service patterns,
+  event handling, Apex integration, GraphQL support, and Jest test generation. Powered
+  by Cirra AI MCP Server for seamless metadata deployment.
 ---
 
 # Salesforce Lightning Web Components

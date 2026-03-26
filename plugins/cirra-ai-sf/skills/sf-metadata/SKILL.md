@@ -3,12 +3,11 @@ name: sf-metadata
 plugin: cirra-ai-sf
 argument-hint: '[create|update|delete|describe] {ObjectName|FieldName|type} ...'
 metadata:
-  version: 2.0.0
+  version: 2.0.1
 description: >
-  Salesforce metadata operations expert. Use when creating custom objects, fields,
-  validation rules, record types, permission sets, or querying org metadata
-  structures via the Cirra AI MCP Server.
-  Usage: /sf-metadata [create|update|delete|describe] {ObjectName|FieldName|type}
+  [create|update|delete|describe] {ObjectName|FieldName|type} — Salesforce metadata
+  operations expert. Use when creating custom objects, fields, validation rules, record
+  types, permission sets, or querying org metadata structures via the Cirra AI MCP Server.
 ---
 
 # Salesforce Metadata Operations Expert
