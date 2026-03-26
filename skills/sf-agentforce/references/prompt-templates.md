@@ -1,4 +1,4 @@
-<!-- Parent: cirra-ai-sf-agentforce/SKILL.md -->
+<!-- Parent: sf-agentforce/SKILL.md -->
 <!-- TIER: 3 | DETAILED REFERENCE -->
 <!-- Read after: SKILL.md -->
 <!-- Purpose: PromptTemplate metadata and generatePromptResponse:// actions -->

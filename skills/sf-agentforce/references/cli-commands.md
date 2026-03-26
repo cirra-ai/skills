@@ -1,4 +1,4 @@
-<!-- Parent: cirra-ai-sf-agentforce/SKILL.md -->
+<!-- Parent: sf-agentforce/SKILL.md -->
 <!-- TIER: 2 | DETAILED REFERENCE -->
 <!-- Read after: SKILL.md -->
 <!-- Purpose: CLI command reference for agent lifecycle, generation, and publishing -->

@@ -1,21 +1,44 @@
 ---
-name: cirra-ai-sf-agentforce
+name: sf-agentforce
+plugin: cirra-ai-sf
+argument-hint: '[create|configure|validate|deploy] [agent|topic|action|prompt-template] <Name> ...'
+metadata:
+  version: 2.0.0
 description: >
   Agentforce platform agent building via Setup UI and Cirra AI MCP Server.
   TRIGGER when: user maintains or configures agents via the Setup UI / Agent Builder path,
   creates topics/actions, writes PromptTemplates, touches .genAiFunction/.genAiPlugin/.promptTemplate
   metadata XML files, or works with Einstein Models API in Apex.
   DO NOT TRIGGER when: agent testing, persona design, or general Flow/Apex creation
-  (use cirra-ai-sf-flow / cirra-ai-sf-apex).
-metadata:
-  version: 1.0.0
+  (use sf-flow / sf-apex).
 ---
 
-# cirra-ai-sf-agentforce: Salesforce Agentforce Platform Development (Cirra AI)
+# Salesforce Agentforce Platform Development
 
 Expert Agentforce developer specializing in the **Setup UI / Agentforce Builder** approach to agent development. Covers topic and action configuration, GenAiFunction/GenAiPlugin metadata, PromptTemplate authoring, Einstein Models API, and custom Lightning types. Uses Cirra AI MCP Server for deployment.
 
 > **Legacy Path**: This skill covers the Setup UI / Agent Builder approach (GenAiPlannerBundle metadata). For new agent development using the Agent Script DSL (AiAuthoringBundle), use a dedicated Agent Script skill.
+
+## Dispatch
+
+Parse `$ARGUMENTS` to determine which action workflow to run:
+
+| First argument or intent                 | Workflow                     |
+| ---------------------------------------- | ---------------------------- |
+| `create`, new agent/topic/action request | Create Agent Components      |
+| `configure`, modify existing agent       | Configure Agent              |
+| `validate`, review, score                | Validate Agent Configuration |
+| `deploy`, publish, activate              | Deploy & Publish Agent       |
+| _(no argument or unclear)_               | Ask the user (see below)     |
+
+When intent is unclear, present:
+
+> What would you like to do?
+>
+> 1. **Create** — set up a new agent, topic, action, or prompt template
+> 2. **Configure** — modify an existing agent's topics, actions, or settings
+> 3. **Validate** — score an agent configuration (100-point system)
+> 4. **Deploy** — deploy metadata and publish/activate the agent
 
 ---
 
@@ -417,37 +440,37 @@ force-app/main/default/lightningTypeBundles/OrderDetails/
 **Prerequisite skills must run in this order:**
 
 ```
-cirra-ai-sf-metadata → cirra-ai-sf-apex → cirra-ai-sf-flow → cirra-ai-sf-agentforce → deploy
+sf-metadata → sf-apex → sf-flow → sf-agentforce → deploy
 ```
 
 **Why this order:**
 
-1. **cirra-ai-sf-metadata** — Custom objects/fields must exist before Apex/Flows reference them
-2. **cirra-ai-sf-apex** — InvocableMethod classes must be deployed before Flows or GenAiFunctions reference them
-3. **cirra-ai-sf-flow** — Flows must be active before GenAiFunctions can target them
-4. **cirra-ai-sf-agentforce** (this skill) — GenAiFunction/GenAiPlugin metadata and agent configuration
+1. **sf-metadata** — Custom objects/fields must exist before Apex/Flows reference them
+2. **sf-apex** — InvocableMethod classes must be deployed before Flows or GenAiFunctions reference them
+3. **sf-flow** — Flows must be active before GenAiFunctions can target them
+4. **sf-agentforce** (this skill) — GenAiFunction/GenAiPlugin metadata and agent configuration
 5. **Deploy** — Final deployment and agent publishing
 
 **MANDATORY Delegations:**
 
-| Requirement   | Delegate To                        | Why                                           |
-| ------------- | ---------------------------------- | --------------------------------------------- |
-| Flow creation | Use the **cirra-ai-sf-flow** skill | 110-point validation, proper XML              |
-| Apex creation | Use the **cirra-ai-sf-apex** skill | InvocableMethod generation, 150-point scoring |
+| Requirement   | Delegate To               | Why                                           |
+| ------------- | ------------------------- | --------------------------------------------- |
+| Flow creation | Use the **sf-flow** skill | 110-point validation, proper XML              |
+| Apex creation | Use the **sf-apex** skill | InvocableMethod generation, 150-point scoring |
 
 ---
 
 ## Cross-Skill Integration
 
-| Skill                       | Purpose                    | When to Use                                         |
-| --------------------------- | -------------------------- | --------------------------------------------------- |
-| **cirra-ai-sf-flow**        | Flow actions               | Creating Autolaunched Flows for agent actions       |
-| **cirra-ai-sf-apex**        | Apex actions               | Writing InvocableMethod classes for agent actions   |
-| **cirra-ai-sf-metadata**    | Object/field setup         | Creating SObjects and fields that actions reference |
-| **cirra-ai-sf-lwc**         | Custom UI                  | Creating screen components for agent UIs            |
-| **cirra-ai-sf-permissions** | Permission management      | Permission sets for agent users                     |
-| **cirra-ai-sf-data**        | Data operations            | Query or update data for agent testing              |
-| **cirra-ai-sf-diagram**     | Architecture visualization | Visualize agent topology and permission hierarchies |
+| Skill              | Purpose                    | When to Use                                         |
+| ------------------ | -------------------------- | --------------------------------------------------- |
+| **sf-flow**        | Flow actions               | Creating Autolaunched Flows for agent actions       |
+| **sf-apex**        | Apex actions               | Writing InvocableMethod classes for agent actions   |
+| **sf-metadata**    | Object/field setup         | Creating SObjects and fields that actions reference |
+| **sf-lwc**         | Custom UI                  | Creating screen components for agent UIs            |
+| **sf-permissions** | Permission management      | Permission sets for agent users                     |
+| **sf-data**        | Data operations            | Query or update data for agent testing              |
+| **sf-diagram**     | Architecture visualization | Visualize agent topology and permission hierarchies |
 
 ### Integration Patterns
 
@@ -559,13 +582,13 @@ Manage agent state via CLI (`cli` mode only — requires agent to be published f
 
 **Cross-Skill References**
 
-| Need                            | Skill                   |
-| ------------------------------- | ----------------------- |
-| Flow creation for actions       | cirra-ai-sf-flow        |
-| Apex InvocableMethod classes    | cirra-ai-sf-apex        |
-| Custom objects/fields           | cirra-ai-sf-metadata    |
-| LWC for custom UIs              | cirra-ai-sf-lwc         |
-| Permission sets for agent users | cirra-ai-sf-permissions |
+| Need                            | Skill          |
+| ------------------------------- | -------------- |
+| Flow creation for actions       | sf-flow        |
+| Apex InvocableMethod classes    | sf-apex        |
+| Custom objects/fields           | sf-metadata    |
+| LWC for custom UIs              | sf-lwc         |
+| Permission sets for agent users | sf-permissions |
 
 ---
 
@@ -574,6 +597,7 @@ Manage agent state via CLI (`cli` mode only — requires agent to be published f
 | Version   | Date       | Changes                                                                                                                                                                     |
 | --------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **1.0.0** | 2026-03-12 | Initial migration from sf-ai-agentforce. Added 3 execution modes (sfdx-repo, cli, cloud), Cirra AI MCP Server integration, cross-skill references to cirra-ai-sf-\* skills. |
+| **2.0.0** | 2026-03-26 | Renamed from cirra-ai-sf-agentforce to sf-agentforce. Added dispatch menu, argument-hint, plugin frontmatter key. Updated all cross-references to sf-\* naming convention.  |
 
 ---
 

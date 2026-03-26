@@ -1,4 +1,4 @@
-<!-- Parent: cirra-ai-sf-agentforce/SKILL.md -->
+<!-- Parent: sf-agentforce/SKILL.md -->
 <!-- TIER: 3 | DETAILED REFERENCE -->
 <!-- Read after: SKILL.md -->
 <!-- Purpose: Native AI API (aiplatform.ModelsAPI) patterns for Apex -->

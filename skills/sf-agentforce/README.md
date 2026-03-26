@@ -1,4 +1,4 @@
-# cirra-ai-sf-agentforce
+# sf-agentforce
 
 Standard Agentforce platform skill for Setup UI-based agent building, PromptTemplate metadata, Einstein Models API, GenAiFunction/GenAiPlugin setup, and custom Lightning types.
 
@@ -17,12 +17,12 @@ Standard Agentforce platform skill for Setup UI-based agent building, PromptTemp
 
 ## What This Skill Does NOT Cover
 
-| Area                                     | Use Instead                 |
-| ---------------------------------------- | --------------------------- |
-| Agent Script DSL (`.agent` files)        | Agent Script skill          |
-| Agent testing & coverage                 | Out of scope for this skill |
-| Flow creation for actions                | cirra-ai-sf-flow            |
-| Apex InvocableMethod classes for actions | cirra-ai-sf-apex            |
+| Area                                     | Use Instead        |
+| ---------------------------------------- | ------------------ |
+| Agent Script DSL (`.agent` files)        | Agent Script skill |
+| Agent testing & coverage                 | Out of scope       |
+| Flow creation for actions                | sf-flow            |
+| Apex InvocableMethod classes for actions | sf-apex            |
 
 ## Installation
 
@@ -33,14 +33,15 @@ For full installation instructions (Claude Cowork, OpenAI Codex, browser), see t
 ### In Claude Cowork or Claude Code
 
 ```
-Skill: cirra-ai-sf-agentforce
-Request: "Set up a GenAiFunction for my Apex discount calculator"
+/sf-agentforce
+/sf-agentforce create GenAiFunction for my Apex discount calculator
+/sf-agentforce validate MyAgent
 ```
 
 ### In OpenAI Codex or other tools
 
 ```
-Skill: cirra-ai-sf-agentforce
+Skill: sf-agentforce
 Request: "Create a PromptTemplate for case summarization"
 ```
 
@@ -93,18 +94,18 @@ The skill auto-detects the best available mode. In `sfdx-repo` mode, GenAiFuncti
 
 ## Cross-Skill Integration
 
-| Related Skill           | When to Use                                       |
-| ----------------------- | ------------------------------------------------- |
-| cirra-ai-sf-apex        | Create @InvocableMethod for agent actions         |
-| cirra-ai-sf-flow        | Create Autolaunched Flows for agent actions       |
-| cirra-ai-sf-metadata    | Deploy custom objects BEFORE agents               |
-| cirra-ai-sf-lwc         | Create screen components for custom Lightning UIs |
-| cirra-ai-sf-permissions | Review permission sets for agent users            |
+| Related Skill  | When to Use                                       |
+| -------------- | ------------------------------------------------- |
+| sf-apex        | Create @InvocableMethod for agent actions         |
+| sf-flow        | Create Autolaunched Flows for agent actions       |
+| sf-metadata    | Deploy custom objects BEFORE agents               |
+| sf-lwc         | Create screen components for custom Lightning UIs |
+| sf-permissions | Review permission sets for agent users            |
 
 ## Orchestration Order
 
 ```
-cirra-ai-sf-metadata → cirra-ai-sf-apex → cirra-ai-sf-flow → cirra-ai-sf-agentforce → deploy
+sf-metadata → sf-apex → sf-flow → sf-agentforce → deploy
 ```
 
 ## License
