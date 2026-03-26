@@ -221,7 +221,7 @@ WHERE kugo2p__Opportunity__c = '<opportunity_id>'
 
 **Prerequisites:** Billing address complete, contact identified.
 
-**Tool:** Use `sobject_dml` with `operation: "insert"` to create the quote record (`kugo2p__SalesQuote__c`). Do NOT use `sobject_create` — that tool is for metadata (custom objects/fields), not data records.
+**Tool:** Use `sobject_dml` with `operation: "insert"` to create the quote record (`kugo2p__SalesQuote__c`).
 
 Use only these createable fields:
 
