@@ -15,13 +15,13 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Path**: full
 - **First tool**: `cirra_ai_init`
 - **Tool params**: `(none)`
-- **Should call**: `cirra_ai_init`, `sobject_describe`, `soql_query`, `sobject_create`
-- **Should NOT call**: `sobject_dml`
+- **Should call**: `cirra_ai_init`, `sobject_describe`, `soql_query`, `sobject_dml`
+- **Should NOT call**: `sobject_create` (that tool is for metadata, not data records)
 - **Should ask user**: yes (confirm org if default is set; select billing contact from account contacts)
 - **Menu options**: n/a
 - **Follow-up skills**: `sf-kugamon`
 
-**Notes**: Full quote creation path. After `cirra_ai_init`, the skill detects kuga_sub via `sobject_describe` on `OpportunityLineItem`. It then runs pre-creation checks (billing address and contact validation via `soql_query`), queries the opportunity, checks for existing quotes, and creates the quote via `sobject_create`. If HAS_KUGA_SUB is true, also queries `kuga_sub__KugamonSettings__c` to set HAS_SUB_MGMT.
+**Notes**: Full quote creation path. After `cirra_ai_init`, the skill detects kuga_sub via `sobject_describe` on `OpportunityLineItem`. It then runs pre-creation checks (billing address and contact validation via `soql_query`), queries the opportunity, checks for existing quotes, and creates the quote via `sobject_dml` with `operation: "insert"`. If HAS_KUGA_SUB is true, also queries `kuga_sub__KugamonSettings__c` to set HAS_SUB_MGMT.
 
 ---
 
@@ -35,7 +35,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **First tool**: `cirra_ai_init`
 - **Tool params**: `(none)`
 - **Should call**: `cirra_ai_init`, `sobject_describe`, `soql_query`, `sobject_update`
-- **Should NOT call**: `sobject_create`
+- **Should NOT call**: `sobject_create` (metadata tool, not for data records)
 - **Should ask user**: no
 - **Menu options**: n/a
 - **Follow-up skills**: `sf-kugamon`
@@ -72,8 +72,8 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Path**: full
 - **First tool**: `cirra_ai_init`
 - **Tool params**: `(none)`
-- **Should call**: `cirra_ai_init`, `sobject_describe`, `soql_query`, `sobject_create`
-- **Should NOT call**: `sobject_dml`
+- **Should call**: `cirra_ai_init`, `sobject_describe`, `soql_query`, `sobject_dml`
+- **Should NOT call**: `sobject_create` (metadata tool, not for data records)
 - **Should ask user**: yes (confirm contact and billing address before quote creation)
 - **Menu options**: n/a
 - **Follow-up skills**: `sf-kugamon`
@@ -129,10 +129,10 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Path**: full
 - **First tool**: `cirra_ai_init`
 - **Tool params**: `(none)`
-- **Should call**: `cirra_ai_init`, `sobject_describe`, `soql_query`, `sobject_create`
-- **Should NOT call**: `soql_query` (with kuga_sub__ fields), `sobject_dml`
+- **Should call**: `cirra_ai_init`, `sobject_describe`, `soql_query`, `sobject_dml`
+- **Should NOT call**: `soql_query` (with kuga_sub__ fields), `sobject_create` (metadata tool, not for data records)
 - **Should ask user**: yes (confirm contact for quote; warn user that kuga_sub fields are absent)
 - **Menu options**: n/a
 - **Follow-up skills**: `sf-kugamon`
 
-**Notes**: Edge case where `sobject_describe` on `OpportunityLineItem` returns no `kuga_sub__Renew__c` field, setting HAS_KUGA_SUB = false. The skill must NOT query `kuga_sub__KugamonSettings__c`, must NOT reference any `kuga_sub__*` fields on Opportunity or OpportunityLineItem, and must use the standard `Amount` field (not `kuga_sub__OpportunityAmount__c`) for amount comparisons. Line item routing to service vs. product lines falls back to `kugo2p__AdditionalProductDetail__c.kugo2p__Service__c`. Any "No such column" errors on kuga_sub fields should trigger this fallback path rather than failing.
+**Notes**: Edge case where `sobject_describe` on `OpportunityLineItem` returns no `kuga_sub__Renew__c` field, setting HAS_KUGA_SUB = false. The skill must NOT query `kuga_sub__KugamonSettings__c`, must NOT reference any `kuga_sub__*` fields on Opportunity or OpportunityLineItem, and must use the standard `Amount` field (not `kuga_sub__OpportunityAmount__c`) for amount comparisons. Quote creation still uses `sobject_dml` with `operation: "insert"` (not `sobject_create`, which is for metadata). Line item routing to service vs. product lines falls back to `kugo2p__AdditionalProductDetail__c.kugo2p__Service__c`. Any "No such column" errors on kuga_sub fields should trigger this fallback path rather than failing.
