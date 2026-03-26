@@ -19,6 +19,27 @@ description: >
 
 Manage orders, returns, and support cases in Salesforce using the Cirra AI MCP Server. Covers the full order-to-return-to-case lifecycle using standard Salesforce objects (Order, ReturnOrder, ReturnOrderLineItem, Case).
 
+## Dispatch
+
+Parse `$ARGUMENTS` to determine the operation:
+
+| First argument or intent                  | Workflow                 |
+| ----------------------------------------- | ------------------------ |
+| `order`, order status, order details      | Order Status             |
+| `return`, return order, RMA, return label | Return Management        |
+| `case`, support case, case from return    | Case Management          |
+| _(no argument or unclear)_                | Ask the user (see below) |
+
+When the operation is missing or unclear, **you MUST use `AskUserQuestion`** before proceeding:
+
+```
+AskUserQuestion(question="What would you like to do?\n\n1. **Order** — query order status and details\n2. **Return** — create a return order or send a return label\n3. **Case** — create or update a support case")
+```
+
+Do NOT guess the operation or default to one. Wait for the user's answer.
+
+---
+
 ## Core Responsibilities
 
 1. **Order Status**: Query order details and line items

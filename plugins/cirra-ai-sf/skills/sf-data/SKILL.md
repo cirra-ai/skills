@@ -29,15 +29,13 @@ Parse `$ARGUMENTS` to determine which workflow to follow:
 | `describe`                                | Describe Object              |
 | _(no argument or unclear)_                | Ask the user (see below)     |
 
-When the intent is unclear, present the options:
+When the operation is missing or unclear, **you MUST use `AskUserQuestion`** before proceeding:
 
-> What would you like to do?
->
-> 1. **Query** — run a SOQL query
-> 2. **Build query** — build optimized query with selectivity analysis
-> 3. **Insert/update/upsert/delete** — modify data (DML operations)
-> 4. **Validate** — validate query or DML without executing
-> 5. **Describe** — show object structure
+```
+AskUserQuestion(question="What would you like to do?\n\n1. **Query** — run a SOQL query\n2. **Build query** — build optimized query with selectivity analysis\n3. **Insert/update/upsert/delete** — modify data (DML operations)\n4. **Validate** — validate query or DML without executing\n5. **Describe** — show object structure")
+```
+
+Do NOT guess the operation or default to one. Wait for the user's answer.
 
 ## Action Workflows
 

@@ -40,7 +40,15 @@ Parse `$ARGUMENTS` to determine the diagram type before gathering further requir
 | `landscape`                   | System landscape / architecture     |
 | `hierarchy` / `role`          | Role / permission hierarchy diagram |
 | `agentforce`                  | Agentforce agent flow diagram       |
-| _(no argument)_               | Ask what type of diagram to create  |
+| _(no argument)_               | Ask the user (see below)            |
+
+When the diagram type is missing or unclear, **you MUST use `AskUserQuestion`** before proceeding:
+
+```
+AskUserQuestion(question="What type of diagram would you like to create?\n\n1. **OAuth flow** — Authorization Code, JWT Bearer, PKCE, etc.\n2. **ERD / data model** — object relationships from org metadata\n3. **Integration sequence** — API callouts, event-driven flows\n4. **System landscape** — high-level architecture\n5. **Role hierarchy** — user/permission hierarchy\n6. **Agentforce** — agent topic and action flows")
+```
+
+Do NOT guess the diagram type or default to one. Wait for the user's answer.
 
 ---
 

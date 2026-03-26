@@ -30,6 +30,30 @@ findings and severity classifications.
 
 ---
 
+## Dispatch
+
+Parse `$ARGUMENTS` to determine the audit scope:
+
+| First argument or intent                | Workflow                       |
+| --------------------------------------- | ------------------------------ |
+| `full`, no scope specified after asking | Full Org Audit (all domains)   |
+| `apex`                                  | Apex-only audit                |
+| `flow`                                  | Flow/automation-only audit     |
+| `lwc`                                   | LWC-only audit                 |
+| `metadata`, `data-model`                | Metadata/data-model-only audit |
+| `permissions`                           | Permissions-only audit         |
+| _(no argument or unclear)_              | Ask the user (see below)       |
+
+When the audit scope is missing or unclear, **you MUST use `AskUserQuestion`** before proceeding:
+
+```
+AskUserQuestion(question="What would you like to audit?\n\n1. **Full** — comprehensive audit of the entire org\n2. **Apex** — Apex classes and triggers only\n3. **Flow** — Flows, Process Builders, and Workflow Rules only\n4. **LWC** — Lightning Web Components only\n5. **Metadata** — custom objects, fields, and data model only\n6. **Permissions** — Profiles, Permission Sets, and Permission Set Groups only")
+```
+
+Do NOT guess the scope or default to a full audit. Wait for the user's answer.
+
+---
+
 ## Start here every time — read `audit_state.md` first
 
 Before doing anything else, check whether a working document already exists:

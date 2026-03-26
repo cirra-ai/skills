@@ -26,13 +26,13 @@ Parse `$ARGUMENTS` to determine the action:
 | `validate`, review, score      | Validate Flow            |
 | _(no argument or unclear)_     | Ask the user (see below) |
 
-When intent is unclear, present:
+When the operation is missing or unclear, **you MUST use `AskUserQuestion`** before proceeding:
 
-> What would you like to do?
->
-> 1. **Create** — generate a new Flow
-> 2. **Update** — fetch, modify, validate, and redeploy
-> 3. **Validate** — score an existing Flow
+```
+AskUserQuestion(question="What would you like to do?\n\n1. **Create** — generate a new Flow\n2. **Update** — fetch, modify, validate, and redeploy\n3. **Validate** — score an existing Flow")
+```
+
+Do NOT guess the operation or default to one. Wait for the user's answer.
 
 ---
 

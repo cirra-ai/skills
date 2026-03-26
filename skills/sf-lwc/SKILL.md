@@ -28,13 +28,13 @@ Parse `$ARGUMENTS` to determine which workflow to run:
 | `validate`, review, score           | [Validate LWC](#validate-lwc-workflow) |
 | _(no argument or unclear)_          | Ask the user (see below)               |
 
-When intent is unclear, present:
+When the operation is missing or unclear, **you MUST use `AskUserQuestion`** before proceeding:
 
-> What would you like to do?
->
-> 1. **Create** — scaffold a new Lightning Web Component
-> 2. **Update** — fetch, modify, validate, and redeploy
-> 3. **Validate** — score an existing LWC
+```
+AskUserQuestion(question="What would you like to do?\n\n1. **Create** — scaffold a new Lightning Web Component\n2. **Update** — fetch, modify, validate, and redeploy\n3. **Validate** — score an existing LWC")
+```
+
+Do NOT guess the operation or default to one. Wait for the user's answer.
 
 ## Execution modes
 

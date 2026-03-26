@@ -34,18 +34,13 @@ Parse `$ARGUMENTS` to determine which workflow to run:
 | `agent-access`, `agentforce`                                             | Agent Access Permissions |
 | _(no argument or unclear)_                                               | Ask the user (see below) |
 
-When intent is unclear, present:
+When the operation is missing or unclear, **you MUST use `AskUserQuestion`** before proceeding:
 
-> What would you like to do?
->
-> 1. **Hierarchy** — visualize all Permission Sets and Permission Set Groups as structured trees
-> 2. **Audit** — identify security risks: overly broad permissions, orphaned PS, outdated PSGs
-> 3. **Analyze** — find who has a specific permission, list a user's permissions, or debug access issues
-> 4. **Create** — create a new Permission Set with object/field/system permissions
-> 5. **Clone** — clone an existing Permission Set or Permission Set Group
-> 6. **Update** — modify permissions on an existing Permission Set
-> 7. **Delete** — remove a Permission Set or Permission Set Group
-> 8. **Agent access** — query and manage Agentforce agent access permissions
+```
+AskUserQuestion(question="What would you like to do?\n\n1. **Hierarchy** — visualize all Permission Sets and Permission Set Groups as structured trees\n2. **Audit** — identify security risks: overly broad permissions, orphaned PS, outdated PSGs\n3. **Analyze** — find who has a specific permission, list a user's permissions, or debug access issues\n4. **Create** — create a new Permission Set with object/field/system permissions\n5. **Clone** — clone an existing Permission Set or Permission Set Group\n6. **Update** — modify permissions on an existing Permission Set\n7. **Delete** — remove a Permission Set or Permission Set Group\n8. **Agent access** — query and manage Agentforce agent access permissions")
+```
+
+Do NOT guess the operation or default to one. Wait for the user's answer.
 
 ## Executive Overview
 

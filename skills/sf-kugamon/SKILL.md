@@ -29,6 +29,29 @@ All Kugamon operations go through MCP tools regardless of mode.
 
 ---
 
+## Dispatch
+
+Parse `$ARGUMENTS` to determine the operation:
+
+| First argument or intent                      | Workflow                 |
+| --------------------------------------------- | ------------------------ |
+| `quote`, create/manage quote                  | Quote Management         |
+| `order`, order release, activate              | Order Management         |
+| `contract`, contract creation                 | Contract Management      |
+| `renewal`, renewal opp                        | Renewal Management       |
+| `subscription`, asset, subscription lifecycle | Subscription Management  |
+| _(no argument or unclear)_                    | Ask the user (see below) |
+
+When the operation is missing or unclear, **you MUST use `AskUserQuestion`** before proceeding:
+
+```
+AskUserQuestion(question="What would you like to do with Kugamon?\n\n1. **Quote** — create or manage a Kugamon quote\n2. **Order** — activate a quote and release an order\n3. **Contract** — create or manage contracts\n4. **Renewal** — manage renewal opportunities\n5. **Subscription** — manage assets and subscriptions")
+```
+
+Do NOT guess the operation or default to one. Wait for the user's answer.
+
+---
+
 ## Core Responsibilities
 
 1. **Quote Creation**: Create Kugamon quotes from opportunities with proper record type mapping
