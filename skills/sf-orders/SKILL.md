@@ -12,6 +12,7 @@ description: >
   order status, return order, return label, ReturnOrder, ReturnOrderLineItem,
   order management, RMA, shipping status, return request, case from return, or
   order-to-return workflows.
+  Usage: /sf-orders [order|return|case] <details>
 ---
 
 # Salesforce Order Management Expert

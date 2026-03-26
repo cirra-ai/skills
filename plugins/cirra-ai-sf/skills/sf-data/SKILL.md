@@ -9,6 +9,7 @@ description: >
   SOQL), build optimized queries with selectivity analysis, insert/update/upsert/delete
   records, validate data operations, describe objects, and manage test data via
   Cirra AI MCP Server.
+  Usage: /sf-data [query|build-query|insert|update|upsert|delete|validate|describe] <target>
 ---
 
 # Salesforce Data & SOQL Expert

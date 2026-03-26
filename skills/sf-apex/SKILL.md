@@ -9,6 +9,7 @@ description: >
   scoring using Cirra AI MCP Server metadata API. Use when writing Apex classes, triggers,
   test classes, batch jobs, or reviewing existing Apex code for bulkification, security,
   and SOLID principles.
+  Usage: /sf-apex [create|update|validate] [class|trigger|test-class] <Name|path>
 ---
 
 # Salesforce Apex Code Generation and Review

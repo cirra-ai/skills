@@ -9,6 +9,7 @@ description: >
   Use when analyzing permissions, visualizing PS/PSG hierarchies, finding
   which Permission Sets grant access to specific objects, fields, or Apex classes,
   or auditing user permissions via the Cirra AI MCP Server.
+  Usage: /sf-permissions [hierarchy|audit|analyze|create|clone|update|delete|agent-access] <target>
 ---
 
 # Salesforce Permission Analysis & Management

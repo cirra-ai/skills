@@ -8,6 +8,7 @@ description: >
   Creates Salesforce architecture diagrams using Mermaid with ASCII fallback.
   Use when visualizing OAuth flows, data models (ERDs), integration sequences,
   system landscapes, role hierarchies, or Agentforce agent architectures.
+  Usage: /sf-diagram [oauth|erd|integration|landscape|hierarchy|agentforce]
 ---
 
 # Salesforce Diagram Generation

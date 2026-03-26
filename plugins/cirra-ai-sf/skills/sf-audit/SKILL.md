@@ -10,6 +10,7 @@ description: >
   changed components. Use when asked to audit a Salesforce org, review org
   health, generate an org inventory, run an org health check, audit permissions,
   review the data model, or audit apex flows and lwc.
+  Usage: /sf-audit [full|apex|flow|lwc|metadata|permissions]
 metadata:
   version: 2.0.0
 ---
