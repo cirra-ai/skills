@@ -1,7 +1,7 @@
 ---
 name: sf-metadata
 plugin: cirra-ai-sf
-argument-hint: '[create|update|delete|describe] <ObjectName|FieldName|type> ...'
+argument-hint: '[create|update|delete|describe] {ObjectName|FieldName|type} ...'
 metadata:
   version: 2.0.0
 description: >

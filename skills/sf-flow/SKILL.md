@@ -1,7 +1,7 @@
 ---
 name: sf-flow
 plugin: cirra-ai-sf
-argument-hint: '[create|update|validate] <FlowName> ...'
+argument-hint: '[create|update|validate] {FlowName} ...'
 metadata:
   version: 2.0.0
 description: >

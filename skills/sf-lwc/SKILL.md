@@ -1,7 +1,7 @@
 ---
 name: sf-lwc
 plugin: cirra-ai-sf
-argument-hint: '[create|update|validate] <ComponentName> ...'
+argument-hint: '[create|update|validate] {ComponentName} ...'
 metadata:
   version: 2.0.0
 description: >

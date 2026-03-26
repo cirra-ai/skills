@@ -118,7 +118,7 @@ for skill_md in "$REPO_ROOT"/skills/*/SKILL.md; do
   python3 - "$skill_md" "$tmp_dir/SKILL.md" <<'PYEOF'
 import sys
 
-ALLOWED = {'name', 'description', 'license', 'allowed-tools', 'compatibility', 'metadata', 'argument-hint'}
+ALLOWED = {'name', 'description', 'license', 'allowed-tools', 'compatibility', 'metadata'}
 
 src, dst = sys.argv[1], sys.argv[2]
 content = open(src).read()

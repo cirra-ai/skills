@@ -1,7 +1,7 @@
 ---
 name: sf-apex
 plugin: cirra-ai-sf
-argument-hint: '[create|update|validate] [class|trigger|test-class] <Name|path> ...'
+argument-hint: '[create|update|validate] [class|trigger|test-class] {name} ...'
 metadata:
   version: 2.0.0
 description: >
