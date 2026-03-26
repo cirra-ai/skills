@@ -129,3 +129,23 @@ fails and you cannot write files to disk, you are in `mcp-core`.
 | `mcp-core`                | MCP tools        | `fetch_more` with cursor (in-context) | No             | Slowest |
 
 In all modes, call `cirra_ai_init()` first to establish the MCP connection.
+
+---
+
+## Plugin root path
+
+Skills reference validation scripts via `${CLAUDE_PLUGIN_ROOT}`. This env
+var is set automatically by Claude Code when a plugin is active. Other
+hosts should set their own equivalent before invoking skill scripts:
+
+| Host         | Environment variable  |
+| ------------ | --------------------- |
+| Claude Code  | `$CLAUDE_PLUGIN_ROOT` |
+| OpenAI Codex | `$CODEX_PLUGIN_ROOT`  |
+| Other        | `$PLUGIN_ROOT`        |
+
+If none of these are set, skills fall back to searching for the script:
+
+```bash
+find ~/ -name "<script_name>.py" 2>/dev/null | head -1
+```

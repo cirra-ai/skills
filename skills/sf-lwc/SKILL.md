@@ -109,8 +109,8 @@ Write each file to a temp directory and validate:
 ```bash
 # Locate the validator
 VALIDATOR=$(find ~/.claude/plugins -name "validate_slds.py" 2>/dev/null | grep sf-lwc | head -1)
-# Or if PLUGIN_ROOT is set:
-# VALIDATOR="${PLUGIN_ROOT}/skills/sf-lwc/scripts/validate_slds.py"
+# Or if CLAUDE_PLUGIN_ROOT is set:
+# VALIDATOR="${CLAUDE_PLUGIN_ROOT}/skills/sf-lwc/scripts/validate_slds.py"
 
 python3 "$VALIDATOR" "/tmp/<componentName>/<componentName>.html"
 python3 "$VALIDATOR" "/tmp/<componentName>/<componentName>.css"
@@ -234,7 +234,7 @@ Validate one or more Lightning Web Components using the SLDS 2 static analysis p
 ### Validation script
 
 ```bash
-# $PLUGIN_ROOT is set by the host when the plugin is active.
+# $CLAUDE_PLUGIN_ROOT is set by Claude Code. Other hosts: see references/execution-modes.md.
 # If not set, find the script:
 VALIDATOR=$(find ~/.claude/plugins -name "validate_slds.py" 2>/dev/null | grep sf-lwc | head -1)
 ```

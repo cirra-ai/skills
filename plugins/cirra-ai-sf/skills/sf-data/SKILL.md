@@ -88,7 +88,7 @@ Validate a Salesforce data operation using the two-tier MCP validator without ex
 | _(no specifics)_                        | Ask the user what to validate                                 |
 
 ```bash
-python3 "${PLUGIN_ROOT}/hooks/scripts/mcp_validator_cli.py" --format report input.json
+python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/mcp_validator_cli.py" --format report input.json
 ```
 
 ### Describe Object
