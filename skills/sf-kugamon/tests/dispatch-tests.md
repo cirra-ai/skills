@@ -34,13 +34,13 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Path**: full
 - **First tool**: `cirra_ai_init`
 - **Tool params**: `(none)`
-- **Should call**: `cirra_ai_init`, `sobject_describe`, `soql_query`, `sobject_update`
+- **Should call**: `cirra_ai_init`, `sobject_describe`, `soql_query`, `sobject_dml`
 - **Should NOT call**: `sobject_create` (metadata tool, not for data records)
 - **Should ask user**: no
 - **Menu options**: n/a
 - **Follow-up skills**: `sf-kugamon`
 
-**Notes**: Targets the Order Release Lifecycle workflow. Requires HAS_SUB_MGMT = true. The skill checks `kuga_sub__KugamonSettings__c` for `kuga_sub__InitiateOrderSubscriptionManagement__c`, then manages Contract creation/amendment, Asset creation, Subscription creation, and Renewal Opportunity generation based on the Order's Record Type (New, Expansion, or Renewal). `sobject_update` is used to set the order to Released status.
+**Notes**: Targets the Order Release Lifecycle workflow. Requires HAS_SUB_MGMT = true. The skill checks `kuga_sub__KugamonSettings__c` for `kuga_sub__InitiateOrderSubscriptionManagement__c`, then manages Contract creation/amendment, Asset creation, Subscription creation, and Renewal Opportunity generation based on the Order's Record Type (New, Expansion, or Renewal). `sobject_dml` with `operation: "update"` is used to set the order to Released status.
 
 ---
 
@@ -92,7 +92,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **First tool**: `cirra_ai_init`
 - **Tool params**: `(none)`
 - **Should call**: `cirra_ai_init`, `sobject_describe`, `soql_query`
-- **Should NOT call**: `sobject_create`, `sobject_update`, `sobject_dml`
+- **Should NOT call**: `sobject_create`, `sobject_dml`
 - **Should ask user**: no
 - **Menu options**: n/a
 - **Follow-up skills**: `sf-kugamon`

@@ -70,7 +70,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **First tool**: `cirra_ai_init`
 - **Tool params**: `(none — init takes no arguments)`
 - **Should call**: `tooling_api_query`, `metadata_read`
-- **Should NOT call**: `soql_query`, `sobject_describe`
+- **Should NOT call**: `sobject_describe`
 - **Should ask user**: yes (Phase B approval gate; Scale Gate in A6 if LWC count exceeds 10)
 - **Follow-up skills**: `sf-lwc`
 

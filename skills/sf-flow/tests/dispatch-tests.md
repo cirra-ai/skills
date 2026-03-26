@@ -69,7 +69,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Dispatch**: Validate Flow
 - **Init required**: yes
 - **Init timing**: before-workflow
-- **Path**: n/a
+- **Path**: full
 - **First tool**: `cirra_ai_init`
 - **Tool params**: `sf_user: <default or prompted>`
 - **Should call**: `metadata_read`
@@ -129,7 +129,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Dispatch**: Validate Flow
 - **Init required**: yes
 - **Init timing**: before-workflow
-- **Path**: n/a
+- **Path**: full
 - **First tool**: `cirra_ai_init`
 - **Tool params**: `sf_user: <default or prompted>`
 - **Should call**: `metadata_list`, `metadata_read`

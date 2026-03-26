@@ -84,7 +84,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Dispatch**: Validate LWC
 - **Init required**: yes
 - **Init timing**: before-workflow
-- **Path**: n/a
+- **Path**: full
 - **First tool**: `cirra_ai_init`
 - **Tool params**: `(no parameters)`
 - **Should call**: `cirra_ai_init`, `metadata_read`
@@ -102,7 +102,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Dispatch**: Validate LWC
 - **Init required**: yes
 - **Init timing**: before-workflow
-- **Path**: n/a
+- **Path**: full
 - **First tool**: `cirra_ai_init`
 - **Tool params**: `(no parameters)`
 - **Should call**: `cirra_ai_init`, `metadata_list`, `metadata_read`
@@ -121,9 +121,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Init required**: no
 - **Init timing**: after-menu
 - **Path**: n/a
-- **First tool**: `AskUserQuestion`
-- **Tool params**: `question: "What would you like to do?\n1. Create — scaffold a new Lightning Web Component\n2. Update — fetch, modify, validate, and redeploy\n3. Validate — score an existing LWC"`
-- **Should call**: `AskUserQuestion`
+- **First tool**: n/a (no MCP tools called before user selects)
 - **Should NOT call**: `cirra_ai_init`, `metadata_create`, `metadata_read`, `metadata_update`, `metadata_list`
 - **Should ask user**: yes (no argument provided; the dispatch table explicitly routes to the menu)
 - **Menu options**: 1. Create — scaffold a new Lightning Web Component, 2. Update — fetch, modify, validate, and redeploy, 3. Validate — score an existing LWC
