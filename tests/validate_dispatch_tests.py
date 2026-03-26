@@ -328,21 +328,23 @@ def main():
         num_tests = len(cases)
         defects = [i for i in issues if i.severity == "DEFECT"]
         warnings = [i for i in issues if i.severity == "WARN"]
-        passed = num_tests - len(defects)
+        failed_cases = len({i.test_case for i in defects})
+        passed = num_tests - failed_cases
 
         total_tests += num_tests
         total_pass += passed
-        total_defects += len(defects)
+        total_defects += failed_cases
         total_warnings += len(warnings)
         all_issues.extend(issues)
 
         status = "PASS" if not defects else "FAIL"
         warn_str = f" ({len(warnings)} warnings)" if warnings else ""
-        print(f"  {skill_name}: {num_tests} tests, {passed} pass, {len(defects)} defects{warn_str} [{status}]")
+        issue_str = f" ({len(defects)} issues)" if len(defects) > failed_cases else ""
+        print(f"  {skill_name}: {num_tests} tests, {passed} pass, {failed_cases} fail{issue_str}{warn_str} [{status}]")
 
     print()
     print("-" * 60)
-    print(f"  TOTAL: {total_tests} tests, {total_pass} pass, {total_defects} defects, {total_warnings} warnings")
+    print(f"  TOTAL: {total_tests} tests, {total_pass} pass, {total_defects} fail, {total_warnings} warnings")
     print()
 
     if all_issues:
