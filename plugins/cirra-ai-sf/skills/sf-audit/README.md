@@ -19,11 +19,11 @@ Run a comprehensive Salesforce org audit that inventories and evaluates all majo
 
 ## Installation
 
-For full installation instructions (Claude Cowork, OpenAI Codex, browser), see the [root README](../../README.md).
+For full installation instructions (various AI tools), see the [root README](../../README.md).
 
 ## Quick Start
 
-### In Claude Cowork or Claude Code
+### Installation
 
 Invoke the unified skill:
 
@@ -76,7 +76,7 @@ paged through in-context with `fetch_more`.
 
 ## Requirements
 
-- Claude Cowork, Claude Code, OpenAI Codex, or another tool with skill support
+- An AI coding tool with skill/plugin support
 - Cirra AI MCP Server
 - Target Salesforce org
 

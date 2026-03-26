@@ -414,7 +414,7 @@ tooling_api_query(
 The following developer-focused features are **NOT needed** in the Cirra AI version:
 
 - `scripts/query-org-metadata.py` (Python CLI) - Use MCP tools instead
-- `scripts/mermaid_preview.py` (localhost preview) - Not needed in Claude Cowork
+- `scripts/mermaid_preview.py` (localhost preview) - Not needed in sandboxed environments
 - sf CLI metadata commands - Use `sobject_describe` / `tooling_api_query` instead
 
 ---
@@ -429,7 +429,7 @@ The following developer-focused features are **NOT needed** in the Cirra AI vers
 
 ## Notes
 
-- **Mermaid Rendering**: Works in Claude Cowork, GitHub, VS Code, Notion, Confluence, and most modern tools
+- **Mermaid Rendering**: Works in GitHub, VS Code, Notion, Confluence, and most modern tools
 - **ASCII Purpose**: Terminal compatibility, documentation that needs plain text
 - **Color Accessibility**: Palette designed for color-blind accessibility
 - **Template Customization**: Templates are starting points; customize per requirements

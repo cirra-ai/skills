@@ -66,7 +66,7 @@ orgs differ, warn the user and fall back to `mcp-plus-code-execution`.
 MCP tools are the only connection to Salesforce, but the environment has a
 writable filesystem and can execute code (Python, shell, jq, etc.).
 
-This is the typical mode in **Claude Code**, **Claude Cowork**, and
+This is the typical mode in most AI coding tools with
 **OpenAI Codex**.
 
 **Detection:**

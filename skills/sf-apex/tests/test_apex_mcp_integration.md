@@ -1,7 +1,7 @@
 # Apex MCP Integration Test Protocol
 
 Live integration test for Apex deployment via Cirra AI MCP Server.
-Run interactively in a Claude Code or Codex session with MCP access and the `sf-apex` skill active.
+Run interactively in a coding session with MCP access and the `sf-apex` skill active.
 
 ## Test Summary (Last Run: 2026-03-07)
 

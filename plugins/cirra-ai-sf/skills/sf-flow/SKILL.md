@@ -77,7 +77,7 @@ Create the flow XML following the sf-flow skill guidelines (see Workflow Design 
 Write the generated XML to a temp file and validate:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_flow_cli.py" "/tmp/<FlowApiName>.flow-meta.xml"
+python3 "${PLUGIN_ROOT}/hooks/scripts/validate_flow_cli.py" "/tmp/<FlowApiName>.flow-meta.xml"
 ```
 
 Fix any CRITICAL or HIGH issues before proceeding. The pre-deployment hook will also validate automatically when `metadata_create` is called.
@@ -140,7 +140,7 @@ Modify the flow following sf-flow skill guidelines. Preserve:
 Write the updated XML to a temp file and validate:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_flow_cli.py" "/tmp/<FlowApiName>.flow-meta.xml"
+python3 "${PLUGIN_ROOT}/hooks/scripts/validate_flow_cli.py" "/tmp/<FlowApiName>.flow-meta.xml"
 ```
 
 Fix any CRITICAL or HIGH issues before proceeding. The pre-deployment hook will also validate automatically when `metadata_update` is called.
@@ -176,10 +176,10 @@ Validate one or more Flows using the 110-point static analysis pipeline and retu
 
 ### Validation script
 
-The validation script is at `${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_flow_cli.py`. Locate it with:
+The validation script is at `${PLUGIN_ROOT}/hooks/scripts/validate_flow_cli.py`. Locate it with:
 
 ```bash
-# $CLAUDE_PLUGIN_ROOT is set by Claude Code when the plugin is active.
+# $PLUGIN_ROOT is set by the host when the plugin is active.
 # If not set, find the script:
 find ~/.claude/plugins -name "validate_flow_cli.py" 2>/dev/null | grep sf-flow | head -1
 ```
@@ -187,7 +187,7 @@ find ~/.claude/plugins -name "validate_flow_cli.py" 2>/dev/null | grep sf-flow |
 ### Local file
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_flow_cli.py" "<file_path>"
+python3 "${PLUGIN_ROOT}/hooks/scripts/validate_flow_cli.py" "<file_path>"
 ```
 
 ### Flow API name (fetch from org)
@@ -211,7 +211,7 @@ Write /tmp/validate_<FlowApiName>.flow-meta.xml  ← the flow XML
 3. Validate:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_flow_cli.py" "/tmp/validate_<FlowApiName>.flow-meta.xml"
+python3 "${PLUGIN_ROOT}/hooks/scripts/validate_flow_cli.py" "/tmp/validate_<FlowApiName>.flow-meta.xml"
 ```
 
 4. Delete the temp file after validation.

@@ -1,7 +1,7 @@
 # Data MCP Integration Test Protocol
 
 Live integration test for SOQL queries and DML operations via Cirra AI MCP Server.
-Run interactively in a Claude Code session with MCP access.
+Run interactively in a coding session with MCP access.
 
 ## Test Summary (Last Run: 2026-03-06, org: <SANDBOX_USERNAME>)
 

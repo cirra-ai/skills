@@ -4,7 +4,7 @@
 
 This plugin was adapted from the [sf-apex](https://github.com/Jaganpro/sf-skills/tree/main/sf-apex) plugin published by Jag Valaiyapathy
 
-It was modified from its original source primarily to work with the Cirra AI MCP Server in Claude Cowork.
+It was modified from its original source primarily to work with the Cirra AI MCP Server with AI coding tools.
 
 See below for original credits and attribution.
 

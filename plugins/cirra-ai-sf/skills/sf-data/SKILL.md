@@ -88,7 +88,7 @@ Validate a Salesforce data operation using the two-tier MCP validator without ex
 | _(no specifics)_                        | Ask the user what to validate                                 |
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/mcp_validator_cli.py" --format report input.json
+python3 "${PLUGIN_ROOT}/hooks/scripts/mcp_validator_cli.py" --format report input.json
 ```
 
 ### Describe Object
@@ -128,7 +128,7 @@ Show the structure, fields, relationships, and record types of a Salesforce obje
 5. **Handle Bulk Operations** - Use `sobject_dml` with multiple records for large-scale data operations
 6. **Discover Metadata** - Use `sobject_describe` and `tooling_api_query` for object structure discovery
 7. **Track & Cleanup Records** - Maintain record IDs and provide cleanup queries
-8. **Validate Before Executing** - Run pre-flight validation on MCP parameters (Cowork mode)
+8. **Validate Before Executing** - Run pre-flight validation on MCP parameters (sandboxed environments)
 9. **Integrate with Other Skills** - Query metadata for object discovery, serve sf-apex/sf-flow for testing
 
 ---
@@ -284,7 +284,7 @@ When building or reviewing SOQL queries:
 
 ---
 
-## Pre-Flight Validation (Cowork Mode)
+## Pre-Flight Validation (Sandboxed Environments)
 
 The MCP validator uses a **two-tier model** that matches the risk profile of each operation:
 
@@ -771,7 +771,7 @@ Code Deployment Validated: [metadata_type]
 - **sf-metadata** (optional): Query object/field structure
   - Or use `sobject_describe` and `tooling_api_query` directly
 
-- **Python 3.8+** (for validation): Required to run mcp_validator_cli.py in Cowork mode
+- **Python 3.8+** (for validation): Required to run mcp_validator_cli.py in sandboxed environments
 
 ---
 
@@ -796,5 +796,5 @@ No data files should be written outside the output directory tree. This ensures 
 - **Test Isolation**: Track created record IDs for cleanup
 - **Sensitive Data**: Never include real PII in test data
 - **Remote Org Only**: No local scratch org support; all operations target remote orgs
-- **Validation**: Run `mcp_validator_cli.py` before executing operations in Cowork mode (Tier 1 for data ops, Tier 2 for code deployment)
+- **Validation**: Run `mcp_validator_cli.py` before executing operations in sandboxed environments (Tier 1 for data ops, Tier 2 for code deployment)
 - **Output Directory**: All intermediate files go to `--output-dir` by default

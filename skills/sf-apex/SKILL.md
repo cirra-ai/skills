@@ -115,10 +115,10 @@ Write the generated code to a temp file and validate:
 
 ```bash
 # For a class:
-python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_apex_cli.py" "/tmp/<ClassName>.cls"
+python3 "${PLUGIN_ROOT}/hooks/scripts/validate_apex_cli.py" "/tmp/<ClassName>.cls"
 
 # For a trigger:
-python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_apex_cli.py" "/tmp/<TriggerName>.trigger"
+python3 "${PLUGIN_ROOT}/hooks/scripts/validate_apex_cli.py" "/tmp/<TriggerName>.trigger"
 ```
 
 Fix any CRITICAL or HIGH issues before proceeding. The pre-deployment hook will also validate automatically when `tooling_api_dml` is called.
@@ -245,10 +245,10 @@ Write the updated code to a temp file and validate:
 
 ```bash
 # For a class:
-python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_apex_cli.py" "/tmp/<Name>.cls"
+python3 "${PLUGIN_ROOT}/hooks/scripts/validate_apex_cli.py" "/tmp/<Name>.cls"
 
 # For a trigger:
-python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_apex_cli.py" "/tmp/<Name>.trigger"
+python3 "${PLUGIN_ROOT}/hooks/scripts/validate_apex_cli.py" "/tmp/<Name>.trigger"
 ```
 
 Fix any CRITICAL or HIGH issues before proceeding. The pre-deployment hook will also validate automatically when `tooling_api_dml` is called.
@@ -311,10 +311,10 @@ Validate one or more Apex classes or triggers using the 150-point static analysi
 
 ### Validation script
 
-The validation script is at `${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_apex_cli.py`. Locate it with:
+The validation script is at `${PLUGIN_ROOT}/hooks/scripts/validate_apex_cli.py`. Locate it with:
 
 ```bash
-# $CLAUDE_PLUGIN_ROOT is set by Claude Code when the plugin is active.
+# $PLUGIN_ROOT is set by the host when the plugin is active.
 # If not set, find the script:
 find ~/.claude/plugins -name "validate_apex_cli.py" 2>/dev/null | grep sf-apex | head -1
 ```
@@ -322,7 +322,7 @@ find ~/.claude/plugins -name "validate_apex_cli.py" 2>/dev/null | grep sf-apex |
 ### Local file
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_apex_cli.py" "<file_path>"
+python3 "${PLUGIN_ROOT}/hooks/scripts/validate_apex_cli.py" "<file_path>"
 ```
 
 ### Class or trigger name (fetch from org)
@@ -359,9 +359,9 @@ Write /tmp/validate_<Name>.trigger  ← for a trigger
 3. Validate:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_apex_cli.py" "/tmp/validate_<Name>.cls"
+python3 "${PLUGIN_ROOT}/hooks/scripts/validate_apex_cli.py" "/tmp/validate_<Name>.cls"
 # or
-python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_apex_cli.py" "/tmp/validate_<Name>.trigger"
+python3 "${PLUGIN_ROOT}/hooks/scripts/validate_apex_cli.py" "/tmp/validate_<Name>.trigger"
 ```
 
 4. Delete the temp file after validation.

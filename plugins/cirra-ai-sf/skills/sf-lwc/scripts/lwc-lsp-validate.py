@@ -115,7 +115,7 @@ def format_lwc_diagnostics(
     current_attempt: int = 1,
 ) -> str:
     """
-    Format LSP validation result for Claude Code hooks.
+    Format LSP validation result for plugin hooks.
 
     This output is designed to be understood by the agent so it can
     automatically fix any issues found.
