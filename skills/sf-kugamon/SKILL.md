@@ -5,10 +5,10 @@ argument-hint: '[quote|order|contract|renewal|subscription] {details} ...'
 metadata:
   version: 2.0.1
 description: >
-  [quote|order|contract|renewal|subscription] {details} ... — Kugamon CPQ quote and
-  subscription management for Salesforce via Cirra AI MCP Server. Use when creating,
-  verifying, or managing opportunities, quotes, orders, contracts, assets, subscriptions,
-  or renewals with the Kugamon package (kugo2p).
+  Kugamon CPQ quote and subscription management for Salesforce via Cirra AI MCP Server.
+  Use when creating, verifying, or managing opportunities, quotes, orders, contracts,
+  assets, subscriptions, or renewals with the Kugamon package (kugo2p).
+  Usage: /sf-kugamon [quote|order|contract|renewal|subscription] {details} ...
 ---
 
 # Salesforce Kugamon CPQ Expert
