@@ -3,15 +3,13 @@ name: sf-audit
 plugin: cirra-ai-sf
 argument-hint: '[full|apex|flow|lwc|metadata|permissions] ...'
 description: >
-  Run a comprehensive Salesforce org audit. Inventories and scores Apex classes,
-  Apex triggers, Flows, Process Builders, Workflow Rules, LWC components, custom
-  objects and fields, validation rules, Profiles, and Permission Sets. Generates
-  Word, Excel, and HTML reports. Supports incremental audits that only re-score
-  changed components. Use when asked to audit a Salesforce org, review org
-  health, generate an org inventory, run an org health check, audit permissions,
-  review the data model, or audit apex flows and lwc.
+  [full|apex|flow|lwc|metadata|permissions] ... — Run a comprehensive Salesforce org
+  audit. Inventories and scores Apex classes, triggers, Flows, Process Builders,
+  Workflow Rules, LWC components, custom objects/fields, validation rules, Profiles,
+  and Permission Sets. Generates Word, Excel, and HTML reports. Use when asked to
+  audit a Salesforce org, review org health, or run an org health check.
 metadata:
-  version: 2.0.0
+  version: 2.0.1
 ---
 
 # Salesforce Org Audit
@@ -26,6 +24,30 @@ skill (`sf-apex`, `sf-flow`, `sf-lwc`,
 For categories without a numeric rubric (Triggers, Workflow Rules, Process
 Builders, Profiles, Validation Rules), produce an inventory with qualitative
 findings and severity classifications.
+
+---
+
+## Dispatch
+
+Parse `$ARGUMENTS` to determine the audit scope:
+
+| First argument or intent                | Workflow                       |
+| --------------------------------------- | ------------------------------ |
+| `full`, no scope specified after asking | Full Org Audit (all domains)   |
+| `apex`                                  | Apex-only audit                |
+| `flow`                                  | Flow/automation-only audit     |
+| `lwc`                                   | LWC-only audit                 |
+| `metadata`, `data-model`                | Metadata/data-model-only audit |
+| `permissions`                           | Permissions-only audit         |
+| _(no argument or unclear)_              | Ask the user (see below)       |
+
+When the audit scope is missing or unclear, **you MUST use `AskUserQuestion`** before proceeding:
+
+```
+AskUserQuestion(question="What would you like to audit?\n\n1. **Full** — comprehensive audit of the entire org\n2. **Apex** — Apex classes and triggers only\n3. **Flow** — Flows, Process Builders, and Workflow Rules only\n4. **LWC** — Lightning Web Components only\n5. **Metadata** — custom objects, fields, and data model only\n6. **Permissions** — Profiles, Permission Sets, and Permission Set Groups only")
+```
+
+Do NOT guess the scope or default to a full audit. Wait for the user's answer.
 
 ---
 

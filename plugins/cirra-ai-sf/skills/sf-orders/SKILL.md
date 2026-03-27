@@ -1,22 +1,39 @@
 ---
 name: sf-orders
 plugin: cirra-ai-sf
-argument-hint: '[order|return|case] ...'
+argument-hint: '[order|return|case] {details} ...'
 metadata:
-  version: 2.0.0
+  version: 2.0.1
 description: >
-  Salesforce Order Management for managing orders, returns, and cases via the
-  Cirra AI MCP Server. Use when users ask about order status, want to create
-  return orders, send return labels, create or update support cases from returns,
-  or manage the order-to-return-to-case lifecycle. Trigger for any mention of:
-  order status, return order, return label, ReturnOrder, ReturnOrderLineItem,
-  order management, RMA, shipping status, return request, case from return, or
-  order-to-return workflows.
+  [order|return|case] {details} ... — Salesforce Order Management for orders, returns,
+  and cases via Cirra AI MCP Server. Use when asked about order status, return orders,
+  return labels, support cases from returns, or the order-to-return-to-case lifecycle.
 ---
 
 # Salesforce Order Management Expert
 
 Manage orders, returns, and support cases in Salesforce using the Cirra AI MCP Server. Covers the full order-to-return-to-case lifecycle using standard Salesforce objects (Order, ReturnOrder, ReturnOrderLineItem, Case).
+
+## Dispatch
+
+Parse `$ARGUMENTS` to determine the operation:
+
+| First argument or intent                  | Workflow                 |
+| ----------------------------------------- | ------------------------ |
+| `order`, order status, order details      | Order Status             |
+| `return`, return order, RMA, return label | Return Management        |
+| `case`, support case, case from return    | Case Management          |
+| _(no argument or unclear)_                | Ask the user (see below) |
+
+When the operation is missing or unclear, **you MUST use `AskUserQuestion`** before proceeding:
+
+```
+AskUserQuestion(question="What would you like to do?\n\n1. **Order** — query order status and details\n2. **Return** — create a return order or send a return label\n3. **Case** — create or update a support case")
+```
+
+Do NOT guess the operation or default to one. Wait for the user's answer.
+
+---
 
 ## Core Responsibilities
 

@@ -1,13 +1,13 @@
 ---
 name: sf-metadata
 plugin: cirra-ai-sf
-argument-hint: '[create|update|delete|describe] <ObjectName|FieldName|type> ...'
+argument-hint: '[create|update|delete|describe] {ObjectName|FieldName|type} ...'
 metadata:
-  version: 2.0.0
+  version: 2.0.1
 description: >
-  Salesforce metadata operations expert. Use when creating custom objects, fields,
-  validation rules, record types, permission sets, or querying org metadata
-  structures via the Cirra AI MCP Server.
+  [create|update|delete|describe] {ObjectName|FieldName|type} ... — Salesforce metadata
+  operations expert. Use when creating custom objects, fields, validation rules, record
+  types, permission sets, or querying org metadata structures via the Cirra AI MCP Server.
 ---
 
 # Salesforce Metadata Operations Expert
@@ -28,14 +28,13 @@ Parse `$ARGUMENTS` to determine which workflow to follow:
 | `describe`, show object structure  | Describe Object          |
 | _(no argument or unclear)_         | Ask the user (see below) |
 
-When the intent is unclear, present the options:
+When the operation is missing or unclear, **you MUST use `AskUserQuestion`** before proceeding:
 
-> What would you like to do?
->
-> 1. **Create** — create custom objects, fields, validation rules, record types, permission sets
-> 2. **Update** — modify existing metadata components
-> 3. **Delete** — remove metadata from the org
-> 4. **Describe** — show object structure and fields
+```
+AskUserQuestion(question="What would you like to do?\n\n1. **Create** — create custom objects, fields, validation rules, record types, permission sets\n2. **Update** — modify existing metadata components\n3. **Delete** — remove metadata from the org\n4. **Describe** — show object structure and fields")
+```
+
+Do NOT guess the operation or default to one. Wait for the user's answer.
 
 ## Action Workflows
 
