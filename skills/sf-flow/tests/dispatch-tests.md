@@ -160,3 +160,103 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 **Notes**: The `update` keyword is present but no flow API name follows. Per SKILL.md: "If no flow name is given, ask the user which flow to update and what changes are needed." The skill should call `cirra_ai_init` and then ask for the flow name before calling `metadata_read`. Optionally, `metadata_list` can be called first to present a list of existing flows for the user to choose from. Must not proceed to `metadata_read` or `metadata_update` until both the flow name and the desired changes are confirmed.
 
 ---
+
+## validate a local flow file
+
+- **Input**: `/sf-flow validate force-app/main/default/flows/Auto_Lead_Assignment.flow-meta.xml`
+- **Dispatch**: Validate Flow
+- **Init required**: no (local file — no org needed for validation)
+- **Init timing**: `n/a`
+- **Path**: `fast`
+- **Should NOT call**: `cirra_ai_init`, `metadata_read`, `metadata_create`, `metadata_update`
+- **Should ask user**: no
+- **Follow-up skills**: `sf-flow`
+
+**Notes**: Local file path ending in `.flow-meta.xml` means validate directly without fetching from org. The validation script runs locally. No MCP tools needed for pure local validation. Same fast path as sf-apex local file validation.
+
+---
+
+## validate comma-separated list
+
+- **Input**: `/sf-flow validate Auto_Lead_Assignment,Screen_Case_Intake,Scheduled_Data_Cleanup`
+- **Dispatch**: Validate Flow
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `cirra_ai_init`
+- **Should call**: `metadata_read`
+- **Should NOT call**: `metadata_create`, `metadata_update`, `sobject_describe`
+- **Should ask user**: no
+- **Follow-up skills**: `sf-flow`
+
+**Notes**: Comma-separated list triggers bulk validation. Should fetch each flow's XML via `metadata_read`, validate each, and produce a summary table sorted by score ascending. Falls back to individual reads if batch fetch fails.
+
+---
+
+## review synonym for validate
+
+- **Input**: `/sf-flow review Auto_Lead_Assignment`
+- **Dispatch**: Validate Flow
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `cirra_ai_init`
+- **Should call**: `metadata_read`
+- **Should NOT call**: `metadata_create`, `metadata_update`, `sobject_describe`
+- **Should ask user**: no
+- **Follow-up skills**: `sf-flow`
+
+**Notes**: The dispatch table lists `review` as a synonym for `validate`. Should route to Validate Flow workflow — fetch the flow XML via `metadata_read`, run 110-point scoring, and return the report.
+
+---
+
+## create a screen flow
+
+- **Input**: `/sf-flow create Case_Intake_Screen a screen flow for case submission with customer details`
+- **Dispatch**: Create Flow
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `cirra_ai_init`
+- **Should call**: `sobject_describe`, `metadata_list`, `metadata_create`, `tooling_api_query`
+- **Should NOT call**: `metadata_read`, `metadata_update`
+- **Should ask user**: no (flow type and purpose are explicit)
+- **Follow-up skills**: `sf-data`, `sf-metadata`
+
+**Notes**: `create` keyword with explicit flow name and description routes to Create Flow. The description mentions "screen flow" so the flow type is specified. Should check for existing flow via `metadata_list`, describe Case object via `sobject_describe`, generate screen flow XML with input screens and a DML element, deploy via `metadata_create`, and verify via `tooling_api_query`.
+
+---
+
+## create a scheduled flow
+
+- **Input**: `/sf-flow create Nightly_Stale_Lead_Cleanup scheduled flow to close stale leads older than 90 days`
+- **Dispatch**: Create Flow
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `cirra_ai_init`
+- **Should call**: `sobject_describe`, `metadata_list`, `metadata_create`, `tooling_api_query`
+- **Should NOT call**: `metadata_read`, `metadata_update`
+- **Should ask user**: no (flow type and purpose are explicit)
+- **Follow-up skills**: `sf-data`
+
+**Notes**: `create` keyword with "scheduled flow" specifies the flow type. Should generate a Scheduled-Triggered Flow with a Get Records element filtering Leads by LastModifiedDate < 90 days ago, an Update Records element to set Status = 'Closed', and fault paths on both DML elements. Schedule configuration should be confirmed.
+
+---
+
+## score synonym for validate
+
+- **Input**: `/sf-flow score Auto_Lead_Assignment`
+- **Dispatch**: Validate Flow
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `cirra_ai_init`
+- **Should call**: `metadata_read`
+- **Should NOT call**: `metadata_create`, `metadata_update`, `sobject_describe`
+- **Should ask user**: no
+- **Follow-up skills**: `sf-flow`
+
+**Notes**: The dispatch table lists `score` as a synonym for `validate`. Should route to Validate Flow — same behavior as "validate single flow by API name".
+
+---

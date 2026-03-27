@@ -146,3 +146,103 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Follow-up skills**: `sf-apex`
 
 **Notes**: Natural-language phrasing with no explicit `create` keyword. The intent is clearly a new component, so dispatch routes to Create LWC. Because it involves related records and cross-object data, the full PICKLES workflow applies. `sobject_describe` may be called to understand the Account-Contact relationship before generating wire adapters.
+
+---
+
+## validate a local file
+
+- **Input**: `/sf-lwc validate force-app/main/default/lwc/accountCard/accountCard.js`
+- **Dispatch**: Validate LWC
+- **Init required**: no (local file — no org needed for validation)
+- **Init timing**: `n/a`
+- **Path**: `fast`
+- **Should NOT call**: `cirra_ai_init`, `metadata_read`, `metadata_list`, `tooling_api_query`
+- **Should ask user**: no
+- **Follow-up skills**: none
+
+**Notes**: Local file path means validate directly without fetching from org. The validation script runs locally. No MCP tools needed for pure local validation. Should detect the component directory from the file path and validate the entire bundle if other files exist alongside it.
+
+---
+
+## review synonym for validate
+
+- **Input**: `/sf-lwc review contactDashboard`
+- **Dispatch**: Validate LWC
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `cirra_ai_init`
+- **Should call**: `metadata_read`
+- **Should NOT call**: `metadata_create`, `metadata_update`
+- **Should ask user**: no
+- **Follow-up skills**: `sf-lwc`
+
+**Notes**: The dispatch table lists `review` as a synonym for `validate`. Should route to Validate LWC — fetch the component bundle via `metadata_read`, run 165-point SLDS 2 scoring, and return the report.
+
+---
+
+## create with wire service data binding
+
+- **Input**: `/sf-lwc create opportunityList a component that displays opportunities using wire service`
+- **Dispatch**: Create LWC
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `cirra_ai_init`
+- **Should call**: `tooling_api_query`, `metadata_create`, `sobject_describe`
+- **Should NOT call**: `metadata_read`, `metadata_update`
+- **Should ask user**: no (requirements are explicit — wire service, Opportunity data)
+- **Follow-up skills**: `sf-data`, `sf-metadata`
+
+**Notes**: `create` with explicit component name and wire service mention routes to Create LWC. Should describe the Opportunity object via `sobject_describe` to get field metadata. The component should use `@wire` with `getRecord` or a custom Apex method. Full PICKLES workflow applies since this involves data integration.
+
+---
+
+## score synonym for validate
+
+- **Input**: `/sf-lwc score accountSummaryCard`
+- **Dispatch**: Validate LWC
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `cirra_ai_init`
+- **Should call**: `metadata_read`
+- **Should NOT call**: `metadata_create`, `metadata_update`
+- **Should ask user**: no
+- **Follow-up skills**: `sf-lwc`
+
+**Notes**: The dispatch table lists `score` as a synonym for `validate`. Should route to Validate LWC — same behavior as "validate single component by name".
+
+---
+
+## validate comma-separated list
+
+- **Input**: `/sf-lwc validate accountCard,contactList,opportunityDashboard`
+- **Dispatch**: Validate LWC
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `cirra_ai_init`
+- **Should call**: `metadata_read`
+- **Should NOT call**: `metadata_create`, `metadata_update`, `sobject_describe`
+- **Should ask user**: no
+- **Follow-up skills**: `sf-lwc`
+
+**Notes**: Comma-separated list triggers bulk validation. Should fetch each component's bundle via `metadata_read`, validate each with 165-point SLDS 2 scoring, and produce a summary table sorted by score ascending. Flags components below 100/165 (61%).
+
+---
+
+## create for flow screen integration
+
+- **Input**: `/sf-lwc create caseIntakeForm a screen component for Flow that collects customer case details`
+- **Dispatch**: Create LWC
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `cirra_ai_init`
+- **Should call**: `tooling_api_query`, `metadata_create`, `sobject_describe`
+- **Should NOT call**: `metadata_read`, `metadata_update`
+- **Should ask user**: no (requirements are clear — Flow screen component)
+- **Follow-up skills**: `sf-flow`, `sf-metadata`
+
+**Notes**: `create` with "screen component for Flow" routes to Create LWC. The meta.xml must include `lightning__FlowScreen` target. Should use `@api` properties for Flow input/output and follow the Flow Screen Integration pattern from SKILL.md. Full PICKLES workflow applies.
