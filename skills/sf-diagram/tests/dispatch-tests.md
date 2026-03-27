@@ -123,7 +123,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 ## no arguments — ask user for diagram type
 
 - **Input**: `/sf-diagram`
-- **Dispatch**: Ask what type of diagram to create
+- **Dispatch**: Ask the user (see below)
 - **Init required**: no
 - **Init timing**: n/a
 - **Path**: n/a
@@ -194,7 +194,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 
 ## erd — static data model without org
 
-- **Input**: `/sf-diagram erd Account Contact Opportunity`
+- **Input**: `/sf-diagram erd Account Contact Opportunity without org metadata`
 - **Dispatch**: ERD / data model diagram
 - **Init required**: no
 - **Init timing**: `n/a`
@@ -203,7 +203,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Should ask user**: no (objects are specified)
 - **Follow-up skills**: `sf-metadata`, `sf-data`
 
-**Notes**: `erd` keyword with object names but no request for org metadata. Can generate a standard ERD from known standard object relationships without connecting to an org. If the user wants actual field details from the org, they would need to specify that explicitly.
+**Notes**: `erd` keyword with object names plus explicit "without org metadata" qualifier. Can generate a standard ERD from known standard object relationships without connecting to an org. Differentiates from the existing "erd with org metadata" test by explicitly opting out of live org data. If the user omits the qualifier, the default behavior is to fetch org metadata (as tested in the existing case).
 
 ---
 

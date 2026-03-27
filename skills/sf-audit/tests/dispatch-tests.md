@@ -9,7 +9,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 ## full audit explicit
 
 - **Input**: `/sf-audit full`
-- **Dispatch**: Salesforce Org Audit
+- **Dispatch**: Full Org Audit (all domains)
 - **Init required**: yes
 - **Init timing**: before-workflow
 - **Path**: full
@@ -27,7 +27,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 ## apex-only audit
 
 - **Input**: `/sf-audit apex`
-- **Dispatch**: Salesforce Org Audit
+- **Dispatch**: Apex-only audit
 - **Init required**: yes
 - **Init timing**: before-workflow
 - **Path**: full
@@ -45,7 +45,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 ## flow audit
 
 - **Input**: `/sf-audit flow`
-- **Dispatch**: Salesforce Org Audit
+- **Dispatch**: Flow/automation-only audit
 - **Init required**: yes
 - **Init timing**: before-workflow
 - **Path**: full
@@ -63,7 +63,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 ## lwc audit
 
 - **Input**: `/sf-audit lwc`
-- **Dispatch**: Salesforce Org Audit
+- **Dispatch**: LWC-only audit
 - **Init required**: yes
 - **Init timing**: before-workflow
 - **Path**: full
@@ -81,7 +81,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 ## metadata audit
 
 - **Input**: `/sf-audit metadata`
-- **Dispatch**: Salesforce Org Audit
+- **Dispatch**: Metadata/data-model-only audit
 - **Init required**: yes
 - **Init timing**: before-workflow
 - **Path**: full
@@ -99,7 +99,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 ## permissions audit
 
 - **Input**: `/sf-audit permissions`
-- **Dispatch**: Salesforce Org Audit
+- **Dispatch**: Permissions-only audit
 - **Init required**: yes
 - **Init timing**: before-workflow
 - **Path**: fast
@@ -117,7 +117,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 ## no arguments — default behavior
 
 - **Input**: `/sf-audit`
-- **Dispatch**: Salesforce Org Audit
+- **Dispatch**: Full Org Audit (all domains)
 - **Init required**: yes
 - **Init timing**: before-workflow
 - **Path**: full
@@ -135,7 +135,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 ## scoped apex-and-flow audit
 
 - **Input**: `/sf-audit apex flow`
-- **Dispatch**: Salesforce Org Audit
+- **Dispatch**: Full Org Audit (all domains)
 - **Init required**: yes
 - **Init timing**: before-workflow
 - **Path**: full
@@ -177,10 +177,10 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **First tool**: `cirra_ai_init`
 - **Should call**: `soql_query`, `tooling_api_query`, `sobject_describe`
 - **Should NOT call**: `metadata_create`, `metadata_update`
-- **Should ask user**: no
+- **Should ask user**: yes (Phase B approval required before deep-dive scoring)
 - **Follow-up skills**: `sf-metadata`, `sf-permissions`
 
-**Notes**: Multiple scope keywords combine — `metadata` activates C7 (Data Model) + C8 (Workflow Rules), and `permissions` activates C6 (Profiles and Permissions). Should NOT run C1–C5 phases. Similar to the existing "scoped apex-and-flow" test but for a different scope combination.
+**Notes**: Multiple scope keywords combine — `metadata` activates C7 (Data Model) + C8 (Workflow Rules), and `permissions` activates C6 (Profiles and Permissions). Should NOT run C1–C5 phases. Phase B user approval is required before deep-dive begins, consistent with other scoped audit tests.
 
 ---
 
@@ -194,10 +194,10 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **First tool**: `cirra_ai_init`
 - **Should call**: `soql_query`, `tooling_api_query`, `sobject_describe`
 - **Should NOT call**: `metadata_create`, `metadata_update`
-- **Should ask user**: no
+- **Should ask user**: yes (Phase B approval required before deep-dive scoring)
 - **Follow-up skills**: `sf-lwc`, `sf-metadata`
 
-**Notes**: Combines LWC (C5) with Data Model (C7+C8) scopes. Tests that non-adjacent scope keywords are properly combined. Should skip C1–C4 and C6.
+**Notes**: Combines LWC (C5) with Data Model (C7+C8) scopes. Tests that non-adjacent scope keywords are properly combined. Should skip C1–C4 and C6. Phase B user approval is required before deep-dive begins.
 
 ---
 
@@ -211,7 +211,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **First tool**: `cirra_ai_init`
 - **Should call**: `soql_query`, `tooling_api_query`
 - **Should NOT call**: `metadata_create`, `metadata_update`
-- **Should ask user**: no
+- **Should ask user**: yes (Phase B approval required before deep-dive scoring)
 - **Follow-up skills**: `sf-apex`
 
-**Notes**: The word `review` is not in the dispatch table explicitly but the intent maps to audit. The `apex` scope keyword should still be detected — should run C1 (Apex Classes) and C2 (Apex Triggers) only. Tests natural language intent resolution combined with scope filtering.
+**Notes**: The word `review` is not in the dispatch table explicitly but the intent maps to audit. The `apex` scope keyword should still be detected — should run C1 (Apex Classes) and C2 (Apex Triggers) only. Phase B user approval is required before deep-dive begins. Tests natural language intent resolution combined with scope filtering.

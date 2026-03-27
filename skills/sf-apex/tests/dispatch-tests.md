@@ -246,7 +246,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Init timing**: `before-workflow`
 - **Path**: `full`
 - **First tool**: `tooling_api_query`
-- **Tool params**: `sObject: ApexClass, whereClause: Name IN ('AccountService','ContactTrigger','OpportunityHelper')`
+- **Tool params**: `sObject: ApexClass, whereClause: Name IN ('AccountService', 'ContactTrigger', 'OpportunityHelper')`
 - **Should NOT call**: `tooling_api_dml` (validation only, no deployment)
 - **Should ask user**: no
 - **Follow-up skills**: `/sf-apex update` (for classes with low scores)

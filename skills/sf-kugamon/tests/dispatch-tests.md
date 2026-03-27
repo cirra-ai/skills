@@ -9,7 +9,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 ## quote — create quote for an opportunity
 
 - **Input**: `/sf-kugamon quote for opportunity 006Xx000001abcdEAA`
-- **Dispatch**: Quote Creation
+- **Dispatch**: Quote Management
 - **Init required**: yes
 - **Init timing**: before-workflow
 - **Path**: full
@@ -28,7 +28,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 ## order — release order and trigger subscription lifecycle
 
 - **Input**: `/sf-kugamon order release 801Xx000001abcdEAA`
-- **Dispatch**: Order Release Lifecycle
+- **Dispatch**: Order Management
 - **Init required**: yes
 - **Init timing**: before-workflow
 - **Path**: full
@@ -47,7 +47,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 ## contract — check and manage an existing contract
 
 - **Input**: `/sf-kugamon contract 800Xx000001abcdEAA check status`
-- **Dispatch**: Order Release Lifecycle
+- **Dispatch**: Contract Management
 - **Init required**: yes
 - **Init timing**: before-workflow
 - **Path**: full
@@ -66,7 +66,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 ## renewal — create renewal quote from existing subscription
 
 - **Input**: `/sf-kugamon renewal opportunity 006Xx000009zzzzEAA`
-- **Dispatch**: Quote Creation
+- **Dispatch**: Renewal Management
 - **Init required**: yes
 - **Init timing**: before-workflow
 - **Path**: full
@@ -123,7 +123,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 ## edge case — kuga_sub package not installed (HAS_KUGA_SUB = false)
 
 - **Input**: `/sf-kugamon quote for opportunity 006Xx000001xxxxxEAA`
-- **Dispatch**: Quote Creation
+- **Dispatch**: Quote Management
 - **Init required**: yes
 - **Init timing**: before-workflow
 - **Path**: full
