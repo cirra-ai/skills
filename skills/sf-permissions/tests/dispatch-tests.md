@@ -203,3 +203,88 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Follow-up skills**: `sf-permissions update`, `sf-permissions hierarchy`
 
 **Notes**: Natural language "who can" should route to Analyze Permissions even without the explicit `analyze` keyword. This tests intent inference from the dispatch table's pattern column. Should query FieldPermissions (not ObjectPermissions — this is field-level). Known caveat: verify the Field column prefix matches Account, as the API may return cross-object matches.
+
+---
+
+## who has custom permission
+
+- **Input**: `/sf-permissions analyze who has the Can_Approve custom permission`
+- **Dispatch**: Analyze Permissions
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `soql_query`
+- **Tool params**: `sObject: SetupEntityAccess, whereClause includes SetupEntityType = 'CustomPermission'`
+- **Should call**: `soql_query`
+- **Should NOT call**: `metadata_create`, `metadata_update`, `metadata_delete`
+- **Should ask user**: no
+- **Follow-up skills**: `sf-permissions update`, `sf-permissions hierarchy`
+
+**Notes**: Routes to Analyze Permissions, sub-case "Who has X?" for custom permissions. Should query `SetupEntityAccess` with `SetupEntityType = 'CustomPermission'` and a subquery to match the `DeveloperName`. Then resolve PS names from hex IDs.
+
+---
+
+## detect synonym for analyze
+
+- **Input**: `/sf-permissions detect which PS grants ModifyAllData`
+- **Dispatch**: Analyze Permissions
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `soql_query`
+- **Should call**: `soql_query`
+- **Should NOT call**: `metadata_create`, `metadata_update`, `metadata_delete`
+- **Should ask user**: no
+- **Follow-up skills**: `sf-permissions update`, `sf-permissions audit`
+
+**Notes**: `detect` is listed as a synonym for `analyze` in the dispatch table. Should route to Analyze Permissions. ModifyAllData is a system permission — should query PermissionSet records where PermissionsModifyAllData = true.
+
+---
+
+## who has apex class access
+
+- **Input**: `/sf-permissions who has access to AccountService apex class`
+- **Dispatch**: Analyze Permissions
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `soql_query`
+- **Tool params**: `sObject: SetupEntityAccess, whereClause includes SetupEntityType = 'ApexClass'`
+- **Should call**: `soql_query`
+- **Should NOT call**: `metadata_create`, `metadata_update`, `metadata_delete`
+- **Should ask user**: no
+- **Follow-up skills**: `sf-permissions update`
+
+**Notes**: Natural language "who has" without explicit `analyze` keyword should still route to Analyze Permissions per the dispatch table. Should query `SetupEntityAccess` with `SetupEntityType = 'ApexClass'` and a subquery on ApexClass where Name = 'AccountService'.
+
+---
+
+## clone a permission set group
+
+- **Input**: `/sf-permissions clone Sales_Manager_PSG into Marketing_Manager_PSG`
+- **Dispatch**: Clone Permission Set
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **Should call**: `tooling_api_query`, `metadata_read`, `metadata_create`
+- **Should NOT call**: `metadata_delete`, `sobject_dml`
+- **Should ask user**: no
+- **Follow-up skills**: `sf-permissions update`, `sf-permissions hierarchy`
+
+**Notes**: `clone` keyword routes to Clone Permission Set. The source is a PSG (not a PS). Per SKILL.md: "For PSGs, verify the type first (`tooling_api_query` on `PermissionSet` checking `Type` field), then use `metadata_read(type='PermissionSetGroup', ...)`." Should use `metadata_create` with type `PermissionSetGroup` for the clone.
+
+---
+
+## update with system permission via metadata API
+
+- **Input**: `/sf-permissions update API_Integration_PS enable ViewSetup`
+- **Dispatch**: Update Permission Set
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **Should call**: `metadata_update`
+- **Should NOT call**: `metadata_delete`, `metadata_create`, `sobject_dml`
+- **Should ask user**: no
+- **Follow-up skills**: `sf-permissions analyze`, `sf-permissions hierarchy`
+
+**Notes**: `update` keyword routes to Update Permission Set. ViewSetup is a system permission — per SKILL.md, system permissions use `metadata_update` with `userPermissions` (not `sobject_dml`). Should NOT use `sobject_dml` since system permissions don't have a DML-able object.

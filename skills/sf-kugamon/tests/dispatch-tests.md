@@ -136,3 +136,88 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Follow-up skills**: `sf-kugamon`
 
 **Notes**: Edge case where `sobject_describe` on `OpportunityLineItem` returns no `kuga_sub__Renew__c` field, setting HAS_KUGA_SUB = false. The skill must NOT query `kuga_sub__KugamonSettings__c`, must NOT reference any `kuga_sub__*` fields on Opportunity or OpportunityLineItem, and must use the standard `Amount` field (not `kuga_sub__OpportunityAmount__c`) for amount comparisons. Quote creation still uses `sobject_dml` with `operation: "insert"` (not `sobject_create`, which is for metadata). Line item routing to service vs. product lines falls back to `kugo2p__AdditionalProductDetail__c.kugo2p__Service__c`. Any "No such column" errors on kuga_sub fields should trigger this fallback path rather than failing.
+
+---
+
+## quote with specific line items
+
+- **Input**: `/sf-kugamon quote for opportunity 006Xx000001abcdEAA with 3 line items`
+- **Dispatch**: Quote Management
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `cirra_ai_init`
+- **Should call**: `sobject_describe`, `soql_query`, `sobject_dml`
+- **Should NOT call**: `sobject_create`
+- **Should ask user**: yes (need line item details — products, quantities, prices)
+- **Follow-up skills**: none
+
+**Notes**: `quote` keyword routes to Create Quote. The user specifies a count of line items but not their details. Should first describe the quote object, query the opportunity, then ask for line item specifics (product names, quantities, unit prices) before creating the quote and line items via `sobject_dml`.
+
+---
+
+## natural language — create a quote for my opportunity
+
+- **Input**: `/sf-kugamon I need to create a quote for my open opportunity`
+- **Dispatch**: Quote Management
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `cirra_ai_init`
+- **Should call**: `sobject_describe`, `soql_query`, `sobject_dml`
+- **Should NOT call**: `sobject_create`
+- **Should ask user**: yes (need the opportunity ID or name)
+- **Follow-up skills**: none
+
+**Notes**: Natural language without explicit `quote` keyword but intent is clearly quote creation. Should route to Create Quote. The opportunity is not identified by ID — must ask the user for an opportunity ID or name to proceed. Init is needed before any MCP queries.
+
+---
+
+## contract check with natural language
+
+- **Input**: `/sf-kugamon check the status of contract 800Xx000002bcdEAA and its subscriptions`
+- **Dispatch**: Contract Management
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `cirra_ai_init`
+- **Should call**: `sobject_describe`, `soql_query`
+- **Should NOT call**: `sobject_create`, `sobject_dml`
+- **Should ask user**: no (contract ID and intent are clear)
+- **Follow-up skills**: none
+
+**Notes**: Natural language maps to Contract Management. Should query the contract by ID and also fetch related subscription records. The request mentions "subscriptions" which may require querying subscription objects related to the contract. Read-only operation — no DML needed.
+
+---
+
+## subscription with MRR/ARR analysis
+
+- **Input**: `/sf-kugamon subscription analyze MRR and ARR for account 001Xx000003xyzEAA`
+- **Dispatch**: Subscription Management
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `cirra_ai_init`
+- **Should call**: `sobject_describe`, `soql_query`
+- **Should NOT call**: `sobject_create`, `sobject_dml`
+- **Should ask user**: no
+- **Follow-up skills**: none
+
+**Notes**: `subscription` keyword routes to Subscription Management. Should query subscription records for the account, then calculate/display MRR and ARR values. Depends on `HAS_KUGA_SUB` flag for field availability. Read-only analysis — no DML.
+
+---
+
+## order with expansion record type
+
+- **Input**: `/sf-kugamon order expansion for opportunity 006Xx000005defEAA`
+- **Dispatch**: Order Management
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `cirra_ai_init`
+- **Should call**: `sobject_describe`, `soql_query`, `sobject_dml`
+- **Should NOT call**: `sobject_create`
+- **Should ask user**: no
+- **Follow-up skills**: none
+
+**Notes**: `order` keyword routes to Order Release Lifecycle. The "expansion" qualifier indicates the Expansion record type from the Order Release Lifecycle matrix in SKILL.md. Should follow the expansion-specific behaviors (delta values, MRR/ARR updates) rather than the standard New order path.

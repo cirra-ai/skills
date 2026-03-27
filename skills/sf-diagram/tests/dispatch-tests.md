@@ -174,3 +174,80 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Follow-up skills**: `sf-metadata`
 
 **Notes**: When `$ARGUMENTS` contains keywords that match more than one row of the dispatch table (`erd` and `oauth` both appear), the skill must not silently pick one. It should surface the ambiguity to the user and confirm intent before selecting a template. If the user confirms ERD, `cirra_ai_init` is required because live org metadata is needed for the `Account` object. This tests that the dispatch parser does not short-circuit on the first matching keyword.
+
+---
+
+## oauth — authorization code flow
+
+- **Input**: `/sf-diagram oauth authorization code flow for a web application`
+- **Dispatch**: OAuth flow diagram
+- **Init required**: no
+- **Init timing**: `n/a`
+- **Path**: `fast`
+- **Should NOT call**: `cirra_ai_init`, `sobject_describe`, `soql_query`, `tooling_api_query`
+- **Should ask user**: no (flow type is specified)
+- **Follow-up skills**: `sf-permissions`
+
+**Notes**: `oauth` keyword with explicit flow type (authorization code) routes to OAuth Flow Diagrams. No org data needed — OAuth diagrams are generated from reference templates. Should use the Authorization Code template, not PKCE. The request specifies "web application" which confirms standard auth code (not PKCE for SPAs).
+
+---
+
+## erd — static data model without org
+
+- **Input**: `/sf-diagram erd Account Contact Opportunity`
+- **Dispatch**: ERD / data model diagram
+- **Init required**: no
+- **Init timing**: `n/a`
+- **Path**: `fast`
+- **Should NOT call**: `cirra_ai_init`, `sobject_describe`, `soql_query`
+- **Should ask user**: no (objects are specified)
+- **Follow-up skills**: `sf-metadata`, `sf-data`
+
+**Notes**: `erd` keyword with object names but no request for org metadata. Can generate a standard ERD from known standard object relationships without connecting to an org. If the user wants actual field details from the org, they would need to specify that explicitly.
+
+---
+
+## sequence diagram for API integration
+
+- **Input**: `/sf-diagram sequence Salesforce to Stripe payment sync`
+- **Dispatch**: Integration sequence diagram
+- **Init required**: no
+- **Init timing**: `n/a`
+- **Path**: `full`
+- **Should NOT call**: `cirra_ai_init`, `sobject_describe`, `soql_query`
+- **Should ask user**: yes (need details about the integration steps, endpoints, and data flow)
+- **Follow-up skills**: `sf-apex`, `sf-flow`
+
+**Notes**: `sequence` keyword routes to Integration Sequence Diagrams per the dispatch table. The request names two systems (Salesforce and Stripe) but doesn't specify the detailed steps. Should ask the user for the specific API calls, data transformations, and error handling to include in the diagram.
+
+---
+
+## data-model synonym for erd
+
+- **Input**: `/sf-diagram data-model for CPQ objects`
+- **Dispatch**: ERD / data model diagram
+- **Init required**: no
+- **Init timing**: `n/a`
+- **Path**: `full`
+- **Should NOT call**: `cirra_ai_init`, `sobject_describe`, `soql_query`
+- **Should ask user**: yes (need to clarify which CPQ objects to include — standard vs custom)
+- **Follow-up skills**: `sf-metadata`
+
+**Notes**: `data-model` is listed as a synonym for `erd` in the dispatch table. "CPQ objects" is underspecified — the user could mean standard Salesforce CPQ objects (Quote, QuoteLineItem, Product2, PricebookEntry) or custom CPQ objects. Should ask for clarification before generating.
+
+---
+
+## role hierarchy with org data
+
+- **Input**: `/sf-diagram hierarchy show role and permission set structure from the org`
+- **Dispatch**: Role / permission hierarchy diagram
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `cirra_ai_init`
+- **Should call**: `soql_query`
+- **Should NOT call**: `metadata_create`, `metadata_update`
+- **Should ask user**: no (request is clear — pull from org)
+- **Follow-up skills**: `sf-permissions`
+
+**Notes**: `hierarchy` keyword routes to Role & Permission Hierarchy. The request explicitly asks for org data ("from the org"), so init is required. Should query UserRole, PermissionSet, and PermissionSetGroup objects to build the hierarchy visualization.

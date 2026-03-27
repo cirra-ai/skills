@@ -9,7 +9,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 ## check order status by order number
 
 - **Input**: `/sf-orders order ORD-00123`
-- **Dispatch**: Check Order Status
+- **Dispatch**: Order Status
 - **Init required**: yes
 - **Init timing**: before-workflow
 - **Path**: fast
@@ -27,7 +27,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 ## check order status by salesforce id
 
 - **Input**: `/sf-orders order 8013g000001AbCdEfG`
-- **Dispatch**: Check Order Status
+- **Dispatch**: Order Status
 - **Init required**: yes
 - **Init timing**: before-workflow
 - **Path**: fast
@@ -45,7 +45,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 ## create return order
 
 - **Input**: `/sf-orders return ORD-00456 reason=Defective`
-- **Dispatch**: Create Return Order
+- **Dispatch**: Return Management
 - **Init required**: yes
 - **Init timing**: before-workflow
 - **Path**: full
@@ -63,7 +63,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 ## email return label — flow path
 
 - **Input**: `/sf-orders return label RO-00789 customer@example.com`
-- **Dispatch**: Email Return Label
+- **Dispatch**: Return Management
 - **Init required**: yes
 - **Init timing**: before-workflow
 - **Path**: full
@@ -81,7 +81,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 ## update case status
 
 - **Input**: `/sf-orders case 00001234 status=Escalated reason="Customer complaint"`
-- **Dispatch**: Update Case Status
+- **Dispatch**: Case Management
 - **Init required**: yes
 - **Init timing**: before-workflow
 - **Path**: fast
@@ -118,7 +118,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 ## create case from return — return already has a case (edge case)
 
 - **Input**: `/sf-orders case from return RO-00111`
-- **Dispatch**: Create Case from Return
+- **Dispatch**: Case Management
 - **Init required**: yes
 - **Init timing**: before-workflow
 - **Path**: full
@@ -130,3 +130,88 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Follow-up skills**: `sf-flow`
 
 **Notes**: Edge case — the ReturnOrder queried in Step 1 has `CaseId` already populated. The skill must reject immediately with "A case already exists for this return order. Case ID: {CaseId}" and must not proceed to create a duplicate Case or update the ReturnOrder. No `sobject_dml` calls should be made. The ReturnOrderLineItem query (Step 2) and the linked Order query (Step 4) should also be skipped since validation fails at Step 3.
+
+---
+
+## create case from return — happy path
+
+- **Input**: `/sf-orders case from return RO-00222`
+- **Dispatch**: Case Management
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `cirra_ai_init`
+- **Should call**: `cirra_ai_init`, `sobject_describe`, `soql_query`, `sobject_dml`, `link_build`
+- **Should NOT call**: `tooling_api_dml`
+- **Should ask user**: no
+- **Follow-up skills**: `sf-flow`
+
+**Notes**: Happy path for creating a case from a return order (existing edge case test covers the duplicate rejection). Should query ReturnOrder, ReturnOrderLineItem, and linked Order, then create a Case via `sobject_dml` and link it back to the ReturnOrder. Priority is derived from return reason (Defective → High). "RO-00222" is not a Salesforce ID — use `ReturnOrderNumber` in the whereClause.
+
+---
+
+## return with single line item auto-detect
+
+- **Input**: `/sf-orders return ORD-00789`
+- **Dispatch**: Return Management
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `cirra_ai_init`
+- **Should call**: `cirra_ai_init`, `sobject_describe`, `soql_query`, `sobject_dml`, `link_build`
+- **Should NOT call**: `tooling_api_query`, `tooling_api_dml`
+- **Should ask user**: yes (need return reason and quantity; may skip line item selection if only one exists)
+- **Follow-up skills**: `sf-flow`
+
+**Notes**: `return` keyword routes to Create Return Order. No line item or reason specified — must ask for reason and quantity. Per SKILL.md: "If there's only one item, or the user says 'auto-detect', use the first item." Should query OrderItems and if only one exists, auto-select it but still ask for return reason.
+
+---
+
+## natural language — I need to return an item
+
+- **Input**: `/sf-orders I need to return a defective item from order ORD-00345`
+- **Dispatch**: Return Management
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `cirra_ai_init`
+- **Should call**: `cirra_ai_init`, `sobject_describe`, `soql_query`, `sobject_dml`, `link_build`
+- **Should NOT call**: `tooling_api_query`, `tooling_api_dml`
+- **Should ask user**: yes (which specific item to return if multiple exist)
+- **Follow-up skills**: `sf-flow`
+
+**Notes**: Natural language with "return" intent and "defective" reason. Should route to Create Return Order. The reason (Defective) is embedded in the request. "ORD-00345" is not a Salesforce ID — use `OrderNumber` in whereClause. Should still ask which line item if multiple exist.
+
+---
+
+## case with invalid status transition
+
+- **Input**: `/sf-orders case 00005678 status=Working`
+- **Dispatch**: Case Management
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `fast`
+- **First tool**: `cirra_ai_init`
+- **Should call**: `cirra_ai_init`, `sobject_describe`, `soql_query`
+- **Should NOT call**: `tooling_api_query`, `tooling_api_dml`
+- **Should ask user**: no
+- **Follow-up skills**: `sf-flow`
+
+**Notes**: If the case is currently in "Escalated" status, transitioning to "Working" is valid per the status transition table. But if the case is "Closed", the transition to "Working" is invalid (closed cases cannot be reopened). The skill must query the case first, check `IsClosed`, and reject with an appropriate error if the case is closed. This tests the business rule validation path.
+
+---
+
+## email return label — task fallback path
+
+- **Input**: `/sf-orders return label RO-00999 customer@test.com`
+- **Dispatch**: Return Management
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `cirra_ai_init`
+- **Should call**: `cirra_ai_init`, `sobject_describe`, `soql_query`, `tooling_api_query`, `sobject_dml`
+- **Should NOT call**: `link_build`
+- **Should ask user**: no
+- **Follow-up skills**: `sf-flow`
+
+**Notes**: Tests the fallback path when `HAS_RETURN_LABEL_FLOW = false`. The `tooling_api_query` on FlowDefinition returns no active flow. Should fall back to creating a Task record via `sobject_dml` with high priority. Must NOT update `LabelEmailSent__c` since no email was actually sent — only the flow path updates that field.

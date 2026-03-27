@@ -147,3 +147,71 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Follow-up skills**: `sf-apex`, `sf-flow`
 
 **Notes**: Multiple argument hints narrow the audit to Apex Classes (C1), Apex Triggers (C2), Flows (C3), and Process Builders (C4). The Phase B prompt should reflect the scoped selection, matching the "Yes, just Apex and Flows" option described in Phase B. Phase C9 (Completeness Gate) only validates the approved domains. LWC, Metadata, and Permissions domains are excluded and should be marked "Not audited" in the reports.
+
+---
+
+## natural language — audit my org
+
+- **Input**: `/sf-audit run an audit on my org`
+- **Dispatch**: Full Org Audit (all domains)
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `cirra_ai_init`
+- **Should call**: `soql_query`, `tooling_api_query`
+- **Should NOT call**: `metadata_create`, `metadata_update`
+- **Should ask user**: yes (confirm full audit scope before proceeding)
+- **Follow-up skills**: `sf-apex`, `sf-flow`, `sf-lwc`, `sf-metadata`, `sf-permissions`
+
+**Notes**: Natural language without an explicit scope keyword should be interpreted as a full audit request. The dispatch table maps unclear/no-argument to full audit. Should confirm scope with the user before starting the multi-phase process. All eight audit domains (C1–C8) should be included.
+
+---
+
+## metadata and permissions combined scope
+
+- **Input**: `/sf-audit metadata permissions`
+- **Dispatch**: Full Org Audit (all domains)
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `cirra_ai_init`
+- **Should call**: `soql_query`, `tooling_api_query`, `sobject_describe`
+- **Should NOT call**: `metadata_create`, `metadata_update`
+- **Should ask user**: no
+- **Follow-up skills**: `sf-metadata`, `sf-permissions`
+
+**Notes**: Multiple scope keywords combine — `metadata` activates C7 (Data Model) + C8 (Workflow Rules), and `permissions` activates C6 (Profiles and Permissions). Should NOT run C1–C5 phases. Similar to the existing "scoped apex-and-flow" test but for a different scope combination.
+
+---
+
+## lwc and metadata combined scope
+
+- **Input**: `/sf-audit lwc metadata`
+- **Dispatch**: Full Org Audit (all domains)
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `cirra_ai_init`
+- **Should call**: `soql_query`, `tooling_api_query`, `sobject_describe`
+- **Should NOT call**: `metadata_create`, `metadata_update`
+- **Should ask user**: no
+- **Follow-up skills**: `sf-lwc`, `sf-metadata`
+
+**Notes**: Combines LWC (C5) with Data Model (C7+C8) scopes. Tests that non-adjacent scope keywords are properly combined. Should skip C1–C4 and C6.
+
+---
+
+## review synonym for audit
+
+- **Input**: `/sf-audit review apex`
+- **Dispatch**: Full Org Audit (all domains)
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `cirra_ai_init`
+- **Should call**: `soql_query`, `tooling_api_query`
+- **Should NOT call**: `metadata_create`, `metadata_update`
+- **Should ask user**: no
+- **Follow-up skills**: `sf-apex`
+
+**Notes**: The word `review` is not in the dispatch table explicitly but the intent maps to audit. The `apex` scope keyword should still be detected — should run C1 (Apex Classes) and C2 (Apex Triggers) only. Tests natural language intent resolution combined with scope filtering.
