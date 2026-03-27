@@ -1,18 +1,19 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Package Cirra AI skills as standalone zip files for distribution.
+# Package Cirra AI skills as standalone .skill files for distribution.
 #
-# Each skill zip contains all files from the skill directory, with SKILL.md
+# Each .skill package contains all files from the skill directory, with SKILL.md
 # processed to strip plugin-only frontmatter keys and append a License section.
 # LICENSE falls back to the repo root if not present in the skill dir.
+#
+# The .skill format is a zip archive with a .skill extension.
 #
 # Usage:
 #   scripts/package-skills.sh          # warn on issues, fail on errors
 #   scripts/package-skills.sh --strict # also fail on warnings
 #
-# Output: install/skills/<skill-name>-skill.zip
-# The "-skill" suffix distinguishes these from the full plugin zips in install/plugins/.
+# Output: install/skills/<skill-name>.skill
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -160,8 +161,8 @@ PYEOF
     printf '\n%s\n' "$LICENSE_SECTION_BASE" >> "$tmp_dir/SKILL.md"
   fi
 
-  # Zip contents (preserving subdirectory structure)
-  (cd "$tmp_dir" && zip -r -q "$SKILLS_OUT_DIR/${skill_name}-skill.zip" .)
+  # Package contents as .skill file (zip archive with .skill extension)
+  (cd "$tmp_dir" && zip -r -q "$SKILLS_OUT_DIR/${skill_name}.skill" .)
 
   rm -rf "$tmp_dir"
   SKILL_COUNT=$((SKILL_COUNT + 1))
@@ -173,4 +174,4 @@ echo ""
 echo "=== Done ==="
 echo ""
 echo "Output in $SKILLS_OUT_DIR/:"
-ls -lh "$SKILLS_OUT_DIR"/*.zip 2>/dev/null || echo "  (none)"
+ls -lh "$SKILLS_OUT_DIR"/*.skill 2>/dev/null || echo "  (none)"

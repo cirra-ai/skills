@@ -37,19 +37,19 @@ jobs:
         if: github.event_name == 'release'
         run: scripts/sync-plugin-skills.sh --check
 
-      - name: Attach zips to published release
+      - name: Attach artifacts to published release
         if: github.event_name == 'release'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
-          for zip in install/plugins/*.zip install/skills/*.zip; do
-            gh release upload "${RELEASE_TAG}" "$zip" --clobber
+          for artifact in install/plugins/*.zip install/skills/*.skill; do
+            gh release upload "${RELEASE_TAG}" "$artifact" --clobber
           done
 
       - name: Generate downloads page
         run: |
-          cp install/plugins/*.zip install/skills/*.zip docs/
+          cp install/plugins/*.zip install/skills/*.skill docs/
           bash scripts/generate-pages.sh --dl-base=.
 
       - name: Deploy to Cloudflare Pages
