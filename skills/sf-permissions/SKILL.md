@@ -5,11 +5,11 @@ metadata:
   version: 2.0.1
 argument-hint: '[hierarchy|audit|analyze|create|clone|update|delete|agent-access] ...'
 description: >
-  [hierarchy|audit|analyze|create|clone|update|delete|agent-access] ... —
-  Permission Set analysis, hierarchy viewer, and "Who has X?" auditing. Use when
-  analyzing permissions, visualizing PS/PSG hierarchies, finding which Permission Sets
-  grant access to specific objects, fields, or Apex classes, or auditing user permissions
-  via the Cirra AI MCP Server.
+  Permission Set analysis, hierarchy viewer, and "Who has X?" auditing. Use when analyzing
+  permissions, visualizing PS/PSG hierarchies, finding which Permission Sets grant access
+  to specific objects, fields, or Apex classes, or auditing user permissions via the Cirra
+  AI MCP Server.
+  Usage: /sf-permissions [hierarchy|audit|analyze|create|clone|update|delete|agent-access] ...
 ---
 
 # Salesforce Permission Analysis & Management

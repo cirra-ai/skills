@@ -5,9 +5,10 @@ argument-hint: '[create|update|validate] {FlowName} ...'
 metadata:
   version: 2.0.1
 description: >
-  [create|update|validate] {FlowName} ... — Creates and validates Salesforce flows with 110-point scoring and Winter '26
-  best practices using Cirra AI MCP Server. Use when building record-triggered flows,
-  screen flows, autolaunched flows, scheduled flows, or reviewing existing flow performance.
+  Creates and validates Salesforce flows with 110-point scoring and Winter '26 best practices
+  using Cirra AI MCP Server. Use when building record-triggered flows, screen flows,
+  autolaunched flows, scheduled flows, or reviewing existing flow performance.
+  Usage: /sf-flow [create|update|validate] {FlowName} ...
 ---
 
 # Salesforce Flow Development and Review

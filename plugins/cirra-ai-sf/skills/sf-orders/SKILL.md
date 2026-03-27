@@ -5,9 +5,10 @@ argument-hint: '[order|return|case] {details} ...'
 metadata:
   version: 2.0.1
 description: >
-  [order|return|case] {details} ... — Salesforce Order Management for orders, returns,
-  and cases via Cirra AI MCP Server. Use when asked about order status, return orders,
-  return labels, support cases from returns, or the order-to-return-to-case lifecycle.
+  Salesforce Order Management for orders, returns, and cases via Cirra AI MCP Server.
+  Use when asked about order status, return orders, return labels, support cases from
+  returns, or the order-to-return-to-case lifecycle.
+  Usage: /sf-orders [order|return|case] {details} ...
 ---
 
 # Salesforce Order Management Expert
