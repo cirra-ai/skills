@@ -5,9 +5,10 @@ argument-hint: '[create|update|delete|describe] {ObjectName|FieldName|type} ...'
 metadata:
   version: 2.0.1
 description: >
-  [create|update|delete|describe] {ObjectName|FieldName|type} ... — Salesforce metadata
-  operations expert. Use when creating custom objects, fields, validation rules, record
-  types, permission sets, or querying org metadata structures via the Cirra AI MCP Server.
+  Salesforce metadata operations expert. Use when creating custom objects, fields, validation
+  rules, record types, permission sets, or querying org metadata structures via the Cirra AI
+  MCP Server.
+  Usage: /sf-metadata [create|update|delete|describe] {ObjectName|FieldName|type} ...
 ---
 
 # Salesforce Metadata Operations Expert
