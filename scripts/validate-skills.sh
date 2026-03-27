@@ -156,9 +156,10 @@ for dir in "${skill_dirs[@]}"; do
 
   ref_errors=""
   if [[ $ref_rc -ne 0 ]]; then
-    # Filter known false positives: 'hooks', 'plugin', and 'argument-hint' are
-    # Claude Code frontmatter extensions not in the agentskills spec. The
-    # packaging step strips non-standard keys from standalone skill zips.
+    # Filter known false positives: 'hooks' and 'plugin' are Claude Code
+    # frontmatter extensions; 'argument-hint' is a repo-internal field used
+    # by dispatch tests. None are in the agentskills spec. The packaging
+    # step strips non-standard keys from standalone skill zips.
     # Only suppress "Unexpected fields" lines when ALL reported fields are in
     # the allowlist; otherwise keep the line so real errors aren't hidden.
     while IFS= read -r line; do

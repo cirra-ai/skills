@@ -1,6 +1,6 @@
 # sf-metadata
 
-Salesforce metadata operations skill for Claude Cowork and Claude Code. Create custom objects, fields, validation rules, record types, and permission sets directly in your org via the Cirra AI MCP Server.
+Salesforce metadata operations skill for AI coding tools. Create custom objects, fields, validation rules, record types, and permission sets directly in your org via the Cirra AI MCP Server.
 
 ## Features
 
@@ -11,11 +11,11 @@ Salesforce metadata operations skill for Claude Cowork and Claude Code. Create c
 
 ## Installation
 
-For full installation instructions (Claude Cowork, OpenAI, browser), see the [root README](../../../../README.md).
+For full installation instructions (various AI tools), see the [root README](../../../../README.md).
 
 ## Usage
 
-#### In Claude Cowork or Claude Code
+#### Installation
 
 Invoke the unified skill:
 
@@ -79,7 +79,7 @@ available.
 
 ## Requirements
 
-- Claude Cowork or Claude Code with skill plugins enabled
+- An AI coding tool with skill/plugin support
 - Cirra AI MCP Server
 - Target Salesforce org
 

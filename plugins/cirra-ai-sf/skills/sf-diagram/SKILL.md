@@ -3,11 +3,12 @@ name: sf-diagram
 plugin: cirra-ai-sf
 argument-hint: '[oauth|erd|integration|landscape|hierarchy|agentforce] ...'
 metadata:
-  version: 2.0.0
+  version: 2.0.1
 description: >
-  Creates Salesforce architecture diagrams using Mermaid with ASCII fallback.
-  Use when visualizing OAuth flows, data models (ERDs), integration sequences,
-  system landscapes, role hierarchies, or Agentforce agent architectures.
+  [oauth|erd|integration|landscape|hierarchy|agentforce] ... — Creates Salesforce
+  architecture diagrams using Mermaid with ASCII fallback. Use when visualizing OAuth
+  flows, data models (ERDs), integration sequences, system landscapes, role hierarchies,
+  or Agentforce agent architectures.
 ---
 
 # Salesforce Diagram Generation
@@ -39,7 +40,15 @@ Parse `$ARGUMENTS` to determine the diagram type before gathering further requir
 | `landscape`                   | System landscape / architecture     |
 | `hierarchy` / `role`          | Role / permission hierarchy diagram |
 | `agentforce`                  | Agentforce agent flow diagram       |
-| _(no argument)_               | Ask what type of diagram to create  |
+| _(no argument)_               | Ask the user (see below)            |
+
+When the diagram type is missing or unclear, **you MUST use `AskUserQuestion`** before proceeding:
+
+```
+AskUserQuestion(question="What type of diagram would you like to create?\n\n1. **OAuth flow** — Authorization Code, JWT Bearer, PKCE, etc.\n2. **ERD / data model** — object relationships from org metadata\n3. **Integration sequence** — API callouts, event-driven flows\n4. **System landscape** — high-level architecture\n5. **Role hierarchy** — user/permission hierarchy\n6. **Agentforce** — agent topic and action flows")
+```
+
+Do NOT guess the diagram type or default to one. Wait for the user's answer.
 
 ---
 
@@ -405,7 +414,7 @@ tooling_api_query(
 The following developer-focused features are **NOT needed** in the Cirra AI version:
 
 - `scripts/query-org-metadata.py` (Python CLI) - Use MCP tools instead
-- `scripts/mermaid_preview.py` (localhost preview) - Not needed in Claude Cowork
+- `scripts/mermaid_preview.py` (localhost preview) - Not needed in sandboxed environments
 - sf CLI metadata commands - Use `sobject_describe` / `tooling_api_query` instead
 
 ---
@@ -420,7 +429,7 @@ The following developer-focused features are **NOT needed** in the Cirra AI vers
 
 ## Notes
 
-- **Mermaid Rendering**: Works in Claude Cowork, GitHub, VS Code, Notion, Confluence, and most modern tools
+- **Mermaid Rendering**: Works in GitHub, VS Code, Notion, Confluence, and most modern tools
 - **ASCII Purpose**: Terminal compatibility, documentation that needs plain text
 - **Color Accessibility**: Palette designed for color-blind accessibility
 - **Template Customization**: Templates are starting points; customize per requirements

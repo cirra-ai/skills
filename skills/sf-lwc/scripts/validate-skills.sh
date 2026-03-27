@@ -115,7 +115,7 @@ for dir in "${skill_dirs[@]}"; do
     continue
   fi
 
-  # Filter known false-positive: 'hooks' is a Claude Code frontmatter extension
+  # Filter known false-positive: 'hooks' is a plugin frontmatter extension
   # not in the agentskills spec. Error format: "  - Unexpected fields in frontmatter: hooks. Only ..."
   real_errors=$(printf '%s\n' "$output" | grep "^  - " | grep -v "Unexpected fields in frontmatter: hooks\.")
 

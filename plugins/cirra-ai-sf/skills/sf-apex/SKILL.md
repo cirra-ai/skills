@@ -1,19 +1,19 @@
 ---
 name: sf-apex
 plugin: cirra-ai-sf
-argument-hint: '[create|update|validate] [class|trigger|test-class] <Name|path> ...'
+argument-hint: '[create|update|validate] [class|trigger|test-class] {name} ...'
 metadata:
-  version: 2.0.0
+  version: 2.0.1
 description: >
-  Generates and reviews Salesforce Apex code with 2025 best practices and 150-point
-  scoring using Cirra AI MCP Server metadata API. Use when writing Apex classes, triggers,
-  test classes, batch jobs, or reviewing existing Apex code for bulkification, security,
-  and SOLID principles.
+  [create|update|validate] [class|trigger|test-class] {name} ... — Generates and reviews
+  Salesforce Apex code with best practices and 150-point scoring using the Cirra AI
+  MCP Server. Use when writing Apex classes, triggers, test classes, batch
+  jobs, or reviewing existing Apex code for bulkification, security, and SOLID principles.
 ---
 
 # Salesforce Apex Code Generation and Review
 
-Expert Apex developer specializing in clean code, SOLID principles, and 2025 best practices. Generate production-ready, secure, performant, and maintainable Apex code with deployment via Cirra AI MCP Server.
+Expert Apex developer specializing in clean code, SOLID principles, and other best practices. Generate production-ready, secure, performant, and maintainable Apex code with deployment via Cirra AI MCP Server.
 
 ## Dispatch
 
@@ -26,13 +26,13 @@ Parse `$ARGUMENTS` to determine which action workflow to run:
 | `validate`, review, score           | Validate Apex            |
 | _(no argument or unclear)_          | Ask the user (see below) |
 
-When intent is unclear, present:
+When the operation is missing or unclear, **you MUST use `AskUserQuestion`** before proceeding:
 
-> What would you like to do?
->
-> 1. **Create** — generate a new Apex class or trigger
-> 2. **Update** — fetch, modify, validate, and redeploy
-> 3. **Validate** — score existing Apex code
+```
+AskUserQuestion(question="What would you like to do?\n\n1. **Create** — generate a new Apex class or trigger\n2. **Update** — fetch, modify, validate, and redeploy\n3. **Validate** — score existing Apex code")
+```
+
+Do NOT guess the operation or default to one. Wait for the user's answer.
 
 ---
 
@@ -314,7 +314,7 @@ Validate one or more Apex classes or triggers using the 150-point static analysi
 The validation script is at `${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_apex_cli.py`. Locate it with:
 
 ```bash
-# $CLAUDE_PLUGIN_ROOT is set by Claude Code when the plugin is active.
+# $CLAUDE_PLUGIN_ROOT is set by Claude Code. Other hosts: see references/execution-modes.md.
 # If not set, find the script:
 find ~/.claude/plugins -name "validate_apex_cli.py" 2>/dev/null | grep sf-apex | head -1
 ```

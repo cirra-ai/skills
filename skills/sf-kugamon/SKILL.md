@@ -1,17 +1,14 @@
 ---
 name: sf-kugamon
 plugin: cirra-ai-sf
-argument-hint: '[quote|order|contract|renewal|subscription] ...'
+argument-hint: '[quote|order|contract|renewal|subscription] {details} ...'
 metadata:
-  version: 2.0.0
+  version: 2.0.1
 description: >
-  Kugamon CPQ quote and subscription management for Salesforce via Cirra AI MCP Server.
-  Use when creating, verifying, or managing opportunities, quotes, orders, contracts,
-  assets, subscriptions, or renewals with the Kugamon package (kugo2p). Automatically
-  detects whether the kuga_sub (Kugamon Subscriptions) package is installed and adapts
-  the workflow accordingly. Handles New, Expansion, and Renewal record types with proper
-  record type mapping, automatic line item population, accurate amount field interpretation,
-  and full Order Release lifecycle (Contract, Asset, Subscription, and Renewal Opportunity creation).
+  [quote|order|contract|renewal|subscription] {details} ... — Kugamon CPQ quote and
+  subscription management for Salesforce via Cirra AI MCP Server. Use when creating,
+  verifying, or managing opportunities, quotes, orders, contracts, assets, subscriptions,
+  or renewals with the Kugamon package (kugo2p).
 ---
 
 # Salesforce Kugamon CPQ Expert
@@ -25,6 +22,29 @@ This skill supports four execution modes — see
 and `references/mcp-pagination.md` for handling large MCP responses.
 
 All Kugamon operations go through MCP tools regardless of mode.
+
+---
+
+## Dispatch
+
+Parse `$ARGUMENTS` to determine the operation:
+
+| First argument or intent                      | Workflow                 |
+| --------------------------------------------- | ------------------------ |
+| `quote`, create/manage quote                  | Quote Management         |
+| `order`, order release, activate              | Order Management         |
+| `contract`, contract creation                 | Contract Management      |
+| `renewal`, renewal opp                        | Renewal Management       |
+| `subscription`, asset, subscription lifecycle | Subscription Management  |
+| _(no argument or unclear)_                    | Ask the user (see below) |
+
+When the operation is missing or unclear, **you MUST use `AskUserQuestion`** before proceeding:
+
+```
+AskUserQuestion(question="What would you like to do with Kugamon?\n\n1. **Quote** — create or manage a Kugamon quote\n2. **Order** — activate a quote and release an order\n3. **Contract** — create or manage contracts\n4. **Renewal** — manage renewal opportunities\n5. **Subscription** — manage assets and subscriptions")
+```
+
+Do NOT guess the operation or default to one. Wait for the user's answer.
 
 ---
 

@@ -1,6 +1,6 @@
 # sf-permissions
 
-Salesforce permission analysis and auditing skill for Claude Cowork and Claude Code. Analyze Permission Set hierarchies, find "who has access to X?", audit user permissions, and identify security risks via the Cirra AI MCP Server.
+Salesforce permission analysis and auditing skill for AI coding tools. Analyze Permission Set hierarchies, find "who has access to X?", audit user permissions, and identify security risks via the Cirra AI MCP Server.
 
 ## Features
 
@@ -12,11 +12,11 @@ Salesforce permission analysis and auditing skill for Claude Cowork and Claude C
 
 ## Installation
 
-For full installation instructions (Claude Cowork, OpenAI, browser), see the [root README](../../../../README.md).
+For full installation instructions (various AI tools), see the [root README](../../../../README.md).
 
 ## Usage
 
-#### In Claude Cowork or Claude Code
+#### Installation
 
 Invoke the unified skill:
 
@@ -79,7 +79,7 @@ are handled.
 
 ## Requirements
 
-- Claude Cowork or Claude Code with skill plugins enabled
+- An AI coding tool with skill/plugin support
 - Cirra AI MCP Server
 - Target Salesforce org
 

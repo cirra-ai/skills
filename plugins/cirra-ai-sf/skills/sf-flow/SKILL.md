@@ -1,11 +1,11 @@
 ---
 name: sf-flow
 plugin: cirra-ai-sf
-argument-hint: '[create|update|validate] <FlowName> ...'
+argument-hint: '[create|update|validate] {FlowName} ...'
 metadata:
-  version: 2.0.0
+  version: 2.0.1
 description: >
-  Creates and validates Salesforce flows with 110-point scoring and Winter '26
+  [create|update|validate] {FlowName} ... — Creates and validates Salesforce flows with 110-point scoring and Winter '26
   best practices using Cirra AI MCP Server. Use when building record-triggered flows,
   screen flows, autolaunched flows, scheduled flows, or reviewing existing flow performance.
 ---
@@ -25,13 +25,13 @@ Parse `$ARGUMENTS` to determine the action:
 | `validate`, review, score      | Validate Flow            |
 | _(no argument or unclear)_     | Ask the user (see below) |
 
-When intent is unclear, present:
+When the operation is missing or unclear, **you MUST use `AskUserQuestion`** before proceeding:
 
-> What would you like to do?
->
-> 1. **Create** — generate a new Flow
-> 2. **Update** — fetch, modify, validate, and redeploy
-> 3. **Validate** — score an existing Flow
+```
+AskUserQuestion(question="What would you like to do?\n\n1. **Create** — generate a new Flow\n2. **Update** — fetch, modify, validate, and redeploy\n3. **Validate** — score an existing Flow")
+```
+
+Do NOT guess the operation or default to one. Wait for the user's answer.
 
 ---
 
@@ -179,7 +179,7 @@ Validate one or more Flows using the 110-point static analysis pipeline and retu
 The validation script is at `${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_flow_cli.py`. Locate it with:
 
 ```bash
-# $CLAUDE_PLUGIN_ROOT is set by Claude Code when the plugin is active.
+# $CLAUDE_PLUGIN_ROOT is set by Claude Code. Other hosts: see references/execution-modes.md.
 # If not set, find the script:
 find ~/.claude/plugins -name "validate_flow_cli.py" 2>/dev/null | grep sf-flow | head -1
 ```
