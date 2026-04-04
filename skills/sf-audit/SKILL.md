@@ -223,6 +223,7 @@ tooling_api_query: SELECT COUNT(Id) total FROM CustomObject WHERE NamespacePrefi
 tooling_api_query: SELECT COUNT(Id) total FROM ValidationRule WHERE NamespacePrefix = null
 tooling_api_query: SELECT COUNT(Id) total FROM WorkflowRule WHERE NamespacePrefix = null
 tooling_api_query: SELECT COUNT(Id) total FROM CustomField WHERE NamespacePrefix = null AND Formula != null
+metadata_list: type=ApprovalProcess
 soql_query: SELECT COUNT(Id) total FROM PermissionSet WHERE IsOwnedByProfile = false AND NamespacePrefix = null AND Type != 'Group'
 soql_query: SELECT COUNT(Id) total FROM PermissionSetGroup
 soql_query: SELECT COUNT(Id) total FROM Profile
@@ -1028,7 +1029,7 @@ One sheet per domain, plus a Summary sheet. Columns per domain:
 - Formula Fields: Name, Object, DataType, Formula Length, Findings, Severity
 - Workflow Rules: Name, Object, Action Types, Priority, Formula Findings
 - Other Declarative Logic: Type, Name, Object, Findings, Severity
-- Hardcoded Values: Component Type, Component Name, Value Found, Category (ID/Name/URL), Severity
+- Hardcoded Values: Component Type, Name, Severity, Finding
 - Summary: overall score, component counts, finding counts by severity,
   automation overlap matrix, [if incremental] delta summary
 

@@ -201,6 +201,36 @@ def compute_summary(data):
     }
 
 
+# ── Hardcoded values cross-cutting helper ──────────────────────────────────
+
+
+def _collect_hardcoded_values(data):
+    """Gather all hardcoded-value findings across every declarative source.
+
+    Returns a list of dicts with keys: component_type, name, severity, message.
+    """
+    rows = []
+    source_map = [
+        ("validation_rules", "Validation Rule"),
+        ("formula_fields", "Formula Field"),
+        ("workflow_rules", "Workflow Rule"),
+        ("other_rules_findings", None),  # type comes from the item itself
+    ]
+    for source_key, default_type in source_map:
+        for item in data.get(source_key, []):
+            comp_type = default_type or item.get("type", "Unknown")
+            for finding in item.get("findings", []):
+                msg = finding.get("message", "")
+                if "hardcoded" in msg.lower():
+                    rows.append({
+                        "component_type": comp_type,
+                        "name": item.get("name", ""),
+                        "severity": finding.get("severity", "MEDIUM"),
+                        "message": msg,
+                    })
+    return rows
+
+
 # ── HTML report ─────────────────────────────────────────────────────────────
 
 
@@ -634,6 +664,28 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
             f'{_table_html(["Type", "Name", "Object", "Severity", "Findings"], rows)}</div>'
         )
 
+    # ── Hardcoded Values Summary ──
+    hv_rows = _collect_hardcoded_values(data)
+    if hv_rows:
+        table_rows = []
+        for hv in hv_rows:
+            table_rows.append([
+                _esc(hv["component_type"]),
+                _esc(hv["name"]),
+                _severity_badge_html(hv["severity"]),
+                _esc(hv["message"]),
+            ])
+        sections.append(
+            f'<div class="card"><h2>Hardcoded Values Summary</h2>'
+            f'<p>{len(hv_rows)} hardcoded value(s) found across all declarative logic.</p>'
+            f'{_table_html(["Component Type", "Name", "Severity", "Finding"], table_rows)}</div>'
+        )
+    else:
+        sections.append(
+            '<div class="card"><h2>Hardcoded Values Summary</h2>'
+            "<p>No hardcoded values detected in formulas or declarative logic.</p></div>"
+        )
+
     # ── Recommendations ──
     sections.append(
         f'<div class="card"><h2>Recommendations</h2>'
@@ -1029,6 +1081,29 @@ def generate_docx(data, summary, org_name, org_id, instance, run_date, output_pa
             row[3].text = sev
             row[4].text = findings_str
 
+    # Hardcoded Values Summary
+    doc.add_heading("Hardcoded Values Summary", level=1)
+    hv_rows = _collect_hardcoded_values(data)
+    if hv_rows:
+        doc.add_paragraph(
+            f"{len(hv_rows)} hardcoded value(s) found across all declarative logic."
+        )
+        table = doc.add_table(rows=1, cols=4)
+        table.alignment = WD_TABLE_ALIGNMENT.CENTER
+        hdr = table.rows[0].cells
+        for i, h in enumerate(["Component Type", "Name", "Severity", "Finding"]):
+            hdr[i].text = h
+            for run in hdr[i].paragraphs[0].runs:
+                run.font.bold = True
+        for hv in hv_rows:
+            row = table.add_row().cells
+            row[0].text = hv["component_type"]
+            row[1].text = hv["name"]
+            row[2].text = hv["severity"]
+            row[3].text = hv["message"]
+    else:
+        doc.add_paragraph("No hardcoded values detected in formulas or declarative logic.")
+
     # Recommendations
     doc.add_heading("Recommendations", level=1)
     rec_data = _recommendations_list(data)
@@ -1306,7 +1381,19 @@ def generate_xlsx(data, summary, org_name, org_id, instance, run_date, output_pa
             ws12.cell(row=i, column=5, value=sev)
     auto_width(ws12)
 
-    # Sheet 13 — Summary
+    # Sheet 13 — Hardcoded Values
+    ws13_hv = wb.create_sheet("Hardcoded Values")
+    ws13_hv.sheet_properties.tabColor = "417AE4"
+    apply_header(ws13_hv, ["Component Type", "Name", "Severity", "Finding"])
+    hv_rows = _collect_hardcoded_values(data)
+    for i, hv in enumerate(hv_rows, 2):
+        ws13_hv.cell(row=i, column=1, value=hv["component_type"])
+        ws13_hv.cell(row=i, column=2, value=hv["name"])
+        ws13_hv.cell(row=i, column=3, value=hv["severity"])
+        ws13_hv.cell(row=i, column=4, value=hv["message"])
+    auto_width(ws13_hv)
+
+    # Sheet 14 — Summary
     ws13 = wb.create_sheet("Summary")
     ws13.sheet_properties.tabColor = "417AE4"
     apply_header(ws13, ["Metric", "Value"])
