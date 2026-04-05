@@ -88,7 +88,7 @@ Fix any CRITICAL or HIGH issues before proceeding. The pre-deployment hook will 
 ```
 metadata_create(
   type="Flow",
-  metadata=[{"fullName": "<FlowApiName>", "body": "<flow XML>"}]
+  metadata=[{"fullName": "<FlowApiName>", "label": "<Flow Label>", "apiVersion": 65, "processType": "<ProcessType>", "status": "Draft", ...}]
 )
 ```
 
@@ -151,7 +151,7 @@ Fix any CRITICAL or HIGH issues before proceeding. The pre-deployment hook will 
 ```
 metadata_update(
   type="Flow",
-  metadata=[{"fullName": "<FlowApiName>", "body": "<updated XML>"}]
+  metadata=[{"fullName": "<FlowApiName>", "label": "<Flow Label>", "apiVersion": 65, "processType": "<ProcessType>", "status": "Draft", ...}]
 )
 ```
 
