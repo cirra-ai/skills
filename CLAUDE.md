@@ -6,10 +6,11 @@
 
 ## Setup
 
-Before running tests, ensure Python dev dependencies are installed in pytest's environment:
+Before running tests, ensure Python dev dependencies are installed:
 
 ```sh
 uv tool install pytest --with jsonschema
+python3 -m pip install pytest jsonschema
 ```
 
 ## Repository structure

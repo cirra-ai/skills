@@ -8,7 +8,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "uv tool install pytest --with jsonschema 2>/dev/null || true"
+            "command": "uv tool install pytest --with jsonschema 2>/dev/null || true; python3 -m pip install pytest jsonschema 2>/dev/null || true"
           }
         ]
       }
