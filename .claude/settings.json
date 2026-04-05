@@ -2,6 +2,18 @@
   "enabledPlugins": {
     "plugin-dev@claude-plugins-official": true
   },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv tool install pytest --with jsonschema 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
+  },
   "permissions": {
     "allow": ["mcp__cirra-ai__*"]
   }
