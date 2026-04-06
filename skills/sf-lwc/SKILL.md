@@ -3,7 +3,7 @@ name: sf-lwc
 plugin: cirra-ai-sf
 argument-hint: '[create|update|validate] {ComponentName} ...'
 metadata:
-  version: 2.0.1
+  version: 2.0.2
 description: >
   Lightning Web Components development with PICKLES architecture methodology, component
   scaffolding, wire service patterns, event handling, Apex integration, GraphQL support,
@@ -125,11 +125,17 @@ Fix any CRITICAL issues before proceeding. Advisory warnings can be noted in the
 metadata_create(
   type="LightningComponentBundle",
   metadata=[{
-    "fullName": "c/<componentName>",
-    "html": "<html content>",
-    "css": "<css content>",
-    "js": "<js content>",
-    "meta": "<meta.xml content>"
+    "fullName": "<componentName>",
+    "apiVersion": "66.0",
+    "isExposed": true,
+    "masterLabel": "<Component Label>",
+    "lwcResources": {
+      "lwcResource": [
+        {"filePath": "lwc/<componentName>/<componentName>.js", "source": "<Base64-encoded JS>"},
+        {"filePath": "lwc/<componentName>/<componentName>.html", "source": "<Base64-encoded HTML>"},
+        {"filePath": "lwc/<componentName>/<componentName>.css", "source": "<Base64-encoded CSS>"}
+      ]
+    }
   }]
 )
 ```
@@ -202,11 +208,17 @@ Fix any CRITICAL issues before proceeding.
 metadata_update(
   type="LightningComponentBundle",
   metadata=[{
-    "fullName": "c/<ComponentName>",
-    "html": "<updated html>",
-    "css": "<updated css>",
-    "js": "<updated js>",
-    "meta": "<updated meta.xml>"
+    "fullName": "<ComponentName>",
+    "apiVersion": "66.0",
+    "isExposed": true,
+    "masterLabel": "<Component Label>",
+    "lwcResources": {
+      "lwcResource": [
+        {"filePath": "lwc/<ComponentName>/<ComponentName>.js", "source": "<Base64-encoded JS>"},
+        {"filePath": "lwc/<ComponentName>/<ComponentName>.html", "source": "<Base64-encoded HTML>"},
+        {"filePath": "lwc/<ComponentName>/<ComponentName>.css", "source": "<Base64-encoded CSS>"}
+      ]
+    }
   }]
 )
 ```

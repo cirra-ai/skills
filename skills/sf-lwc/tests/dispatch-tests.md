@@ -246,3 +246,39 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Follow-up skills**: `sf-flow`, `sf-metadata`
 
 **Notes**: `create` with "screen component for Flow" routes to Create LWC. The meta.xml must include `lightning__FlowScreen` target. Should use `@api` properties for Flow input/output and follow the Flow Screen Integration pattern from SKILL.md. Full PICKLES workflow applies.
+
+---
+
+## deployment payload format — create
+
+- **Input**: `/sf-lwc create cirraTestPayloadCheck a simple card that displays a greeting`
+- **Dispatch**: Create LWC
+- **Init required**: yes
+- **Init timing**: before-workflow
+- **Path**: fast
+- **First tool**: `cirra_ai_init`
+- **Should call**: `tooling_api_query`, `metadata_create`
+- **Should NOT call**: `metadata_update`, `metadata_read`
+- **Should ask user**: no
+- **Payload format**: The `metadata_create` call MUST use the `lwcResources` structure with `lwcResource` array entries containing `filePath` and Base64-encoded `source`. It MUST NOT use shorthand keys like `html`, `css`, `js`, or `meta` at the top level of the metadata object.
+- **Follow-up skills**: `sf-apex`
+
+**Notes**: This test validates the deployment payload format, not just routing. The `metadata_create` Metadata API for LightningComponentBundle requires `lwcResources.lwcResource[]` with Base64-encoded sources — not shorthand top-level keys (`html`, `css`, `js`, `meta`) with raw content. Phase 2 must inspect the constructed `metadata_create` call and verify: (1) a `lwcResources` key exists with a nested `lwcResource` array, (2) each resource has `filePath` (e.g., `lwc/cirraTestPayloadCheck/cirraTestPayloadCheck.js`) and `source` (Base64 string), (3) no top-level `html`, `css`, `js`, or `meta` keys exist on the metadata object. Shorthand keys are a FAIL — this was the exact defect fixed in PR #101.
+
+---
+
+## deployment payload format — update
+
+- **Input**: `/sf-lwc update cirraTestPayloadCheck add a subtitle property`
+- **Dispatch**: Update LWC
+- **Init required**: yes
+- **Init timing**: before-workflow
+- **Path**: full
+- **First tool**: `cirra_ai_init`
+- **Should call**: `metadata_read`, `metadata_update`
+- **Should NOT call**: `metadata_create`, `tooling_api_query`
+- **Should ask user**: no
+- **Payload format**: The `metadata_update` call MUST use the `lwcResources` structure with Base64-encoded sources. It MUST NOT use shorthand `html`/`css`/`js`/`meta` keys.
+- **Follow-up skills**: `sf-apex`
+
+**Notes**: Same payload format validation as the create test, but for `metadata_update`. Phase 2 must verify the `metadata_update` call uses `lwcResources.lwcResource[]` with Base64-encoded `source` fields, not the incorrect shorthand format.
