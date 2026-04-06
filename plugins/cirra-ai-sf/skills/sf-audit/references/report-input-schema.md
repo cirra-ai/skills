@@ -20,6 +20,8 @@ Component inventory counts. Also carries org metadata used in report headers.
   "custom_objects": 22,
   "validation_rules": 30,
   "workflow_rules": 5,
+  "formula_fields": 42,
+  "approval_processes": 3,
   "permission_sets": 18,
   "permission_set_groups": 4,
   "profiles": 6,
@@ -149,7 +151,8 @@ Array of scored custom objects.
 
 ## validation_rules.json
 
-Array of validation rules with findings.
+Array of validation rules with findings. Includes formula-body anti-pattern
+findings when `ErrorConditionFormula` was retrieved.
 
 ```json
 [
@@ -157,14 +160,47 @@ Array of validation rules with findings.
     "name": "Require_Amount",
     "object": "Opportunity",
     "active": true,
-    "findings": [{ "severity": "MEDIUM", "message": "No bypass mechanism" }]
+    "findings": [
+      { "severity": "MEDIUM", "message": "No bypass mechanism" },
+      { "severity": "HIGH", "message": "Formula contains hardcoded Record ID: 0015000000XyZaB" }
+    ]
+  }
+]
+```
+
+## formula_fields.json
+
+Array of formula fields with anti-pattern findings.
+
+```json
+[
+  {
+    "name": "Region_Label__c",
+    "object": "Account",
+    "data_type": "Text",
+    "formula_length": 1240,
+    "findings": [
+      { "severity": "HIGH", "message": "Formula contains hardcoded Record ID: 0125000000AbCdE" },
+      {
+        "severity": "MEDIUM",
+        "message": "Formula contains hardcoded Profile name: \"System Administrator\""
+      }
+    ]
+  },
+  {
+    "name": "Tier__c",
+    "object": "Account",
+    "data_type": "Text",
+    "formula_length": 320,
+    "findings": []
   }
 ]
 ```
 
 ## workflow_rules.json
 
-Array of workflow rule inventory items.
+Array of workflow rule inventory items. Includes formula-body anti-pattern
+findings when criteria/field-update formulas were retrieved via `metadata_read`.
 
 ```json
 [
@@ -172,7 +208,45 @@ Array of workflow rule inventory items.
     "name": "Set_Default_Status",
     "object": "Case",
     "action_types": "Field Update",
-    "migration_priority": "HIGH"
+    "migration_priority": "HIGH",
+    "findings": [
+      {
+        "severity": "HIGH",
+        "message": "Criteria formula contains hardcoded Record ID: 00Q5000000AbCdE"
+      }
+    ]
+  }
+]
+```
+
+## other_rules_findings.json
+
+Array of findings from approval processes, escalation rules, assignment rules,
+and auto-response rules.
+
+```json
+[
+  {
+    "type": "ApprovalProcess",
+    "name": "Discount_Approval",
+    "object": "Opportunity",
+    "findings": [
+      {
+        "severity": "HIGH",
+        "message": "Entry criteria contains hardcoded Record ID: 0055000000XyZaB"
+      }
+    ]
+  },
+  {
+    "type": "EscalationRule",
+    "name": "Case_Escalation",
+    "object": "Case",
+    "findings": [
+      {
+        "severity": "MEDIUM",
+        "message": "Rule entry criteria contains hardcoded Profile name: \"Support Agent\""
+      }
+    ]
   }
 ]
 ```
