@@ -1,14 +1,14 @@
 ---
 name: sf-data
 plugin: cirra-ai-sf
-argument-hint: '[query|build-query|insert|update|upsert|delete|validate|describe] ...'
+argument-hint: '[query|build-query|insert|update|upsert|delete|validate|describe] {target} ...'
 metadata:
-  version: 2.0.0
+  version: 2.0.1
 description: >
-  Salesforce data and SOQL expert. Execute SOQL queries (natural language or raw
-  SOQL), build optimized queries with selectivity analysis, insert/update/upsert/delete
-  records, validate data operations, describe objects, and manage test data via
-  Cirra AI MCP Server.
+  Salesforce data and SOQL expert. Execute SOQL queries (natural language or raw SOQL),
+  build optimized queries with selectivity analysis, insert/update/upsert/delete records,
+  validate data operations, describe objects, and manage test data via Cirra AI MCP Server.
+  Usage: /sf-data [query|build-query|insert|update|upsert|delete|validate|describe] {target} ...
 ---
 
 # Salesforce Data & SOQL Expert
@@ -28,15 +28,13 @@ Parse `$ARGUMENTS` to determine which workflow to follow:
 | `describe`                                | Describe Object              |
 | _(no argument or unclear)_                | Ask the user (see below)     |
 
-When the intent is unclear, present the options:
+When the operation is missing or unclear, **you MUST use `AskUserQuestion`** before proceeding:
 
-> What would you like to do?
->
-> 1. **Query** — run a SOQL query
-> 2. **Build query** — build optimized query with selectivity analysis
-> 3. **Insert/update/upsert/delete** — modify data (DML operations)
-> 4. **Validate** — validate query or DML without executing
-> 5. **Describe** — show object structure
+```
+AskUserQuestion(question="What would you like to do?\n\n1. **Query** — run a SOQL query\n2. **Build query** — build optimized query with selectivity analysis\n3. **Insert/update/upsert/delete** — modify data (DML operations)\n4. **Validate** — validate query or DML without executing\n5. **Describe** — show object structure")
+```
+
+Do NOT guess the operation or default to one. Wait for the user's answer.
 
 ## Action Workflows
 
@@ -130,7 +128,7 @@ Show the structure, fields, relationships, and record types of a Salesforce obje
 5. **Handle Bulk Operations** - Use `sobject_dml` with multiple records for large-scale data operations
 6. **Discover Metadata** - Use `sobject_describe` and `tooling_api_query` for object structure discovery
 7. **Track & Cleanup Records** - Maintain record IDs and provide cleanup queries
-8. **Validate Before Executing** - Run pre-flight validation on MCP parameters (Cowork mode)
+8. **Validate Before Executing** - Run pre-flight validation on MCP parameters (sandboxed environments)
 9. **Integrate with Other Skills** - Query metadata for object discovery, serve sf-apex/sf-flow for testing
 
 ---
@@ -286,7 +284,7 @@ When building or reviewing SOQL queries:
 
 ---
 
-## Pre-Flight Validation (Cowork Mode)
+## Pre-Flight Validation (Sandboxed Environments)
 
 The MCP validator uses a **two-tier model** that matches the risk profile of each operation:
 
@@ -773,7 +771,7 @@ Code Deployment Validated: [metadata_type]
 - **sf-metadata** (optional): Query object/field structure
   - Or use `sobject_describe` and `tooling_api_query` directly
 
-- **Python 3.8+** (for validation): Required to run mcp_validator_cli.py in Cowork mode
+- **Python 3.8+** (for validation): Required to run mcp_validator_cli.py in sandboxed environments
 
 ---
 
@@ -798,5 +796,5 @@ No data files should be written outside the output directory tree. This ensures 
 - **Test Isolation**: Track created record IDs for cleanup
 - **Sensitive Data**: Never include real PII in test data
 - **Remote Org Only**: No local scratch org support; all operations target remote orgs
-- **Validation**: Run `mcp_validator_cli.py` before executing operations in Cowork mode (Tier 1 for data ops, Tier 2 for code deployment)
+- **Validation**: Run `mcp_validator_cli.py` before executing operations in sandboxed environments (Tier 1 for data ops, Tier 2 for code deployment)
 - **Output Directory**: All intermediate files go to `--output-dir` by default

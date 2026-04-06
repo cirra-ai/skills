@@ -1,6 +1,6 @@
 # sf-diagram
 
-Salesforce architecture diagram generation skill for Claude Cowork and Claude Code. Create Mermaid diagrams for OAuth flows, data models (ERDs), integration sequences, system landscapes, and role hierarchies.
+Salesforce architecture diagram generation skill for AI coding tools. Create Mermaid diagrams for OAuth flows, data models (ERDs), integration sequences, system landscapes, and role hierarchies.
 
 ## Features
 
@@ -13,11 +13,11 @@ Salesforce architecture diagram generation skill for Claude Cowork and Claude Co
 
 ## Installation
 
-For full installation instructions (Claude Cowork, OpenAI, browser), see the [root README](../../../../README.md).
+For full installation instructions (various AI tools), see the [root README](../../../../README.md).
 
 ## Usage
 
-#### In Claude Cowork or Claude Code
+#### Installation
 
 Invoke the unified skill:
 
@@ -77,7 +77,7 @@ org-connected ERD diagrams.
 
 ## Requirements
 
-- Claude Cowork or Claude Code with skill plugins enabled
+- An AI coding tool with skill/plugin support
 - Cirra AI MCP Server (optional - only needed for org-connected ERDs)
 
 ## License

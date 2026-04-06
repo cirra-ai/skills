@@ -39,7 +39,9 @@ def test_load_inputs_reads_all_files(gen):
     assert len(data["permission_findings"]) == 3
     assert len(data["metadata_scores"]) == 2
     assert len(data["validation_rules"]) == 2
+    assert len(data["formula_fields"]) == 2
     assert len(data["workflow_rules"]) == 1
+    assert len(data["other_rules_findings"]) == 1
 
 
 def test_load_inputs_missing_dir_returns_defaults(gen, tmp_path):
@@ -84,9 +86,14 @@ def test_compute_summary_below_threshold(gen):
 def test_compute_summary_severity_counts(gen):
     data = gen.load_inputs(str(FIXTURES_DIR))
     summary = gen.compute_summary(data)
+    # Permission findings: CRITICAL=1, HIGH=1, LOW=1
+    # Validation rules findings: MEDIUM=1, LOW=1
+    # Formula fields findings: HIGH=1
+    # Other rules findings: HIGH=1
     assert summary["severity_counts"]["CRITICAL"] == 1
-    assert summary["severity_counts"]["HIGH"] == 1
-    assert summary["severity_counts"]["LOW"] == 1
+    assert summary["severity_counts"]["HIGH"] == 3
+    assert summary["severity_counts"]["MEDIUM"] == 1
+    assert summary["severity_counts"]["LOW"] == 2
 
 
 def test_score_rating_boundaries(gen):
@@ -140,7 +147,10 @@ def test_html_contains_all_sections(gen, output_dir):
         "Profiles &amp; Permissions",
         "Data Model",
         "Validation Rules",
+        "Formula Fields",
         "Workflow Rules",
+        "Other Declarative Logic",
+        "Hardcoded Values Summary",
         "Recommendations",
     ]:
         assert section in content, f"Missing section: {section}"

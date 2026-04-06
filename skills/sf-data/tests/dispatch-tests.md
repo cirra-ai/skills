@@ -152,3 +152,105 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Follow-up skills**: `sf-data` (run the query once fields/filters are confirmed), `sf-metadata` (inspect Account schema)
 
 **Notes**: A bare object name routes to Query Data per the dispatch table ("an object name"). But the workflow says to "ask what fields/filters to apply" when only an object name is given — don't blindly SELECT \* FROM Account.
+
+---
+
+## update records
+
+- **Input**: `/sf-data update Account set Industry to 'Technology' where Name = 'Acme Corp'`
+- **Dispatch**: Insert/Update/Delete Records
+- **Init required**: yes
+- **Init timing**: before-workflow
+- **Path**: full
+- **First tool**: `soql_query`
+- **Should call**: `sobject_dml`
+- **Should NOT call**: `metadata_create`, `tooling_api_query`
+- **Should ask user**: no
+- **Follow-up skills**: `sf-data` (verify update with a follow-up query)
+
+**Notes**: `update` keyword routes to DML workflow. Should first query to find the record(s) matching the WHERE clause, then use `sobject_dml` with operation "update" and the record Id. Must include the Id field in the update payload.
+
+---
+
+## upsert records with external ID
+
+- **Input**: `/sf-data upsert 10 Account records using ExternalId__c`
+- **Dispatch**: Insert/Update/Delete Records
+- **Init required**: yes
+- **Init timing**: before-workflow
+- **Path**: full
+- **First tool**: `sobject_describe`
+- **Should call**: `sobject_dml`
+- **Should NOT call**: `metadata_create`, `tooling_api_query`
+- **Should ask user**: yes (need record data or ask how to generate it)
+- **Follow-up skills**: `sf-data` (verify upsert results)
+
+**Notes**: `upsert` keyword routes to DML workflow. Must verify the External ID field exists via `sobject_describe` before constructing records. The `externalIdField` parameter is required for upsert operations per SKILL.md. 10 records is under the 200-record batch limit.
+
+---
+
+## optimize synonym for build-query
+
+- **Input**: `/sf-data optimize Account query for best performance`
+- **Dispatch**: Build Optimized Query
+- **Init required**: yes
+- **Init timing**: before-workflow
+- **Path**: full
+- **First tool**: `sobject_describe`
+- **Should call**: `soql_query`
+- **Should NOT call**: `sobject_dml`, `metadata_create`
+- **Should ask user**: no
+- **Follow-up skills**: `sf-data` (run or refine the generated query), `sf-metadata` (review field indexing)
+
+**Notes**: The dispatch table lists `optimize` as a synonym for `build-query`, routing to Build Optimized Query. Should discover the Account object structure, build a query with optimization pass (selectivity, indexed fields, limit sizing, relationship depth), and optionally execute.
+
+---
+
+## aggregate query with GROUP BY
+
+- **Input**: `/sf-data query SELECT StageName, COUNT(Id) cnt FROM Opportunity GROUP BY StageName`
+- **Dispatch**: Query Data
+- **Init required**: yes
+- **Init timing**: before-workflow
+- **Path**: fast
+- **First tool**: `soql_query`
+- **Should NOT call**: `sobject_dml`, `metadata_create`, `sobject_describe`
+- **Should ask user**: no (query is explicit)
+- **Follow-up skills**: `sf-data` (refine or export results)
+
+**Notes**: Raw SOQL with aggregate function routes to Query Data. The GROUP BY clause is valid SOQL syntax. Should execute directly via `soql_query` and display results as a table with the aggregated counts.
+
+---
+
+## test data creation crossing batch boundary
+
+- **Input**: `/sf-data insert 201 test Accounts for bulk testing`
+- **Dispatch**: Insert/Update/Delete Records
+- **Init required**: yes
+- **Init timing**: before-workflow
+- **Path**: full
+- **First tool**: `sobject_describe`
+- **Should call**: `sobject_dml`
+- **Should NOT call**: `metadata_create`, `tooling_api_query`
+- **Should ask user**: no
+- **Batch limit**: 200 records per call — must split into 2 batches (200 + 1)
+- **Follow-up skills**: `sf-data` (query to verify inserts, generate cleanup query)
+
+**Notes**: `insert` keyword routes to DML workflow. 201 records exceeds the 200-record batch limit — must split into two `sobject_dml` calls (200 + 1). SKILL.md documents the batch boundary pattern explicitly. After insert, should verify results and provide a cleanup query.
+
+---
+
+## query with relationship traversal
+
+- **Input**: `/sf-data query active accounts with their contacts`
+- **Dispatch**: Query Data
+- **Init required**: yes
+- **Init timing**: before-workflow
+- **Path**: full
+- **First tool**: `sobject_describe`
+- **Should call**: `soql_query`
+- **Should NOT call**: `sobject_dml`, `metadata_create`
+- **Should ask user**: yes (confirm generated SOQL before running)
+- **Follow-up skills**: `sf-data` (refine query or export)
+
+**Notes**: Natural language query involving parent-to-child relationship. Should translate to SOQL with a subquery for Contacts. Note: the `soql_query` tool does not support subqueries in the fields array — may need two separate queries (Accounts, then Contacts filtered by Account IDs). Should confirm the generated approach with the user.

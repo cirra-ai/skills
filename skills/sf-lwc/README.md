@@ -14,13 +14,13 @@ Lightning Web Components development skill with PICKLES architecture methodology
 
 ## Installation
 
-For full installation instructions (Claude Cowork, OpenAI, browser), see the [root README](../../../../README.md).
+For full installation instructions (various AI tools), see the [root README](../../../../README.md).
 
 ## Quick Start
 
 ### 1. Invoke the skill
 
-#### In Claude Cowork or Claude Code
+#### Installation
 
 Invoke the unified skill:
 
@@ -151,7 +151,7 @@ determines how large responses are handled and whether local tooling
 
 ## Requirements
 
-- Claude Cowork or Claude Code with skill plugins enabled
+- An AI coding tool with skill/plugin support
 - Cirra AI MCP Server
 - Target Salesforce org
 - API Version 65.0+ (Winter '26), 66.0+ recommended (Spring '26)

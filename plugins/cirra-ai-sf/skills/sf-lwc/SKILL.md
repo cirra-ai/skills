@@ -1,15 +1,14 @@
 ---
 name: sf-lwc
 plugin: cirra-ai-sf
-argument-hint: '[create|update|validate] <ComponentName> ...'
+argument-hint: '[create|update|validate] {ComponentName} ...'
 metadata:
-  version: 2.0.0
+  version: 2.0.2
 description: >
-  Lightning Web Components development skill with PICKLES architecture methodology,
-  component scaffolding, wire service patterns, event handling, Apex integration,
-  GraphQL support, and Jest test generation. Build modern Salesforce UIs with
-  proper reactivity, accessibility, dark mode compatibility, and performance patterns.
-  Powered by Cirra AI MCP Server for seamless metadata deployment.
+  Lightning Web Components development with PICKLES architecture methodology, component
+  scaffolding, wire service patterns, event handling, Apex integration, GraphQL support,
+  and Jest test generation. Powered by Cirra AI MCP Server for seamless metadata deployment.
+  Usage: /sf-lwc [create|update|validate] {ComponentName} ...
 ---
 
 # Salesforce Lightning Web Components
@@ -27,13 +26,13 @@ Parse `$ARGUMENTS` to determine which workflow to run:
 | `validate`, review, score           | [Validate LWC](#validate-lwc-workflow) |
 | _(no argument or unclear)_          | Ask the user (see below)               |
 
-When intent is unclear, present:
+When the operation is missing or unclear, **you MUST use `AskUserQuestion`** before proceeding:
 
-> What would you like to do?
->
-> 1. **Create** — scaffold a new Lightning Web Component
-> 2. **Update** — fetch, modify, validate, and redeploy
-> 3. **Validate** — score an existing LWC
+```
+AskUserQuestion(question="What would you like to do?\n\n1. **Create** — scaffold a new Lightning Web Component\n2. **Update** — fetch, modify, validate, and redeploy\n3. **Validate** — score an existing LWC")
+```
+
+Do NOT guess the operation or default to one. Wait for the user's answer.
 
 ## Execution modes
 
@@ -126,11 +125,17 @@ Fix any CRITICAL issues before proceeding. Advisory warnings can be noted in the
 metadata_create(
   type="LightningComponentBundle",
   metadata=[{
-    "fullName": "c/<componentName>",
-    "html": "<html content>",
-    "css": "<css content>",
-    "js": "<js content>",
-    "meta": "<meta.xml content>"
+    "fullName": "<componentName>",
+    "apiVersion": "66.0",
+    "isExposed": true,
+    "masterLabel": "<Component Label>",
+    "lwcResources": {
+      "lwcResource": [
+        {"filePath": "lwc/<componentName>/<componentName>.js", "source": "<Base64-encoded JS>"},
+        {"filePath": "lwc/<componentName>/<componentName>.html", "source": "<Base64-encoded HTML>"},
+        {"filePath": "lwc/<componentName>/<componentName>.css", "source": "<Base64-encoded CSS>"}
+      ]
+    }
   }]
 )
 ```
@@ -203,11 +208,17 @@ Fix any CRITICAL issues before proceeding.
 metadata_update(
   type="LightningComponentBundle",
   metadata=[{
-    "fullName": "c/<ComponentName>",
-    "html": "<updated html>",
-    "css": "<updated css>",
-    "js": "<updated js>",
-    "meta": "<updated meta.xml>"
+    "fullName": "<ComponentName>",
+    "apiVersion": "66.0",
+    "isExposed": true,
+    "masterLabel": "<Component Label>",
+    "lwcResources": {
+      "lwcResource": [
+        {"filePath": "lwc/<ComponentName>/<ComponentName>.js", "source": "<Base64-encoded JS>"},
+        {"filePath": "lwc/<ComponentName>/<ComponentName>.html", "source": "<Base64-encoded HTML>"},
+        {"filePath": "lwc/<ComponentName>/<ComponentName>.css", "source": "<Base64-encoded CSS>"}
+      ]
+    }
   }]
 )
 ```
@@ -235,7 +246,7 @@ Validate one or more Lightning Web Components using the SLDS 2 static analysis p
 ### Validation script
 
 ```bash
-# $CLAUDE_PLUGIN_ROOT is set by Claude Code when the plugin is active.
+# $CLAUDE_PLUGIN_ROOT is set by Claude Code. Other hosts: see references/execution-modes.md.
 # If not set, find the script:
 VALIDATOR=$(find ~/.claude/plugins -name "validate_slds.py" 2>/dev/null | grep sf-lwc | head -1)
 ```

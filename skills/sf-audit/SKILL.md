@@ -3,15 +3,16 @@ name: sf-audit
 plugin: cirra-ai-sf
 argument-hint: '[full|apex|flow|lwc|metadata|permissions] ...'
 description: >
-  Run a comprehensive Salesforce org audit. Inventories and scores Apex classes,
-  Apex triggers, Flows, Process Builders, Workflow Rules, LWC components, custom
-  objects and fields, validation rules, Profiles, and Permission Sets. Generates
-  Word, Excel, and HTML reports. Supports incremental audits that only re-score
-  changed components. Use when asked to audit a Salesforce org, review org
-  health, generate an org inventory, run an org health check, audit permissions,
-  review the data model, or audit apex flows and lwc.
+  Run a comprehensive Salesforce org audit. Inventories and scores Apex classes, triggers,
+  Flows, Process Builders, Workflow Rules, LWC components, custom objects/fields, validation
+  rules, formula fields, approval processes, escalation/assignment/auto-response rules,
+  Profiles, and Permission Sets. Scans all formula and criteria logic for hardcoded Record
+  IDs, Campaign names, Profile names, URLs, and other fragile values. Generates Word, Excel,
+  and HTML reports. Use when asked to audit a Salesforce org, review org health, or run an
+  org health check.
+  Usage: /sf-audit [full|apex|flow|lwc|metadata|permissions] ...
 metadata:
-  version: 2.0.0
+  version: 2.1.0
 ---
 
 # Salesforce Org Audit
@@ -24,8 +25,33 @@ skill (`sf-apex`, `sf-flow`, `sf-lwc`,
 `sf-metadata`). Do not invent your own criteria.
 
 For categories without a numeric rubric (Triggers, Workflow Rules, Process
-Builders, Profiles, Validation Rules), produce an inventory with qualitative
-findings and severity classifications.
+Builders, Profiles, Validation Rules, Formula Fields, Approval Processes,
+Escalation Rules, Assignment Rules, Auto-Response Rules), produce an inventory
+with qualitative findings and severity classifications.
+
+---
+
+## Dispatch
+
+Parse `$ARGUMENTS` to determine the audit scope:
+
+| First argument or intent                | Workflow                       |
+| --------------------------------------- | ------------------------------ |
+| `full`, no scope specified after asking | Full Org Audit (all domains)   |
+| `apex`                                  | Apex-only audit                |
+| `flow`                                  | Flow/automation-only audit     |
+| `lwc`                                   | LWC-only audit                 |
+| `metadata`, `data-model`                | Metadata/data-model-only audit |
+| `permissions`                           | Permissions-only audit         |
+| _(no argument or unclear)_              | Ask the user (see below)       |
+
+When the audit scope is missing or unclear, **you MUST use `AskUserQuestion`** before proceeding:
+
+```
+AskUserQuestion(question="What would you like to audit?\n\n1. **Full** — comprehensive audit of the entire org\n2. **Apex** — Apex classes and triggers only\n3. **Flow** — Flows, Process Builders, and Workflow Rules only\n4. **LWC** — Lightning Web Components only\n5. **Metadata** — custom objects, fields, and data model only\n6. **Permissions** — Profiles, Permission Sets, and Permission Set Groups only")
+```
+
+Do NOT guess the scope or default to a full audit. Wait for the user's answer.
 
 ---
 
@@ -196,6 +222,8 @@ tooling_api_query: SELECT COUNT(Id) total FROM LightningComponentBundle WHERE Na
 tooling_api_query: SELECT COUNT(Id) total FROM CustomObject WHERE NamespacePrefix = null
 tooling_api_query: SELECT COUNT(Id) total FROM ValidationRule WHERE NamespacePrefix = null
 tooling_api_query: SELECT COUNT(Id) total FROM WorkflowRule WHERE NamespacePrefix = null
+tooling_api_query: SELECT COUNT(Id) total FROM CustomField WHERE NamespacePrefix = null AND Formula != null
+metadata_list: type=ApprovalProcess
 soql_query: SELECT COUNT(Id) total FROM PermissionSet WHERE IsOwnedByProfile = false AND NamespacePrefix = null AND Type != 'Group'
 soql_query: SELECT COUNT(Id) total FROM PermissionSetGroup
 soql_query: SELECT COUNT(Id) total FROM Profile
@@ -697,7 +725,7 @@ Findings classification:
 Write outputs to `./audit_output/intermediate/permissions/`.
 Update `audit_state.md`: mark C6 complete.
 
-### C7 — Data Model and Validation Rules
+### C7 — Data Model, Validation Rules, and Formula Fields
 
 **Score every local custom object.** Paginate `CustomObject` where `NamespacePrefix = null`.
 
@@ -708,23 +736,78 @@ For each custom object:
 2. Score against the 120-point rubric from `sf-metadata`
 3. Write summary to `./audit_output/intermediate/metadata/<ObjectApiName>.md`
 
-Validation rules:
+#### Validation rules
+
+Fetch the **full formula body** so hardcoded values can be detected:
 
 ```
 tooling_api_query: SELECT Id, EntityDefinition.QualifiedApiName, ValidationName,
-  Active, Description, ErrorMessage
+  Active, Description, ErrorConditionFormula, ErrorMessage
   FROM ValidationRule WHERE NamespacePrefix = null
 ```
 
+For each validation rule, scan `ErrorConditionFormula` for anti-patterns using
+these regex patterns:
+
+| Pattern (case-insensitive)                                                                                                                                                 | What it catches                                               |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| `[a-zA-Z0-9]{15,18}` that matches an Id format (starts with `[0-9a-zA-Z]{3}` and passes Salesforce Id checksum or is a known prefix like `001`, `006`, `00Q`, `701`, etc.) | Hardcoded Record IDs                                          |
+| Quoted string literals containing object names that exist in the org (e.g. `"Enterprise"`, `"Gold Partner"`)                                                               | Hardcoded record type / picklist names (fragile if renamed)   |
+| `Campaign` or campaign-name string literals                                                                                                                                | Hardcoded Campaign names                                      |
+| `Profile` name string literals (e.g. `"System Administrator"`, `"Sales User"`)                                                                                             | Hardcoded Profile names (use `$Profile.Name` sparingly)       |
+| URL string literals (`https://`, `http://`)                                                                                                                                | Hardcoded URLs (should use Custom Metadata or Custom Setting) |
+
 Findings for validation rules:
 
-| Finding                                                         | Severity |
-| --------------------------------------------------------------- | -------- |
-| Active rule with no description                                 | MEDIUM   |
-| Rule with no bypass mechanism (`$Permission` or custom setting) | MEDIUM   |
-| Rule with hardcoded Record IDs                                  | HIGH     |
-| Inactive rules (cleanup candidates)                             | LOW      |
-| Object with > 20 active rules (complexity risk)                 | MEDIUM   |
+| Finding                                                            | Severity |
+| ------------------------------------------------------------------ | -------- |
+| Formula contains hardcoded Record ID(s)                            | HIGH     |
+| Formula contains hardcoded Campaign name(s)                        | HIGH     |
+| Formula contains hardcoded Profile name(s)                         | MEDIUM   |
+| Formula contains hardcoded URL(s)                                  | MEDIUM   |
+| Formula contains hardcoded record-type or picklist value string(s) | MEDIUM   |
+| Active rule with no description                                    | MEDIUM   |
+| Rule with no bypass mechanism (`$Permission` or custom setting)    | MEDIUM   |
+| Inactive rules (cleanup candidates)                                | LOW      |
+| Object with > 20 active rules (complexity risk)                    | MEDIUM   |
+
+#### Formula fields
+
+Fetch formula field definitions for every local custom object:
+
+```
+tooling_api_query: SELECT Id, EntityDefinition.QualifiedApiName, DeveloperName,
+  QualifiedApiName, DataType, TableEnumOrId, Formula
+  FROM CustomField
+  WHERE NamespacePrefix = null AND Formula != null
+```
+
+> **Note:** The `Formula` field is only available via the Tooling API on
+> `CustomField`. In `sfdx-repo` mode, read formula bodies from
+> `force-app/main/default/objects/<Object>/fields/<Field>.field-meta.xml`
+> (the `<formula>` element).
+
+For each formula field, scan the `Formula` body for the same anti-patterns
+listed above for validation rules (hardcoded IDs, Campaign names, Profile
+names, URLs, record-type/picklist strings).
+
+Additional formula-field-specific findings:
+
+| Finding                                                            | Severity |
+| ------------------------------------------------------------------ | -------- |
+| Formula contains hardcoded Record ID(s)                            | HIGH     |
+| Formula contains hardcoded Campaign name(s)                        | HIGH     |
+| Formula contains hardcoded Profile name(s)                         | MEDIUM   |
+| Formula contains hardcoded URL(s)                                  | MEDIUM   |
+| Formula contains hardcoded record-type or picklist value string(s) | MEDIUM   |
+| Formula references field that does not exist (compile error risk)  | HIGH     |
+| Formula exceeds 5 000 characters (readability / compile-size risk) | MEDIUM   |
+| Formula uses `VLOOKUP` (deprecated function)                       | MEDIUM   |
+| Formula has deeply nested `IF` statements (> 5 levels)             | LOW      |
+
+Write formula field findings to
+`./audit_output/intermediate/metadata/formula_fields.md` and persist to
+`formula_fields.json`.
 
 Cross-object analysis (beyond per-object scoring):
 
@@ -739,24 +822,128 @@ Update `audit_state.md`: mark C7 complete.
 
 ### C8 — Workflow Rules
 
+#### Inventory and criteria
+
 ```
 tooling_api_query: SELECT Id, Name, TableEnumOrId
   FROM WorkflowRule WHERE NamespacePrefix = null
 ```
 
-Supplement with `metadata_read` for action details where feasible.
+For each workflow rule, retrieve the **full metadata** (criteria formula and
+actions) so formulas can be inspected:
+
+```
+metadata_read: type=WorkflowRule, fullNames=["<ObjectApiName>.<RuleName>", ...]
+```
+
+> **`sfdx-repo` mode:** read from
+> `force-app/main/default/workflows/<ObjectApiName>.workflow-meta.xml`
+> (each `<rules>` element contains `<formula>` and `<criteriaItems>`).
+
+From the metadata, extract:
+
+1. **Criteria formula** (`<formula>` element or `formula` property) — the
+   Boolean expression that fires the rule.
+2. **Field-update formulas** — each `WorkflowFieldUpdate` may have a
+   `formula` property when `operation = Formula`.
+3. **Email template references** — from `WorkflowAlert` actions.
+
+#### Anti-pattern scanning
+
+Scan every criteria formula and field-update formula for the same hardcoded-
+value patterns used in C7 (Record IDs, Campaign names, Profile names, URLs,
+record-type/picklist strings).
+
 Write to `./audit_output/intermediate/workflow_rules/inventory.md`.
 
 Findings:
 
-| Finding                                                         | Severity |
-| --------------------------------------------------------------- | -------- |
-| Active Workflow Rule (should migrate to Flow)                   | HIGH     |
-| Field updates that may conflict with Flows on same object       | CRITICAL |
-| Outbound messages (integration dependency)                      | MEDIUM   |
-| Multiple automation types on same object (Workflow + Flow + PB) | CRITICAL |
+| Finding                                                               | Severity |
+| --------------------------------------------------------------------- | -------- |
+| Active Workflow Rule (should migrate to Flow)                         | HIGH     |
+| Field updates that may conflict with Flows on same object             | CRITICAL |
+| Outbound messages (integration dependency)                            | MEDIUM   |
+| Multiple automation types on same object (Workflow + Flow + PB)       | CRITICAL |
+| Criteria formula contains hardcoded Record ID(s)                      | HIGH     |
+| Criteria formula contains hardcoded Campaign name(s)                  | HIGH     |
+| Field-update formula contains hardcoded Record ID(s)                  | HIGH     |
+| Field-update formula contains hardcoded value(s) (Profile, URL, etc.) | MEDIUM   |
 
 Update `audit_state.md`: mark C8 complete.
+
+### C8b — Other Declarative Logic (approval, escalation, assignment rules)
+
+Salesforce stores Boolean / formula logic in several additional metadata types.
+Inventory each and scan for hardcoded-value anti-patterns.
+
+#### Approval processes
+
+```
+metadata_read: type=ApprovalProcess, fullNames=["*"]
+```
+
+> **`sfdx-repo` mode:** read from
+> `force-app/main/default/approvalProcesses/`.
+
+For each approval process, inspect:
+
+- **Entry criteria formula** (`entryCriteria.formula`)
+- **Step criteria formulas** (each `approvalStep.entryCriteria.formula`)
+
+Findings:
+
+| Finding                                                    | Severity |
+| ---------------------------------------------------------- | -------- |
+| Entry criteria contains hardcoded Record ID(s)             | HIGH     |
+| Entry criteria contains hardcoded Campaign/Profile name(s) | MEDIUM   |
+| Step criteria contains hardcoded value(s)                  | MEDIUM   |
+| Active approval process with no description                | LOW      |
+
+#### Escalation rules
+
+```
+metadata_read: type=EscalationRules, fullNames=["Case"]
+```
+
+> Escalation rules typically exist only on Case. If the org customises other
+> objects, query `metadata_list: type=EscalationRules` first.
+
+Inspect each `<escalationRule>` → `<ruleEntry>` for `<formula>` or
+`<criteriaItems>` containing hardcoded values.
+
+#### Assignment rules (Lead & Case)
+
+```
+metadata_read: type=AssignmentRules, fullNames=["Lead", "Case"]
+```
+
+Inspect each `<assignmentRule>` → `<ruleEntry>` for `<formula>` or
+`<criteriaItems>` containing hardcoded values.
+
+#### Auto-response rules (Lead & Case)
+
+```
+metadata_read: type=AutoResponseRules, fullNames=["Lead", "Case"]
+```
+
+Inspect each `<autoResponseRule>` → `<ruleEntry>` for `<formula>` or
+`<criteriaItems>` containing hardcoded values.
+
+#### Consolidated findings for C8b
+
+| Finding                                                      | Severity |
+| ------------------------------------------------------------ | -------- |
+| Approval entry/step criteria contains hardcoded Record ID(s) | HIGH     |
+| Approval entry/step criteria contains hardcoded name(s)      | MEDIUM   |
+| Escalation rule criteria contains hardcoded value(s)         | MEDIUM   |
+| Assignment rule criteria contains hardcoded value(s)         | MEDIUM   |
+| Auto-response rule criteria contains hardcoded value(s)      | MEDIUM   |
+
+Write all C8b findings to
+`./audit_output/intermediate/declarative_logic/other_rules.md` and persist
+to `other_rules_findings.json`.
+
+Update `audit_state.md`: mark C8b complete.
 
 ---
 
@@ -815,10 +1002,13 @@ Sections (in order):
 7. LWC: scores ranked lowest to highest, top issues per component
 8. Profiles & Permissions: hierarchy and findings by severity
 9. Data Model: object scores ranked lowest to highest, field/relationship summary
-10. Validation Rules: inventory with findings
-11. Workflow Rules: inventory with migration priorities
-12. Automation Overlap: objects with multiple automation types active
-13. Top 10 recommendations across all domains
+10. Validation Rules: inventory with findings (including formula anti-patterns)
+11. Formula Fields: inventory with hardcoded-value findings
+12. Workflow Rules: inventory with migration priorities and formula findings
+13. Other Declarative Logic: approval, escalation, assignment, and auto-response rule findings
+14. Automation Overlap: objects with multiple automation types active
+15. Hardcoded Values Summary: cross-cutting view of all hardcoded IDs, names, and URLs found across formulas, validation rules, workflow rules, and other logic
+16. Top 10 recommendations across all domains
 
 Mark any domain that was not fully scored (e.g. "quick pass only") as
 "Surface metrics only — body not downloaded."
@@ -836,7 +1026,10 @@ One sheet per domain, plus a Summary sheet. Columns per domain:
 - Permission Sets: Name, Label, Assignments, Findings, Severity
 - Custom Objects: Name, Score, Field Count, Relationship Count, Top Issues
 - Validation Rules: Name, Object, Active, Findings, Severity
-- Workflow Rules: Name, Object, Action Types, Priority
+- Formula Fields: Name, Object, DataType, Formula Length, Findings, Severity
+- Workflow Rules: Name, Object, Action Types, Priority, Formula Findings
+- Other Declarative Logic: Type, Name, Object, Findings, Severity
+- Hardcoded Values: Component Type, Name, Severity, Finding
 - Summary: overall score, component counts, finding counts by severity,
   automation overlap matrix, [if incremental] delta summary
 
@@ -867,12 +1060,15 @@ If the user requests changes, regenerate only the affected report(s).
 
 Tell the user:
 
-- **Org inventory**: full counts for every category
+- **Org inventory**: full counts for every category (including formula fields)
 - **Overall health score**: weighted average across scored domains
 - **Components needing attention**: count below 70, by domain
 - **Permissions findings**: count by severity
 - **Legacy automation**: active Workflow Rules and Process Builders count
 - **Automation overlap warnings**: objects with multiple automation types
+- **Hardcoded values found**: total count of hardcoded Record IDs, Campaign
+  names, Profile names, URLs, and other fragile literals found across
+  validation rules, formula fields, workflow rules, and other declarative logic
 - **Top 3 most common issues per domain**
 - **Skipped components**: what was skipped and why (generated classes,
   managed packages)

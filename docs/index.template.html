@@ -428,23 +428,22 @@
         >
       </p>
       <div class="callout">
-        <strong>Recommended installation</strong>
-        <ul style="padding-left: 1.25rem; margin: 0.5rem 0 0.5rem">
-          <li>
-            <a
-              href="https://support.claude.com/en/articles/10065433-installing-claude-desktop"
-              target="_blank"
-              >Claude Cowork</a
-            >: Install the plugin via the marketplace at <code>cirra-ai/skills</code> (no download
-            needed)
-          </li>
-          <li>
-            <a href="https://openai.com/codex/" target="_blank">OpenAI Codex</a>: Just prompt Codex
-            to &#8220;Install the skills from the <code>cirra-ai/skills</code> GitHub repo&#8221;
-          </li>
-        </ul>
-        More details and instructions for other platforms
-        <a href="#how-to-install">below &#8595;</a>
+        <p class="intro" style="margin-bottom: 0.5rem"><strong>Recommended installation</strong></p>
+        <p class="intro" style="margin-bottom: 1rem">
+          Ask your AI to &#8220;Install the skills from the
+          <code>cirra-ai/skills</code> GitHub repo&#8221;
+        </p>
+        <p class="intro" style="margin-bottom: 1rem">
+          Exact implementation steps vary by platform; follow the guidance of your AI.
+        </p>
+        <p class="intro" style="margin-bottom: 1rem">
+          You can find more details and instructions for common platforms
+          <a href="#how-to-install">below &#8595;</a>
+        </p>
+        <p class="intro">
+          If you run into issues, check your AI client&#8217;s docs or contact
+          <a href="mailto:support@cirra.ai">support@cirra.ai</a>.
+        </p>
       </div>
 
       <p style="color: var(--muted)">
@@ -466,12 +465,12 @@
         <a href="https://code.claude.com/docs/en/plugins" target="_blank">plugin format</a>.
       </p>
       <p style="color: var(--muted); font-size: 0.875rem; margin-bottom: 1.25rem">
-        The plugin includes all the skills listed below, as well as a collection of 'slash' commands
-        for quick access to common tasks.
+        The plugin includes all the skills listed below.
       </p>
       <p style="color: var(--muted); font-size: 0.875rem; margin-bottom: 1.25rem">
-        Install for Claude Cowork and Claude Code via the marketplace at
-        <code>cirra-ai/skills</code> (no download needed).<br />
+        Install for Claude Code:
+        <code>claude plugin install cirra-ai-sf@cirra-ai</code>. For Claude Cowork, ask your AI to
+        install the skills from the <code>cirra-ai/skills</code> GitHub repo.<br />
         See <a href="#how-to-install">below &#8595;</a> for install instructions on other platforms.
       </p>
 
@@ -500,14 +499,15 @@
         "
       >
         <li><a href="#claude-cowork">Claude Cowork</a></li>
-        <li><a href="#openai-codex">OpenAI Codex</a></li>
-        <li><a href="#claude-web-or-desktop">Claude web or desktop</a></li>
-        <li><a href="#chatgpt">ChatGPT</a></li>
         <li><a href="#claude-code-cli">Claude Code (CLI)</a></li>
+        <li><a href="#openai-codex">OpenAI Codex</a></li>
+        <li><a href="#claude-web-or-desktop">Claude Chat (web or desktop)</a></li>
+        <li><a href="#chatgpt">ChatGPT</a></li>
       </ul>
       <p>
-        Please contact <a href="mailto:support@cirra.ai">support@cirra.ai</a> if you have any
-        questions or need help with installation.
+        Installation steps may change as the AI platforms and the skills standards evolve. Please
+        contact <a href="mailto:support@cirra.ai">support@cirra.ai</a> if you have any questions or
+        need help with installation.
       </p>
       <p>
         You can also check the <a href="https://docs.cirra.ai" target="_blank">Cirra AI docs</a> for
@@ -515,23 +515,24 @@
       </p>
       <br />
       <div class="install-box">
-        <h3 id="claude-cowork">Claude Cowork or Claude Code (desktop)</h3>
+        <h3 id="claude-cowork">Claude Cowork</h3>
         <ol>
           <li>
             Install <a href="https://claude.com/product/cowork" target="_blank">Claude Cowork</a> if
             you haven't already.
           </li>
-          <li>Open the Claude Desktop app and select the <strong>Cowork</strong> tab</li>
-          <li>Click <strong>Plugins</strong> in the left sidebar</li>
-          <li>Click <strong>Personal</strong> and then the <strong>+</strong> icon</li>
-          <li>Select <strong>Add marketplace from GitHub</strong></li>
           <li>
-            Enter <code>cirra-ai/skills</code> and click <strong>Sync</strong> — then install
-            <strong>cirra-ai-sf</strong>
+            In a new conversation, ask your AI to &#8220;Install the skills from the
+            <code>cirra-ai/skills</code> GitHub repo&#8221;
           </li>
           <li>You may need to restart the app to see the skills</li>
         </ol>
-        <p>You can also upload the plugin zip directly, or install individual skills.</p>
+        <p>You can also go to the <strong>Customize</strong> menu to:</p>
+        <ul style="padding-left: 1.25rem; color: var(--muted); font-size: 0.875rem">
+          <li>Upload the plugin zip directly</li>
+          <li>Add the Cirra AI skills marketplace from <code>cirra-ai/skills</code></li>
+          <li>Upload individual skills downloaded from this page</li>
+        </ul>
       </div>
 
       <div class="install-box">
@@ -546,26 +547,30 @@
             repo"
           </li>
           <li>
-            This will use the built-in <code>skill-installer</code> skill to download the latest
-            skills and install them for you
+            This should invoke the built-in <code>skill-installer</code> skill to download the
+            latest skills and install them for you
           </li>
           <li>You may need to restart the app to see the skills</li>
         </ol>
       </div>
 
       <div class="install-box">
-        <h3 id="claude-web-or-desktop">Claude web or desktop</h3>
+        <h3 id="claude-web-or-desktop">Claude Chat (web or desktop)</h3>
         <ol>
-          <li>Download the skill zip you want to install</li>
           <li>
-            Go to
-            <a href="https://claude.ai/settings/capabilities" target="_blank"
-              >Settings &rarr; Capabilities</a
-            >
+            In a new thread, say "Install the skills from the <code>cirra-ai/skills</code> GitHub
+            repo"
           </li>
-          <li>Scroll down to <strong>Skills</strong></li>
-          <li>Click <strong>+ Add</strong> to add a skill</li>
-          <li>Upload the skill zip you downloaded</li>
+          <li>
+            This should invoke the built-in <code>skill-installer</code> skill to clone the GitHub
+            repo and install the latest skills for you
+          </li>
+          <li>
+            You can also go to
+            <a href="https://claude.ai/customize/skills" target="_blank">Customize &rarr; Skills</a>
+          </li>
+          <li>Download a <code>.skill</code> file above</li>
+          <li>Click <strong>+</strong> to upload the file</li>
         </ol>
       </div>
 
@@ -574,7 +579,7 @@
         <p>ChatGPT does not support skills directly. We recommend you use Codex instead.</p>
         <p>However, if you only have access to ChatGPT you can still use the skills as follows:</p>
         <ol>
-          <li>Download the individual skill zip file using the links above</li>
+          <li>Download the individual <code>.skill</code> file using the links above</li>
           <li>Add the skill to a chat that has the <strong>Cirra AI</strong> app enabled.</li>
         </ol>
         <p>
@@ -587,9 +592,8 @@
         <h3 id="claude-code-cli">Claude Code (CLI)</h3>
         <ol>
           <li>
-            Install from the marketplace:<br />
-            <code>/plugin marketplace add cirra-ai/skills</code><br />
-            <code>/plugin install cirra-ai-sf@cirra-ai</code>
+            Install the plugin:<br />
+            <code>claude plugin install cirra-ai-sf@cirra-ai</code>
           </li>
           <li>
             Or install from a downloaded plugin zip:<br />
@@ -601,7 +605,7 @@
           <a href="https://code.claude.com/docs/en/discover-plugins" target="_blank"
             >discover-plugins</a
           >
-          for details
+          for details.
         </p>
       </div>
 

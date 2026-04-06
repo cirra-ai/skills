@@ -89,7 +89,9 @@ INPUT_FILES = {
     "permission_findings": "permission_findings.json",
     "metadata_scores": "metadata_scores.json",
     "validation_rules": "validation_rules.json",
+    "formula_fields": "formula_fields.json",
     "workflow_rules": "workflow_rules.json",
+    "other_rules_findings": "other_rules_findings.json",
 }
 
 
@@ -161,12 +163,18 @@ def compute_summary(data):
                 count += 1
         below_threshold[domain] = count
 
-    # Severity rollup from permission findings
+    # Severity rollup from permission findings and all declarative-logic findings
     severity_counts = {"CRITICAL": 0, "HIGH": 0, "MEDIUM": 0, "LOW": 0}
     for finding in data.get("permission_findings", []):
         sev = finding.get("severity", "LOW").upper()
         if sev in severity_counts:
             severity_counts[sev] += 1
+    for source_key in ("validation_rules", "formula_fields", "workflow_rules", "other_rules_findings"):
+        for item in data.get(source_key, []):
+            for finding in item.get("findings", []):
+                sev = finding.get("severity", "LOW").upper()
+                if sev in severity_counts:
+                    severity_counts[sev] += 1
 
     # Top issues by domain
     top_issues = {}
@@ -191,6 +199,36 @@ def compute_summary(data):
         "severity_counts": severity_counts,
         "top_issues": {k: [{"issue": i, "count": c} for i, c in v] for k, v in top_issues.items()},
     }
+
+
+# ── Hardcoded values cross-cutting helper ──────────────────────────────────
+
+
+def _collect_hardcoded_values(data):
+    """Gather all hardcoded-value findings across every declarative source.
+
+    Returns a list of dicts with keys: component_type, name, severity, message.
+    """
+    rows = []
+    source_map = [
+        ("validation_rules", "Validation Rule"),
+        ("formula_fields", "Formula Field"),
+        ("workflow_rules", "Workflow Rule"),
+        ("other_rules_findings", None),  # type comes from the item itself
+    ]
+    for source_key, default_type in source_map:
+        for item in data.get(source_key, []):
+            comp_type = default_type or item.get("type", "Unknown")
+            for finding in item.get("findings", []):
+                msg = finding.get("message", "")
+                if "hardcoded" in msg.lower():
+                    rows.append({
+                        "component_type": comp_type,
+                        "name": item.get("name", ""),
+                        "severity": finding.get("severity", "MEDIUM"),
+                        "message": msg,
+                    })
+    return rows
 
 
 # ── HTML report ─────────────────────────────────────────────────────────────
@@ -302,6 +340,23 @@ def _recommendations_list(data):
     if wr_count:
         scored_recs.append((35, f"[Automation] Migrate {wr_count} Workflow Rule(s) to Flow"))
 
+    # Hardcoded-value findings from formulas, validation rules, workflow rules, other rules
+    for source_key, label in [
+        ("validation_rules", "Validation Rules"),
+        ("formula_fields", "Formula Fields"),
+        ("workflow_rules", "Workflow Rules"),
+        ("other_rules_findings", "Declarative Logic"),
+    ]:
+        for item in data.get(source_key, []):
+            for finding in item.get("findings", []):
+                sev = finding.get("severity", "LOW").upper()
+                msg = finding.get("message", "")
+                if "hardcoded" in msg.lower():
+                    scored_recs.append((
+                        sev_priority.get(sev, 50),
+                        f"[{label}] {item.get('name', 'Unknown')}: {msg}",
+                    ))
+
     scored_recs.sort(key=lambda x: x[0])
     return [text for _, text in scored_recs[:10]]
 
@@ -342,7 +397,9 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
         ("lwc_bundles", "LWC Components"),
         ("custom_objects", "Custom Objects"),
         ("validation_rules", "Validation Rules"),
+        ("formula_fields", "Formula Fields"),
         ("workflow_rules", "Workflow Rules"),
+        ("approval_processes", "Approval Processes"),
         ("permission_sets", "Permission Sets"),
         ("permission_set_groups", "Permission Set Groups"),
         ("profiles", "Profiles"),
@@ -536,19 +593,97 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
             f'{_table_html(["Name", "Object", "Active", "Severity", "Findings"], rows)}</div>'
         )
 
+    # ── Formula Fields ──
+    if data.get("formula_fields"):
+        rows = []
+        for item in sorted(data["formula_fields"], key=lambda x: x.get("name", "")):
+            findings_str = "; ".join(
+                f.get("message", f.get("finding", ""))
+                for f in item.get("findings", [])[:3]
+            )
+            sev = max(
+                (f.get("severity", "LOW") for f in item.get("findings", [])),
+                key=lambda s: {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1}.get(s.upper(), 0),
+                default="LOW",
+            ) if item.get("findings") else "—"
+            rows.append([
+                _esc(item.get("name", "")),
+                _esc(item.get("object", "")),
+                _esc(item.get("data_type", "")),
+                _esc(str(item.get("formula_length", ""))),
+                _severity_badge_html(sev) if sev != "—" else "—",
+                _esc(findings_str),
+            ])
+        sections.append(
+            f'<div class="card"><h2>Formula Fields</h2>'
+            f'{_table_html(["Name", "Object", "Data Type", "Length", "Severity", "Findings"], rows)}</div>'
+        )
+
     # ── Workflow Rules ──
     if data.get("workflow_rules"):
         rows = []
         for item in sorted(data["workflow_rules"], key=lambda x: x.get("name", "")):
+            findings_str = "; ".join(
+                f.get("message", "")
+                for f in item.get("findings", [])[:3]
+            )
             rows.append([
                 _esc(item.get("name", "")),
                 _esc(item.get("object", "")),
                 _esc(item.get("action_types", "")),
                 _severity_badge_html(item.get("migration_priority", "HIGH")),
+                _esc(findings_str),
             ])
         sections.append(
             f'<div class="card"><h2>Workflow Rules</h2>'
-            f'{_table_html(["Name", "Object", "Action Types", "Migration Priority"], rows)}</div>'
+            f'{_table_html(["Name", "Object", "Action Types", "Priority", "Formula Findings"], rows)}</div>'
+        )
+
+    # ── Other Declarative Logic ──
+    if data.get("other_rules_findings"):
+        rows = []
+        for item in sorted(data["other_rules_findings"], key=lambda x: x.get("name", "")):
+            findings_str = "; ".join(
+                f.get("message", "")
+                for f in item.get("findings", [])[:3]
+            )
+            sev = max(
+                (f.get("severity", "LOW") for f in item.get("findings", [])),
+                key=lambda s: {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1}.get(s.upper(), 0),
+                default="LOW",
+            ) if item.get("findings") else "—"
+            rows.append([
+                _esc(item.get("type", "")),
+                _esc(item.get("name", "")),
+                _esc(item.get("object", "")),
+                _severity_badge_html(sev) if sev != "—" else "—",
+                _esc(findings_str),
+            ])
+        sections.append(
+            f'<div class="card"><h2>Other Declarative Logic</h2>'
+            f'{_table_html(["Type", "Name", "Object", "Severity", "Findings"], rows)}</div>'
+        )
+
+    # ── Hardcoded Values Summary ──
+    hv_rows = _collect_hardcoded_values(data)
+    if hv_rows:
+        table_rows = []
+        for hv in hv_rows:
+            table_rows.append([
+                _esc(hv["component_type"]),
+                _esc(hv["name"]),
+                _severity_badge_html(hv["severity"]),
+                _esc(hv["message"]),
+            ])
+        sections.append(
+            f'<div class="card"><h2>Hardcoded Values Summary</h2>'
+            f'<p>{len(hv_rows)} hardcoded value(s) found across all declarative logic.</p>'
+            f'{_table_html(["Component Type", "Name", "Severity", "Finding"], table_rows)}</div>'
+        )
+    else:
+        sections.append(
+            '<div class="card"><h2>Hardcoded Values Summary</h2>'
+            "<p>No hardcoded values detected in formulas or declarative logic.</p></div>"
         )
 
     # ── Recommendations ──
@@ -723,7 +858,9 @@ def generate_docx(data, summary, org_name, org_id, instance, run_date, output_pa
         ("lwc_bundles", "LWC Components"),
         ("custom_objects", "Custom Objects"),
         ("validation_rules", "Validation Rules"),
+        ("formula_fields", "Formula Fields"),
         ("workflow_rules", "Workflow Rules"),
+        ("approval_processes", "Approval Processes"),
         ("permission_sets", "Permission Sets"),
         ("permission_set_groups", "Permission Set Groups"),
         ("profiles", "Profiles"),
@@ -868,22 +1005,104 @@ def generate_docx(data, summary, org_name, org_id, instance, run_date, output_pa
             row[3].text = sev
             row[4].text = findings_str
 
+    # Formula Fields
+    if data.get("formula_fields"):
+        doc.add_heading("Formula Fields", level=1)
+        table = doc.add_table(rows=1, cols=6)
+        table.alignment = WD_TABLE_ALIGNMENT.CENTER
+        hdr = table.rows[0].cells
+        for i, h in enumerate(["Name", "Object", "Data Type", "Length", "Severity", "Findings"]):
+            hdr[i].text = h
+            for run in hdr[i].paragraphs[0].runs:
+                run.font.bold = True
+        for item in sorted(data["formula_fields"], key=lambda x: x.get("name", "")):
+            findings = item.get("findings", [])
+            findings_str = "; ".join(
+                f.get("message", "") for f in findings[:3]
+            )
+            sev = max(
+                (f.get("severity", "LOW") for f in findings),
+                key=lambda s: {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1}.get(s.upper(), 0),
+                default="LOW",
+            ) if findings else "—"
+            row = table.add_row().cells
+            row[0].text = item.get("name", "")
+            row[1].text = item.get("object", "")
+            row[2].text = item.get("data_type", "")
+            row[3].text = str(item.get("formula_length", ""))
+            row[4].text = sev
+            row[5].text = findings_str
+
     # Workflow Rules
     if data.get("workflow_rules"):
         doc.add_heading("Workflow Rules", level=1)
-        table = doc.add_table(rows=1, cols=4)
+        table = doc.add_table(rows=1, cols=5)
         table.alignment = WD_TABLE_ALIGNMENT.CENTER
         hdr = table.rows[0].cells
-        for i, h in enumerate(["Name", "Object", "Action Types", "Migration Priority"]):
+        for i, h in enumerate(["Name", "Object", "Action Types", "Priority", "Formula Findings"]):
             hdr[i].text = h
             for run in hdr[i].paragraphs[0].runs:
                 run.font.bold = True
         for item in sorted(data["workflow_rules"], key=lambda x: x.get("name", "")):
+            findings_str = "; ".join(
+                f.get("message", "") for f in item.get("findings", [])[:3]
+            )
             row = table.add_row().cells
             row[0].text = item.get("name", "")
             row[1].text = item.get("object", "")
             row[2].text = item.get("action_types", "")
             row[3].text = item.get("migration_priority", "HIGH")
+            row[4].text = findings_str
+
+    # Other Declarative Logic
+    if data.get("other_rules_findings"):
+        doc.add_heading("Other Declarative Logic", level=1)
+        table = doc.add_table(rows=1, cols=5)
+        table.alignment = WD_TABLE_ALIGNMENT.CENTER
+        hdr = table.rows[0].cells
+        for i, h in enumerate(["Type", "Name", "Object", "Severity", "Findings"]):
+            hdr[i].text = h
+            for run in hdr[i].paragraphs[0].runs:
+                run.font.bold = True
+        for item in sorted(data["other_rules_findings"], key=lambda x: x.get("name", "")):
+            findings = item.get("findings", [])
+            findings_str = "; ".join(
+                f.get("message", "") for f in findings[:3]
+            )
+            sev = max(
+                (f.get("severity", "LOW") for f in findings),
+                key=lambda s: {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1}.get(s.upper(), 0),
+                default="LOW",
+            ) if findings else "—"
+            row = table.add_row().cells
+            row[0].text = item.get("type", "")
+            row[1].text = item.get("name", "")
+            row[2].text = item.get("object", "")
+            row[3].text = sev
+            row[4].text = findings_str
+
+    # Hardcoded Values Summary
+    doc.add_heading("Hardcoded Values Summary", level=1)
+    hv_rows = _collect_hardcoded_values(data)
+    if hv_rows:
+        doc.add_paragraph(
+            f"{len(hv_rows)} hardcoded value(s) found across all declarative logic."
+        )
+        table = doc.add_table(rows=1, cols=4)
+        table.alignment = WD_TABLE_ALIGNMENT.CENTER
+        hdr = table.rows[0].cells
+        for i, h in enumerate(["Component Type", "Name", "Severity", "Finding"]):
+            hdr[i].text = h
+            for run in hdr[i].paragraphs[0].runs:
+                run.font.bold = True
+        for hv in hv_rows:
+            row = table.add_row().cells
+            row[0].text = hv["component_type"]
+            row[1].text = hv["name"]
+            row[2].text = hv["severity"]
+            row[3].text = hv["message"]
+    else:
+        doc.add_paragraph("No hardcoded values detected in formulas or declarative logic.")
 
     # Recommendations
     doc.add_heading("Recommendations", level=1)
@@ -1106,21 +1325,78 @@ def generate_xlsx(data, summary, org_name, org_id, instance, run_date, output_pa
             ws9.cell(row=i, column=5, value=sev)
     auto_width(ws9)
 
-    # Sheet 10 — Workflow Rules
-    ws10 = wb.create_sheet("Workflow Rules")
+    # Sheet 10 — Formula Fields
+    ws10 = wb.create_sheet("Formula Fields")
     ws10.sheet_properties.tabColor = "417AE4"
-    apply_header(ws10, ["Name", "Object", "Action Types", "Migration Priority"])
-    for i, item in enumerate(data.get("workflow_rules", []), 2):
+    apply_header(ws10, ["Name", "Object", "Data Type", "Formula Length", "Findings", "Severity"])
+    for i, item in enumerate(data.get("formula_fields", []), 2):
         ws10.cell(row=i, column=1, value=item.get("name", ""))
         ws10.cell(row=i, column=2, value=item.get("object", ""))
-        ws10.cell(row=i, column=3, value=item.get("action_types", ""))
-        ws10.cell(row=i, column=4, value=item.get("migration_priority", "HIGH"))
+        ws10.cell(row=i, column=3, value=item.get("data_type", ""))
+        ws10.cell(row=i, column=4, value=item.get("formula_length", 0))
+        findings = item.get("findings", [])
+        ws10.cell(row=i, column=5, value="; ".join(
+            f.get("message", "") for f in findings[:3]
+        ))
+        if findings:
+            sev = max(
+                (f.get("severity", "LOW") for f in findings),
+                key=lambda s: {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1}.get(s.upper(), 0),
+            )
+            ws10.cell(row=i, column=6, value=sev)
     auto_width(ws10)
 
-    # Sheet 11 — Summary
-    ws11 = wb.create_sheet("Summary")
+    # Sheet 11 — Workflow Rules
+    ws11 = wb.create_sheet("Workflow Rules")
     ws11.sheet_properties.tabColor = "417AE4"
-    apply_header(ws11, ["Metric", "Value"])
+    apply_header(ws11, ["Name", "Object", "Action Types", "Migration Priority", "Formula Findings"])
+    for i, item in enumerate(data.get("workflow_rules", []), 2):
+        ws11.cell(row=i, column=1, value=item.get("name", ""))
+        ws11.cell(row=i, column=2, value=item.get("object", ""))
+        ws11.cell(row=i, column=3, value=item.get("action_types", ""))
+        ws11.cell(row=i, column=4, value=item.get("migration_priority", "HIGH"))
+        findings = item.get("findings", [])
+        ws11.cell(row=i, column=5, value="; ".join(
+            f.get("message", "") for f in findings[:3]
+        ))
+    auto_width(ws11)
+
+    # Sheet 12 — Other Declarative Logic
+    ws12 = wb.create_sheet("Other Declarative Logic")
+    ws12.sheet_properties.tabColor = "417AE4"
+    apply_header(ws12, ["Type", "Name", "Object", "Findings", "Severity"])
+    for i, item in enumerate(data.get("other_rules_findings", []), 2):
+        ws12.cell(row=i, column=1, value=item.get("type", ""))
+        ws12.cell(row=i, column=2, value=item.get("name", ""))
+        ws12.cell(row=i, column=3, value=item.get("object", ""))
+        findings = item.get("findings", [])
+        ws12.cell(row=i, column=4, value="; ".join(
+            f.get("message", "") for f in findings[:3]
+        ))
+        if findings:
+            sev = max(
+                (f.get("severity", "LOW") for f in findings),
+                key=lambda s: {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1}.get(s.upper(), 0),
+            )
+            ws12.cell(row=i, column=5, value=sev)
+    auto_width(ws12)
+
+    # Sheet 13 — Hardcoded Values
+    ws13_hv = wb.create_sheet("Hardcoded Values")
+    ws13_hv.sheet_properties.tabColor = "417AE4"
+    apply_header(ws13_hv, ["Component Type", "Name", "Severity", "Finding"])
+    hv_rows = _collect_hardcoded_values(data)
+    for i, hv in enumerate(hv_rows, 2):
+        ws13_hv.cell(row=i, column=1, value=hv["component_type"])
+        ws13_hv.cell(row=i, column=2, value=hv["name"])
+        ws13_hv.cell(row=i, column=3, value=hv["severity"])
+        ws13_hv.cell(row=i, column=4, value=hv["message"])
+    auto_width(ws13_hv)
+
+    # Sheet 14 — Summary
+    ws14 = wb.create_sheet("Summary")
+    ws14.sheet_properties.tabColor = "417AE4"
+    apply_header(ws14, ["Metric", "Value"])
     summary_rows = [
         ("Org Name", org_name),
         ("Org ID", org_id),
@@ -1141,9 +1417,9 @@ def generate_xlsx(data, summary, org_name, org_id, instance, run_date, output_pa
         summary_rows.append((f"  {sev}", summary["severity_counts"].get(sev, 0)))
 
     for i, (metric, value) in enumerate(summary_rows, 2):
-        ws11.cell(row=i, column=1, value=metric)
-        ws11.cell(row=i, column=2, value=value)
-    auto_width(ws11)
+        ws14.cell(row=i, column=1, value=metric)
+        ws14.cell(row=i, column=2, value=value)
+    auto_width(ws14)
 
     wb.save(output_path)
     return output_path

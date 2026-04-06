@@ -111,3 +111,107 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Should ask user**: no
 
 **Notes**: The `describe` keyword routes correctly. The "all custom objects" qualifier means list all custom objects first (via `tooling_api_query`), then let the user pick which to describe in detail. This follows the parsing table in the Describe Object workflow.
+
+---
+
+## create a custom object
+
+- **Input**: `/sf-metadata create a custom object called Invoice__c with Status, Amount, and DueDate fields`
+- **Dispatch**: Create Metadata
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `cirra_ai_init`
+- **Should call**: `metadata_create`
+- **Should NOT call**: `metadata_delete`, `metadata_update`
+- **Should ask user**: no (object name and fields are specified)
+- **Post-action**: FLS prompt — ask user which Permission Sets need access to the new object and fields
+- **Follow-up skills**: `sf-permissions`, `sf-data`
+
+**Notes**: `create` keyword with "custom object" routes to Create Metadata. Should create the object first via `metadata_create`, then create each field. Must prompt about FLS after field creation — new fields are invisible without Permission Set access.
+
+---
+
+## create a validation rule
+
+- **Input**: `/sf-metadata create a validation rule on Account to require Phone when Industry is Technology`
+- **Dispatch**: Create Metadata
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `cirra_ai_init`
+- **Should call**: `sobject_describe`, `metadata_create`
+- **Should NOT call**: `metadata_delete`, `metadata_update`
+- **Should ask user**: no (requirements are clear)
+- **Follow-up skills**: `sf-data`
+
+**Notes**: `create` keyword with "validation rule" routes to Create Metadata. Should describe the Account object first to verify field API names (Phone, Industry), then create the ValidationRule via `metadata_create` with appropriate error condition formula and error message.
+
+---
+
+## update a field label
+
+- **Input**: `/sf-metadata update the label on Account.CustomField__c to "Primary Contact Email"`
+- **Dispatch**: Update Metadata
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `fast`
+- **First tool**: `cirra_ai_init`
+- **Should call**: `metadata_update`
+- **Should NOT call**: `metadata_create`, `metadata_delete`
+- **Should ask user**: no (field and new label are specified)
+- **Follow-up skills**: none
+
+**Notes**: `update` keyword with specific field and new label routes to Update Metadata. Simple single-operation update — fast path applies. Should update the field's label via `metadata_update`.
+
+---
+
+## delete a custom field
+
+- **Input**: `/sf-metadata delete Account.OldField__c`
+- **Dispatch**: Delete Metadata
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `cirra_ai_init`
+- **Should call**: `metadata_delete`
+- **Should NOT call**: `metadata_create`, `metadata_update`
+- **Should ask user**: yes (confirm before destructive operation)
+- **Follow-up skills**: none
+
+**Notes**: `delete` keyword with a field API name routes to Delete Metadata. Must confirm with the user before deleting — field deletion is destructive and may break reports, flows, and Apex code. Should warn about downstream dependencies.
+
+---
+
+## create a record type
+
+- **Input**: `/sf-metadata create a record type on Case called Internal_Support for internal support cases`
+- **Dispatch**: Create Metadata
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `cirra_ai_init`
+- **Should call**: `sobject_describe`, `metadata_create`
+- **Should NOT call**: `metadata_delete`, `metadata_update`
+- **Should ask user**: no (object, name, and purpose are specified)
+- **Follow-up skills**: `sf-permissions`
+
+**Notes**: `create` keyword with "record type" routes to Create Metadata. Should describe the Case object first to verify it exists, then create the RecordType via `metadata_create`. May need to set up page layout assignment after creation.
+
+---
+
+## natural language — add a picklist field
+
+- **Input**: `/sf-metadata add a picklist field called Priority__c on Opportunity with values High, Medium, Low`
+- **Dispatch**: Create Metadata
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `cirra_ai_init`
+- **Should call**: `sobject_describe`, `metadata_create`
+- **Should NOT call**: `metadata_delete`, `metadata_update`
+- **Should ask user**: no (all requirements are specified)
+- **Post-action**: FLS prompt — ask user which Permission Sets need access to the new field
+- **Follow-up skills**: `sf-permissions`
+
+**Notes**: Natural language "add a field" maps to Create Metadata. The request includes field type (picklist), API name, object, and values. Should describe Opportunity to verify it exists, then create the CustomField via `metadata_create` with picklist values. Must prompt about FLS after creation.

@@ -21,7 +21,7 @@ Examples:
 - 'Generate descriptions and help texts for all the custom fields'
 - 'Analyze all my profiles and permission sets and recommend security fixes and cleanup'
 
-The skills in this repository are designed for agentic AI tools like **Claude Cowork** and **OpenAI Codex**, but also make standard Claude and ChatGPT more capable. They are compatible with **Claude Code** and other developer tools.
+The skills in this repository are designed for agentic AI tools like **Claude Cowork** and **OpenAI Codex**, but also make standard Claude Chat and ChatGPT more capable. They are compatible with **Claude Code** and other developer tools.
 
 To learn more about skills see [What are skills?](https://support.claude.com/en/articles/12512176-what-are-skills) and [agentskills.io](https://agentskills.io/home#adoption).
 
@@ -52,7 +52,19 @@ To learn more about skills see [What are skills?](https://support.claude.com/en/
 
 First, sign up for a free trial of the [Cirra AI MCP Server](https://cirra.ai/free-trial/) if you have not already.
 
-Then, navigate to [skills.cirra.ai](https://skills.cirra.ai/) for a full install guide and downloadable packages.
+Ask your AI to "Install the skills from the `cirra-ai/skills` GitHub repo". Exact implementation steps vary by platform; follow the guidance of your AI.
+
+**Claude Code (CLI):**
+
+```
+claude plugin install cirra-ai-sf@cirra-ai
+```
+
+**Claude Cowork / OpenAI Codex / Claude Chat:** Ask your AI to "Install the skills from the `cirra-ai/skills` GitHub repo"
+
+**Other platforms:** Navigate to [skills.cirra.ai](https://skills.cirra.ai/) for a full install guide and downloadable packages.
+
+> Installation steps may change as the AI platforms and the skills standards evolve. If you run into issues, check your AI client's documentation or contact [support@cirra.ai](mailto:support@cirra.ai).
 
 ## Contributing
 

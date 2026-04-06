@@ -1,6 +1,6 @@
 # sf-data
 
-Salesforce data and SOQL expert skill for Claude Cowork and Claude Code. Build, optimize, and execute SOQL queries, manage data operations, generate test data, and validate operations via the Cirra AI MCP Server.
+Salesforce data and SOQL expert skill for AI coding tools. Build, optimize, and execute SOQL queries, manage data operations, generate test data, and validate operations via the Cirra AI MCP Server.
 
 > **Note**: This skill covers all SOQL and data operation capabilities. Use `/sf-data` for any data-related work — querying, DML, validation, and object discovery.
 
@@ -19,11 +19,11 @@ Salesforce data and SOQL expert skill for Claude Cowork and Claude Code. Build, 
 
 ## Installation
 
-For full installation instructions (Claude Cowork, OpenAI, browser), see the [root README](../../../../README.md).
+For full installation instructions (various AI tools), see the [root README](../../../../README.md).
 
 ## Usage
 
-#### In Claude Cowork or Claude Code
+#### Installation
 
 Invoke the unified skill:
 
@@ -84,7 +84,7 @@ This skill includes validation scripts that check SOQL queries and data operatio
 
 ## Requirements
 
-- Claude Cowork or Claude Code with skill plugins enabled
+- An AI coding tool with skill/plugin support
 - Cirra AI MCP Server
 - Target Salesforce org
 
