@@ -88,6 +88,8 @@ INPUT_FILES = {
     "lwc_scores": "lwc_scores.json",
     "permission_findings": "permission_findings.json",
     "metadata_scores": "metadata_scores.json",
+    "unused_fields": "unused_fields.json",
+    "unused_objects": "unused_objects.json",
     "validation_rules": "validation_rules.json",
     "formula_fields": "formula_fields.json",
     "workflow_rules": "workflow_rules.json",
@@ -175,6 +177,11 @@ def compute_summary(data):
                 sev = finding.get("severity", "LOW").upper()
                 if sev in severity_counts:
                     severity_counts[sev] += 1
+    for source_key in ("unused_fields", "unused_objects"):
+        for item in data.get(source_key, []):
+            sev = item.get("severity", "MEDIUM").upper()
+            if sev in severity_counts:
+                severity_counts[sev] += 1
 
     # Top issues by domain
     top_issues = {}
@@ -357,6 +364,20 @@ def _recommendations_list(data):
                         f"[{label}] {item.get('name', 'Unknown')}: {msg}",
                     ))
 
+    # Unused fields and objects
+    unused_fields = [f for f in data.get("unused_fields", []) if f.get("category") == "Unused"]
+    unused_objects = [o for o in data.get("unused_objects", []) if o.get("category") == "Unused"]
+    if unused_fields:
+        scored_recs.append((
+            15,
+            f"[Data Model] Remove {len(unused_fields)} unused custom field(s) (no data, no references)",
+        ))
+    if unused_objects:
+        scored_recs.append((
+            10,
+            f"[Data Model] Remove {len(unused_objects)} unused custom object(s) (no records, no references)",
+        ))
+
     scored_recs.sort(key=lambda x: x[0])
     return [text for _, text in scored_recs[:10]]
 
@@ -407,6 +428,17 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
     for key, label in inv_map:
         val = counts.get(key, 0)
         inv_lines.append(f"<li><strong>{_esc(val)}</strong> {label}</li>")
+    # Unused fields/objects summary counts
+    unused_f = data.get("unused_fields", [])
+    unused_o = data.get("unused_objects", [])
+    if unused_f:
+        inv_lines.append(
+            f"<li><strong>{len(unused_f)}</strong> Unused/Empty/Unreferenced Custom Fields</li>"
+        )
+    if unused_o:
+        inv_lines.append(
+            f"<li><strong>{len(unused_o)}</strong> Unused/Empty/Unreferenced Custom Objects</li>"
+        )
     sections.append(
         f'<div class="card"><h2>Executive Summary</h2>'
         f'<ul>{"".join(inv_lines)}</ul></div>'
@@ -566,6 +598,58 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
         sections.append(
             f'<div class="card"><h2>Data Model</h2>'
             f'{_table_html(["Object", "Score", "Fields", "Relationships", "Top Issues"], rows)}</div>'
+        )
+
+    # ── Unused Fields & Objects ──
+    if data.get("unused_fields") or data.get("unused_objects"):
+        uf_parts = []
+        if data.get("unused_fields"):
+            uf_rows = []
+            for item in sorted(data["unused_fields"], key=lambda x: (
+                {"HIGH": 0, "MEDIUM": 1, "LOW": 2}.get(x.get("severity", "MEDIUM").upper(), 3),
+                x.get("object", ""), x.get("field", ""),
+            )):
+                refs = ", ".join(item.get("referenced_in", [])) or "None"
+                uf_rows.append([
+                    _esc(item.get("object", "")),
+                    _esc(item.get("field", "")),
+                    _esc(item.get("data_type", "")),
+                    _esc("Yes" if item.get("has_data") else "No"),
+                    _esc(refs),
+                    _severity_badge_html(item.get("severity", "MEDIUM")),
+                    _esc(item.get("category", "")),
+                ])
+            uf_parts.append(
+                f"<h3>Unused Fields ({len(data['unused_fields'])})</h3>"
+                + _table_html(
+                    ["Object", "Field", "Data Type", "Has Data", "Referenced In", "Severity", "Category"],
+                    uf_rows,
+                )
+            )
+        if data.get("unused_objects"):
+            uo_rows = []
+            for item in sorted(data["unused_objects"], key=lambda x: (
+                {"HIGH": 0, "MEDIUM": 1, "LOW": 2}.get(x.get("severity", "MEDIUM").upper(), 3),
+                x.get("object", ""),
+            )):
+                refs = ", ".join(item.get("referenced_in", [])) or "None"
+                uo_rows.append([
+                    _esc(item.get("object", "")),
+                    _esc(str(item.get("record_count", 0))),
+                    _esc(refs),
+                    _severity_badge_html(item.get("severity", "MEDIUM")),
+                    _esc(item.get("category", "")),
+                ])
+            uf_parts.append(
+                f"<h3>Unused Objects ({len(data['unused_objects'])})</h3>"
+                + _table_html(
+                    ["Object", "Record Count", "Referenced In", "Severity", "Category"],
+                    uo_rows,
+                )
+            )
+        sections.append(
+            '<div class="card"><h2>Unused Fields &amp; Objects</h2>'
+            + "\n".join(uf_parts) + "</div>"
         )
 
     # ── Validation Rules ──
@@ -978,6 +1062,48 @@ def generate_docx(data, summary, org_name, org_id, instance, run_date, output_pa
                 style="List Bullet",
             )
 
+    # Unused Fields & Objects
+    if data.get("unused_fields") or data.get("unused_objects"):
+        doc.add_heading("Unused Fields & Objects", level=1)
+        if data.get("unused_fields"):
+            doc.add_heading("Unused Fields", level=2)
+            table = doc.add_table(rows=1, cols=6)
+            table.alignment = WD_TABLE_ALIGNMENT.CENTER
+            hdr = table.rows[0].cells
+            for i, h in enumerate(["Object", "Field", "Data Type", "Has Data", "Category", "Severity"]):
+                hdr[i].text = h
+                for run in hdr[i].paragraphs[0].runs:
+                    run.font.bold = True
+            for item in sorted(data["unused_fields"], key=lambda x: (
+                {"HIGH": 0, "MEDIUM": 1, "LOW": 2}.get(x.get("severity", "MEDIUM").upper(), 3),
+                x.get("object", ""),
+            )):
+                row = table.add_row().cells
+                row[0].text = item.get("object", "")
+                row[1].text = item.get("field", "")
+                row[2].text = item.get("data_type", "")
+                row[3].text = "Yes" if item.get("has_data") else "No"
+                row[4].text = item.get("category", "")
+                row[5].text = item.get("severity", "MEDIUM")
+        if data.get("unused_objects"):
+            doc.add_heading("Unused Objects", level=2)
+            table = doc.add_table(rows=1, cols=4)
+            table.alignment = WD_TABLE_ALIGNMENT.CENTER
+            hdr = table.rows[0].cells
+            for i, h in enumerate(["Object", "Record Count", "Category", "Severity"]):
+                hdr[i].text = h
+                for run in hdr[i].paragraphs[0].runs:
+                    run.font.bold = True
+            for item in sorted(data["unused_objects"], key=lambda x: (
+                {"HIGH": 0, "MEDIUM": 1, "LOW": 2}.get(x.get("severity", "MEDIUM").upper(), 3),
+                x.get("object", ""),
+            )):
+                row = table.add_row().cells
+                row[0].text = item.get("object", "")
+                row[1].text = str(item.get("record_count", 0))
+                row[2].text = item.get("category", "")
+                row[3].text = item.get("severity", "MEDIUM")
+
     # Validation Rules
     if data.get("validation_rules"):
         doc.add_heading("Validation Rules", level=1)
@@ -1305,7 +1431,45 @@ def generate_xlsx(data, summary, org_name, org_id, instance, run_date, output_pa
         ))
     auto_width(ws8)
 
-    # Sheet 9 — Validation Rules
+    # Sheet 9 — Unused Fields
+    ws9_uf = wb.create_sheet("Unused Fields")
+    ws9_uf.sheet_properties.tabColor = "417AE4"
+    apply_header(ws9_uf, ["Object", "Field", "Data Type", "Has Data", "Referenced In", "Category", "Severity"])
+    for i, item in enumerate(sorted(
+        data.get("unused_fields", []),
+        key=lambda x: (
+            {"HIGH": 0, "MEDIUM": 1, "LOW": 2}.get(x.get("severity", "MEDIUM").upper(), 3),
+            x.get("object", ""), x.get("field", ""),
+        ),
+    ), 2):
+        ws9_uf.cell(row=i, column=1, value=item.get("object", ""))
+        ws9_uf.cell(row=i, column=2, value=item.get("field", ""))
+        ws9_uf.cell(row=i, column=3, value=item.get("data_type", ""))
+        ws9_uf.cell(row=i, column=4, value="Yes" if item.get("has_data") else "No")
+        ws9_uf.cell(row=i, column=5, value=", ".join(item.get("referenced_in", [])) or "None")
+        ws9_uf.cell(row=i, column=6, value=item.get("category", ""))
+        ws9_uf.cell(row=i, column=7, value=item.get("severity", "MEDIUM"))
+    auto_width(ws9_uf)
+
+    # Sheet 10 — Unused Objects
+    ws10_uo = wb.create_sheet("Unused Objects")
+    ws10_uo.sheet_properties.tabColor = "417AE4"
+    apply_header(ws10_uo, ["Object", "Record Count", "Referenced In", "Category", "Severity"])
+    for i, item in enumerate(sorted(
+        data.get("unused_objects", []),
+        key=lambda x: (
+            {"HIGH": 0, "MEDIUM": 1, "LOW": 2}.get(x.get("severity", "MEDIUM").upper(), 3),
+            x.get("object", ""),
+        ),
+    ), 2):
+        ws10_uo.cell(row=i, column=1, value=item.get("object", ""))
+        ws10_uo.cell(row=i, column=2, value=item.get("record_count", 0))
+        ws10_uo.cell(row=i, column=3, value=", ".join(item.get("referenced_in", [])) or "None")
+        ws10_uo.cell(row=i, column=4, value=item.get("category", ""))
+        ws10_uo.cell(row=i, column=5, value=item.get("severity", "MEDIUM"))
+    auto_width(ws10_uo)
+
+    # Sheet 11 — Validation Rules
     ws9 = wb.create_sheet("Validation Rules")
     ws9.sheet_properties.tabColor = "417AE4"
     apply_header(ws9, ["Name", "Object", "Active", "Findings", "Severity"])

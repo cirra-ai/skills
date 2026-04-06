@@ -1,0 +1,9 @@
+[
+  {
+    "object": "Legacy_Request__c",
+    "record_count": 0,
+    "referenced_in": [],
+    "category": "Unused",
+    "severity": "HIGH"
+  }
+]

@@ -41,6 +41,8 @@ def test_load_inputs_reads_all_files(gen):
     assert len(data["validation_rules"]) == 2
     assert len(data["formula_fields"]) == 2
     assert len(data["workflow_rules"]) == 1
+    assert len(data["unused_fields"]) == 2
+    assert len(data["unused_objects"]) == 1
     assert len(data["other_rules_findings"]) == 1
 
 
@@ -90,9 +92,11 @@ def test_compute_summary_severity_counts(gen):
     # Validation rules findings: MEDIUM=1, LOW=1
     # Formula fields findings: HIGH=1
     # Other rules findings: HIGH=1
+    # Unused fields: HIGH=1, MEDIUM=1
+    # Unused objects: HIGH=1
     assert summary["severity_counts"]["CRITICAL"] == 1
-    assert summary["severity_counts"]["HIGH"] == 3
-    assert summary["severity_counts"]["MEDIUM"] == 1
+    assert summary["severity_counts"]["HIGH"] == 5
+    assert summary["severity_counts"]["MEDIUM"] == 2
     assert summary["severity_counts"]["LOW"] == 2
 
 
@@ -146,6 +150,7 @@ def test_html_contains_all_sections(gen, output_dir):
         "Lightning Web Components",
         "Profiles &amp; Permissions",
         "Data Model",
+        "Unused Fields &amp; Objects",
         "Validation Rules",
         "Formula Fields",
         "Workflow Rules",

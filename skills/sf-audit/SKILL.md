@@ -6,10 +6,11 @@ description: >
   Run a comprehensive Salesforce org audit. Inventories and scores Apex classes, triggers,
   Flows, Process Builders, Workflow Rules, LWC components, custom objects/fields, validation
   rules, formula fields, approval processes, escalation/assignment/auto-response rules,
-  Profiles, and Permission Sets. Scans all formula and criteria logic for hardcoded Record
-  IDs, Campaign names, Profile names, URLs, and other fragile values. Generates Word, Excel,
-  and HTML reports. Use when asked to audit a Salesforce org, review org health, or run an
-  org health check.
+  Profiles, and Permission Sets. Detects unused custom fields and objects (no data and/or
+  no references in code, flows, layouts, or reports). Scans all formula and criteria logic
+  for hardcoded Record IDs, Campaign names, Profile names, URLs, and other fragile values.
+  Generates Word, Excel, and HTML reports. Use when asked to audit a Salesforce org, review
+  org health, or run an org health check.
   Usage: /sf-audit [full|apex|flow|lwc|metadata|permissions] ...
 metadata:
   version: 2.1.0
@@ -361,6 +362,7 @@ AUDIT_TYPE: fresh | incremental (previous: {PREV_DATE})
 - [ ] C5: LWC (0 / X)
 - [ ] C6: Permissions
 - [ ] C7: Data Model (0 / X objects)
+- [ ] C7b: Unused Fields & Objects
 - [ ] C8: Workflow Rules
 
 ## Scores Accumulated
@@ -820,6 +822,120 @@ Cross-object analysis (beyond per-object scoring):
 
 Update `audit_state.md`: mark C7 complete.
 
+### C7b — Unused Custom Fields and Objects
+
+Identify custom fields and custom objects that appear unused. "Unused" means
+either (a) no records contain data for the field/object, or (b) the field/object
+is not referenced in other org artifacts (Apex, Flows, validation rules, formula
+fields, page layouts, reports, list views), or both. Flag each condition
+independently — either one in isolation is worth surfacing.
+
+#### Step 1 — Identify custom fields with no data
+
+For each local custom object (from C7), query for custom fields that have zero
+populated records. Use a single Tooling API query per object to get all custom
+fields, then check population via SOQL:
+
+```
+tooling_api_query: SELECT DeveloperName, QualifiedApiName, DataType,
+  Description, TableEnumOrId
+  FROM CustomField
+  WHERE NamespacePrefix = null
+    AND TableEnumOrId = '<CustomObject__c>'
+```
+
+For each custom field, check whether any record has data:
+
+```
+soql_query: SELECT COUNT(Id) total FROM <Object__c> WHERE <Field__c> != null LIMIT 1
+```
+
+> **Performance note:** For objects with many custom fields, batch the
+> population checks — run up to 10 in parallel where the mode supports it.
+> In `sfdx-repo` mode, skip population checks (record data is not available
+> locally) and mark those fields as "population unknown — no org connection
+> for data check."
+
+#### Step 2 — Identify custom objects with no records
+
+For each local custom object, check record count:
+
+```
+soql_query: SELECT COUNT(Id) total FROM <Object__c>
+```
+
+Objects with `total == 0` are flagged as "no data."
+
+#### Step 3 — Cross-reference analysis (artifact references)
+
+Search for references to each custom field and custom object across org
+artifacts. A field/object is "unreferenced" if it does not appear in any of:
+
+1. **Apex classes and triggers** — search for the field/object API name in all
+   fetched bodies (from C1/C2 intermediate files)
+2. **Flows** — search Flow XML for the field/object API name (from C3
+   intermediate files)
+3. **Validation rules** — search `ErrorConditionFormula` for the field API name
+   (from C7 data)
+4. **Formula fields** — search `Formula` body for the field API name (from C7
+   data)
+5. **Workflow rules** — search criteria and field-update formulas (from C8 data)
+6. **Page layouts** — query layout assignments:
+   ```
+   metadata_read: type=Layout, fullNames=["<Object__c>-*"]
+   ```
+   Check whether the field appears in any layout section.
+7. **Reports and list views** — query via Tooling API:
+   ```
+   tooling_api_query: SELECT Id, DeveloperName FROM Report
+     WHERE DeveloperName LIKE '%<ObjectName>%'
+   ```
+
+> **`sfdx-repo` mode:** search for the field/object API name across all files
+> in `force-app/` using `grep -r`. For page layouts, check
+> `force-app/main/default/layouts/<Object>-*.layout-meta.xml`.
+
+> **Shortcut for large orgs:** If the org has more than 500 custom fields
+> total, limit the cross-reference search to fields that already failed the
+> population check (no data). Fields with data are less likely to be truly
+> unused.
+
+#### Step 4 — Classify and write findings
+
+For each custom field, assign a category:
+
+| Condition                   | Category           | Severity |
+| --------------------------- | ------------------ | -------- |
+| No data AND no references   | Unused             | HIGH     |
+| No data but has references  | Empty              | MEDIUM   |
+| Has data but no references  | Unreferenced       | MEDIUM   |
+| Has data and has references | Active (no action) | —        |
+
+For each custom object with no records:
+
+| Condition                      | Category           | Severity |
+| ------------------------------ | ------------------ | -------- |
+| No records AND no references   | Unused             | HIGH     |
+| No records but has references  | Empty              | MEDIUM   |
+| Has records but no references  | Unreferenced       | MEDIUM   |
+| Has records and has references | Active (no action) | —        |
+
+Write findings to:
+
+- `./audit_output/unused_fields.json`
+- `./audit_output/unused_objects.json`
+
+See `references/report-input-schema.md` for the JSON schema.
+
+Update `audit_state.md`: mark C7b complete, record counts:
+
+- Unused fields (no data + no references): {n}
+- Empty fields (no data, but referenced): {n}
+- Unreferenced fields (has data, but not referenced): {n}
+- Unused objects: {n}
+- Empty objects: {n}
+- Unreferenced objects: {n}
+
 ### C8 — Workflow Rules
 
 #### Inventory and criteria
@@ -1006,9 +1122,10 @@ Sections (in order):
 11. Formula Fields: inventory with hardcoded-value findings
 12. Workflow Rules: inventory with migration priorities and formula findings
 13. Other Declarative Logic: approval, escalation, assignment, and auto-response rule findings
-14. Automation Overlap: objects with multiple automation types active
-15. Hardcoded Values Summary: cross-cutting view of all hardcoded IDs, names, and URLs found across formulas, validation rules, workflow rules, and other logic
-16. Top 10 recommendations across all domains
+14. Unused Fields & Objects: fields and objects with no data and/or no references in other artifacts
+15. Automation Overlap: objects with multiple automation types active
+16. Hardcoded Values Summary: cross-cutting view of all hardcoded IDs, names, and URLs found across formulas, validation rules, workflow rules, and other logic
+17. Top 10 recommendations across all domains
 
 Mark any domain that was not fully scored (e.g. "quick pass only") as
 "Surface metrics only — body not downloaded."
@@ -1029,6 +1146,8 @@ One sheet per domain, plus a Summary sheet. Columns per domain:
 - Formula Fields: Name, Object, DataType, Formula Length, Findings, Severity
 - Workflow Rules: Name, Object, Action Types, Priority, Formula Findings
 - Other Declarative Logic: Type, Name, Object, Findings, Severity
+- Unused Fields: Object, Field, Data Type, Has Data, Referenced In, Category, Severity
+- Unused Objects: Object, Record Count, Referenced In, Category, Severity
 - Hardcoded Values: Component Type, Name, Severity, Finding
 - Summary: overall score, component counts, finding counts by severity,
   automation overlap matrix, [if incremental] delta summary
@@ -1065,6 +1184,9 @@ Tell the user:
 - **Components needing attention**: count below 70, by domain
 - **Permissions findings**: count by severity
 - **Legacy automation**: active Workflow Rules and Process Builders count
+- **Unused fields & objects**: count of unused (no data + no references),
+  empty (no data, referenced), and unreferenced (has data, not referenced)
+  custom fields and objects — cleanup candidates
 - **Automation overlap warnings**: objects with multiple automation types
 - **Hardcoded values found**: total count of hardcoded Record IDs, Campaign
   names, Profile names, URLs, and other fragile literals found across
