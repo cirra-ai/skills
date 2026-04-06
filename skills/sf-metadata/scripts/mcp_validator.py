@@ -16,7 +16,7 @@ _spec.loader.exec_module(_mod)
 MetadataOperationValidator = _mod.MetadataOperationValidator
 SUPPORTED_METADATA_TYPES = _mod.SUPPORTED_METADATA_TYPES
 
-SUPPORTED_TOOLS = ("metadata_create", "metadata_update", "tooling_api_dml")
+SUPPORTED_TOOLS = ("metadata_create", "metadata_update", "tooling_api_dml", "metadata_read")
 
 
 def _extract_metadata(tool: str, params: dict[str, Any]) -> tuple[str, dict[str, Any], str, int]:
@@ -35,7 +35,16 @@ def _extract_metadata(tool: str, params: dict[str, Any]) -> tuple[str, dict[str,
                 first = metadata[0]
                 if isinstance(first, dict):
                     payload = first
-                    full_name = str(first.get("fullName", ""))
+                    full_name = str(first.get("fullName", first.get("masterLabel", "")))
+
+    elif tool == "metadata_read":
+        metadata_type = params.get("type", "")
+        full_names = params.get("fullNames", [])
+        batch_size = len(full_names) if isinstance(full_names, list) else 0
+        if full_names:
+            full_name = str(full_names[0])
+        # metadata_read is read-only; provide a minimal payload for type-level checks.
+        payload = {"fullName": full_name} if full_name else {}
 
     elif tool == "tooling_api_dml":
         sobject = params.get("sObject", "")

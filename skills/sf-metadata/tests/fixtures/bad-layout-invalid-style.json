@@ -1,0 +1,10 @@
+{
+  "description": "Layout with invalid section style",
+  "layoutSections": [
+    {
+      "label": "Bad Section",
+      "style": "ThreeColumns",
+      "layoutColumns": []
+    }
+  ]
+}

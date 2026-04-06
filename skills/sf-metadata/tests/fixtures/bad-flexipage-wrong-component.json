@@ -1,0 +1,22 @@
+{
+  "masterLabel": "Bad Record Page",
+  "type": "RecordPage",
+  "sobjectType": "Account",
+  "description": "Uses wrong component name",
+  "template": {
+    "name": "flexipage:recordHomeTemplateDesktop"
+  },
+  "flexiPageRegions": [
+    {
+      "name": "main",
+      "type": "Region",
+      "itemInstances": [
+        {
+          "componentInstance": {
+            "componentName": "force:recordDetail"
+          }
+        }
+      ]
+    }
+  ]
+}
