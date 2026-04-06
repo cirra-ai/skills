@@ -40,23 +40,24 @@ Each test case in `dispatch-tests.md` uses this structure:
 
 ### Field Definitions
 
-| Field            | Required | Description                                                                                                                                                                                                      |
-| ---------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Input            | yes      | The exact user prompt including `/skill-name`                                                                                                                                                                    |
-| Dispatch         | yes      | Expected workflow name from dispatch table, or `(none — present menu)` / `(ambiguous)`                                                                                                                           |
-| Init required    | yes      | Whether `cirra_ai_init()` must be called for this operation                                                                                                                                                      |
-| Init timing      | yes      | `before-workflow` = init then execute; `before-menu` = init then present menu (when init is needed for capability detection); `after-menu` = present menu first, init after user selects; `n/a` = no init needed |
-| Path             | yes      | `fast` = simple request, bypass full workflow; `full` = multi-step workflow; `n/a` = no workflow selected                                                                                                        |
-| First tool       | no       | First MCP tool expected after init                                                                                                                                                                               |
-| Tool params      | no       | Key parameters for the first tool call                                                                                                                                                                           |
-| Should call      | no       | Additional tools expected during the workflow                                                                                                                                                                    |
-| Should NOT call  | no       | Tools that must NOT be called for this input                                                                                                                                                                     |
-| Should ask user  | yes      | Whether the model should prompt for clarification                                                                                                                                                                |
-| Menu options     | no       | Expected menu items (only for no-args/ambiguous tests)                                                                                                                                                           |
-| Post-action      | no       | Required follow-up action (e.g., FLS prompt after field creation)                                                                                                                                                |
-| Batch limit      | no       | Record batch constraints (for DML operations)                                                                                                                                                                    |
-| Follow-up skills | no       | Skills that should be offered as next steps                                                                                                                                                                      |
-| Notes            | no       | Free-text behavioral expectations and edge case notes                                                                                                                                                            |
+| Field            | Required | Description                                                                                                                                                                                                         |
+| ---------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Input            | yes      | The exact user prompt including `/skill-name`                                                                                                                                                                       |
+| Dispatch         | yes      | Expected workflow name from dispatch table, or `(none — present menu)` / `(ambiguous)`                                                                                                                              |
+| Init required    | yes      | Whether `cirra_ai_init()` must be called for this operation                                                                                                                                                         |
+| Init timing      | yes      | `before-workflow` = init then execute; `before-menu` = init then present menu (when init is needed for capability detection); `after-menu` = present menu first, init after user selects; `n/a` = no init needed    |
+| Path             | yes      | `fast` = simple request, bypass full workflow; `full` = multi-step workflow; `n/a` = no workflow selected                                                                                                           |
+| First tool       | no       | First MCP tool expected after init                                                                                                                                                                                  |
+| Tool params      | no       | Key parameters for the first tool call                                                                                                                                                                              |
+| Should call      | no       | Additional tools expected during the workflow                                                                                                                                                                       |
+| Should NOT call  | no       | Tools that must NOT be called for this input                                                                                                                                                                        |
+| Should ask user  | yes      | Whether the model should prompt for clarification                                                                                                                                                                   |
+| Menu options     | no       | Expected menu items (only for no-args/ambiguous tests)                                                                                                                                                              |
+| Post-action      | no       | Required follow-up action (e.g., FLS prompt after field creation)                                                                                                                                                   |
+| Payload format   | no       | Required structure for the tool call payload (e.g., JSON object format for `metadata_create`, `lwcResources` structure for LWC). When present, Phase 2 must inspect the constructed tool call and verify compliance |
+| Batch limit      | no       | Record batch constraints (for DML operations)                                                                                                                                                                       |
+| Follow-up skills | no       | Skills that should be offered as next steps                                                                                                                                                                         |
+| Notes            | no       | Free-text behavioral expectations and edge case notes                                                                                                                                                               |
 
 ---
 
@@ -147,6 +148,7 @@ For each test case, report in this EXACT format:
 - **Init**: [yes/no], [timing: before-workflow/before-menu/after-menu/n/a]
 - **First tool**: [exact tool_name(param=value)] or [n/a]
 - **Full tool sequence**: [tool1 → tool2 → tool3] (every tool, in order)
+- **Payload format**: [describe the exact structure of the metadata/tool call payload you would construct — include key names, NOT just "JSON object"]
 - **Ask user**: [yes/no] — [if yes, what exactly would you ask?]
 - **Tools NOT called**: [list every tool from SKILL.md that is irrelevant]
 - **RESULT**: PASS or FAIL
@@ -166,7 +168,15 @@ VERIFICATION RULES — you MUST check each of these:
 4. Your "Ask user" answer must match the test's "Should ask user" field.
    If the test says "no" but you would ask, or vice versa, report FAIL.
 
-5. At the end, report the EXACT count: "X/Y PASS, Z FAIL".
+5. If the test has a "Payload format" field, your constructed tool call
+   payload MUST match the required structure. Specifically check:
+   - For Flows: metadata object has inline properties (label, apiVersion,
+     processType, start, status) — NOT a "body" key with XML
+   - For LWC: metadata object uses lwcResources.lwcResource[] with
+     filePath and Base64-encoded source — NOT shorthand html/css/js/meta keys
+   If the payload format doesn't match, report FAIL.
+
+6. At the end, report the EXACT count: "X/Y PASS, Z FAIL".
    This count MUST equal the number of ## headings in dispatch-tests.md
    (excluding the file header). If your count doesn't match, you missed
    a test case — go back and find it.
@@ -185,6 +195,7 @@ Compare the model's response against the test case expectations:
 | Excluded tools   | `Should NOT call`               | Absent from model's "Tool sequence" + "Tools NOT called" | PASS/FAIL |
 | User interaction | `Should ask user`               | Model's "User interaction"                               | PASS/FAIL |
 | Menu content     | `Menu options`                  | Options presented in model's response                    | PASS/FAIL |
+| Payload format   | `Payload format`                | Tool call payload structure matches required format      | PASS/FAIL |
 | Follow-up skills | `Follow-up skills`              | Skills mentioned in model's "Follow-up"                  | PASS/WARN |
 | Post-action      | `Post-action`                   | Present in model's workflow                              | PASS/FAIL |
 | Notes criteria   | `Notes` free-text               | Manual review against model behavior                     | PASS/WARN |

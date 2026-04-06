@@ -3,7 +3,7 @@ name: sf-flow
 plugin: cirra-ai-sf
 argument-hint: '[create|update|validate] {FlowName} ...'
 metadata:
-  version: 2.0.1
+  version: 2.0.2
 description: >
   Creates and validates Salesforce flows with 110-point scoring and Winter '26 best practices
   using Cirra AI MCP Server. Use when building record-triggered flows, screen flows,
@@ -88,7 +88,7 @@ Fix any CRITICAL or HIGH issues before proceeding. The pre-deployment hook will 
 ```
 metadata_create(
   type="Flow",
-  metadata=[{"fullName": "<FlowApiName>", "body": "<flow XML>"}]
+  metadata=[{"fullName": "<FlowApiName>", "label": "<Flow Label>", "apiVersion": 65, "processType": "<ProcessType>", "status": "Draft", ...}]
 )
 ```
 
@@ -151,7 +151,7 @@ Fix any CRITICAL or HIGH issues before proceeding. The pre-deployment hook will 
 ```
 metadata_update(
   type="Flow",
-  metadata=[{"fullName": "<FlowApiName>", "body": "<updated XML>"}]
+  metadata=[{"fullName": "<FlowApiName>", "label": "<Flow Label>", "apiVersion": 65, "processType": "<ProcessType>", "status": "Draft", ...}]
 )
 ```
 
