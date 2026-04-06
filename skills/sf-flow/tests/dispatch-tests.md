@@ -260,3 +260,39 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 **Notes**: The dispatch table lists `score` as a synonym for `validate`. Should route to Validate Flow — same behavior as "validate single flow by API name".
 
 ---
+
+## deployment payload format — create
+
+- **Input**: `/sf-flow create CirraTest_Payload_Check a before-save flow that sets Account Description to "test"`
+- **Dispatch**: Create Flow
+- **Init required**: yes
+- **Init timing**: before-workflow
+- **Path**: fast
+- **First tool**: `cirra_ai_init`
+- **Should call**: `sobject_describe`, `metadata_create`, `tooling_api_query`
+- **Should NOT call**: `metadata_read`, `metadata_update`
+- **Should ask user**: no
+- **Payload format**: The `metadata_create` call MUST pass a JSON object with flow properties inline (`label`, `apiVersion`, `processType`, `start`, `assignments`/`decisions`/`recordUpdates`, `status`). It MUST NOT use a `body` key containing XML.
+- **Follow-up skills**: `sf-data`
+
+**Notes**: This test validates the deployment payload format, not just routing. The `metadata_create` Metadata API requires a structured JSON object — not XML in a `body` property. Phase 2 must inspect the constructed `metadata_create` call and verify: (1) no `body` key is present in the metadata array element, (2) flow properties like `processType`, `start`, `status` appear as top-level keys, (3) the `start` element contains `triggerType`, `recordTriggerType`, and `object` fields. A `body` key containing XML is a FAIL — this was the exact defect fixed in PR #101.
+
+---
+
+## deployment payload format — update
+
+- **Input**: `/sf-flow update CirraTest_Payload_Check add a fault path to the assignment element`
+- **Dispatch**: Update Flow
+- **Init required**: yes
+- **Init timing**: before-workflow
+- **Path**: full
+- **First tool**: `cirra_ai_init`
+- **Should call**: `metadata_read`, `metadata_update`, `tooling_api_query`
+- **Should NOT call**: `metadata_create`
+- **Should ask user**: no
+- **Payload format**: The `metadata_update` call MUST pass a JSON object with flow properties inline. It MUST NOT use a `body` key containing XML.
+- **Follow-up skills**: `sf-data`
+
+**Notes**: Same payload format validation as the create test, but for `metadata_update`. The metadata array element must contain flow properties as top-level JSON keys (not wrapped in a `body` property). Phase 2 must verify the `metadata_update` call structure matches the JSON deployment reference, not the XML template format.
+
+---
