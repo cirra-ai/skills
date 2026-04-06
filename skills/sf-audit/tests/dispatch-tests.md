@@ -158,7 +158,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Init timing**: `before-workflow`
 - **Path**: `full`
 - **First tool**: `cirra_ai_init`
-- **Should call**: `soql_query`, `tooling_api_query`
+- **Should call**: `soql_query`, `tooling_api_query`, `sobject_describe`, `metadata_read`
 - **Should NOT call**: `metadata_create`, `metadata_update`
 - **Should ask user**: yes (confirm full audit scope before proceeding)
 - **Follow-up skills**: `sf-apex`, `sf-flow`, `sf-lwc`, `sf-metadata`, `sf-permissions`

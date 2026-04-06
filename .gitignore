@@ -16,3 +16,6 @@ internal-docs/
 # Generated downloads page and preview (built by generate-pages.sh / CI)
 docs/index.html
 docs/preview/
+
+# Generated dispatch test bundle
+tests/dispatch-test-bundle.zip
