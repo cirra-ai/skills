@@ -1,0 +1,21 @@
+[
+  {
+    "name": "Region_Label__c",
+    "object": "Account",
+    "data_type": "Text",
+    "formula_length": 1240,
+    "findings": [
+      {
+        "severity": "HIGH",
+        "message": "Formula contains hardcoded Record ID: 0125000000AbCdE"
+      }
+    ]
+  },
+  {
+    "name": "Tier__c",
+    "object": "Account",
+    "data_type": "Text",
+    "formula_length": 320,
+    "findings": []
+  }
+]

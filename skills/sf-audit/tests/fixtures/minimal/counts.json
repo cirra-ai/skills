@@ -10,6 +10,8 @@
   "custom_objects": 2,
   "validation_rules": 2,
   "workflow_rules": 1,
+  "formula_fields": 2,
+  "approval_processes": 1,
   "permission_sets": 2,
   "permission_set_groups": 1,
   "profiles": 3,

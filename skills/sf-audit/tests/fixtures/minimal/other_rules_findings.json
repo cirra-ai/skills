@@ -1,0 +1,13 @@
+[
+  {
+    "type": "ApprovalProcess",
+    "name": "Discount_Approval",
+    "object": "Opportunity",
+    "findings": [
+      {
+        "severity": "HIGH",
+        "message": "Entry criteria contains hardcoded Record ID: 0055000000XyZaB"
+      }
+    ]
+  }
+]
