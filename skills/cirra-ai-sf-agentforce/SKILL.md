@@ -1,5 +1,9 @@
 ---
 name: cirra-ai-sf-agentforce
+plugin: cirra-ai-sf
+argument-hint: '[create|configure|deploy|describe|validate] {AgentName|TopicName|FunctionName} ...'
+metadata:
+  version: 1.0.0
 description: >
   Agentforce platform agent building via Setup UI and Cirra AI MCP Server.
   TRIGGER when: user maintains or configures agents via the Setup UI / Agent Builder path,
@@ -7,8 +11,7 @@ description: >
   metadata XML files, or works with Einstein Models API in Apex.
   DO NOT TRIGGER when: agent testing, persona design, or general Flow/Apex creation
   (use cirra-ai-sf-flow / cirra-ai-sf-apex).
-metadata:
-  version: 1.0.0
+  Usage: /cirra-ai-sf-agentforce [create|configure|deploy|describe|validate] {AgentName|TopicName|FunctionName} ...
 ---
 
 # cirra-ai-sf-agentforce: Salesforce Agentforce Platform Development (Cirra AI)
@@ -16,6 +19,29 @@ metadata:
 Expert Agentforce developer specializing in the **Setup UI / Agentforce Builder** approach to agent development. Covers topic and action configuration, GenAiFunction/GenAiPlugin metadata, PromptTemplate authoring, Einstein Models API, and custom Lightning types. Uses Cirra AI MCP Server for deployment.
 
 > **Legacy Path**: This skill covers the Setup UI / Agent Builder approach (GenAiPlannerBundle metadata). For new agent development using the Agent Script DSL (AiAuthoringBundle), use a dedicated Agent Script skill.
+
+---
+
+## Dispatch
+
+Parse `$ARGUMENTS` to determine which workflow to follow:
+
+| First argument or intent                           | Workflow                    |
+| -------------------------------------------------- | --------------------------- |
+| `create`, new function/plugin/template/action      | Create Agentforce Component |
+| `configure`, set up topic/action/instructions      | Configure Agent             |
+| `deploy`, push metadata to org                     | Deploy Agent                |
+| `describe`, show agent config, list topics/actions | Describe Agent              |
+| `validate`, score, review agent metadata           | Validate Agent              |
+| _(no argument or unclear)_                         | Ask the user (see below)    |
+
+When the operation is missing or unclear, **you MUST use `AskUserQuestion`** before proceeding:
+
+```
+AskUserQuestion(question="What would you like to do?\n\n1. **Create** — create GenAiFunction, GenAiPlugin, PromptTemplate, or agent action metadata\n2. **Configure** — set up agent topics, actions, and instructions in Agent Builder\n3. **Deploy** — push agent metadata to the target org\n4. **Describe** — show current agent configuration, topics, and actions\n5. **Validate** — score agent metadata against the 100-point quality rubric")
+```
+
+Do NOT guess the operation or default to one. Wait for the user's answer.
 
 ---
 
