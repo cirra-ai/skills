@@ -45,17 +45,6 @@ FLEXIPAGE_TEMPLATES = {
     "HomePage": "home:desktopTemplate",
 }
 
-FLEXIPAGE_COMPONENT_NAMES = {
-    "force:highlightsPanel",
-    "force:detailPanel",
-    "force:relatedListContainer",
-    "forceChatter:recordFeedContainer",
-    "flexipage:tabset",
-    "flexipage:richText",
-    "runtime_sales_activities:activityPanel",
-    "runtime_sales_pathassistant:pathAssistant",
-}
-
 # Visibility rules only support the EQUAL operator in FlexiPage metadata.
 FLEXIPAGE_VISIBILITY_OPERATORS = {"EQUAL"}
 

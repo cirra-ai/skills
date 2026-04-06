@@ -132,7 +132,7 @@ class TestFlexiPageMCPIntegration:
         })
         assert r["status"] == "scored"
 
-    def test_flexipage_read_is_scored(self):
+    def test_flexipage_read_is_lightweight_pass(self):
         r = self.validator.validate({
             "tool": "metadata_read",
             "params": {
@@ -141,7 +141,9 @@ class TestFlexiPageMCPIntegration:
             },
         })
         assert r["status"] == "scored"
+        assert r["quality_status"] == "pass"
         assert r["metadata_type"] == "FlexiPage"
+        assert r["issues"] == []
 
     def test_flexipage_bad_payload_has_issues(self):
         r = self.validator.validate({

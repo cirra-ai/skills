@@ -91,6 +91,20 @@ def validate_metadata_deployment(input_data: dict[str, Any]) -> dict[str, Any]:
     if not payload:
         return {**base, "message": "Missing or empty metadata payload"}
 
+    # metadata_read is read-only — skip full payload validation and return
+    # a lightweight acknowledgement that the type is supported.
+    if tool == "metadata_read":
+        return {
+            **base,
+            "status": "scored",
+            "quality_status": "pass",
+            "overall_score": 0,
+            "max_score": 0,
+            "categories": {},
+            "issues": [],
+            "message": f"Read operation for '{metadata_type}' — no payload to validate",
+        }
+
     result = MetadataOperationValidator(metadata_type, payload).validate()
     quality_status = result.pop("status", "unknown")
     response = {**base, **result, "status": "scored", "quality_status": quality_status}
