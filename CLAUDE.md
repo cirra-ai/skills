@@ -1,5 +1,18 @@
 # CLAUDE.md
 
+## General principles
+
+- **Always fix pre-existing errors.** If you encounter failing tests, lint errors, or broken imports that existed before your change, fix them as part of your work. Do not dismiss them as "pre-existing" or "not related to my change."
+
+## Setup
+
+Before running tests, ensure Python dev dependencies from `requirements-dev.txt` are installed:
+
+```sh
+python3 -m pip install -r requirements-dev.txt
+uv tool install pytest --with jsonschema   # alternative: adds pytest to PATH via uv
+```
+
 ## Repository structure
 
 - `skills/` — **Source of truth** for all skill code (scripts, assets, references, tests).
