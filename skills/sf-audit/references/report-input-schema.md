@@ -219,6 +219,86 @@ findings when criteria/field-update formulas were retrieved via `metadata_read`.
 ]
 ```
 
+## unused_fields.json
+
+Array of custom fields flagged as unused, empty, or unreferenced.
+
+```json
+[
+  {
+    "object": "Project__c",
+    "field": "Legacy_Status__c",
+    "data_type": "Picklist",
+    "has_data": false,
+    "referenced_in": [],
+    "category": "Unused",
+    "severity": "HIGH"
+  },
+  {
+    "object": "Account",
+    "field": "Old_Region__c",
+    "data_type": "Text",
+    "has_data": false,
+    "referenced_in": ["AccountService.cls", "Account_Update_Flow"],
+    "category": "Empty",
+    "severity": "MEDIUM"
+  },
+  {
+    "object": "Contact",
+    "field": "Internal_Code__c",
+    "data_type": "Text",
+    "has_data": true,
+    "referenced_in": [],
+    "category": "Unreferenced",
+    "severity": "MEDIUM"
+  }
+]
+```
+
+Categories:
+
+| Category       | Condition                  | Severity |
+| -------------- | -------------------------- | -------- |
+| `Unused`       | No data AND no references  | HIGH     |
+| `Empty`        | No data but has references | MEDIUM   |
+| `Unreferenced` | Has data but no references | MEDIUM   |
+
+Fields in the `Active` category (has data AND has references) are **not**
+included in this file.
+
+## unused_objects.json
+
+Array of custom objects flagged as unused, empty, or unreferenced.
+
+```json
+[
+  {
+    "object": "Legacy_Request__c",
+    "record_count": 0,
+    "referenced_in": [],
+    "category": "Unused",
+    "severity": "HIGH"
+  },
+  {
+    "object": "Staging_Record__c",
+    "record_count": 0,
+    "referenced_in": ["StagingBatch.cls"],
+    "category": "Empty",
+    "severity": "MEDIUM"
+  },
+  {
+    "object": "Archive__c",
+    "record_count": 1500,
+    "referenced_in": [],
+    "category": "Unreferenced",
+    "severity": "MEDIUM"
+  }
+]
+```
+
+Categories follow the same rules as `unused_fields.json` but use
+`record_count` instead of `has_data`.
+
 ## other_rules_findings.json
 
 Array of findings from approval processes, escalation rules, assignment rules,
