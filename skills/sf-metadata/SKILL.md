@@ -115,6 +115,7 @@ are retrieved.
 | Operation                | Tool                | Org Required? | Output            |
 | ------------------------ | ------------------- | ------------- | ----------------- |
 | **Create Metadata**      | `metadata_create`   | Yes           | Metadata deployed |
+| **Read Metadata**        | `metadata_read`     | Yes           | Metadata returned |
 | **Update Metadata**      | `metadata_update`   | Yes           | Metadata updated  |
 | **Describe Object**      | `sobject_describe`  | Yes           | Object structure  |
 | **Query Metadata**       | `tooling_api_query` | Yes           | Metadata records  |
@@ -480,7 +481,19 @@ Parameters:
   - sf_user: Connection identifier
 ```
 
-### 3. Update Metadata
+### 3. Read Metadata
+
+**Tool**: `metadata_read`
+**Purpose**: Read existing metadata components from the org
+
+```
+Parameters:
+  - type: Metadata type (e.g., "ListView", "CustomField", "Layout")
+  - fullNames: ["Object.ComponentName"] (array of fully qualified names)
+  - sf_user: Connection identifier
+```
+
+### 4. Update Metadata
 
 **Tool**: `metadata_update`
 **Purpose**: Update existing metadata components
@@ -492,7 +505,7 @@ Parameters:
   - sf_user: Connection identifier
 ```
 
-### 4. Describe Object
+### 5. Describe Object
 
 **Tool**: `sobject_describe`
 **Purpose**: Get object structure, fields, relationships
@@ -503,7 +516,7 @@ Parameters:
   - sf_user: Connection identifier
 ```
 
-### 5. Tooling API Queries
+### 6. Tooling API Queries
 
 **Tool**: `tooling_api_query`
 **Purpose**: Query metadata objects (CustomField, CustomObject, etc.)
@@ -529,6 +542,7 @@ Parameters:
 | Validation Rule | `ValidationRule`       | Formula-based validation                     |
 | Record Type     | `RecordType`           | Picklist value assignments                   |
 | Page Layout     | `Layout`               | Section and field placement                  |
+| List View       | `ListView`             | Filtered views on object list pages          |
 
 ---
 
@@ -606,6 +620,41 @@ Classic layout actions are in `platformActionList.platformActionListItems`, each
 - **Not updating all `sortOrder` values** — causes `DUPLICATE_VALUE` errors; replace entire array
 - **Forgetting `enableActionsConfiguration` flag** — always check this property before deciding how to update
 - **Using `standardLabel` unknowingly** — it overrides your custom label; omit or set deliberately
+
+---
+
+## Creating List Views
+
+Use type `ListView`. The `fullName` must be `<ObjectName>.<ListViewName>`.
+
+Column names use dot-delimited format for standard fields (e.g., `LEAD.COMPANY`, `LEAD.STATUS`, `FULL_NAME`)
+and `<Object>.<FieldApiName>` for custom fields (e.g., `Lead.Assignment_Region__c`).
+
+To find valid column names, read an existing list view:
+
+```
+metadata_read(
+  type="ListView",
+  fullNames=["Lead.AllOpenLeads"],
+  sf_user="<sf_user>"
+)
+```
+
+Queue-filtered list view example:
+
+```
+metadata_create(
+  type="ListView",
+  metadata=[{
+    "fullName": "Lead.My_Queue_View",
+    "label": "My Queue View",
+    "filterScope": "Queue",
+    "queue": "My_Queue_DeveloperName",
+    "columns": ["FULL_NAME", "LEAD.COMPANY", "LEAD.STATUS", "Lead.Custom_Field__c"]
+  }],
+  sf_user="<sf_user>"
+)
+```
 
 ---
 
