@@ -29,6 +29,7 @@ class TestValidFlexiPages:
         result = MetadataOperationValidator("FlexiPage", _fixture("good-flexipage-record.json")).validate()
         assert result["status"] == "pass"
         assert result["overall_score"] >= 96
+        assert result["required_keys_present"] is True
 
     def test_app_page_scores_high(self):
         result = MetadataOperationValidator("FlexiPage", _fixture("good-flexipage-app.json")).validate()

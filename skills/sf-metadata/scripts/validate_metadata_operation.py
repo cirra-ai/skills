@@ -292,6 +292,14 @@ class MetadataOperationValidator:
         cat["issues"].append(message)
         self.issues.append({"category": category, "severity": severity, "message": message, "points": points})
 
+    def _check_identity_key_present(self) -> bool:
+        """Check that the type-appropriate identity key is present."""
+        if self.metadata_type == "FlexiPage":
+            return "masterLabel" in self.payload
+        if self.metadata_type == "Layout":
+            return True  # Layouts are identified by their full name in the API call, not in the payload.
+        return "fullName" in self.payload
+
     def _result(self) -> dict[str, Any]:
         total = sum(info["score"] for info in self.categories.values())
         if any(issue["severity"] == "critical" for issue in self.issues):
@@ -309,7 +317,7 @@ class MetadataOperationValidator:
             "status": status,
             "categories": self.categories,
             "issues": self.issues,
-            "required_keys_present": all(k in self.payload for k in ("fullName",)),
+            "required_keys_present": self._check_identity_key_present(),
         }
 
 
