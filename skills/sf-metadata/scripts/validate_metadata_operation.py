@@ -113,7 +113,7 @@ class MetadataOperationValidator:
         # FlexiPage uses masterLabel instead of fullName for display.
         if self.metadata_type == "FlexiPage":
             master_label = str(self.payload.get("masterLabel", ""))
-            if master_label and not master_label.strip():
+            if not master_label.strip():
                 self._deduct("naming", 6, "masterLabel should not be blank", "critical")
             return
 

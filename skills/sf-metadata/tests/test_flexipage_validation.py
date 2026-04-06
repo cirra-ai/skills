@@ -74,6 +74,20 @@ class TestFlexiPageSchemaErrors:
         assert any("GREATER_THAN" in m for m in msgs)
         assert any("unsupported" in m.lower() for m in msgs)
 
+    def test_empty_master_label_flagged(self):
+        payload = _fixture("good-flexipage-record.json")
+        payload["masterLabel"] = ""
+        result = MetadataOperationValidator("FlexiPage", payload).validate()
+        msgs = _issues_messages(result)
+        assert any("blank" in m for m in msgs)
+
+    def test_whitespace_only_master_label_flagged(self):
+        payload = _fixture("good-flexipage-record.json")
+        payload["masterLabel"] = "   "
+        result = MetadataOperationValidator("FlexiPage", payload).validate()
+        msgs = _issues_messages(result)
+        assert any("blank" in m for m in msgs)
+
     def test_invalid_type_flagged(self):
         payload = _fixture("good-flexipage-record.json")
         payload["type"] = "InvalidPageType"
