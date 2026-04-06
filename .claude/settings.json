@@ -8,7 +8,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "if command -v uv >/dev/null 2>&1; then uv tool install pytest --with jsonschema || echo 'SessionStart: failed to install pytest via uv' >&2; fi; python3 -m pip install -r requirements-dev.txt 2>/dev/null || echo 'SessionStart: failed to pip install requirements-dev.txt' >&2"
+            "command": "if command -v uv >/dev/null 2>&1; then uv tool install pytest --with jsonschema || echo 'SessionStart: failed to install pytest via uv' >&2; fi; python3 -m pip install -q -r requirements-dev.txt || echo 'SessionStart: failed to pip install requirements-dev.txt' >&2"
           }
         ]
       }
