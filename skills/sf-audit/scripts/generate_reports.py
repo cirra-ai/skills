@@ -1394,9 +1394,9 @@ def generate_xlsx(data, summary, org_name, org_id, instance, run_date, output_pa
     auto_width(ws13_hv)
 
     # Sheet 14 — Summary
-    ws13 = wb.create_sheet("Summary")
-    ws13.sheet_properties.tabColor = "417AE4"
-    apply_header(ws13, ["Metric", "Value"])
+    ws14 = wb.create_sheet("Summary")
+    ws14.sheet_properties.tabColor = "417AE4"
+    apply_header(ws14, ["Metric", "Value"])
     summary_rows = [
         ("Org Name", org_name),
         ("Org ID", org_id),
@@ -1417,9 +1417,9 @@ def generate_xlsx(data, summary, org_name, org_id, instance, run_date, output_pa
         summary_rows.append((f"  {sev}", summary["severity_counts"].get(sev, 0)))
 
     for i, (metric, value) in enumerate(summary_rows, 2):
-        ws13.cell(row=i, column=1, value=metric)
-        ws13.cell(row=i, column=2, value=value)
-    auto_width(ws13)
+        ws14.cell(row=i, column=1, value=metric)
+        ws14.cell(row=i, column=2, value=value)
+    auto_width(ws14)
 
     wb.save(output_path)
     return output_path
