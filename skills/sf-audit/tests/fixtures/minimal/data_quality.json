@@ -1,0 +1,18 @@
+{
+  "objects": [
+    {
+      "name": "Account",
+      "record_count": 5000,
+      "field_completeness": [
+        { "field": "Industry", "null_count": 1200, "null_pct": 24.0 },
+        { "field": "BillingCity", "null_count": 850, "null_pct": 17.0 }
+      ]
+    },
+    {
+      "name": "Contact",
+      "record_count": 8000,
+      "field_completeness": [{ "field": "Email", "null_count": 200, "null_pct": 2.5 }]
+    }
+  ],
+  "findings": [{ "severity": "HIGH", "message": "Account.Industry is null for 24% of records" }]
+}
