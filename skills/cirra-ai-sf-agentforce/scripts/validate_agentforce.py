@@ -53,7 +53,7 @@ class AgentforceValidator:
 
     def _check_required_fields(self):
         required_by_type = {
-            "GenAiFunction": ("apiName", "description", "invocationTarget"),
+            "GenAiFunction": ("apiName", "description", "invocationTarget", "invocationTargetType"),
             "GenAiPlugin": ("apiName", "description"),
             "PromptTemplate": ("name", "templateType"),
         }
@@ -109,8 +109,16 @@ class AgentforceValidator:
     def _check_integration(self):
         if self.metadata_type == "GenAiFunction":
             target = self.payload.get("invocationTarget", "")
-            if isinstance(target, str) and target and "." not in target and "/" not in target:
-                self._deduct("integration_patterns", 3, "invocationTarget may be incomplete; expected a qualified reference", "warning")
+            target_type = self.payload.get("invocationTargetType", "")
+            normalized_target_type = target_type.lower() if isinstance(target_type, str) else ""
+            requires_qualified_apex_reference = "apex" in normalized_target_type
+            if (
+                requires_qualified_apex_reference
+                and isinstance(target, str)
+                and target
+                and "." not in target
+            ):
+                self._deduct("integration_patterns", 3, "invocationTarget may be incomplete for an Apex target; expected a qualified class.method reference", "warning")
 
         if self.metadata_type == "PromptTemplate":
             template_type = self.payload.get("templateType", "")

@@ -47,7 +47,9 @@ Do NOT guess the operation or default to one. Wait for the user's answer.
 
 ## Prerequisites
 
-Call `cirra_ai_init()` first if not already done this session.
+Call `cirra_ai_init()` if not already done this session **before executing the selected workflow**.
+
+If the operation is missing or unclear, **do not call `cirra_ai_init()` yet**. First use `AskUserQuestion` as described in **Dispatch** to let the user choose the workflow, then call `cirra_ai_init()` immediately before continuing with that workflow.
 
 ---
 

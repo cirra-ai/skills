@@ -2,6 +2,7 @@
   "apiName": "Get_Case_Details",
   "description": "Retrieves detailed case information including status, priority, contact, and resolution history for a given Case ID. Use when the customer asks about an existing support case.",
   "invocationTarget": "CaseService.getCaseDetails",
+  "invocationTargetType": "apex",
   "capabilities": ["AgentForce"],
   "inputs": [
     {

@@ -51,3 +51,41 @@ def test_unsupported_type_returns_critical():
 def test_empty_payload_returns_critical():
     result = AgentforceValidator("GenAiFunction", {}).validate()
     assert result["status"] == "critical"
+
+
+def test_missing_invocation_target_type_is_flagged():
+    payload = {
+        "apiName": "Get_Order_Status",
+        "description": "Retrieves the current status of a customer order",
+        "invocationTarget": "Get_Order_Status_Flow",
+    }
+    result = AgentforceValidator("GenAiFunction", payload).validate()
+    assert any("invocationTargetType" in i["message"] for i in result["issues"])
+
+
+def test_flow_target_without_dot_is_not_penalized():
+    payload = {
+        "apiName": "Get_Order_Status",
+        "description": "Retrieves the current status of a customer order",
+        "invocationTarget": "Get_Order_Status_Flow",
+        "invocationTargetType": "flow",
+        "capabilities": ["AgentForce"],
+        "inputs": [{"name": "orderId", "description": "The order ID"}],
+        "outputs": [{"name": "status", "description": "Order status"}],
+    }
+    result = AgentforceValidator("GenAiFunction", payload).validate()
+    assert not any("incomplete" in i["message"].lower() for i in result["issues"])
+
+
+def test_apex_target_without_dot_is_penalized():
+    payload = {
+        "apiName": "Get_Case_Details",
+        "description": "Retrieves case details for a given case ID",
+        "invocationTarget": "CaseService",
+        "invocationTargetType": "apex",
+        "capabilities": ["AgentForce"],
+        "inputs": [{"name": "caseId", "description": "The case ID"}],
+        "outputs": [{"name": "caseRecord", "description": "Full case record"}],
+    }
+    result = AgentforceValidator("GenAiFunction", payload).validate()
+    assert any("Apex target" in i["message"] for i in result["issues"])
