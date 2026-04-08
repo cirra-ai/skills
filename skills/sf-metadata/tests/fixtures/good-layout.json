@@ -1,0 +1,45 @@
+{
+  "description": "CirraTest Account Layout with standard sections",
+  "layoutSections": [
+    {
+      "label": "Account Information",
+      "customLabel": false,
+      "detailHeading": true,
+      "style": "TwoColumnsTopToBottom",
+      "layoutColumns": [
+        {
+          "layoutItems": [
+            { "field": "Name", "behavior": "Required" },
+            { "field": "Phone", "behavior": "Edit" }
+          ]
+        },
+        {
+          "layoutItems": [
+            { "field": "Industry", "behavior": "Edit" },
+            { "field": "AnnualRevenue", "behavior": "Edit" }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "System Information",
+      "customLabel": false,
+      "detailHeading": true,
+      "style": "TwoColumnsTopToBottom",
+      "layoutColumns": [
+        {
+          "layoutItems": [{ "field": "CreatedById", "behavior": "Readonly" }]
+        },
+        {
+          "layoutItems": [{ "field": "LastModifiedById", "behavior": "Readonly" }]
+        }
+      ]
+    }
+  ],
+  "relatedLists": [
+    {
+      "relatedList": "RelatedContactList",
+      "fields": ["FULL_NAME", "CONTACT.PHONE1", "CONTACT.EMAIL"]
+    }
+  ]
+}

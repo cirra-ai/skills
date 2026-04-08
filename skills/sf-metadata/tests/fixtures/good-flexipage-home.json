@@ -1,0 +1,42 @@
+{
+  "masterLabel": "CirraTest Home Page",
+  "type": "HomePage",
+  "description": "Custom home page with assistant and tasks",
+  "template": {
+    "name": "home:desktopTemplate"
+  },
+  "flexiPageRegions": [
+    {
+      "name": "top",
+      "type": "Region",
+      "itemInstances": [
+        {
+          "componentInstance": {
+            "componentName": "flexipage:richText",
+            "componentInstanceProperties": [
+              {
+                "name": "richTextValue",
+                "value": "Welcome to Sales HQ"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "bottomLeft",
+      "type": "Region",
+      "itemInstances": []
+    },
+    {
+      "name": "bottomRight",
+      "type": "Region",
+      "itemInstances": []
+    },
+    {
+      "name": "sidebar",
+      "type": "Region",
+      "itemInstances": []
+    }
+  ]
+}

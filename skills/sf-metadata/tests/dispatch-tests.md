@@ -215,3 +215,121 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Follow-up skills**: `sf-permissions`
 
 **Notes**: Natural language "add a field" maps to Create Metadata. The request includes field type (picklist), API name, object, and values. Should describe Opportunity to verify it exists, then create the CustomField via `metadata_create` with picklist values. Must prompt about FLS after creation.
+
+---
+
+## clone a page layout
+
+- **Input**: `/sf-metadata clone the Account page layout to "CirraTest Account Layout"`
+- **Dispatch**: Create Metadata
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `fast`
+- **First tool**: `cirra_ai_init`
+- **Should call**: `page_layout_clone`
+- **Should NOT call**: `metadata_create`, `metadata_delete`, `metadata_update`
+- **Should ask user**: no (source and target are specified)
+- **Follow-up skills**: none
+
+**Notes**: "clone" with "page layout" routes to Create Metadata. The `page_layout_clone` tool handles layout duplication directly. Should verify the source layout exists before cloning. No FLS prompt needed — layouts don't affect field visibility.
+
+---
+
+## update a page layout — add fields
+
+- **Input**: `/sf-metadata update the Account layout to add AnnualRevenue to the Information section`
+- **Dispatch**: Update Metadata
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `cirra_ai_init`
+- **Should call**: `metadata_read`, `page_layout_update`
+- **Should NOT call**: `metadata_create`, `metadata_delete`
+- **Should ask user**: no (field and section are specified)
+
+**Notes**: "update" with "layout" routes to Update Metadata. Must `metadata_read` the layout first to discover the current structure (section indices, column indices), then use `page_layout_update` with a JSON Patch `add` operation. Fields already on the layout cause errors — check before adding.
+
+---
+
+## create a Lightning Record Page
+
+- **Input**: `/sf-metadata create a Lightning Record Page for Account with highlights panel and record detail`
+- **Dispatch**: Create Metadata
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `cirra_ai_init`
+- **Should call**: `metadata_create`
+- **Tool params**: `type: FlexiPage`
+- **Should NOT call**: `metadata_delete`, `metadata_update`
+- **Should ask user**: no (object and components are specified)
+- **Follow-up skills**: none
+
+**Notes**: "create" with "Lightning Record Page" routes to Create Metadata with type `FlexiPage`. Must set `type: RecordPage`, `sobjectType: Account`. Use `flexipage:recordHomeTemplateDesktop` template. Use `force:detailPanel` (not `force:recordDetail`). No FLS prompt needed.
+
+---
+
+## create a Lightning App Page
+
+- **Input**: `/sf-metadata create a Lightning App Page called "Sales Dashboard" with a rich text header and list view`
+- **Dispatch**: Create Metadata
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `cirra_ai_init`
+- **Should call**: `metadata_create`
+- **Tool params**: `type: FlexiPage`
+- **Should NOT call**: `metadata_delete`, `metadata_update`
+- **Should ask user**: no (name and components are specified)
+
+**Notes**: "create" with "Lightning App Page" routes to Create Metadata with type `FlexiPage`. Must set `type: AppPage` — no `sobjectType` allowed. Use `flexipage:defaultAppHomeTemplate` template with region name `main`.
+
+---
+
+## create a Lightning Home Page
+
+- **Input**: `/sf-metadata create a Lightning Home Page with an assistant and tasks list view`
+- **Dispatch**: Create Metadata
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `cirra_ai_init`
+- **Should call**: `metadata_create`
+- **Tool params**: `type: FlexiPage`
+- **Should NOT call**: `metadata_delete`, `metadata_update`
+- **Should ask user**: no (components are specified)
+
+**Notes**: "create" with "Lightning Home Page" routes to Create Metadata with type `FlexiPage`. Must set `type: HomePage` — no `sobjectType` allowed. Use `home:desktopTemplate` template with regions: `top`, `bottomLeft`, `bottomRight`, `sidebar`.
+
+---
+
+## update a Lightning Page — add component
+
+- **Input**: `/sf-metadata update CirraTest_Account_Record_Page to add a Chatter feed component`
+- **Dispatch**: Update Metadata
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `cirra_ai_init`
+- **Should call**: `metadata_read`, `metadata_update`
+- **Tool params**: `type: FlexiPage`
+- **Should NOT call**: `metadata_create`, `metadata_delete`
+- **Should ask user**: no (page and component are specified)
+
+**Notes**: "update" with a Lightning page name routes to Update Metadata. Must `metadata_read` the FlexiPage first to discover current regions and components, then `metadata_update` with the full `flexiPageRegions` array including the new component. Existing components must be preserved.
+
+---
+
+## update a page layout — complex multi-operation
+
+- **Input**: `/sf-metadata update the Case layout: add a new Escalation section, add Account Name to Information, remove Internal Comments, and add Activities related list`
+- **Dispatch**: Update Metadata
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `cirra_ai_init`
+- **Should call**: `metadata_read`, `page_layout_update`
+- **Should NOT call**: `metadata_create`, `metadata_delete`
+- **Should ask user**: no (all changes are specified)
+
+**Notes**: Multiple layout changes should be batched into a single `page_layout_update` call with a multi-operation JSON Patch array. Must `metadata_read` first to get current structure. The patch array should contain 4+ operations (add section, add field, remove field, add related list).

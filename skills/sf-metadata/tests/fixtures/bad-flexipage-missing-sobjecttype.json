@@ -1,0 +1,21 @@
+{
+  "masterLabel": "Missing SObject Page",
+  "type": "RecordPage",
+  "description": "RecordPage without required sobjectType",
+  "template": {
+    "name": "flexipage:recordHomeTemplateDesktop"
+  },
+  "flexiPageRegions": [
+    {
+      "name": "main",
+      "type": "Region",
+      "itemInstances": [
+        {
+          "componentInstance": {
+            "componentName": "force:detailPanel"
+          }
+        }
+      ]
+    }
+  ]
+}

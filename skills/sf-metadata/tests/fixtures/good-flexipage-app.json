@@ -1,0 +1,27 @@
+{
+  "masterLabel": "CirraTest Dashboard App Page",
+  "type": "AppPage",
+  "description": "Sales dashboard application page",
+  "template": {
+    "name": "flexipage:defaultAppHomeTemplate"
+  },
+  "flexiPageRegions": [
+    {
+      "name": "main",
+      "type": "Region",
+      "itemInstances": [
+        {
+          "componentInstance": {
+            "componentName": "flexipage:richText",
+            "componentInstanceProperties": [
+              {
+                "name": "richTextValue",
+                "value": "CirraTest Dashboard"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

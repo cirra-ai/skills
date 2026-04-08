@@ -1,0 +1,10 @@
+{
+  "masterLabel": "Empty Page",
+  "type": "RecordPage",
+  "sobjectType": "Account",
+  "description": "FlexiPage with no regions",
+  "template": {
+    "name": "flexipage:recordHomeTemplateDesktop"
+  },
+  "flexiPageRegions": []
+}
