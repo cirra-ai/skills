@@ -1,0 +1,14 @@
+{
+  "description": "Layout with invalid item behavior",
+  "layoutSections": [
+    {
+      "label": "Info",
+      "style": "TwoColumnsTopToBottom",
+      "layoutColumns": [
+        {
+          "layoutItems": [{ "field": "IsClosedOnCreate", "behavior": "Editable" }]
+        }
+      ]
+    }
+  ]
+}

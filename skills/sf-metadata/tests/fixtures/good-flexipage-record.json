@@ -1,0 +1,44 @@
+{
+  "masterLabel": "CirraTest Account Record Page",
+  "type": "RecordPage",
+  "sobjectType": "Account",
+  "description": "Custom record page for Account with highlights and detail panels",
+  "template": {
+    "name": "flexipage:recordHomeTemplateDesktop"
+  },
+  "flexiPageRegions": [
+    {
+      "name": "header",
+      "type": "Region",
+      "itemInstances": [
+        {
+          "componentInstance": {
+            "componentName": "force:highlightsPanel"
+          }
+        }
+      ]
+    },
+    {
+      "name": "main",
+      "type": "Region",
+      "itemInstances": [
+        {
+          "componentInstance": {
+            "componentName": "force:detailPanel"
+          }
+        }
+      ]
+    },
+    {
+      "name": "sidebar",
+      "type": "Region",
+      "itemInstances": [
+        {
+          "componentInstance": {
+            "componentName": "force:relatedListContainer"
+          }
+        }
+      ]
+    }
+  ]
+}
