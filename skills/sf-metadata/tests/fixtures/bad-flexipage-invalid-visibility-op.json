@@ -1,0 +1,31 @@
+{
+  "masterLabel": "Bad Visibility Page",
+  "type": "RecordPage",
+  "sobjectType": "Case",
+  "description": "Uses unsupported visibility operator",
+  "template": {
+    "name": "flexipage:recordHomeTemplateDesktop"
+  },
+  "flexiPageRegions": [
+    {
+      "name": "main",
+      "type": "Region",
+      "itemInstances": [
+        {
+          "componentInstance": {
+            "componentName": "flexipage:richText",
+            "visibilityRule": {
+              "criteria": [
+                {
+                  "leftValue": "Record.Amount",
+                  "operator": "GREATER_THAN",
+                  "rightValue": "50000"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

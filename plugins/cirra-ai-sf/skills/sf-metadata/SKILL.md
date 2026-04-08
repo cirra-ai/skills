@@ -521,14 +521,15 @@ Parameters:
 
 ## Supported Metadata Types
 
-| Metadata Type   | `metadata_create` type | Common Operations                            |
-| --------------- | ---------------------- | -------------------------------------------- |
-| Custom Object   | `CustomObject`         | Create with label, name field, sharing model |
-| Custom Field    | `CustomField`          | Create with fullName as `Object.Field__c`    |
-| Permission Set  | `PermissionSet`        | Object + field permissions                   |
-| Validation Rule | `ValidationRule`       | Formula-based validation                     |
-| Record Type     | `RecordType`           | Picklist value assignments                   |
-| Page Layout     | `Layout`               | Section and field placement                  |
+| Metadata Type   | `metadata_create` type | Common Operations                                |
+| --------------- | ---------------------- | ------------------------------------------------ |
+| Custom Object   | `CustomObject`         | Create with label, name field, sharing model     |
+| Custom Field    | `CustomField`          | Create with fullName as `Object.Field__c`        |
+| Permission Set  | `PermissionSet`        | Object + field permissions                       |
+| Validation Rule | `ValidationRule`       | Formula-based validation                         |
+| Record Type     | `RecordType`           | Picklist value assignments                       |
+| Page Layout     | `Layout`               | Section and field placement                      |
+| Lightning Page  | `FlexiPage`            | Record, App, and Home page creation/modification |
 
 ---
 
@@ -547,13 +548,17 @@ Parameters:
 
 ## Common Errors
 
-| Error                             | Fix                                         |
-| --------------------------------- | ------------------------------------------- |
-| `Cannot deploy to required field` | Remove from fieldPermissions (auto-visible) |
-| `Field does not exist`            | Create Permission Set with field access     |
-| `SObject type 'X' not supported`  | Deploy metadata first                       |
-| `Element X is duplicated`         | Check for duplicate field names             |
-| `cirra_ai_init not called`        | Always call `cirra_ai_init()` FIRST         |
+| Error                                  | Fix                                                            |
+| -------------------------------------- | -------------------------------------------------------------- |
+| `Cannot deploy to required field`      | Remove from fieldPermissions (auto-visible)                    |
+| `Field does not exist`                 | Create Permission Set with field access                        |
+| `SObject type 'X' not supported`       | Deploy metadata first                                          |
+| `Element X is duplicated`              | Check for duplicate field names                                |
+| `cirra_ai_init not called`             | Always call `cirra_ai_init()` FIRST                            |
+| `DUPLICATE_DEVELOPER_NAME`             | FlexiPage name already exists; use `metadata_update` or rename |
+| `FIELD_INTEGRITY_EXCEPTION` (vis rule) | Only EQUAL operator supported in visibility rules              |
+| `force:recordDetail` not found         | Use `force:detailPanel` instead                                |
+| `Cannot read properties of undefined`  | JSON Patch path is out of bounds; check section index          |
 
 ---
 
@@ -606,6 +611,93 @@ Classic layout actions are in `platformActionList.platformActionListItems`, each
 - **Not updating all `sortOrder` values** — causes `DUPLICATE_VALUE` errors; replace entire array
 - **Forgetting `enableActionsConfiguration` flag** — always check this property before deciding how to update
 - **Using `standardLabel` unknowingly** — it overrides your custom label; omit or set deliberately
+
+---
+
+## Lightning Page (FlexiPage) Reference
+
+### Template Names
+
+| Page Type   | Template Name                         |
+| ----------- | ------------------------------------- |
+| Record Page | `flexipage:recordHomeTemplateDesktop` |
+| App Page    | `flexipage:defaultAppHomeTemplate`    |
+| Home Page   | `home:desktopTemplate`                |
+
+### Component Names
+
+Use the exact names below. Common mistakes are noted.
+
+| Component         | Correct Name                                | Common Mistake               |
+| ----------------- | ------------------------------------------- | ---------------------------- |
+| Highlights Panel  | `force:highlightsPanel`                     |                              |
+| Record Detail     | `force:detailPanel`                         | `force:recordDetail` (wrong) |
+| Related Lists     | `force:relatedListContainer`                |                              |
+| Chatter Feed      | `forceChatter:recordFeedContainer`          |                              |
+| Tabs              | `flexipage:tabset`                          |                              |
+| Rich Text         | `flexipage:richText`                        |                              |
+| Activity Timeline | `runtime_sales_activities:activityPanel`    |                              |
+| Path Assistant    | `runtime_sales_pathassistant:pathAssistant` |                              |
+
+**Rich text property**: Use `richTextValue` (not `markup`) for the `flexipage:richText` component.
+
+### Visibility Rules
+
+**Only the `EQUAL` operator is supported** for FlexiPage `visibilityRule` criteria. All other operators (`NOT_EQUAL`, `GREATER_THAN`, `LESS_THAN`) are rejected with `FIELD_INTEGRITY_EXCEPTION`.
+
+Supported `leftValue` patterns:
+
+- `Record.FieldName` — record field values (e.g., `Record.Status`)
+- `$User.FieldName` — current user fields (e.g., `$User.ProfileId`, `$User.UserRoleId`, `$User.Title`)
+
+**Not supported**: `$Permission.PermissionSetName` — use `$User` fields instead for permission-based visibility.
+
+### Home Page Regions
+
+The `home:desktopTemplate` provides exactly 4 regions: `top`, `bottomLeft`, `bottomRight`, `sidebar`. There is no true three-column layout for Home Pages.
+
+### FlexiPage Type Rules
+
+| Type       | `sobjectType` | Notes                              |
+| ---------- | ------------- | ---------------------------------- |
+| RecordPage | Required      | Must specify the target object     |
+| AppPage    | Must NOT set  | App pages are not object-specific  |
+| HomePage   | Must NOT set  | Home pages are not object-specific |
+
+---
+
+## Page Layout Reference
+
+### Related List Field Name Format
+
+Related list column fields use a specific `OBJECT.FIELD_REFERENCE` format, not standard field API names.
+
+| Object    | Example Fields                                       |
+| --------- | ---------------------------------------------------- |
+| Cases     | `CASES.CASE_NUMBER`, `CASES.SUBJECT`, `CASES.STATUS` |
+| Contacts  | `FULL_NAME`, `CONTACT.PHONE1`, `CONTACT.EMAIL`       |
+| Contracts | `CONTRACT.CONTRACT_NUMBER`, `CONTRACT.STATUS`        |
+
+Invalid field names produce clear errors. Use `metadata_read` to discover valid field names from existing layouts.
+
+### Layout Section Styles
+
+| Style                   | Description                            |
+| ----------------------- | -------------------------------------- |
+| `TwoColumnsTopToBottom` | Two columns, fields flow top-to-bottom |
+| `TwoColumnsLeftToRight` | Two columns, fields flow left-to-right |
+| `OneColumn`             | Single column layout                   |
+| `CustomLinks`           | Custom links section                   |
+
+### Layout Item Behaviors
+
+| Behavior   | Usage                                                |
+| ---------- | ---------------------------------------------------- |
+| `Edit`     | Standard editable fields                             |
+| `Required` | Required fields (auto-visible, cannot be in PermSet) |
+| `Readonly` | System fields like `IsClosedOnCreate`, `CreatedById` |
+
+**System fields must use `Readonly`** — the API rejects `Edit` behavior on system-controlled fields.
 
 ---
 
