@@ -1,0 +1,21 @@
+{
+  "apiName": "Get_Case_Details",
+  "description": "Retrieves detailed case information including status, priority, contact, and resolution history for a given Case ID. Use when the customer asks about an existing support case.",
+  "invocationTarget": "CaseService.getCaseDetails",
+  "capabilities": ["AgentForce"],
+  "inputs": [
+    {
+      "name": "caseId",
+      "description": "The 18-character Salesforce Case ID to look up",
+      "type": "string",
+      "required": true
+    }
+  ],
+  "outputs": [
+    {
+      "name": "caseRecord",
+      "description": "Full case record including Status, Priority, Subject, and Description",
+      "type": "object"
+    }
+  ]
+}

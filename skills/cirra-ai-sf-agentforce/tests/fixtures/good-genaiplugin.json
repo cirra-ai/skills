@@ -1,0 +1,5 @@
+{
+  "apiName": "Case_Management_Plugin",
+  "description": "Groups all case-related agent actions including case lookup, escalation, and status updates. Attach to the Case Management topic.",
+  "genAiFunctions": ["Get_Case_Details", "Escalate_Case", "Update_Case_Status"]
+}
