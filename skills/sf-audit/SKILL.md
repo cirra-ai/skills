@@ -1,18 +1,20 @@
 ---
 name: sf-audit
 plugin: cirra-ai-sf
-argument-hint: '[full|apex|flow|lwc|metadata|permissions] ...'
+argument-hint: '[full|apex|flow|lwc|metadata|permissions|reports|integrations|coverage|licensing|team] ...'
 description: >
-  Run a comprehensive Salesforce org audit. Inventories and scores Apex classes, triggers,
-  Flows, Process Builders, Workflow Rules, LWC components, custom objects/fields, validation
-  rules, formula fields, approval processes, escalation/assignment/auto-response rules,
-  Profiles, and Permission Sets. Scans all formula and criteria logic for hardcoded Record
-  IDs, Campaign names, Profile names, URLs, and other fragile values. Generates Word, Excel,
-  and HTML reports. Use when asked to audit a Salesforce org, review org health, or run an
-  org health check.
-  Usage: /sf-audit [full|apex|flow|lwc|metadata|permissions] ...
+  Run a comprehensive Salesforce org audit producing 18 documents from a single scan.
+  Inventories and scores Apex classes, triggers, Flows, Process Builders, Workflow Rules,
+  LWC components, custom objects/fields, validation rules, formula fields, approval
+  processes, escalation/assignment/auto-response rules, Profiles, and Permission Sets.
+  Also covers Reports & Dashboards, integrations, test coverage, licensing, team evaluation,
+  change history, data quality, and architectural analysis. Scans all formula and criteria
+  logic for hardcoded Record IDs, Campaign names, Profile names, URLs, and other fragile
+  values. Generates Word, Excel, HTML reports plus 12 standalone analysis documents
+  including a customer report and strategic engagement plan.
+  Usage: /sf-audit [full|apex|flow|lwc|metadata|permissions|reports|integrations|coverage|licensing|team] ...
 metadata:
-  version: 2.1.0
+  version: 3.0.0
 ---
 
 # Salesforce Org Audit
@@ -35,15 +37,20 @@ with qualitative findings and severity classifications.
 
 Parse `$ARGUMENTS` to determine the audit scope:
 
-| First argument or intent                | Workflow                       |
-| --------------------------------------- | ------------------------------ |
-| `full`, no scope specified after asking | Full Org Audit (all domains)   |
-| `apex`                                  | Apex-only audit                |
-| `flow`                                  | Flow/automation-only audit     |
-| `lwc`                                   | LWC-only audit                 |
-| `metadata`, `data-model`                | Metadata/data-model-only audit |
-| `permissions`                           | Permissions-only audit         |
-| _(no argument or unclear)_              | Ask the user (see below)       |
+| First argument or intent                | Workflow                            |
+| --------------------------------------- | ----------------------------------- |
+| `full`, no scope specified after asking | Full Org Audit (all domains)        |
+| `apex`                                  | Apex-only audit (C1-C2)             |
+| `flow`                                  | Flow/automation-only audit (C3-C4)  |
+| `lwc`                                   | LWC-only audit (C5)                 |
+| `metadata`, `data-model`                | Metadata/data-model-only audit (C7) |
+| `permissions`                           | Permissions-only audit (C6)         |
+| `reports`                               | Reports & Dashboards only (C10)     |
+| `integrations`                          | Integration analysis only (C11)     |
+| `coverage`                              | Test coverage only (C12)            |
+| `licensing`                             | Licensing analysis only (C13)       |
+| `team`                                  | Team evaluation only (C14)          |
+| _(no argument or unclear)_              | Ask the user (see below)            |
 
 When the audit scope is missing or unclear, **you MUST use `AskUserQuestion`** before proceeding:
 
@@ -227,6 +234,11 @@ metadata_list: type=ApprovalProcess
 soql_query: SELECT COUNT(Id) total FROM PermissionSet WHERE IsOwnedByProfile = false AND NamespacePrefix = null AND Type != 'Group'
 soql_query: SELECT COUNT(Id) total FROM PermissionSetGroup
 soql_query: SELECT COUNT(Id) total FROM Profile
+soql_query: SELECT COUNT(Id) total FROM Report
+soql_query: SELECT COUNT(Id) total FROM Dashboard
+soql_query: SELECT COUNT(Id) total FROM ConnectedApplication
+soql_query: SELECT COUNT(Id) total FROM NamedCredential WHERE NamespacePrefix = null
+soql_query: SELECT COUNT(Id) total FROM UserLicense
 ```
 
 **sfdx-repo mode** — count files on disk:
@@ -326,19 +338,24 @@ AUDIT_TYPE: fresh | incremental (previous: {PREV_DATE})
 
 ## Component Inventory (Phase A complete)
 
-| Domain           | Local | Managed | Skipped (generated) | Delta |
-| ---------------- | ----- | ------- | ------------------- | ----- |
-| Apex Classes     | X     | Y       | Z                   | D     |
-| Apex Triggers    | X     | -       | -                   | D     |
-| Active Flows     | X     | -       | -                   | D     |
-| Process Builders | X     | -       | -                   | D     |
-| LWC Components   | X     | -       | -                   | D     |
-| Custom Objects   | X     | -       | -                   | D     |
-| Validation Rules | X     | -       | -                   | -     |
-| Workflow Rules   | X     | -       | -                   | -     |
-| Permission Sets  | X     | -       | -                   | -     |
-| PSGs             | X     | -       | -                   | -     |
-| Profiles         | X     | -       | -                   | -     |
+| Domain            | Local | Managed | Skipped (generated) | Delta |
+| ----------------- | ----- | ------- | ------------------- | ----- |
+| Apex Classes      | X     | Y       | Z                   | D     |
+| Apex Triggers     | X     | -       | -                   | D     |
+| Active Flows      | X     | -       | -                   | D     |
+| Process Builders  | X     | -       | -                   | D     |
+| LWC Components    | X     | -       | -                   | D     |
+| Custom Objects    | X     | -       | -                   | D     |
+| Validation Rules  | X     | -       | -                   | -     |
+| Workflow Rules    | X     | -       | -                   | -     |
+| Permission Sets   | X     | -       | -                   | -     |
+| PSGs              | X     | -       | -                   | -     |
+| Profiles          | X     | -       | -                   | -     |
+| Reports           | X     | -       | -                   | -     |
+| Dashboards        | X     | -       | -                   | -     |
+| Connected Apps    | X     | -       | -                   | -     |
+| Named Credentials | X     | -       | -                   | -     |
+| User Licenses     | X     | -       | -                   | -     |
 
 (Delta column: number of changed/new components for incremental audits)
 
@@ -362,6 +379,12 @@ AUDIT_TYPE: fresh | incremental (previous: {PREV_DATE})
 - [ ] C6: Permissions
 - [ ] C7: Data Model (0 / X objects)
 - [ ] C8: Workflow Rules
+- [ ] C10: Reports & Dashboards
+- [ ] C11: Integrations
+- [ ] C12: Test Coverage
+- [ ] C13: Licensing
+- [ ] C14: Team Evaluation
+- [ ] C15: Change History
 
 ## Scores Accumulated
 
@@ -945,6 +968,466 @@ to `other_rules_findings.json`.
 
 Update `audit_state.md`: mark C8b complete.
 
+### C10 — Reports & Dashboards Inventory
+
+Inventory every Report and Dashboard in the org. Identify stale, unused, and
+duplicated items.
+
+#### Queries
+
+```
+soql_query: SELECT Id, Name, FolderName, LastRunDate, CreatedDate,
+  LastModifiedDate, Format
+  FROM Report
+  ORDER BY FolderName, Name
+
+soql_query: SELECT Id, Title, FolderName, LastViewedDate, CreatedDate,
+  LastModifiedDate
+  FROM Dashboard
+  ORDER BY FolderName, Title
+```
+
+> **`sfdx-repo` mode:** Reports and Dashboards are live-only metadata.
+> Always query via MCP even when bodies are read from disk.
+
+#### Analysis
+
+For each item, classify:
+
+- **Stale**: no `LastRunDate` / `LastViewedDate`, or last activity > 12 months ago
+- **Duplicate name**: multiple reports/dashboards with the same `Name`/`Title`
+  in different folders
+
+#### Findings
+
+| Finding                                              | Severity |
+| ---------------------------------------------------- | -------- |
+| Report/Dashboard never run/viewed                    | MEDIUM   |
+| Report/Dashboard not run/viewed in > 12 months       | LOW      |
+| Duplicate report/dashboard names across folders      | LOW      |
+| Folder with > 50 items (organisational complexity)   | LOW      |
+| Report using legacy format (Tabular with no filters) | LOW      |
+
+Write inventory to `./audit_output/intermediate/reports_dashboards/`.
+Persist to `reports_dashboards.json`.
+
+**Schema:**
+
+```json
+{
+  "reports": [
+    {
+      "name": "Pipeline by Stage",
+      "folder": "Sales Reports",
+      "format": "MATRIX",
+      "last_run_date": "2025-11-01",
+      "created_date": "2024-03-15",
+      "is_stale": false
+    }
+  ],
+  "dashboards": [
+    {
+      "name": "Executive KPIs",
+      "folder": "Leadership",
+      "last_viewed_date": "2026-01-10",
+      "created_date": "2024-06-01",
+      "is_stale": false
+    }
+  ],
+  "findings": [{ "severity": "MEDIUM", "message": "12 reports have never been run" }]
+}
+```
+
+Update `audit_state.md`: mark C10 complete.
+
+### C11 — Integration Analysis
+
+Inventory all integration-related metadata: Connected Apps, Named Credentials,
+External Services, Outbound Messages, and Platform Events.
+
+#### Queries
+
+```
+soql_query: SELECT Id, Name, MasterLabel
+  FROM ConnectedApplication
+
+soql_query: SELECT Id, DeveloperName, Endpoint
+  FROM NamedCredential
+  WHERE NamespacePrefix = null
+
+tooling_api_query: SELECT Id, DeveloperName, Description
+  FROM ExternalServiceRegistration
+
+tooling_api_query: SELECT Id, Name, EndpointUrl, ApiVersion
+  FROM WorkflowOutboundMessage
+  WHERE NamespacePrefix = null
+
+tooling_api_query: SELECT Id, DeveloperName
+  FROM PlatformEventChannel
+  WHERE NamespacePrefix = null
+
+soql_query: SELECT Id, DeveloperName
+  FROM PlatformEventChannelMember
+  WHERE NamespacePrefix = null
+```
+
+> **`sfdx-repo` mode:** Connected Apps, Named Credentials, and External
+> Services are live-only. Always query via MCP.
+
+#### Findings
+
+| Finding                                                     | Severity |
+| ----------------------------------------------------------- | -------- |
+| Named Credential with deprecated authentication protocol    | HIGH     |
+| Connected App with no description                           | LOW      |
+| Outbound Message using API version < 50.0                   | MEDIUM   |
+| Platform Event with no subscribers (orphaned)               | MEDIUM   |
+| External Service with no active references in Flows or Apex | MEDIUM   |
+| Named Credential endpoint using HTTP (not HTTPS)            | CRITICAL |
+| > 10 Connected Apps (review consolidation opportunities)    | LOW      |
+
+Write to `./audit_output/intermediate/integrations/`.
+Persist to `integrations.json`.
+
+**Schema:**
+
+```json
+[
+  {
+    "type": "ConnectedApp",
+    "name": "Slack Integration",
+    "endpoint": null,
+    "findings": [{ "severity": "LOW", "message": "No description provided" }]
+  },
+  {
+    "type": "NamedCredential",
+    "name": "ERP_Endpoint",
+    "endpoint": "https://erp.example.com/api",
+    "findings": []
+  }
+]
+```
+
+Update `audit_state.md`: mark C11 complete.
+
+### C12 — Test Coverage Report
+
+Retrieve Apex test coverage data and identify gaps.
+
+#### Queries
+
+```
+tooling_api_query: SELECT ApexClassOrTriggerId, ApexClassOrTrigger.Name,
+  NumLinesCovered, NumLinesUncovered
+  FROM ApexCodeCoverageAggregate
+  ORDER BY ApexClassOrTrigger.Name
+
+tooling_api_query: SELECT PercentCovered
+  FROM ApexOrgWideCoverage
+```
+
+> **Note:** `ApexCodeCoverageAggregate` only contains data if tests have been
+> run recently. If the query returns empty results, note this in findings and
+> recommend running all tests before the audit.
+
+#### Analysis
+
+For each class/trigger in the coverage data:
+
+1. Compute `coverage_pct = NumLinesCovered / (NumLinesCovered + NumLinesUncovered) * 100`
+2. Cross-reference with C1 class names to identify **classes with zero coverage**
+   (present in C1 inventory but absent from coverage aggregate)
+3. Flag classes below the 75% deployment threshold
+
+#### Findings
+
+| Finding                                                       | Severity |
+| ------------------------------------------------------------- | -------- |
+| Org-wide coverage below 75% (deployment risk)                 | CRITICAL |
+| Class with 0% test coverage                                   | HIGH     |
+| Class with coverage below 75%                                 | MEDIUM   |
+| Coverage data is empty or stale (recommend running all tests) | HIGH     |
+| Trigger with no test coverage                                 | HIGH     |
+
+Write to `./audit_output/intermediate/test_coverage/`.
+Persist to `test_coverage.json`.
+
+**Schema:**
+
+```json
+{
+  "org_wide_pct": 82.5,
+  "classes": [
+    {
+      "name": "AccountService",
+      "lines_covered": 120,
+      "lines_uncovered": 30,
+      "coverage_pct": 80.0
+    }
+  ],
+  "findings": [{ "severity": "HIGH", "message": "3 classes have 0% test coverage" }]
+}
+```
+
+Update `audit_state.md`: mark C12 complete.
+
+### C13 — Licensing Analysis
+
+Inventory all license types and their utilisation. Identify waste and capacity
+risks.
+
+#### Queries
+
+```
+soql_query: SELECT Id, Name, TotalLicenses, UsedLicenses, Status
+  FROM UserLicense
+
+soql_query: SELECT Id, PermissionSetLicenseKey, MasterLabel,
+  TotalLicenses, UsedLicenses, Status
+  FROM PermissionSetLicense
+
+soql_query: SELECT Id, NamespacePrefix, AllowedLicenses, UsedLicenses,
+  ExpirationDate, Status
+  FROM PackageLicense
+```
+
+#### Analysis
+
+For each license:
+
+1. Compute `utilization_pct = UsedLicenses / TotalLicenses * 100`
+   (handle TotalLicenses = -1 as "unlimited")
+2. Compute `available = TotalLicenses - UsedLicenses`
+3. Flag waste (low utilisation) and capacity risk (high utilisation)
+
+#### Findings
+
+| Finding                                               | Severity |
+| ----------------------------------------------------- | -------- |
+| License with < 10% utilisation (potential cost waste) | HIGH     |
+| License with > 90% utilisation (capacity risk)        | MEDIUM   |
+| Expired license still present                         | HIGH     |
+| Package license expiring within 90 days               | MEDIUM   |
+| Permission Set License with 0 assignments             | MEDIUM   |
+| License cost optimisation opportunity > $5K annually  | HIGH     |
+
+Write to `./audit_output/intermediate/licensing/`.
+Persist to `licensing.json`.
+
+**Schema:**
+
+```json
+{
+  "user_licenses": [
+    {
+      "name": "Salesforce",
+      "total": 100,
+      "used": 75,
+      "available": 25,
+      "utilization_pct": 75.0
+    }
+  ],
+  "permission_set_licenses": [
+    {
+      "name": "SalesforceCPQ_CPQStandardPerm",
+      "label": "Salesforce CPQ License",
+      "total": 50,
+      "used": 5,
+      "available": 45,
+      "utilization_pct": 10.0
+    }
+  ],
+  "package_licenses": [
+    {
+      "namespace": "SBQQ",
+      "allowed": 50,
+      "used": 5,
+      "expiration_date": "2026-12-31",
+      "status": "Active"
+    }
+  ],
+  "findings": [
+    {
+      "severity": "HIGH",
+      "message": "SalesforceCPQ_CPQStandardPerm: 10% utilisation — 45 unused licenses"
+    }
+  ]
+}
+```
+
+Update `audit_state.md`: mark C13 complete.
+
+### C14 — Team Evaluation
+
+Analyse user distribution, activity, and role assignment patterns.
+
+#### Queries
+
+```
+soql_query: SELECT Id, Name, Username, Profile.Name, UserRole.Name,
+  IsActive, LastLoginDate, CreatedDate
+  FROM User
+  WHERE IsActive = true
+  ORDER BY Profile.Name, Name
+
+soql_query: SELECT UserId, COUNT(Id) login_count
+  FROM LoginHistory
+  WHERE LoginTime = LAST_N_DAYS:180
+  GROUP BY UserId
+
+soql_query: SELECT PermissionSetId, PermissionSet.Name,
+  AssigneeId, Assignee.Name
+  FROM PermissionSetAssignment
+  WHERE PermissionSet.IsOwnedByProfile = false
+```
+
+#### Analysis
+
+For each active user:
+
+1. Compute `days_since_login` from `LastLoginDate`
+2. Count permission set assignments per user
+3. Group users by Profile and Role for distribution analysis
+
+Cross-cutting analysis:
+
+- Users per Profile (identify over-used generic profiles)
+- Users per Role (identify unbalanced hierarchies)
+- Users with no Role assignment
+- Admin users (System Administrator profile or ModifyAllData permission)
+
+#### Findings
+
+| Finding                                                       | Severity |
+| ------------------------------------------------------------- | -------- |
+| User inactive > 90 days (security risk — should deactivate)   | HIGH     |
+| User with no Role assigned (visibility gap)                   | MEDIUM   |
+| > 10 users on System Administrator profile                    | HIGH     |
+| User with > 15 Permission Set assignments (over-permissioned) | MEDIUM   |
+| Profile used by only 1 user (consolidation candidate)         | LOW      |
+| User created but never logged in                              | MEDIUM   |
+
+Write to `./audit_output/intermediate/team/`.
+Persist to `team_evaluation.json`.
+
+**Schema:**
+
+```json
+{
+  "active_users": 150,
+  "users": [
+    {
+      "name": "Jane Smith",
+      "username": "jane@acme.com",
+      "profile": "System Administrator",
+      "role": "CEO",
+      "last_login": "2026-04-01",
+      "days_since_login": 6,
+      "permission_set_count": 4,
+      "login_count_180d": 95
+    }
+  ],
+  "profile_distribution": [
+    { "profile": "System Administrator", "user_count": 8 },
+    { "profile": "Standard User", "user_count": 42 }
+  ],
+  "findings": [
+    {
+      "severity": "HIGH",
+      "message": "12 users inactive for > 90 days"
+    }
+  ]
+}
+```
+
+Update `audit_state.md`: mark C14 complete.
+
+### C15 — Change History Audit
+
+Retrieve setup audit trail and deployment history to identify change patterns
+and risks.
+
+#### Queries
+
+```
+soql_query: SELECT CreatedDate, CreatedBy.Name, Action, Section, Display
+  FROM SetupAuditTrail
+  ORDER BY CreatedDate DESC
+  LIMIT 2000
+
+tooling_api_query: SELECT Id, Status, CreatedDate, CreatedBy.Name,
+  CompletedDate, NumberComponentsDeployed, NumberComponentErrors
+  FROM DeployRequest
+  ORDER BY CreatedDate DESC
+  LIMIT 100
+```
+
+> **Retention note:** SetupAuditTrail retains up to 180 days of history in
+> most editions. The 2000-row LIMIT covers approximately 6 months for a
+> moderately active org.
+
+#### Analysis
+
+1. Group audit trail entries by `Section` (e.g. "Manage Users", "Customize",
+   "Data Management") to show change distribution
+2. Identify top changers (users with the most setup changes)
+3. Compute deployment success rate: `successful / total * 100`
+4. Detect rapid-fire changes (> 20 changes by the same user in a single day)
+
+#### Findings
+
+| Finding                                                      | Severity |
+| ------------------------------------------------------------ | -------- |
+| Deployment failure rate > 20%                                | HIGH     |
+| Changes made by a now-deactivated user                       | MEDIUM   |
+| > 50 setup changes in a single day by one user (change risk) | MEDIUM   |
+| No deployments in last 90 days (stale org / manual changes)  | LOW      |
+| Permission-related changes without documented change request | MEDIUM   |
+| Production changes outside business hours (> 50% of changes) | LOW      |
+
+Write to `./audit_output/intermediate/change_history/`.
+Persist to `change_history.json`.
+
+**Schema:**
+
+```json
+{
+  "audit_trail": [
+    {
+      "date": "2026-04-01T14:30:00Z",
+      "user": "Admin User",
+      "action": "Changed field-level security",
+      "section": "Manage Users",
+      "detail": "Changed field Account.Revenue__c"
+    }
+  ],
+  "change_distribution": [
+    { "section": "Manage Users", "count": 245 },
+    { "section": "Customize", "count": 189 }
+  ],
+  "top_changers": [{ "user": "Admin User", "change_count": 312 }],
+  "deployments": [
+    {
+      "id": "0Af...",
+      "status": "Succeeded",
+      "date": "2026-03-28T10:00:00Z",
+      "user": "Release Manager",
+      "components_deployed": 45,
+      "component_errors": 0
+    }
+  ],
+  "deployment_success_rate": 85.0,
+  "findings": [
+    {
+      "severity": "HIGH",
+      "message": "Deployment failure rate is 15% (15 of 100 deployments failed)"
+    }
+  ]
+}
+```
+
+Update `audit_state.md`: mark C15 complete.
+
 ---
 
 ## Phase C9 — Completeness Gate (before reports)
@@ -954,16 +1437,27 @@ complete. Read `audit_state.md` and check only the domains the user selected
 in Phase B. (For a full audit, check all rows; for a selective audit like
 "just Apex and Flows", check only the approved domains.)
 
-| Domain       | Expected (from Phase A)        | Scored | Skipped | Carried Fwd | Match? |
-| ------------ | ------------------------------ | ------ | ------- | ----------- | ------ |
-| Apex Classes | {A1 local Apex class count}    | {n}    | {n}     | {n}         | Y/N    |
-| Triggers     | {A1 local Apex trigger count}  | {n}    | {n}     | {n}         | Y/N    |
-| Flows        | {A4 active Flow count}         | {n}    | {n}     | {n}         | Y/N    |
-| LWC          | {A4 local LWC count}           | {n}    | {n}     | {n}         | Y/N    |
-| Objects      | {A1 local custom object count} | {n}    | {n}     | {n}         | Y/N    |
+| Domain               | Expected (from Phase A)        | Scored | Skipped | Carried Fwd | Match? |
+| -------------------- | ------------------------------ | ------ | ------- | ----------- | ------ |
+| Apex Classes         | {A1 local Apex class count}    | {n}    | {n}     | {n}         | Y/N    |
+| Triggers             | {A1 local Apex trigger count}  | {n}    | {n}     | {n}         | Y/N    |
+| Flows                | {A4 active Flow count}         | {n}    | {n}     | {n}         | Y/N    |
+| LWC                  | {A4 local LWC count}           | {n}    | {n}     | {n}         | Y/N    |
+| Objects              | {A1 local custom object count} | {n}    | {n}     | {n}         | Y/N    |
+| Reports & Dashboards | —                              | —      | —       | —           | JSON?  |
+| Integrations         | —                              | —      | —       | —           | JSON?  |
+| Test Coverage        | —                              | —      | —       | —           | JSON?  |
+| Licensing            | —                              | —      | —       | —           | JSON?  |
+| Team Evaluation      | —                              | —      | —       | —           | JSON?  |
+| Change History       | —                              | —      | —       | —           | JSON?  |
 
 Match = `Scored + Skipped + Carried Fwd == Expected`. (For fresh audits,
 Carried Fwd is 0 for all rows.)
+
+For C10–C15 (inventory/findings domains), the gate checks whether the
+corresponding JSON output file exists in `./audit_output/`. These domains do
+not have component-level scoring, so the JSON? column confirms the file was
+written.
 
 **If any approved-domain row shows "N", go back and score the missing
 components before generating reports.** Domains the user excluded in Phase B
@@ -1008,7 +1502,13 @@ Sections (in order):
 13. Other Declarative Logic: approval, escalation, assignment, and auto-response rule findings
 14. Automation Overlap: objects with multiple automation types active
 15. Hardcoded Values Summary: cross-cutting view of all hardcoded IDs, names, and URLs found across formulas, validation rules, workflow rules, and other logic
-16. Top 10 recommendations across all domains
+16. Reports & Dashboards: inventory with stale/unused flags
+17. Integration Analysis: connected apps, named credentials, external services, platform events
+18. Test Coverage: org-wide coverage, per-class breakdown, zero-coverage classes
+19. Licensing: licence types, utilisation, waste, capacity risks
+20. Team Evaluation: user distribution, inactive users, role gaps
+21. Change History: setup audit trail summary, deployment success rate
+22. Top 10 recommendations across all domains
 
 Mark any domain that was not fully scored (e.g. "quick pass only") as
 "Surface metrics only — body not downloaded."
@@ -1030,6 +1530,12 @@ One sheet per domain, plus a Summary sheet. Columns per domain:
 - Workflow Rules: Name, Object, Action Types, Priority, Formula Findings
 - Other Declarative Logic: Type, Name, Object, Findings, Severity
 - Hardcoded Values: Component Type, Name, Severity, Finding
+- Reports & Dashboards: Name, Type, Folder, Last Run/Viewed, Created, Is Stale
+- Integrations: Type, Name, Endpoint, Findings, Severity
+- Test Coverage: Class/Trigger Name, Lines Covered, Lines Uncovered, Coverage %
+- Team: Name, Username, Profile, Role, Last Login, Days Inactive, PS Count
+- Change History: Date, User, Action, Section, Detail
+- Licensing: License Name, Type, Total, Used, Available, Utilization %
 - Summary: overall score, component counts, finding counts by severity,
   automation overlap matrix, [if incremental] delta summary
 
@@ -1045,9 +1551,108 @@ Same content as Word, formatted for browser. Include:
 - Automation overlap matrix table
 - [If incremental] Delta highlight: colour-code changed vs unchanged rows
 
+### Standalone documents (12 additional files)
+
+After generating the 3 core reports, produce 12 standalone documents. This
+brings the total output to **18 documents** from a single org scan.
+
+Run `generate_reports.py` with `--standalone` to produce all standalone
+documents. The script reads the same intermediate JSON files and generates:
+
+#### Data-driven standalone documents (from their own JSON intermediates)
+
+| Document                            | Format | Source JSON               | Key content                                                           |
+| ----------------------------------- | ------ | ------------------------- | --------------------------------------------------------------------- |
+| `Reports_Dashboards_Inventory.xlsx` | XLSX   | `reports_dashboards.json` | Full inventory with stale flags, folder breakdown                     |
+| `Integration_Analysis.html`         | HTML   | `integrations.json`       | Connected apps, named credentials, external services, platform events |
+| `Test_Coverage_Report.html`         | HTML   | `test_coverage.json`      | Org-wide %, per-class table, zero-coverage highlight                  |
+| `Licensing_Analysis.html`           | HTML   | `licensing.json`          | Licence utilisation, waste, capacity risk, cost optimisation          |
+| `Team_Evaluation.html`              | HTML   | `team_evaluation.json`    | User distribution, inactive users, role gaps, admin count             |
+| `Change_History_Audit.html`         | HTML   | `change_history.json`     | Setup audit trail summary, deployment success rate, top changers      |
+
+#### Synthesis standalone documents (derived from all collected data)
+
+These documents cross-reference multiple data sources to produce higher-level
+analysis. The `generate_reports.py` script builds them from the full
+`compute_summary()` output plus all intermediate JSON files.
+
+| Document                           | Format | What it synthesises                                                                                                                                                                                                                                                             |
+| ---------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Data_Quality_Report.html`         | HTML   | Record completeness from metadata_scores (field counts, missing descriptions), data hygiene signals from validation rules, formula anti-patterns. During C7, run spot-check completeness queries on the top 5 objects by record count and write results to `data_quality.json`. |
+| `Technical_Impact_Assessment.html` | HTML   | Risk scoring: test coverage gaps × code quality scores × permissions severity × automation overlap. Each component gets a composite risk score. Top 20 highest-risk components highlighted.                                                                                     |
+| `Architectural_Analysis.html`      | HTML   | Org architecture patterns: automation overlap matrix, trigger handler patterns, object relationship density, integration complexity, naming convention consistency, API version distribution.                                                                                   |
+| `Customer_Report.docx`             | DOCX   | **Non-technical, client-facing.** Health score with traffic-light visual. Top 5 risks in business language (no Apex/SOQL jargon). Effort estimates for remediation. Summary of cost optimisation opportunities from licensing analysis.                                         |
+| `Strategic_Engagement_Plan.docx`   | DOCX   | Phased remediation roadmap: Phase 1 (Critical, 0–30 days), Phase 2 (High, 30–90 days), Phase 3 (Medium, 90–180 days). T-shirt effort sizing per workstream (Security, Performance, Technical Debt, Automation Modernisation).                                                   |
+| `Technical_Team_Briefing.html`     | HTML   | Developer-oriented: code quality hotspots (worst-scoring components), specific fix instructions per top finding type, test coverage gaps per class, change history patterns by developer.                                                                                       |
+
+#### Data Quality — spot-check queries during C7
+
+During C7 (Data Model), after scoring custom objects, run spot-check data
+quality queries on the **top 5 objects by record count**:
+
+```
+soql_query: SELECT COUNT(Id) FROM <Object>
+soql_query: SELECT COUNT(Id) FROM <Object> WHERE <RequiredField> = null
+```
+
+For each object, check 3–5 key fields for null/blank rates. Write results to
+`data_quality.json`:
+
+```json
+{
+  "objects": [
+    {
+      "name": "Account",
+      "record_count": 50000,
+      "field_completeness": [
+        { "field": "Industry", "null_count": 12000, "null_pct": 24.0 },
+        { "field": "BillingCity", "null_count": 8500, "null_pct": 17.0 }
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "severity": "HIGH",
+      "message": "Account.Industry is null for 24% of records (12,000 of 50,000)"
+    }
+  ]
+}
+```
+
+#### Complete file manifest (18 documents)
+
+After Phase D, `audit_output/` should contain:
+
+```
+# 3 core reports
+Salesforce_Org_Audit_Report.docx
+Salesforce_Org_Audit_Report.html
+Salesforce_Org_Audit_Scores.xlsx
+
+# 6 data-driven standalone reports
+Reports_Dashboards_Inventory.xlsx
+Integration_Analysis.html
+Test_Coverage_Report.html
+Licensing_Analysis.html
+Team_Evaluation.html
+Change_History_Audit.html
+
+# 6 synthesis standalone reports
+Data_Quality_Report.html
+Technical_Impact_Assessment.html
+Architectural_Analysis.html
+Customer_Report.docx
+Strategic_Engagement_Plan.docx
+Technical_Team_Briefing.html
+
+# Always present
+audit_state.md
+audit_summary.json
+```
+
 ### Post-generation review
 
-After all three reports are written, ask the user:
+After all 18 reports are written, ask the user:
 
 > "Reports are ready. Would you like to adjust the style, layout, or structure
 > of any of the reports before we wrap up?"
@@ -1069,12 +1674,20 @@ Tell the user:
 - **Hardcoded values found**: total count of hardcoded Record IDs, Campaign
   names, Profile names, URLs, and other fragile literals found across
   validation rules, formula fields, workflow rules, and other declarative logic
+- **Reports & Dashboards**: total count, stale count, unused count
+- **Integrations**: connected apps, named credentials, external services,
+  platform events — key findings
+- **Test coverage**: org-wide %, count of classes with 0% coverage
+- **Team**: active users, inactive > 90 days, users with no role, admin count
+- **Change history**: deployment success rate, top changers, change volume
+- **Licensing**: utilisation summary, cost optimisation opportunities,
+  unused entitlements value estimate
 - **Top 3 most common issues per domain**
 - **Skipped components**: what was skipped and why (generated classes,
   managed packages)
 - [If incremental] **Delta summary**: what changed since last audit,
   score trends (improved / regressed / unchanged)
-- **Where report files were saved**
+- **Where report files were saved** (list all 18 documents)
 
 Update `audit_state.md`: mark all phases complete.
 

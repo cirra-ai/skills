@@ -1,0 +1,30 @@
+{
+  "reports": [
+    {
+      "name": "Pipeline by Stage",
+      "folder": "Sales Reports",
+      "format": "MATRIX",
+      "last_run_date": "2025-11-01",
+      "created_date": "2024-03-15",
+      "is_stale": false
+    },
+    {
+      "name": "Old Leads Report",
+      "folder": "Archive",
+      "format": "TABULAR",
+      "last_run_date": null,
+      "created_date": "2022-01-01",
+      "is_stale": true
+    }
+  ],
+  "dashboards": [
+    {
+      "name": "Executive KPIs",
+      "folder": "Leadership",
+      "last_viewed_date": "2026-01-10",
+      "created_date": "2024-06-01",
+      "is_stale": false
+    }
+  ],
+  "findings": [{ "severity": "MEDIUM", "message": "1 report has never been run" }]
+}

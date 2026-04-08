@@ -42,6 +42,22 @@ def test_load_inputs_reads_all_files(gen):
     assert len(data["formula_fields"]) == 2
     assert len(data["workflow_rules"]) == 1
     assert len(data["other_rules_findings"]) == 1
+    # New input files
+    assert isinstance(data["reports_dashboards"], dict)
+    assert len(data["reports_dashboards"]["reports"]) == 2
+    assert len(data["reports_dashboards"]["dashboards"]) == 1
+    assert len(data["integrations"]) == 2
+    assert isinstance(data["test_coverage"], dict)
+    assert data["test_coverage"]["org_wide_pct"] == 82.5
+    assert len(data["test_coverage"]["classes"]) == 3
+    assert isinstance(data["team_evaluation"], dict)
+    assert data["team_evaluation"]["active_users"] == 10
+    assert isinstance(data["change_history"], dict)
+    assert len(data["change_history"]["deployments"]) == 2
+    assert isinstance(data["licensing"], dict)
+    assert len(data["licensing"]["user_licenses"]) == 2
+    assert isinstance(data["data_quality"], dict)
+    assert len(data["data_quality"]["objects"]) == 2
 
 
 def test_load_inputs_missing_dir_returns_defaults(gen, tmp_path):
@@ -86,14 +102,18 @@ def test_compute_summary_below_threshold(gen):
 def test_compute_summary_severity_counts(gen):
     data = gen.load_inputs(str(FIXTURES_DIR))
     summary = gen.compute_summary(data)
-    # Permission findings: CRITICAL=1, HIGH=1, LOW=1
-    # Validation rules findings: MEDIUM=1, LOW=1
-    # Formula fields findings: HIGH=1
-    # Other rules findings: HIGH=1
+    # Original: CRITICAL=1, HIGH=3, MEDIUM=1, LOW=2
+    # + integrations: LOW=1
+    # + test_coverage: HIGH=1, MEDIUM=1
+    # + team_evaluation: HIGH=1, MEDIUM=1
+    # + change_history: HIGH=1
+    # + licensing: HIGH=2
+    # + data_quality: HIGH=1
+    # + reports_dashboards: MEDIUM=1
     assert summary["severity_counts"]["CRITICAL"] == 1
-    assert summary["severity_counts"]["HIGH"] == 3
-    assert summary["severity_counts"]["MEDIUM"] == 1
-    assert summary["severity_counts"]["LOW"] == 2
+    assert summary["severity_counts"]["HIGH"] == 9
+    assert summary["severity_counts"]["MEDIUM"] == 4
+    assert summary["severity_counts"]["LOW"] == 3
 
 
 def test_score_rating_boundaries(gen):
@@ -151,6 +171,12 @@ def test_html_contains_all_sections(gen, output_dir):
         "Workflow Rules",
         "Other Declarative Logic",
         "Hardcoded Values Summary",
+        "Reports &amp; Dashboards",
+        "Integration Analysis",
+        "Test Coverage",
+        "Licensing Analysis",
+        "Team Evaluation",
+        "Change History",
         "Recommendations",
     ]:
         assert section in content, f"Missing section: {section}"
@@ -227,3 +253,73 @@ def test_json_summary_with_empty_data(gen, output_dir, tmp_path):
     gen.generate_json_summary(summary, "2026-01-01", json_path)
     result = json.loads(json_path.read_text(encoding="utf-8"))
     assert result["overall_score"] == 0.0
+
+
+# ── New domain summary keys ───────────────────────────────────────────────
+
+
+def test_compute_summary_contains_new_domain_keys(gen):
+    data = gen.load_inputs(str(FIXTURES_DIR))
+    summary = gen.compute_summary(data)
+    assert "test_coverage" in summary
+    assert summary["test_coverage"]["org_wide_pct"] == 82.5
+    assert summary["test_coverage"]["classes_with_zero_coverage"] == 1
+    assert "licensing" in summary
+    assert summary["licensing"]["underutilised"] >= 1
+    assert "team" in summary
+    assert summary["team"]["active_users"] == 10
+    assert summary["team"]["inactive_90d"] >= 1
+    assert "reports_dashboards" in summary
+    assert summary["reports_dashboards"]["reports"] == 2
+    assert summary["reports_dashboards"]["stale"] >= 1
+    assert "change_history" in summary
+    assert summary["change_history"]["deployment_success_rate"] == 50.0
+
+
+# ── Standalone report generation ──────────────────────────────────────────
+
+
+def test_generate_standalone_reports(gen, output_dir):
+    data = gen.load_inputs(str(FIXTURES_DIR))
+    summary = gen.compute_summary(data)
+    output_dir.mkdir(parents=True)
+    generated = gen.generate_standalone_reports(
+        data, summary, "Test Org", "2026-03-06", str(output_dir),
+    )
+    assert len(generated) >= 6  # At minimum: integration, test cov, team, change, data quality, tech impact
+    # Verify key standalone files exist
+    filenames = [Path(p).name for p in generated]
+    assert "Integration_Analysis.html" in filenames
+    assert "Test_Coverage_Report.html" in filenames
+    assert "Team_Evaluation.html" in filenames
+    assert "Change_History_Audit.html" in filenames
+    assert "Data_Quality_Report.html" in filenames
+    assert "Technical_Team_Briefing.html" in filenames
+
+
+def test_standalone_html_contains_branding(gen, output_dir):
+    data = gen.load_inputs(str(FIXTURES_DIR))
+    summary = gen.compute_summary(data)
+    output_dir.mkdir(parents=True)
+    gen.generate_standalone_reports(
+        data, summary, "Test Org", "2026-03-06", str(output_dir),
+    )
+    html_path = output_dir / "Test_Coverage_Report.html"
+    assert html_path.exists()
+    content = html_path.read_text(encoding="utf-8")
+    assert "Test Org" in content
+    assert "417AE4" in content.upper() or "417ae4" in content
+    assert "82.5%" in content
+
+
+def test_standalone_reports_with_empty_data(gen, output_dir, tmp_path):
+    empty_input = tmp_path / "empty_input"
+    empty_input.mkdir()
+    data = gen.load_inputs(str(empty_input))
+    summary = gen.compute_summary(data)
+    output_dir.mkdir(parents=True)
+    generated = gen.generate_standalone_reports(
+        data, summary, "Empty Org", "2026-01-01", str(output_dir),
+    )
+    # With empty data, no standalone reports should be generated
+    assert generated == []

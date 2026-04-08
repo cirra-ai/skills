@@ -1,0 +1,36 @@
+{
+  "audit_trail": [
+    {
+      "date": "2026-04-01T14:30:00Z",
+      "user": "Admin User",
+      "action": "Changed field-level security",
+      "section": "Manage Users",
+      "detail": "Changed field Account.Revenue__c"
+    }
+  ],
+  "change_distribution": [
+    { "section": "Manage Users", "count": 45 },
+    { "section": "Customize", "count": 30 }
+  ],
+  "top_changers": [{ "user": "Admin User", "change_count": 50 }],
+  "deployments": [
+    {
+      "id": "0Af000000001234",
+      "status": "Succeeded",
+      "date": "2026-03-28T10:00:00Z",
+      "user": "Release Manager",
+      "components_deployed": 45,
+      "component_errors": 0
+    },
+    {
+      "id": "0Af000000001235",
+      "status": "Failed",
+      "date": "2026-03-20T10:00:00Z",
+      "user": "Release Manager",
+      "components_deployed": 0,
+      "component_errors": 3
+    }
+  ],
+  "deployment_success_rate": 50.0,
+  "findings": [{ "severity": "HIGH", "message": "Deployment failure rate is 50%" }]
+}
