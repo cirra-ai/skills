@@ -21,8 +21,8 @@ Standard Agentforce platform skill for Setup UI-based agent building, PromptTemp
 | ---------------------------------------- | --------------------------- |
 | Agent Script DSL (`.agent` files)        | Agent Script skill          |
 | Agent testing & coverage                 | Out of scope for this skill |
-| Flow creation for actions                | cirra-ai-sf-flow            |
-| Apex InvocableMethod classes for actions | cirra-ai-sf-apex            |
+| Flow creation for actions                | sf-flow                     |
+| Apex InvocableMethod classes for actions | sf-apex                     |
 
 ## Installation
 
@@ -93,18 +93,18 @@ The skill auto-detects the best available mode. In `sfdx-repo` mode, GenAiFuncti
 
 ## Cross-Skill Integration
 
-| Related Skill           | When to Use                                       |
-| ----------------------- | ------------------------------------------------- |
-| cirra-ai-sf-apex        | Create @InvocableMethod for agent actions         |
-| cirra-ai-sf-flow        | Create Autolaunched Flows for agent actions       |
-| cirra-ai-sf-metadata    | Deploy custom objects BEFORE agents               |
-| cirra-ai-sf-lwc         | Create screen components for custom Lightning UIs |
-| cirra-ai-sf-permissions | Review permission sets for agent users            |
+| Related Skill  | When to Use                                       |
+| -------------- | ------------------------------------------------- |
+| sf-apex        | Create @InvocableMethod for agent actions         |
+| sf-flow        | Create Autolaunched Flows for agent actions       |
+| sf-metadata    | Deploy custom objects BEFORE agents               |
+| sf-lwc         | Create screen components for custom Lightning UIs |
+| sf-permissions | Review permission sets for agent users            |
 
 ## Orchestration Order
 
 ```
-cirra-ai-sf-metadata → cirra-ai-sf-apex → cirra-ai-sf-flow → cirra-ai-sf-agentforce → deploy
+sf-metadata → sf-apex → sf-flow → cirra-ai-sf-agentforce → deploy
 ```
 
 ## License
