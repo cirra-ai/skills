@@ -5,6 +5,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cirra AI Salesforce Plugin — Downloads</title>
 
+    <!--
+      Cirra attribution cookie — first-party on .cirra.ai apex.
+      Preserves first-touch referrer + last-touch UTMs/click IDs across the
+      cross-subdomain hop so app.cirra.ai can read them at signup time.
+      Keep in sync with cirra-ai/website:src/_includes/utm-forwarding.njk
+      and cirra-ai/docs:docusaurus.config.ts headTags.
+    -->
+    <script>
+      (function () {
+        if (typeof document === 'undefined') return;
+        var COOKIE_NAME = 'cirra_attribution';
+        var MAX_AGE_SECONDS = 60 * 60 * 24 * 90;
+        var UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
+        var CLICK_IDS = ['gclid', 'fbclid', 'msclkid', 'li_fat_id', 'ttclid'];
+        var CAMPAIGN_KEYS = UTM_KEYS.concat(CLICK_IDS);
+        function readCookie(name) {
+          var escaped = name.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+          var match = document.cookie.match(new RegExp('(?:^|; )' + escaped + '=([^;]*)'));
+          if (!match) return null;
+          try { return decodeURIComponent(match[1]); } catch (e) { return match[1]; }
+        }
+        function writeCookie(name, value) {
+          document.cookie = name + '=' + encodeURIComponent(value) +
+            '; Domain=.cirra.ai; Path=/; Max-Age=' + MAX_AGE_SECONDS + '; SameSite=Lax' +
+            (location.protocol === 'https:' ? '; Secure' : '');
+        }
+        function isExternalReferrer(ref) {
+          if (!ref) return false;
+          try { return !/(^|\.)cirra\.ai$/i.test(new URL(ref).hostname); } catch (e) { return false; }
+        }
+        var params = new URLSearchParams(location.search);
+        var hasFreshCampaign = false;
+        for (var i = 0; i < CAMPAIGN_KEYS.length; i++) {
+          if (params.has(CAMPAIGN_KEYS[i])) { hasFreshCampaign = true; break; }
+        }
+        var existing = readCookie(COOKIE_NAME);
+        var attribution;
+        try { attribution = existing ? JSON.parse(existing) : {}; } catch (e) { attribution = {}; }
+        if (!attribution || typeof attribution !== 'object') attribution = {};
+        if (!attribution.referrer && isExternalReferrer(document.referrer)) {
+          attribution.referrer = document.referrer;
+        }
+        if (!attribution.landing_page) attribution.landing_page = location.href;
+        if (!attribution.first_touch_at) attribution.first_touch_at = new Date().toISOString();
+        if (hasFreshCampaign) {
+          CAMPAIGN_KEYS.forEach(function (k) {
+            var v = params.get(k);
+            if (v) attribution[k] = v;
+          });
+          attribution.last_touch_at = new Date().toISOString();
+        }
+        try { writeCookie(COOKIE_NAME, JSON.stringify(attribution)); } catch (e) { /* fail silent */ }
+      })();
+    </script>
+
     <!-- Analytics & tracking — production only (skills.cirra.ai) -->
     <script>
       (function () {
