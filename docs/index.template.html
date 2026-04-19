@@ -24,29 +24,54 @@
           var escaped = name.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
           var match = document.cookie.match(new RegExp('(?:^|;\\s*)' + escaped + '=([^;]*)'));
           if (!match) return null;
-          try { return decodeURIComponent(match[1]); } catch (e) { return match[1]; }
+          try {
+            return decodeURIComponent(match[1]);
+          } catch (e) {
+            return match[1];
+          }
         }
         function writeCookie(name, value) {
-          document.cookie = name + '=' + encodeURIComponent(value) +
-            '; Domain=.cirra.ai; Path=/; Max-Age=' + MAX_AGE_SECONDS + '; SameSite=Lax' +
+          document.cookie =
+            name +
+            '=' +
+            encodeURIComponent(value) +
+            '; Domain=.cirra.ai; Path=/; Max-Age=' +
+            MAX_AGE_SECONDS +
+            '; SameSite=Lax' +
             (location.protocol === 'https:' ? '; Secure' : '');
         }
         function safeUrl(raw) {
           if (!raw) return null;
-          try { var u = new URL(raw); return u.origin + u.pathname; } catch (e) { return null; }
+          try {
+            var u = new URL(raw);
+            return u.origin + u.pathname;
+          } catch (e) {
+            return null;
+          }
         }
         function isExternalReferrer(ref) {
           if (!ref) return false;
-          try { return !/(^|\.)cirra\.ai$/i.test(new URL(ref).hostname); } catch (e) { return false; }
+          try {
+            return !/(^|\.)cirra\.ai$/i.test(new URL(ref).hostname);
+          } catch (e) {
+            return false;
+          }
         }
         var params = new URLSearchParams(location.search);
         var hasFreshCampaign = false;
         for (var i = 0; i < CAMPAIGN_KEYS.length; i++) {
-          if (params.has(CAMPAIGN_KEYS[i])) { hasFreshCampaign = true; break; }
+          if (params.has(CAMPAIGN_KEYS[i])) {
+            hasFreshCampaign = true;
+            break;
+          }
         }
         var existing = readCookie(COOKIE_NAME);
         var attribution;
-        try { attribution = existing ? JSON.parse(existing) : {}; } catch (e) { attribution = {}; }
+        try {
+          attribution = existing ? JSON.parse(existing) : {};
+        } catch (e) {
+          attribution = {};
+        }
         if (!attribution || typeof attribution !== 'object' || Array.isArray(attribution)) {
           attribution = {};
         }
@@ -56,14 +81,20 @@
         if (!attribution.landing_page) attribution.landing_page = safeUrl(location.href);
         if (!attribution.first_touch_at) attribution.first_touch_at = new Date().toISOString();
         if (hasFreshCampaign) {
-          CAMPAIGN_KEYS.forEach(function (k) { delete attribution[k]; });
+          CAMPAIGN_KEYS.forEach(function (k) {
+            delete attribution[k];
+          });
           CAMPAIGN_KEYS.forEach(function (k) {
             var v = params.get(k);
             if (v) attribution[k] = v;
           });
           attribution.last_touch_at = new Date().toISOString();
         }
-        try { writeCookie(COOKIE_NAME, JSON.stringify(attribution)); } catch (e) { /* fail silently */ }
+        try {
+          writeCookie(COOKIE_NAME, JSON.stringify(attribution));
+        } catch (e) {
+          /* fail silently */
+        }
       })();
     </script>
 
