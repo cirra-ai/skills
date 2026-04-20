@@ -21,7 +21,7 @@
         var CLICK_IDS = ['gclid', 'fbclid', 'msclkid', 'li_fat_id', 'ttclid'];
         var CAMPAIGN_KEYS = UTM_KEYS.concat(CLICK_IDS);
         var MAX_FIELD_LENGTH = 256;
-        var MAX_PAYLOAD_BYTES = 3072;
+        var MAX_ENCODED_BYTES = 3500;
         function readCookie(name) {
           var escaped = name.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
           var match = document.cookie.match(new RegExp('(?:^|;\\s*)' + escaped + '=([^;]*)'));
@@ -111,7 +111,7 @@
         });
         try {
           var nextSerialized = JSON.stringify(attribution);
-          if (nextSerialized.length > MAX_PAYLOAD_BYTES) return;
+          if (encodeURIComponent(nextSerialized).length > MAX_ENCODED_BYTES) return;
           if (nextSerialized !== existing) writeCookie(COOKIE_NAME, nextSerialized);
         } catch (e) {
           /* fail silently */
