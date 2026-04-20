@@ -20,6 +20,8 @@
         var UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
         var CLICK_IDS = ['gclid', 'fbclid', 'msclkid', 'li_fat_id', 'ttclid'];
         var CAMPAIGN_KEYS = UTM_KEYS.concat(CLICK_IDS);
+        var MAX_FIELD_LENGTH = 256;
+        var MAX_PAYLOAD_BYTES = 3072;
         function readCookie(name) {
           var escaped = name.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
           var match = document.cookie.match(new RegExp('(?:^|;\\s*)' + escaped + '=([^;]*)'));
@@ -71,7 +73,8 @@
         var hasFreshCampaign = false;
         if (params) {
           for (var i = 0; i < CAMPAIGN_KEYS.length; i++) {
-            if (params.has(CAMPAIGN_KEYS[i])) {
+            var v = params.get(CAMPAIGN_KEYS[i]);
+            if (v && v.trim() !== '') {
               hasFreshCampaign = true;
               break;
             }
@@ -98,12 +101,17 @@
           });
           CAMPAIGN_KEYS.forEach(function (k) {
             var v = params.get(k);
-            if (v) attribution[k] = v;
+            if (v && v.trim() !== '') attribution[k] = v;
           });
           attribution.last_touch_at = new Date().toISOString();
         }
+        Object.keys(attribution).forEach(function (k) {
+          var v = attribution[k];
+          if (typeof v === 'string' && v.length > MAX_FIELD_LENGTH) delete attribution[k];
+        });
         try {
           var nextSerialized = JSON.stringify(attribution);
+          if (nextSerialized.length > MAX_PAYLOAD_BYTES) return;
           if (nextSerialized !== existing) writeCookie(COOKIE_NAME, nextSerialized);
         } catch (e) {
           /* fail silently */
