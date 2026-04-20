@@ -44,6 +44,7 @@
           if (!raw) return null;
           try {
             var u = new URL(raw);
+            if ((u.protocol !== 'http:' && u.protocol !== 'https:') || !u.hostname) return null;
             return u.origin + u.pathname;
           } catch (e) {
             return null;
@@ -52,7 +53,9 @@
         function isExternalReferrer(ref) {
           if (!ref) return false;
           try {
-            return !/(^|\.)cirra\.ai$/i.test(new URL(ref).hostname);
+            var u = new URL(ref);
+            if ((u.protocol !== 'http:' && u.protocol !== 'https:') || !u.hostname) return false;
+            return !/(^|\.)cirra\.ai$/i.test(u.hostname);
           } catch (e) {
             return false;
           }
