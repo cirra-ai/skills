@@ -31,14 +31,14 @@
           }
         }
         function writeCookie(name, value) {
+          if (location.protocol !== 'https:') return;
           document.cookie =
             name +
             '=' +
             encodeURIComponent(value) +
             '; Domain=.cirra.ai; Path=/; Max-Age=' +
             MAX_AGE_SECONDS +
-            '; SameSite=Lax' +
-            (location.protocol === 'https:' ? '; Secure' : '');
+            '; SameSite=Lax; Secure';
         }
         function safeUrl(raw) {
           if (!raw) return null;
@@ -60,12 +60,21 @@
             return false;
           }
         }
-        var params = new URLSearchParams(location.search);
+        var params = null;
+        try {
+          if (typeof URLSearchParams === 'function') {
+            params = new URLSearchParams(location.search);
+          }
+        } catch (e) {
+          params = null;
+        }
         var hasFreshCampaign = false;
-        for (var i = 0; i < CAMPAIGN_KEYS.length; i++) {
-          if (params.has(CAMPAIGN_KEYS[i])) {
-            hasFreshCampaign = true;
-            break;
+        if (params) {
+          for (var i = 0; i < CAMPAIGN_KEYS.length; i++) {
+            if (params.has(CAMPAIGN_KEYS[i])) {
+              hasFreshCampaign = true;
+              break;
+            }
           }
         }
         var existing = readCookie(COOKIE_NAME);
@@ -94,7 +103,8 @@
           attribution.last_touch_at = new Date().toISOString();
         }
         try {
-          writeCookie(COOKIE_NAME, JSON.stringify(attribution));
+          var nextSerialized = JSON.stringify(attribution);
+          if (nextSerialized !== existing) writeCookie(COOKIE_NAME, nextSerialized);
         } catch (e) {
           /* fail silently */
         }
