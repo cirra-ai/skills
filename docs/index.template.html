@@ -5,6 +5,120 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cirra AI Salesforce Plugin — Downloads</title>
 
+    <!--
+      Cirra attribution cookie — first-party on .cirra.ai apex.
+      Preserves first-touch referrer + last-touch UTMs/click IDs across the
+      cross-subdomain hop so app.cirra.ai can read them at signup time.
+      Keep in sync with cirra-ai/website:src/_includes/utm-forwarding.njk
+      and cirra-ai/docs:docusaurus.config.ts headTags.
+    -->
+    <script>
+      (function () {
+        if (typeof document === 'undefined') return;
+        var COOKIE_NAME = 'cirra_attribution';
+        var MAX_AGE_SECONDS = 60 * 60 * 24 * 90;
+        var UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
+        var CLICK_IDS = ['gclid', 'fbclid', 'msclkid', 'li_fat_id', 'ttclid'];
+        var CAMPAIGN_KEYS = UTM_KEYS.concat(CLICK_IDS);
+        var MAX_FIELD_LENGTH = 256;
+        var MAX_ENCODED_BYTES = 3500;
+        function readCookie(name) {
+          var escaped = name.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+          var match = document.cookie.match(new RegExp('(?:^|;\\s*)' + escaped + '=([^;]*)'));
+          if (!match) return null;
+          try {
+            return decodeURIComponent(match[1]);
+          } catch (e) {
+            return match[1];
+          }
+        }
+        function writeCookie(name, value) {
+          if (location.protocol !== 'https:') return;
+          document.cookie =
+            name +
+            '=' +
+            encodeURIComponent(value) +
+            '; Domain=.cirra.ai; Path=/; Max-Age=' +
+            MAX_AGE_SECONDS +
+            '; SameSite=Lax; Secure';
+        }
+        function safeUrl(raw) {
+          if (!raw) return null;
+          try {
+            var u = new URL(raw);
+            if ((u.protocol !== 'http:' && u.protocol !== 'https:') || !u.hostname) return null;
+            return u.origin + u.pathname;
+          } catch (e) {
+            return null;
+          }
+        }
+        function isExternalReferrer(ref) {
+          if (!ref) return false;
+          try {
+            var u = new URL(ref);
+            if ((u.protocol !== 'http:' && u.protocol !== 'https:') || !u.hostname) return false;
+            return !/(^|\.)cirra\.ai$/i.test(u.hostname);
+          } catch (e) {
+            return false;
+          }
+        }
+        var params = null;
+        try {
+          if (typeof URLSearchParams === 'function') {
+            params = new URLSearchParams(location.search);
+          }
+        } catch (e) {
+          params = null;
+        }
+        var hasFreshCampaign = false;
+        if (params) {
+          for (var i = 0; i < CAMPAIGN_KEYS.length; i++) {
+            var v = params.get(CAMPAIGN_KEYS[i]);
+            if (v && v.trim() !== '') {
+              hasFreshCampaign = true;
+              break;
+            }
+          }
+        }
+        var existing = readCookie(COOKIE_NAME);
+        var attribution;
+        try {
+          attribution = existing ? JSON.parse(existing) : {};
+        } catch (e) {
+          attribution = {};
+        }
+        if (!attribution || typeof attribution !== 'object' || Array.isArray(attribution)) {
+          attribution = {};
+        }
+        if (!attribution.referrer && isExternalReferrer(document.referrer)) {
+          attribution.referrer = safeUrl(document.referrer);
+        }
+        if (!attribution.landing_page) attribution.landing_page = safeUrl(location.href);
+        if (!attribution.first_touch_at) attribution.first_touch_at = new Date().toISOString();
+        if (hasFreshCampaign) {
+          CAMPAIGN_KEYS.forEach(function (k) {
+            delete attribution[k];
+          });
+          CAMPAIGN_KEYS.forEach(function (k) {
+            var v = params.get(k);
+            if (v && v.trim() !== '') attribution[k] = v;
+          });
+          attribution.last_touch_at = new Date().toISOString();
+        }
+        Object.keys(attribution).forEach(function (k) {
+          var v = attribution[k];
+          if (typeof v === 'string' && v.length > MAX_FIELD_LENGTH) delete attribution[k];
+        });
+        try {
+          var nextSerialized = JSON.stringify(attribution);
+          if (encodeURIComponent(nextSerialized).length > MAX_ENCODED_BYTES) return;
+          if (nextSerialized !== existing) writeCookie(COOKIE_NAME, nextSerialized);
+        } catch (e) {
+          /* fail silently */
+        }
+      })();
+    </script>
+
     <!-- Analytics & tracking — production only (skills.cirra.ai) -->
     <script>
       (function () {
