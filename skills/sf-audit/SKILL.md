@@ -1,7 +1,7 @@
 ---
 name: sf-audit
 plugin: cirra-ai-sf
-argument-hint: '[full|apex|flow|lwc|metadata|permissions|reports|integrations|coverage|licensing|team] ...'
+argument-hint: '[full|apex|flow|lwc|metadata|permissions|reports|integrations|coverage|licensing|team|change-history|data-quality] ...'
 description: >
   Run a comprehensive Salesforce org audit producing 18 documents from a single scan.
   Inventories and scores Apex classes, triggers, Flows, Process Builders, Workflow Rules,
@@ -12,7 +12,7 @@ description: >
   logic for hardcoded Record IDs, Campaign names, Profile names, URLs, and other fragile
   values. Generates Word, Excel, HTML reports plus 12 standalone analysis documents
   including a customer report and strategic engagement plan.
-  Usage: /sf-audit [full|apex|flow|lwc|metadata|permissions|reports|integrations|coverage|licensing|team] ...
+  Usage: /sf-audit [full|apex|flow|lwc|metadata|permissions|reports|integrations|coverage|licensing|team|change-history|data-quality] ...
 metadata:
   version: 3.0.0
 ---
@@ -50,6 +50,8 @@ Parse `$ARGUMENTS` to determine the audit scope:
 | `coverage`                              | Test coverage only (C12)            |
 | `licensing`                             | Licensing analysis only (C13)       |
 | `team`                                  | Team evaluation only (C14)          |
+| `change-history`                        | Change history audit only (C15)     |
+| `data-quality`                          | Data quality report only (C7 + DQ)  |
 | _(no argument or unclear)_              | Ask the user (see below)            |
 
 When the audit scope is missing or unclear, **you MUST use `AskUserQuestion`** before proceeding:

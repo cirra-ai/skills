@@ -279,6 +279,10 @@ def compute_summary(data):
         "team": team_summary,
         "reports_dashboards": reports_dashboards_summary,
         "change_history": change_history_summary,
+        "data_quality": {
+            "objects_checked": len(data.get("data_quality", {}).get("objects", [])),
+            "findings_count": len(data.get("data_quality", {}).get("findings", [])),
+        },
     }
 
 
@@ -778,7 +782,7 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
                 _esc(item.get("name", "")),
                 "Report",
                 _esc(item.get("folder", "")),
-                _esc(item.get("last_run_date", "Never")),
+                _esc(item.get("last_run_date") or "Never"),
                 "Yes" if item.get("is_stale") else "No",
             ])
         for item in rd_dashboards:
@@ -786,7 +790,7 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
                 _esc(item.get("name", "")),
                 "Dashboard",
                 _esc(item.get("folder", "")),
-                _esc(item.get("last_viewed_date", "Never")),
+                _esc(item.get("last_viewed_date") or "Never"),
                 "Yes" if item.get("is_stale") else "No",
             ])
         sections.append(
@@ -822,7 +826,7 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
     tc = data.get("test_coverage", {})
     tc_classes = tc.get("classes", [])
     if tc_classes or tc.get("org_wide_pct") is not None:
-        org_pct = tc.get("org_wide_pct", 0)
+        org_pct = tc.get("org_wide_pct") or 0.0
         _, tc_bg, tc_fg = score_rating(org_pct)
         tc_rows = []
         for item in sorted(tc_classes, key=lambda x: x.get("coverage_pct", 0)):
@@ -1731,7 +1735,7 @@ def generate_xlsx(data, summary, org_name, org_id, instance, run_date, output_pa
         ws14_rd.cell(row=rd_row, column=1, value=item.get("name", ""))
         ws14_rd.cell(row=rd_row, column=2, value="Report")
         ws14_rd.cell(row=rd_row, column=3, value=item.get("folder", ""))
-        ws14_rd.cell(row=rd_row, column=4, value=item.get("last_run_date", "Never"))
+        ws14_rd.cell(row=rd_row, column=4, value=item.get("last_run_date") or "Never")
         ws14_rd.cell(row=rd_row, column=5, value=item.get("created_date", ""))
         ws14_rd.cell(row=rd_row, column=6, value="Yes" if item.get("is_stale") else "No")
         rd_row += 1
@@ -1739,7 +1743,7 @@ def generate_xlsx(data, summary, org_name, org_id, instance, run_date, output_pa
         ws14_rd.cell(row=rd_row, column=1, value=item.get("name", ""))
         ws14_rd.cell(row=rd_row, column=2, value="Dashboard")
         ws14_rd.cell(row=rd_row, column=3, value=item.get("folder", ""))
-        ws14_rd.cell(row=rd_row, column=4, value=item.get("last_viewed_date", "Never"))
+        ws14_rd.cell(row=rd_row, column=4, value=item.get("last_viewed_date") or "Never")
         ws14_rd.cell(row=rd_row, column=5, value=item.get("created_date", ""))
         ws14_rd.cell(row=rd_row, column=6, value="Yes" if item.get("is_stale") else "No")
         rd_row += 1
@@ -1966,7 +1970,7 @@ def generate_standalone_reports(data, summary, org_name, run_date, output_dir):
                 ws.cell(row=i, column=1, value=item.get("name", ""))
                 ws.cell(row=i, column=2, value=item.get("folder", ""))
                 ws.cell(row=i, column=3, value=item.get("format", ""))
-                ws.cell(row=i, column=4, value=item.get("last_run_date", "Never"))
+                ws.cell(row=i, column=4, value=item.get("last_run_date") or "Never")
                 ws.cell(row=i, column=5, value=item.get("created_date", ""))
                 ws.cell(row=i, column=6, value="Yes" if item.get("is_stale") else "No")
 
@@ -1978,7 +1982,7 @@ def generate_standalone_reports(data, summary, org_name, run_date, output_dir):
             for i, item in enumerate(rd.get("dashboards", []), 2):
                 ws2.cell(row=i, column=1, value=item.get("name", ""))
                 ws2.cell(row=i, column=2, value=item.get("folder", ""))
-                ws2.cell(row=i, column=3, value=item.get("last_viewed_date", "Never"))
+                ws2.cell(row=i, column=3, value=item.get("last_viewed_date") or "Never")
                 ws2.cell(row=i, column=4, value=item.get("created_date", ""))
                 ws2.cell(row=i, column=5, value="Yes" if item.get("is_stale") else "No")
 
@@ -2202,7 +2206,8 @@ def generate_standalone_reports(data, summary, org_name, run_date, output_dir):
         generated.append(str(p))
 
     # ── 10. Customer Report (DOCX) ──
-    if HAS_DOCX:
+    has_content = bool(generated) or summary.get("overall_score", 0) > 0
+    if HAS_DOCX and has_content:
         doc = docx.Document()
         section = doc.sections[0]
         section.page_width = Inches(8.5)
@@ -2267,7 +2272,7 @@ def generate_standalone_reports(data, summary, org_name, run_date, output_dir):
         generated.append(str(p))
 
     # ── 11. Strategic Engagement Plan (DOCX) ──
-    if HAS_DOCX:
+    if HAS_DOCX and has_content:
         doc = docx.Document()
         section = doc.sections[0]
         section.page_width = Inches(8.5)
@@ -2368,12 +2373,10 @@ def main():
     parser.add_argument("--instance", default="", help="Salesforce instance (e.g. CS42)")
     parser.add_argument("--run-date", default=None, help="Audit date (YYYY-MM-DD). Defaults to today.")
     parser.add_argument(
-        "--standalone", action="store_true", default=True,
-        help="Generate standalone reports (default: True)",
-    )
-    parser.add_argument(
-        "--no-standalone", dest="standalone", action="store_false",
-        help="Skip standalone report generation",
+        "--standalone",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Generate standalone reports",
     )
     args = parser.parse_args()
 
