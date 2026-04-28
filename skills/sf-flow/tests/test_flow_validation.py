@@ -354,6 +354,16 @@ class TestSaveBlockingDetection:
             "save-blocking" in m.lower() and "recordlookups" in m.lower() for m in warns
         )
 
+    def test_nested_save_gating_description_does_not_opt_out(self):
+        """Regression: only the flow-level <description> can opt a flow out of
+        the save-blocking check. A nested <description> on a sub-element
+        (e.g., an actionCalls) that contains 'save-gating' must NOT be picked
+        up — the recursive-descendant lookup would match an actionCalls
+        description before the top-level one in alphabetical metadata order."""
+        r = _validate("after_save_nested_description.flow-meta.xml")
+        crits = _critical_messages(r)
+        assert any("save-blocking" in m.lower() for m in crits)
+
     def test_save_blocking_has_actionable_fix(self):
         """Each save-blocking issue includes a remediation hint."""
         r = _validate("after_save_email_no_fault.flow-meta.xml")

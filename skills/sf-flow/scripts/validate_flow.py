@@ -989,8 +989,15 @@ class EnhancedFlowValidator:
         return trigger_type.text if trigger_type is not None and trigger_type.text else ""
 
     def _get_description(self) -> str:
-        """Return the flow description, or empty string."""
-        desc = self.root.find(".//sf:description", self.namespace)
+        """Return the flow-level description, or empty string.
+
+        Uses direct-child XPath because `<description>` is a valid sub-element
+        of many flow elements (actionCalls, decisions, screens, …); a recursive
+        descendant search would match a sub-element description first since
+        `actionCalls` etc. precede the top-level `<description>` alphabetically
+        in Salesforce metadata.
+        """
+        desc = self.root.find("sf:description", self.namespace)
         return desc.text if desc is not None and desc.text else ""
 
     def _check_save_blocking_risk(self) -> list[dict]:
