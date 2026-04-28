@@ -621,15 +621,31 @@ class EnhancedFlowValidator:
             score -= deduction
 
             for issue in save_blocking_issues:
-                target_list = critical_issues if issue["severity"] == "HIGH" else warnings
-                target_list.append(
-                    {
-                        "severity": issue["severity"],
-                        "message": issue["message"],
-                        "fix": issue["fix"],
-                        "element": issue["element_name"],
-                    }
-                )
+                # Items in critical_issues use severity="CRITICAL" by convention
+                # elsewhere in this validator; preserve HIGH/MEDIUM differentiation
+                # via a separate risk_level field. Warnings carry both `fix` and
+                # `suggestion` keys to match the convention used by other warnings.
+                if issue["severity"] == "HIGH":
+                    critical_issues.append(
+                        {
+                            "severity": "CRITICAL",
+                            "risk_level": "HIGH",
+                            "message": issue["message"],
+                            "fix": issue["fix"],
+                            "element": issue["element_name"],
+                        }
+                    )
+                else:
+                    warnings.append(
+                        {
+                            "severity": issue["severity"],
+                            "risk_level": issue["severity"],
+                            "message": issue["message"],
+                            "fix": issue["fix"],
+                            "suggestion": issue["fix"],
+                            "element": issue["element_name"],
+                        }
+                    )
 
         # Fault paths on DML (kept for non-after-save flows; after-save flows
         # are covered more comprehensively by the save-blocking check above).
@@ -966,7 +982,7 @@ class EnhancedFlowValidator:
 
     def _get_trigger_type(self) -> str:
         """Return the start/triggerType, or empty string if not record-triggered."""
-        start = self.root.find("sf:start", self.namespace)
+        start = self.root.find(".//sf:start", self.namespace)
         if start is None:
             return ""
         trigger_type = start.find("sf:triggerType", self.namespace)
@@ -974,7 +990,7 @@ class EnhancedFlowValidator:
 
     def _get_description(self) -> str:
         """Return the flow description, or empty string."""
-        desc = self.root.find("sf:description", self.namespace)
+        desc = self.root.find(".//sf:description", self.namespace)
         return desc.text if desc is not None and desc.text else ""
 
     def _check_save_blocking_risk(self) -> list[dict]:
