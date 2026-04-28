@@ -609,9 +609,33 @@ class EnhancedFlowValidator:
                 }
             )
 
-        # Fault paths (10 points)
+        # Save-blocking risk (HIGH/MEDIUM — applies to RecordAfterSave only)
+        # Implements the "save-blocking is opt-in" principle from SKILL.md.
+        # A fault on any element of an after-save flow propagates back to the
+        # originating DML as CANNOT_EXECUTE_FLOW_TRIGGER, blocking the user's save.
+        save_blocking_issues = self._check_save_blocking_risk()
+        if save_blocking_issues:
+            high_count = sum(1 for i in save_blocking_issues if i["severity"] == "HIGH")
+            medium_count = sum(1 for i in save_blocking_issues if i["severity"] == "MEDIUM")
+            deduction = min(15, high_count * 5 + medium_count * 2)
+            score -= deduction
+
+            for issue in save_blocking_issues:
+                target_list = critical_issues if issue["severity"] == "HIGH" else warnings
+                target_list.append(
+                    {
+                        "severity": issue["severity"],
+                        "message": issue["message"],
+                        "fix": issue["fix"],
+                        "element": issue["element_name"],
+                    }
+                )
+
+        # Fault paths on DML (kept for non-after-save flows; after-save flows
+        # are covered more comprehensively by the save-blocking check above).
+        trigger_type = self._get_trigger_type()
         dml_count = self._count_dml_operations()
-        if dml_count > 0:
+        if trigger_type != "RecordAfterSave" and dml_count > 0:
             dml_with_faults = self._count_dml_with_fault_paths()
             if dml_with_faults < dml_count:
                 missing = dml_count - dml_with_faults
@@ -939,6 +963,95 @@ class EnhancedFlowValidator:
                     return True
 
         return False
+
+    def _get_trigger_type(self) -> str:
+        """Return the start/triggerType, or empty string if not record-triggered."""
+        start = self.root.find("sf:start", self.namespace)
+        if start is None:
+            return ""
+        trigger_type = start.find("sf:triggerType", self.namespace)
+        return trigger_type.text if trigger_type is not None and trigger_type.text else ""
+
+    def _get_description(self) -> str:
+        """Return the flow description, or empty string."""
+        desc = self.root.find("sf:description", self.namespace)
+        return desc.text if desc is not None and desc.text else ""
+
+    def _check_save_blocking_risk(self) -> list[dict]:
+        """
+        Identify fallible elements in a RecordAfterSave flow that lack a faultConnector.
+
+        These are save-blocking risks: an unhandled fault propagates back to the
+        originating DML as CANNOT_EXECUTE_FLOW_TRIGGER, blocking the user's save.
+
+        Side-effect flows (the default) MUST have a faultConnector on every fallible
+        element. Save-gating flows opt in by either using RecordBeforeSave or
+        documenting the intent with "save-gating" in the description.
+
+        Returns a list of issues, each with element name, type, severity, message, fix.
+        """
+        # Only after-save flows have the save-blocking failure mode. Before-save
+        # flows are save-gating by definition; screen/autolaunched/scheduled
+        # flows don't have an originating user save to block.
+        if self._get_trigger_type() != "RecordAfterSave":
+            return []
+
+        # Honor explicit save-gating intent declared in the description.
+        description = self._get_description().lower()
+        if "save-gating" in description or "save gating" in description:
+            return []
+
+        fallible_element_types = [
+            "actionCalls",
+            "recordCreates",
+            "recordUpdates",
+            "recordDeletes",
+            "recordLookups",
+            "subflows",
+            "waits",
+        ]
+
+        high_severity_types = {
+            "actionCalls",
+            "recordCreates",
+            "recordUpdates",
+            "recordDeletes",
+        }
+
+        issues = []
+        for elem_type in fallible_element_types:
+            for element in self.root.findall(f".//sf:{elem_type}", self.namespace):
+                fault = element.find("sf:faultConnector", self.namespace)
+                if fault is not None:
+                    continue
+
+                name = element.find("sf:name", self.namespace)
+                name_text = name.text if name is not None else "<unnamed>"
+
+                severity = "HIGH" if elem_type in high_severity_types else "MEDIUM"
+
+                issues.append(
+                    {
+                        "severity": severity,
+                        "element_name": name_text,
+                        "element_type": elem_type,
+                        "message": (
+                            f"❌ SAVE-BLOCKING RISK: {elem_type} element '{name_text}' "
+                            f"in RecordAfterSave flow has no faultConnector. "
+                            f"If this element faults at runtime, the originating save "
+                            f"will be blocked with CANNOT_EXECUTE_FLOW_TRIGGER."
+                        ),
+                        "fix": (
+                            f"Add a faultConnector to '{name_text}'. See the "
+                            f"fault-destination rubric in the skill for choosing the "
+                            f"target. If save-blocking is the intended behavior, "
+                            f"either (a) change triggerType to RecordBeforeSave, or "
+                            f"(b) add 'save-gating: <reason>' to the flow description."
+                        ),
+                    }
+                )
+
+        return issues
 
     def _is_record_triggered_flow(self) -> bool:
         """

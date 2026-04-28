@@ -132,10 +132,11 @@ class TestIssueDetection:
         assert perf["score"] < perf["max_score"]
 
     def test_missing_faults_detected(self):
-        """TC-I2: Missing fault paths are flagged as warnings."""
+        """TC-I2: In a RecordAfterSave flow, missing fault paths are CRITICAL
+        (save-blocking risk) — not just warnings."""
         r = _validate("missing_fault_paths.flow-meta.xml")
-        warns = _warning_messages(r)
-        assert any("fault" in m.lower() for m in warns)
+        crits = _critical_messages(r)
+        assert any("save-blocking" in m.lower() or "fault" in m.lower() for m in crits)
 
     def test_missing_faults_error_handling_score_zero(self):
         """TC-I2: Error handling score is 0 when all DML lacks fault paths."""
@@ -293,3 +294,72 @@ class TestQualityScores:
             if name.endswith(".xml")
         }
         assert scores["max_complexity_anti_patterns.flow-meta.xml"] == min(scores.values())
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 5. SAVE-BLOCKING DETECTION — RecordAfterSave fault-connector enforcement
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+class TestSaveBlockingDetection:
+    """Acceptance criteria for the save-blocking validator check.
+
+    Implements the principle: an unhandled fault in a RecordAfterSave flow
+    propagates back to the originating DML as CANNOT_EXECUTE_FLOW_TRIGGER,
+    blocking the user's save. Side-effect flows must opt out by attaching a
+    faultConnector to every fallible element.
+    """
+
+    def test_after_save_email_no_fault_is_critical(self):
+        """High Value Opp V1 regression — emailSimple without faultConnector is HIGH."""
+        r = _validate("after_save_email_no_fault.flow-meta.xml")
+        crits = _critical_messages(r)
+        assert any("save-blocking" in m.lower() for m in crits)
+        assert any("send_email_action" in m.lower() for m in crits)
+
+    def test_after_save_email_with_fault_passes(self):
+        """High Value Opp V4 — emailSimple with faultConnector raises no save-blocking issue."""
+        r = _validate("after_save_email_with_fault.flow-meta.xml")
+        crits = _critical_messages(r)
+        warns = _warning_messages(r)
+        assert not any("save-blocking" in m.lower() for m in crits + warns)
+
+    def test_save_gating_description_skips_check(self):
+        """A RecordAfterSave flow whose description declares 'save-gating'
+        opts out of the fault-connector requirement."""
+        r = _validate("after_save_save_gating.flow-meta.xml")
+        crits = _critical_messages(r)
+        warns = _warning_messages(r)
+        assert not any("save-blocking" in m.lower() for m in crits + warns)
+
+    def test_before_save_flow_skipped(self):
+        """RecordBeforeSave flows are save-gating by definition — no save-blocking check."""
+        r = _validate("perfect_before_save.flow-meta.xml")
+        crits = _critical_messages(r)
+        warns = _warning_messages(r)
+        assert not any("save-blocking" in m.lower() for m in crits + warns)
+
+    def test_screen_flow_skipped(self):
+        """Screen flows have no originating record save to block."""
+        r = _validate("screen_flow_simple.flow-meta.xml")
+        crits = _critical_messages(r)
+        warns = _warning_messages(r)
+        assert not any("save-blocking" in m.lower() for m in crits + warns)
+
+    def test_after_save_lookup_no_fault_is_warning(self):
+        """recordLookups without faultConnector in after-save flow is MEDIUM (warning)."""
+        r = _validate("after_save_lookup_no_fault.flow-meta.xml")
+        warns = _warning_messages(r)
+        assert any(
+            "save-blocking" in m.lower() and "recordlookups" in m.lower() for m in warns
+        )
+
+    def test_save_blocking_has_actionable_fix(self):
+        """Each save-blocking issue includes a remediation hint."""
+        r = _validate("after_save_email_no_fault.flow-meta.xml")
+        save_blocking = [
+            i for i in r["critical_issues"] if "save-blocking" in i["message"].lower()
+        ]
+        assert save_blocking
+        for issue in save_blocking:
+            assert "fix" in issue and "faultConnector" in issue["fix"]
