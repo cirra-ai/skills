@@ -237,6 +237,8 @@ metadata_update(
 )
 ```
 
+> **If `metadata_update` reports a partial failure** (e.g. `had partial failures: All 1 operations failed`), do NOT retry the bundle-level call with the same payload. Switch to the [Tooling API fallback](#tooling-api-fallback--per-file-edits) and update one resource at a time with plain-text `Source`. Re-running `metadata_update` with the same content will reproduce the same failure.
+
 ### 6. Report
 
 Summarise the changes made and show the final validation scores per file.
@@ -287,6 +289,36 @@ Common mistakes that produce Salesforce errors on this path:
 | `No such column 'FilePath' on entity 'LightningComponentBundle'` | Queried `FilePath` on the bundle, not the resource. |
 
 `*.js-meta.xml` is also a `LightningComponentResource` and is updated the same way (plain text). Use it to change bundle-level properties (apiVersion, isExposed, targets, targetConfigs) when `metadata_update` is unavailable.
+
+### 3. Validate `*.js-meta.xml` content before writing
+
+The `js-meta.xml` is XML that Salesforce validates strictly against the org's metadata. Common rejection causes:
+
+| Salesforce error                        | Likely cause                                                                                                                     |
+| --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `No such relation 'X' on entity 'User'` | `userPermissions` referencing a permission name that doesn't exist in the org                                                    |
+| `Invalid type: <name>` in `<targets>`   | Target not enabled / not available on this edition (e.g. `lightning__Dashboard` requires Salesforce Customer Support enablement) |
+| `<targetConfigs>` parse / schema error  | `<targetConfig targets="...">` does not match an entry in the bundle's `<targets>`                                               |
+
+Before sending the updated `js-meta.xml`:
+
+- **Do not invent `userPermissions`**. If you need to gate visibility, use `tooling_api_query` on `PermissionSet` describes (or `soql_query` on `PermissionSetTabSetting` / known standard permissions) to confirm the name is real before referencing it. Standard SF user permissions (`ViewSetup`, `ManageUsers`, etc.) are safe; custom/named ones are not.
+- **Each `<targetConfig targets="X">`** must reference a target that's also present in the bundle's `<targets>` block.
+- **API version on `<apiVersion>`** must be one the org supports — query an existing component if unsure.
+
+### 4. Listing many LWC components in large orgs
+
+`metadata_list(type="LightningComponentBundle")` returns one record per component plus per-file properties and can exceed the per-call response cap in orgs with many LWCs (the response then gets paginated to a 3-record preview). For enumeration, prefer the lightweight Tooling API list:
+
+```
+tooling_api_query(
+  sObject="LightningComponentBundle",
+  fields=["Id", "DeveloperName", "NamespacePrefix", "ApiVersion", "MasterLabel", "Description"],
+  whereClause="NamespacePrefix = null"
+)
+```
+
+This returns just the bundle metadata (no embedded sources), is small, and uses the same plain-text path as the per-file edits above.
 
 ---
 
@@ -369,10 +401,14 @@ Validate each bundle (write → validate → delete). After all are validated, s
 
 ### All
 
-1. List all deployed components:
+1. List all deployed components. Prefer the lightweight Tooling API query — `metadata_list` exceeds the per-call response cap in larger orgs and returns only a paginated preview:
 
 ```
-metadata_list(type="LightningComponentBundle")
+tooling_api_query(
+  sObject="LightningComponentBundle",
+  fields=["Id", "DeveloperName", "MasterLabel", "ApiVersion"],
+  whereClause="NamespacePrefix = null"
+)
 ```
 
 2. Fetch and validate each component bundle in batches of 10.
