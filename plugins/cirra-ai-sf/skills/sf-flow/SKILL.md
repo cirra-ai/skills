@@ -618,19 +618,19 @@ If ANY of these patterns would be generated, **STOP and ask the user**:
 > A) Refactor to use [correct pattern]
 > B) Proceed anyway (not recommended)"
 
-| Anti-Pattern                                                            | Impact                               | Correct Pattern                                                                                                                    |
-| ----------------------------------------------------------------------- | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
-| After-Save updating same object without entry conditions                | **Infinite loop** (critical)         | MUST add entry conditions: "Only when [field] is changed"                                                                          |
-| Get Records inside Loop                                                 | Governor limit failure (100 SOQL)    | Query BEFORE loop, use collection variable                                                                                         |
-| Create/Update/Delete Records inside Loop                                | Governor limit failure (150 DML)     | Collect in loop → single DML after loop                                                                                            |
-| Apex Action inside Loop                                                 | Callout limits                       | Pass collection to single Apex invocation                                                                                          |
-| DML without Fault Path                                                  | Silent failures                      | Add Fault connector → error handling element                                                                                       |
-| Get Records without null check                                          | NullPointerException                 | Add Decision: "Records Found?" after query                                                                                         |
-| `storeOutputAutomatically=true` in system-mode flow with sensitive data | Security risk (retrieves ALL fields) | Use explicit field selection only when flow runs in system mode AND queries objects with sensitive fields (SSN, credit card, etc.) |
-| Query same object as trigger in Record-Triggered                        | Wasted SOQL                          | Use `{!$Record.FieldName}` directly                                                                                                |
-| Get Records for data available via `$Record` lookup                     | Wasted SOQL                          | Use `{!$Record.Lookup__r.Field}` — traversal works up to 5 levels                                                                  |
-| Hardcoded Salesforce ID                                                 | Deployment failure across orgs       | Use input variable or Custom Label                                                                                                 |
-| Get Records without filters                                             | Too many records returned            | Always include WHERE conditions                                                                                                    |
+| Anti-Pattern                                                            | Impact                                                                                                                                                                                                                                   | Correct Pattern                                                                                                                     |
+| ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| After-Save updating same object without entry conditions                | **Infinite loop** (critical)                                                                                                                                                                                                             | MUST add entry conditions: "Only when [field] is changed"                                                                           |
+| Get Records inside Loop                                                 | Governor limit failure (100 SOQL)                                                                                                                                                                                                        | Query BEFORE loop, use collection variable                                                                                          |
+| Create/Update/Delete Records inside Loop                                | Governor limit failure (150 DML)                                                                                                                                                                                                         | Collect in loop → single DML after loop                                                                                             |
+| Apex Action inside Loop                                                 | Callout limits                                                                                                                                                                                                                           | Pass collection to single Apex invocation                                                                                           |
+| Fallible element in `RecordAfterSave` flow without `faultConnector`     | **Blocks the originating save** (`CANNOT_EXECUTE_FLOW_TRIGGER`). Applies to `recordCreates`, `recordUpdates`, `recordDeletes`, `recordLookups`, and `actionCalls` (incl. `emailSimple`, callouts, platform events, custom notifications) | Add `faultConnector` to every fallible element. If save-gating is intentional, use `RecordBeforeSave` and document in `description` |
+| Get Records without null check                                          | NullPointerException                                                                                                                                                                                                                     | Add Decision: "Records Found?" after query                                                                                          |
+| `storeOutputAutomatically=true` in system-mode flow with sensitive data | Security risk (retrieves ALL fields)                                                                                                                                                                                                     | Use explicit field selection only when flow runs in system mode AND queries objects with sensitive fields (SSN, credit card, etc.)  |
+| Query same object as trigger in Record-Triggered                        | Wasted SOQL                                                                                                                                                                                                                              | Use `{!$Record.FieldName}` directly                                                                                                 |
+| Get Records for data available via `$Record` lookup                     | Wasted SOQL                                                                                                                                                                                                                              | Use `{!$Record.Lookup__r.Field}` — traversal works up to 5 levels                                                                   |
+| Hardcoded Salesforce ID                                                 | Deployment failure across orgs                                                                                                                                                                                                           | Use input variable or Custom Label                                                                                                  |
+| Get Records without filters                                             | Too many records returned                                                                                                                                                                                                                | Always include WHERE conditions                                                                                                     |
 
 **DO NOT generate anti-patterns even if explicitly requested.** Ask user to confirm the exception with documented justification.
 
@@ -707,6 +707,75 @@ sobject_describe(
 
 For complex flows: `references/governance-checklist.md`
 
+### Deleting a Flow Version (Recovering Stuck Versions)
+
+If `tooling_api_dml` delete on a `Flow` version returns `DEPENDENCY_EXISTS`
+referencing a `FlowInterview`, query and delete the blocking interviews first:
+
+```python
+# Find blocking interviews for the flow version
+soql_query(
+    sObject="FlowInterview",
+    fields=["Id", "Name", "InterviewStatus", "FlowVersionViewId"],
+    whereClause="FlowVersionViewId = '<flow_version_id_truncated_to_15>'"
+)
+
+# Delete failed/errored interviews from prior runs
+sobject_dml(
+    operation="delete",
+    sObject="FlowInterview",
+    recordIds=["<interview_id_1>", "<interview_id_2>"]
+)
+
+# Now retry the Flow version delete
+tooling_api_dml(
+    operation="delete",
+    sObject="Flow",
+    recordId="<flow_version_id>"
+)
+```
+
+`FlowInterview` records with `InterviewStatus = 'Error'` (failed runs) are
+the most common blockers. They persist even after the flow is deactivated,
+and Salesforce will not let you delete a Flow version while any interview
+references it.
+
+This commonly happens in demo/dev orgs that have run the flow with
+intentionally-failing inputs (e.g. unverified email domain causing
+fault-path runs). It does not typically happen in production.
+
+### Phase 5a: Failure-Mode Review (REQUIRED before declaring done)
+
+Before declaring a flow complete, walk through this checklist. Each question
+maps to a concrete metadata pattern; if the answer reveals an unhandled case,
+fix it before activation.
+
+1. **What happens if an external action fails?** (email server down, callout
+   timeout, platform event subscriber rejecting, custom notification fails
+   to deliver.) → `faultConnector` on every `actionCalls` element.
+
+2. **What happens if a referenced record doesn't exist or the user lacks
+   access?** → null check on every `recordLookups`, plus `faultConnector`.
+
+3. **What happens if the flow re-fires on the same record?** Edits, rollups,
+   trigger order can re-fire your flow on records it already processed. →
+   Idempotency guard: dedup flag (`*_Notified__c`, `*_Processed__c`) checked
+   in entry conditions, OR `ISCHANGED()` guard on the field that drives the
+   action.
+
+4. **What happens under bulk DML (200+ records in one transaction)?** →
+   No DML in loops; no SOQL in loops; `$Record` is the single record context,
+   not a collection.
+
+5. **What happens if a downstream flow this one triggers also fails?** →
+   Decide if cascade-blocking is OK; if not, route to side-effect pattern.
+
+6. **Which category is this flow?** Side-effect or save-gating? Is the
+   `description` clear about the intent so the next maintainer knows?
+
+This checklist takes 60 seconds and catches the failure modes the validator
+can't see (intent, idempotency design, downstream cascading).
+
 ### Phase 5: Testing & Documentation
 
 **Type-specific testing**: See `references/testing-guide.md` | `references/testing-checklist.md` | `references/wait-patterns.md` (Wait element guidance)
@@ -743,6 +812,55 @@ Resources: `assets/`, `references/subflow-library.md`, `references/orchestration
 ```
 
 ## Best Practices (Built-In Enforcement)
+
+### ⛔ CRITICAL: Save-blocking is opt-in, not opt-out
+
+**No record-triggered flow should block the originating save unless blocking is an
+explicit, stated requirement.** This is the single most important architectural
+rule in this skill — it overrides every other consideration except security.
+
+Why this matters: in a `RecordAfterSave` flow, any unhandled fault in any element
+propagates back to the originating DML as `CANNOT_EXECUTE_FLOW_TRIGGER`, blocking
+the save. From the user's perspective, the record appears to fail to save —
+when in reality the save would have succeeded but a downstream side effect
+(an email server, a callout, a custom notification) failed. The wrong incident
+gets paged: the team spends the afternoon debugging an "opportunity creation
+bug" that is actually an email outage.
+
+**Classify every record-triggered flow before designing it:**
+
+| Category                        | Trigger type       | Fault handling                                                | Examples                                                                                           |
+| ------------------------------- | ------------------ | ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| **Side-effect flow** (default)  | `RecordAfterSave`  | Every fallible element MUST have a `faultConnector`           | Notifications, logging, integrations, derived-field computation, async work                        |
+| **Save-gating flow** (explicit) | `RecordBeforeSave` | Faults intentionally propagate; document why in `description` | Validation that the platform's validation rules can't express, regulatory gates, anti-fraud checks |
+
+If you can't articulate which category your flow belongs to, it's a side-effect
+flow — handle the faults.
+
+**The fallible elements** (every one of these can fail at runtime and must have
+a `faultConnector` in a side-effect flow):
+
+- `recordCreates`, `recordUpdates`, `recordDeletes` — DML failures (validation rules,
+  permission errors, locked rows, governor limits)
+- `recordLookups` — query failures, permission errors, missing records
+- `actionCalls` — this is the one that gets missed. `emailSimple`, `emailAlert`,
+  custom notifications, platform events, Apex invocable methods, external
+  callouts, and Send Custom Notification all sit under `actionCalls`. **Email
+  in particular fails for reasons completely outside the flow's control**
+  (unverified domain, suppressed recipient, bounce rules, deliverability
+  configuration). Missing a fault connector here is the most common way a
+  notification flow becomes a save-blocking incident.
+- `subflows` — the called subflow can fault; that fault propagates up
+- `waits` — alarm/event resume can fault
+
+**Save-gating flows must be documented.** When you do legitimately want to block
+a save (i.e. the save shouldn't happen if the flow can't complete), the
+`description` field of the flow must say so explicitly. Future maintainers
+must be able to tell whether the absence of a fault connector is intentional
+or a bug. Suggested phrasing:
+
+> "Save-gating: this flow validates X before allowing the record to save.
+> Faults are intentionally propagated to block invalid saves."
 
 ### ⛔ CRITICAL: Record-Triggered Flow Architecture
 
@@ -783,6 +901,25 @@ Resources: `assets/`, `references/subflow-library.md`, `references/orchestration
 - **Fault Paths**: All DML must have fault connectors
   - ⚠️ **Fault connectors CANNOT self-reference** - Error: "element cannot be connected to itself"
   - Route fault connectors to a DIFFERENT element (dedicated error handler)
+
+#### Fault-destination rubric
+
+When you add a `faultConnector`, the question "where does it go?" has five
+common answers, each with a different trade-off. Pick deliberately:
+
+| Fault destination                                                                                                         | When to use                                                                                        | Trade-off                                                                       |
+| ------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| **Terminating end** (no further connector after the fault element)                                                        | Transient external failure; OK to retry on next edit; flow is genuinely fire-and-forget            | Can re-fire repeatedly until the external dependency recovers — noisy logs      |
+| **Same dedup/idempotency step as success path** (e.g., set a `*_Notified__c` flag whether or not the email actually sent) | One-shot side effect; "best effort" semantics; want to avoid retry storms                          | Lost work stays lost — no auto-recovery when the external dependency comes back |
+| **Error-log object** (`Flow_Error__c` or similar)                                                                         | Production org with observability requirements; want failures investigable                         | Requires the log object to exist and be writable in flow context                |
+| **Platform event**                                                                                                        | Multiple downstream subscribers need to know about failures (monitoring, alerting, retry handlers) | Heavier; only worth it when something actually subscribes                       |
+| **Continue down the same path after a best-effort attempt**                                                               | The failed action was optional enrichment, not core to the flow's purpose                          | Hides failures unless logged; use sparingly                                     |
+
+**Default for most side-effect flows: terminating end OR same-as-success
+dedup step.** Pick the dedup-step pattern when the cost of duplicate
+notifications/work is high; pick the terminating-end pattern when transient
+recovery is desirable.
+
 - **Auto-Layout**: All locationX/Y = 0 (cleaner git diffs)
   - UI may show "Free-Form" dropdown, but locationX/Y = 0 IS Auto-Layout in metadata
 - **No Parent Traversal**: Use separate Get Records for relationship field data
@@ -1131,6 +1268,13 @@ metadata_list(
 
 ### Example 3: Deploy a Complete Record-Triggered Flow
 
+> **Pattern note:** the `faultConnector` on `Send_Email_Action` routes to the
+> `Log_Error` step. This is the "error-log object" pattern from the
+> fault-destination rubric: if the email fails (e.g. domain not verified,
+> recipient suppressed), the originating Case save is **not** blocked, and
+> the failure is captured in `Flow_Error__c` for investigation. See the
+> rubric for alternative fault destinations.
+
 ```python
 # Complete example: notify managers when case category changes
 metadata_create(
@@ -1138,7 +1282,7 @@ metadata_create(
     metadata=[{
         "fullName": "Case_Category_Change_Alert",
         "apiVersion": 65,
-        "description": "Sends email when Case Category changes from Billing to Channel",
+        "description": "Sends email when Case Category changes from Billing to Channel. Side-effect flow: email failures are caught via faultConnector so the originating Case save is never blocked.",
         "environments": ["Default"],
         "interviewLabel": "Case Category Change Alert {!$Flow.CurrentDateTime}",
         "label": "Case Category Change Alert",

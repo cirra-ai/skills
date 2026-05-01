@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>65.0</apiVersion>
+    <actionCalls>
+        <name>Send_Email_Action</name>
+        <label>Send Email</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>emailSimple</actionName>
+        <actionType>emailSimple</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>emailAddresses</name>
+            <value>
+                <stringValue>sales-mgrs@example.com</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>emailSubject</name>
+            <value>
+                <stringValue>High-value opportunity</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>emailBody</name>
+            <value>
+                <stringValue>Details</stringValue>
+            </value>
+        </inputParameters>
+        <connector>
+            <targetReference>Flag_Notified</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Flag_Notified</targetReference>
+        </faultConnector>
+    </actionCalls>
+    <description>Sends email notification when an Opportunity exceeds $100,000. Side-effect flow: email failures are caught via faultConnector so the originating save is never blocked.</description>
+    <label>Auto Opportunity High Value Notification V4</label>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Flag_Notified</name>
+        <label>Flag Notified</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <inputReference>$Record</inputReference>
+        <faultConnector>
+            <targetReference>Handle_Error</targetReference>
+        </faultConnector>
+    </recordUpdates>
+    <assignments>
+        <name>Handle_Error</name>
+        <label>Handle Error</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_ErrorMessage</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <filterFormula>AND({!$Record.Amount} &gt; 100000, NOT({!$Record.High_Value_Notified__c}))</filterFormula>
+        <object>Opportunity</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+        <connector>
+            <targetReference>Send_Email_Action</targetReference>
+        </connector>
+    </start>
+    <status>Draft</status>
+    <variables>
+        <name>var_ErrorMessage</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>
