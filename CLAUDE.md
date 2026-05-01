@@ -4,6 +4,24 @@
 
 - **Always fix pre-existing errors.** If you encounter failing tests, lint errors, or broken imports that existed before your change, fix them as part of your work. Do not dismiss them as "pre-existing" or "not related to my change."
 
+## Always reply to PR review comments
+
+When a reviewer (human or bot, including Copilot) leaves a review comment on a
+PR, **always post a reply** explaining what was done — even when:
+
+- the comment was addressed in a follow-up commit,
+- the comment was rejected with reasoning,
+- the comment is a non-actionable nit and just needs acknowledgement,
+- I can't resolve the thread myself.
+
+A code change alone is not a reply. Use
+`mcp__github__add_reply_to_pull_request_comment` (with the original comment's
+ID) for every thread, before considering the review handled. Batch replies for
+the same review into a single tool-call message when possible.
+
+If a comment doesn't need code changes, still reply briefly stating why (e.g.
+"intentional — see X", "out of scope for this PR, tracked in #N").
+
 ## Setup
 
 Before running tests, ensure Python dev dependencies from `requirements-dev.txt` are installed:
