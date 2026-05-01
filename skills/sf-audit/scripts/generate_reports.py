@@ -218,6 +218,10 @@ def compute_summary(data):
             1 for lic_item in lic.get("user_licenses", [])
             + lic.get("permission_set_licenses", [])
             if lic_item.get("utilization_pct", 100) < 10
+        ) + sum(
+            1 for pkg in lic.get("package_licenses", [])
+            if pkg.get("allowed", 0) > 0
+            and (pkg.get("used", 0) / pkg["allowed"] * 100) < 10
         ),
     }
 
