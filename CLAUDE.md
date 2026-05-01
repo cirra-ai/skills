@@ -3,6 +3,7 @@
 ## General principles
 
 - **Always fix pre-existing errors.** If you encounter failing tests, lint errors, or broken imports that existed before your change, fix them as part of your work. Do not dismiss them as "pre-existing" or "not related to my change."
+- **Always reply to every PR review comment.** When addressing PR review feedback, you are NOT DONE until every single review comment has a reply on GitHub (via `add_reply_to_pull_request_comment`). Do not just fix the code — you must also post a reply to each comment explaining what you did or why no change is needed. Then resolve the threads if possible.
 
 ## Always reply to PR review comments
 
