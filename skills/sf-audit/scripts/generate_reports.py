@@ -1371,7 +1371,7 @@ def generate_docx(data, summary, org_name, org_id, instance, run_date, output_pa
     tc_classes = tc.get("classes", [])
     if tc_classes:
         doc.add_heading("Test Coverage", level=1)
-        doc.add_paragraph(f"Org-wide coverage: {tc.get('org_wide_pct', 0):.1f}%")
+        doc.add_paragraph(f"Org-wide coverage: {tc.get('org_wide_pct') or 0.0:.1f}%")
         table = doc.add_table(rows=1, cols=4)
         table.alignment = WD_TABLE_ALIGNMENT.CENTER
         hdr = table.rows[0].cells
@@ -1388,7 +1388,7 @@ def generate_docx(data, summary, org_name, org_id, instance, run_date, output_pa
 
     # Licensing
     lic = data.get("licensing", {})
-    lic_all = lic.get("user_licenses", []) + lic.get("permission_set_licenses", [])
+    lic_all = lic.get("user_licenses", []) + lic.get("permission_set_licenses", []) + lic.get("package_licenses", [])
     if lic_all:
         doc.add_heading("Licensing Analysis", level=1)
         table = doc.add_table(rows=1, cols=5)
@@ -1405,6 +1405,22 @@ def generate_docx(data, summary, org_name, org_id, instance, run_date, output_pa
             row[2].text = str(item.get("used", ""))
             row[3].text = str(item.get("available", ""))
             row[4].text = f'{item.get("utilization_pct", 0):.0f}%'
+        for item in lic.get("permission_set_licenses", []):
+            row = table.add_row().cells
+            row[0].text = item.get("label", item.get("name", ""))
+            row[1].text = str(item.get("total", ""))
+            row[2].text = str(item.get("used", ""))
+            row[3].text = str(item.get("available", ""))
+            row[4].text = f'{item.get("utilization_pct", 0):.0f}%'
+        for item in lic.get("package_licenses", []):
+            allowed = item.get("allowed", 0)
+            used = item.get("used", 0)
+            row = table.add_row().cells
+            row[0].text = item.get("namespace", "")
+            row[1].text = str(allowed)
+            row[2].text = str(used)
+            row[3].text = str(allowed - used)
+            row[4].text = f'{(used / allowed * 100) if allowed > 0 else 0:.0f}%'
         for f in lic.get("findings", []):
             doc.add_paragraph(
                 f"[{f.get('severity', 'MEDIUM')}] {f.get('message', '')}",
@@ -2018,7 +2034,7 @@ def generate_standalone_reports(data, summary, org_name, run_date, output_dir):
                 str(item.get("lines_uncovered", 0)), f'{item.get("coverage_pct", 0):.1f}%',
             ])
         body = (
-            f'<div class="card"><h2>Org-Wide Coverage: {tc.get("org_wide_pct", 0):.1f}%</h2>'
+            f'<div class="card"><h2>Org-Wide Coverage: {tc.get("org_wide_pct") or 0.0:.1f}%</h2>'
             f'{_table_html(["Class/Trigger", "Covered", "Uncovered", "Coverage %"], rows)}'
             f'{_findings_html(tc.get("findings", []))}</div>'
         )
@@ -2042,6 +2058,14 @@ def generate_standalone_reports(data, summary, org_name, run_date, output_dir):
                 _esc(item.get("label", item.get("name", ""))), "PS License",
                 str(item.get("total", "")), str(item.get("used", "")),
                 f'{item.get("utilization_pct", 0):.0f}%',
+            ])
+        for item in lic.get("package_licenses", []):
+            allowed = item.get("allowed", 0)
+            used = item.get("used", 0)
+            rows.append([
+                _esc(item.get("namespace", "")), "Package License",
+                str(allowed), str(used),
+                f'{(used / allowed * 100) if allowed > 0 else 0:.0f}%',
             ])
         body = (
             f'<div class="card"><h2>License Utilisation</h2>'
