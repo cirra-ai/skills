@@ -56,7 +56,7 @@ Salesforce uses two different APIs for LWC source code, and they expect differen
 | Tooling API — `tooling_api_dml` on `LightningComponentResource`                    | `Source`                            | **Plain text** (NOT Base64)      |
 | Tooling API — `tooling_api_query` on `LightningComponentResource`                  | `Source` (returned)                 | **Plain text** (already decoded) |
 
-When falling back from `metadata_update` to per-file Tooling API edits (see [Tooling API fallback](#tooling-api-fallback-per-file-edits)), do not re-encode. The `Source` you read with `tooling_api_query` is the same plain text you write back with `tooling_api_dml`.
+When falling back from `metadata_update` to per-file Tooling API edits (see [Tooling API fallback](#tooling-api-fallback--per-file-edits)), do not re-encode. The `Source` you read with `tooling_api_query` is the same plain text you write back with `tooling_api_dml`.
 
 ---
 
