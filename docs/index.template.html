@@ -5,173 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cirra AI Salesforce Plugin — Downloads</title>
 
-    <!--
-      Cirra attribution cookie — first-party on .cirra.ai apex.
-      Preserves first-touch referrer + last-touch UTMs/click IDs across the
-      cross-subdomain hop so app.cirra.ai can read them at signup time.
-      Keep in sync with cirra-ai/website:src/_includes/utm-forwarding.njk
-      and cirra-ai/docs:docusaurus.config.ts headTags.
-    -->
-    <script>
-      (function () {
-        if (typeof document === 'undefined') return;
-        var COOKIE_NAME = 'cirra_attribution';
-        var MAX_AGE_SECONDS = 60 * 60 * 24 * 90;
-        var UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
-        var CLICK_IDS = ['gclid', 'fbclid', 'msclkid', 'li_fat_id', 'ttclid'];
-        var CAMPAIGN_KEYS = UTM_KEYS.concat(CLICK_IDS);
-        var MAX_FIELD_LENGTH = 256;
-        var MAX_ENCODED_BYTES = 3500;
-        function readCookie(name) {
-          var escaped = name.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-          var match = document.cookie.match(new RegExp('(?:^|;\\s*)' + escaped + '=([^;]*)'));
-          if (!match) return null;
-          try {
-            return decodeURIComponent(match[1]);
-          } catch (e) {
-            return match[1];
-          }
-        }
-        function writeCookie(name, value) {
-          if (location.protocol !== 'https:') return;
-          document.cookie =
-            name +
-            '=' +
-            encodeURIComponent(value) +
-            '; Domain=.cirra.ai; Path=/; Max-Age=' +
-            MAX_AGE_SECONDS +
-            '; SameSite=Lax; Secure';
-        }
-        function safeUrl(raw) {
-          if (!raw) return null;
-          try {
-            var u = new URL(raw);
-            if ((u.protocol !== 'http:' && u.protocol !== 'https:') || !u.hostname) return null;
-            return u.origin + u.pathname;
-          } catch (e) {
-            return null;
-          }
-        }
-        function isExternalReferrer(ref) {
-          if (!ref) return false;
-          try {
-            var u = new URL(ref);
-            if ((u.protocol !== 'http:' && u.protocol !== 'https:') || !u.hostname) return false;
-            return !/(^|\.)cirra\.ai$/i.test(u.hostname);
-          } catch (e) {
-            return false;
-          }
-        }
-        var params = null;
-        try {
-          if (typeof URLSearchParams === 'function') {
-            params = new URLSearchParams(location.search);
-          }
-        } catch (e) {
-          params = null;
-        }
-        var hasFreshCampaign = false;
-        if (params) {
-          for (var i = 0; i < CAMPAIGN_KEYS.length; i++) {
-            var v = params.get(CAMPAIGN_KEYS[i]);
-            if (v && v.trim() !== '') {
-              hasFreshCampaign = true;
-              break;
-            }
-          }
-        }
-        var existing = readCookie(COOKIE_NAME);
-        var attribution;
-        try {
-          attribution = existing ? JSON.parse(existing) : {};
-        } catch (e) {
-          attribution = {};
-        }
-        if (!attribution || typeof attribution !== 'object' || Array.isArray(attribution)) {
-          attribution = {};
-        }
-        if (!attribution.referrer && isExternalReferrer(document.referrer)) {
-          attribution.referrer = safeUrl(document.referrer);
-        }
-        if (!attribution.landing_page) attribution.landing_page = safeUrl(location.href);
-        if (!attribution.first_touch_at) attribution.first_touch_at = new Date().toISOString();
-        if (hasFreshCampaign) {
-          CAMPAIGN_KEYS.forEach(function (k) {
-            delete attribution[k];
-          });
-          CAMPAIGN_KEYS.forEach(function (k) {
-            var v = params.get(k);
-            if (v && v.trim() !== '') attribution[k] = v;
-          });
-          attribution.last_touch_at = new Date().toISOString();
-        }
-        Object.keys(attribution).forEach(function (k) {
-          var v = attribution[k];
-          if (typeof v === 'string' && v.length > MAX_FIELD_LENGTH) delete attribution[k];
-        });
-        try {
-          var nextSerialized = JSON.stringify(attribution);
-          if (encodeURIComponent(nextSerialized).length > MAX_ENCODED_BYTES) return;
-          if (nextSerialized !== existing) writeCookie(COOKIE_NAME, nextSerialized);
-        } catch (e) {
-          /* fail silently */
-        }
-      })();
-    </script>
-
-    <!-- Analytics & tracking — production only (skills.cirra.ai) -->
-    <script>
-      (function () {
-        if (window.location.hostname !== 'skills.cirra.ai') return;
-
-        // Google Tag Manager
-        (function (w, d, s, l, i) {
-          w[l] = w[l] || [];
-          w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
-          var f = d.getElementsByTagName(s)[0],
-            j = d.createElement(s),
-            dl = l != 'dataLayer' ? '&l=' + l : '';
-          j.async = true;
-          j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
-          f.parentNode.insertBefore(j, f);
-        })(window, document, 'script', 'dataLayer', 'GTM-WX8ZH8KP');
-
-        // Facebook Pixel
-        !(function (f, b, e, v, n, t, s) {
-          if (f.fbq) return;
-          n = f.fbq = function () {
-            n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
-          };
-          if (!f._fbq) f._fbq = n;
-          n.push = n;
-          n.loaded = !0;
-          n.version = '2.0';
-          n.queue = [];
-          t = b.createElement(e);
-          t.async = !0;
-          t.src = v;
-          s = b.getElementsByTagName(e)[0];
-          s.parentNode.insertBefore(t, s);
-        })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
-        fbq('init', '885421030601906');
-        fbq('track', 'PageView');
-
-        // Microsoft Clarity
-        (function (c, l, a, r, i, t, y) {
-          c[a] =
-            c[a] ||
-            function () {
-              (c[a].q = c[a].q || []).push(arguments);
-            };
-          t = l.createElement(r);
-          t.async = 1;
-          t.src = 'https://www.clarity.ms/tag/' + i;
-          y = l.getElementsByTagName(r)[0];
-          y.parentNode.insertBefore(t, y);
-        })(window, document, 'clarity', 'script', 'v2hwdu7m0k');
-      })();
-    </script>
-
     <style>
       *,
       *::before,
@@ -749,12 +582,42 @@
       </footer>
     </div>
 
-    <!-- Intercom — production only (domain-restricted by Intercom settings) -->
+    <!--
+      Intercom Messenger, gated on the cirra_signed_in marker cookie set by
+      app.cirra.ai on the .cirra.ai apex after a successful Auth0 login.
+      Loads only for authenticated customers, so no consent banner is needed
+      on skills.cirra.ai. Cookie shape: URI-encoded JSON
+        { user_id: string, user_hash: string, exp?: number }
+      where user_hash is HMAC-SHA256(user_id, INTERCOM_IDENTITY_SECRET).
+      See cirra-ai/app: marker cookie spec.
+    -->
     <script>
-      if (window.location.hostname === 'skills.cirra.ai') {
+      (function () {
+        if (typeof document === 'undefined') return;
+        var m = document.cookie.match(/(?:^|;\s*)cirra_signed_in=([^;]*)/);
+        if (!m) return;
+        var raw;
+        try {
+          raw = decodeURIComponent(m[1]);
+        } catch (e) {
+          raw = m[1];
+        }
+        var session;
+        try {
+          session = JSON.parse(raw);
+        } catch (e) {
+          return;
+        }
+        if (!session || !session.user_id || !session.user_hash) return;
+        if (session.exp != null) {
+          var exp = Number(session.exp);
+          if (!Number.isFinite(exp) || exp * 1000 < Date.now()) return;
+        }
         window.intercomSettings = {
           api_base: 'https://api-iam.intercom.io',
           app_id: 'l8f1kgus',
+          user_id: session.user_id,
+          user_hash: session.user_hash,
         };
         (function () {
           var w = window;
@@ -789,7 +652,7 @@
             }
           }
         })();
-      }
+      })();
     </script>
   </body>
 </html>
