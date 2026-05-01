@@ -3,6 +3,7 @@
 ## General principles
 
 - **Always fix pre-existing errors.** If you encounter failing tests, lint errors, or broken imports that existed before your change, fix them as part of your work. Do not dismiss them as "pre-existing" or "not related to my change."
+- **Always reply to EVERY Copilot/BugBot review comment.** When addressing PR feedback, add a reply to every single Copilot or BugBot review comment confirming the fix or explaining the action taken. Do not skip any.
 
 ## Setup
 
