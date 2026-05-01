@@ -125,12 +125,14 @@ class TestAntiPatternBlocking:
         assert score <= 50
 
     def test_missing_faults_flagged(self):
-        """TC-M8: Missing fault paths are included in result."""
+        """TC-M8: Missing fault paths are flagged. In a RecordAfterSave flow
+        these are CRITICAL save-blocking risks; the result surfaces them
+        in critical_issues (or warnings, for non-after-save flows)."""
         body = _read_fixture("missing_fault_paths.flow-meta.xml")
         r = _mcp_create("Auto_Case_Escalation", body)
         assert r["status"] == "scored"
-        warnings = r.get("warnings", [])
-        assert len(warnings) > 0
+        flagged = r.get("critical_issues", []) + r.get("warnings", [])
+        assert len(flagged) > 0
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
