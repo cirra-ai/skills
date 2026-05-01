@@ -594,17 +594,14 @@
     <script>
       (function () {
         if (typeof document === 'undefined') return;
-        function readCookie(name) {
-          var m = document.cookie.match(new RegExp('(?:^|;\\s*)' + name + '=([^;]*)'));
-          if (!m) return null;
-          try {
-            return decodeURIComponent(m[1]);
-          } catch (e) {
-            return m[1];
-          }
+        var m = document.cookie.match(/(?:^|;\s*)cirra_signed_in=([^;]*)/);
+        if (!m) return;
+        var raw;
+        try {
+          raw = decodeURIComponent(m[1]);
+        } catch (e) {
+          raw = m[1];
         }
-        var raw = readCookie('cirra_signed_in');
-        if (!raw) return;
         var session;
         try {
           session = JSON.parse(raw);
@@ -612,7 +609,10 @@
           return;
         }
         if (!session || !session.user_id || !session.user_hash) return;
-        if (session.exp && session.exp * 1000 < Date.now()) return;
+        if (session.exp != null) {
+          var exp = Number(session.exp);
+          if (!Number.isFinite(exp) || exp * 1000 < Date.now()) return;
+        }
         window.intercomSettings = {
           api_base: 'https://api-iam.intercom.io',
           app_id: 'l8f1kgus',
