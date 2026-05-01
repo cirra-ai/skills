@@ -581,5 +581,78 @@
         </span>
       </footer>
     </div>
+
+    <!--
+      Intercom Messenger, gated on the cirra_signed_in marker cookie set by
+      app.cirra.ai on the .cirra.ai apex after a successful Auth0 login.
+      Loads only for authenticated customers, so no consent banner is needed
+      on skills.cirra.ai. Cookie shape: URI-encoded JSON
+        { user_id: string, user_hash: string, exp?: number }
+      where user_hash is HMAC-SHA256(user_id, INTERCOM_IDENTITY_SECRET).
+      See cirra-ai/app: marker cookie spec.
+    -->
+    <script>
+      (function () {
+        if (typeof document === 'undefined') return;
+        function readCookie(name) {
+          var m = document.cookie.match(new RegExp('(?:^|;\\s*)' + name + '=([^;]*)'));
+          if (!m) return null;
+          try {
+            return decodeURIComponent(m[1]);
+          } catch (e) {
+            return m[1];
+          }
+        }
+        var raw = readCookie('cirra_signed_in');
+        if (!raw) return;
+        var session;
+        try {
+          session = JSON.parse(raw);
+        } catch (e) {
+          return;
+        }
+        if (!session || !session.user_id || !session.user_hash) return;
+        if (session.exp && session.exp * 1000 < Date.now()) return;
+        window.intercomSettings = {
+          api_base: 'https://api-iam.intercom.io',
+          app_id: 'l8f1kgus',
+          user_id: session.user_id,
+          user_hash: session.user_hash,
+        };
+        (function () {
+          var w = window;
+          var ic = w.Intercom;
+          if (typeof ic === 'function') {
+            ic('reattach_activator');
+            ic('update', w.intercomSettings);
+          } else {
+            var d = document;
+            var i = function () {
+              i.c(arguments);
+            };
+            i.q = [];
+            i.c = function (args) {
+              i.q.push(args);
+            };
+            w.Intercom = i;
+            var l = function () {
+              var s = d.createElement('script');
+              s.type = 'text/javascript';
+              s.async = true;
+              s.src = 'https://widget.intercom.io/widget/l8f1kgus';
+              var x = d.getElementsByTagName('script')[0];
+              x.parentNode.insertBefore(s, x);
+            };
+            if (document.readyState === 'complete') {
+              l();
+            } else if (w.attachEvent) {
+              w.attachEvent('onload', l);
+            } else {
+              w.addEventListener('load', l, false);
+            }
+          }
+        })();
+      })();
+    </script>
   </body>
 </html>
