@@ -201,7 +201,7 @@ def compute_summary(data):
     # Test coverage summary
     tc = data.get("test_coverage", {})
     test_coverage_summary = {
-        "org_wide_pct": tc.get("org_wide_pct", 0),
+        "org_wide_pct": tc.get("org_wide_pct") or 0.0,
         "classes_with_zero_coverage": sum(
             1 for c in tc.get("classes", []) if c.get("coverage_pct", 0) == 0
         ),
