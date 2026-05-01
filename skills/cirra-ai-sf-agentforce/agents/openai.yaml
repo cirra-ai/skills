@@ -1,0 +1,7 @@
+interface:
+  display_name: "Cirra AI Salesforce Agentforce"
+  short_description: "Build and configure Salesforce Agentforce agents using Cirra AI"
+  icon_small: "./assets/icon-small.png"
+  icon_large: "./assets/icon-large.png"
+  brand_color: "#4068EB"
+  default_prompt: "Use $cirra-ai-sf-agentforce to build Agentforce agents with GenAiFunction, PromptTemplate, and Models API."

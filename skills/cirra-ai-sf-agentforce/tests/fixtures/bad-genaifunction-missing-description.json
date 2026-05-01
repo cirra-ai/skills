@@ -1,0 +1,18 @@
+{
+  "apiName": "Get_Case_Details",
+  "invocationTarget": "CaseService.getCaseDetails",
+  "capabilities": ["AgentForce"],
+  "inputs": [
+    {
+      "name": "caseId",
+      "type": "string",
+      "required": true
+    }
+  ],
+  "outputs": [
+    {
+      "name": "caseRecord",
+      "type": "object"
+    }
+  ]
+}
