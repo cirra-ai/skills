@@ -1,0 +1,27 @@
+{
+  "org_wide_pct": 82.5,
+  "classes": [
+    {
+      "name": "AccountService",
+      "lines_covered": 120,
+      "lines_uncovered": 30,
+      "coverage_pct": 80.0
+    },
+    {
+      "name": "ContactTriggerHandler",
+      "lines_covered": 50,
+      "lines_uncovered": 50,
+      "coverage_pct": 50.0
+    },
+    {
+      "name": "BatchProcessRecords",
+      "lines_covered": 0,
+      "lines_uncovered": 100,
+      "coverage_pct": 0.0
+    }
+  ],
+  "findings": [
+    { "severity": "HIGH", "message": "1 class has 0% test coverage" },
+    { "severity": "MEDIUM", "message": "1 class below 75% coverage" }
+  ]
+}

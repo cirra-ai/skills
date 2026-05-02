@@ -1,0 +1,41 @@
+{
+  "user_licenses": [
+    {
+      "name": "Salesforce",
+      "total": 100,
+      "used": 75,
+      "available": 25,
+      "utilization_pct": 75.0
+    },
+    {
+      "name": "Salesforce Platform",
+      "total": 50,
+      "used": 3,
+      "available": 47,
+      "utilization_pct": 6.0
+    }
+  ],
+  "permission_set_licenses": [
+    {
+      "name": "SalesforceCPQ_CPQStandardPerm",
+      "label": "Salesforce CPQ License",
+      "total": 50,
+      "used": 5,
+      "available": 45,
+      "utilization_pct": 10.0
+    }
+  ],
+  "package_licenses": [
+    {
+      "namespace": "SBQQ",
+      "allowed": 50,
+      "used": 5,
+      "expiration_date": "2026-12-31",
+      "status": "Active"
+    }
+  ],
+  "findings": [
+    { "severity": "HIGH", "message": "Salesforce Platform: 6% utilisation — 47 unused licenses" },
+    { "severity": "HIGH", "message": "SalesforceCPQ_CPQStandardPerm: 10% utilisation — 45 unused" }
+  ]
+}

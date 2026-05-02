@@ -1,0 +1,33 @@
+{
+  "active_users": 10,
+  "users": [
+    {
+      "name": "Admin User",
+      "username": "admin@test.com",
+      "profile": "System Administrator",
+      "role": "CEO",
+      "last_login": "2026-04-01",
+      "days_since_login": 6,
+      "permission_set_count": 4,
+      "login_count_180d": 95
+    },
+    {
+      "name": "Inactive User",
+      "username": "inactive@test.com",
+      "profile": "Standard User",
+      "role": null,
+      "last_login": "2025-10-01",
+      "days_since_login": 188,
+      "permission_set_count": 1,
+      "login_count_180d": 0
+    }
+  ],
+  "profile_distribution": [
+    { "profile": "System Administrator", "user_count": 3 },
+    { "profile": "Standard User", "user_count": 7 }
+  ],
+  "findings": [
+    { "severity": "HIGH", "message": "1 user inactive for > 90 days" },
+    { "severity": "MEDIUM", "message": "1 user with no Role assigned" }
+  ]
+}

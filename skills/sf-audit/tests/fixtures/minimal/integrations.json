@@ -1,0 +1,14 @@
+[
+  {
+    "type": "ConnectedApp",
+    "name": "Slack Integration",
+    "endpoint": null,
+    "findings": [{ "severity": "LOW", "message": "No description provided" }]
+  },
+  {
+    "type": "NamedCredential",
+    "name": "ERP_Endpoint",
+    "endpoint": "https://erp.example.com/api",
+    "findings": []
+  }
+]
