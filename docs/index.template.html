@@ -604,39 +604,19 @@
     <!--
       Intercom Messenger, gated on the cirra_signed_in marker cookie set by
       app.cirra.ai on the .cirra.ai apex after a successful Auth0 login.
-      Loads only for authenticated customers, so no consent banner is needed
-      on skills.cirra.ai. Cookie shape: URI-encoded JSON
-        { user_id: string, user_hash: string, exp?: number }
-      where user_hash is HMAC-SHA256(user_id, INTERCOM_IDENTITY_SECRET).
-      See cirra-ai/app: marker cookie spec.
+      The cookie is a presence flag — any non-empty value means signed in
+      (the setter currently writes "1", but the reader does not enforce
+      that). No payload, so the Messenger boots anonymously here. See
+      cirra-ai/app src/lib/intercom/signed-in-cookie.ts for the setter.
     -->
     <script>
       (function () {
         if (typeof document === 'undefined') return;
         var m = document.cookie.match(/(?:^|;\s*)cirra_signed_in=([^;]*)/);
-        if (!m) return;
-        var raw;
-        try {
-          raw = decodeURIComponent(m[1]);
-        } catch (e) {
-          raw = m[1];
-        }
-        var session;
-        try {
-          session = JSON.parse(raw);
-        } catch (e) {
-          return;
-        }
-        if (!session || !session.user_id || !session.user_hash) return;
-        if (session.exp != null) {
-          var exp = Number(session.exp);
-          if (!Number.isFinite(exp) || exp * 1000 < Date.now()) return;
-        }
+        if (!m || !m[1]) return;
         window.intercomSettings = {
           api_base: 'https://api-iam.intercom.io',
           app_id: 'l8f1kgus',
-          user_id: session.user_id,
-          user_hash: session.user_hash,
         };
         (function () {
           var w = window;
