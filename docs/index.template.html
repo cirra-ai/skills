@@ -604,9 +604,10 @@
     <!--
       Intercom Messenger, gated on the cirra_signed_in marker cookie set by
       app.cirra.ai on the .cirra.ai apex after a successful Auth0 login.
-      The cookie is a pure presence flag (value "1", no payload) so the
-      Messenger boots anonymously here. See cirra-ai/app
-      src/lib/intercom/signed-in-cookie.ts for the setter.
+      The cookie is a presence flag — any non-empty value means signed in
+      (the setter currently writes "1", but the reader does not enforce
+      that). No payload, so the Messenger boots anonymously here. See
+      cirra-ai/app src/lib/intercom/signed-in-cookie.ts for the setter.
     -->
     <script>
       (function () {
