@@ -250,3 +250,186 @@ and auto-response rules.
   }
 ]
 ```
+
+## reports_dashboards.json
+
+Reports and Dashboards inventory with stale detection.
+
+```json
+{
+  "reports": [
+    {
+      "name": "Pipeline by Stage",
+      "folder": "Sales Reports",
+      "format": "MATRIX",
+      "last_run_date": "2025-11-01",
+      "created_date": "2024-03-15",
+      "is_stale": false
+    }
+  ],
+  "dashboards": [
+    {
+      "name": "Executive KPIs",
+      "folder": "Leadership",
+      "last_viewed_date": "2026-01-10",
+      "created_date": "2024-06-01",
+      "is_stale": false
+    }
+  ],
+  "findings": [{ "severity": "MEDIUM", "message": "12 reports have never been run" }]
+}
+```
+
+## integrations.json
+
+Array of integration-related metadata items with findings.
+
+```json
+[
+  {
+    "type": "ConnectedApp",
+    "name": "Slack Integration",
+    "endpoint": null,
+    "findings": [{ "severity": "LOW", "message": "No description provided" }]
+  },
+  {
+    "type": "NamedCredential",
+    "name": "ERP_Endpoint",
+    "endpoint": "https://erp.example.com/api",
+    "findings": []
+  }
+]
+```
+
+## test_coverage.json
+
+Apex test coverage data — org-wide and per-class.
+
+```json
+{
+  "org_wide_pct": 82.5,
+  "classes": [
+    {
+      "name": "AccountService",
+      "lines_covered": 120,
+      "lines_uncovered": 30,
+      "coverage_pct": 80.0
+    }
+  ],
+  "findings": [{ "severity": "HIGH", "message": "3 classes have 0% test coverage" }]
+}
+```
+
+## team_evaluation.json
+
+User distribution, activity, and role analysis.
+
+```json
+{
+  "active_users": 150,
+  "users": [
+    {
+      "name": "Jane Smith",
+      "username": "jane@acme.com",
+      "profile": "System Administrator",
+      "role": "CEO",
+      "last_login": "2026-04-01",
+      "days_since_login": 6,
+      "permission_set_count": 4,
+      "login_count_180d": 95
+    }
+  ],
+  "profile_distribution": [{ "profile": "System Administrator", "user_count": 8 }],
+  "findings": [{ "severity": "HIGH", "message": "12 users inactive for > 90 days" }]
+}
+```
+
+## change_history.json
+
+Setup audit trail and deployment history.
+
+```json
+{
+  "audit_trail": [
+    {
+      "date": "2026-04-01T14:30:00Z",
+      "user": "Admin User",
+      "action": "Changed field-level security",
+      "section": "Manage Users",
+      "detail": "Changed field Account.Revenue__c"
+    }
+  ],
+  "change_distribution": [{ "section": "Manage Users", "count": 245 }],
+  "top_changers": [{ "user": "Admin User", "change_count": 312 }],
+  "deployments": [
+    {
+      "id": "0Af000000001234",
+      "status": "Succeeded",
+      "date": "2026-03-28T10:00:00Z",
+      "user": "Release Manager",
+      "components_deployed": 45,
+      "component_errors": 0
+    }
+  ],
+  "deployment_success_rate": 85.0,
+  "findings": [{ "severity": "HIGH", "message": "Deployment failure rate is 15%" }]
+}
+```
+
+## licensing.json
+
+Licence type inventory with utilisation analysis.
+
+```json
+{
+  "user_licenses": [
+    {
+      "name": "Salesforce",
+      "total": 100,
+      "used": 75,
+      "available": 25,
+      "utilization_pct": 75.0
+    }
+  ],
+  "permission_set_licenses": [
+    {
+      "name": "SalesforceCPQ_CPQStandardPerm",
+      "label": "Salesforce CPQ License",
+      "total": 50,
+      "used": 5,
+      "available": 45,
+      "utilization_pct": 10.0
+    }
+  ],
+  "package_licenses": [
+    {
+      "namespace": "SBQQ",
+      "allowed": 50,
+      "used": 5,
+      "expiration_date": "2026-12-31",
+      "status": "Active"
+    }
+  ],
+  "findings": [{ "severity": "HIGH", "message": "SalesforceCPQ_CPQStandardPerm: 10% utilisation" }]
+}
+```
+
+## data_quality.json
+
+Data completeness spot-checks on key objects.
+
+```json
+{
+  "objects": [
+    {
+      "name": "Account",
+      "record_count": 50000,
+      "field_completeness": [
+        { "field": "Industry", "null_count": 12000, "null_pct": 24.0 },
+        { "field": "BillingCity", "null_count": 8500, "null_pct": 17.0 }
+      ]
+    }
+  ],
+  "findings": [{ "severity": "HIGH", "message": "Account.Industry is null for 24% of records" }]
+}
+```
