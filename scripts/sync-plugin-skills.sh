@@ -158,17 +158,21 @@ for plugin_json in "$REPO_ROOT"/plugins/*/.claude-plugin/plugin.json; do
     dest="$skills_dest/$skill_name"
 
     # Compare via rsync --dry-run rather than diff -rq, because rsync handles
-    # the exclude list identically to the actual sync below. Filter the itemize
-    # output to ignore metadata-only differences (timestamps, perms): keep only
-    # lines indicating new files (`+`), content changes (`c`/`s`), or
-    # deletions (`*`). This avoids false positives on fresh checkouts where
-    # mtimes don't match and on skills whose only assets/ contents are
-    # excluded shared icons (which `-m` prunes from the plugin copy).
+    # the exclude list identically to the actual sync below. Use --checksum
+    # (`-c`) so files are compared by content, not mtime+size — fresh git
+    # checkouts give files arbitrary mtimes, and a same-size content edit
+    # would otherwise slip past the quick-check. Filter the itemize output
+    # so we only flag real content-or-existence differences: new/transferred
+    # files (`+`), checksum-detected content changes (`c`), softlink target
+    # changes (`s`), and deletions (`*`). This avoids false positives from
+    # metadata-only diffs (timestamps, perms) and from skills whose only
+    # assets/ contents are excluded shared icons (which `-m` prunes from
+    # the plugin copy).
     if [[ -d "$dest" ]]; then
       # Run rsync separately (not inside a pipeline) so set -e/pipefail trip
       # on a real rsync failure (missing binary, perms) instead of silently
       # producing an empty diff and treating the skill as in-sync.
-      rsync_out="$(rsync -anim --delete -m "${PLUGIN_EXCLUDES[@]}" "$skill_dir/" "$dest/")"
+      rsync_out="$(rsync -anim --checksum --delete -m "${PLUGIN_EXCLUDES[@]}" "$skill_dir/" "$dest/")"
       diff_lines="$(printf '%s\n' "$rsync_out" | awk 'NF > 0 { if (substr($1,1,1) == "*") { print; next } if (substr($1,3) ~ /[+cs]/) print }')"
       if [[ -z "$diff_lines" ]]; then
         continue
