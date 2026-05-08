@@ -157,7 +157,15 @@ for plugin_json in "$REPO_ROOT"/plugins/*/.claude-plugin/plugin.json; do
     skill_name="$(basename "$skill_dir")"
     dest="$skills_dest/$skill_name"
 
-    if [[ -d "$dest" ]] && diff -rq "${PLUGIN_EXCLUDES[@]}" "$skill_dir" "$dest" >/dev/null 2>&1; then
+    # Compare via rsync --dry-run rather than diff -rq, because rsync handles
+    # the exclude list identically to the actual sync below. Filter the itemize
+    # output to ignore metadata-only differences (timestamps, perms): keep only
+    # lines indicating new files (`+`), content changes (`c`/`s`), or
+    # deletions (`*`). This avoids false positives on fresh checkouts where
+    # mtimes don't match and on skills whose only assets/ contents are
+    # excluded shared icons (which `-m` prunes from the plugin copy).
+    if [[ -d "$dest" ]] && [[ -z "$(rsync -anim --delete -m "${PLUGIN_EXCLUDES[@]}" "$skill_dir/" "$dest/" 2>/dev/null \
+      | awk 'NF > 0 { if (substr($1,1,1) == "*") { print; next } if (substr($1,3) ~ /[+cs]/) print }')" ]]; then
       continue
     fi
 
@@ -170,7 +178,7 @@ for plugin_json in "$REPO_ROOT"/plugins/*/.claude-plugin/plugin.json; do
       STALE=$((STALE + 1))
     else
       rm -rf "$dest"
-      rsync -a "${PLUGIN_EXCLUDES[@]}" "$skill_dir/" "$dest/"
+      rsync -am "${PLUGIN_EXCLUDES[@]}" "$skill_dir/" "$dest/"
       echo "  Synced: $plugin_name/skills/$skill_name"
       SYNCED=$((SYNCED + 1))
     fi
