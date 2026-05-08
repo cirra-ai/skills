@@ -164,9 +164,15 @@ for plugin_json in "$REPO_ROOT"/plugins/*/.claude-plugin/plugin.json; do
     # deletions (`*`). This avoids false positives on fresh checkouts where
     # mtimes don't match and on skills whose only assets/ contents are
     # excluded shared icons (which `-m` prunes from the plugin copy).
-    if [[ -d "$dest" ]] && [[ -z "$(rsync -anim --delete -m "${PLUGIN_EXCLUDES[@]}" "$skill_dir/" "$dest/" 2>/dev/null \
-      | awk 'NF > 0 { if (substr($1,1,1) == "*") { print; next } if (substr($1,3) ~ /[+cs]/) print }')" ]]; then
-      continue
+    if [[ -d "$dest" ]]; then
+      # Run rsync separately (not inside a pipeline) so set -e/pipefail trip
+      # on a real rsync failure (missing binary, perms) instead of silently
+      # producing an empty diff and treating the skill as in-sync.
+      rsync_out="$(rsync -anim --delete -m "${PLUGIN_EXCLUDES[@]}" "$skill_dir/" "$dest/")"
+      diff_lines="$(printf '%s\n' "$rsync_out" | awk 'NF > 0 { if (substr($1,1,1) == "*") { print; next } if (substr($1,3) ~ /[+cs]/) print }')"
+      if [[ -z "$diff_lines" ]]; then
+        continue
+      fi
     fi
 
     if [[ $CHECK_ONLY -eq 1 ]]; then
