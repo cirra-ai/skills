@@ -30,6 +30,24 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Verify release tag matches plugin versions
+        if: github.event_name == 'release'
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          PLUGIN_VERSION=$(jq -r .version plugins/cirra-ai-sf/.claude-plugin/plugin.json)
+          MARKETPLACE_META_VERSION=$(jq -r .metadata.version .claude-plugin/marketplace.json)
+          MARKETPLACE_PLUGIN_VERSION=$(jq -r '.plugins[0].version' .claude-plugin/marketplace.json)
+          EXPECTED="v${PLUGIN_VERSION}"
+          if [[ "$RELEASE_TAG" != "$EXPECTED" ]]; then
+            echo "::error::Release tag $RELEASE_TAG does not match plugin.json version $PLUGIN_VERSION (expected $EXPECTED). Bump plugin.json and marketplace.json before tagging." >&2
+            exit 1
+          fi
+          if [[ "$PLUGIN_VERSION" != "$MARKETPLACE_META_VERSION" || "$PLUGIN_VERSION" != "$MARKETPLACE_PLUGIN_VERSION" ]]; then
+            echo "::error::Version drift: plugin.json=$PLUGIN_VERSION marketplace.metadata=$MARKETPLACE_META_VERSION marketplace.plugins[0]=$MARKETPLACE_PLUGIN_VERSION" >&2
+            exit 1
+          fi
+
       - name: Package plugins and skills
         run: ./scripts/package-all.sh
 
