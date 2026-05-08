@@ -1,0 +1,98 @@
+name: Publish All
+
+# Cut a release of the whole plugin without bumping any individual skill.
+#
+# What it does:
+#   1. Resolves the new version (from input, or by bumping the patch of plugin.json)
+#   2. Updates plugin.json and marketplace.json (metadata + cirra-ai-sf entry)
+#   3. Commits and pushes to main
+#   4. Creates a GitHub release v<version> (which triggers Build & Publish)
+#
+# Skill SKILL.md frontmatter is NOT touched.
+#
+# Usage:
+#   gh workflow run publish-all.yml                    # bumps patch
+#   gh workflow run publish-all.yml -f version=2.3.0   # explicit version
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Explicit version (e.g. 2.3.0). Leave empty to bump the patch.'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-all
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    if: github.ref_name == 'main'
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+          token: ${{ secrets.AUTO_MERGE_PAT }}
+
+      - name: Resolve and apply new version
+        id: version
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          PLUGIN_JSON="plugins/cirra-ai-sf/.claude-plugin/plugin.json"
+          MARKETPLACE_JSON=".claude-plugin/marketplace.json"
+          CURRENT=$(jq -r .version "$PLUGIN_JSON")
+          if [[ -n "$INPUT_VERSION" ]]; then
+            if [[ ! "$INPUT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "::error::Version '$INPUT_VERSION' is not a valid MAJOR.MINOR.PATCH version" >&2
+              exit 1
+            fi
+            NEW_VERSION="$INPUT_VERSION"
+          else
+            IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+            NEW_VERSION="${MAJOR}.${MINOR}.$((PATCH + 1))"
+          fi
+          if [[ "$NEW_VERSION" == "$CURRENT" ]]; then
+            echo "::error::New version $NEW_VERSION is the same as the current version" >&2
+            exit 1
+          fi
+          if git ls-remote --tags origin "refs/tags/v${NEW_VERSION}" | grep -q .; then
+            echo "::error::Tag v${NEW_VERSION} already exists on origin" >&2
+            exit 1
+          fi
+          jq --arg v "$NEW_VERSION" '.version = $v' "$PLUGIN_JSON" > tmp.json && mv tmp.json "$PLUGIN_JSON"
+          jq --arg v "$NEW_VERSION" '.metadata.version = $v | .plugins |= map(if .name == "cirra-ai-sf" then .version = $v else . end)' "$MARKETPLACE_JSON" > tmp.json && mv tmp.json "$MARKETPLACE_JSON"
+          echo "old_version=$CURRENT" >> "$GITHUB_OUTPUT"
+          echo "new_version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+          echo "Plugin version: $CURRENT → $NEW_VERSION"
+
+      - name: Verify plugin skills are in sync
+        run: scripts/sync-plugin-skills.sh --check
+
+      - name: Commit and push
+        env:
+          NEW_VERSION: ${{ steps.version.outputs.new_version }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add plugins/cirra-ai-sf/.claude-plugin/plugin.json .claude-plugin/marketplace.json
+          git commit -m "release: publish cirra-ai-sf (v${NEW_VERSION})"
+          git push
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.AUTO_MERGE_PAT }}
+          NEW_VERSION: ${{ steps.version.outputs.new_version }}
+          OLD_VERSION: ${{ steps.version.outputs.old_version }}
+        run: |
+          TAG="v${NEW_VERSION}"
+          NOTES=$(printf 'Publish plugin release.\n\nPlugin version: %s → %s\n\nTriggered by: `Publish All` workflow' "$OLD_VERSION" "$NEW_VERSION")
+          gh release create "$TAG" \
+            --title "$TAG" \
+            --notes "$NOTES" \
+            --latest

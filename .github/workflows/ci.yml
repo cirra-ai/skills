@@ -10,6 +10,22 @@ permissions:
   contents: read
 
 jobs:
+  version-consistency:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Check plugin.json and marketplace.json versions agree
+        run: |
+          PLUGIN_VERSION=$(jq -r .version plugins/cirra-ai-sf/.claude-plugin/plugin.json)
+          MARKETPLACE_META_VERSION=$(jq -r .metadata.version .claude-plugin/marketplace.json)
+          MARKETPLACE_PLUGIN_VERSION=$(jq -r '.plugins[] | select(.name=="cirra-ai-sf") | .version' .claude-plugin/marketplace.json)
+          echo "plugin.json=$PLUGIN_VERSION marketplace.metadata=$MARKETPLACE_META_VERSION marketplace.plugins[cirra-ai-sf]=$MARKETPLACE_PLUGIN_VERSION"
+          if [[ "$PLUGIN_VERSION" != "$MARKETPLACE_META_VERSION" || "$PLUGIN_VERSION" != "$MARKETPLACE_PLUGIN_VERSION" ]]; then
+            echo "::error::Version drift between plugin.json and marketplace.json. All three must match." >&2
+            exit 1
+          fi
+
   validate-skills:
     runs-on: ubuntu-latest
     steps:

@@ -65,10 +65,12 @@ jobs:
         id: version
         run: |
           PLUGIN_JSON="plugins/cirra-ai-sf/.claude-plugin/plugin.json"
+          MARKETPLACE_JSON=".claude-plugin/marketplace.json"
           CURRENT=$(jq -r .version "$PLUGIN_JSON")
           IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
           NEW_VERSION="${MAJOR}.${MINOR}.$((PATCH + 1))"
           jq --arg v "$NEW_VERSION" '.version = $v' "$PLUGIN_JSON" > tmp.json && mv tmp.json "$PLUGIN_JSON"
+          jq --arg v "$NEW_VERSION" '.metadata.version = $v | .plugins |= map(if .name == "cirra-ai-sf" then .version = $v else . end)' "$MARKETPLACE_JSON" > tmp.json && mv tmp.json "$MARKETPLACE_JSON"
           echo "old_version=$CURRENT" >> "$GITHUB_OUTPUT"
           echo "new_version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
           echo "Plugin version: $CURRENT → $NEW_VERSION"
@@ -100,7 +102,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add plugins/ "skills/${SKILL}/SKILL.md" skills/*/assets/
+          git add plugins/ .claude-plugin/marketplace.json "skills/${SKILL}/SKILL.md" skills/*/assets/
           git commit -m "release: publish ${SKILL} (v${NEW_VERSION})"
           git push
 
