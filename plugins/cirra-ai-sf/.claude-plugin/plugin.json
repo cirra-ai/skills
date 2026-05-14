@@ -1,6 +1,6 @@
 {
   "name": "cirra-ai-sf",
-  "version": "2.2.2",
+  "version": "2.2.3",
   "description": "Salesforce admin plugin for use with the Cirra AI MCP Server.",
   "author": {
     "name": "Cirra AI",
@@ -27,11 +27,5 @@
     "cases",
     "cirra-ai"
   ],
-  "skills": "./skills",
-  "mcpServers": {
-    "cirra-ai": {
-      "type": "http",
-      "url": "https://mcp.cirra.ai/mcp"
-    }
-  }
+  "skills": "./skills"
 }
