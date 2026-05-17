@@ -234,6 +234,31 @@ class EnhancedFlowValidator:
             )
 
         # ═══════════════════════════════════════════════════════════════════════
+        # Invalid properties on resource elements (CRITICAL — deploy will fail)
+        #   FlowFormula / FlowVariable / FlowConstant / FlowTextTemplate /
+        #   FlowChoice / FlowDynamicChoiceSet do NOT accept node-only properties
+        #   like `label`, `locationX`, `locationY`, or `connector`.
+        # ═══════════════════════════════════════════════════════════════════════
+        invalid_props = self._check_invalid_resource_properties()
+        if invalid_props:
+            score -= 10
+            for offense in invalid_props:
+                critical_issues.append(
+                    {
+                        "severity": "CRITICAL",
+                        "message": (
+                            f"❌ <{offense['element_type']}> '{offense['name']}' has invalid "
+                            f"property <{offense['property']}> — resource elements do not accept it"
+                        ),
+                        "fix": (
+                            f"Remove <{offense['property']}> from the {offense['element_type']} "
+                            f"entry. {offense['element_type']} only accepts: "
+                            f"{', '.join(offense['allowed'])}."
+                        ),
+                    }
+                )
+
+        # ═══════════════════════════════════════════════════════════════════════
         # NEW v2.2.0: SOQL queries in loops (path tracing)
         # ═══════════════════════════════════════════════════════════════════════
         if self._has_soql_in_loops():
@@ -1175,6 +1200,91 @@ class EnhancedFlowValidator:
                 element_name = name.text if name is not None else "Unknown"
                 issues.append(element_name)
         return issues
+
+    # ── Resource property validation ──────────────────────────────────────────
+    #
+    # Flow elements split into two families:
+    #   * Resources (no canvas presence)  → only `name`, `description`, and
+    #     type-specific properties (e.g. `expression`, `dataType`, `value`).
+    #   * Nodes (canvas elements)         → resources' properties PLUS
+    #     `label`, `locationX`, `locationY`, and `connector`.
+    #
+    # Putting node-only properties on a resource (e.g. `<label>` inside
+    # `<formulas>`) is a deploy-time error from Salesforce ("The FlowFormula
+    # element doesn't accept a label property"). We catch it locally.
+
+    # XML tag name → set of allowed properties for resource elements.
+    # Derived from references/flow-metadata-schema.json (FlowElement subtypes
+    # that do NOT extend FlowNode). Inherited from FlowElement / FlowBaseElement:
+    #   name, description, processMetadataValues
+    _RESOURCE_ALLOWED_PROPERTIES = {
+        "formulas": {
+            "name", "description", "processMetadataValues",
+            "dataType", "expression", "scale",
+        },
+        "variables": {
+            "name", "description", "processMetadataValues",
+            "apexClass", "dataType", "isCollection", "isInput", "isOutput",
+            "objectType", "scale", "value",
+        },
+        "constants": {
+            "name", "description", "processMetadataValues",
+            "dataType", "value",
+        },
+        "textTemplates": {
+            "name", "description", "processMetadataValues",
+            "isViewedAsPlainText", "text",
+        },
+        "choices": {
+            "name", "description", "processMetadataValues",
+            "choiceIcon", "choiceText", "dataType", "userInput", "value",
+        },
+        "dynamicChoiceSets": {
+            "name", "description", "processMetadataValues",
+            "collectionReference", "dataType", "displayField", "filterLogic",
+            "filters", "limit", "object", "outputAssignments", "picklistField",
+            "picklistObject", "sortField", "sortOrder", "valueField",
+        },
+    }
+
+    # Properties that only Node (canvas) elements may carry. Used in error
+    # messages to give the agent a precise list of what to remove.
+    _NODE_ONLY_PROPERTIES = frozenset({
+        "label", "locationX", "locationY", "connector", "faultConnector",
+        "elementSubtype", "group",
+    })
+
+    def _check_invalid_resource_properties(self) -> list[dict]:
+        """Detect node-only properties on resource elements.
+
+        Returns a list of offenses, one per offending property. Each offense:
+            {
+                "element_type": "formulas",   # XML tag
+                "name":         "Is_Overdue", # element name
+                "property":     "label",      # the bad child tag
+                "allowed":      ["name", "description", ...]  # sorted
+            }
+        """
+        offenses: list[dict] = []
+        for tag, allowed in self._RESOURCE_ALLOWED_PROPERTIES.items():
+            for elem in self.root.findall(f".//sf:{tag}", self.namespace):
+                name_el = elem.find("sf:name", self.namespace)
+                elem_name = name_el.text if name_el is not None else "<unnamed>"
+                for child in elem:
+                    # Strip the {namespace} prefix from the tag
+                    child_tag = child.tag.split("}", 1)[-1] if "}" in child.tag else child.tag
+                    if child_tag in allowed:
+                        continue
+                    # Only flag known node-only properties — unknown tags are
+                    # left to the JSON schema validator so we don't double-report.
+                    if child_tag in self._NODE_ONLY_PROPERTIES:
+                        offenses.append({
+                            "element_type": tag,
+                            "name": elem_name,
+                            "property": child_tag,
+                            "allowed": sorted(allowed),
+                        })
+        return offenses
 
     def _has_formula_in_loops(self) -> bool:
         """

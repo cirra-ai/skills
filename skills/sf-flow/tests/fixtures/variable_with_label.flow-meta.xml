@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>65.0</apiVersion>
+    <assignments>
+        <name>Initialise_Counter</name>
+        <label>Initialise Counter</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_Counter</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <numberValue>0</numberValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <description>Demonstrates a FlowVariable with an invalid label property.</description>
+    <label>Variable With Label Anti Pattern</label>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Initialise_Counter</targetReference>
+        </connector>
+    </start>
+    <status>Draft</status>
+    <variables>
+        <name>var_Counter</name>
+        <label>Counter</label>
+        <dataType>Number</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <scale>0</scale>
+    </variables>
+</Flow>

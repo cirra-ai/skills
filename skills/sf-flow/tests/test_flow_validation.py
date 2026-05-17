@@ -373,3 +373,124 @@ class TestSaveBlockingDetection:
         assert save_blocking
         for issue in save_blocking:
             assert "fix" in issue and "faultConnector" in issue["fix"]
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 6. RESOURCE vs NODE — node-only properties on resource elements are CRITICAL
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+class TestResourcePropertyValidation:
+    """Resources (formulas, variables, constants, textTemplates, choices,
+    dynamicChoiceSets) do NOT accept node-only properties (label, locationX,
+    locationY, connector, faultConnector). Putting them there is a deploy-time
+    failure — the validator must catch it as CRITICAL.
+
+    This is the generalised form of the recurring "The FlowFormula element
+    doesn't accept a label property" agent error.
+    """
+
+    # ── FlowFormula ────────────────────────────────────────────────────────────
+
+    def test_formula_with_label_flagged_critical(self):
+        """TC-R1: <label> inside <formulas> is CRITICAL."""
+        r = _validate("formula_with_label.flow-meta.xml")
+        crits = _critical_messages(r)
+        assert any(
+            "formulas" in m and "label" in m and "Is_Overdue" in m for m in crits
+        ), f"Expected formulas/label/Is_Overdue critical, got: {crits}"
+
+    def test_formula_with_label_fix_lists_allowed(self):
+        """TC-R1: The fix message tells the agent what FlowFormula actually accepts."""
+        r = _validate("formula_with_label.flow-meta.xml")
+        fixes = [i.get("fix", "") for i in r["critical_issues"]]
+        assert any("expression" in f and "dataType" in f for f in fixes)
+
+    def test_formula_with_location_flagged_critical(self):
+        """TC-R2: <locationX>/<locationY> on a <formulas> entry is CRITICAL —
+        resources have no canvas presence."""
+        r = _validate("formula_with_location.flow-meta.xml")
+        crits = _critical_messages(r)
+        assert any("formulas" in m and "locationX" in m for m in crits)
+        assert any("formulas" in m and "locationY" in m for m in crits)
+
+    # ── FlowVariable ───────────────────────────────────────────────────────────
+
+    def test_variable_with_label_flagged_critical(self):
+        """TC-R3: <label> inside <variables> is CRITICAL."""
+        r = _validate("variable_with_label.flow-meta.xml")
+        crits = _critical_messages(r)
+        assert any(
+            "variables" in m and "label" in m and "var_Counter" in m for m in crits
+        )
+
+    # ── FlowConstant ───────────────────────────────────────────────────────────
+
+    def test_constant_with_label_flagged_critical(self):
+        """TC-R4: <label> inside <constants> is CRITICAL."""
+        r = _validate("constant_with_label.flow-meta.xml")
+        crits = _critical_messages(r)
+        assert any(
+            "constants" in m and "label" in m and "DISCOUNT_RATE" in m for m in crits
+        )
+
+    # ── FlowTextTemplate ───────────────────────────────────────────────────────
+
+    def test_text_template_with_label_flagged_critical(self):
+        """TC-R5: <label> inside <textTemplates> is CRITICAL."""
+        r = _validate("text_template_with_label.flow-meta.xml")
+        crits = _critical_messages(r)
+        assert any(
+            "textTemplates" in m and "label" in m and "Greeting_Template" in m
+            for m in crits
+        )
+
+    # ── FlowChoice ─────────────────────────────────────────────────────────────
+
+    def test_choice_with_location_flagged_critical(self):
+        """TC-R6: <locationX>/<locationY> on a <choices> entry is CRITICAL."""
+        r = _validate("choice_with_location.flow-meta.xml")
+        crits = _critical_messages(r)
+        assert any("choices" in m and "locationX" in m for m in crits)
+
+    # ── Negative controls (valid resources must NOT trigger the check) ─────────
+
+    def test_perfect_before_save_no_resource_property_errors(self):
+        """Reference: a well-formed flow has zero resource-property critical issues."""
+        r = _validate("perfect_before_save.flow-meta.xml")
+        crits = _critical_messages(r)
+        assert not any(
+            "resource elements do not accept" in m for m in crits
+        ), f"False positive resource-property errors: {crits}"
+
+    def test_complex_multi_object_no_resource_property_errors(self):
+        """Reference: complex flow with valid formulas/variables triggers no
+        resource-property errors."""
+        r = _validate("complex_multi_object.flow-meta.xml")
+        crits = _critical_messages(r)
+        assert not any("resource elements do not accept" in m for m in crits)
+
+    # ── Score impact ───────────────────────────────────────────────────────────
+
+    def test_resource_property_error_blocks_deploy_threshold(self):
+        """TC-R7: A single resource-property error drops logic_structure but the
+        flow may still score above threshold — we don't want the check
+        accidentally tanking other unrelated good flows. This test pins the
+        deduction so future changes are visible."""
+        r = _validate("formula_with_label.flow-meta.xml")
+        ls = r["categories"]["logic_structure"]
+        # 10-point deduction for resource-property class of error
+        assert ls["score"] <= ls["max_score"] - 10
+
+    def test_resource_property_error_has_fix_field(self):
+        """TC-R8: Every resource-property critical issue carries an actionable fix."""
+        r = _validate("formula_with_label.flow-meta.xml")
+        offenders = [
+            i for i in r["critical_issues"]
+            if "resource elements do not accept" in i["message"]
+        ]
+        assert offenders
+        for issue in offenders:
+            assert "fix" in issue
+            assert "Remove" in issue["fix"]
+            assert "only accepts" in issue["fix"]
