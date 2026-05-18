@@ -73,15 +73,28 @@ Create the flow XML following the sf-flow skill guidelines (see Workflow Design 
 - Description and labels on all elements
 - `runInMode="SystemModeWithoutSharing"` only where justified
 
-### Step 4. Validate before deploying
+### Step 4. Validate before deploying — REQUIRED, MANUAL
 
-Write the generated XML to a temp file and validate:
+> **This step is not optional and is not automated.** Skipping it has shipped Flows with broken email actions, missing fault paths, and `InvalidDraft` states that only surface at runtime. A skill-scoped `PreToolUse` hook (`scripts/pre-mcp-validate.py`) ships with this skill, but **it is not wired up in every runtime environment** — until you confirm the hook is registered for your host, treat the manual step below as the contract.
+
+Write the generated metadata to a temp file (`/tmp/<FlowApiName>.flow-meta.xml` for XML, `/tmp/<FlowApiName>.flow.json` for JSON), then run:
 
 ```bash
 python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_flow_cli.py" "/tmp/<FlowApiName>.flow-meta.xml"
 ```
 
-Fix any CRITICAL or HIGH issues before proceeding. The pre-deployment hook will also validate automatically when `metadata_create` is called.
+Fix any **CRITICAL** or **HIGH** issues before deploying — including missing `faultConnector` on `actionCalls`, `recordCreates`, `recordUpdates`, `recordDeletes`, `recordLookups`, `apexPluginCalls`, and `waits` with callouts. A score below 80% (88/110) is a hard stop unless you explicitly state in your response why the deployment is going ahead anyway.
+
+**Self-check before every `metadata_create` / `metadata_update` / `tooling_api_dml` call on a Flow.** Answer these four questions out loud (in your reasoning) before invoking the tool:
+
+1. Did I write the Flow metadata to a file?
+2. Did I run `validate_flow_cli.py` on that file?
+3. Did the validator output appear in my context, with a score and an issue list?
+4. Are all CRITICAL/HIGH issues resolved?
+
+If you cannot answer "yes" to all four, do not call the deployment tool. Stop, run the validator, and resume.
+
+**Default fault-routing rule for every Flow.** Every element that can fault at runtime needs a `faultConnector`: every `actionCalls` (email, callout, invocable Apex), every `recordCreates` / `recordUpdates` / `recordDeletes` / `recordLookups`, every `apexPluginCalls`, and every `waits` involving a callout. Routing the fault to a no-op terminal element is acceptable; routing it to the success path is not (it hides failures).
 
 ### Step 5. Deploy
 
@@ -136,15 +149,15 @@ Modify the flow following sf-flow skill guidelines. Preserve:
 - Existing fault paths and error handling
 - Description and label conventions already in use
 
-### Step 4. Validate before deploying
+### Step 4. Validate before deploying — REQUIRED, MANUAL
 
-Write the updated XML to a temp file and validate:
+The same four-question self-check from the **Create** workflow applies here. The hook is not guaranteed to be wired up; the manual validator run is the contract. Write the updated metadata to a temp file and validate:
 
 ```bash
 python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_flow_cli.py" "/tmp/<FlowApiName>.flow-meta.xml"
 ```
 
-Fix any CRITICAL or HIGH issues before proceeding. The pre-deployment hook will also validate automatically when `metadata_update` is called.
+Fix any CRITICAL or HIGH issues before deploying. Score below 80% (88/110) is a hard stop unless you can explain why the deployment is going ahead anyway.
 
 ### Step 5. Deploy
 
@@ -646,7 +659,7 @@ cirra_ai_init()
 
 1. **Deploy Flow metadata** (JSON, not XML):
 
-> **Automatic validation**: A skill-scoped PreToolUse hook runs `pre-mcp-validate.py` before every `metadata_create`, `metadata_update`, and `tooling_api_dml` call while this skill is active. It blocks deployment for CRITICAL/HIGH issues (DML in loops, missing fault paths) and warns when score is below 80% (88/110).
+> **Validation is your job, not the hook's.** A `PreToolUse` hook (`scripts/pre-mcp-validate.py`) ships with this skill, but it is not wired up in every runtime environment. **Always run `validate_flow_cli.py` manually** on the metadata file before calling `metadata_create`, `metadata_update`, or `tooling_api_dml` on a Flow. Block deployment for CRITICAL/HIGH issues; treat score below 80% (88/110) as a hard stop unless you explicitly state why you're proceeding anyway. See the four-question self-check in the Create workflow above.
 
 ```python
 # Pass a structured JSON object — see cirra_ai_init instructions for format examples
@@ -1077,6 +1090,34 @@ Every Flow element **MUST** have a `processMetadataValues` property, even if it'
 ```json
 { "name": "Element_Name", "processMetadataValues": [] }
 ```
+
+### Lesson 8.5: Resource vs Node Elements — Property Rules
+
+Flow elements split into two families. **Resources** (data containers) and **Nodes** (canvas/visual elements) do NOT accept the same properties. Mixing them up is one of the most common deploy-time failures (e.g. "The FlowFormula element doesn't accept a label property").
+
+| Family                              | Element types                                                                                                                                                                                                                                                                     | Has `name` / `description` | Has `label` | Has `locationX` / `locationY` | Has `connector` |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- | ----------- | ----------------------------- | --------------- |
+| **Resources** (no canvas position)  | `formulas`, `variables`, `constants`, `textTemplates`, `choices`, `dynamicChoiceSets`                                                                                                                                                                                             | ✅                         | ❌          | ❌                            | ❌              |
+| **Nodes** (visual, canvas elements) | `assignments`, `decisions`, `screens`, `loops`, `recordCreates`, `recordUpdates`, `recordDeletes`, `recordLookups`, `actionCalls`, `apexPluginCalls`, `subflows`, `waits`, `steps`, `transforms`, `collectionProcessors`, `orchestratedStages`, `customErrors`, `recordRollbacks` | ✅                         | ✅          | ✅                            | ✅ (most)       |
+| **Hybrid resources** (own `label`)  | `stages`, `rules`, `exitRules`, `experimentPaths`, `scheduledPaths`, `screenActions`, `stageSteps`, `waitEvents`                                                                                                                                                                  | ✅                         | ✅          | ❌                            | varies          |
+
+**General rule**: If you find yourself adding `label`, `locationX`, or `locationY` to a `formulas`, `variables`, `constants`, `textTemplates`, or `choices` entry, **stop** — those properties do not exist on those types and the deploy will fail with a metadata error.
+
+**Common manifestation**:
+
+```json
+// WRONG — FlowFormula does not accept label
+{ "formulas": [{ "name": "Is_Overdue", "label": "Is Overdue",
+                  "dataType": "Boolean", "expression": "{!CloseDate} < TODAY()" }] }
+
+// CORRECT — use `name` + `description` only; the formula has no canvas presence
+{ "formulas": [{ "name": "Is_Overdue", "description": "True when CloseDate is in the past",
+                  "dataType": "Boolean", "expression": "{!CloseDate} < TODAY()" }] }
+```
+
+If you need a human-readable label, put it on the node that _uses_ the formula (e.g. a Decision with `label: "Is the record overdue?"`), not on the formula itself.
+
+The local validator (`validate_flow.py`) detects this class of error as a CRITICAL issue — run it before every deploy.
 
 ### Lesson 9: Empty Arrays for All Element Type Collections
 
@@ -1553,4 +1594,4 @@ Flow Created  →  Deployed to Org  →  Action Definition Created  →  Agent C
 - Valid Salesforce username for `sf_user` parameter
 - **Audit Output**: All audit intermediate files go to `--output-dir` by default
 
-**Validation hook**: Implemented at the plugin level via the PreToolUse hook — `pre-mcp-validate.py` is dispatched based on tool and metadata type (for example `Flow` and `FlowDefinition`) and runs whenever those operations occur, regardless of which skill is active. Use `python scripts/validate_flow_cli.py ...` for additional on-demand checks.
+**Validation hook**: A plugin-level `PreToolUse` hook (`pre-mcp-validate.py`) is shipped with this skill and, when registered, runs automatically against `metadata_create`, `metadata_update`, and `tooling_api_dml` on Flow/FlowDefinition. **The hook is not guaranteed to be registered in every host environment.** Until you have confirmed it is wired up for your runtime, you MUST run `python scripts/validate_flow_cli.py <path>` manually before every Flow deployment — see the four-question self-check in the Create workflow.

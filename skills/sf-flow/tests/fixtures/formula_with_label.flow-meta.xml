@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>65.0</apiVersion>
+    <decisions>
+        <name>Check_Overdue</name>
+        <label>Check Overdue</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>Not Overdue</defaultConnectorLabel>
+        <rules>
+            <name>Is_Overdue_Branch</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Is_Overdue</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <label>Overdue</label>
+        </rules>
+    </decisions>
+    <description>Demonstrates the FlowFormula-with-label anti-pattern. Salesforce rejects label on a FlowFormula.</description>
+    <formulas>
+        <name>Is_Overdue</name>
+        <label>Is Overdue</label>
+        <dataType>Boolean</dataType>
+        <expression>{!$Record.CloseDate} &lt; TODAY()</expression>
+    </formulas>
+    <label>Formula With Label Anti Pattern</label>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <object>Opportunity</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+        <connector>
+            <targetReference>Check_Overdue</targetReference>
+        </connector>
+    </start>
+    <status>Draft</status>
+</Flow>
