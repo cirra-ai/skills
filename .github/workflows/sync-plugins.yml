@@ -20,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          token: ${{ secrets.AUTO_MERGE_PAT }}
+          token: ${{ secrets.WORKFLOW_PAT_PUBLIC }}
 
       - name: Sync skills into plugins
         run: scripts/sync-plugin-skills.sh
