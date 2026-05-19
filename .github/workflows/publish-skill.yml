@@ -46,7 +46,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           ref: main
-          token: ${{ secrets.AUTO_MERGE_PAT }}
+          token: ${{ secrets.WORKFLOW_PAT_PUBLIC }}
 
       - name: Validate skill exists
         env:
@@ -108,7 +108,7 @@ jobs:
 
       - name: Create GitHub release
         env:
-          GH_TOKEN: ${{ secrets.AUTO_MERGE_PAT }}
+          GH_TOKEN: ${{ secrets.WORKFLOW_PAT_PUBLIC }}
           NEW_VERSION: ${{ steps.version.outputs.new_version }}
           OLD_VERSION: ${{ steps.version.outputs.old_version }}
           SKILL: ${{ inputs.skill }}
