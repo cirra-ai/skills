@@ -193,16 +193,33 @@ def _basic_flow_check(body: str, full_name: str) -> dict[str, Any]:
             "message": "Flow has both loops and DML elements — verify DML is outside loops",
         })
 
-    # Check for fault paths on DML
-    dml_count = body.count("<recordCreates>") + body.count("<recordUpdates>") + body.count("<recordDeletes>")
+    # Check for fault paths on every fallible element (DML, queries, callouts,
+    # waits, Apex plugin calls). A missing faultConnector on any of these can
+    # silently swallow failures (screen/autolaunched flows) or block the
+    # originating save (record-triggered flows). Severity HIGH so the hook
+    # surfaces it prominently.
+    fallible_tags = (
+        "<actionCalls>",
+        "<recordCreates>",
+        "<recordUpdates>",
+        "<recordDeletes>",
+        "<recordLookups>",
+        "<apexPluginCalls>",
+        "<waits>",
+    )
+    fallible_count = sum(body.count(tag) for tag in fallible_tags)
     fault_count = body.count("<faultConnector>")
-    if dml_count > 0 and fault_count == 0:
+    if fallible_count > 0 and fault_count < fallible_count:
+        missing = fallible_count - fault_count
         issues.append({
-            "severity": "WARNING",
+            "severity": "HIGH",
             "category": "error_handling",
-            "message": f"{dml_count} DML element(s) found but no fault connectors",
+            "message": (
+                f"{missing} fallible element(s) (actionCalls/DML/lookups/waits/"
+                f"apexPluginCalls) missing faultConnector"
+            ),
         })
-        score -= 10
+        score -= min(15, missing * 4)
 
     return {
         "flow_name": full_name or "unnamed",

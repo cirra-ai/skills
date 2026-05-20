@@ -672,21 +672,36 @@ class EnhancedFlowValidator:
                         }
                     )
 
-        # Fault paths on DML (kept for non-after-save flows; after-save flows
-        # are covered more comprehensively by the save-blocking check above).
+        # Fault paths on every fallible element (kept for non-after-save flows;
+        # after-save flows are covered more comprehensively by the save-blocking
+        # check above). Any element that performs DML, queries, callouts, or
+        # invokes external/Apex code can fault at runtime and needs a
+        # faultConnector. Routing the fault to a no-op terminal is acceptable;
+        # routing to the success path is not (it hides failures).
         trigger_type = self._get_trigger_type()
-        dml_count = self._count_dml_operations()
-        if trigger_type != "RecordAfterSave" and dml_count > 0:
-            dml_with_faults = self._count_dml_with_fault_paths()
-            if dml_with_faults < dml_count:
-                missing = dml_count - dml_with_faults
-                deduction = min(10, missing * 2)
+        if trigger_type != "RecordAfterSave":
+            missing_faults = self._fallible_elements_missing_fault()
+            if missing_faults:
+                missing = len(missing_faults)
+                # 4 points per element, capped at 15 of this category's 20 points,
+                # so a single missing fault on an actionCall is enough to make it
+                # to HIGH territory and surface prominently.
+                deduction = min(15, missing * 4)
                 score -= deduction
-                warnings.append(
+                names = ", ".join(f"{m['element_type']}:{m['name']}" for m in missing_faults[:5])
+                more = f" (+{missing - 5} more)" if missing > 5 else ""
+                critical_issues.append(
                     {
-                        "severity": "MEDIUM",
-                        "message": f"⚠️ {missing} DML operations missing fault paths",
-                        "suggestion": "Add fault paths to all DML operations for error handling",
+                        "severity": "HIGH",
+                        "message": (
+                            f"❌ {missing} fallible element(s) missing faultConnector: {names}{more}"
+                        ),
+                        "fix": (
+                            "Add a faultConnector to every element that can fault at runtime: "
+                            "actionCalls (email, callout, invocable Apex), recordCreates, "
+                            "recordUpdates, recordDeletes, recordLookups, apexPluginCalls, "
+                            "and waits. Route faults to a logging element or no-op terminal."
+                        ),
                     }
                 )
 
@@ -706,6 +721,7 @@ class EnhancedFlowValidator:
 
         # Error logging (10 points)
         has_error_logging = self._has_error_logging()
+        dml_count = self._count_dml_operations()
         if dml_count > 0 and not has_error_logging:
             score -= 10
             advisory.append(
@@ -872,6 +888,7 @@ class EnhancedFlowValidator:
             "subflows",
             "screens",
             "actionCalls",
+            "apexPluginCalls",
             "waits",
             "transforms",
         ]
@@ -966,6 +983,42 @@ class EnhancedFlowValidator:
                     count += 1
         return count
 
+    # Element types that can fault at runtime — DML, queries, callouts, waits,
+    # Apex plugin calls. Every one of these needs a faultConnector or an
+    # unhandled fault will surface to the user (in record-triggered flows) or
+    # halt the interview (in screen/autolaunched/scheduled flows). See
+    # _check_save_blocking_risk() for the RecordAfterSave-specific variant.
+    FALLIBLE_ELEMENT_TYPES = (
+        "actionCalls",
+        "recordCreates",
+        "recordUpdates",
+        "recordDeletes",
+        "recordLookups",
+        "apexPluginCalls",
+        "waits",
+    )
+
+    def _fallible_elements_missing_fault(self) -> list[dict]:
+        """Return fallible elements that have no faultConnector.
+
+        Used by the general fault-path rule for non-RecordAfterSave flows.
+        RecordAfterSave flows go through _check_save_blocking_risk() which
+        applies stricter severity (HIGH) and respects the save-gating opt-out.
+        """
+        missing = []
+        for elem_type in self.FALLIBLE_ELEMENT_TYPES:
+            for element in self.root.findall(f".//sf:{elem_type}", self.namespace):
+                if element.find("sf:faultConnector", self.namespace) is not None:
+                    continue
+                name = element.find("sf:name", self.namespace)
+                missing.append(
+                    {
+                        "element_type": elem_type,
+                        "name": name.text if name is not None else "<unnamed>",
+                    }
+                )
+        return missing
+
     def _has_error_logging(self) -> bool:
         """
         Check if flow has error logging.
@@ -1051,6 +1104,7 @@ class EnhancedFlowValidator:
 
         fallible_element_types = [
             "actionCalls",
+            "apexPluginCalls",
             "recordCreates",
             "recordUpdates",
             "recordDeletes",
@@ -1059,8 +1113,11 @@ class EnhancedFlowValidator:
             "waits",
         ]
 
+        # apexPluginCalls invoke Apex that can throw any exception; treat them
+        # as HIGH severity like actionCalls and DML for save-blocking purposes.
         high_severity_types = {
             "actionCalls",
+            "apexPluginCalls",
             "recordCreates",
             "recordUpdates",
             "recordDeletes",
@@ -1119,7 +1176,9 @@ class EnhancedFlowValidator:
 
     def _estimate_line_count(self) -> int:
         """Estimate line count of flow XML."""
-        # Rough estimate based on element count
+        # Rough estimate based on element count. Include every canvas element
+        # type — orchestration-heavy flows (lots of actionCalls / waits /
+        # screens) are still complex and should trigger modularity advice.
         total_elements = sum(
             [
                 self._count_elements("decisions"),
@@ -1130,6 +1189,11 @@ class EnhancedFlowValidator:
                 self._count_elements("recordLookups"),
                 self._count_elements("subflows"),
                 self._count_elements("loops"),
+                self._count_elements("actionCalls"),
+                self._count_elements("apexPluginCalls"),
+                self._count_elements("waits"),
+                self._count_elements("screens"),
+                self._count_elements("transforms"),
             ]
         )
         return total_elements * 15  # ~15 lines per element
@@ -1727,7 +1791,11 @@ class EnhancedFlowValidator:
 
         elem_type, elem = element_map[current]
 
-        if elem_type == "actionCalls":
+        # Callout-bearing element types — actionCalls (email/callout/invocable
+        # Apex) and apexPluginCalls both consume the per-transaction callout
+        # budget. apexPluginCalls is invoked from a loop hit the same governor
+        # limit, but historically only actionCalls were flagged.
+        if elem_type in ("actionCalls", "apexPluginCalls"):
             return True
 
         connectors = []

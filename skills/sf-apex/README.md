@@ -79,12 +79,22 @@ The skill generates:
 | `queueable.cls`      | Queueable async job               |
 | `test-class.cls`     | Test class with data factory      |
 
-## Automatic Validation
+## Validation
 
-Apex code is automatically validated before deployment:
+Validation runs automatically **when this skill is installed as part of the
+`cirra-ai-sf` plugin** — the plugin registers a `PreToolUse` hook in
+`hooks/hooks.json` that fires before every `metadata_create`,
+`metadata_update`, and `tooling_api_dml`. Critical issues (SOQL/DML in loops,
+injection risks) block deployment; AI anti-patterns (invalid Java types,
+hallucinated methods, unsafe Map access) are caught as well.
 
-- **Before deployment**: Critical issues (SOQL/DML in loops, injection risks) block deployment until fixed. Lower-severity issues are flagged as warnings.
-- **AI anti-pattern detection**: Catches common AI-generated mistakes like invalid Java types, hallucinated methods, and unsafe Map access.
+> **Standalone installs do not get the hook.** If you've installed only the
+> sf-apex skill (without the `cirra-ai-sf` plugin's `hooks/hooks.json`), the
+> hook does not fire. Run validation manually before deploying:
+>
+> ```bash
+> python3 scripts/validate_apex_cli.py <path-to-file.cls>
+> ```
 
 Use `/sf-apex validate` at any time for on-demand checks:
 
@@ -143,11 +153,11 @@ For credits see [CREDITS](CREDITS.md)
 
 ### Validation Hooks
 
-This skill ships Python validation scripts in `scripts/`. The pre-deployment hook is registered at the plugin level in `hooks/hooks.json` and is **type-scoped** — it inspects the metadata type in each MCP call and only validates Apex payloads.
+This skill ships Python validation scripts in `scripts/`. The pre-deployment hook is registered at the **plugin level** in `cirra-ai-sf/hooks/hooks.json` (not in this skill's directory) and is **type-scoped** — it inspects the metadata type in each MCP call and only validates Apex payloads. Standalone skill installs without the plugin's `hooks/hooks.json` will not get automatic validation; run the scripts manually.
 
-#### Hook 1: `pre-mcp-validate.py` — pre-deployment (blocking)
+#### Hook 1: `pre-mcp-validate.py` — pre-deployment (blocking, plugin-only)
 
-Registered in `hooks/hooks.json` as a plugin-level PreToolUse hook. Fires before every `metadata_create`, `metadata_update`, and `tooling_api_dml` call. The script inspects the metadata type and only validates Apex payloads; non-Apex types pass through silently.
+Registered in the plugin's `hooks/hooks.json` as a `PreToolUse` hook. Fires before every `metadata_create`, `metadata_update`, and `tooling_api_dml` call **when installed as part of `cirra-ai-sf`**. The script inspects the metadata type and only validates Apex payloads; non-Apex types pass through silently.
 
 | Result                                              | Action                                       |
 | --------------------------------------------------- | -------------------------------------------- |

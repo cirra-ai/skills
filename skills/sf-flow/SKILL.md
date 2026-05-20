@@ -3,7 +3,7 @@ name: sf-flow
 plugin: cirra-ai-sf
 argument-hint: '[create|update|validate] {FlowName} ...'
 metadata:
-  version: 2.0.4
+  version: 2.1.0
 description: >
   Creates and validates Salesforce flows with 110-point scoring and Winter '26 best practices
   using Cirra AI MCP Server. Use when building record-triggered flows, screen flows,
@@ -80,7 +80,7 @@ Create the flow XML following the sf-flow skill guidelines (see Workflow Design 
 Write the generated metadata to a temp file (`/tmp/<FlowApiName>.flow-meta.xml` for XML, `/tmp/<FlowApiName>.flow.json` for JSON), then run:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_flow_cli.py" "/tmp/<FlowApiName>.flow-meta.xml"
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/sf-flow/scripts/validate_flow_cli.py" "/tmp/<FlowApiName>.flow-meta.xml"
 ```
 
 Fix any **CRITICAL** or **HIGH** issues before deploying — including missing `faultConnector` on `actionCalls`, `recordCreates`, `recordUpdates`, `recordDeletes`, `recordLookups`, `apexPluginCalls`, and `waits` with callouts. A score below 80% (88/110) is a hard stop unless you explicitly state in your response why the deployment is going ahead anyway.
@@ -154,7 +154,7 @@ Modify the flow following sf-flow skill guidelines. Preserve:
 The same four-question self-check from the **Create** workflow applies here. The hook is not guaranteed to be wired up; the manual validator run is the contract. Write the updated metadata to a temp file and validate:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_flow_cli.py" "/tmp/<FlowApiName>.flow-meta.xml"
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/sf-flow/scripts/validate_flow_cli.py" "/tmp/<FlowApiName>.flow-meta.xml"
 ```
 
 Fix any CRITICAL or HIGH issues before deploying. Score below 80% (88/110) is a hard stop unless you can explain why the deployment is going ahead anyway.
@@ -190,7 +190,7 @@ Validate one or more Flows using the 110-point static analysis pipeline and retu
 
 ### Validation script
 
-The validation script is at `${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_flow_cli.py`. Locate it with:
+The validation script is at `${CLAUDE_PLUGIN_ROOT}/skills/sf-flow/scripts/validate_flow_cli.py`. Locate it with:
 
 ```bash
 # $CLAUDE_PLUGIN_ROOT is set by Claude Code. Other hosts: see references/execution-modes.md.
@@ -201,7 +201,7 @@ find ~/.claude/plugins -name "validate_flow_cli.py" 2>/dev/null | grep sf-flow |
 ### Local file
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_flow_cli.py" "<file_path>"
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/sf-flow/scripts/validate_flow_cli.py" "<file_path>"
 ```
 
 ### Flow API name (fetch from org)
@@ -225,7 +225,7 @@ Write /tmp/validate_<FlowApiName>.flow-meta.xml  ← the flow XML
 3. Validate:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_flow_cli.py" "/tmp/validate_<FlowApiName>.flow-meta.xml"
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/sf-flow/scripts/validate_flow_cli.py" "/tmp/validate_<FlowApiName>.flow-meta.xml"
 ```
 
 4. Delete the temp file after validation.

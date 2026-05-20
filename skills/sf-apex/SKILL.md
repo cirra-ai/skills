@@ -3,7 +3,7 @@ name: sf-apex
 plugin: cirra-ai-sf
 argument-hint: '[create|update|validate] [class|trigger|test-class] {name} ...'
 metadata:
-  version: 2.0.1
+  version: 2.0.2
 description: >
   Generates and reviews Salesforce Apex code with best practices and 150-point scoring using the Cirra AI
   MCP Server. Use when writing Apex classes, triggers, test classes, batch
@@ -115,13 +115,13 @@ Write the generated code to a temp file and validate:
 
 ```bash
 # For a class:
-python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_apex_cli.py" "/tmp/<ClassName>.cls"
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/sf-apex/scripts/validate_apex_cli.py" "/tmp/<ClassName>.cls"
 
 # For a trigger:
-python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_apex_cli.py" "/tmp/<TriggerName>.trigger"
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/sf-apex/scripts/validate_apex_cli.py" "/tmp/<TriggerName>.trigger"
 ```
 
-Fix any CRITICAL or HIGH issues before proceeding. The pre-deployment hook will also validate automatically when `tooling_api_dml` is called.
+Fix any CRITICAL or HIGH issues before proceeding. When installed as part of the `cirra-ai-sf` plugin, the pre-deployment hook also validates automatically when `tooling_api_dml` is called; standalone skill installs do not get the hook, so the manual run above is the contract.
 
 ### 5. Deploy
 
@@ -245,13 +245,13 @@ Write the updated code to a temp file and validate:
 
 ```bash
 # For a class:
-python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_apex_cli.py" "/tmp/<Name>.cls"
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/sf-apex/scripts/validate_apex_cli.py" "/tmp/<Name>.cls"
 
 # For a trigger:
-python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_apex_cli.py" "/tmp/<Name>.trigger"
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/sf-apex/scripts/validate_apex_cli.py" "/tmp/<Name>.trigger"
 ```
 
-Fix any CRITICAL or HIGH issues before proceeding. The pre-deployment hook will also validate automatically when `tooling_api_dml` is called.
+Fix any CRITICAL or HIGH issues before proceeding. When installed as part of the `cirra-ai-sf` plugin, the pre-deployment hook also validates automatically when `tooling_api_dml` is called; standalone skill installs do not get the hook, so the manual run above is the contract.
 
 ### 5. Deploy
 
@@ -311,7 +311,7 @@ Validate one or more Apex classes or triggers using the 150-point static analysi
 
 ### Validation script
 
-The validation script is at `${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_apex_cli.py`. Locate it with:
+The validation script is at `${CLAUDE_PLUGIN_ROOT}/skills/sf-apex/scripts/validate_apex_cli.py`. Locate it with:
 
 ```bash
 # $CLAUDE_PLUGIN_ROOT is set by Claude Code. Other hosts: see references/execution-modes.md.
@@ -322,7 +322,7 @@ find ~/.claude/plugins -name "validate_apex_cli.py" 2>/dev/null | grep sf-apex |
 ### Local file
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_apex_cli.py" "<file_path>"
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/sf-apex/scripts/validate_apex_cli.py" "<file_path>"
 ```
 
 ### Class or trigger name (fetch from org)
@@ -359,9 +359,9 @@ Write /tmp/validate_<Name>.trigger  ← for a trigger
 3. Validate:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_apex_cli.py" "/tmp/validate_<Name>.cls"
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/sf-apex/scripts/validate_apex_cli.py" "/tmp/validate_<Name>.cls"
 # or
-python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate_apex_cli.py" "/tmp/validate_<Name>.trigger"
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/sf-apex/scripts/validate_apex_cli.py" "/tmp/validate_<Name>.trigger"
 ```
 
 4. Delete the temp file after validation.
@@ -608,9 +608,12 @@ Generate Apex code as a STRING with full ApexDoc comments and validation.
 
 **Step 2: Deploy via Cirra AI MCP**
 
-> **Automatic validation**: a PreToolUse hook runs `pre-mcp-validate.py` before every
-> `metadata_create`/`metadata_update`/`tooling_api_dml` call. Critical issues (SOQL/DML
-> in loops, injection) are flagged automatically.
+> **Validation**: When installed as part of the `cirra-ai-sf` plugin, a
+> `PreToolUse` hook (`pre-mcp-validate.py`, registered in the plugin's
+> `hooks/hooks.json`) runs before every `metadata_create` / `metadata_update`
+> / `tooling_api_dml` call and surfaces critical issues (SOQL/DML in loops,
+> injection). **Standalone skill installs do not get this hook** — run
+> `python3 scripts/validate_apex_cli.py <file>` manually before deploying.
 
 > **IMPORTANT**: Apex classes MUST be deployed via `tooling_api_dml`, NOT `metadata_create`.
 > The Metadata API does not support the `body`/`Body` field for `ApexClass`. Use the
@@ -1219,4 +1222,4 @@ tooling_api_dml(operation="delete", sObject="ApexTrigger", record={"Id": "<trigg
 - **Code as String**: Generate all Apex as strings, deploy via `tooling_api_dml`
 - **No Local Files**: Apex code is NOT saved to local file system - lives only in Salesforce org via Tooling API
 - **Org-wide audit**: Use `/sf-audit` for a full org audit
-- **Validation hook**: runs for Apex-related metadata operations (for example `ApexClass` and `ApexTrigger`) via the plugin-level PreToolUse hook, independent of the active skill; use `python scripts/validate_apex_cli.py ...` for on-demand checks
+- **Validation hook**: When the `cirra-ai-sf` plugin is installed, a plugin-level `PreToolUse` hook runs for Apex-related metadata operations (for example `ApexClass` and `ApexTrigger`), independent of the active skill. Standalone skill installs do not get this hook — use `python scripts/validate_apex_cli.py ...` for on-demand checks in either case.
