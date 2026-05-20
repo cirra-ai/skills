@@ -878,8 +878,8 @@ soql_query: SELECT COUNT(Id) total FROM <Object__c> WHERE <Field__c> != null LIM
 > **Performance note:** For objects with many custom fields, batch the
 > population checks — run up to 10 in parallel where the mode supports it.
 > In `sfdx-repo` mode, skip population checks (record data is not available
-> locally) and mark those fields as "population unknown — no org connection
-> for data check."
+> locally) and set `has_data: null` in the output JSON. The report generator
+> renders this as "Unknown" in all formats.
 
 #### Step 2 — Identify custom objects with no records
 

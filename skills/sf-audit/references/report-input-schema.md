@@ -263,6 +263,10 @@ Categories:
 | `Empty`        | No data but has references | MEDIUM   |
 | `Unreferenced` | Has data but no references | MEDIUM   |
 
+`has_data` is a tri-state value: `true` (records contain data), `false`
+(no records with data), or `null` (population check was skipped, e.g. in
+`sfdx-repo` mode). Reports render `null` as "Unknown".
+
 Fields in the `Active` category (has data AND has references) are **not**
 included in this file.
 
