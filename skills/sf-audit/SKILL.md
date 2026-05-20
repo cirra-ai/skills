@@ -15,7 +15,7 @@ description: >
   standalone analysis documents including a customer report and strategic engagement plan.
   Usage: /sf-audit [full|apex|flow|lwc|metadata|permissions|reports|integrations|coverage|licensing|team|change-history|data-quality] ...
 metadata:
-  version: 3.0.0
+  version: 3.1.0
 ---
 
 # Salesforce Org Audit
