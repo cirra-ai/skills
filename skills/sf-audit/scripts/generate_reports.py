@@ -1311,7 +1311,7 @@ def generate_docx(data, summary, org_name, org_id, instance, run_date, output_pa
                     run.font.bold = True
             for item in sorted(data["unused_fields"], key=lambda x: (
                 {"HIGH": 0, "MEDIUM": 1, "LOW": 2}.get(x.get("severity", "LOW").upper(), 3),
-                x.get("object", ""),
+                x.get("object", ""), x.get("field", ""),
             )):
                 has_data = item.get("has_data")
                 row = table.add_row().cells
