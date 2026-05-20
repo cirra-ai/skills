@@ -254,8 +254,16 @@ class SOQLValidator:
                     {"severity": "error", "message": "TYPEOF expression missing END keyword"}
                 )
 
-        # Check for reserved words as field names (common issues)
-        reserved = ["SELECT", "FROM", "WHERE", "ORDER", "GROUP", "LIMIT"]
+        # Check for reserved words as field names (common issues). Covers the
+        # SOQL keywords most likely to appear as accidental field-name tokens
+        # in a generated SELECT list. Not exhaustive — Salesforce treats many
+        # tokens (NULL, TRUE/FALSE, etc.) as values rather than identifiers —
+        # but extends well beyond the original six-keyword list.
+        reserved = [
+            "SELECT", "FROM", "WHERE", "ORDER", "GROUP", "LIMIT",
+            "AND", "OR", "NOT", "IN", "LIKE", "BY", "ASC", "DESC",
+            "HAVING", "OFFSET", "DISTINCT", "WITH", "TYPEOF",
+        ]
         for word in reserved:
             # Look for patterns like "SELECT SELECT" or "field, SELECT"
             if re.search(rf"\b{word}\s*,|\,\s*{word}\b", content, re.IGNORECASE):

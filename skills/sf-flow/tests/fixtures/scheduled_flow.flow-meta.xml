@@ -53,6 +53,9 @@
         <connector>
             <targetReference>Delete_Stale_Opportunities</targetReference>
         </connector>
+        <faultConnector>
+            <targetReference>Handle_Error</targetReference>
+        </faultConnector>
     </recordLookups>
     <start>
         <locationX>0</locationX>

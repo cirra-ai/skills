@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>65.0</apiVersion>
+    <actionCalls>
+        <name>Send_Daily_Digest</name>
+        <label>Send Daily Digest</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>emailSimple</actionName>
+        <actionType>emailSimple</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>emailAddresses</name>
+            <value>
+                <stringValue>ops@example.com</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>senderType</name>
+            <value>
+                <stringValue>DefaultWorkflowUser</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>emailSubject</name>
+            <value>
+                <stringValue>Daily digest</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>emailBody</name>
+            <value>
+                <stringValue>Summary</stringValue>
+            </value>
+        </inputParameters>
+    </actionCalls>
+    <description>Scheduled flow that sends a daily digest email. Reproduces the v1-style bug: emailSimple actionCall has no faultConnector. Unhandled failures swallow the email silently and leave no diagnostic trail.</description>
+    <label>Sched Daily Digest</label>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Send_Daily_Digest</targetReference>
+        </connector>
+        <triggerType>Scheduled</triggerType>
+        <schedule>
+            <frequency>Daily</frequency>
+            <startDate>2025-01-01</startDate>
+            <startTime>06:00:00.000Z</startTime>
+        </schedule>
+    </start>
+    <status>Draft</status>
+</Flow>
