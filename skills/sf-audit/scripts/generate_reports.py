@@ -698,7 +698,7 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
                 {"HIGH": 0, "MEDIUM": 1, "LOW": 2}.get(x.get("severity", "LOW").upper(), 3),
                 x.get("object", ""), x.get("field", ""),
             )):
-                refs = ", ".join(item.get("referenced_in", [])) or "None"
+                refs = ", ".join(item.get("referenced_in") or []) or "None"
                 has_data = item.get("has_data")
                 has_data_label = "Unknown" if has_data is None else ("Yes" if has_data else "No")
                 uf_rows.append([
@@ -723,7 +723,7 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
                 {"HIGH": 0, "MEDIUM": 1, "LOW": 2}.get(x.get("severity", "LOW").upper(), 3),
                 x.get("object", ""),
             )):
-                refs = ", ".join(item.get("referenced_in", [])) or "None"
+                refs = ", ".join(item.get("referenced_in") or []) or "None"
                 uo_rows.append([
                     _esc(item.get("object", "")),
                     _esc(str(item.get("record_count", 0))),
@@ -1319,7 +1319,7 @@ def generate_docx(data, summary, org_name, org_id, instance, run_date, output_pa
                 row[1].text = item.get("field", "")
                 row[2].text = item.get("data_type", "")
                 row[3].text = "Unknown" if has_data is None else ("Yes" if has_data else "No")
-                row[4].text = ", ".join(item.get("referenced_in", [])) or "None"
+                row[4].text = ", ".join(item.get("referenced_in") or []) or "None"
                 row[5].text = item.get("category", "")
                 row[6].text = item.get("severity", "LOW")
         if data.get("unused_objects"):
@@ -1338,7 +1338,7 @@ def generate_docx(data, summary, org_name, org_id, instance, run_date, output_pa
                 row = table.add_row().cells
                 row[0].text = item.get("object", "")
                 row[1].text = str(item.get("record_count", 0))
-                row[2].text = ", ".join(item.get("referenced_in", [])) or "None"
+                row[2].text = ", ".join(item.get("referenced_in") or []) or "None"
                 row[3].text = item.get("category", "")
                 row[4].text = item.get("severity", "LOW")
 
@@ -1804,7 +1804,7 @@ def generate_xlsx(data, summary, org_name, org_id, instance, run_date, output_pa
         ws9.cell(row=i, column=2, value=item.get("field", ""))
         ws9.cell(row=i, column=3, value=item.get("data_type", ""))
         ws9.cell(row=i, column=4, value="Unknown" if has_data is None else ("Yes" if has_data else "No"))
-        ws9.cell(row=i, column=5, value=", ".join(item.get("referenced_in", [])) or "None")
+        ws9.cell(row=i, column=5, value=", ".join(item.get("referenced_in") or []) or "None")
         ws9.cell(row=i, column=6, value=item.get("category", ""))
         ws9.cell(row=i, column=7, value=item.get("severity", "LOW"))
     auto_width(ws9)
@@ -1822,7 +1822,7 @@ def generate_xlsx(data, summary, org_name, org_id, instance, run_date, output_pa
     ), 2):
         ws10.cell(row=i, column=1, value=item.get("object", ""))
         ws10.cell(row=i, column=2, value=item.get("record_count", 0))
-        ws10.cell(row=i, column=3, value=", ".join(item.get("referenced_in", [])) or "None")
+        ws10.cell(row=i, column=3, value=", ".join(item.get("referenced_in") or []) or "None")
         ws10.cell(row=i, column=4, value=item.get("category", ""))
         ws10.cell(row=i, column=5, value=item.get("severity", "LOW"))
     auto_width(ws10)
