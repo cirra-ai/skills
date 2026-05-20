@@ -1556,9 +1556,9 @@ Flow formulas have more limited function support than formula fields. The table 
 
 ### filterFormula Gotchas
 
-- **`ISPICKVAL(field, value)`** — the second argument must be a **literal string** (the API name of the picklist value). It is NOT a comparison helper — using it with two field references is a tautology and a hint you wanted `=` instead.
+- **`ISPICKVAL(field, value)`** — the second argument must be a **literal string** (the API name of the picklist value). Passing a field reference or variable as the second argument causes a formula compile error — if you need to compare two fields, use `=` instead.
 - For picklist equality in entry conditions, prefer the simpler `TEXT({!$Record.Field}) = "Value"` or `ISPICKVAL({!$Record.Field}, "Value")`.
-- Use only **direct `$Record` field references** in `filterFormula` and `emailSimple` body — no cross-object refs like `$Record.Owner.Name`.
+- **`filterFormula` and `emailSimple` body** do not support cross-object relationship traversal — use only direct `$Record` field references (e.g., `{!$Record.Status}`) in these contexts. Relationship paths like `$Record.Owner.Name` work in flow formulas and assignments but cause deploy errors in `filterFormula`/`emailSimple`.
 
 ### Action Definition Registration (REQUIRED)
 
