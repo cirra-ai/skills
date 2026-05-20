@@ -3,7 +3,7 @@ name: sf-flow
 plugin: cirra-ai-sf
 argument-hint: '[create|update|validate] {FlowName} ...'
 metadata:
-  version: 2.1.1
+  version: 2.1.2
 description: >
   Creates and validates Salesforce flows with 110-point scoring and Winter '26 best practices
   using Cirra AI MCP Server. Use when building record-triggered flows, screen flows,
@@ -581,12 +581,13 @@ tooling_api_query(
 
 **Common InvalidDraft Causes and Fixes**:
 
-| Cause                            | Symptom                                                        | Fix                                                           |
-| -------------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------- |
-| Missing `triggerType` in `start` | Scheduled flow with `schedule` but no `triggerType: Scheduled` | Add `triggerType: "Scheduled"` to start element               |
-| Missing custom field             | Flow references `Custom_Field__c` that doesn't exist           | Create field via `sobject_field_create` first, then redeploy  |
-| Deprecated `bulkSupport`         | API 60.0+ flow includes `bulkSupport`                          | Remove the `bulkSupport` property                             |
-| Missing `recordTriggerType`      | Record-triggered flow without `recordTriggerType`              | Add `recordTriggerType: "Create"` (or Update/CreateAndUpdate) |
+| Cause                                    | Symptom                                                        | Fix                                                                                              |
+| ---------------------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Missing `triggerType` in `start`         | Scheduled flow with `schedule` but no `triggerType: Scheduled` | Add `triggerType: "Scheduled"` to start element                                                  |
+| Missing custom field                     | Flow references `Custom_Field__c` that doesn't exist           | Create field via `sobject_field_create` first, then redeploy                                     |
+| Deprecated `bulkSupport`                 | API 60.0+ flow includes `bulkSupport`                          | Remove the `bulkSupport` property                                                                |
+| Missing `recordTriggerType`              | Record-triggered flow without `recordTriggerType`              | Add `recordTriggerType: "Create"` (or Update/CreateAndUpdate)                                    |
+| Missing `locationX`/`locationY` on start | `Required field is missing: locationX` on create               | Always include `"locationX": 0, "locationY": 0` on the start element, even for auto-layout flows |
 
 **For Review** — validate an existing flow from the org or a local file before modifying:
 
@@ -1552,6 +1553,12 @@ Flow formulas have more limited function support than formula fields. The table 
 | `ISNEW()` / `ISCHANGED()` | ✅ Supported                          | ❌ Not supported           | Use `$Record__Prior` comparisons       |
 | `BLANKVALUE()`            | ✅ Supported                          | ❌ Not supported           | Use Decision element or `IF()`         |
 | `CASESAFEID()`            | ❌ Not supported                      | ❌ Not supported           | ID variables handle this automatically |
+
+### filterFormula Gotchas
+
+- **`ISPICKVAL(field, value)`** — the second argument must be a **literal string** (the API name of the picklist value). It is NOT a comparison helper — using it with two field references is a tautology and a hint you wanted `=` instead.
+- For picklist equality in entry conditions, prefer the simpler `TEXT({!$Record.Field}) = "Value"` or `ISPICKVAL({!$Record.Field}, "Value")`.
+- Use only **direct `$Record` field references** in `filterFormula` and `emailSimple` body — no cross-object refs like `$Record.Owner.Name`.
 
 ### Action Definition Registration (REQUIRED)
 
