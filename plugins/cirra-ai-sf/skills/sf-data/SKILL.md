@@ -3,7 +3,7 @@ name: sf-data
 plugin: cirra-ai-sf
 argument-hint: '[query|build-query|insert|update|upsert|delete|validate|describe] {target} ...'
 metadata:
-  version: 2.0.1
+  version: 2.0.2
 description: >
   Salesforce data and SOQL expert. Execute SOQL queries (natural language or raw SOQL),
   build optimized queries with selectivity analysis, insert/update/upsert/delete records,
@@ -88,7 +88,7 @@ Validate a Salesforce data operation using the two-tier MCP validator without ex
 | _(no specifics)_                        | Ask the user what to validate                                 |
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/mcp_validator_cli.py" --format report input.json
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/sf-data/scripts/mcp_validator_cli.py" --format report input.json
 ```
 
 ### Describe Object

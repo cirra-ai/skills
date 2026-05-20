@@ -113,11 +113,23 @@ Always deploy custom objects/fields BEFORE flows that reference them.
 - [LWC Integration](references/lwc-integration-guide.md) - Screen components
 - [Testing Guide](references/testing-guide.md) - Validation strategies
 
-## Automatic Validation
+## Validation
 
-Flows are automatically validated before deployment:
+Validation is **manual and required** before every Flow deployment. The skill
+ships a `PreToolUse` hook script (`scripts/pre-mcp-validate.py`), but **it is
+not wired up in every runtime environment** — there is no `hooks/hooks.json`
+shipped with this skill and the script does not run unless your host registers
+it. Until you have confirmed the hook is registered for your host, run the
+validator manually before every `metadata_create`, `metadata_update`, or
+`tooling_api_dml` call on a Flow:
 
-- **Before deployment**: Critical issues (DML in loops, missing fault paths) block deployment until fixed. Lower-severity issues are flagged as warnings.
+```bash
+python3 scripts/validate_flow_cli.py <path-to-flow.flow-meta.xml>
+```
+
+The validator blocks deployment for CRITICAL/HIGH issues (DML in loops, missing
+fault paths on any fallible element, invalid resource properties). See the
+four-question self-check in `SKILL.md` for the contract.
 
 Use `/sf-flow validate` at any time for on-demand checks:
 
@@ -152,22 +164,36 @@ available.
 
 ### Validation Hooks
 
-This skill ships Python validation scripts in `scripts/`. The pre-deployment hook is registered at the plugin level in `hooks/hooks.json` and is **type-scoped** — it inspects the metadata type in each MCP call and only validates Flow payloads.
+This skill ships Python validation scripts in `scripts/`. A `PreToolUse` hook
+adapter (`scripts/pre-mcp-validate.py`) is shipped for hosts that want to wire
+it up, but **no `hooks/hooks.json` is shipped with the skill** and registration
+is the host's responsibility. Treat the validator as manual until you have
+confirmed your host runs the hook.
 
-#### Hook 1: `pre-mcp-validate.py` — pre-deployment (blocking)
+#### Hook 1: `pre-mcp-validate.py` — pre-deployment (script only, not auto-registered)
 
-Registered in `hooks/hooks.json` as a plugin-level PreToolUse hook. Fires before every `metadata_create`, `metadata_update`, and `tooling_api_dml` call. The script inspects the metadata type and only validates Flow payloads; non-Flow types pass through silently.
+Designed for use as a plugin-level PreToolUse hook against `metadata_create`,
+`metadata_update`, and `tooling_api_dml`. The script inspects the metadata type
+and only validates Flow payloads; non-Flow types pass through silently. It is
+**not registered** by the skill itself — register it in your host's
+`hooks.json` if you want validator output surfaced before each Flow deployment.
 
-| Result                                                   | Action                                       |
-| -------------------------------------------------------- | -------------------------------------------- |
-| Critical/High issues (DML in loops, missing fault paths) | Blocks deployment, surfaces issues to Claude |
-| Score < 80% (< 88/110)                                   | Allows deployment with advisory warning      |
-| Pass                                                     | Allows deployment with score summary         |
-| Non-Flow type (ApexClass, CustomObject, etc.)            | Passes through silently                      |
+The hook is **advisory**: every outcome returns `permissionDecision: allow`
+and emits an `additionalContext` message. Nothing is blocked at the protocol
+level — the agent is expected to read the message and choose to stop before
+calling the deployment tool. If you need hard blocking, fork the hook to
+return `deny`/`ask` when CRITICAL/HIGH issues are present.
+
+| Result                                                   | Action                                                     |
+| -------------------------------------------------------- | ---------------------------------------------------------- |
+| Critical/High issues (DML in loops, missing fault paths) | Allows the call; emits a 🚨 critical-issue context message |
+| Score < 80% (< 88/110)                                   | Allows the call; emits a ⚠️ advisory context message       |
+| Pass                                                     | Allows the call; emits a ✅ score-summary context message  |
+| Non-Flow type (ApexClass, CustomObject, etc.)            | Passes through silently (no context emitted)               |
 
 #### Hook 2: `post-tool-validate.py` — post-write (advisory, not wired by default)
 
-Available for PostToolUse `Write|Edit` integration but **not currently registered** in `hooks/hooks.json`. When enabled, runs `EnhancedFlowValidator` on any `.flow-meta.xml` file and outputs a scored report to the transcript.
+Available for PostToolUse `Write|Edit` integration. The skill does not ship a `hooks.json`, so this is host-side opt-in. When registered, runs `EnhancedFlowValidator` on any `.flow-meta.xml` file and outputs a scored report to the transcript.
 
 **`validate_flow.py`: 110-point static analysis**
 
