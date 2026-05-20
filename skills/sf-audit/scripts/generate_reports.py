@@ -707,13 +707,13 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
                     _esc(item.get("data_type", "")),
                     _esc(has_data_label),
                     _esc(refs),
-                    _severity_badge_html(item.get("severity", "LOW")),
                     _esc(item.get("category", "")),
+                    _severity_badge_html(item.get("severity", "LOW")),
                 ])
             uf_parts.append(
                 f"<h3>Unused Fields ({len(data['unused_fields'])})</h3>"
                 + _table_html(
-                    ["Object", "Field", "Data Type", "Has Data", "Referenced In", "Severity", "Category"],
+                    ["Object", "Field", "Data Type", "Has Data", "Referenced In", "Category", "Severity"],
                     uf_rows,
                 )
             )
@@ -728,13 +728,13 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
                     _esc(item.get("object", "")),
                     _esc(str(item.get("record_count", 0))),
                     _esc(refs),
-                    _severity_badge_html(item.get("severity", "LOW")),
                     _esc(item.get("category", "")),
+                    _severity_badge_html(item.get("severity", "LOW")),
                 ])
             uf_parts.append(
                 f"<h3>Unused Objects ({len(data['unused_objects'])})</h3>"
                 + _table_html(
-                    ["Object", "Record Count", "Referenced In", "Severity", "Category"],
+                    ["Object", "Record Count", "Referenced In", "Category", "Severity"],
                     uo_rows,
                 )
             )
