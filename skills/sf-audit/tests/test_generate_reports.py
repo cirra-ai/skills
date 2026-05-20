@@ -41,6 +41,8 @@ def test_load_inputs_reads_all_files(gen):
     assert len(data["validation_rules"]) == 2
     assert len(data["formula_fields"]) == 2
     assert len(data["workflow_rules"]) == 1
+    assert len(data["unused_fields"]) == 2
+    assert len(data["unused_objects"]) == 1
     assert len(data["other_rules_findings"]) == 1
     # New input files
     assert isinstance(data["reports_dashboards"], dict)
@@ -110,9 +112,11 @@ def test_compute_summary_severity_counts(gen):
     # + licensing: HIGH=2
     # + data_quality: HIGH=1
     # + reports_dashboards: MEDIUM=1
+    # + unused_fields: HIGH=1, MEDIUM=1
+    # + unused_objects: HIGH=1
     assert summary["severity_counts"]["CRITICAL"] == 1
-    assert summary["severity_counts"]["HIGH"] == 9
-    assert summary["severity_counts"]["MEDIUM"] == 4
+    assert summary["severity_counts"]["HIGH"] == 11
+    assert summary["severity_counts"]["MEDIUM"] == 5
     assert summary["severity_counts"]["LOW"] == 3
 
 
@@ -166,6 +170,7 @@ def test_html_contains_all_sections(gen, output_dir):
         "Lightning Web Components",
         "Profiles &amp; Permissions",
         "Data Model",
+        "Unused Fields &amp; Objects",
         "Validation Rules",
         "Formula Fields",
         "Workflow Rules",
