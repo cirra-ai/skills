@@ -84,9 +84,11 @@ The skill generates:
 Validation runs automatically **when this skill is installed as part of the
 `cirra-ai-sf` plugin** — the plugin registers a `PreToolUse` hook in
 `hooks/hooks.json` that fires before every `metadata_create`,
-`metadata_update`, and `tooling_api_dml`. Critical issues (SOQL/DML in loops,
-injection risks) block deployment; AI anti-patterns (invalid Java types,
-hallucinated methods, unsafe Map access) are caught as well.
+`metadata_update`, and `tooling_api_dml`. The hook is **advisory**: it always
+returns `permissionDecision: allow` and emits a context message describing
+critical issues (SOQL/DML in loops, injection risks) and AI anti-patterns
+(invalid Java types, hallucinated methods, unsafe Map access). The agent is
+expected to stop on a 🚨 critical message; the hook does not deny the call.
 
 > **Standalone installs do not get the hook.** If you've installed only the
 > sf-apex skill (without the `cirra-ai-sf` plugin's `hooks/hooks.json`), the
@@ -155,16 +157,16 @@ For credits see [CREDITS](CREDITS.md)
 
 This skill ships Python validation scripts in `scripts/`. The pre-deployment hook is registered at the **plugin level** in `cirra-ai-sf/hooks/hooks.json` (not in this skill's directory) and is **type-scoped** — it inspects the metadata type in each MCP call and only validates Apex payloads. Standalone skill installs without the plugin's `hooks/hooks.json` will not get automatic validation; run the scripts manually.
 
-#### Hook 1: `pre-mcp-validate.py` — pre-deployment (blocking, plugin-only)
+#### Hook 1: `pre-mcp-validate.py` — pre-deployment (advisory, plugin-only)
 
-Registered in the plugin's `hooks/hooks.json` as a `PreToolUse` hook. Fires before every `metadata_create`, `metadata_update`, and `tooling_api_dml` call **when installed as part of `cirra-ai-sf`**. The script inspects the metadata type and only validates Apex payloads; non-Apex types pass through silently.
+Registered in the plugin's `hooks/hooks.json` as a `PreToolUse` hook. Fires before every `metadata_create`, `metadata_update`, and `tooling_api_dml` call **when installed as part of `cirra-ai-sf`**. The script inspects the metadata type and only validates Apex payloads; non-Apex types pass through silently. Every outcome returns `permissionDecision: allow`; the hook surfaces findings via `additionalContext` and relies on the agent to stop on a critical message. Fork the script to return `deny` if hard blocking is required.
 
-| Result                                              | Action                                       |
-| --------------------------------------------------- | -------------------------------------------- |
-| Critical/High issues (SOQL/DML in loops, injection) | Blocks deployment, surfaces issues to Claude |
-| Score < 67%                                         | Allows deployment with advisory warning      |
-| Pass                                                | Allows deployment with score summary         |
-| Non-Apex type (Flow, CustomObject, etc.)            | Passes through silently                      |
+| Result                                              | Action                                                     |
+| --------------------------------------------------- | ---------------------------------------------------------- |
+| Critical/High issues (SOQL/DML in loops, injection) | Allows the call; emits a 🚨 critical-issue context message |
+| Score < 67%                                         | Allows the call; emits a ⚠️ advisory context message       |
+| Pass                                                | Allows the call; emits a ✅ score-summary context message  |
+| Non-Apex type (Flow, CustomObject, etc.)            | Passes through silently (no context emitted)               |
 
 #### Hook 2: `post-tool-validate.py` — post-write (advisory, not wired by default)
 

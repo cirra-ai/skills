@@ -146,20 +146,27 @@ class TestIssueDetection:
 
     def test_action_call_missing_fault_in_scheduled_flow_flagged_high(self):
         """Regression: a non-RecordAfterSave flow with an actionCall missing
-        faultConnector is flagged as HIGH (not just a low-severity warning).
+        faultConnector surfaces as CRITICAL (risk_level=HIGH) in the
+        error_handling category.
 
         Reproduces the SFDCDEMO-74-class bug: an emailSimple actionCall with no
         faultConnector silently swallowed failures. The save-blocking rule does
         not apply (no originating save in a scheduled flow), so the general
         fault-path rule must catch it.
+
+        Uses the CRITICAL/risk_level=HIGH convention from _check_save_blocking_risk
+        because generate_report() labels every critical_issues entry as
+        "❌ CRITICAL" regardless of severity.
         """
         r = _validate("scheduled_action_no_fault.flow-meta.xml")
         eh = r["categories"]["error_handling"]
         crits = eh.get("critical_issues", [])
         assert any(
-            i.get("severity") == "HIGH" and "actionCalls" in i.get("message", "")
+            i.get("severity") == "CRITICAL"
+            and i.get("risk_level") == "HIGH"
+            and "actionCalls" in i.get("message", "")
             for i in crits
-        ), f"Expected HIGH-severity actionCalls fault issue in error_handling, got: {crits}"
+        ), f"Expected CRITICAL/HIGH actionCalls fault issue in error_handling, got: {crits}"
 
     def test_recursive_after_save_flagged(self):
         """TC-I3: After-save updating same object without entry conditions is CRITICAL."""

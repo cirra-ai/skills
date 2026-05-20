@@ -692,7 +692,13 @@ class EnhancedFlowValidator:
                 more = f" (+{missing - 5} more)" if missing > 5 else ""
                 critical_issues.append(
                     {
-                        "severity": "HIGH",
+                        # generate_report() prints every entry in critical_issues
+                        # as "❌ CRITICAL", so use CRITICAL + risk_level=HIGH to
+                        # match the convention established by the save-blocking
+                        # path (see _validate_error_handling above) — the
+                        # severity hook adapters key off `severity`.
+                        "severity": "CRITICAL",
+                        "risk_level": "HIGH",
                         "message": (
                             f"❌ {missing} fallible element(s) missing faultConnector: {names}{more}"
                         ),
@@ -700,7 +706,7 @@ class EnhancedFlowValidator:
                             "Add a faultConnector to every element that can fault at runtime: "
                             "actionCalls (email, callout, invocable Apex), recordCreates, "
                             "recordUpdates, recordDeletes, recordLookups, apexPluginCalls, "
-                            "and waits. Route faults to a logging element or no-op terminal."
+                            "subflows, and waits. Route faults to a logging element or no-op terminal."
                         ),
                     }
                 )
@@ -995,6 +1001,7 @@ class EnhancedFlowValidator:
         "recordDeletes",
         "recordLookups",
         "apexPluginCalls",
+        "subflows",
         "waits",
     )
 

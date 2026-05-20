@@ -176,14 +176,20 @@ Designed for use as a plugin-level PreToolUse hook against `metadata_create`,
 `metadata_update`, and `tooling_api_dml`. The script inspects the metadata type
 and only validates Flow payloads; non-Flow types pass through silently. It is
 **not registered** by the skill itself — register it in your host's
-`hooks.json` if you want automatic blocking behavior.
+`hooks.json` if you want validator output surfaced before each Flow deployment.
 
-| Result                                                   | Action                                       |
-| -------------------------------------------------------- | -------------------------------------------- |
-| Critical/High issues (DML in loops, missing fault paths) | Blocks deployment, surfaces issues to Claude |
-| Score < 80% (< 88/110)                                   | Allows deployment with advisory warning      |
-| Pass                                                     | Allows deployment with score summary         |
-| Non-Flow type (ApexClass, CustomObject, etc.)            | Passes through silently                      |
+The hook is **advisory**: every outcome returns `permissionDecision: allow`
+and emits an `additionalContext` message. Nothing is blocked at the protocol
+level — the agent is expected to read the message and choose to stop before
+calling the deployment tool. If you need hard blocking, fork the hook to
+return `deny`/`ask` when CRITICAL/HIGH issues are present.
+
+| Result                                                   | Action                                                     |
+| -------------------------------------------------------- | ---------------------------------------------------------- |
+| Critical/High issues (DML in loops, missing fault paths) | Allows the call; emits a 🚨 critical-issue context message |
+| Score < 80% (< 88/110)                                   | Allows the call; emits a ⚠️ advisory context message       |
+| Pass                                                     | Allows the call; emits a ✅ score-summary context message  |
+| Non-Flow type (ApexClass, CustomObject, etc.)            | Passes through silently (no context emitted)               |
 
 #### Hook 2: `post-tool-validate.py` — post-write (advisory, not wired by default)
 

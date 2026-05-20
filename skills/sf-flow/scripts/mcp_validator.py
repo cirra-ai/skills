@@ -205,6 +205,7 @@ def _basic_flow_check(body: str, full_name: str) -> dict[str, Any]:
         "<recordDeletes>",
         "<recordLookups>",
         "<apexPluginCalls>",
+        "<subflows>",
         "<waits>",
     )
     fallible_count = sum(body.count(tag) for tag in fallible_tags)
@@ -215,10 +216,13 @@ def _basic_flow_check(body: str, full_name: str) -> dict[str, Any]:
             "severity": "HIGH",
             "category": "error_handling",
             "message": (
-                f"{missing} fallible element(s) (actionCalls/DML/lookups/waits/"
-                f"apexPluginCalls) missing faultConnector"
+                f"{missing} fallible element(s) (actionCalls/DML/lookups/subflows/"
+                f"waits/apexPluginCalls) missing faultConnector"
             ),
         })
+        # 4 points per missing fault, capped at 15 of the 20 reserved for the
+        # error-handling category (a single missing fault still surfaces as
+        # HIGH; the cap prevents pathological inputs from zeroing the score).
         score -= min(15, missing * 4)
 
     return {
