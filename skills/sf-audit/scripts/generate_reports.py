@@ -88,6 +88,8 @@ INPUT_FILES = {
     "lwc_scores": "lwc_scores.json",
     "permission_findings": "permission_findings.json",
     "metadata_scores": "metadata_scores.json",
+    "unused_fields": "unused_fields.json",
+    "unused_objects": "unused_objects.json",
     "validation_rules": "validation_rules.json",
     "formula_fields": "formula_fields.json",
     "workflow_rules": "workflow_rules.json",
@@ -186,6 +188,11 @@ def compute_summary(data):
                 sev = finding.get("severity", "LOW").upper()
                 if sev in severity_counts:
                     severity_counts[sev] += 1
+    for source_key in ("unused_fields", "unused_objects"):
+        for item in data.get(source_key, []):
+            sev = item.get("severity", "LOW").upper()
+            if sev in severity_counts:
+                severity_counts[sev] += 1
 
     # Top issues by domain
     top_issues = {}
@@ -446,6 +453,20 @@ def _recommendations_list(data):
                         f"[{label}] {item.get('name', 'Unknown')}: {msg}",
                     ))
 
+    # Unused fields and objects
+    unused_fields = [f for f in data.get("unused_fields", []) if f.get("category") == "Unused"]
+    unused_objects = [o for o in data.get("unused_objects", []) if o.get("category") == "Unused"]
+    if unused_fields:
+        scored_recs.append((
+            15,
+            f"[Data Model] Remove {len(unused_fields)} unused custom field(s) (no data, no references)",
+        ))
+    if unused_objects:
+        scored_recs.append((
+            10,
+            f"[Data Model] Remove {len(unused_objects)} unused custom object(s) (no records, no references)",
+        ))
+
     scored_recs.sort(key=lambda x: x[0])
     return [text for _, text in scored_recs[:10]]
 
@@ -496,6 +517,17 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
     for key, label in inv_map:
         val = counts.get(key, 0)
         inv_lines.append(f"<li><strong>{_esc(val)}</strong> {label}</li>")
+    # Unused fields/objects summary counts
+    unused_f = data.get("unused_fields", [])
+    unused_o = data.get("unused_objects", [])
+    if unused_f:
+        inv_lines.append(
+            f"<li><strong>{len(unused_f)}</strong> Unused/Empty/Unreferenced Custom Fields</li>"
+        )
+    if unused_o:
+        inv_lines.append(
+            f"<li><strong>{len(unused_o)}</strong> Unused/Empty/Unreferenced Custom Objects</li>"
+        )
     sections.append(
         f'<div class="card"><h2>Executive Summary</h2>'
         f'<ul>{"".join(inv_lines)}</ul></div>'
@@ -655,6 +687,60 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
         sections.append(
             f'<div class="card"><h2>Data Model</h2>'
             f'{_table_html(["Object", "Score", "Fields", "Relationships", "Top Issues"], rows)}</div>'
+        )
+
+    # ── Unused Fields & Objects ──
+    if data.get("unused_fields") or data.get("unused_objects"):
+        uf_parts = []
+        if data.get("unused_fields"):
+            uf_rows = []
+            for item in sorted(data["unused_fields"], key=lambda x: (
+                {"HIGH": 0, "MEDIUM": 1, "LOW": 2}.get(x.get("severity", "LOW").upper(), 3),
+                x.get("object", ""), x.get("field", ""),
+            )):
+                refs = ", ".join(item.get("referenced_in") or []) or "None"
+                has_data = item.get("has_data")
+                has_data_label = "Unknown" if has_data is None else ("Yes" if has_data else "No")
+                uf_rows.append([
+                    _esc(item.get("object", "")),
+                    _esc(item.get("field", "")),
+                    _esc(item.get("data_type", "")),
+                    _esc(has_data_label),
+                    _esc(refs),
+                    _esc(item.get("category", "")),
+                    _severity_badge_html(item.get("severity", "LOW")),
+                ])
+            uf_parts.append(
+                f"<h3>Unused Fields ({len(data['unused_fields'])})</h3>"
+                + _table_html(
+                    ["Object", "Field", "Data Type", "Has Data", "Referenced In", "Category", "Severity"],
+                    uf_rows,
+                )
+            )
+        if data.get("unused_objects"):
+            uo_rows = []
+            for item in sorted(data["unused_objects"], key=lambda x: (
+                {"HIGH": 0, "MEDIUM": 1, "LOW": 2}.get(x.get("severity", "LOW").upper(), 3),
+                x.get("object", ""),
+            )):
+                refs = ", ".join(item.get("referenced_in") or []) or "None"
+                uo_rows.append([
+                    _esc(item.get("object", "")),
+                    _esc(str(item.get("record_count", 0))),
+                    _esc(refs),
+                    _esc(item.get("category", "")),
+                    _severity_badge_html(item.get("severity", "LOW")),
+                ])
+            uf_parts.append(
+                f"<h3>Unused Objects ({len(data['unused_objects'])})</h3>"
+                + _table_html(
+                    ["Object", "Record Count", "Referenced In", "Category", "Severity"],
+                    uo_rows,
+                )
+            )
+        sections.append(
+            '<div class="card"><h2>Unused Fields &amp; Objects</h2>'
+            + "\n".join(uf_parts) + "</div>"
         )
 
     # ── Validation Rules ──
@@ -1211,6 +1297,51 @@ def generate_docx(data, summary, org_name, org_id, instance, run_date, output_pa
                 style="List Bullet",
             )
 
+    # Unused Fields & Objects
+    if data.get("unused_fields") or data.get("unused_objects"):
+        doc.add_heading("Unused Fields & Objects", level=1)
+        if data.get("unused_fields"):
+            doc.add_heading("Unused Fields", level=2)
+            table = doc.add_table(rows=1, cols=7)
+            table.alignment = WD_TABLE_ALIGNMENT.CENTER
+            hdr = table.rows[0].cells
+            for i, h in enumerate(["Object", "Field", "Data Type", "Has Data", "Referenced In", "Category", "Severity"]):
+                hdr[i].text = h
+                for run in hdr[i].paragraphs[0].runs:
+                    run.font.bold = True
+            for item in sorted(data["unused_fields"], key=lambda x: (
+                {"HIGH": 0, "MEDIUM": 1, "LOW": 2}.get(x.get("severity", "LOW").upper(), 3),
+                x.get("object", ""), x.get("field", ""),
+            )):
+                has_data = item.get("has_data")
+                row = table.add_row().cells
+                row[0].text = item.get("object", "")
+                row[1].text = item.get("field", "")
+                row[2].text = item.get("data_type", "")
+                row[3].text = "Unknown" if has_data is None else ("Yes" if has_data else "No")
+                row[4].text = ", ".join(item.get("referenced_in") or []) or "None"
+                row[5].text = item.get("category", "")
+                row[6].text = item.get("severity", "LOW")
+        if data.get("unused_objects"):
+            doc.add_heading("Unused Objects", level=2)
+            table = doc.add_table(rows=1, cols=5)
+            table.alignment = WD_TABLE_ALIGNMENT.CENTER
+            hdr = table.rows[0].cells
+            for i, h in enumerate(["Object", "Record Count", "Referenced In", "Category", "Severity"]):
+                hdr[i].text = h
+                for run in hdr[i].paragraphs[0].runs:
+                    run.font.bold = True
+            for item in sorted(data["unused_objects"], key=lambda x: (
+                {"HIGH": 0, "MEDIUM": 1, "LOW": 2}.get(x.get("severity", "LOW").upper(), 3),
+                x.get("object", ""),
+            )):
+                row = table.add_row().cells
+                row[0].text = item.get("object", "")
+                row[1].text = str(item.get("record_count", 0))
+                row[2].text = ", ".join(item.get("referenced_in") or []) or "None"
+                row[3].text = item.get("category", "")
+                row[4].text = item.get("severity", "LOW")
+
     # Validation Rules
     if data.get("validation_rules"):
         doc.add_heading("Validation Rules", level=1)
@@ -1657,16 +1788,55 @@ def generate_xlsx(data, summary, org_name, org_id, instance, run_date, output_pa
         ))
     auto_width(ws8)
 
-    # Sheet 9 — Validation Rules
-    ws9 = wb.create_sheet("Validation Rules")
+    # Sheet 9 — Unused Fields
+    ws9 = wb.create_sheet("Unused Fields")
     ws9.sheet_properties.tabColor = "417AE4"
-    apply_header(ws9, ["Name", "Object", "Active", "Findings", "Severity"])
+    apply_header(ws9, ["Object", "Field", "Data Type", "Has Data", "Referenced In", "Category", "Severity"])
+    for i, item in enumerate(sorted(
+        data.get("unused_fields", []),
+        key=lambda x: (
+            {"HIGH": 0, "MEDIUM": 1, "LOW": 2}.get(x.get("severity", "LOW").upper(), 3),
+            x.get("object", ""), x.get("field", ""),
+        ),
+    ), 2):
+        has_data = item.get("has_data")
+        ws9.cell(row=i, column=1, value=item.get("object", ""))
+        ws9.cell(row=i, column=2, value=item.get("field", ""))
+        ws9.cell(row=i, column=3, value=item.get("data_type", ""))
+        ws9.cell(row=i, column=4, value="Unknown" if has_data is None else ("Yes" if has_data else "No"))
+        ws9.cell(row=i, column=5, value=", ".join(item.get("referenced_in") or []) or "None")
+        ws9.cell(row=i, column=6, value=item.get("category", ""))
+        ws9.cell(row=i, column=7, value=item.get("severity", "LOW"))
+    auto_width(ws9)
+
+    # Sheet 10 — Unused Objects
+    ws10 = wb.create_sheet("Unused Objects")
+    ws10.sheet_properties.tabColor = "417AE4"
+    apply_header(ws10, ["Object", "Record Count", "Referenced In", "Category", "Severity"])
+    for i, item in enumerate(sorted(
+        data.get("unused_objects", []),
+        key=lambda x: (
+            {"HIGH": 0, "MEDIUM": 1, "LOW": 2}.get(x.get("severity", "LOW").upper(), 3),
+            x.get("object", ""),
+        ),
+    ), 2):
+        ws10.cell(row=i, column=1, value=item.get("object", ""))
+        ws10.cell(row=i, column=2, value=item.get("record_count", 0))
+        ws10.cell(row=i, column=3, value=", ".join(item.get("referenced_in") or []) or "None")
+        ws10.cell(row=i, column=4, value=item.get("category", ""))
+        ws10.cell(row=i, column=5, value=item.get("severity", "LOW"))
+    auto_width(ws10)
+
+    # Sheet 11 — Validation Rules
+    ws11 = wb.create_sheet("Validation Rules")
+    ws11.sheet_properties.tabColor = "417AE4"
+    apply_header(ws11, ["Name", "Object", "Active", "Findings", "Severity"])
     for i, item in enumerate(data.get("validation_rules", []), 2):
-        ws9.cell(row=i, column=1, value=item.get("name", ""))
-        ws9.cell(row=i, column=2, value=item.get("object", ""))
-        ws9.cell(row=i, column=3, value=str(item.get("active", "")))
+        ws11.cell(row=i, column=1, value=item.get("name", ""))
+        ws11.cell(row=i, column=2, value=item.get("object", ""))
+        ws11.cell(row=i, column=3, value=str(item.get("active", "")))
         findings = item.get("findings", [])
-        ws9.cell(row=i, column=4, value="; ".join(
+        ws11.cell(row=i, column=4, value="; ".join(
             f.get("message", f.get("finding", "")) for f in findings[:3]
         ))
         if findings:
@@ -1674,55 +1844,20 @@ def generate_xlsx(data, summary, org_name, org_id, instance, run_date, output_pa
                 (f.get("severity", "LOW") for f in findings),
                 key=lambda s: {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1}.get(s.upper(), 0),
             )
-            ws9.cell(row=i, column=5, value=sev)
-    auto_width(ws9)
-
-    # Sheet 10 — Formula Fields
-    ws10 = wb.create_sheet("Formula Fields")
-    ws10.sheet_properties.tabColor = "417AE4"
-    apply_header(ws10, ["Name", "Object", "Data Type", "Formula Length", "Findings", "Severity"])
-    for i, item in enumerate(data.get("formula_fields", []), 2):
-        ws10.cell(row=i, column=1, value=item.get("name", ""))
-        ws10.cell(row=i, column=2, value=item.get("object", ""))
-        ws10.cell(row=i, column=3, value=item.get("data_type", ""))
-        ws10.cell(row=i, column=4, value=item.get("formula_length", 0))
-        findings = item.get("findings", [])
-        ws10.cell(row=i, column=5, value="; ".join(
-            f.get("message", "") for f in findings[:3]
-        ))
-        if findings:
-            sev = max(
-                (f.get("severity", "LOW") for f in findings),
-                key=lambda s: {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1}.get(s.upper(), 0),
-            )
-            ws10.cell(row=i, column=6, value=sev)
-    auto_width(ws10)
-
-    # Sheet 11 — Workflow Rules
-    ws11 = wb.create_sheet("Workflow Rules")
-    ws11.sheet_properties.tabColor = "417AE4"
-    apply_header(ws11, ["Name", "Object", "Action Types", "Migration Priority", "Formula Findings"])
-    for i, item in enumerate(data.get("workflow_rules", []), 2):
-        ws11.cell(row=i, column=1, value=item.get("name", ""))
-        ws11.cell(row=i, column=2, value=item.get("object", ""))
-        ws11.cell(row=i, column=3, value=item.get("action_types", ""))
-        ws11.cell(row=i, column=4, value=item.get("migration_priority", "HIGH"))
-        findings = item.get("findings", [])
-        ws11.cell(row=i, column=5, value="; ".join(
-            f.get("message", "") for f in findings[:3]
-        ))
+            ws11.cell(row=i, column=5, value=sev)
     auto_width(ws11)
 
-    # Sheet 12 — Other Declarative Logic
-    ws12 = wb.create_sheet("Other Declarative Logic")
+    # Sheet 12 — Formula Fields
+    ws12 = wb.create_sheet("Formula Fields")
     ws12.sheet_properties.tabColor = "417AE4"
-    apply_header(ws12, ["Type", "Name", "Object", "Findings", "Severity"])
-    for i, item in enumerate(data.get("other_rules_findings", []), 2):
-        ws12.cell(row=i, column=1, value=item.get("type", ""))
-        ws12.cell(row=i, column=2, value=item.get("name", ""))
-        ws12.cell(row=i, column=3, value=item.get("object", ""))
+    apply_header(ws12, ["Name", "Object", "Data Type", "Formula Length", "Findings", "Severity"])
+    for i, item in enumerate(data.get("formula_fields", []), 2):
+        ws12.cell(row=i, column=1, value=item.get("name", ""))
+        ws12.cell(row=i, column=2, value=item.get("object", ""))
+        ws12.cell(row=i, column=3, value=item.get("data_type", ""))
+        ws12.cell(row=i, column=4, value=item.get("formula_length", 0))
         findings = item.get("findings", [])
-        ws12.cell(row=i, column=4, value="; ".join(
+        ws12.cell(row=i, column=5, value="; ".join(
             f.get("message", "") for f in findings[:3]
         ))
         if findings:
@@ -1730,55 +1865,90 @@ def generate_xlsx(data, summary, org_name, org_id, instance, run_date, output_pa
                 (f.get("severity", "LOW") for f in findings),
                 key=lambda s: {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1}.get(s.upper(), 0),
             )
-            ws12.cell(row=i, column=5, value=sev)
+            ws12.cell(row=i, column=6, value=sev)
     auto_width(ws12)
 
-    # Sheet 13 — Hardcoded Values
-    ws13_hv = wb.create_sheet("Hardcoded Values")
-    ws13_hv.sheet_properties.tabColor = "417AE4"
-    apply_header(ws13_hv, ["Component Type", "Name", "Severity", "Finding"])
+    # Sheet 13 — Workflow Rules
+    ws13 = wb.create_sheet("Workflow Rules")
+    ws13.sheet_properties.tabColor = "417AE4"
+    apply_header(ws13, ["Name", "Object", "Action Types", "Migration Priority", "Formula Findings"])
+    for i, item in enumerate(data.get("workflow_rules", []), 2):
+        ws13.cell(row=i, column=1, value=item.get("name", ""))
+        ws13.cell(row=i, column=2, value=item.get("object", ""))
+        ws13.cell(row=i, column=3, value=item.get("action_types", ""))
+        ws13.cell(row=i, column=4, value=item.get("migration_priority", "HIGH"))
+        findings = item.get("findings", [])
+        ws13.cell(row=i, column=5, value="; ".join(
+            f.get("message", "") for f in findings[:3]
+        ))
+    auto_width(ws13)
+
+    # Sheet 14 — Other Declarative Logic
+    ws14 = wb.create_sheet("Other Declarative Logic")
+    ws14.sheet_properties.tabColor = "417AE4"
+    apply_header(ws14, ["Type", "Name", "Object", "Findings", "Severity"])
+    for i, item in enumerate(data.get("other_rules_findings", []), 2):
+        ws14.cell(row=i, column=1, value=item.get("type", ""))
+        ws14.cell(row=i, column=2, value=item.get("name", ""))
+        ws14.cell(row=i, column=3, value=item.get("object", ""))
+        findings = item.get("findings", [])
+        ws14.cell(row=i, column=4, value="; ".join(
+            f.get("message", "") for f in findings[:3]
+        ))
+        if findings:
+            sev = max(
+                (f.get("severity", "LOW") for f in findings),
+                key=lambda s: {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1}.get(s.upper(), 0),
+            )
+            ws14.cell(row=i, column=5, value=sev)
+    auto_width(ws14)
+
+    # Sheet 15 — Hardcoded Values
+    ws15 = wb.create_sheet("Hardcoded Values")
+    ws15.sheet_properties.tabColor = "417AE4"
+    apply_header(ws15, ["Component Type", "Name", "Severity", "Finding"])
     hv_rows = _collect_hardcoded_values(data)
     for i, hv in enumerate(hv_rows, 2):
-        ws13_hv.cell(row=i, column=1, value=hv["component_type"])
-        ws13_hv.cell(row=i, column=2, value=hv["name"])
-        ws13_hv.cell(row=i, column=3, value=hv["severity"])
-        ws13_hv.cell(row=i, column=4, value=hv["message"])
-    auto_width(ws13_hv)
+        ws15.cell(row=i, column=1, value=hv["component_type"])
+        ws15.cell(row=i, column=2, value=hv["name"])
+        ws15.cell(row=i, column=3, value=hv["severity"])
+        ws15.cell(row=i, column=4, value=hv["message"])
+    auto_width(ws15)
 
-    # Sheet 14 — Reports & Dashboards
-    ws14_rd = wb.create_sheet("Reports & Dashboards")
-    ws14_rd.sheet_properties.tabColor = "417AE4"
-    apply_header(ws14_rd, ["Name", "Type", "Folder", "Last Activity", "Created", "Stale"])
+    # Sheet 16 — Reports & Dashboards
+    ws16_rd = wb.create_sheet("Reports & Dashboards")
+    ws16_rd.sheet_properties.tabColor = "417AE4"
+    apply_header(ws16_rd, ["Name", "Type", "Folder", "Last Activity", "Created", "Stale"])
     rd = data.get("reports_dashboards", {})
     rd_row = 2
     for item in rd.get("reports", []):
-        ws14_rd.cell(row=rd_row, column=1, value=item.get("name", ""))
-        ws14_rd.cell(row=rd_row, column=2, value="Report")
-        ws14_rd.cell(row=rd_row, column=3, value=item.get("folder", ""))
-        ws14_rd.cell(row=rd_row, column=4, value=item.get("last_run_date") or "Never")
-        ws14_rd.cell(row=rd_row, column=5, value=item.get("created_date", ""))
-        ws14_rd.cell(row=rd_row, column=6, value="Yes" if item.get("is_stale") else "No")
+        ws16_rd.cell(row=rd_row, column=1, value=item.get("name", ""))
+        ws16_rd.cell(row=rd_row, column=2, value="Report")
+        ws16_rd.cell(row=rd_row, column=3, value=item.get("folder", ""))
+        ws16_rd.cell(row=rd_row, column=4, value=item.get("last_run_date") or "Never")
+        ws16_rd.cell(row=rd_row, column=5, value=item.get("created_date", ""))
+        ws16_rd.cell(row=rd_row, column=6, value="Yes" if item.get("is_stale") else "No")
         rd_row += 1
     for item in rd.get("dashboards", []):
-        ws14_rd.cell(row=rd_row, column=1, value=item.get("name", ""))
-        ws14_rd.cell(row=rd_row, column=2, value="Dashboard")
-        ws14_rd.cell(row=rd_row, column=3, value=item.get("folder", ""))
-        ws14_rd.cell(row=rd_row, column=4, value=item.get("last_viewed_date") or "Never")
-        ws14_rd.cell(row=rd_row, column=5, value=item.get("created_date", ""))
-        ws14_rd.cell(row=rd_row, column=6, value="Yes" if item.get("is_stale") else "No")
+        ws16_rd.cell(row=rd_row, column=1, value=item.get("name", ""))
+        ws16_rd.cell(row=rd_row, column=2, value="Dashboard")
+        ws16_rd.cell(row=rd_row, column=3, value=item.get("folder", ""))
+        ws16_rd.cell(row=rd_row, column=4, value=item.get("last_viewed_date") or "Never")
+        ws16_rd.cell(row=rd_row, column=5, value=item.get("created_date", ""))
+        ws16_rd.cell(row=rd_row, column=6, value="Yes" if item.get("is_stale") else "No")
         rd_row += 1
-    auto_width(ws14_rd)
+    auto_width(ws16_rd)
 
-    # Sheet 15 — Integrations
-    ws15_int = wb.create_sheet("Integrations")
-    ws15_int.sheet_properties.tabColor = "417AE4"
-    apply_header(ws15_int, ["Type", "Name", "Endpoint", "Findings", "Severity"])
+    # Sheet 17 — Integrations
+    ws17_int = wb.create_sheet("Integrations")
+    ws17_int.sheet_properties.tabColor = "417AE4"
+    apply_header(ws17_int, ["Type", "Name", "Endpoint", "Findings", "Severity"])
     for i, item in enumerate(data.get("integrations", []), 2):
-        ws15_int.cell(row=i, column=1, value=item.get("type", ""))
-        ws15_int.cell(row=i, column=2, value=item.get("name", ""))
-        ws15_int.cell(row=i, column=3, value=item.get("endpoint", "") or "")
+        ws17_int.cell(row=i, column=1, value=item.get("type", ""))
+        ws17_int.cell(row=i, column=2, value=item.get("name", ""))
+        ws17_int.cell(row=i, column=3, value=item.get("endpoint", "") or "")
         findings = item.get("findings", [])
-        ws15_int.cell(row=i, column=4, value="; ".join(
+        ws17_int.cell(row=i, column=4, value="; ".join(
             f.get("message", "") for f in findings[:3]
         ))
         if findings:
@@ -1786,91 +1956,91 @@ def generate_xlsx(data, summary, org_name, org_id, instance, run_date, output_pa
                 (f.get("severity", "LOW") for f in findings),
                 key=lambda s: {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1}.get(s.upper(), 0),
             )
-            ws15_int.cell(row=i, column=5, value=sev)
-    auto_width(ws15_int)
+            ws17_int.cell(row=i, column=5, value=sev)
+    auto_width(ws17_int)
 
-    # Sheet 16 — Test Coverage
-    ws16_tc = wb.create_sheet("Test Coverage")
-    ws16_tc.sheet_properties.tabColor = "417AE4"
-    apply_header(ws16_tc, ["Class/Trigger", "Lines Covered", "Lines Uncovered", "Coverage %"])
+    # Sheet 18 — Test Coverage
+    ws18_tc = wb.create_sheet("Test Coverage")
+    ws18_tc.sheet_properties.tabColor = "417AE4"
+    apply_header(ws18_tc, ["Class/Trigger", "Lines Covered", "Lines Uncovered", "Coverage %"])
     tc = data.get("test_coverage", {})
     for i, item in enumerate(sorted(tc.get("classes", []), key=lambda x: x.get("coverage_pct", 0)), 2):
-        ws16_tc.cell(row=i, column=1, value=item.get("name", ""))
-        ws16_tc.cell(row=i, column=2, value=item.get("lines_covered", 0))
-        ws16_tc.cell(row=i, column=3, value=item.get("lines_uncovered", 0))
+        ws18_tc.cell(row=i, column=1, value=item.get("name", ""))
+        ws18_tc.cell(row=i, column=2, value=item.get("lines_covered", 0))
+        ws18_tc.cell(row=i, column=3, value=item.get("lines_uncovered", 0))
         pct = item.get("coverage_pct", 0)
-        c = ws16_tc.cell(row=i, column=4, value=round(pct, 1))
+        c = ws18_tc.cell(row=i, column=4, value=round(pct, 1))
         if pct < 75:
             c.font = Font(color="E74C3C", bold=True, name="Arial", size=11)
-    auto_width(ws16_tc)
+    auto_width(ws18_tc)
 
-    # Sheet 17 — Team
-    ws17_team = wb.create_sheet("Team")
-    ws17_team.sheet_properties.tabColor = "417AE4"
-    apply_header(ws17_team, ["Name", "Username", "Profile", "Role", "Last Login", "Days Inactive", "PS Count"])
+    # Sheet 19 — Team
+    ws19_team = wb.create_sheet("Team")
+    ws19_team.sheet_properties.tabColor = "417AE4"
+    apply_header(ws19_team, ["Name", "Username", "Profile", "Role", "Last Login", "Days Inactive", "PS Count"])
     team = data.get("team_evaluation", {})
     for i, item in enumerate(sorted(team.get("users", []),
                                     key=lambda x: x.get("days_since_login") or 0, reverse=True), 2):
-        ws17_team.cell(row=i, column=1, value=item.get("name", ""))
-        ws17_team.cell(row=i, column=2, value=item.get("username", ""))
-        ws17_team.cell(row=i, column=3, value=item.get("profile", ""))
-        ws17_team.cell(row=i, column=4, value=item.get("role", "") or "")
-        ws17_team.cell(row=i, column=5, value=item.get("last_login", ""))
-        ws17_team.cell(row=i, column=6, value=item.get("days_since_login") or "")
-        ws17_team.cell(row=i, column=7, value=item.get("permission_set_count", 0))
-    auto_width(ws17_team)
+        ws19_team.cell(row=i, column=1, value=item.get("name", ""))
+        ws19_team.cell(row=i, column=2, value=item.get("username", ""))
+        ws19_team.cell(row=i, column=3, value=item.get("profile", ""))
+        ws19_team.cell(row=i, column=4, value=item.get("role", "") or "")
+        ws19_team.cell(row=i, column=5, value=item.get("last_login", ""))
+        ws19_team.cell(row=i, column=6, value=item.get("days_since_login") or "")
+        ws19_team.cell(row=i, column=7, value=item.get("permission_set_count", 0))
+    auto_width(ws19_team)
 
-    # Sheet 18 — Change History
-    ws18_ch = wb.create_sheet("Change History")
-    ws18_ch.sheet_properties.tabColor = "417AE4"
-    apply_header(ws18_ch, ["Date", "User", "Status", "Components Deployed", "Errors"])
+    # Sheet 20 — Change History
+    ws20_ch = wb.create_sheet("Change History")
+    ws20_ch.sheet_properties.tabColor = "417AE4"
+    apply_header(ws20_ch, ["Date", "User", "Status", "Components Deployed", "Errors"])
     ch = data.get("change_history", {})
     for i, item in enumerate(ch.get("deployments", []), 2):
-        ws18_ch.cell(row=i, column=1, value=item.get("date", ""))
-        ws18_ch.cell(row=i, column=2, value=item.get("user", ""))
-        ws18_ch.cell(row=i, column=3, value=item.get("status", ""))
-        ws18_ch.cell(row=i, column=4, value=item.get("components_deployed", 0))
-        ws18_ch.cell(row=i, column=5, value=item.get("component_errors", 0))
-    auto_width(ws18_ch)
+        ws20_ch.cell(row=i, column=1, value=item.get("date", ""))
+        ws20_ch.cell(row=i, column=2, value=item.get("user", ""))
+        ws20_ch.cell(row=i, column=3, value=item.get("status", ""))
+        ws20_ch.cell(row=i, column=4, value=item.get("components_deployed", 0))
+        ws20_ch.cell(row=i, column=5, value=item.get("component_errors", 0))
+    auto_width(ws20_ch)
 
-    # Sheet 19 — Licensing
-    ws19_lic = wb.create_sheet("Licensing")
-    ws19_lic.sheet_properties.tabColor = "417AE4"
-    apply_header(ws19_lic, ["Name", "Type", "Total", "Used", "Available", "Utilization %"])
+    # Sheet 21 — Licensing
+    ws21_lic = wb.create_sheet("Licensing")
+    ws21_lic.sheet_properties.tabColor = "417AE4"
+    apply_header(ws21_lic, ["Name", "Type", "Total", "Used", "Available", "Utilization %"])
     lic = data.get("licensing", {})
     lic_row = 2
     for item in lic.get("user_licenses", []):
-        ws19_lic.cell(row=lic_row, column=1, value=item.get("name", ""))
-        ws19_lic.cell(row=lic_row, column=2, value="User License")
-        ws19_lic.cell(row=lic_row, column=3, value=item.get("total", 0))
-        ws19_lic.cell(row=lic_row, column=4, value=item.get("used", 0))
-        ws19_lic.cell(row=lic_row, column=5, value=item.get("available", 0))
-        ws19_lic.cell(row=lic_row, column=6, value=round(item.get("utilization_pct", 0), 1))
+        ws21_lic.cell(row=lic_row, column=1, value=item.get("name", ""))
+        ws21_lic.cell(row=lic_row, column=2, value="User License")
+        ws21_lic.cell(row=lic_row, column=3, value=item.get("total", 0))
+        ws21_lic.cell(row=lic_row, column=4, value=item.get("used", 0))
+        ws21_lic.cell(row=lic_row, column=5, value=item.get("available", 0))
+        ws21_lic.cell(row=lic_row, column=6, value=round(item.get("utilization_pct", 0), 1))
         lic_row += 1
     for item in lic.get("permission_set_licenses", []):
-        ws19_lic.cell(row=lic_row, column=1, value=item.get("label", item.get("name", "")))
-        ws19_lic.cell(row=lic_row, column=2, value="PS License")
-        ws19_lic.cell(row=lic_row, column=3, value=item.get("total", 0))
-        ws19_lic.cell(row=lic_row, column=4, value=item.get("used", 0))
-        ws19_lic.cell(row=lic_row, column=5, value=item.get("available", 0))
-        ws19_lic.cell(row=lic_row, column=6, value=round(item.get("utilization_pct", 0), 1))
+        ws21_lic.cell(row=lic_row, column=1, value=item.get("label", item.get("name", "")))
+        ws21_lic.cell(row=lic_row, column=2, value="PS License")
+        ws21_lic.cell(row=lic_row, column=3, value=item.get("total", 0))
+        ws21_lic.cell(row=lic_row, column=4, value=item.get("used", 0))
+        ws21_lic.cell(row=lic_row, column=5, value=item.get("available", 0))
+        ws21_lic.cell(row=lic_row, column=6, value=round(item.get("utilization_pct", 0), 1))
         lic_row += 1
     for item in lic.get("package_licenses", []):
         allowed = item.get("allowed", 0)
         used = item.get("used", 0)
-        ws19_lic.cell(row=lic_row, column=1, value=item.get("namespace", ""))
-        ws19_lic.cell(row=lic_row, column=2, value="Package License")
-        ws19_lic.cell(row=lic_row, column=3, value=allowed)
-        ws19_lic.cell(row=lic_row, column=4, value=used)
-        ws19_lic.cell(row=lic_row, column=5, value=allowed - used)
-        ws19_lic.cell(row=lic_row, column=6, value=round((used / allowed * 100) if allowed > 0 else 0, 1))
+        ws21_lic.cell(row=lic_row, column=1, value=item.get("namespace", ""))
+        ws21_lic.cell(row=lic_row, column=2, value="Package License")
+        ws21_lic.cell(row=lic_row, column=3, value=allowed)
+        ws21_lic.cell(row=lic_row, column=4, value=used)
+        ws21_lic.cell(row=lic_row, column=5, value=allowed - used)
+        ws21_lic.cell(row=lic_row, column=6, value=round((used / allowed * 100) if allowed > 0 else 0, 1))
         lic_row += 1
-    auto_width(ws19_lic)
+    auto_width(ws21_lic)
 
-    # Sheet 20 — Summary
-    ws14 = wb.create_sheet("Summary")
-    ws14.sheet_properties.tabColor = "417AE4"
-    apply_header(ws14, ["Metric", "Value"])
+    # Sheet 22 — Summary
+    ws22 = wb.create_sheet("Summary")
+    ws22.sheet_properties.tabColor = "417AE4"
+    apply_header(ws22, ["Metric", "Value"])
     summary_rows = [
         ("Org Name", org_name),
         ("Org ID", org_id),
@@ -1891,9 +2061,9 @@ def generate_xlsx(data, summary, org_name, org_id, instance, run_date, output_pa
         summary_rows.append((f"  {sev}", summary["severity_counts"].get(sev, 0)))
 
     for i, (metric, value) in enumerate(summary_rows, 2):
-        ws14.cell(row=i, column=1, value=metric)
-        ws14.cell(row=i, column=2, value=value)
-    auto_width(ws14)
+        ws22.cell(row=i, column=1, value=metric)
+        ws22.cell(row=i, column=2, value=value)
+    auto_width(ws22)
 
     wb.save(output_path)
     return output_path

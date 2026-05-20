@@ -1,0 +1,20 @@
+[
+  {
+    "object": "Project__c",
+    "field": "Legacy_Status__c",
+    "data_type": "Picklist",
+    "has_data": false,
+    "referenced_in": [],
+    "category": "Unused",
+    "severity": "HIGH"
+  },
+  {
+    "object": "Account",
+    "field": "Old_Region__c",
+    "data_type": "Text",
+    "has_data": false,
+    "referenced_in": ["AccountService.cls", "Account_Update_Flow"],
+    "category": "Empty",
+    "severity": "MEDIUM"
+  }
+]
