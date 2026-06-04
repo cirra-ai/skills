@@ -1,0 +1,19 @@
+{
+  "orgName": "Cirra AI - Full-Featured Scratch Org",
+  "edition": "Developer",
+  "features": ["Communities", "ServiceCloud", "LightningSalesConsole", "LightningServiceConsole"],
+  "settings": {
+    "lightningExperienceSettings": {
+      "enableS1DesktopEnabled": true
+    },
+    "mobileSettings": {
+      "enableS1EncryptedStoragePref2": false
+    },
+    "communitiesSettings": {
+      "enableNetworksEnabled": true
+    },
+    "caseSettings": {
+      "systemUserEmail": ""
+    }
+  }
+}
