@@ -107,7 +107,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Tool params**: `(no parameters)`
 - **Should call**: `cirra_ai_init`
 - **Should NOT call**: `user_create`, `permission_set_assignments`, `metadata_create`
-- **Should ask user**: yes (must ask the archetype — internal admin, contractor, or integration user — before discovery)
+- **Should ask user**: yes (must ask the archetype — internal admin, contractor, or integration user — before discovery via `AskUserQuestion`)
 - **Follow-up skills**: `sf-permissions`
 
 **Notes**: Archetype is ambiguous. Per SKILL.md, the skill MUST call `AskUserQuestion` to clarify "Is this an internal admin, a contractor, or an integration user?" before running discovery queries. License/profile must not be guessed.
