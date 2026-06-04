@@ -76,7 +76,7 @@ Request: "I need a clean sandbox for testing"
 | ------------------------- | ------- | ------------- | ------- |
 | `sfdx-repo`               | Full    | Full          | Fastest |
 | `cli`                     | Full    | Full          | Fast    |
-| `mcp-plus-code-execution` | Full    | Limited       | Medium  |
+| `mcp-plus-code-execution` | Full    | Not supported | Medium  |
 | `mcp-core`                | Full    | Not supported | Slowest |
 
 All sandbox pool operations go through MCP tools regardless of mode. The mode

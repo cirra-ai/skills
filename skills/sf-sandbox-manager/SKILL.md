@@ -95,7 +95,7 @@ This skill supports four execution modes — see `references/execution-modes.md`
 | ------------------------- | ------- | ------------- | ------------- |
 | `sfdx-repo`               | Full    | Full          | Full          |
 | `cli`                     | Full    | Full          | Full          |
-| `mcp-plus-code-execution` | Full    | Limited       | Full          |
+| `mcp-plus-code-execution` | Full    | Not supported | Full          |
 | `mcp-core`                | Full    | Not supported | Full          |
 
 All sandbox pool operations go through MCP tools regardless of mode. The mode determines whether scratch org CLI commands are available.
@@ -216,17 +216,17 @@ sobject_create(
 
 Use `sobject_field_create` for each field defined in `assets/pool-object-schema.json`. Create them in this order:
 
-1. `Environment_Name__c` — Text(80), required
+1. `Environment_Name__c` — Text(80), required, unique, external ID
 
    ```
    sobject_field_create(
-     objectName="Environment_Pool__c",
-     fieldName="Environment_Name",
+     sObject="Environment_Pool__c",
+     fieldName="Environment_Name__c",
      fieldType="Text",
      label="Environment Name",
-     length=80,
-     required=true,
-     description="Sandbox name as it appears in Salesforce Setup"
+     description="Sandbox name as it appears in Salesforce Setup",
+     inlineHelpText="The sandbox name exactly as shown in Setup > Sandboxes",
+     properties={"length": 80, "required": true, "unique": true, "externalId": true}
    )
    ```
 
@@ -234,13 +234,13 @@ Use `sobject_field_create` for each field defined in `assets/pool-object-schema.
 
    ```
    sobject_field_create(
-     objectName="Environment_Pool__c",
-     fieldName="Environment_Type",
+     sObject="Environment_Pool__c",
+     fieldName="Environment_Type__c",
      fieldType="Picklist",
      label="Environment Type",
-     picklistValues=["Developer", "Developer_Pro", "Partial", "Full"],
-     required=true,
-     description="Sandbox type (maps to SandboxInfo.LicenseType)"
+     description="Sandbox type (maps to SandboxInfo.LicenseType)",
+     inlineHelpText="The Salesforce sandbox edition type",
+     properties={"required": true, "picklistValues": ["Developer", "Developer_Pro", "Partial", "Full"]}
    )
    ```
 
@@ -248,13 +248,13 @@ Use `sobject_field_create` for each field defined in `assets/pool-object-schema.
 
    ```
    sobject_field_create(
-     objectName="Environment_Pool__c",
-     fieldName="Status",
+     sObject="Environment_Pool__c",
+     fieldName="Status__c",
      fieldType="Picklist",
      label="Status",
-     picklistValues=["Available", "Checked_Out", "Pending_Reset", "Creating", "Error"],
-     required=true,
-     description="Current lifecycle state of this environment"
+     description="Current lifecycle state of this environment",
+     inlineHelpText="Current pool lifecycle state",
+     properties={"required": true, "picklistValues": ["Available", "Checked_Out", "Pending_Reset", "Creating", "Error"]}
    )
    ```
 
@@ -262,13 +262,13 @@ Use `sobject_field_create` for each field defined in `assets/pool-object-schema.
 
    ```
    sobject_field_create(
-     objectName="Environment_Pool__c",
-     fieldName="Checked_Out_By",
+     sObject="Environment_Pool__c",
+     fieldName="Checked_Out_By__c",
      fieldType="Text",
      label="Checked Out By",
-     length=255,
-     required=false,
-     description="Email or name of the user who has this environment checked out"
+     description="Email or name of the user who has this environment checked out",
+     inlineHelpText="Who currently has this environment reserved",
+     properties={"length": 255}
    )
    ```
 
@@ -276,12 +276,12 @@ Use `sobject_field_create` for each field defined in `assets/pool-object-schema.
 
    ```
    sobject_field_create(
-     objectName="Environment_Pool__c",
-     fieldName="Checkout_Timestamp",
+     sObject="Environment_Pool__c",
+     fieldName="Checkout_Timestamp__c",
      fieldType="DateTime",
      label="Checkout Timestamp",
-     required=false,
-     description="When this environment was checked out"
+     description="When this environment was checked out",
+     inlineHelpText="Automatically set when the environment is checked out"
    )
    ```
 
@@ -289,12 +289,12 @@ Use `sobject_field_create` for each field defined in `assets/pool-object-schema.
 
    ```
    sobject_field_create(
-     objectName="Environment_Pool__c",
-     fieldName="Expected_Return",
+     sObject="Environment_Pool__c",
+     fieldName="Expected_Return__c",
      fieldType="DateTime",
      label="Expected Return",
-     required=false,
-     description="When the user expects to be done with this environment"
+     description="When the user expects to be done with this environment",
+     inlineHelpText="When do you plan to be done with this environment?"
    )
    ```
 
@@ -302,12 +302,12 @@ Use `sobject_field_create` for each field defined in `assets/pool-object-schema.
 
    ```
    sobject_field_create(
-     objectName="Environment_Pool__c",
-     fieldName="Expiry_Date",
+     sObject="Environment_Pool__c",
+     fieldName="Expiry_Date__c",
      fieldType="Date",
      label="Expiry Date",
-     required=false,
-     description="Sandbox refresh eligibility date"
+     description="Sandbox refresh eligibility date",
+     inlineHelpText="Date when this sandbox becomes eligible for refresh"
    )
    ```
 
@@ -315,13 +315,13 @@ Use `sobject_field_create` for each field defined in `assets/pool-object-schema.
 
    ```
    sobject_field_create(
-     objectName="Environment_Pool__c",
-     fieldName="Purpose",
+     sObject="Environment_Pool__c",
+     fieldName="Purpose__c",
      fieldType="Text",
      label="Purpose",
-     length=255,
-     required=false,
-     description="What this checkout is for (feature name, ticket number, etc.)"
+     description="What this checkout is for (feature name, ticket number, etc.)",
+     inlineHelpText="Brief description of what you're using this environment for",
+     properties={"length": 255}
    )
    ```
 
@@ -329,13 +329,13 @@ Use `sobject_field_create` for each field defined in `assets/pool-object-schema.
 
    ```
    sobject_field_create(
-     objectName="Environment_Pool__c",
-     fieldName="Org_Id",
+     sObject="Environment_Pool__c",
+     fieldName="Org_Id__c",
      fieldType="Text",
      label="Org ID",
-     length=18,
-     required=false,
-     description="18-character org ID of the sandbox"
+     description="18-character org ID of the sandbox",
+     inlineHelpText="The 18-character Salesforce org ID",
+     properties={"length": 18}
    )
    ```
 
@@ -343,12 +343,12 @@ Use `sobject_field_create` for each field defined in `assets/pool-object-schema.
 
     ```
     sobject_field_create(
-      objectName="Environment_Pool__c",
-      fieldName="Login_Url",
+      sObject="Environment_Pool__c",
+      fieldName="Login_Url__c",
       fieldType="Url",
       label="Login URL",
-      required=false,
-      description="Login URL for the sandbox environment"
+      description="Login URL for the sandbox environment",
+      inlineHelpText="Direct login URL for this sandbox"
     )
     ```
 
@@ -356,25 +356,25 @@ Use `sobject_field_create` for each field defined in `assets/pool-object-schema.
 
     ```
     sobject_field_create(
-      objectName="Environment_Pool__c",
-      fieldName="Last_Reset",
+      sObject="Environment_Pool__c",
+      fieldName="Last_Reset__c",
       fieldType="DateTime",
       label="Last Reset",
-      required=false,
-      description="Last time this sandbox was refreshed/reset"
+      description="Last time this sandbox was refreshed/reset",
+      inlineHelpText="When this sandbox was last refreshed or provisioned"
     )
     ```
 
 12. `Sandbox_Process_Id__c` — Text(18)
     ```
     sobject_field_create(
-      objectName="Environment_Pool__c",
-      fieldName="Sandbox_Process_Id",
+      sObject="Environment_Pool__c",
+      fieldName="Sandbox_Process_Id__c",
       fieldType="Text",
       label="Sandbox Process ID",
-      length=18,
-      required=false,
-      description="SandboxProcess record ID for polling creation/refresh status"
+      description="SandboxProcess record ID for polling creation/refresh status",
+      inlineHelpText="Used internally to track sandbox provisioning progress",
+      properties={"length": 18}
     )
     ```
 
@@ -506,18 +506,18 @@ Return an environment that is no longer needed.
 
 ### Identify the environment
 
-If the user specifies a name or ID, use it directly. Otherwise, query environments checked out by the current user:
+If the user specifies a name or ID, use it directly. Otherwise, query all currently checked-out environments and ask the user to identify theirs:
 
 Use `soql_query`:
 
 - sObject: `Environment_Pool__c`
-- fields: `["Id", "Name", "Environment_Name__c", "Environment_Type__c", "Status__c", "Checkout_Timestamp__c", "Purpose__c"]`
+- fields: `["Id", "Name", "Environment_Name__c", "Environment_Type__c", "Status__c", "Checked_Out_By__c", "Checkout_Timestamp__c", "Purpose__c"]`
 - whereClause: `Status__c = 'Checked_Out'`
 - orderBy: `Checkout_Timestamp__c DESC`
 - groupBy: ``
 - limit: `20`
 
-If multiple environments are checked out, present a list and ask which one to return.
+Present the list with `Checked_Out_By__c` so the user can identify their environment and ask which one to return.
 
 ### Ask about condition
 
@@ -614,7 +614,7 @@ Use `tooling_api_dml`:
   [
     {
       "SandboxName": "<sandbox_name>",
-      "LicenseType": "<Developer|Developer_Pro|Partial|Full>",
+      "LicenseType": "<DEVELOPER|DEVELOPER_PRO|PARTIAL|FULL>",
       "Description": "<purpose>"
     }
   ]
@@ -677,7 +677,7 @@ Use `tooling_api_dml`:
     {
       "SandboxInfoId": "<sandbox_info_id>",
       "SandboxName": "<sandbox_name>",
-      "LicenseType": "<type>"
+      "LicenseType": "<DEVELOPER|DEVELOPER_PRO|PARTIAL|FULL>"
     }
   ]
   ```
@@ -831,7 +831,8 @@ Use `sobject_dml`:
     {
       "Id": "<pool_record_id>",
       "Status__c": "Available",
-      "Last_Reset__c": "<current_datetime_ISO>"
+      "Last_Reset__c": "<current_datetime_ISO>",
+      "Sandbox_Process_Id__c": ""
     }
   ]
   ```

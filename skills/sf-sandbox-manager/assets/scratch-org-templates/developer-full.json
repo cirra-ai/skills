@@ -11,9 +11,6 @@
     },
     "communitiesSettings": {
       "enableNetworksEnabled": true
-    },
-    "caseSettings": {
-      "systemUserEmail": ""
     }
   }
 }
