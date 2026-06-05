@@ -142,11 +142,16 @@ For granting an ability to a **new or existing** user.
 1. **`cirra_ai_init`**.
 2. **Read the model user** fully with `soql_query`: profile, license, role, and all assigned
    permission sets / permission set groups (`PermissionSetAssignment`).
-3. **Create the new user** via `user_create` with `template=<model user>` to inherit
+3. **Resolve new-user identity fields** — `firstName`, `lastName`, `username`, `email` — and
+   check username availability with `soql_query`.
+4. **Present the plan and get approval. End your turn.** The plan must enumerate the cloned
+   profile/license, every permission set to be re-assigned, and the new identity fields.
+5. **Create the new user** via `user_create` with `template=<model user>` to inherit
    profile/locale.
-4. **Replicate permission sets** — cloning a user does **not** copy permission set assignments, so
-   assign each one the model user has with `permission_set_assignments`.
-5. **Present plan → approve → execute → verify → report.**
+6. **Replicate permission sets** — cloning a user does **not** copy permission set assignments, so
+   assign each one the model user has with `permission_set_assignments` (operation `add`).
+7. **Verify** with a `soql_query` of the new user and confirm every expected PS assignment took.
+8. **Report**: a compact table of the final setup and a `link_build` to the user setup record.
 
 ---
 
