@@ -26,23 +26,126 @@ SUPPORTED_METADATA_TYPES = {
     "Layout",
 }
 
-# FlexiPage constants discovered from live org testing.
+# FlexiPage page-type enum — keep in sync with
+# references/flexipage-metadata-schema.json $defs.FlexiPage.properties.type.enum.
+# See references/flexipage-capabilities.md for per-type rules.
 FLEXIPAGE_VALID_TYPES = {
+    # Standard Lightning desktop / mobile
     "AppPage",
+    "ObjectPage",
     "RecordPage",
     "HomePage",
-    "ObjectPage",
-    "ForecastingPage",
-    "MailAppAppPage",
-    "CommAppPage",
+    "EasyHomePage",
+    "ApplicationLayout",
     "UtilityBar",
+    "MobileAppPage",
+    "RecordPreview",
+    "CardPage",
+    # Forecasting / Service / Field Service / Voice
+    "ForecastingPage",
+    "OmniSupervisorPage",
     "EmbeddedServicePage",
+    "ServiceDocument",
+    "VoiceExtension",
+    # Mail / Outlook / Gmail
+    "MailAppAppPage",
+    # Email content
+    "EmailContentPage",
+    "EmailTemplatePage",
+    # Marketing / Data Cloud / Configurator
+    "LandingPage",
+    "CdpRecordPage",
+    "ConfiguratorAppPage",
+    # Slack
+    "SlackAppHome",
+    "SlackMessage",
+    "SlackModal",
+    "SlackNotification",
+    # Experience Cloud (Communities)
+    "CommAppPage",
+    "CommObjectPage",
+    "CommRecordPage",
+    "CommRelatedListPage",
+    "CommQuickActionCreatePage",
+    "CommThemeLayoutPage",
+    "CommLoginPage",
+    "CommForgotPasswordPage",
+    "CommSelfRegisterPage",
+    "CommSearchResultPage",
+    "CommGlobalSearchResultPage",
+    "CommNoSearchResultsPage",
+    "CommFlowPage",
+    "CommCheckoutPage",
+    "CommOrderConfirmationPage",
+    "CommElectronicSignaturePage",
+    "CommContractDocumentsPage",
+    "CommContractDetailViewPage",
 }
 
+# Page types that require sobjectType (object-bound pages).
+FLEXIPAGE_SOBJECT_REQUIRED = {
+    "RecordPage",
+    "ObjectPage",
+    "CommRecordPage",
+    "CommObjectPage",
+    "CommRelatedListPage",
+    "CommQuickActionCreatePage",
+    "CdpRecordPage",
+}
+
+# Page types that must NOT specify sobjectType (not object-bound).
+FLEXIPAGE_SOBJECT_FORBIDDEN = {
+    "AppPage",
+    "HomePage",
+    "EasyHomePage",
+    "ApplicationLayout",
+    "UtilityBar",
+    "MobileAppPage",
+    "CardPage",
+    "ForecastingPage",
+    "OmniSupervisorPage",
+    "EmbeddedServicePage",
+    "ServiceDocument",
+    "VoiceExtension",
+    "MailAppAppPage",
+    "EmailContentPage",
+    "EmailTemplatePage",
+    "LandingPage",
+    "ConfiguratorAppPage",
+    "SlackAppHome",
+    "SlackMessage",
+    "SlackModal",
+    "SlackNotification",
+    "CommAppPage",
+    "CommThemeLayoutPage",
+    "CommLoginPage",
+    "CommForgotPasswordPage",
+    "CommSelfRegisterPage",
+    "CommSearchResultPage",
+    "CommGlobalSearchResultPage",
+    "CommNoSearchResultsPage",
+    "CommFlowPage",
+    "CommCheckoutPage",
+    "CommOrderConfirmationPage",
+    "CommElectronicSignaturePage",
+    "CommContractDocumentsPage",
+    "CommContractDetailViewPage",
+}
+
+# Known default templates — only enforced for types where the default is stable.
 FLEXIPAGE_TEMPLATES = {
     "RecordPage": "flexipage:recordHomeTemplateDesktop",
+    "ObjectPage": "flexipage:objectHomeTemplateDesktop",
     "AppPage": "flexipage:defaultAppHomeTemplate",
     "HomePage": "home:desktopTemplate",
+}
+
+# Page types where empty flexiPageRegions is legitimate (notification/utility
+# style configs) — these downgrade the "no regions" finding to a warning.
+FLEXIPAGE_REGIONS_OPTIONAL = {
+    "UtilityBar",
+    "RecordPreview",
+    "SlackNotification",
 }
 
 # Visibility rules only support the EQUAL operator in FlexiPage metadata.
@@ -162,11 +265,21 @@ class MetadataOperationValidator:
                 self._deduct("deployability", 8, "deploymentStatus should be Deployed or InDevelopment", "critical")
 
         # FlexiPage visibility-rule operators are checked in _check_flexipage_visibility_rules.
-        # Additional deployability: RecordPage without regions is undeployable.
+        # Additional deployability: most FlexiPages without regions are undeployable.
+        # A small set of types (utility bar, record preview, slack notification)
+        # legitimately ship with no regions, so flag those as warnings only.
         if self.metadata_type == "FlexiPage":
             regions = self.payload.get("flexiPageRegions", [])
             if not isinstance(regions, list) or len(regions) == 0:
-                self._deduct("deployability", 8, "FlexiPage has no regions; at least one is required", "critical")
+                fp_type = self.payload.get("type", "")
+                if fp_type in FLEXIPAGE_REGIONS_OPTIONAL:
+                    self._deduct(
+                        "deployability", 3,
+                        f"FlexiPage type '{fp_type}' has no regions; verify this is intentional",
+                        "warning",
+                    )
+                else:
+                    self._deduct("deployability", 8, "FlexiPage has no regions; at least one is required", "critical")
 
     def _check_maintainability(self):
         if self.metadata_type == "ValidationRule":
@@ -180,20 +293,23 @@ class MetadataOperationValidator:
                 self._deduct("maintainability", 4, "FlexiPage has many regions; consider simplifying layout", "warning")
 
     def _check_flexipage_schema(self):
-        """Validate FlexiPage-specific structure."""
+        """Validate FlexiPage-specific structure.
+
+        See references/flexipage-capabilities.md for the per-type contract.
+        """
         fp_type = self.payload.get("type", "")
         if fp_type and fp_type not in FLEXIPAGE_VALID_TYPES:
             self._deduct("schema", 8, f"FlexiPage type '{fp_type}' is not a recognized page type", "critical")
 
-        # RecordPage must have sobjectType.
-        if fp_type == "RecordPage" and not self.payload.get("sobjectType"):
-            self._deduct("schema", 5, "RecordPage requires 'sobjectType'", "critical")
+        # Page types that must declare the target object.
+        if fp_type in FLEXIPAGE_SOBJECT_REQUIRED and not self.payload.get("sobjectType"):
+            self._deduct("schema", 5, f"{fp_type} requires 'sobjectType'", "critical")
 
-        # AppPage and HomePage should NOT have sobjectType.
-        if fp_type in ("AppPage", "HomePage") and self.payload.get("sobjectType"):
+        # Page types that must NOT declare an object (not object-bound).
+        if fp_type in FLEXIPAGE_SOBJECT_FORBIDDEN and self.payload.get("sobjectType"):
             self._deduct("schema", 3, f"{fp_type} should not have 'sobjectType'", "warning")
 
-        # Validate template name.
+        # Validate template name for the page types with a known stable default.
         template = self.payload.get("template")
         if isinstance(template, dict):
             tpl_name = template.get("name", "")

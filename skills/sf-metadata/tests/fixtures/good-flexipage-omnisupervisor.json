@@ -1,0 +1,21 @@
+{
+  "masterLabel": "CirraTest Omni Supervisor",
+  "type": "OmniSupervisorPage",
+  "description": "Custom Omni-Channel Supervisor configuration",
+  "template": {
+    "name": "runtime_omnichannel_supervisor:supervisorTemplate"
+  },
+  "flexiPageRegions": [
+    {
+      "name": "main",
+      "type": "Region",
+      "itemInstances": [
+        {
+          "componentInstance": {
+            "componentName": "flexipage:tabset"
+          }
+        }
+      ]
+    }
+  ]
+}

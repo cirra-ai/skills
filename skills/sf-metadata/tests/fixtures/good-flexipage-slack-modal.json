@@ -1,0 +1,32 @@
+{
+  "masterLabel": "CirraTest Slack Approval Modal",
+  "type": "SlackModal",
+  "description": "Slack modal shown when an approval is requested",
+  "template": {
+    "name": "slack:modalTemplate"
+  },
+  "flexiPageRegions": [
+    {
+      "name": "body",
+      "type": "Region",
+      "itemInstances": [
+        {
+          "componentInstance": {
+            "componentName": "slack:section",
+            "componentInstanceProperties": [
+              {
+                "name": "text",
+                "value": "Approve this request?"
+              }
+            ]
+          }
+        },
+        {
+          "componentInstance": {
+            "componentName": "slack:actions"
+          }
+        }
+      ]
+    }
+  ]
+}

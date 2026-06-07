@@ -1,0 +1,21 @@
+{
+  "masterLabel": "CirraTest Community Record Page Missing SObject",
+  "type": "CommRecordPage",
+  "description": "CommRecordPage missing required sobjectType",
+  "template": {
+    "name": "comm:recordHomeTemplate"
+  },
+  "flexiPageRegions": [
+    {
+      "name": "main",
+      "type": "Region",
+      "itemInstances": [
+        {
+          "componentInstance": {
+            "componentName": "forceCommunity:recordInformation"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "masterLabel": "CirraTest Forecasting Page",
+  "type": "ForecastingPage",
+  "description": "Collaborative Forecasts page for the sales team",
+  "template": {
+    "name": "forecasting:forecastingTemplate"
+  },
+  "flexiPageRegions": [
+    {
+      "name": "main",
+      "type": "Region",
+      "itemInstances": [
+        {
+          "componentInstance": {
+            "componentName": "flexipage:richText",
+            "componentInstanceProperties": [
+              {
+                "name": "richTextValue",
+                "value": "Quarterly forecast summary"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
