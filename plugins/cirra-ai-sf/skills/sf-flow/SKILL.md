@@ -3,7 +3,7 @@ name: sf-flow
 plugin: cirra-ai-sf
 argument-hint: '[create|update|validate] {FlowName} ...'
 metadata:
-  version: 2.1.2
+  version: 2.2.0
 description: >
   Creates and validates Salesforce flows with 110-point scoring and Winter '26 best practices
   using Cirra AI MCP Server. Use when building record-triggered flows, screen flows,
@@ -33,6 +33,36 @@ AskUserQuestion(question="What would you like to do?\n\n1. **Create** — genera
 ```
 
 Do NOT guess the operation or default to one. Wait for the user's answer.
+
+---
+
+## Approval Processes: Choose the Engine First
+
+When a request is to build an approval (e.g. "create an approval process", "require approval before X", "deal/discount approval", "gate a stage until approved"), do NOT start building until the **engine** is decided:
+
+| Engine                                        | Build with                                                                                                  | Use when                                                                                                                                                                 |
+| --------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Flow Approval Orchestration** (recommended) | this skill (`processType` Orchestrator, record-triggered) + the Setup approval wizard for the approval step | Default. Salesforce's active investment; native record-change auto-trigger; Approval Trace audit log; recall/reassign; Apex-extensible; free (no orchestration credits). |
+| **Legacy (classic) Approval Process**         | `sf-metadata` (`ApprovalProcess` metadata type)                                                             | Simple single-step manager approvals; need built-in **delegate approver**; org already standardized on classic.                                                          |
+
+**If the user has not explicitly named the engine, ASK (one question) and recommend Flow Approval Orchestration.** Do not default silently.
+
+```
+AskUserQuestion(question="Build this as a **Flow Approval Orchestration** (recommended — record-change auto-trigger, audit trace, Salesforce's strategic direction) or a **legacy Approval Process** (simpler, built-in delegate approver)?")
+```
+
+**Set expectations up front (true for BOTH engines):**
+
+- An approval process cannot _prevent_ a field transition by itself. To gate (e.g. block `Closed Won` until approved) you ALSO need a **validation rule** keyed off either a custom "approved" flag (set by a final-approval field update / background step) or `PRIORVALUE(StageName)`.
+- Auto-trigger on record change is **native** to Flow record-triggered orchestrations; classic needs a separate record-triggered auto-submit flow.
+- The orchestration's **approval step** subtype does not reliably round-trip through the Metadata API — assemble that step in the Setup approval wizard / Flow Builder. Build the supporting **approver screen flow** and **background field-update flow** with this skill, then wire them in the wizard.
+
+### Minimize metadata round-trips
+
+- **Read before update** for any element the API replaces wholesale (`Layout`, `ApprovalProcess`, `StandardValueSet`, `Flow`): fetch current → change the one field → send the complete payload. A partial payload silently drops siblings.
+- **Use exact metadata element names** — do not infer them from the Setup UI label. Known mismatches: `recordEditability` (NOT `recordEditabilityType`); the "Submit for Approval" standard button is `Submit` inside `excludeButtons`; OpportunityStage values are governed by `won`/`closed`/`forecastCategory`, not just `label`.
+- **Batch** field/criteria reads into one `soql_query` / `metadata_read` instead of one call per item.
+- Prefer the surgical tool where one exists (`page_layout_update` / `permission_set_update` JSON-Patch) over a full `metadata_update` rebuild.
 
 ---
 
