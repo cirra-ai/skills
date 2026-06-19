@@ -3,7 +3,7 @@ name: sf-sbs-audit
 plugin: cirra-ai-sf
 argument-hint: '[control SBS-XXX-NNN|category ACS|AUTH|...|risk Critical|High|Moderate|all] ...'
 metadata:
-  version: 2.0.0
+  version: 2.0.1
 description: >
   Audit a Salesforce org against the Security Benchmark for Salesforce (SBS), a
   vendor-neutral compliance standard for Salesforce security posture

@@ -93,7 +93,14 @@ class TestAttributionArtifacts:
     def test_license_file_carries_cc_by_sa(self) -> None:
         text = (DATA_DIR / "LICENSE").read_text(encoding="utf-8")
         assert "CC BY-SA 4.0" in text
-        assert "creativecommons.org/licenses/by-sa/4.0" in text
+        # Match the canonical CC license URI as a full line in the file
+        # (rather than a bare-substring `in` check, which CodeQL's URL-
+        # sanitization rule flags even in test code).
+        assert re.search(
+            r"^[ ]*License URI:\s+https://creativecommons\.org/licenses/by-sa/4\.0/\s*$",
+            text,
+            flags=re.MULTILINE,
+        ), "LICENSE must contain the canonical CC BY-SA 4.0 URI line"
 
     def test_notice_file_states_modifications(self) -> None:
         text = (DATA_DIR / "NOTICE").read_text(encoding="utf-8")
@@ -108,15 +115,21 @@ class TestAttributionArtifacts:
     def test_attribution_txt_canonical_shape(self) -> None:
         """ATTRIBUTION.txt is the source of truth the LLM is told to render
         verbatim. It MUST carry every CC BY-SA 4.0 element so paraphrasing
-        cannot weaken it.
+        cannot weaken it. Asserted as a set of full-line matches (rather
+        than bare-substring URL checks, which CodeQL's URL-sanitization
+        rule flags even in test code).
         """
         text = (DATA_DIR / "ATTRIBUTION.txt").read_text(encoding="utf-8")
-        assert "Based on Security Benchmark for Salesforce" in text
-        assert "https://github.com/Salesforce-Security-Benchmark/docs-site" in text
-        assert "https://docs.securitybenchmark.org/" in text
-        assert "CC BY-SA 4.0" in text
-        assert "https://creativecommons.org/licenses/by-sa/4.0/" in text
-        assert re.search(r"\b[0-9a-f]{40}\b", text), (
+        lines = set(text.splitlines())
+        required_lines = {
+            "Based on Security Benchmark for Salesforce (SBS) with modifications.",
+            "Original work: https://github.com/Salesforce-Security-Benchmark/docs-site",
+            "Documentation: https://docs.securitybenchmark.org/",
+            "Licensed under CC BY-SA 4.0: https://creativecommons.org/licenses/by-sa/4.0/",
+        }
+        missing = required_lines - lines
+        assert not missing, f"ATTRIBUTION.txt missing required canonical lines: {sorted(missing)}"
+        assert re.search(r"^Upstream commit:\s+[0-9a-f]{40}\s*$", text, flags=re.MULTILINE), (
             "ATTRIBUTION.txt must include the pinned upstream commit SHA"
         )
 
