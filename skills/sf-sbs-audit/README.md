@@ -18,5 +18,5 @@ This skill wraps the `sbs_audit` MCP tool in the Cirra AI cloud-app
 subset of the SBS control dataset (only structured metadata — no upstream
 prose) and dispatches per-control checks.
 
-Initial coverage is intentionally 0/54 implemented checks; check coverage
-grows in follow-up PRs to the cloud-app.
+Initial coverage is intentionally zero — every control returns
+`not_implemented`; check coverage grows in follow-up PRs to the cloud-app.

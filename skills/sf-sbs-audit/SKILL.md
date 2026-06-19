@@ -3,7 +3,7 @@ name: sf-sbs-audit
 plugin: cirra-ai-sf
 argument-hint: '[control SBS-XXX-NNN|category ACS|AUTH|...|risk Critical|High|Moderate|all] ...'
 metadata:
-  version: 1.0.0
+  version: 1.0.1
 description: >
   Audit a Salesforce org against the Security Benchmark for Salesforce (SBS), a
   vendor-neutral compliance standard for Salesforce security posture
@@ -48,11 +48,14 @@ When the intent is missing or unclear, **use `AskUserQuestion`** before
 running:
 
 ```
-AskUserQuestion(question="What scope should I audit?\n\n1. **One control** — SBS-XXX-NNN\n2. **A category** — Access Controls, Authentication, OAuth, etc.\n3. **A risk band** — Critical / High / Moderate only\n4. **Everything** — sweep all 54 controls")
+AskUserQuestion(question="What scope should I audit?\n\n1. **One control** — SBS-XXX-NNN\n2. **A category** — Access Controls, Authentication, OAuth, etc.\n3. **A risk band** — Critical / High / Moderate only\n4. **Everything** — sweep every control in the benchmark")
 ```
 
-A full sweep is fine but most current controls will come back
-`not_implemented` while check coverage grows — set expectations clearly.
+A full sweep is fine, but until check coverage grows, many or all selected
+controls will come back `not_implemented`. The response's
+`coverage.checks_implemented` vs `coverage.controls_total` give the live
+ratio — surface them so the user understands what `not_implemented` means in
+context.
 
 ## Result handling
 
