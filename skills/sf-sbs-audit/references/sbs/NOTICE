@@ -1,0 +1,19 @@
+Based on Security Benchmark for Salesforce (SBS) with modifications.
+Original work: https://github.com/Salesforce-Security-Benchmark/docs-site
+Documentation: https://docs.securitybenchmark.org/
+Licensed under CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/).
+
+Modifications applied by this project:
+  1. Subset selection — only the structured control-metadata YAML files
+     are redistributed. The control descriptions, audit procedures, and
+     remediation prose in the upstream `benchmark/*.md` files are NOT
+     reproduced here; consumers are directed to the upstream documentation
+     URL embedded per-control in `controls.json` and in audit tool output.
+  2. Format conversion — YAML files were parsed and emitted as a single
+     JSON document (`controls.json`) for runtime consumption.
+  3. The license, source, and pinned upstream commit SHA are embedded in
+     a `_license` block at the top of `controls.json` so that any
+     downstream copy of the data retains the required attribution.
+
+The pinned upstream commit SHA and fetch date are recorded in `SBS_VERSION`
+and in `controls.json#_license`.

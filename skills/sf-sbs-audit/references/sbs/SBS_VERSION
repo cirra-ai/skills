@@ -1,0 +1,5 @@
+upstream_repo: https://github.com/Salesforce-Security-Benchmark/docs-site.git
+upstream_sha: d4304e18e6f3747b04b1a7097b3d03a6036e5a3f
+fetched_at: 2026-06-19T05:06:52Z
+license: CC BY-SA 4.0
+license_uri: https://creativecommons.org/licenses/by-sa/4.0/
