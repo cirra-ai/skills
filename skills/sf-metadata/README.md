@@ -6,7 +6,7 @@ Salesforce metadata operations skill for AI coding tools. Create custom objects,
 
 - **Metadata Creation**: Create Custom Objects, Fields, Validation Rules, Record Types via MCP
 - **Org Querying**: Describe objects, list fields, query metadata using Tooling API
-- **FLS Management**: Auto-generate Permission Sets after creating objects/fields
+- **Access Strategy**: Propose a specific, no-guesswork access plan after creating objects/fields/list views — exact profiles + permission sets for object/FLS access, page layouts, Lightning record pages, and list-view/Kanban visibility
 - **Validation & Scoring**: Score metadata against 6 categories (0-120 points)
 
 ## Installation

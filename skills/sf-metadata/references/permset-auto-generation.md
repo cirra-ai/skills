@@ -1,8 +1,14 @@
 <!-- Parent: sf-metadata/SKILL.md -->
 
-# Permission Set Auto-Generation (Phase 3.5)
+# Permission Set Generation (Access Strategy — Layer 1)
 
-After creating Custom Objects or Fields, ALWAYS prompt the user for Permission Set generation.
+This is **Layer 1 (Object CRUD + FLS)** of the Phase 3.5 Access Strategy — see
+`access-strategy.md` for the full, no-guesswork plan (page layouts, Lightning
+record pages, and list-view/Kanban visibility are Layers 2–4).
+
+After creating Custom Objects or Fields, ALWAYS propose object/field access via a
+Permission Set, and confirm the **specific** permission set(s) / profile(s) with
+the user — never assume the audience.
 
 ## Prompt Template
 
