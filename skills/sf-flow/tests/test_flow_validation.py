@@ -226,6 +226,47 @@ class TestIssueDetection:
         assert any("fault" in m.lower() for m in warns)
 
 
+class TestCompoundFieldsInFormulas:
+    """A compound field (person Name, Address) in a formula is a deploy error.
+
+    Salesforce allows compound fields in formulas only inside ISBLANK / ISNULL /
+    ISCHANGED; any other use (concatenation, TEXT(), comparison) fails at save.
+    Source: developer.salesforce.com compound_fields_limitations.
+    """
+
+    def test_contact_name_in_formula_flagged_critical(self):
+        """A Contact formula concatenating the compound Name is CRITICAL."""
+        r = _validate("formula_compound_name.flow-meta.xml")
+        crits = _critical_messages(r)
+        assert any(
+            "compound" in m.lower() and "Contact" in m and "Full_Name" in m
+            for m in crits
+        ), f"Expected compound-Name critical issue, got: {crits}"
+
+    def test_contact_name_fix_suggests_components(self):
+        """The fix message steers to FirstName / LastName."""
+        r = _validate("formula_compound_name.flow-meta.xml")
+        fixes = [
+            i.get("fix", "")
+            for i in r.get("critical_issues", [])
+            if "compound" in i.get("message", "").lower()
+        ]
+        assert any("FirstName" in f and "LastName" in f for f in fixes), fixes
+
+    def test_contact_name_penalizes_logic_structure(self):
+        """Compound-field misuse deducts from the Logic & Structure category."""
+        r = _validate("formula_compound_name.flow-meta.xml")
+        logic = r["categories"]["logic_structure"]
+        assert logic["score"] < logic["max_score"]
+
+    def test_account_name_not_flagged(self):
+        """Account.Name is plain text (NOT compound) — must not false-positive,
+        and ISBLANK() on a compound Address is allowed."""
+        r = _validate("formula_compound_name_allowed.flow-meta.xml")
+        crits = _critical_messages(r)
+        assert not any("compound" in m.lower() for m in crits), crits
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # 3. QUALITY SCORE ACCURACY — category breakdowns are correct
 # ═══════════════════════════════════════════════════════════════════════════════

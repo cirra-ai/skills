@@ -123,6 +123,77 @@ Ensure your flow checks for null before using the parent record:
 
 ---
 
+## Compound Fields Cannot Be Used in Formulas (CRITICAL)
+
+**⚠️ DEPLOYMENT BLOCKER**: Salesforce compound fields can't be referenced in a
+formula expression except inside `ISBLANK`, `ISNULL`, or `ISCHANGED`. The most
+common offender is the person **`Name`** field on Contact and Lead.
+
+**Compound fields**: person `Name` (Contact, Lead, person accounts), Address
+fields (`BillingAddress`, `ShippingAddress`, `MailingAddress`, `OtherAddress`,
+`Address`), and Geolocation fields.
+
+### What Doesn't Work
+
+```xml
+<!-- ❌ THIS WILL FAIL — Contact.Name is a compound field -->
+<formulas>
+    <name>Full_Name</name>
+    <dataType>String</dataType>
+    <expression>"Hello " &amp; {!$Record.Name}</expression>
+</formulas>
+```
+
+**Error**: The formula is rejected at save/deploy — surfaced by the agent as
+_"Contact formulas can't use the compound Name — using First/Last instead."_
+
+### Why It Fails
+
+- A compound field groups several primitive components (Name = Salutation +
+  FirstName + MiddleName + LastName + Suffix; Address = Street + City + State +
+  PostalCode + Country + geocode).
+- The formula engine supports only `ISBLANK`, `ISCHANGED`, and `ISNULL` on
+  compound fields — **not** concatenation (`&`, `+`), `TEXT()`, `CASE()`,
+  `BLANKVALUE()`, `PRIORVALUE()`, or comparison operators.
+- Source: [Compound Field Considerations and Limitations](https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/compound_fields_limitations.htm)
+
+### What Works — Reference the Component Fields
+
+```xml
+<!-- ✅ CORRECT — build the name from FirstName / LastName -->
+<formulas>
+    <name>Full_Name</name>
+    <dataType>String</dataType>
+    <expression>"Hello " &amp; {!$Record.FirstName} &amp; " " &amp; {!$Record.LastName}</expression>
+</formulas>
+```
+
+### Compound Field → Component Field Cheat Sheet
+
+| Object         | Compound field    | Use these components instead                                                          |
+| -------------- | ----------------- | ------------------------------------------------------------------------------------- |
+| Contact, Lead  | `Name`            | `FirstName`, `LastName`, `Salutation`                                                 |
+| Contact        | `MailingAddress`  | `MailingStreet`, `MailingCity`, `MailingState`, `MailingPostalCode`, `MailingCountry` |
+| Contact        | `OtherAddress`    | `OtherStreet`, `OtherCity`, `OtherState`, …                                           |
+| Account        | `BillingAddress`  | `BillingStreet`, `BillingCity`, `BillingState`, …                                     |
+| Account        | `ShippingAddress` | `ShippingStreet`, `ShippingCity`, `ShippingState`, …                                  |
+| Lead           | `Address`         | `Street`, `City`, `State`, `PostalCode`, `Country`                                    |
+| _(custom geo)_ | `Location__c`     | `Location__Latitude__s`, `Location__Longitude__s`                                     |
+
+### Not Compound — Safe in Formulas
+
+- **`Account.Name`, `Opportunity.Name`, `Case.Subject`** and similar standard
+  text fields are **plain text**, not compound — use them freely.
+- `ISBLANK({!$Record.MailingAddress})` and `ISCHANGED({!$Record.Name})` are
+  **allowed** (those three functions are the exception).
+
+The flow validator (`validate_flow.py`) flags compound-field misuse in formulas
+as a **CRITICAL** issue. It resolves the object of every `{!ref.Field}` merge
+field (via `$Record`, SObject variables, and Get Records outputs), so plain-text
+`Name` fields on other objects are never false-flagged.
+
+---
+
 ## $Record vs $Record\_\_c Confusion (Record-Triggered Flows)
 
 **⚠️ COMMON MISTAKE**: Confusing Flow's `$Record` with Process Builder's `$Record__c`.
@@ -421,6 +492,7 @@ When generating flows programmatically or manually editing XML:
 | "Element bulkSupport invalid"               | Using deprecated element (API 60.0+)       | Remove `<bulkSupport>`                         |
 | "Error parsing file"                        | Malformed XML                              | Validate XML syntax                            |
 | "field 'X.Y' doesn't exist"                 | Relationship field in queriedFields        | Use two-step query pattern                     |
+| "can't use the compound Name/field"         | Compound field in a formula expression     | Use component fields (FirstName/LastName, …)   |
 | "$Record\_\_Prior can only be used..."      | Using $Record\_\_Prior with Create trigger | Change to Update or CreateAndUpdate            |
 | "You can't use the Flows action type..."    | Subflow in AutoLaunchedFlow                | Use inline logic instead                       |
 | "nothing is connected to the Start element" | Empty flow with no elements                | Add at least one assignment connected to start |

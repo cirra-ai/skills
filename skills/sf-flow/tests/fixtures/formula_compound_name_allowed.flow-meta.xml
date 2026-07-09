@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>65.0</apiVersion>
+    <assignments>
+        <name>Set_Summary</name>
+        <label>Set Summary</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Description</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Account_Summary</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <description>Before-save flow on Account. Account.Name is plain text (NOT compound) so referencing it in a formula is valid, and ISBLANK() may take the compound BillingAddress. Neither should be flagged.</description>
+    <formulas>
+        <name>Account_Summary</name>
+        <dataType>String</dataType>
+        <expression>{!$Record.Name} &amp; IF(ISBLANK({!$Record.BillingAddress}), &quot; (no address)&quot;, &quot;&quot;)</expression>
+    </formulas>
+    <label>Account Summary Builder</label>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <object>Account</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+        <connector>
+            <targetReference>Set_Summary</targetReference>
+        </connector>
+    </start>
+    <status>Draft</status>
+</Flow>
