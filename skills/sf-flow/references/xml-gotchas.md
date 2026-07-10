@@ -323,6 +323,101 @@ Use **inline orchestration** instead of subflows:
 
 **Reference**: [Salesforce Help Article 000396957](https://help.salesforce.com/s/articleView?id=000396957&type=1)
 
+## Subflow Elements Cannot Have a faultConnector (CRITICAL)
+
+**⚠️ DEPLOYMENT BLOCKER**: A `<subflows>` element does **not** accept a
+`<faultConnector>`. A subflow handles its own faults internally; adding a fault
+path to the subflow call fails deployment.
+
+### What Doesn't Work
+
+```xml
+<!-- ❌ THIS WILL FAIL — FlowSubflow has no faultConnector -->
+<subflows>
+    <name>Call_Child</name>
+    <label>Call Child</label>
+    <flowName>Child_Flow</flowName>
+    <faultConnector>
+        <targetReference>Handle_Error</targetReference>  <!-- INVALID -->
+    </faultConnector>
+</subflows>
+```
+
+### What Works
+
+```xml
+<!-- ✅ CORRECT — no faultConnector on the subflow call -->
+<subflows>
+    <name>Call_Child</name>
+    <label>Call Child</label>
+    <flowName>Child_Flow</flowName>
+    <connector>
+        <targetReference>Next_Element</targetReference>
+    </connector>
+</subflows>
+```
+
+Handle errors **inside** the child flow (fault paths on its own DML/actions),
+or return a status output variable from the child and branch on it in the
+parent with a Decision. `FlowSubflow` valid properties: `connector`,
+`flowName`, `inputAssignments`, `outputAssignments`, `storeOutputAutomatically`.
+
+## Picklist Choice Sets Must Not Carry Record-Mode Properties (CRITICAL)
+
+**⚠️ DEPLOYMENT BLOCKER**: A `<dynamicChoiceSets>` is either **record-based**
+(`object` + `displayField` + `valueField` + `filters`) **or** **picklist-based**
+(`picklistObject` + `picklistField`). A picklist choice set that also carries
+`object` (even an empty `<object/>`), `displayField`, or `filters` is rejected
+by Salesforce.
+
+### What Doesn't Work
+
+```xml
+<!-- ❌ THIS WILL FAIL — picklist choice set with a stray empty <object/> -->
+<dynamicChoiceSets>
+    <name>CS_Origin</name>
+    <dataType>String</dataType>
+    <object></object>              <!-- REMOVE -->
+    <displayField>Name</displayField>  <!-- REMOVE -->
+    <picklistField>Origin</picklistField>
+    <picklistObject>Case</picklistObject>
+</dynamicChoiceSets>
+```
+
+### What Works
+
+```xml
+<!-- ✅ CORRECT — picklist mode carries only picklistObject/picklistField -->
+<dynamicChoiceSets>
+    <name>CS_Origin</name>
+    <dataType>String</dataType>
+    <picklistField>Origin</picklistField>
+    <picklistObject>Case</picklistObject>
+</dynamicChoiceSets>
+```
+
+Common offenders seen in generated flows: `CS_Origin`, `CS_Range`, `CS_SLA`.
+Strip `object`, `displayField`, and `filters` from any picklist-type choice
+set. The flow validator flags this as a CRITICAL issue.
+
+## Updating an Active Flow Requires `upsert=True` (CRITICAL)
+
+**⚠️ DEPLOYMENT BLOCKER**: When the flow's latest version is **Active**, a plain
+`metadata_update` fails with _"active can't be overwritten."_ You cannot
+overwrite an active version in place.
+
+```
+# ❌ Fails when latest version is Active:
+metadata_update(type="Flow", metadata=[{...}])
+
+# ✅ Creates a NEW version instead of overwriting the active one:
+metadata_update(type="Flow", metadata=[{...}], upsert=True)
+```
+
+Keep the same `fullName` — Salesforce manages version numbers automatically.
+In production, deploy the new version as `status: Draft` and ask the user to
+activate it manually.
+
 ## Fault Connectors Cannot Self-Reference (CRITICAL)
 
 **⚠️ DEPLOYMENT BLOCKER**: An element CANNOT have a fault connector pointing to itself.
@@ -486,16 +581,19 @@ When generating flows programmatically or manually editing XML:
 
 ## Common Deployment Errors
 
-| Error                                       | Cause                                      | Solution                                       |
-| ------------------------------------------- | ------------------------------------------ | ---------------------------------------------- |
-| "Element X is duplicated"                   | Elements not alphabetically ordered        | Reorder elements                               |
-| "Element bulkSupport invalid"               | Using deprecated element (API 60.0+)       | Remove `<bulkSupport>`                         |
-| "Error parsing file"                        | Malformed XML                              | Validate XML syntax                            |
-| "field 'X.Y' doesn't exist"                 | Relationship field in queriedFields        | Use two-step query pattern                     |
-| "can't use the compound Name/field"         | Compound field in a formula expression     | Use component fields (FirstName/LastName, …)   |
-| "$Record\_\_Prior can only be used..."      | Using $Record\_\_Prior with Create trigger | Change to Update or CreateAndUpdate            |
-| "You can't use the Flows action type..."    | Subflow in AutoLaunchedFlow                | Use inline logic instead                       |
-| "nothing is connected to the Start element" | Empty flow with no elements                | Add at least one assignment connected to start |
+| Error                                       | Cause                                      | Solution                                        |
+| ------------------------------------------- | ------------------------------------------ | ----------------------------------------------- |
+| "Element X is duplicated"                   | Elements not alphabetically ordered        | Reorder elements                                |
+| "Element bulkSupport invalid"               | Using deprecated element (API 60.0+)       | Remove `<bulkSupport>`                          |
+| "Error parsing file"                        | Malformed XML                              | Validate XML syntax                             |
+| "field 'X.Y' doesn't exist"                 | Relationship field in queriedFields        | Use two-step query pattern                      |
+| "can't use the compound Name/field"         | Compound field in a formula expression     | Use component fields (FirstName/LastName, …)    |
+| "active can't be overwritten"               | Updating a flow whose latest ver is Active | Deploy with `upsert=True` (creates new version) |
+| Subflow deploy rejected (faultConnector)    | `faultConnector` on a `<subflows>` element | Remove it — subflows handle their own faults    |
+| Choice set deploy rejected                  | Picklist choice set carries object/filters | Strip object/displayField/filters               |
+| "$Record\_\_Prior can only be used..."      | Using $Record\_\_Prior with Create trigger | Change to Update or CreateAndUpdate             |
+| "You can't use the Flows action type..."    | Subflow in AutoLaunchedFlow                | Use inline logic instead                        |
+| "nothing is connected to the Start element" | Empty flow with no elements                | Add at least one assignment connected to start  |
 
 ---
 

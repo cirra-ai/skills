@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>65.0</apiVersion>
+    <description>Screen flow with a picklist choice set that wrongly also carries record-mode object/displayField. Salesforce rejects the deploy — picklist choice sets must use only picklistObject/picklistField.</description>
+    <dynamicChoiceSets>
+        <name>CS_Origin</name>
+        <dataType>String</dataType>
+        <object></object>
+        <displayField>Name</displayField>
+        <picklistField>Origin</picklistField>
+        <picklistObject>Case</picklistObject>
+    </dynamicChoiceSets>
+    <label>Case Origin Picker</label>
+    <processType>Flow</processType>
+    <screens>
+        <name>Pick_Origin</name>
+        <label>Pick Origin</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>Origin_Field</name>
+            <choiceReferences>CS_Origin</choiceReferences>
+            <dataType>String</dataType>
+            <fieldType>DropdownBox</fieldType>
+        </fields>
+    </screens>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Pick_Origin</targetReference>
+        </connector>
+    </start>
+    <status>Draft</status>
+</Flow>

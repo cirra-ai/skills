@@ -267,6 +267,40 @@ class TestCompoundFieldsInFormulas:
         assert not any("compound" in m.lower() for m in crits), crits
 
 
+class TestSubflowFaultConnector:
+    """FlowSubflow elements cannot carry a faultConnector (deploy error)."""
+
+    def test_subflow_fault_connector_flagged_critical(self):
+        r = _validate("subflow_with_fault_connector.flow-meta.xml")
+        crits = _critical_messages(r)
+        assert any(
+            "faultConnector" in m and "Call_Child" in m for m in crits
+        ), f"Expected subflow faultConnector critical, got: {crits}"
+
+    def test_valid_subflow_not_flagged(self):
+        """A subflow without a faultConnector must not be flagged."""
+        r = _validate("picklist_choiceset_and_subflow_valid.flow-meta.xml")
+        crits = _critical_messages(r)
+        assert not any("faultConnector" in m for m in crits), crits
+
+
+class TestPicklistChoiceSetRecordProps:
+    """A picklist dynamicChoiceSet must not carry record-mode props."""
+
+    def test_record_props_on_picklist_choiceset_flagged_critical(self):
+        r = _validate("picklist_choiceset_record_props.flow-meta.xml")
+        crits = _critical_messages(r)
+        assert any(
+            "CS_Origin" in m and "record-mode" in m for m in crits
+        ), f"Expected picklist choice set critical, got: {crits}"
+
+    def test_valid_picklist_choiceset_not_flagged(self):
+        """A picklist choice set with only picklistObject/picklistField is valid."""
+        r = _validate("picklist_choiceset_and_subflow_valid.flow-meta.xml")
+        crits = _critical_messages(r)
+        assert not any("choice set" in m.lower() for m in crits), crits
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # 3. QUALITY SCORE ACCURACY — category breakdowns are correct
 # ═══════════════════════════════════════════════════════════════════════════════

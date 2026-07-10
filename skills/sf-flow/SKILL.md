@@ -1296,6 +1296,7 @@ metadata_create(type="Flow", metadata=[{"fullName": "Flow_Name", "label": "Flow 
 1. Retrieve current metadata: `metadata_read(type="Flow", fullNames=["Flow_Name"])`
 2. Apply changes to the metadata object
 3. Deploy: `metadata_update(type="Flow", metadata=[{...}], upsert=True)`
+   - **`upsert=True` is required when the flow's latest version is Active** — a plain update errors with _"active can't be overwritten."_ Upsert creates a new version instead of overwriting the active one.
    - **Do NOT change the `fullName`** — version numbers are managed automatically
    - In production: deploy as `status: Draft` and ask user to activate manually if you get an error
 
