@@ -43,7 +43,7 @@ Do NOT guess the operation or default to one. Wait for the user's answer.
 
 Create new Salesforce metadata components in an org.
 
-1. **Gather requirements** — metadata type (Custom Object, Field, Validation Rule, Record Type, Permission Set), target object, specific requirements (field type, formula, picklist values)
+1. **Gather requirements** — metadata type (Custom Object, Field, Validation Rule, Record Type, Permission Set, List View), target object, specific requirements (field type, formula, picklist values; for list views: columns, `filterScope`, filters, and `sharedTo` visibility)
 2. **Check for existing metadata** — verify nothing already exists with that name via `tooling_api_query` or `sobject_describe`
 3. **Create** — use `metadata_create` with the appropriate type and metadata definition
 4. **Propose an access strategy (MANDATORY — no guesswork)** — after creating objects, fields, or list views, have the user confirm the **specific** profiles and permission sets for object/FLS access, plus page-layout, Lightning-record-page, and list-view (incl. Kanban) visibility. See Phase 3.5 and `references/access-strategy.md`
@@ -90,7 +90,7 @@ Describe a Salesforce object and display its metadata structure.
 
 The sf-metadata skill provides comprehensive metadata management capabilities:
 
-- **Metadata Creation**: Create Custom Objects, Fields, Validation Rules, Record Types, Permission Sets via MCP
+- **Metadata Creation**: Create Custom Objects, Fields, Validation Rules, Record Types, Permission Sets, List Views, Page Layouts, and Lightning Pages via MCP
 - **Org Querying**: Describe objects, list fields, query metadata using Tooling API
 - **Access Strategy**: Propose a specific, no-guesswork access plan (profiles + permission sets, page layouts, Lightning record pages, list-view/Kanban visibility) after creating objects/fields/list views
 - **Validation & Scoring**: Score metadata against 6 categories (0-120 points)
