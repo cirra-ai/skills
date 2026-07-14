@@ -241,15 +241,15 @@ SELECT Id, Username, Name FROM User WHERE Username = '<proposed>' OR Email = '<e
 
 **REMOTE-ONLY MODE**: Cirra AI MCP operates directly against the connected org.
 
-| Operation                           | Tool                                                          | Notes                                     |
-| ----------------------------------- | ------------------------------------------------------------- | ----------------------------------------- |
-| Discover users / PS / licenses      | `soql_query`                                                  | the discovery phase                       |
-| Research a capability's access      | live docs (web) + `ObjectPermissions` query                   | don't trust memory for access models      |
-| Create user                         | `user_create`                                                 | **prefer `template=` (clone)**            |
-| Assign / remove permission set      | `permission_set_assignments`                                  | `add` / `remove`                          |
-| Create permission set (last resort) | `metadata_create` (`PermissionSet`) / `permission_set_update` | hand off to `sf-metadata`                 |
-| Deactivate / update user fields     | `user_update` / `sobject_dml` on `User`                       | set `IsActive=false`; set residual fields |
-| Build setup record links            | `link_build`                                                  | for the post-create report                |
+| Operation                           | Tool                                                          | Notes                                                                                                                                                    |
+| ----------------------------------- | ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Discover users / PS / licenses      | `soql_query`                                                  | the discovery phase                                                                                                                                      |
+| Research a capability's access      | live docs (web) + `ObjectPermissions` query                   | don't trust memory for access models                                                                                                                     |
+| Create user                         | `user_create`                                                 | **prefer `template=` (clone)**                                                                                                                           |
+| Assign / remove permission set      | `permission_set_assignments`                                  | `add` / `remove`                                                                                                                                         |
+| Create permission set (last resort) | `metadata_create` (`PermissionSet`) / `permission_set_update` | hand off to `sf-metadata`                                                                                                                                |
+| Deactivate / update user fields     | `user_update` / `sobject_dml` on `User`                       | operations: `deactivate`, `activate`, `freeze`, `unfreeze`, `reset_password` (sends set-password email), `unlock_password`, `update` (with `properties`) |
+| Build setup record links            | `link_build`                                                  | for the post-create report                                                                                                                               |
 
 **CRITICAL**: Always call `cirra_ai_init()` FIRST.
 
