@@ -146,6 +146,7 @@ FLEXIPAGE_REGIONS_OPTIONAL = {
     "UtilityBar",
     "RecordPreview",
     "SlackNotification",
+    "VoiceExtension",
 }
 
 # Visibility rules only support the EQUAL operator in FlexiPage metadata.

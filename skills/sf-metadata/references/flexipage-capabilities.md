@@ -173,8 +173,8 @@ The validator (`scripts/validate_metadata_operation.py`) enforces:
    the template field is enforced as present but not checked against a specific
    string — too much variance in the field.
 5. **`flexiPageRegions` required** for almost every type. The exceptions
-   (`UtilityBar`, `RecordPreview`, `SlackNotification`) downgrade the
-   "no regions" finding to a warning instead of critical.
+   (`UtilityBar`, `RecordPreview`, `SlackNotification`, `VoiceExtension`)
+   downgrade the "no regions" finding to a warning instead of critical.
 6. **`visibilityRule.criteria[*].operator` must be `EQUAL`** on every page
    type. All other operators are rejected with `FIELD_INTEGRITY_EXCEPTION`.
 
