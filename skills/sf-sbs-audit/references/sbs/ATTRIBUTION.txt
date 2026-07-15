@@ -1,0 +1,6 @@
+Based on Security Benchmark for Salesforce (SBS) with modifications.
+Original work: https://github.com/Salesforce-Security-Benchmark/docs-site
+Documentation: https://docs.securitybenchmark.org/
+Licensed under CC BY-SA 4.0: https://creativecommons.org/licenses/by-sa/4.0/
+Upstream commit: d4304e18e6f3747b04b1a7097b3d03a6036e5a3f
+Subset extracted from control-metadata; YAML converted to JSON; no upstream prose redistributed.

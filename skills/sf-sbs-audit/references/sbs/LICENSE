@@ -1,0 +1,35 @@
+The contents of this directory (`skills/sf-sbs-audit/references/sbs/`) are
+a subset of the Security Benchmark for Salesforce (SBS), redistributed
+here under the terms of the Creative Commons Attribution-ShareAlike 4.0
+International License (CC BY-SA 4.0).
+
+   Original work:  Security Benchmark for Salesforce (SBS)
+   Source:         https://github.com/Salesforce-Security-Benchmark/docs-site
+   Docs:           https://docs.securitybenchmark.org/
+   License URI:    https://creativecommons.org/licenses/by-sa/4.0/
+   Full text:      https://creativecommons.org/licenses/by-sa/4.0/legalcode
+
+The pinned upstream commit, fetch date, and a description of the
+modifications applied (subset selection + YAML-to-JSON conversion) are
+recorded in this directory's `SBS_VERSION` and `NOTICE` files, and in the
+`_license` block at the top of `controls.json`. The canonical attribution
+text that the skill's `SKILL.md` requires to be rendered verbatim at the
+end of every audit response lives in `ATTRIBUTION.txt`.
+
+Per CC BY-SA 4.0 section 3(b), any work that adapts the material in this
+directory and is then redistributed must itself be licensed under
+CC BY-SA 4.0 (or a later-compatible Creative Commons license). The
+boundary of that obligation is this directory: code elsewhere in this
+skill (and the broader repository) that *reads* these files is not itself
+an adaptation of the licensed material and is unaffected by the
+ShareAlike term.
+
+`controls.json`, `SBS_VERSION`, and `ATTRIBUTION.txt` are auto-generated
+by `scripts/fetch_sbs.py`. Do not edit them by hand — submit corrections
+upstream at the source repository linked above.
+
+Per the SBS project's community naming guidance, we do not use the names
+"SBS" or "Security Benchmark for Salesforce" to brand a modified or forked
+version. We use the names only to identify the upstream standard we audit
+against, per the project's stated acceptable use ("Built for SBS
+compliance", "SBS-compatible scanner").
