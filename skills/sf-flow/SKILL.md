@@ -3,7 +3,7 @@ name: sf-flow
 plugin: cirra-ai-sf
 argument-hint: '[create|update|validate] {FlowName} ...'
 metadata:
-  version: 2.2.0
+  version: 2.3.0
 description: >
   Creates and validates Salesforce flows with 110-point scoring and Winter '26 best practices
   using Cirra AI MCP Server. Use when building record-triggered flows, screen flows,
@@ -927,6 +927,18 @@ or a bug. Suggested phrasing:
 
 `recordLookups` cannot query `Parent.Field` (e.g., `Manager.Name`). **Solution**: Two Get Records - child first, then parent by Id.
 
+### ⛔ CRITICAL: No Compound Fields in Formulas
+
+Compound fields — the person **`Name`** (on Contact and Lead), **Address** fields (`BillingAddress`, `MailingAddress`, …), and **Geolocation** fields — **cannot be used in formula expressions** except inside `ISBLANK`, `ISNULL`, or `ISCHANGED`. Concatenating, comparing, or wrapping them in `TEXT()` is a save/deploy error ("Contact formulas can't use the compound Name").
+
+| Compound field (object)    | ❌ In a formula             | ✅ Use component fields                                 |
+| -------------------------- | --------------------------- | ------------------------------------------------------- |
+| `Name` (Contact, Lead)     | `{!$Record.Name}`           | `{!$Record.FirstName} & " " & {!$Record.LastName}`      |
+| `MailingAddress` (Contact) | `{!$Record.MailingAddress}` | `{!$Record.MailingStreet}`, `{!$Record.MailingCity}`, … |
+| `BillingAddress` (Account) | `{!$Record.BillingAddress}` | `{!$Record.BillingStreet}`, `{!$Record.BillingCity}`, … |
+
+`Account.Name` / `Opportunity.Name` are **plain text** (not compound) and are fine in formulas. `ISBLANK({!$Record.MailingAddress})` is allowed. See [references/xml-gotchas.md](references/xml-gotchas.md#compound-fields-cannot-be-used-in-formulas) and the [Salesforce compound-field limitations doc](https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/compound_fields_limitations.htm). The validator flags this as a CRITICAL issue.
+
 ### recordLookups Best Practices
 
 | Element                            | Recommendation                          | Why                                                                                                                                                    |
@@ -1284,6 +1296,7 @@ metadata_create(type="Flow", metadata=[{"fullName": "Flow_Name", "label": "Flow 
 1. Retrieve current metadata: `metadata_read(type="Flow", fullNames=["Flow_Name"])`
 2. Apply changes to the metadata object
 3. Deploy: `metadata_update(type="Flow", metadata=[{...}], upsert=True)`
+   - **`upsert=True` is required when the flow's latest version is Active** — a plain update errors with _"active can't be overwritten."_ Upsert creates a new version instead of overwriting the active one.
    - **Do NOT change the `fullName`** — version numbers are managed automatically
    - In production: deploy as `status: Draft` and ask user to activate manually if you get an error
 
