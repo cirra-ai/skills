@@ -1,0 +1,9 @@
+{
+  "masterLabel": "CirraTest Slack Notification",
+  "type": "SlackNotification",
+  "description": "Slack notification payload definition (no regions required)",
+  "template": {
+    "name": "slack:notificationTemplate"
+  },
+  "flexiPageRegions": []
+}
