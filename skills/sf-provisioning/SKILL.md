@@ -2,7 +2,7 @@
 name: sf-provisioning
 plugin: cirra-ai-sf
 metadata:
-  version: 1.0.0
+  version: 1.0.1
 argument-hint: '[create-user|grant|revoke|deactivate|mirror] {user|capability} ...'
 description: >
   Salesforce user and access provisioning expert. Use whenever the user wants to create a
@@ -102,8 +102,18 @@ can be deactivated but never deleted — so this matters more here than for most
 9. **Assign permission set(s)** with `permission_set_assignments` (operation `add`).
 10. **Verify** with a `soql_query` of the new user (profile, alias, locale) and confirm the
     permission set assignment took.
-11. **Report**: a compact table of the final setup, the user record setup link
-    (`link_build`), and a note that the user will receive a Salesforce welcome/set-password email.
+11. **Offer the set-password email — never send it automatically.** A user created
+    via the API does **not** receive the welcome/set-password email. That email is
+    only triggered by the UI's "Generate new password and notify user immediately"
+    checkbox, which has no User field or API-flag equivalent — so creation alone
+    sends nothing. After creating the user(s), state this plainly and **ask** whether
+    to send the set-password email. Only on explicit confirmation, run `user_update`
+    with operation `reset_password` per user (this sends the email to their address).
+    Do not bundle the reset into the creation step or treat it as implied by approval
+    to create — it is a separate opt-in.
+12. **Report**: a compact table of the final setup, the user record setup link(s)
+    (`link_build`), and the set-password email status (sent only if the user opted in;
+    otherwise note it was offered and skipped).
 
 ### Grant Capability
 
@@ -231,15 +241,15 @@ SELECT Id, Username, Name FROM User WHERE Username = '<proposed>' OR Email = '<e
 
 **REMOTE-ONLY MODE**: Cirra AI MCP operates directly against the connected org.
 
-| Operation                           | Tool                                                          | Notes                                     |
-| ----------------------------------- | ------------------------------------------------------------- | ----------------------------------------- |
-| Discover users / PS / licenses      | `soql_query`                                                  | the discovery phase                       |
-| Research a capability's access      | live docs (web) + `ObjectPermissions` query                   | don't trust memory for access models      |
-| Create user                         | `user_create`                                                 | **prefer `template=` (clone)**            |
-| Assign / remove permission set      | `permission_set_assignments`                                  | `add` / `remove`                          |
-| Create permission set (last resort) | `metadata_create` (`PermissionSet`) / `permission_set_update` | hand off to `sf-metadata`                 |
-| Deactivate / update user fields     | `user_update` / `sobject_dml` on `User`                       | set `IsActive=false`; set residual fields |
-| Build setup record links            | `link_build`                                                  | for the post-create report                |
+| Operation                           | Tool                                                          | Notes                                                                                                                                                    |
+| ----------------------------------- | ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Discover users / PS / licenses      | `soql_query`                                                  | the discovery phase                                                                                                                                      |
+| Research a capability's access      | live docs (web) + `ObjectPermissions` query                   | don't trust memory for access models                                                                                                                     |
+| Create user                         | `user_create`                                                 | **prefer `template=` (clone)**                                                                                                                           |
+| Assign / remove permission set      | `permission_set_assignments`                                  | `add` / `remove`                                                                                                                                         |
+| Create permission set (last resort) | `metadata_create` (`PermissionSet`) / `permission_set_update` | hand off to `sf-metadata`                                                                                                                                |
+| Deactivate / update user fields     | `user_update` / `sobject_dml` on `User`                       | operations: `deactivate`, `activate`, `freeze`, `unfreeze`, `reset_password` (sends set-password email), `unlock_password`, `update` (with `properties`) |
+| Build setup record links            | `link_build`                                                  | for the post-create report                                                                                                                               |
 
 **CRITICAL**: Always call `cirra_ai_init()` FIRST.
 
@@ -247,15 +257,16 @@ SELECT Id, Username, Name FROM User WHERE Username = '<proposed>' OR Email = '<e
 
 ## Common Pitfalls
 
-| Pitfall                                                     | Fix                                                                                                    |
-| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| Inventing a username from the email verbatim                | Query existing users; match the org's username pattern                                                 |
-| Creating a new permission set when one already exists       | Search `ObjectPermissions` by object, not by name                                                      |
-| Granting more than asked (e.g. delete when only create)     | Scope the capability precisely; offer extras, don't assume                                             |
-| Burning a full `Salesforce` license on a limited user       | Use the least-privilege license comparable users have                                                  |
-| Guessing a capability's required permissions                | Verify against current Salesforce docs                                                                 |
-| `user_create` `properties` map fails (`No such column '0'`) | Prefer `template=` clone; set residual fields via `sobject_dml` afterward (see Cirra issue PLTFRM-752) |
-| Forgetting permission sets when cloning a user              | Clone copies profile/locale only — re-assign permission sets explicitly                                |
+| Pitfall                                                     | Fix                                                                                                                        |
+| ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Inventing a username from the email verbatim                | Query existing users; match the org's username pattern                                                                     |
+| Creating a new permission set when one already exists       | Search `ObjectPermissions` by object, not by name                                                                          |
+| Granting more than asked (e.g. delete when only create)     | Scope the capability precisely; offer extras, don't assume                                                                 |
+| Burning a full `Salesforce` license on a limited user       | Use the least-privilege license comparable users have                                                                      |
+| Guessing a capability's required permissions                | Verify against current Salesforce docs                                                                                     |
+| `user_create` `properties` map fails (`No such column '0'`) | Prefer `template=` clone; set residual fields via `sobject_dml` afterward (see Cirra issue PLTFRM-752)                     |
+| Forgetting permission sets when cloning a user              | Clone copies profile/locale only — re-assign permission sets explicitly                                                    |
+| Assuming API-created users get the welcome email            | They don't — "notify user" is a UI-only action. Don't promise it. Ask, then run `reset_password` only if the user opts in. |
 
 ---
 
