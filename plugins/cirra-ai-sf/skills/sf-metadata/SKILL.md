@@ -43,12 +43,12 @@ Do NOT guess the operation or default to one. Wait for the user's answer.
 
 Create new Salesforce metadata components in an org.
 
-1. **Gather requirements** — metadata type (Custom Object, Field, Validation Rule, Record Type, Permission Set), target object, specific requirements (field type, formula, picklist values)
+1. **Gather requirements** — metadata type (Custom Object, Field, Validation Rule, Record Type, Permission Set, List View), target object, specific requirements (field type, formula, picklist values; for list views: columns, `filterScope`, filters, and `sharedTo` visibility)
 2. **Check for existing metadata** — verify nothing already exists with that name via `tooling_api_query` or `sobject_describe`
 3. **Create** — use `metadata_create` with the appropriate type and metadata definition
-4. **Generate Permission Set** — after creating objects or fields, prompt for FLS access (deployed fields are invisible without it)
+4. **Propose an access strategy (MANDATORY — no guesswork)** — after creating objects, fields, or list views, have the user confirm the **specific** profiles and permission sets for object/FLS access, plus page-layout, Lightning-record-page, and list-view (incl. Kanban) visibility. See Phase 3.5 and `references/access-strategy.md`
 5. **Verify** — describe the object to confirm creation
-6. **Report** — show what was created, validation score, and next steps
+6. **Report** — show what was created, validation score, who has access at each layer, and next steps
 
 ### Update Metadata
 
@@ -90,9 +90,9 @@ Describe a Salesforce object and display its metadata structure.
 
 The sf-metadata skill provides comprehensive metadata management capabilities:
 
-- **Metadata Creation**: Create Custom Objects, Fields, Validation Rules, Record Types, Permission Sets via MCP
+- **Metadata Creation**: Create Custom Objects, Fields, Validation Rules, Record Types, Permission Sets, List Views, Page Layouts, and Lightning Pages via MCP
 - **Org Querying**: Describe objects, list fields, query metadata using Tooling API
-- **FLS Management**: Auto-generate Permission Sets after creating objects/fields
+- **Access Strategy**: Propose a specific, no-guesswork access plan (profiles + permission sets, page layouts, Lightning record pages, list-view/Kanban visibility) after creating objects/fields/list views
 - **Validation & Scoring**: Score metadata against 6 categories (0-120 points)
 - **Integration**: Works with sf-data, sf-apex, sf-flow, sf-permissions skills
 
@@ -130,7 +130,7 @@ are retrieved.
 2. **Update Metadata** - Modify existing metadata via `metadata_update`
 3. **Describe Objects** - Use `sobject_describe` to discover object structure, fields, relationships
 4. **Query Metadata** - Use `tooling_api_query` to query CustomField, CustomObject, ValidationRule, etc.
-5. **Permission Set Generation** - Auto-generate Permission Sets after creating objects/fields (FLS)
+5. **Access Strategy** - After creating objects/fields/list views, propose a specific access plan (no guesswork): exact profiles + permission sets for object/FLS, page layouts, Lightning record pages, and list-view/Kanban visibility
 6. **Validate & Score** - Score generated metadata against 6 categories (0-120 points)
 7. **Cross-Skill Integration** - Provide metadata discovery for sf-apex, sf-flow, sf-data
 
@@ -148,9 +148,16 @@ sf-data requires objects deployed to org. Always deploy metadata BEFORE creating
 
 ---
 
-## CRITICAL: Field-Level Security
+## CRITICAL: Access Strategy — No Guesswork
 
-**Deployed fields are INVISIBLE until FLS is configured!** Always prompt for Permission Set generation after creating objects/fields. See the Permission Set Auto-Generation section below.
+**A new object, field, or list view is invisible and unusable until access is decided at every layer.** After creating any Custom Object, Custom Field, or List View, you MUST propose a **specific** access strategy and have the user confirm the **exact profiles and permission sets** involved — never assume or silently default. The strategy must cover:
+
+1. **Object CRUD + Field-Level Security (FLS)** — which permission set(s) and/or profile(s)
+2. **Page Layout assignment** — which profile (and record type) sees which layout
+3. **Lightning Record Page assignment** — org default, or assigned to specific apps/profiles/record types
+4. **List View visibility** — visible to all users, or shared to specific groups/roles/queues (`sharedTo`) — **including Kanban**, which rides on a list view
+
+**Deployed fields are INVISIBLE until FLS is configured.** Permission sets can grant object/FLS access, but **page-layout and Lightning-page assignment can only be expressed against profiles**, so a complete plan usually names specific profiles too. See Phase 3.5 below and `references/access-strategy.md` for the full matrix, prompts, and metadata examples.
 
 ---
 
@@ -192,7 +199,7 @@ For simple, self-contained metadata operations (single custom field, straightfor
 1. Call `cirra_ai_init()` (always required)
 2. Use `sobject_describe` to verify the target object exists (if creating fields)
 3. Deploy via `metadata_create`
-4. Prompt for Permission Set if creating fields (FLS is still required)
+4. Propose the access strategy (Phase 3.5) — even on the fast path, confirm the **specific** permission sets/profiles for FLS, plus layout/Lightning-page/list-view visibility. No guesswork.
 
 **Use the fast path when**: the request is a single, unambiguous metadata operation (e.g., "add a checkbox field to Account").
 
@@ -302,11 +309,24 @@ metadata_update(
 )
 ```
 
-### Phase 3.5: Permission Set Auto-Generation
+### Phase 3.5: Access Strategy (MANDATORY — No Guesswork)
 
-After creating Custom Objects or Fields, ALWAYS prompt the user for Permission Set generation.
+After creating **Custom Objects**, **Custom Fields**, or **List Views**, you MUST propose a **specific, complete** access strategy and have the user confirm the **exact** profiles and permission sets involved. **Never assume, never guess, never silently default** to a single "Object_Access" permission set as if the audience were known. If you don't know who should have access, ask — using `AskUserQuestion`.
 
-**Generation Rules**:
+The full matrix, the mandatory prompt template, and per-layer metadata examples live in **`references/access-strategy.md`**. Cover all applicable layers:
+
+| Layer                               | Controls                                           | Configured in                                                        | Permission Set? | Profile? |
+| ----------------------------------- | -------------------------------------------------- | -------------------------------------------------------------------- | --------------- | -------- |
+| Object CRUD + FLS                   | Object/field visibility & edit                     | `objectPermissions` / `fieldPermissions`                             | ✅ (preferred)  | ✅       |
+| Page Layout assignment              | Which classic layout a user sees (per record type) | **Profile** `layoutAssignments`                                      | ❌              | ✅       |
+| Lightning Record Page assignment    | Which FlexiPage a user sees                        | FlexiPage **activation** (org default / app / profile / record type) | ❌              | ✅       |
+| List View visibility (incl. Kanban) | Who can open the list view / Kanban                | `ListView.sharedTo` + `filterScope`                                  | n/a             | n/a      |
+
+**Critical:** object/FLS access should go through **permission sets** (cheap, preferred — see the cost warning above), but **page-layout and Lightning-page assignment can only be expressed against profiles**. So a complete plan usually names specific profiles as well — surface this, don't hide it. If the user wants zero profile-edit credits, provide exact Setup UI steps instead (see `references/access-strategy.md`).
+
+**Kanban caveat:** a Kanban view is **not a metadata type** — it is a per-list-view display mode configured in the UI, so it cannot be deployed via `metadata_create`. Do NOT claim to have created a Kanban view via metadata. Instead: confirm the list view's visibility, verify the grouping **picklist** and any summary **number** field exist, then give the exact UI steps to switch the list view to Kanban (`references/access-strategy.md`).
+
+**FLS field-inclusion rules** (Layer 1):
 
 | Field Type      | Include in Permission Set? | Notes                                              |
 | --------------- | -------------------------- | -------------------------------------------------- |
@@ -317,7 +337,7 @@ After creating Custom Objects or Fields, ALWAYS prompt the user for Permission S
 | Master-Detail   | NO                         | Controlled by parent object permissions            |
 | Name field      | NO                         | Always visible, cannot be in Permission Set        |
 
-**Create Permission Set via MCP**:
+**Create Permission Set via MCP** (Layer 1 — object/FLS access):
 
 ```
 metadata_create(
@@ -343,6 +363,12 @@ metadata_create(
   sf_user="<sf_user>"
 )
 ```
+
+**Layer 2 — Page Layout assignment (Profile-only):** assign via the `Profile` metadata's `layoutAssignments` (keyed by record type). No permission-set equivalent exists — confirm the exact profile name(s). Costs profile-update credits, or provide zero-cost Setup steps. See `references/access-strategy.md`.
+
+**Layer 3 — Lightning Record Page assignment:** creating a FlexiPage is not enough; it must be **activated/assigned** (org default, or app/profile/record-type). Confirm the scope and exact apps/profiles/record types. See `references/access-strategy.md`.
+
+**Layer 4 — List View visibility (incl. Kanban):** set `filterScope` and `sharedTo` on the `ListView` explicitly — omit `sharedTo` only when the user wants it visible to all users. Kanban is a UI-only display mode on top of the list view (not deployable via metadata). See `references/access-strategy.md`.
 
 ### Phase 3.6: Schema Validation (Pre-Deploy)
 
@@ -530,6 +556,7 @@ Parameters:
 | Record Type     | `RecordType`           | Picklist value assignments                                                                                                                       |
 | Page Layout     | `Layout`               | Section and field placement                                                                                                                      |
 | Lightning Page  | `FlexiPage`            | All page types: Record/App/Home, Forecasting, Omni Supervisor, Email, Slack, Experience Cloud, etc. — see `references/flexipage-capabilities.md` |
+| List View       | `ListView`             | Columns, filters, `filterScope`, `sharedTo` visibility (Kanban is UI-only)                                                                       |
 
 ---
 
@@ -751,11 +778,14 @@ Invalid field names produce clear errors. Use `metadata_read` to discover valid 
 
 ## Key Insights
 
-| Insight                            | Issue                                    | Fix                                              |
-| ---------------------------------- | ---------------------------------------- | ------------------------------------------------ |
-| FLS is the Silent Killer           | Deployed fields invisible without FLS    | Always prompt for Permission Set generation      |
-| Required Fields != Permission Sets | Salesforce rejects required fields in PS | Filter out required fields from fieldPermissions |
-| Orchestration Order                | sf-data fails if objects not deployed    | metadata first, then data                        |
+| Insight                                    | Issue                                                             | Fix                                                        |
+| ------------------------------------------ | ----------------------------------------------------------------- | ---------------------------------------------------------- |
+| FLS is the Silent Killer                   | Deployed fields invisible without FLS                             | Always propose a specific access strategy (Phase 3.5)      |
+| Access needs specifics, not defaults       | Guessed audiences leave the wrong people with (or without) access | Confirm exact profiles + permission sets — no guesswork    |
+| Layouts & Lightning pages are Profile-only | Permission sets can't assign layouts/pages                        | Name specific profiles for layout & FlexiPage assignment   |
+| List views need a visibility decision      | Kanban rides on a list view's `sharedTo`                          | Set `filterScope`/`sharedTo` explicitly; Kanban is UI-only |
+| Required Fields != Permission Sets         | Salesforce rejects required fields in PS                          | Filter out required fields from fieldPermissions           |
+| Orchestration Order                        | sf-data fails if objects not deployed                             | metadata first, then data                                  |
 
 ---
 
