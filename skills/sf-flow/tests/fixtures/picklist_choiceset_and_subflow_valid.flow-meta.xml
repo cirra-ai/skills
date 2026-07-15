@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>65.0</apiVersion>
+    <description>Screen flow with a correctly-formed picklist choice set (picklist mode only) and a subflow without a faultConnector. Neither should be flagged by the validator.</description>
+    <dynamicChoiceSets>
+        <name>CS_Origin</name>
+        <dataType>String</dataType>
+        <picklistField>Origin</picklistField>
+        <picklistObject>Case</picklistObject>
+    </dynamicChoiceSets>
+    <label>Case Origin Picker Valid</label>
+    <processType>Flow</processType>
+    <screens>
+        <name>Pick_Origin</name>
+        <label>Pick Origin</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>Call_Child</targetReference>
+        </connector>
+        <fields>
+            <name>Origin_Field</name>
+            <choiceReferences>CS_Origin</choiceReferences>
+            <dataType>String</dataType>
+            <fieldType>DropdownBox</fieldType>
+        </fields>
+    </screens>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Pick_Origin</targetReference>
+        </connector>
+    </start>
+    <status>Draft</status>
+    <subflows>
+        <name>Call_Child</name>
+        <label>Call Child</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <flowName>Child_Flow</flowName>
+    </subflows>
+</Flow>

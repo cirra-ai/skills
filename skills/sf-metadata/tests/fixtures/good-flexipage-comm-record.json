@@ -1,0 +1,27 @@
+{
+  "masterLabel": "CirraTest Community Account Record Page",
+  "type": "CommRecordPage",
+  "sobjectType": "Account",
+  "description": "Experience Cloud record page for Account",
+  "template": {
+    "name": "comm:recordHomeTemplate"
+  },
+  "flexiPageRegions": [
+    {
+      "name": "main",
+      "type": "Region",
+      "itemInstances": [
+        {
+          "componentInstance": {
+            "componentName": "forceCommunity:recordBanner"
+          }
+        },
+        {
+          "componentInstance": {
+            "componentName": "forceCommunity:recordInformation"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -375,12 +375,12 @@ metadata_create(
 Before calling `metadata_create`, validate JSON payloads against the bundled
 JSON Schemas in `references/`:
 
-| Metadata Type | Schema File                                 |
-| ------------- | ------------------------------------------- |
-| Layout        | `references/layout-metadata-schema.json`    |
-| FlexiPage     | `references/flexipage-metadata-schema.json` |
-| Profile       | See `sf-permissions` skill                  |
-| PermissionSet | See `sf-permissions` skill                  |
+| Metadata Type | Schema File                                                                          |
+| ------------- | ------------------------------------------------------------------------------------ |
+| Layout        | `references/layout-metadata-schema.json`                                             |
+| FlexiPage     | `references/flexipage-metadata-schema.json` + `references/flexipage-capabilities.md` |
+| Profile       | See `sf-permissions` skill                                                           |
+| PermissionSet | See `sf-permissions` skill                                                           |
 
 These schemas validate required fields, valid enum values, correct nesting
 (e.g., Layout → LayoutSection → LayoutColumn → LayoutItem), and type shapes.
@@ -547,16 +547,16 @@ Parameters:
 
 ## Supported Metadata Types
 
-| Metadata Type   | `metadata_create` type | Common Operations                                                          |
-| --------------- | ---------------------- | -------------------------------------------------------------------------- |
-| Custom Object   | `CustomObject`         | Create with label, name field, sharing model                               |
-| Custom Field    | `CustomField`          | Create with fullName as `Object.Field__c`                                  |
-| Permission Set  | `PermissionSet`        | Object + field permissions                                                 |
-| Validation Rule | `ValidationRule`       | Formula-based validation                                                   |
-| Record Type     | `RecordType`           | Picklist value assignments                                                 |
-| Page Layout     | `Layout`               | Section and field placement                                                |
-| Lightning Page  | `FlexiPage`            | Record, App, and Home page creation/modification                           |
-| List View       | `ListView`             | Columns, filters, `filterScope`, `sharedTo` visibility (Kanban is UI-only) |
+| Metadata Type   | `metadata_create` type | Common Operations                                                                                                                                |
+| --------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Custom Object   | `CustomObject`         | Create with label, name field, sharing model                                                                                                     |
+| Custom Field    | `CustomField`          | Create with fullName as `Object.Field__c`                                                                                                        |
+| Permission Set  | `PermissionSet`        | Object + field permissions                                                                                                                       |
+| Validation Rule | `ValidationRule`       | Formula-based validation                                                                                                                         |
+| Record Type     | `RecordType`           | Picklist value assignments                                                                                                                       |
+| Page Layout     | `Layout`               | Section and field placement                                                                                                                      |
+| Lightning Page  | `FlexiPage`            | All page types: Record/App/Home, Forecasting, Omni Supervisor, Email, Slack, Experience Cloud, etc. — see `references/flexipage-capabilities.md` |
+| List View       | `ListView`             | Columns, filters, `filterScope`, `sharedTo` visibility (Kanban is UI-only)                                                                       |
 
 ---
 
@@ -685,11 +685,42 @@ The `home:desktopTemplate` provides exactly 4 regions: `top`, `bottomLeft`, `bot
 
 ### FlexiPage Type Rules
 
-| Type       | `sobjectType` | Notes                              |
-| ---------- | ------------- | ---------------------------------- |
-| RecordPage | Required      | Must specify the target object     |
-| AppPage    | Must NOT set  | App pages are not object-specific  |
-| HomePage   | Must NOT set  | Home pages are not object-specific |
+Salesforce supports 40+ FlexiPage `type` values across the standard Lightning
+app, Experience Cloud, Slack, Email, Forecasting, Omni-Channel Supervisor,
+Marketing/Data Cloud, and Service surfaces. The validator enforces per-type
+rules for `sobjectType`, expected templates, and required regions; for the
+complete catalog see `references/flexipage-capabilities.md`.
+
+Quick reference for the most common types:
+
+| Type                                                                | `sobjectType` | Typical template                                    | Notes                                         |
+| ------------------------------------------------------------------- | ------------- | --------------------------------------------------- | --------------------------------------------- |
+| `RecordPage`                                                        | **Required**  | `flexipage:recordHomeTemplateDesktop`               | Standard Lightning record page                |
+| `ObjectPage`                                                        | **Required**  | `flexipage:objectHomeTemplateDesktop`               | Object Home                                   |
+| `AppPage`                                                           | Must NOT set  | `flexipage:defaultAppHomeTemplate`                  | Lightning App tab                             |
+| `HomePage`                                                          | Must NOT set  | `home:desktopTemplate`                              | 4 regions: top/bottomLeft/bottomRight/sidebar |
+| `EasyHomePage`                                                      | Must NOT set  | `flexipage:easyHomeTemplate`                        | Easy-mode home                                |
+| `UtilityBar`                                                        | Must NOT set  | —                                                   | Utility bar items                             |
+| `ForecastingPage`                                                   | Must NOT set  | `forecasting:forecastingTemplate`                   | Collaborative Forecasts                       |
+| `OmniSupervisorPage`                                                | Must NOT set  | `runtime_omnichannel_supervisor:supervisorTemplate` | Omni-Channel Supervisor                       |
+| `EmbeddedServicePage`                                               | Must NOT set  | varies                                              | Embedded Service / Messaging                  |
+| `MailAppAppPage`                                                    | Must NOT set  | `flexipage:mailAppHomeTemplate`                     | Outlook / Gmail integration                   |
+| `EmailContentPage`                                                  | Must NOT set  | `flexipage:emailContentTemplate`                    | Email Content Builder                         |
+| `EmailTemplatePage`                                                 | Must NOT set  | `flexipage:emailTemplatePage`                       | Lightning Email Template editor               |
+| `SlackAppHome`                                                      | Must NOT set  | `slack:appHomeTemplate`                             | Slack app home tab                            |
+| `SlackMessage` / `SlackModal`                                       | Must NOT set  | `slack:messageTemplate` / `slack:modalTemplate`     | Slack message / modal blocks                  |
+| `SlackNotification`                                                 | Must NOT set  | `slack:notificationTemplate`                        | Regions may be empty                          |
+| `LandingPage`                                                       | Must NOT set  | `flexipage:landingPageTemplate`                     | Pardot landing page                           |
+| `CdpRecordPage`                                                     | **Required**  | `flexipage:recordHomeTemplateDesktop`               | Data Cloud DMO record page                    |
+| `CommRecordPage`                                                    | **Required**  | `comm:recordHomeTemplate`                           | Experience Cloud record page                  |
+| `CommObjectPage`                                                    | **Required**  | `comm:objectHomeTemplate`                           | Experience Cloud object page                  |
+| `CommRelatedListPage`                                               | **Required**  | `comm:relatedListTemplate`                          | Experience Cloud related list                 |
+| `CommAppPage`                                                       | Must NOT set  | `comm:appHomeTemplate`                              | Experience Cloud app page                     |
+| `CommLoginPage` / `CommForgotPasswordPage` / `CommSelfRegisterPage` | Must NOT set  | `comm:*Template`                                    | Experience Cloud auth flows                   |
+
+For every other `Comm*`, `Slack*`, marketing/data-cloud, and platform-specific
+type — and for the components/region semantics of each — see the capabilities
+reference.
 
 ---
 

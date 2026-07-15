@@ -97,6 +97,69 @@ class TestFlexiPageSchemaErrors:
         assert any("InvalidPageType" in m for m in msgs)
 
 
+# --- Per-page-type coverage (Slack, Forecasting, OmniSupervisor, Experience Cloud) ---
+
+
+class TestFlexiPageNonRecordPageTypes:
+    """Verify per-page-type rules for the broader FlexiPage enum.
+
+    See references/flexipage-capabilities.md for the contract per page type.
+    """
+
+    def test_slack_modal_scores_pass(self):
+        result = MetadataOperationValidator("FlexiPage", _fixture("good-flexipage-slack-modal.json")).validate()
+        assert result["status"] == "pass"
+        assert result["overall_score"] >= 96
+
+    def test_forecasting_page_scores_pass(self):
+        result = MetadataOperationValidator("FlexiPage", _fixture("good-flexipage-forecasting.json")).validate()
+        assert result["status"] == "pass"
+
+    def test_omni_supervisor_page_scores_pass(self):
+        result = MetadataOperationValidator("FlexiPage", _fixture("good-flexipage-omnisupervisor.json")).validate()
+        assert result["status"] == "pass"
+
+    def test_comm_record_page_scores_pass(self):
+        result = MetadataOperationValidator("FlexiPage", _fixture("good-flexipage-comm-record.json")).validate()
+        assert result["status"] == "pass"
+
+    def test_comm_record_page_missing_sobjecttype_is_critical(self):
+        result = MetadataOperationValidator(
+            "FlexiPage", _fixture("bad-flexipage-comm-record-missing-sobjecttype.json")
+        ).validate()
+        critical = [i for i in result["issues"] if i["severity"] == "critical"]
+        assert any("CommRecordPage" in i["message"] and "sobjectType" in i["message"] for i in critical)
+
+    def test_slack_modal_with_sobjecttype_warned(self):
+        payload = _fixture("good-flexipage-slack-modal.json")
+        payload["sobjectType"] = "Account"
+        result = MetadataOperationValidator("FlexiPage", payload).validate()
+        msgs = _issues_messages(result)
+        assert any("SlackModal" in m and "should not have 'sobjectType'" in m for m in msgs)
+
+    def test_forecasting_page_with_sobjecttype_warned(self):
+        payload = _fixture("good-flexipage-forecasting.json")
+        payload["sobjectType"] = "Account"
+        result = MetadataOperationValidator("FlexiPage", payload).validate()
+        msgs = _issues_messages(result)
+        assert any("ForecastingPage" in m and "should not have 'sobjectType'" in m for m in msgs)
+
+    def test_slack_notification_no_regions_is_warning_not_critical(self):
+        result = MetadataOperationValidator(
+            "FlexiPage", _fixture("good-flexipage-slack-notification.json")
+        ).validate()
+        no_region_issues = [i for i in result["issues"] if "no regions" in i["message"]]
+        assert no_region_issues, "expected an empty-regions finding for SlackNotification"
+        assert all(i["severity"] == "warning" for i in no_region_issues)
+
+    def test_record_page_no_regions_remains_critical(self):
+        result = MetadataOperationValidator(
+            "FlexiPage", _fixture("bad-flexipage-no-regions.json")
+        ).validate()
+        critical = [i for i in result["issues"] if i["severity"] == "critical"]
+        assert any("no regions" in i["message"] for i in critical)
+
+
 class TestFlexiPageDeployability:
     def test_app_page_with_sobjecttype_warned(self):
         payload = _fixture("good-flexipage-app.json")
