@@ -34,11 +34,11 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Tool params**: `sObject: Account`
 - **Should call**: `metadata_create`
 - **Should NOT call**: `metadata_update`, `metadata_delete`, `tooling_api_dml`
-- **Should ask user**: no (requirements are clear), but must prompt for FLS after creation
-- **Post-action**: prompt for Permission Set generation (FLS)
+- **Should ask user**: no (requirements are clear), but must propose an access strategy after creation
+- **Post-action**: propose a specific access strategy (Phase 3.5) — confirm exact permission sets/profiles for object+FLS access, plus page-layout / Lightning-page / list-view visibility as applicable; no guesswork
 - **Follow-up skills**: `sf-data`, `sf-permissions`
 
-**Notes**: The `create` keyword routes to Create Metadata. Even though the user gave all details, the workflow should first describe the target object to verify the field doesn't already exist, then call `metadata_create` with type `CustomField`. After creation, must prompt about FLS — deployed fields are invisible without it. Fast path applies: single, unambiguous metadata operation.
+**Notes**: The `create` keyword routes to Create Metadata. Even though the user gave all details, the workflow should first describe the target object to verify the field doesn't already exist, then call `metadata_create` with type `CustomField`. After creation, must propose an access strategy — deployed fields are invisible without FLS, and access must be pinned to specific profiles/permission sets rather than guessed. Fast path applies: single, unambiguous metadata operation.
 
 ---
 

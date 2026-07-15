@@ -1,20 +1,34 @@
 <!-- Parent: sf-metadata/SKILL.md -->
 
-# Permission Set Auto-Generation (Phase 3.5)
+# Permission Set Generation (Access Strategy — Layer 1)
 
-After creating Custom Objects or Fields, ALWAYS prompt the user for Permission Set generation.
+This is **Layer 1 (Object CRUD + FLS)** of the Phase 3.5 Access Strategy — see
+`access-strategy.md` for the full, no-guesswork plan (page layouts, Lightning
+record pages, and list-view/Kanban visibility are Layers 2–4).
+
+After creating Custom Objects or Fields, ALWAYS propose object/field access via a
+Permission Set, and confirm the **specific** permission set(s) / profile(s) with
+the user — never assume the audience.
 
 ## Prompt Template
 
+Do **not** ask a yes/no "generate a Permission Set?" question — that reintroduces
+silent defaults. Use the **mandatory access-strategy prompt** in
+`access-strategy.md` ("The mandatory prompt"), which makes the user name the
+**concrete** permission set(s) / profile(s) for object + FLS access (Layer 1)
+alongside the other layers. Collect the specific names before creating anything:
+
 ```
 AskUserQuestion:
-  question: "Would you like me to generate a Permission Set for [ObjectName__c] field access?"
-  header: "FLS Setup"
+  question: "Who should have object + field access to [ObjectName__c]? Name the exact PERMISSION SET(S) and/or PROFILE(S) — no guesswork. (Permission sets recommended; profile edits cost credits.)"
+  header: "Access — Layer 1"
   options:
-    - label: "Yes, generate Permission Set"
-      description: "Creates [ObjectName]_Access.permissionset-meta.xml with object CRUD and field access"
-    - label: "No, I'll handle FLS manually"
-      description: "Skip Permission Set generation - you'll configure FLS via Setup or Profile"
+    - label: "New permission set [ObjectName]_Access"
+      description: "Create a new permission set with object CRUD + FLS; you confirm its name and who it's assigned to."
+    - label: "Add to existing permission set(s)"
+      description: "You name the existing permission set(s) to extend with this object/field access."
+    - label: "Grant via named profile(s)"
+      description: "You name the exact profile(s); I warn about per-profile credit cost before proceeding."
 ```
 
 ## Generation Rules
