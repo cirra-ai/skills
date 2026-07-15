@@ -3,7 +3,7 @@ name: sf-flow
 plugin: cirra-ai-sf
 argument-hint: '[create|update|validate] {FlowName} ...'
 metadata:
-  version: 2.3.0
+  version: 2.3.1
 description: >
   Creates and validates Salesforce flows with 110-point scoring and Winter '26 best practices
   using Cirra AI MCP Server. Use when building record-triggered flows, screen flows,
@@ -316,7 +316,8 @@ metadata_read(
 2. Generate Flow metadata (JSON object — NOT XML)
 3. Deploy via metadata_create tool (Cirra AI MCP Server)
 4. Retrieve existing flows via metadata_read or metadata_list (Cirra AI MCP Server)
-5. Query Flow metadata via tooling_api_query for FlowDefinition
+5. Query Flow metadata via tooling_api_query for Flow/FlowDefinition;
+   flow catalog via soql_query for FlowDefinitionView (see Query Tool Routing)
 6. Describe objects/fields via sobject_describe before flow creation
 ```
 
@@ -360,9 +361,9 @@ This initializes your Salesforce org connection. It must be called once per sess
 - `metadata_create` (deploy flows)
 - `metadata_read` (retrieve flows)
 - `metadata_list` (list existing flows)
-- `tooling_api_query` (query FlowDefinition)
+- `tooling_api_query` (query Flow / FlowDefinition — Tooling API objects only)
 - `sobject_describe` (verify objects/fields)
-- `soql_query` (query org data)
+- `soql_query` (query org data, plus FlowDefinitionView / FlowInterview — standard objects)
 
 ---
 
@@ -727,16 +728,21 @@ metadata_list(
 )
 ```
 
-1. **Query Flow metadata** (Tooling API):
+1. **Query Flow metadata** (Tooling API — `FlowDefinition` has no `ApiName` or `Status` fields; use `DeveloperName` and `ActiveVersionId`):
 
 ```python
 tooling_api_query(
     sObject="FlowDefinition",
-    fields=["Id", "ApiName", "Description"],
-    whereClause="Status = 'Active'",
+    fields=["Id", "DeveloperName", "Description", "ActiveVersionId"],
+    whereClause="ActiveVersionId != null",
     sf_user="your-salesforce-username"
 )
 ```
+
+For catalog-style listings (label, trigger info, active state) query the
+**standard object** `FlowDefinitionView` with `soql_query` — see
+"Query Tool Routing" under Flow MCP Patterns. Never pass
+`FlowDefinitionView` to `tooling_api_query`.
 
 1. **Verify object/fields before flow creation**:
 
@@ -1269,6 +1275,49 @@ Always start with this complete template — include **ALL** empty arrays:
 - Do **not** create a new flow to fix an issue — create a new **version** instead
 - Do **not** say something "cannot be done via API" — always attempt it
 
+### ⚠️ Query Tool Routing (prevents "sObject type not supported" errors)
+
+Flow-related objects live in **two different APIs**. Using the wrong query
+tool fails outright:
+
+| Object                                                                       | API              | Query tool                   |
+| ---------------------------------------------------------------------------- | ---------------- | ---------------------------- |
+| `Flow`, `FlowDefinition`, `FlowTestCoverage`                                 | Tooling API      | `tooling_api_query` **only** |
+| `FlowDefinitionView`, `FlowVersionView`, `FlowInterview`, `FlowInterviewLog` | Standard sObject | `soql_query` **only**        |
+
+- `tooling_api_query` on `FlowDefinitionView` fails with
+  `sObject type 'FlowDefinitionView' is not supported` — it is a standard
+  object, not a Tooling API object.
+- **Never use SOSL on flows.** `tooling_api_search` (SOSL) on `Flow` or
+  `FlowDefinition` fails with `entity type Flow does not support search`,
+  and `FlowDefinitionView` is not searchable either. To find a flow by
+  name, use SOQL with `LIKE`:
+  - `soql_query`: `SELECT DurableId, ApiName, Label FROM FlowDefinitionView WHERE ApiName LIKE '%Lead%' OR Label LIKE '%Lead%'`
+  - or `tooling_api_query`: `SELECT Id, DeveloperName FROM FlowDefinition WHERE DeveloperName LIKE '%Lead%'`
+
+**FlowDefinitionView columns** — it has **no `DeveloperName` and no `Status`**
+(use `ApiName` for the name and `IsActive` for active state). Available
+columns (verified via `sobject_describe`): `Id`, `DurableId`, `ApiName`,
+`Label`, `Description`, `ProcessType`, `TriggerType`, `TriggerObjectOrEventId`,
+`TriggerObjectOrEventLabel`, `TriggerOrder`, `RecordTriggerType`,
+`NamespacePrefix`, `ActiveVersionId`, `LatestVersionId`, `VersionNumber`,
+`IsActive`, `IsOutOfDate`, `IsTemplate`, `IsOverridable`, `OverriddenById`,
+`OverriddenFlowId`, `SourceTemplateId`, `IsSwingFlow`, `Builder`,
+`ManageableState`, `InstalledPackageName`, `HasAsyncAfterCommitPath`,
+`Environments`, `SupportedEnvironments`, `ApiVersion`, `CapacityCategory`,
+`AreMetricsLoggedToDataCloud`, `LastModifiedBy`, `LastModifiedDate`.
+
+Note: on this object `LastModifiedBy` is a plain **text** field (the user's
+display name), not a relationship — selecting it directly is valid here, and
+there is no `LastModifiedById` column.
+
+Flow catalog query (summary info about flows, e.g. finding Process Builder
+processes to migrate):
+
+```
+soql_query(query="SELECT DurableId, ApiName, Label, Description, ProcessType, TriggerType, IsActive, LastModifiedDate, LastModifiedBy FROM FlowDefinitionView WHERE ProcessType = 'Workflow'")
+```
+
 ### List all flows (with active and latest version info)
 
 ```
@@ -1448,14 +1497,23 @@ metadata_read(
 # Returns: Complete Flow metadata from org (JSON)
 ```
 
-### Example 5: Query Flow Metadata (Tooling API)
+### Example 5: Find All Active Flows
+
+Two correct options — see "Query Tool Routing" under Flow MCP Patterns:
 
 ```python
-# Find all active flows
+# Option A: flow catalog via the standard object (soql_query, NOT tooling_api_query)
+soql_query(
+    query="SELECT DurableId, ApiName, Label, ProcessType, TriggerType, IsActive FROM FlowDefinitionView WHERE IsActive = true",
+    sf_user="prod-username"
+)
+
+# Option B: Tooling API (FlowDefinition has no ApiName/Status fields —
+# use DeveloperName, and ActiveVersionId != null for "active")
 tooling_api_query(
     sObject="FlowDefinition",
-    fields=["Id", "ApiName", "Description", "Status"],
-    whereClause="Status = 'Active'",
+    fields=["Id", "DeveloperName", "Description", "ActiveVersionId"],
+    whereClause="ActiveVersionId != null",
     sf_user="prod-username"
 )
 ```
