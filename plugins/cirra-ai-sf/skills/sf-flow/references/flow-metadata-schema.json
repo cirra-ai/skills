@@ -2619,7 +2619,15 @@
           "$ref": "#/$defs/FlowElement"
         }
       ],
-      "required": ["dataType", "displayField", "object"]
+      "required": ["dataType"],
+      "anyOf": [
+        {
+          "required": ["object", "displayField"]
+        },
+        {
+          "required": ["picklistObject", "picklistField"]
+        }
+      ]
     },
     "FlowElement": {
       "type": "object",
