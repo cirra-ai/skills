@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>65.0</apiVersion>
+    <description>Screen flow that calls a subflow. Demonstrates the invalid faultConnector-on-subflow anti-pattern: FlowSubflow elements cannot carry a faultConnector.</description>
+    <label>Parent Flow With Subflow Fault</label>
+    <processType>Flow</processType>
+    <screens>
+        <name>Welcome</name>
+        <label>Welcome</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>Call_Child</targetReference>
+        </connector>
+        <fields>
+            <name>Intro</name>
+            <fieldText>&lt;p&gt;Welcome&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+    </screens>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Welcome</targetReference>
+        </connector>
+    </start>
+    <status>Draft</status>
+    <subflows>
+        <name>Call_Child</name>
+        <label>Call Child</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <flowName>Child_Flow</flowName>
+        <faultConnector>
+            <targetReference>Welcome</targetReference>
+        </faultConnector>
+    </subflows>
+</Flow>

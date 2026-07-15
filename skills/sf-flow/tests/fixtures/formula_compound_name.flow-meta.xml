@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>65.0</apiVersion>
+    <assignments>
+        <name>Set_Greeting</name>
+        <label>Set Greeting</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Description</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Full_Name</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <description>Before-save flow on Contact that builds a greeting from a formula. Demonstrates the compound-Name anti-pattern: the formula concatenates the compound Name field, which Salesforce rejects.</description>
+    <formulas>
+        <name>Full_Name</name>
+        <dataType>String</dataType>
+        <expression>&quot;Hello &quot; &amp; {!$Record.Name}</expression>
+    </formulas>
+    <label>Contact Greeting Builder</label>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <object>Contact</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+        <connector>
+            <targetReference>Set_Greeting</targetReference>
+        </connector>
+    </start>
+    <status>Draft</status>
+</Flow>
