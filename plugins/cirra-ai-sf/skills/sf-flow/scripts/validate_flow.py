@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Enhanced Flow Validator with 6-Category Scoring (v2.2.0)
+Enhanced Flow Validator with 6-Category Scoring (v2.3.0)
 
 Validates Salesforce Flows across 6 best practice categories:
 1. Design & Naming
@@ -9,6 +9,22 @@ Validates Salesforce Flows across 6 best practice categories:
 4. Performance & Bulk Safety
 5. Error Handling & Observability
 6. Security & Governance
+
+v2.3.0 New Validations:
+- CompoundFieldInFormula detection - compound fields (person Name, Address,
+  Geolocation) used in a formula expression are a save/deploy error. Object type
+  is resolved per reference so plain-text Name fields (Account, Opportunity) and
+  ISBLANK/ISNULL/ISCHANGED usage are never false-flagged.
+- SubflowFaultConnector detection - FlowSubflow elements can't carry a
+  faultConnector (subflows handle their own faults); it's a deploy error.
+  Corollary fix: subflows are no longer in FALLIBLE_ELEMENT_TYPES, so the
+  general fault-path rule no longer demands a (deploy-breaking) faultConnector
+  on them.
+- PicklistChoiceSetRecordProps detection - a picklist-based dynamicChoiceSet
+  carrying record-mode object/displayField/filters is rejected at deploy.
+  The metadata schema's FlowDynamicChoiceSet no longer requires object/
+  displayField unconditionally (picklist mode needs only picklistObject/
+  picklistField).
 
 v2.2.0 New Validations (Lightning Flow Scanner Parity):
 - HardcodedId detection - 15/18 char Salesforce ID patterns
@@ -254,6 +270,78 @@ class EnhancedFlowValidator:
                             f"Remove <{offense['property']}> from the {offense['element_type']} "
                             f"entry. {offense['element_type']} only accepts: "
                             f"{', '.join(offense['allowed'])}."
+                        ),
+                    }
+                )
+
+        # ═══════════════════════════════════════════════════════════════════════
+        # Compound fields in formulas (CRITICAL — save/deploy error)
+        #   e.g. a Contact/Lead formula referencing the compound `Name` instead
+        #   of FirstName / LastName. Only ISBLANK / ISNULL / ISCHANGED may take a
+        #   compound field; anything else fails.
+        # ═══════════════════════════════════════════════════════════════════════
+        compound_offenses = self._check_compound_fields_in_formulas()
+        if compound_offenses:
+            score -= 10
+            for offense in compound_offenses:
+                critical_issues.append(
+                    {
+                        "severity": "CRITICAL",
+                        "message": (
+                            f"❌ Formula '{offense['formula']}' uses the compound "
+                            f"{offense['object']} field {{!{offense['reference']}}} — "
+                            f"compound fields can't be used in formulas"
+                        ),
+                        "fix": (
+                            f"Reference {offense['fix']} "
+                            f"(only ISBLANK/ISNULL/ISCHANGED accept a compound field)"
+                        ),
+                    }
+                )
+
+        # ═══════════════════════════════════════════════════════════════════════
+        # Subflow with faultConnector (CRITICAL — deploy error)
+        #   FlowSubflow does not accept a faultConnector; subflows handle their
+        #   own faults internally.
+        # ═══════════════════════════════════════════════════════════════════════
+        subflow_faults = self._check_subflow_fault_connectors()
+        if subflow_faults:
+            score -= 10
+            for name in subflow_faults:
+                critical_issues.append(
+                    {
+                        "severity": "CRITICAL",
+                        "message": (
+                            f"❌ Subflow '{name}' has a faultConnector — "
+                            f"FlowSubflow elements can't have one"
+                        ),
+                        "fix": (
+                            "Remove the faultConnector; a subflow handles its own "
+                            "faults internally"
+                        ),
+                    }
+                )
+
+        # ═══════════════════════════════════════════════════════════════════════
+        # Picklist choice set carrying record-mode props (CRITICAL — deploy error)
+        #   A picklist-based dynamicChoiceSet must not also carry object /
+        #   displayField / filters (even an empty <object/>).
+        # ═══════════════════════════════════════════════════════════════════════
+        picklist_cs_offenses = self._check_picklist_choiceset_record_props()
+        if picklist_cs_offenses:
+            score -= 10
+            for offense in picklist_cs_offenses:
+                critical_issues.append(
+                    {
+                        "severity": "CRITICAL",
+                        "message": (
+                            f"❌ Picklist choice set '{offense['name']}' also has "
+                            f"record-mode {', '.join(offense['props'])} — Salesforce "
+                            f"rejects the deploy"
+                        ),
+                        "fix": (
+                            f"Strip {', '.join(offense['props'])} from the choice set; "
+                            f"picklist choice sets use only picklistObject/picklistField"
                         ),
                     }
                 )
@@ -994,6 +1082,12 @@ class EnhancedFlowValidator:
     # unhandled fault will surface to the user (in record-triggered flows) or
     # halt the interview (in screen/autolaunched/scheduled flows). See
     # _check_save_blocking_risk() for the RecordAfterSave-specific variant.
+    #
+    # NOTE: `subflows` is intentionally NOT listed. FlowSubflow does not accept a
+    # faultConnector (it's a deploy error) — a subflow handles its own faults
+    # internally, so demanding one here would send the author into that error.
+    # _check_subflow_fault_connectors() flags the inverse (a subflow that wrongly
+    # has one).
     FALLIBLE_ELEMENT_TYPES = (
         "actionCalls",
         "recordCreates",
@@ -1001,7 +1095,6 @@ class EnhancedFlowValidator:
         "recordDeletes",
         "recordLookups",
         "apexPluginCalls",
-        "subflows",
         "waits",
     )
 
@@ -1272,6 +1365,136 @@ class EnhancedFlowValidator:
                 issues.append(element_name)
         return issues
 
+    # ── Compound fields in formulas ────────────────────────────────────────────
+    #
+    # Salesforce compound fields (person Name, Address, Geolocation) are NOT
+    # usable in formula expressions except inside ISBLANK / ISNULL / ISCHANGED.
+    # Any other use (concatenation, TEXT(), comparison, &, +) is a save/deploy
+    # error. The classic case: a Contact/Lead flow formula that references the
+    # compound `Name` — you must reference FirstName / LastName instead.
+    #   Source: https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/compound_fields_limitations.htm
+    #
+    # We only flag a reference when we can positively resolve its object type,
+    # so `Account.Name` / `Opportunity.Name` (plain text, NOT compound) never
+    # false-positive.
+
+    # Object → set of compound field API names on that object. Person-name
+    # compound (`Name`) exists only on Contact and Lead among standard objects
+    # (Account.Name is plain text). Standard Address compound fields are listed
+    # per owning object; component fields (FirstName, MailingStreet, …) are the
+    # supported alternative.
+    _COMPOUND_FIELDS_BY_OBJECT = {
+        "Contact": {"Name", "MailingAddress", "OtherAddress"},
+        "Lead": {"Name", "Address"},
+        "Account": {"BillingAddress", "ShippingAddress"},
+        "User": {"Address"},
+        "Order": {"BillingAddress", "ShippingAddress"},
+        "Contract": {"BillingAddress", "ShippingAddress"},
+        "Case": {"Address"},
+    }
+
+    # Suggested component fields to steer the fix message.
+    _COMPOUND_FIELD_COMPONENTS = {
+        "Name": "FirstName / LastName (and Salutation) instead",
+        "Address": "Street / City / State / PostalCode / Country components instead",
+        "MailingAddress": "MailingStreet / MailingCity / MailingState / … instead",
+        "OtherAddress": "OtherStreet / OtherCity / OtherState / … instead",
+        "BillingAddress": "BillingStreet / BillingCity / BillingState / … instead",
+        "ShippingAddress": "ShippingStreet / ShippingCity / ShippingState / … instead",
+    }
+
+    def _build_reference_object_map(self) -> dict[str, str]:
+        """Map a merge-field reference name to its SObject API name.
+
+        Resolves `$Record` / `$Record__Prior` to the trigger object, SObject
+        variables via their `<objectType>`, and Get Records outputs via their
+        `<object>`. References we can't resolve are simply absent (never flagged).
+        """
+        ref_map: dict[str, str] = {}
+
+        trigger_object = self._get_trigger_object()
+        if trigger_object:
+            ref_map["$Record"] = trigger_object
+            ref_map["$Record__Prior"] = trigger_object
+
+        # SObject variables carry an <objectType>.
+        for var in self.root.findall(".//sf:variables", self.namespace):
+            name = var.find("sf:name", self.namespace)
+            obj = var.find("sf:objectType", self.namespace)
+            if name is not None and name.text and obj is not None and obj.text:
+                ref_map[name.text] = obj.text
+
+        # Get Records with an explicit outputReference expose the queried object.
+        for lookup in self.root.findall(".//sf:recordLookups", self.namespace):
+            out = lookup.find("sf:outputReference", self.namespace)
+            obj = lookup.find("sf:object", self.namespace)
+            if out is not None and out.text and obj is not None and obj.text:
+                ref_map[out.text] = obj.text
+
+        return ref_map
+
+    def _check_compound_fields_in_formulas(self) -> list[dict]:
+        """Detect compound fields used in formula expressions (a deploy error).
+
+        Returns a list of offenses, one per (formula, reference):
+            {
+                "formula": "Full_Name",         # formula element name
+                "reference": "$Record.Name",    # the offending merge field
+                "object": "Contact",            # resolved object
+                "field": "Name",                # compound field
+                "fix": "FirstName / LastName …" # component-field hint
+            }
+        Compound refs wrapped ONLY in ISBLANK / ISNULL / ISCHANGED are allowed
+        and are not flagged.
+        """
+        import re
+
+        ref_map = self._build_reference_object_map()
+        if not ref_map:
+            return []
+
+        offenses: list[dict] = []
+        allowed_fns = ("ISBLANK", "ISNULL", "ISCHANGED")
+
+        for formula in self.root.findall(".//sf:formulas", self.namespace):
+            expr_el = formula.find("sf:expression", self.namespace)
+            if expr_el is None or not expr_el.text:
+                continue
+            name_el = formula.find("sf:name", self.namespace)
+            formula_name = name_el.text if name_el is not None else "<unnamed>"
+            expr = expr_el.text
+
+            # Strip references that are the sole argument of an allowed function
+            # so a legitimate ISBLANK({!$Record.MailingAddress}) is not flagged.
+            stripped = expr
+            for fn in allowed_fns:
+                stripped = re.sub(
+                    rf"{fn}\s*\(\s*\{{!\s*[^}}]+\}}\s*\)",
+                    "",
+                    stripped,
+                    flags=re.IGNORECASE,
+                )
+
+            # Find every merge field of the form {!ref.Field} (single hop).
+            for match in re.finditer(r"\{!\s*([$\w]+)\.(\w+)\s*\}", stripped):
+                ref, field = match.group(1), match.group(2)
+                obj = ref_map.get(ref)
+                if not obj:
+                    continue
+                if field in self._COMPOUND_FIELDS_BY_OBJECT.get(obj, set()):
+                    offenses.append(
+                        {
+                            "formula": formula_name,
+                            "reference": f"{ref}.{field}",
+                            "object": obj,
+                            "field": field,
+                            "fix": self._COMPOUND_FIELD_COMPONENTS.get(
+                                field, "the individual component fields instead"
+                            ),
+                        }
+                    )
+        return offenses
+
     # ── Resource property validation ──────────────────────────────────────────
     #
     # Flow elements split into two families:
@@ -1355,6 +1578,58 @@ class EnhancedFlowValidator:
                             "property": child_tag,
                             "allowed": sorted(allowed),
                         })
+        return offenses
+
+    def _check_subflow_fault_connectors(self) -> list[str]:
+        """Detect faultConnector on subflow elements (a deploy error).
+
+        FlowSubflow does NOT accept a faultConnector — a subflow handles its own
+        faults internally. Adding one fails deployment. The JSON schema uses
+        additionalProperties:true so it does not catch this; we do.
+
+        Returns a list of offending subflow element names.
+        """
+        offenders: list[str] = []
+        for subflow in self.root.findall(".//sf:subflows", self.namespace):
+            if subflow.find("sf:faultConnector", self.namespace) is not None:
+                name = subflow.find("sf:name", self.namespace)
+                offenders.append(name.text if name is not None else "<unnamed>")
+        return offenders
+
+    def _check_picklist_choiceset_record_props(self) -> list[dict]:
+        """Detect record-mode properties on a picklist-type dynamicChoiceSet.
+
+        A FlowDynamicChoiceSet is either record-based (`object` + `displayField`
+        + `valueField` + `filters`) OR picklist-based (`picklistObject` +
+        `picklistField`). Mixing modes — e.g. a stray empty `<object/>`,
+        `displayField`, or `filters` alongside `picklistObject` — is rejected by
+        the deploy. Strip the record-mode props from picklist choice sets.
+
+        Returns a list of offenses:
+            {"name": "CS_Origin", "props": ["object", "displayField"]}
+        """
+        record_mode_props = ("object", "displayField", "filters")
+        offenses: list[dict] = []
+        for cs in self.root.findall(".//sf:dynamicChoiceSets", self.namespace):
+            is_picklist = (
+                cs.find("sf:picklistObject", self.namespace) is not None
+                or cs.find("sf:picklistField", self.namespace) is not None
+            )
+            if not is_picklist:
+                continue
+            present = [
+                prop
+                for prop in record_mode_props
+                if cs.find(f"sf:{prop}", self.namespace) is not None
+            ]
+            if present:
+                name = cs.find("sf:name", self.namespace)
+                offenses.append(
+                    {
+                        "name": name.text if name is not None else "<unnamed>",
+                        "props": present,
+                    }
+                )
         return offenses
 
     def _has_formula_in_loops(self) -> bool:
