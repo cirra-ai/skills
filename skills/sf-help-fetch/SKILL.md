@@ -35,9 +35,10 @@ python3 scripts/fetch_sf_help.py <url> --strategy aura|zoomin|auto  # default: a
 python3 scripts/fetch_sf_help.py <url> --raw                        # raw XHTML instead of extracted text
 ```
 
-The article content is written to stdout; progress and which strategy won go to stderr. All
-network I/O shells out to `curl` so an ambient `HTTPS_PROXY` + CA bundle are honored
-automatically. No dependencies beyond `python3` and `curl`.
+The article content is written to stdout. Progress messages — including which strategy
+succeeded — are written to stderr. All network I/O shells out to `curl` so an ambient
+`HTTPS_PROXY` + CA bundle are honored automatically. No dependencies beyond `python3` and
+`curl`.
 
 ## Egress preflight
 

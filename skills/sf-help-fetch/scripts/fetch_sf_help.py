@@ -36,6 +36,7 @@ Usage:
     python3 fetch_sf_help.py <url> --raw                                # print raw HTML, no text extraction
 """
 import argparse
+import html
 import json
 import os
 import re
@@ -90,14 +91,19 @@ def topic_id_from(arg):
         raw = (q.get("id") or [""])[0]
     else:
         raw = arg
-    return re.sub(r"\.htm$", "", raw.strip())
+    topic = re.sub(r"\.htm$", "", raw.strip())
+    if not topic:
+        raise ValueError(
+            f"could not determine a topic id from {arg!r} — pass a "
+            "help.salesforce.com/s/articleView?id=<topic>.htm URL or a bare topic id")
+    return topic
 
 
-def html_to_text(html):
-    html = re.sub(r"<(script|style)[^>]*>.*?</\1>", "", html, flags=re.S)
-    txt = re.sub(r"<[^>]+>", " ", html)
-    txt = re.sub(r"&#?\w+;", " ", txt)
-    return re.sub(r"\s+", " ", txt).strip()
+def html_to_text(markup):
+    markup = re.sub(r"<(script|style)[^>]*>.*?</\1>", "", markup, flags=re.S)
+    text = re.sub(r"<[^>]+>", " ", markup)
+    text = html.unescape(text)  # decode entities (&amp; &#39; …) rather than dropping them
+    return re.sub(r"\s+", " ", text).strip()
 
 
 # --- Strategy A: Zoomin "H&T adaptor" (credentialed) --------------------------
@@ -163,12 +169,12 @@ def scrape_aura_context(topic_id):
     JSON-parse the leading object rather than regex-matching encoded fields
     (the values contain encoded ':' and '/' which defeat naive regexes)."""
     page_url = f"{HELP_HOST}/s/articleView?id={topic_id}.htm&type=5"
-    html = curl(["-L", page_url], timeout=30).stdout
+    page = curl(["-L", page_url], timeout=30).stdout
     # The page has several `%7B%22mode%22...%7D` (i.e. {"mode"...}) context blobs;
     # only the app-bootstrap one carries fwuid. Try each until one parses with fwuid.
     obj = None
-    for mm in re.finditer(r"%7B%22mode%22", html):
-        decoded = urllib.parse.unquote(html[mm.start():mm.start() + 4000])
+    for mm in re.finditer(r"%7B%22mode%22", page):
+        decoded = urllib.parse.unquote(page[mm.start():mm.start() + 4000])
         try:
             cand, _ = json.JSONDecoder().raw_decode(decoded)
         except json.JSONDecodeError:
@@ -198,17 +204,32 @@ def _getdata(ctx, url_name, release, type_number="5"):
                    "cacheable": False, "isContinuation": False}}
     data = urllib.parse.urlencode({"message": json.dumps({"actions": [action]}),
                                    "aura.context": json.dumps(ctx), "aura.token": "null"})
-    out = curl(["-X", "POST", f"{HELP_HOST}/s/sfsites/aura?r=1&aura.ApexAction.execute=1",
+    res = curl(["-X", "POST", f"{HELP_HOST}/s/sfsites/aura?r=1&aura.ApexAction.execute=1",
                 "-H", "content-type: application/x-www-form-urlencoded; charset=UTF-8",
                 "-H", f"x-sfdc-lds-endpoints: ApexActionController.execute:{HELP_APEX_CLASS}.{HELP_APEX_METHOD}",
-                "--data-raw", data], timeout=30).stdout
+                "--data-raw", data], timeout=30)
+    out = res.stdout
+    if res.returncode != 0 and not out.strip():
+        raise RuntimeError("aura request failed: " + (res.stderr.strip() or "curl error"))
     if "/*ERROR*/" in out:
         m = re.search(r"\{.*\}", out, re.S)
         raise RuntimeError("aura error: " + (m.group(0)[:300] if m else out[:300]))
-    act = json.loads(out)["actions"][0]
+    try:
+        payload = json.loads(out)
+    except json.JSONDecodeError as e:
+        raise RuntimeError(
+            "aura response was not JSON (proxy or error page?): "
+            + (res.stderr.strip() or out[:200] or str(e))) from e
+    try:
+        act = payload["actions"][0]
+    except (KeyError, IndexError, TypeError):
+        raise RuntimeError("aura response missing actions[]: " + json.dumps(payload)[:200]) from None
     if act.get("state") != "SUCCESS":
         raise RuntimeError("aura non-success: " + json.dumps(act.get("error", act))[:300])
-    return act["returnValue"]["returnValue"]
+    try:
+        return act["returnValue"]["returnValue"]
+    except (KeyError, TypeError):
+        raise RuntimeError("aura response missing returnValue: " + json.dumps(act)[:200]) from None
 
 
 def fetch_aura(topic_id, raw=False):
@@ -227,8 +248,8 @@ def fetch_aura(topic_id, raw=False):
     if not rec or not rec.get("Content__c"):
         raise RuntimeError(f"no content for {url_name} at release {release} "
                            f"(check the topic id / language)")
-    html = rec["Content__c"]
-    return html if raw else html_to_text(html)
+    content = rec["Content__c"]
+    return content if raw else html_to_text(content)
 
 
 def main():
@@ -237,7 +258,11 @@ def main():
     ap.add_argument("--strategy", choices=["auto", "zoomin", "aura"], default="auto")
     ap.add_argument("--raw", action="store_true", help="print raw HTML instead of extracted text")
     a = ap.parse_args()
-    topic = topic_id_from(a.target)
+    try:
+        topic = topic_id_from(a.target)
+    except ValueError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        return 2
     print(f"# topic: {topic}", file=sys.stderr)
 
     # Aura works anonymously (public path); Zoomin needs service creds, so it is
