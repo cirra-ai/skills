@@ -37,8 +37,22 @@ python3 scripts/fetch_sf_help.py <url> --raw                        # raw XHTML 
 
 The article content is written to stdout. Progress messages — including which strategy
 succeeded — are written to stderr. All network I/O shells out to `curl` so an ambient
-`HTTPS_PROXY` + CA bundle are honored automatically. No dependencies beyond `python3` and
-`curl`.
+`HTTPS_PROXY` + CA bundle are honored automatically.
+
+## Requirements & no-Python environments
+
+The helper needs `python3` and `curl` — nothing else. If the running client has **no Python**
+(or no code execution at all), the script can't run, but the skill is still usable: the
+Strategy B section below documents the exact HTTP contract (endpoint, headers, `message` /
+`aura.context` payloads, and the `release=""` self-discovery step), so an agent can drive it
+with the same two `curl` calls plus any JSON tool (`jq`) or its own fetch capability. There is
+no non-Python turnkey entrypoint; the Python script is a convenience wrapper around that
+documented contract.
+
+If handed a URL for a Salesforce surface it does **not** cover (Trailhead, Trailblazer
+Community, `developer.salesforce.com`, or any non-`help.salesforce.com` host), the script exits
+`2` with a specific message naming that surface and the real way to fetch it — see below —
+rather than a generic "could not determine a topic id".
 
 ## Egress preflight
 

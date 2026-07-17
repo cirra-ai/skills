@@ -144,3 +144,34 @@ class TestFetchAura:
         out = mod.fetch_aura("xcloud.foo")
         assert out == "Title Body & more"
         assert releases == ["", "262.0.0"]
+
+
+class TestUnsupportedUrlMessage:
+    def test_help_url_is_supported(self):
+        url = "https://help.salesforce.com/s/articleView?id=xcloud.foo.htm&type=5"
+        assert mod.unsupported_url_message(url) is None
+
+    def test_bare_topic_id_is_supported(self):
+        assert mod.unsupported_url_message("xcloud.foo") is None
+
+    def test_trailhead_community_names_graphql(self):
+        msg = mod.unsupported_url_message(
+            "https://trailhead.salesforce.com/trailblazer-community/feed/0D54S00000A8hLaSAJ"
+        )
+        assert msg and "community/graphql" in msg and "FeedItemDetail" in msg
+
+    def test_trailhead_module_explains_limits(self):
+        msg = mod.unsupported_url_message(
+            "https://trailhead.salesforce.com/content/learn/modules/x/y"
+        )
+        assert msg and "Trailhead" in msg and "graphql" in msg
+
+    def test_developer_docs_names_atlas_api(self):
+        msg = mod.unsupported_url_message(
+            "https://developer.salesforce.com/docs/atlas.en-us.uiapi.meta/uiapi/x.htm"
+        )
+        assert msg and "get_document_content" in msg
+
+    def test_other_host_generic(self):
+        msg = mod.unsupported_url_message("https://example.com/docs/foo")
+        assert msg and "only reads" in msg

@@ -84,6 +84,43 @@ def assert_reachable(host, allowlist):
             f"You may want to add {allowlist} to your domain allowlist and retry.")
 
 
+def unsupported_url_message(arg):
+    """If `arg` is a URL for a Salesforce doc surface this skill does NOT handle,
+    return a clear, actionable message naming the surface and the real path for
+    it; otherwise return None. Keeps failures self-explanatory instead of a
+    generic "could not determine a topic id"."""
+    if not arg.startswith("http"):
+        return None
+    parts = urllib.parse.urlparse(arg)
+    host, path = parts.netloc.lower(), parts.path
+    if host in ("help.salesforce.com", ""):
+        return None  # the supported surface (or a bare id)
+    if host == "trailhead.salesforce.com":
+        if "/trailblazer-community/" in path:
+            return (
+                "Trailblazer Community pages aren't handled by sf-help-fetch. The feed body "
+                "IS available anonymously via POST https://trailhead.salesforce.com/services/"
+                "community/graphql (operation FeedItemDetail, variables.activityId=<feed id "
+                "from the URL>) — drive that directly rather than through this skill."
+            )
+        return (
+            "Trailhead learning content isn't handled by sf-help-fetch. Only the title/"
+            "description are anonymously available (JSON-LD / og tags on the page); the unit "
+            "body loads via a token/auth-gated /graphql API."
+        )
+    if host == "developer.salesforce.com":
+        return (
+            "developer.salesforce.com docs aren't handled by sf-help-fetch, but they have "
+            "their own anonymous Atlas content API: GET /docs/get_document/"
+            "atlas.<lang>.<deliverable>.meta for the TOC + doc_version, then GET /docs/"
+            "get_document_content/<deliverable>/<topic>.htm/<lang>/<doc_version>."
+        )
+    return (
+        f"{host} isn't handled by sf-help-fetch — this skill only reads "
+        "help.salesforce.com/s/articleView pages."
+    )
+
+
 def topic_id_from(arg):
     """Accept a full articleView URL or a bare topic id; return e.g. xcloud.remoteaccess_authenticate."""
     if arg.startswith("http"):
@@ -259,6 +296,10 @@ def main():
     ap.add_argument("--raw", action="store_true", help="print raw HTML instead of extracted text")
     a = ap.parse_args()
     try:
+        hint = unsupported_url_message(a.target)
+        if hint:
+            print(f"ERROR: {hint}", file=sys.stderr)
+            return 2
         topic = topic_id_from(a.target)
     except ValueError as e:
         print(f"ERROR: {e}", file=sys.stderr)
