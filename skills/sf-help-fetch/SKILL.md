@@ -108,9 +108,12 @@ Different sites need different handling — verified separately, not wired into 
   content API — `GET /docs/get_document/atlas.<lang>.<deliverable>.meta` for the TOC and
   `doc_version`, then `GET /docs/get_document_content/<deliverable>/<topic>.htm/<lang>/<doc_version>`
   returns `{id,title,content}` with the body HTML. Same `*.salesforce.com` allowlist.
-- **`trailhead.salesforce.com` modules**: only title/description are anonymously available
-  (JSON-LD / og tags); the unit body loads via a `/graphql` API that is token/auth-gated.
-- **`trailhead.salesforce.com/trailblazer-community/feed/...`**: auth-gated; the feed body is
-  not in the page HTML.
+- **`trailhead.salesforce.com` modules**: the page HTML exposes only title/description
+  (JSON-LD / og tags); the unit body loads via a `/graphql` API (not verified anonymously).
+- **`trailhead.salesforce.com/trailblazer-community/feed/...`**: the feed body is not in the
+  page HTML, but it _is_ retrievable anonymously via
+  `POST https://trailhead.salesforce.com/services/community/graphql` with the `FeedItemDetail`
+  operation (`variables.activityId` = the feed id) — no login required; the activity's
+  `headline`/`body.segments` carry the text.
 - **Server-rendered docs** (e.g. `docs.github.com`) need no skill — plain `curl`/`WebFetch`
   returns the prose directly.
