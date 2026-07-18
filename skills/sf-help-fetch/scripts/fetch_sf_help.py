@@ -29,11 +29,13 @@ All network calls shell out to `curl` so the session's HTTPS_PROXY + CA bundle
 are honored automatically (Node's built-in fetch and headless Chromium do not
 traverse this proxy reliably).
 
+Retrieval is fully automatic — the caller only supplies the article. Aura is the
+anonymous path that works out of the box; the credentialed Zoomin fallback is used
+only if ZOOMIN_BASIC is set in the environment.
+
 Usage:
     python3 fetch_sf_help.py "https://help.salesforce.com/s/articleView?id=xcloud.remoteaccess_authenticate.htm&type=5"
     python3 fetch_sf_help.py xcloud.remoteaccess_authenticate           # bare topic id
-    python3 fetch_sf_help.py <url> --strategy zoomin|aura|auto          # default auto
-    python3 fetch_sf_help.py <url> --raw                                # print raw HTML, no text extraction
 """
 import argparse
 import html
@@ -160,7 +162,7 @@ def html_to_text(markup):
 #       ZOOMIN_BASIC="user:pass"  ZOOMIN_HEADER="Name: value"  python3 fetch_sf_help.py ...
 # Version (major/minor/patch) is the Salesforce release the doc was published in
 # (e.g. 262.0.0); override with ZOOMIN_VERSION="262.0.0".
-def fetch_zoomin(topic_id, raw=False):
+def fetch_zoomin(topic_id):
     assert_reachable("zd-ht-prod.zoominsoftware.io", "*.zoominsoftware.io")
     ver = os.environ.get("ZOOMIN_VERSION", "262.0.0")
     major, minor, patch = (ver.split(".") + ["0", "0"])[:3]
@@ -190,11 +192,11 @@ def fetch_zoomin(topic_id, raw=False):
     if stripped.startswith("{"):
         try:
             j = json.loads(body)
-            html = j.get("body") or j.get("html") or j.get("content") or json.dumps(j, indent=2)[:4000]
-            return html if raw else html_to_text(html)
+            body_html = j.get("body") or j.get("html") or j.get("content") or json.dumps(j, indent=2)[:4000]
+            return html_to_text(body_html)
         except json.JSONDecodeError:
             pass
-    return body if raw else html_to_text(body)
+    return html_to_text(body)
 
 
 # --- Strategy B: Aura endpoint on help.salesforce.com -------------------------
@@ -269,7 +271,7 @@ def _getdata(ctx, url_name, release, type_number="5"):
         raise RuntimeError("aura response missing returnValue: " + json.dumps(act)[:200]) from None
 
 
-def fetch_aura(topic_id, raw=False):
+def fetch_aura(topic_id):
     assert_reachable("help.salesforce.com", "*.salesforce.com")
     ctx = scrape_aura_context(topic_id)              # live fwuid/app/loaded
     ctx.update({"dn": [], "globals": {}, "uad": True})
@@ -285,15 +287,14 @@ def fetch_aura(topic_id, raw=False):
     if not rec or not rec.get("Content__c"):
         raise RuntimeError(f"no content for {url_name} at release {release} "
                            f"(check the topic id / language)")
-    content = rec["Content__c"]
-    return content if raw else html_to_text(content)
+    return html_to_text(rec["Content__c"])
 
 
 def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("target", help="articleView URL or bare topic id")
-    ap.add_argument("--strategy", choices=["auto", "zoomin", "aura"], default="auto")
-    ap.add_argument("--raw", action="store_true", help="print raw HTML instead of extracted text")
+    ap = argparse.ArgumentParser(
+        description="Print the readable body of a Salesforce Help article. "
+                    "Give it an articleView URL or a bare topic id — nothing else needed.")
+    ap.add_argument("target", help="a help.salesforce.com/s/articleView URL or a bare topic id")
     a = ap.parse_args()
     try:
         hint = unsupported_url_message(a.target)
@@ -306,21 +307,20 @@ def main():
         return 2
     print(f"# topic: {topic}", file=sys.stderr)
 
-    # Aura works anonymously (public path); Zoomin needs service creds, so it is
-    # only useful when ZOOMIN_BASIC/ZOOMIN_HEADER are supplied.
-    order = {"auto": ["aura", "zoomin"], "zoomin": ["zoomin"], "aura": ["aura"]}[a.strategy]
+    # Retrieval is fully automatic: Aura is the anonymous path that works out of
+    # the box; Zoomin is tried only as a fallback when service creds are present.
+    strategies = [("aura", fetch_aura)]
+    if os.environ.get("ZOOMIN_BASIC"):
+        strategies.append(("zoomin", fetch_zoomin))
     last = None
-    for strat in order:
+    for name, fn in strategies:
         try:
-            fn = fetch_zoomin if strat == "zoomin" else fetch_aura
-            print(f"# trying strategy: {strat}", file=sys.stderr)
-            print(fn(topic, raw=a.raw))
-            print(f"# OK via {strat}", file=sys.stderr)
+            print(fn(topic))
             return 0
         except Exception as e:
             last = e
-            print(f"# {strat} failed: {e}", file=sys.stderr)
-    print(f"ERROR: all strategies failed. last: {last}", file=sys.stderr)
+            print(f"# {name} failed: {e}", file=sys.stderr)
+    print(f"ERROR: could not retrieve the article. {last}", file=sys.stderr)
     return 1
 
 

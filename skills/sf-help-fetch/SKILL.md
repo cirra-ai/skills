@@ -1,16 +1,15 @@
 ---
 name: sf-help-fetch
 plugin: cirra-ai-sf
-argument-hint: '<article-url|topic-id> [--strategy aura|zoomin|auto] [--raw]'
+argument-hint: '<article-url|topic-id>'
 metadata:
   version: 1.0.0
 description: >
-  Fetch readable article content from Salesforce Help (help.salesforce.com/s/articleView)
-  without a browser. Use when asked to read, quote, or extract the body of a Salesforce Help
+  Read the body of a Salesforce Help article (help.salesforce.com/s/articleView) without a
+  browser. Use whenever you need to read, quote, or extract the content of a Salesforce Help
   page — those pages are a client-rendered Aura SPA, so curl/WebFetch only get a "Loading…"
-  shell. The primary path is the anonymous Aura endpoint (Help_ArticleDataController.getData);
-  an optional credentialed Zoomin path exists if service creds are supplied.
-  Usage: /sf-help-fetch <article-url|topic-id> [--strategy aura|zoomin|auto] [--raw]
+  shell. Just pass the article URL or topic id; retrieval is fully automatic.
+  Usage: /sf-help-fetch <article-url|topic-id>
 ---
 
 # sf-help-fetch
@@ -28,16 +27,17 @@ and is cached/re-served by Salesforce. There are two ways to get it.
 
 ## Usage
 
+One argument — the article. No flags, no options; retrieval is automatic.
+
 ```bash
 python3 scripts/fetch_sf_help.py "https://help.salesforce.com/s/articleView?id=xcloud.remoteaccess_authenticate.htm&type=5"
 python3 scripts/fetch_sf_help.py xcloud.remoteaccess_authenticate   # bare topic id
-python3 scripts/fetch_sf_help.py <url> --strategy aura|zoomin|auto  # default: auto (aura, then zoomin)
-python3 scripts/fetch_sf_help.py <url> --raw                        # raw XHTML instead of extracted text
 ```
 
-The article content is written to stdout. Progress messages — including which strategy
-succeeded — are written to stderr. All network I/O shells out to `curl` so an ambient
-`HTTPS_PROXY` + CA bundle are honored automatically.
+The readable article text is written to stdout; a one-line progress note goes to stderr. All
+network I/O shells out to `curl` so an ambient `HTTPS_PROXY` + CA bundle are honored
+automatically. Internally it uses the anonymous Aura path (below) and silently falls back to
+the credentialed Zoomin path only if `ZOOMIN_BASIC` is set — the caller never chooses.
 
 ## Requirements & no-Python environments
 
@@ -110,10 +110,11 @@ DevTools. Strategy A therefore only runs when they are supplied out-of-band:
 
 ```bash
 ZOOMIN_BASIC="user:pass" ZOOMIN_HEADER="Name: value" ZOOMIN_VERSION="262.0.0" \
-  python3 scripts/fetch_sf_help.py <topicId> --strategy zoomin
+  python3 scripts/fetch_sf_help.py <topicId>
 ```
 
-Without those it cannot retrieve content even when the host is reachable — use Strategy B.
+When those env vars are present the script tries Zoomin automatically as a fallback if the Aura
+path fails; otherwise it never touches Zoomin. There is no user-facing strategy switch.
 
 ## Other Salesforce doc surfaces (out of scope)
 
