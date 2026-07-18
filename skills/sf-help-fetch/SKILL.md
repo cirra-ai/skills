@@ -78,15 +78,18 @@ POST https://help.salesforce.com/s/sfsites/aura?r=1&aura.ApexAction.execute=1
     requestedArticleType: "HelpDocs", requestedArticleTypeNumber: "5" }
 ```
 
-The article body lands in `returnValue.returnValue.record.Content__c` (DITA XHTML). The two
-volatile inputs are resolved automatically each run:
+(That shape is for `type=5` Help Docs topics; `type=1` Knowledge Articles use the same action
+with `requestedArticleType: "KBKnowledgeArticle"`, `requestedArticleTypeNumber: "1"`, an empty
+`release`, and a multi-field body — see "Scope" above.) For HelpDocs the body lands in
+`returnValue.returnValue.record.Content__c` (DITA XHTML). The two volatile inputs are resolved
+automatically each run:
 
 1. **`aura.context`** (`fwuid`, `app`, `loaded`) — rotates every Salesforce release. Scraped
    live from the article page (URL-decode + JSON-parse, not brittle regex).
-2. **`release`** (e.g. `262.0.0`) — MUST be the current Salesforce release or the call returns
-   `SUCCESS` with empty content. Self-discovered: one throwaway call with `release=""` still
-   returns `returnValue.latestRNVersion`, which is then reused for the real fetch. Override
-   with `HELP_RELEASE=262.0.0` if ever needed.
+2. **`release`** (e.g. `262.0.0`, HelpDocs only) — MUST be the current Salesforce release or the
+   call returns `SUCCESS` with empty content. Self-discovered: one throwaway call with
+   `release=""` still returns `returnValue.latestRNVersion`, which is then reused for the real
+   fetch. Override with `HELP_RELEASE=262.0.0` if ever needed.
 
 This is the default path and needs nothing beyond `help.salesforce.com` being reachable.
 
@@ -119,16 +122,17 @@ path fails; otherwise it never touches Zoomin. There is no user-facing strategy 
 ## Scope: which Help articles are covered
 
 `help.salesforce.com/s/articleView` serves two article kinds, distinguished by the `type` query
-param:
+param — **both are handled**, dispatched automatically by id shape:
 
-- **`type=5` — Help Docs topics** (ids like `xcloud.remoteaccess_authenticate.htm`): **handled**
-  via `Help_ArticleDataController.getData` (`requestedArticleType: "HelpDocs"`).
-- **`type=1` — numeric Knowledge Articles** (ids like `005360285`): **not handled**. Verified
-  that `getData` serves only HelpDocs — a numeric id returns `SUCCESS` with no `record`, and
-  `HelpDocs` is the only valid `requestedArticleType`; Knowledge Articles render via a different
-  client-side call that isn't discoverable without a DevTools capture. The skill detects these
-  (numeric id or `type != 5`) and exits `2` with a message pointing to a JS-capable browser or a
-  DevTools capture to extend coverage.
+- **`type=5` — Help Docs topics** (ids like `xcloud.remoteaccess_authenticate.htm`): via
+  `Help_ArticleDataController.getData` with `requestedArticleType: "HelpDocs"`; the body is
+  `record.Content__c` (a single DITA XHTML blob).
+- **`type=1` — numeric Knowledge Articles** (ids like `005360285`): the same `getData` action
+  with `requestedArticleType: "KBKnowledgeArticle"`, `requestedArticleTypeNumber: "1"`, and an
+  empty `release`. Knowledge Articles have **no `Content__c`**; the body is spread across
+  rich-text fields (`title`, `summary`, `description`, `prerequisites`, `steps`, `task`,
+  `resolution`, `additionalResources`), which the skill joins in reading order. Any numeric id
+  (bare or in a URL) is routed here automatically.
 
 ## Other Salesforce doc surfaces (out of scope)
 

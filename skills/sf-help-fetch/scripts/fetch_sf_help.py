@@ -12,11 +12,15 @@ Two strategies (default `auto` tries B first, then A):
   B. AURA ENDPOINT  (primary; anonymous; only needs help.salesforce.com reachable)
        POST https://help.salesforce.com/s/sfsites/aura   (ApexActionController)
        classname=Help_ArticleDataController  method=getData
-     The article body lands in returnValue.returnValue.record.Content__c.
-     Both volatile inputs are resolved automatically each run: the aura.context
-     (fwuid / app / loaded) is scraped live from the article page, and the SF
-     `release` is self-discovered (a call with release="" returns
-     returnValue.latestRNVersion, reused for the real fetch). No DevTools capture.
+     Handles both help article kinds, dispatched by id shape:
+       * type=5 Help Docs topics (xcloud.<name>.htm) -> requestedArticleType
+         "HelpDocs"; body in record.Content__c; SF `release` self-discovered
+         (a call with release="" returns returnValue.latestRNVersion).
+       * type=1 Knowledge Articles (numeric id, e.g. 005360285) ->
+         requestedArticleType "KBKnowledgeArticle"; body spread across rich-text
+         fields (summary/description/steps/task/resolution/...), joined in order.
+     The aura.context (fwuid / app / loaded) is scraped live each run. No
+     DevTools capture, no hardcoded version.
 
   A. ZOOMIN DIRECT  (optional; requires *.zoominsoftware.io allowlisted AND creds)
        GET https://zd-ht-prod.zoominsoftware.io/v1/topics/<topicId>/content
@@ -86,40 +90,20 @@ def assert_reachable(host, allowlist):
             f"You may want to add {allowlist} to your domain allowlist and retry.")
 
 
-def _knowledge_article_message(article_id, article_type):
-    return (
-        f"'{article_id}' is a Salesforce Knowledge Article (type={article_type}), which "
-        "sf-help-fetch doesn't handle — it covers type=5 Help Docs topics (ids like "
-        "xcloud.<name>.htm). Verified: the Aura action Help_ArticleDataController.getData only "
-        "serves HelpDocs (a numeric id returns success but no record), and Knowledge Articles "
-        "render via a different client-side call. Fetch it with a JS-capable browser, or capture "
-        "that article's content request from DevTools so the skill can be extended to cover it."
-    )
-
-
 def unsupported_url_message(arg):
     """If `arg` is a URL for a Salesforce doc surface this skill does NOT handle,
     return a clear, actionable message naming the surface and the real path for
     it; otherwise return None. Keeps failures self-explanatory instead of a
-    generic "could not determine a topic id"."""
+    generic "could not determine a topic id".
+
+    Note: help.salesforce.com articleView pages are supported for BOTH type=5
+    Help Docs topics and type=1 numeric Knowledge Articles, so they return None."""
     if not arg.startswith("http"):
-        # A purely numeric bare token is a Knowledge Article id (type=1), not a
-        # HelpDocs topic id (which look like xcloud.<name>.htm).
-        if arg.strip().isdigit():
-            return _knowledge_article_message(arg.strip(), "1")
         return None
     parts = urllib.parse.urlparse(arg)
     host, path = parts.netloc.lower(), parts.path
     if host in ("help.salesforce.com", ""):
-        # help.salesforce.com serves two article kinds: type=5 HelpDocs topics
-        # (handled) and type=1 numeric Knowledge Articles (NOT handled — a
-        # different client-side call, see _knowledge_article_message).
-        q = urllib.parse.parse_qs(parts.query)
-        aid = (q.get("id") or [""])[0]
-        atype = (q.get("type") or [""])[0]
-        if (atype and atype != "5") or aid.isdigit():
-            return _knowledge_article_message(aid or arg, atype or "1")
-        return None  # a HelpDocs topic (or a bare id) — supported
+        return None  # supported: type=5 topics and type=1 Knowledge Articles
     if host == "trailhead.salesforce.com":
         if "/trailblazer-community/" in path:
             return (
@@ -230,7 +214,12 @@ def scrape_aura_context(topic_id):
     `/s/sfsites/l/%7B...%7D...` script src. We locate it, URL-decode, and
     JSON-parse the leading object rather than regex-matching encoded fields
     (the values contain encoded ':' and '/' which defeat naive regexes)."""
-    page_url = f"{HELP_HOST}/s/articleView?id={topic_id}.htm&type=5"
+    # The aura.context (fwuid/app/loaded) is global to the site, so any article
+    # page works; build a faithful URL for the id kind just to be safe.
+    if topic_id.isdigit():
+        page_url = f"{HELP_HOST}/s/articleView?id={topic_id}&type=1"
+    else:
+        page_url = f"{HELP_HOST}/s/articleView?id={topic_id}.htm&type=5"
     page = curl(["-L", page_url], timeout=30).stdout
     # The page has several `%7B%22mode%22...%7D` (i.e. {"mode"...}) context blobs;
     # only the app-bootstrap one carries fwuid. Try each until one parses with fwuid.
@@ -253,15 +242,18 @@ def scrape_aura_context(topic_id):
     return ctx
 
 
-def _getdata(ctx, url_name, release, type_number="5"):
-    """One Help_ArticleDataController.getData call; returns the inner returnValue."""
+def _getdata(ctx, url_name, release, type_number="5", requested_type="HelpDocs"):
+    """One Help_ArticleDataController.getData call; returns the inner returnValue.
+
+    `requested_type`/`type_number` select the article kind: HelpDocs/"5" for
+    type=5 Help Docs topics, KBKnowledgeArticle/"1" for type=1 Knowledge Articles."""
     action = {
         "id": "1;a", "descriptor": "aura://ApexActionController/ACTION$execute",
         "callingDescriptor": "UNKNOWN",
         "params": {"namespace": "", "classname": HELP_APEX_CLASS, "method": HELP_APEX_METHOD,
                    "params": {"articleParameters": {
                        "urlName": url_name, "language": LANG, "release": release,
-                       "requestedArticleType": "HelpDocs",
+                       "requestedArticleType": requested_type,
                        "requestedArticleTypeNumber": type_number}},
                    "cacheable": False, "isContinuation": False}}
     data = urllib.parse.urlencode({"message": json.dumps({"actions": [action]}),
@@ -294,10 +286,25 @@ def _getdata(ctx, url_name, release, type_number="5"):
         raise RuntimeError("aura response missing returnValue: " + json.dumps(act)[:200]) from None
 
 
-def fetch_aura(topic_id):
-    assert_reachable("help.salesforce.com", "*.salesforce.com")
-    ctx = scrape_aura_context(topic_id)              # live fwuid/app/loaded
-    ctx.update({"dn": [], "globals": {}, "uad": True})
+# Knowledge-Article rich-text fields, in reading order. Different KB record
+# types populate different subsets; join whichever are non-empty.
+HELP_KB_FIELDS = ("summary", "description", "prerequisites", "steps", "task",
+                  "resolution", "additionalResources")
+
+
+def _knowledge_text(rec):
+    """Assemble a Knowledge Article's readable body from its rich-text fields."""
+    parts = []
+    if rec.get("title"):
+        parts.append(rec["title"])
+    for field in HELP_KB_FIELDS:
+        val = rec.get(field)
+        if val and str(val).strip():
+            parts.append(html_to_text(str(val)))
+    return "\n\n".join(p for p in parts if p.strip())
+
+
+def _fetch_helpdocs(ctx, topic_id):
     url_name = topic_id if topic_id.endswith(".htm") else topic_id + ".htm"
     # 1) discover the current SF release (wrong/empty release => empty content)
     release = os.environ.get("HELP_RELEASE") \
@@ -305,12 +312,36 @@ def fetch_aura(topic_id):
     if not release:
         raise RuntimeError("could not determine current SF release (latestRNVersion missing)")
     # 2) real fetch
-    rv = _getdata(ctx, url_name, release)
-    rec = rv.get("record")
+    rec = _getdata(ctx, url_name, release).get("record")
     if not rec or not rec.get("Content__c"):
         raise RuntimeError(f"no content for {url_name} at release {release} "
                            f"(check the topic id / language)")
     return html_to_text(rec["Content__c"])
+
+
+def _fetch_knowledge(ctx, article_id):
+    # Knowledge Articles (type=1, numeric id) use requestedArticleType
+    # "KBKnowledgeArticle"; release is not used and the body is spread across
+    # rich-text fields rather than a single Content__c.
+    rec = _getdata(ctx, article_id, "", type_number="1",
+                   requested_type="KBKnowledgeArticle").get("record")
+    if not rec:
+        raise RuntimeError(f"no Knowledge Article found for id {article_id} "
+                           f"(check the article id / language)")
+    text = _knowledge_text(rec)
+    if not text:
+        raise RuntimeError(f"Knowledge Article {article_id} has no readable body fields")
+    return text
+
+
+def fetch_aura(topic_id):
+    assert_reachable("help.salesforce.com", "*.salesforce.com")
+    ctx = scrape_aura_context(topic_id)              # live fwuid/app/loaded (global)
+    ctx.update({"dn": [], "globals": {}, "uad": True})
+    # A purely numeric id is a type=1 Knowledge Article; otherwise a HelpDocs topic.
+    if topic_id.isdigit():
+        return _fetch_knowledge(ctx, topic_id)
+    return _fetch_helpdocs(ctx, topic_id)
 
 
 def main():

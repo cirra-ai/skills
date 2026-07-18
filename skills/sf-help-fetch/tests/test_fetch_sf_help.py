@@ -176,16 +176,58 @@ class TestUnsupportedUrlMessage:
         msg = mod.unsupported_url_message("https://example.com/docs/foo")
         assert msg and "only reads" in msg
 
-    def test_type1_knowledge_article_url(self):
-        msg = mod.unsupported_url_message(
-            "https://help.salesforce.com/s/articleView?id=005360285&type=1"
-        )
-        assert msg and "Knowledge Article" in msg and "type=1" in msg
+    def test_type1_knowledge_article_url_is_supported(self):
+        # type=1 numeric Knowledge Articles are handled (KBKnowledgeArticle path).
+        url = "https://help.salesforce.com/s/articleView?id=005360285&type=1"
+        assert mod.unsupported_url_message(url) is None
 
-    def test_numeric_bare_id_is_knowledge_article(self):
-        msg = mod.unsupported_url_message("005360285")
-        assert msg and "Knowledge Article" in msg
+    def test_numeric_bare_id_is_supported(self):
+        assert mod.unsupported_url_message("005360285") is None
 
     def test_help_docs_topic_url_still_supported(self):
         url = "https://help.salesforce.com/s/articleView?id=xcloud.foo.htm&type=5"
         assert mod.unsupported_url_message(url) is None
+
+
+class TestKnowledgeArticle:
+    def test_knowledge_text_joins_rich_fields_in_order(self):
+        rec = {
+            "title": "T", "summary": "<p>sum &amp; more</p>", "description": "<p>desc</p>",
+            "prerequisites": "", "steps": None, "task": "<p>do it</p>",
+            "resolution": "<p>fix</p>", "additionalResources": "<p>links</p>",
+        }
+        assert mod._knowledge_text(rec) == "T\n\nsum & more\n\ndesc\n\ndo it\n\nfix\n\nlinks"
+
+    def test_knowledge_text_skips_empty_fields(self):
+        assert mod._knowledge_text({"title": "Only", "description": "  "}) == "Only"
+
+    def test_fetch_aura_routes_numeric_id_to_knowledge(self, monkeypatch):
+        monkeypatch.setattr(mod, "assert_reachable", lambda *a, **k: None)
+        monkeypatch.setattr(mod, "scrape_aura_context", lambda t: {"fwuid": "x"})
+        seen = {}
+
+        def fake_getdata(ctx, url_name, release, type_number="5", requested_type="HelpDocs"):
+            seen.update(url_name=url_name, type_number=type_number, requested_type=requested_type)
+            return {"record": {"title": "KB", "description": "<p>body</p>"}}
+
+        monkeypatch.setattr(mod, "_getdata", fake_getdata)
+        out = mod.fetch_aura("005360285")
+        assert out == "KB\n\nbody"
+        assert seen == {"url_name": "005360285", "type_number": "1",
+                        "requested_type": "KBKnowledgeArticle"}
+
+    def test_fetch_aura_routes_topic_to_helpdocs(self, monkeypatch):
+        monkeypatch.setattr(mod, "assert_reachable", lambda *a, **k: None)
+        monkeypatch.setattr(mod, "scrape_aura_context", lambda t: {"fwuid": "x"})
+        types = []
+
+        def fake_getdata(ctx, url_name, release, type_number="5", requested_type="HelpDocs"):
+            types.append(requested_type)
+            if release == "":
+                return {"latestRNVersion": "262.0.0"}
+            return {"record": {"Content__c": "<p>hi</p>"}}
+
+        monkeypatch.setattr(mod, "_getdata", fake_getdata)
+        monkeypatch.delenv("HELP_RELEASE", raising=False)
+        assert mod.fetch_aura("xcloud.foo") == "hi"
+        assert types == ["HelpDocs", "HelpDocs"]
