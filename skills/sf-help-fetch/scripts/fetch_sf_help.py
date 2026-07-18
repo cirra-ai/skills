@@ -86,17 +86,40 @@ def assert_reachable(host, allowlist):
             f"You may want to add {allowlist} to your domain allowlist and retry.")
 
 
+def _knowledge_article_message(article_id, article_type):
+    return (
+        f"'{article_id}' is a Salesforce Knowledge Article (type={article_type}), which "
+        "sf-help-fetch doesn't handle — it covers type=5 Help Docs topics (ids like "
+        "xcloud.<name>.htm). Verified: the Aura action Help_ArticleDataController.getData only "
+        "serves HelpDocs (a numeric id returns success but no record), and Knowledge Articles "
+        "render via a different client-side call. Fetch it with a JS-capable browser, or capture "
+        "that article's content request from DevTools so the skill can be extended to cover it."
+    )
+
+
 def unsupported_url_message(arg):
     """If `arg` is a URL for a Salesforce doc surface this skill does NOT handle,
     return a clear, actionable message naming the surface and the real path for
     it; otherwise return None. Keeps failures self-explanatory instead of a
     generic "could not determine a topic id"."""
     if not arg.startswith("http"):
+        # A purely numeric bare token is a Knowledge Article id (type=1), not a
+        # HelpDocs topic id (which look like xcloud.<name>.htm).
+        if arg.strip().isdigit():
+            return _knowledge_article_message(arg.strip(), "1")
         return None
     parts = urllib.parse.urlparse(arg)
     host, path = parts.netloc.lower(), parts.path
     if host in ("help.salesforce.com", ""):
-        return None  # the supported surface (or a bare id)
+        # help.salesforce.com serves two article kinds: type=5 HelpDocs topics
+        # (handled) and type=1 numeric Knowledge Articles (NOT handled — a
+        # different client-side call, see _knowledge_article_message).
+        q = urllib.parse.parse_qs(parts.query)
+        aid = (q.get("id") or [""])[0]
+        atype = (q.get("type") or [""])[0]
+        if (atype and atype != "5") or aid.isdigit():
+            return _knowledge_article_message(aid or arg, atype or "1")
+        return None  # a HelpDocs topic (or a bare id) — supported
     if host == "trailhead.salesforce.com":
         if "/trailblazer-community/" in path:
             return (

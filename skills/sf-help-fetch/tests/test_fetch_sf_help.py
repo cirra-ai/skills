@@ -175,3 +175,17 @@ class TestUnsupportedUrlMessage:
     def test_other_host_generic(self):
         msg = mod.unsupported_url_message("https://example.com/docs/foo")
         assert msg and "only reads" in msg
+
+    def test_type1_knowledge_article_url(self):
+        msg = mod.unsupported_url_message(
+            "https://help.salesforce.com/s/articleView?id=005360285&type=1"
+        )
+        assert msg and "Knowledge Article" in msg and "type=1" in msg
+
+    def test_numeric_bare_id_is_knowledge_article(self):
+        msg = mod.unsupported_url_message("005360285")
+        assert msg and "Knowledge Article" in msg
+
+    def test_help_docs_topic_url_still_supported(self):
+        url = "https://help.salesforce.com/s/articleView?id=xcloud.foo.htm&type=5"
+        assert mod.unsupported_url_message(url) is None

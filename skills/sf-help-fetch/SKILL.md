@@ -116,6 +116,20 @@ ZOOMIN_BASIC="user:pass" ZOOMIN_HEADER="Name: value" ZOOMIN_VERSION="262.0.0" \
 When those env vars are present the script tries Zoomin automatically as a fallback if the Aura
 path fails; otherwise it never touches Zoomin. There is no user-facing strategy switch.
 
+## Scope: which Help articles are covered
+
+`help.salesforce.com/s/articleView` serves two article kinds, distinguished by the `type` query
+param:
+
+- **`type=5` — Help Docs topics** (ids like `xcloud.remoteaccess_authenticate.htm`): **handled**
+  via `Help_ArticleDataController.getData` (`requestedArticleType: "HelpDocs"`).
+- **`type=1` — numeric Knowledge Articles** (ids like `005360285`): **not handled**. Verified
+  that `getData` serves only HelpDocs — a numeric id returns `SUCCESS` with no `record`, and
+  `HelpDocs` is the only valid `requestedArticleType`; Knowledge Articles render via a different
+  client-side call that isn't discoverable without a DevTools capture. The skill detects these
+  (numeric id or `type != 5`) and exits `2` with a message pointing to a JS-capable browser or a
+  DevTools capture to extend coverage.
+
 ## Other Salesforce doc surfaces (out of scope)
 
 Different sites need different handling — verified separately, not wired into this skill:
