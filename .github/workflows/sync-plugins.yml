@@ -35,5 +35,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add plugins/ skills/
-          git commit -m "chore: sync plugin skills and shared assets"
+          git commit -m "chore: sync plugin skills, shared assets and references"
           git push
