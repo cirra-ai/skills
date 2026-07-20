@@ -1,15 +1,15 @@
 ---
 name: sf-help-fetch
 plugin: cirra-ai-sf
-argument-hint: '<article-url|topic-id>'
+argument-hint: '[article-url|topic-id]'
 metadata:
-  version: 1.0.0
+  version: 1.0.1
 description: >
   Read the body of a Salesforce Help article (help.salesforce.com/s/articleView) without a
   browser. Use whenever you need to read, quote, or extract the content of a Salesforce Help
   page — those pages are a client-rendered Aura SPA, so curl/WebFetch only get a "Loading…"
   shell. Just pass the article URL or topic id; retrieval is fully automatic.
-  Usage: /sf-help-fetch <article-url|topic-id>
+  Usage: /sf-help-fetch [article-url|topic-id]
 ---
 
 # sf-help-fetch
