@@ -16,20 +16,12 @@ on:
   workflow_dispatch:
     inputs:
       skill:
-        description: Skill to publish
+        # Free-text (not a hardcoded dropdown) so any skill — including newly
+        # added ones — can be published without editing this workflow. The
+        # "Validate skill exists" step below rejects an unknown name.
+        description: 'Skill directory name under skills/ (e.g. sf-help-fetch)'
         required: true
-        type: choice
-        options:
-          - sf-apex
-          - sf-audit
-          - sf-data
-          - sf-diagram
-          - sf-flow
-          - sf-kugamon
-          - sf-lwc
-          - sf-metadata
-          - sf-permissions
-          - sf-orders
+        type: string
 
 permissions:
   contents: write
@@ -102,7 +94,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add plugins/ .claude-plugin/marketplace.json "skills/${SKILL}/SKILL.md" skills/*/assets/
+          # Stage the version bumps AND anything the sync produced (plugin
+          # mirror + shared assets/references copied into skills/).
+          git add .claude-plugin/marketplace.json plugins/ skills/
           git commit -m "release: publish ${SKILL} (v${NEW_VERSION})"
           git push
 

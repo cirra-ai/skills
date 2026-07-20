@@ -6,6 +6,29 @@
 - **Always reply to every PR review comment.** When addressing PR review feedback, you are NOT DONE until every single review comment has a reply on GitHub (via `add_reply_to_pull_request_comment`). Do not just fix the code — you must also post a reply to each comment explaining what you did or why no change is needed. Then resolve the threads if possible.
 - **Always bump skill versions on any PR that modifies a skill.** Any PR that adds, removes, or changes files under `skills/<skill-name>/` MUST bump that skill's `metadata.version` in `skills/<skill-name>/SKILL.md` (patch bump by default; minor for new features; major for breaking changes). **Do not edit `plugins/cirra-ai-sf/skills/<skill-name>/SKILL.md` directly** — it is a generated mirror and `sync-plugins.yml` propagates the bump after merge. Do this on every skill the PR touches. The `publish-skill.yml` workflow is manual-only (`workflow_dispatch`) and does not run on PR merges, so it cannot be relied on to bump versions for routine PRs.
 
+## Publishing (how a skill reaches the marketplace)
+
+`skills/` is the source of truth; `plugins/cirra-ai-sf/skills/` is a generated mirror.
+`scripts/sync-plugin-skills.sh` copies each skill (plus shared `assets/` and `references/`)
+into both the mirror and the skill's own source dir. **Every workflow that commits after a
+sync stages `plugins/` AND `skills/`** — staging only `skills/*/assets/` used to leave
+`skills/*/references/` uncommitted, which kept the mirror perpetually "out of sync" and broke
+`Publish All`.
+
+Two manual `workflow_dispatch` publish paths, both of which run the sync, commit, and cut a
+GitHub release `v<version>` (the release event triggers `package-plugins.yml` to build the
+`.skill`/`.zip` artifacts and deploy the production downloads site):
+
+- **Publish All** (`publish-all.yml`) — bumps the plugin/marketplace version and publishes the
+  whole `cirra-ai-sf` plugin. It performs the sync itself, so it works even if the mirror
+  drifted. Use this as the default "just publish everything" button.
+- **Publish Skill** (`publish-skill.yml`) — bumps one skill + the plugin patch and publishes.
+  The `skill` input is free text (any directory under `skills/`), validated by a step; there is
+  no hardcoded dropdown to keep in sync.
+
+After a PR merges, `sync-plugins.yml` also runs the sync on `main` and commits any mirror/asset/
+reference updates automatically.
+
 ## Skill authoring — avoid these shipped-broken mistakes
 
 These have broken published skills. Verify every one before pushing a skill change:
