@@ -3,7 +3,7 @@ name: sf-help-fetch
 plugin: cirra-ai-sf
 argument-hint: '[article-url|topic-id]'
 metadata:
-  version: 1.0.1
+  version: 1.0.2
 description: >
   Read the body of a Salesforce Help article (help.salesforce.com/s/articleView) without a
   browser. Use whenever you need to read, quote, or extract the content of a Salesforce Help
