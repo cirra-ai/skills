@@ -166,11 +166,15 @@ class TestUnsupportedUrlMessage:
         )
         assert msg and "Trailhead" in msg and "graphql" in msg
 
-    def test_developer_docs_names_atlas_api(self):
+    def test_developer_docs_names_markdown_twin_and_atlas_api(self):
         msg = mod.unsupported_url_message(
             "https://developer.salesforce.com/docs/atlas.en-us.uiapi.meta/uiapi/x.htm"
         )
-        assert msg and "get_document_content" in msg
+        assert msg
+        # Primary path: the ".md" twin, gated on Content-Type text/markdown.
+        assert ".md" in msg and "text/markdown" in msg
+        # Fallback path: the anonymous Atlas content API.
+        assert "get_document_content" in msg
 
     def test_other_host_generic(self):
         msg = mod.unsupported_url_message("https://example.com/docs/foo")

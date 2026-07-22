@@ -119,10 +119,15 @@ def unsupported_url_message(arg):
         )
     if host == "developer.salesforce.com":
         return (
-            "developer.salesforce.com docs aren't handled by sf-help-fetch, but they have "
-            "their own anonymous Atlas content API: GET /docs/get_document/"
-            "atlas.<lang>.<deliverable>.meta for the TOC + doc_version, then GET /docs/"
-            "get_document_content/<deliverable>/<topic>.htm/<lang>/<doc_version>."
+            "developer.salesforce.com docs aren't handled by sf-help-fetch, but many pages have "
+            "a plain-Markdown twin: append '.md' to the page URL and curl/WebFetch it directly "
+            "(e.g. .../guide/mcp.md). Gate on the response Content-Type, not the HTTP status: a "
+            "real twin returns Content-Type text/markdown; a page without one returns text/html "
+            "(the SPA shell) or 404, so status alone won't tell you. Newer docs/<cloud>/<product>/"
+            "guide/<topic> pages tend to have twins; older atlas.<lang>.<deliverable>.meta ones "
+            "usually don't. When there's no twin, fall back to the anonymous Atlas content API: "
+            "GET /docs/get_document/atlas.<lang>.<deliverable>.meta for the TOC + doc_version, then "
+            "GET /docs/get_document_content/<deliverable>/<topic>.htm/<lang>/<doc_version>."
         )
     return (
         f"{host} isn't handled by sf-help-fetch — this skill only reads "

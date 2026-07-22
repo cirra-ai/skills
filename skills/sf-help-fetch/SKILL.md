@@ -3,7 +3,7 @@ name: sf-help-fetch
 plugin: cirra-ai-sf
 argument-hint: '[article-url|topic-id]'
 metadata:
-  version: 1.0.2
+  version: 1.1.0
 description: >
   Read the body of a Salesforce Help article (help.salesforce.com/s/articleView) without a
   browser. Use whenever you need to read, quote, or extract the content of a Salesforce Help
@@ -138,10 +138,20 @@ param — **both are handled**, dispatched automatically by id shape:
 
 Different sites need different handling — verified separately, not wired into this skill:
 
-- **`developer.salesforce.com/docs/...`** (Atlas): also a SPA, but has its own anonymous JSON
-  content API — `GET /docs/get_document/atlas.<lang>.<deliverable>.meta` for the TOC and
-  `doc_version`, then `GET /docs/get_document_content/<deliverable>/<topic>.htm/<lang>/<doc_version>`
-  returns `{id,title,content}` with the body HTML. Same `*.salesforce.com` allowlist.
+- **`developer.salesforce.com/docs/...`** (Atlas): also a SPA, but many pages expose a
+  **plain-Markdown twin — just append `.md` to the page URL** and `curl`/`WebFetch` it
+  directly, no browser or API needed. E.g.
+  `https://developer.salesforce.com/docs/ai/agentforce/guide/mcp.md` returns clean Markdown.
+  **This is not universal**, so gate on the response `Content-Type`, not the HTTP status: a real
+  twin returns `Content-Type: text/markdown` with the article body; a page without one returns
+  `Content-Type: text/html` (the SPA shell — the `.md` effectively falls back to `.htm`) or a
+  `404`, both of which still come back `200`/`text/html`-ish, so checking the status alone is not
+  enough. The newer `docs/<cloud>/<product>/guide/<topic>` deliverables tend to have twins; the
+  older `atlas.<lang>.<deliverable>.meta/...` ones (e.g. Apex Developer Guide) generally do not.
+  When there is no Markdown twin, fall back to the anonymous JSON content API —
+  `GET /docs/get_document/atlas.<lang>.<deliverable>.meta` for the TOC and `doc_version`, then
+  `GET /docs/get_document_content/<deliverable>/<topic>.htm/<lang>/<doc_version>` returns
+  `{id,title,content}` with the body HTML. Same `*.salesforce.com` allowlist for both.
 - **`trailhead.salesforce.com` modules**: the page HTML exposes only title/description
   (JSON-LD / og tags); the unit body loads via a `/graphql` API (not verified anonymously).
 - **`trailhead.salesforce.com/trailblazer-community/feed/...`**: the feed body is not in the
