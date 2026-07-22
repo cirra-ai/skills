@@ -438,8 +438,10 @@ def fetch_developer_docs(url):
 
 def main():
     ap = argparse.ArgumentParser(
-        description="Print the readable body of a Salesforce Help article. "
-                    "Give it an articleView URL or a bare topic id — nothing else needed.")
+        description="Print the readable text of a Salesforce documentation page — "
+                    "help.salesforce.com Help articles or developer.salesforce.com/docs "
+                    "pages. Give it the page URL (or a bare Help topic id); the host "
+                    "selects the retrieval path automatically.")
     ap.add_argument("target", help="a Salesforce Help / developer-docs URL or a bare Help topic id")
     a = ap.parse_args()
 
