@@ -166,15 +166,16 @@ class TestUnsupportedUrlMessage:
         )
         assert msg and "Trailhead" in msg and "graphql" in msg
 
-    def test_developer_docs_names_atlas_api(self):
+    def test_developer_docs_url_is_supported(self):
+        # developer.salesforce.com/docs is handled via the Atlas content API.
         msg = mod.unsupported_url_message(
             "https://developer.salesforce.com/docs/atlas.en-us.uiapi.meta/uiapi/x.htm"
         )
-        assert msg and "get_document_content" in msg
+        assert msg is None
 
     def test_other_host_generic(self):
         msg = mod.unsupported_url_message("https://example.com/docs/foo")
-        assert msg and "only reads" in msg
+        assert msg and "isn't handled" in msg
 
     def test_type1_knowledge_article_url_is_supported(self):
         # type=1 numeric Knowledge Articles are handled (KBKnowledgeArticle path).
@@ -231,3 +232,95 @@ class TestKnowledgeArticle:
         monkeypatch.delenv("HELP_RELEASE", raising=False)
         assert mod.fetch_aura("xcloud.foo") == "hi"
         assert types == ["HelpDocs", "HelpDocs"]
+
+
+class TestDeveloperDocs:
+    def test_is_dev_docs_url(self):
+        assert mod.is_dev_docs_url(
+            "https://developer.salesforce.com/docs/atlas.en-us.uiapi.meta/uiapi/x.htm"
+        )
+        assert not mod.is_dev_docs_url("https://help.salesforce.com/s/articleView?id=x.htm&type=5")
+        assert not mod.is_dev_docs_url("xcloud.foo")
+        # host match but not a /docs/ path
+        assert not mod.is_dev_docs_url("https://developer.salesforce.com/tools/vscode")
+
+    def test_dev_docs_parts_leaf_in_path(self):
+        meta, topic = mod._dev_docs_parts(
+            "https://developer.salesforce.com/docs/atlas.en-us.uiapi.meta/uiapi/ui_api_x.htm"
+        )
+        assert meta == "atlas.en-us.uiapi.meta"
+        assert topic == "ui_api_x"
+
+    def test_dev_docs_parts_leaf_in_fragment(self):
+        meta, topic = mod._dev_docs_parts(
+            "https://developer.salesforce.com/docs/atlas.en-us.uiapi.meta#ui_api_x.htm"
+        )
+        assert meta == "atlas.en-us.uiapi.meta"
+        assert topic == "ui_api_x"
+
+    def test_dev_docs_parts_landing_no_topic(self):
+        meta, topic = mod._dev_docs_parts(
+            "https://developer.salesforce.com/docs/atlas.en-us.uiapi.meta"
+        )
+        assert meta == "atlas.en-us.uiapi.meta"
+        assert topic is None
+
+    def test_fetch_developer_docs_leaf(self, monkeypatch):
+        monkeypatch.setattr(mod, "assert_reachable", lambda *a, **k: None)
+        calls = []
+
+        def fake_json(url):
+            calls.append(url)
+            if "get_document/" in url:
+                return {"deliverable": "uiapi", "locale": "en-us",
+                        "version": {"doc_version": "262.0"}, "content": "<p>landing</p>"}
+            return {"id": "t", "title": "T", "content": "<h1>Title</h1><p>Body &amp; more</p>"}
+
+        monkeypatch.setattr(mod, "_dev_get_json", fake_json)
+        out = mod.fetch_developer_docs(
+            "https://developer.salesforce.com/docs/atlas.en-us.uiapi.meta/uiapi/ui_api_x.htm"
+        )
+        assert out == "Title Body & more"
+        assert calls == [
+            f"{mod.DEV_HOST}/docs/get_document/atlas.en-us.uiapi.meta",
+            f"{mod.DEV_HOST}/docs/get_document_content/uiapi/ui_api_x.htm/en-us/262.0",
+        ]
+
+    def test_fetch_developer_docs_landing_uses_manifest_body(self, monkeypatch):
+        monkeypatch.setattr(mod, "assert_reachable", lambda *a, **k: None)
+
+        def fake_json(url):
+            assert "get_document_content" not in url  # landing never hits step 2
+            return {"deliverable": "uiapi", "locale": "en-us",
+                    "version": {"doc_version": "262.0"}, "content": "<p>landing body</p>"}
+
+        monkeypatch.setattr(mod, "_dev_get_json", fake_json)
+        out = mod.fetch_developer_docs(
+            "https://developer.salesforce.com/docs/atlas.en-us.uiapi.meta"
+        )
+        assert out == "landing body"
+
+    def test_fetch_developer_docs_blank_content_raises(self, monkeypatch):
+        monkeypatch.setattr(mod, "assert_reachable", lambda *a, **k: None)
+
+        def fake_json(url):
+            if "get_document/" in url:
+                return {"deliverable": "uiapi", "locale": "en-us",
+                        "version": {"doc_version": "262.0"}, "content": "<p>x</p>"}
+            return {"id": "t", "title": "T", "content": ""}  # bad topic -> empty body
+
+        monkeypatch.setattr(mod, "_dev_get_json", fake_json)
+        with pytest.raises(RuntimeError, match="no content for topic"):
+            mod.fetch_developer_docs(
+                "https://developer.salesforce.com/docs/atlas.en-us.uiapi.meta/uiapi/bad.htm"
+            )
+
+    def test_dev_get_json_blank_200_raises(self, monkeypatch):
+        monkeypatch.setattr(mod, "curl", lambda *a, **k: _proc(stdout="", returncode=0))
+        with pytest.raises(RuntimeError, match="empty response"):
+            mod._dev_get_json(f"{mod.DEV_HOST}/docs/get_document_content/x/y.htm/en-us/262.0")
+
+    def test_dev_get_json_non_json_raises(self, monkeypatch):
+        monkeypatch.setattr(mod, "curl", lambda *a, **k: _proc(stdout="<html>oops</html>"))
+        with pytest.raises(RuntimeError, match="not JSON"):
+            mod._dev_get_json(f"{mod.DEV_HOST}/docs/get_document/atlas.en-us.uiapi.meta")

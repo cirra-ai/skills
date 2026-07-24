@@ -80,7 +80,7 @@ def test_find_skills_from_top_level(fake_repo):
 
 
 def test_find_skills_reads_description(fake_repo):
-    """Skill description is extracted from README.md first paragraph."""
+    """Falls back to README.md first paragraph when SKILL.md has no description."""
     repo_root = fake_repo(num_skills=1)
 
     original = generate_pages.REPO_ROOT
@@ -91,6 +91,47 @@ def test_find_skills_reads_description(fake_repo):
         generate_pages.REPO_ROOT = original
 
     assert skills[0]["description"] == "A test skill."
+
+
+def test_find_skills_prefers_skill_md_description(tmp_path):
+    """The SKILL.md frontmatter description wins over the README paragraph, and a
+    trailing folded-scalar ``Usage:`` line is stripped for the card."""
+    skill = tmp_path / "skills" / "sf-demo"
+    skill.mkdir(parents=True)
+    (skill / "SKILL.md").write_text(
+        "---\n"
+        "name: sf-demo\n"
+        "metadata:\n"
+        "  version: 2.1.0\n"
+        "description: >\n"
+        "  Read the real thing across both surfaces.\n"
+        "  It works without a browser.\n"
+        "  Usage: /sf-demo [url]\n"
+        "---\n\n# sf-demo\n"
+    )
+    (skill / "README.md").write_text("# sf-demo\n\nREADME paragraph (should be ignored).")
+
+    original = generate_pages.REPO_ROOT
+    try:
+        generate_pages.REPO_ROOT = tmp_path
+        skills = generate_pages.find_skills()
+    finally:
+        generate_pages.REPO_ROOT = original
+
+    assert skills[0]["description"] == (
+        "Read the real thing across both surfaces. It works without a browser."
+    )
+    assert skills[0]["version"] == "2.1.0"
+
+
+def test_skill_frontmatter_description_inline():
+    """An inline (quoted) description value is read as-is."""
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as d:
+        p = Path(d) / "SKILL.md"
+        p.write_text('---\nname: x\ndescription: "Just one line."\n---\n# x\n')
+        assert generate_pages._skill_frontmatter_description(p) == "Just one line."
 
 
 def test_find_plugins_empty_repo(tmp_path):
