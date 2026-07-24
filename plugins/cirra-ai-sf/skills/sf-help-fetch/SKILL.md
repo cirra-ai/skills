@@ -1,43 +1,50 @@
 ---
 name: sf-help-fetch
 plugin: cirra-ai-sf
-argument-hint: '[article-url|topic-id]'
+argument-hint: '[url|topic-id]'
 metadata:
-  version: 1.0.2
+  version: 1.1.0
 description: >
-  Read the body of a Salesforce Help article (help.salesforce.com/s/articleView) without a
-  browser. Use whenever you need to read, quote, or extract the content of a Salesforce Help
-  page — those pages are a client-rendered Aura SPA, so curl/WebFetch only get a "Loading…"
-  shell. Just pass the article URL or topic id; retrieval is fully automatic.
-  Usage: /sf-help-fetch [article-url|topic-id]
+  Read the full text of a Salesforce documentation page — both Salesforce Help
+  (help.salesforce.com) and the developer docs (developer.salesforce.com) — without a
+  browser. These pages render their content with JavaScript, so a plain fetch only returns
+  an empty "Loading…" shell; this skill pulls the real article body through Salesforce's own
+  content APIs. Just pass the page URL (or a Help topic id) and it returns the readable text.
+  Usage: /sf-help-fetch [url|topic-id]
 ---
 
 # sf-help-fetch
 
 ## Problem
 
-`https://help.salesforce.com/s/articleView?id=<topic>.htm&type=5` is a client-rendered
-Aura/LWC single-page app. A plain `curl`/`WebFetch` returns the ~200 KB app shell whose only
-visible text is _"Loading… / Sorry to interrupt / CSS Error"_ — the article body never appears
-because it is injected by JavaScript after load. A headless browser is often not an option
-either (e.g. a sandbox whose network stack can't traverse the egress proxy), while `curl` can.
+Salesforce doc pages are client-rendered single-page apps. A plain `curl`/`WebFetch` of
+`https://help.salesforce.com/s/articleView?id=<topic>.htm&type=5` (an Aura/LWC SPA) or of a
+`https://developer.salesforce.com/docs/...` page returns the app shell whose only visible text
+is _"Loading…"_ — the article body never appears because it is injected by JavaScript after
+load. A headless browser is often not an option either (e.g. a sandbox whose network stack
+can't traverse the egress proxy), while `curl` can.
 
-The real article body is DITA-generated XHTML that originates from Zoomin (`zoominsoftware.io`)
-and is cached/re-served by Salesforce. There are two ways to get it.
+Both surfaces have anonymous content APIs behind them. For Help, the real body is
+DITA-generated XHTML that originates from Zoomin (`zoominsoftware.io`) and is cached/re-served
+by Salesforce (Strategies B/A). For the developer docs, Salesforce serves an "Atlas" JSON
+content API (Strategy C). This skill picks the right one by host, automatically.
 
 ## Usage
 
-One argument — the article. No flags, no options; retrieval is automatic.
+One argument — the page URL (or a bare Help topic id). No flags, no options; the host picks
+the retrieval path automatically.
 
 ```bash
 python3 scripts/fetch_sf_help.py "https://help.salesforce.com/s/articleView?id=xcloud.remoteaccess_authenticate.htm&type=5"
-python3 scripts/fetch_sf_help.py xcloud.remoteaccess_authenticate   # bare topic id
+python3 scripts/fetch_sf_help.py xcloud.remoteaccess_authenticate   # bare Help topic id
+python3 scripts/fetch_sf_help.py "https://developer.salesforce.com/docs/atlas.en-us.uiapi.meta/uiapi/ui_api_features_list_views.htm"
 ```
 
-The readable article text is written to stdout; a one-line progress note goes to stderr. All
-network I/O shells out to `curl` so an ambient `HTTPS_PROXY` + CA bundle are honored
-automatically. Internally it uses the anonymous Aura path (below) and silently falls back to
-the credentialed Zoomin path only if `ZOOMIN_BASIC` is set — the caller never chooses.
+The readable text is written to stdout; a one-line progress note goes to stderr. All network
+I/O shells out to `curl` so an ambient `HTTPS_PROXY` + CA bundle are honored automatically.
+`help.salesforce.com` URLs use the anonymous Aura path (below), silently falling back to the
+credentialed Zoomin path only if `ZOOMIN_BASIC` is set; `developer.salesforce.com/docs` URLs
+use the Atlas content API (Strategy C). The caller never chooses.
 
 ## Requirements & no-Python environments
 
@@ -50,9 +57,9 @@ no non-Python turnkey entrypoint; the Python script is a convenience wrapper aro
 documented contract.
 
 If handed a URL for a Salesforce surface it does **not** cover (Trailhead, Trailblazer
-Community, `developer.salesforce.com`, or any non-`help.salesforce.com` host), the script exits
-`2` with a specific message naming that surface and the real way to fetch it — see below —
-rather than a generic "could not determine a topic id".
+Community, or any other host), the script exits `2` with a specific message naming that surface
+and the real way to fetch it — see below — rather than a generic "could not determine a topic
+id".
 
 ## Egress preflight
 
@@ -62,6 +69,8 @@ not. A real HTTP status (even 4xx/5xx) counts as reachable; only a proxy/DNS blo
 
 - Aura → probes `help.salesforce.com`; on block: _"…is not reachable from this environment. You
   may want to add `*.salesforce.com` to your domain allowlist and retry."_
+- Atlas dev-docs → probes `developer.salesforce.com`; on block: the same `*.salesforce.com`
+  message.
 - Zoomin → probes `zd-ht-prod.zoominsoftware.io`; on block: the same message with
   `*.zoominsoftware.io`.
 
@@ -119,6 +128,27 @@ ZOOMIN_BASIC="user:pass" ZOOMIN_HEADER="Name: value" ZOOMIN_VERSION="262.0.0" \
 When those env vars are present the script tries Zoomin automatically as a fallback if the Aura
 path fails; otherwise it never touches Zoomin. There is no user-facing strategy switch.
 
+## Strategy C — developer.salesforce.com Atlas docs (anonymous)
+
+`developer.salesforce.com/docs` is a JS SPA too, but Salesforce exposes an anonymous JSON
+content API for it — no auth, no tokens:
+
+```text
+1. GET /docs/get_document/<meta>
+     <meta> = the "atlas.<lang>.<deliverable>.meta" segment from the URL path.
+     Returns the deliverable manifest: `deliverable`, `locale`, `version.doc_version`,
+     and the landing page's own `content`.
+2. GET /docs/get_document_content/<deliverable>/<topic>.htm/<locale>/<doc_version>
+     Returns {id, title, content} — `content` is the body HTML.
+```
+
+The `deliverable`/`locale`/`doc_version` are read from the step-1 manifest (authoritative),
+**not** parsed out of the URL, so a version-less URL still resolves the current release. The
+`<topic>` leaf is taken from the last `.htm`/`.html` path segment (or the URL fragment); a URL
+with no leaf returns the deliverable's landing document. A blank `200` from step 2 means a bad
+topic id / version and is reported as such. Routed automatically by host — any
+`developer.salesforce.com/docs/...` URL uses this path.
+
 ## Scope: which Help articles are covered
 
 `help.salesforce.com/s/articleView` serves two article kinds, distinguished by the `type` query
@@ -138,10 +168,6 @@ param — **both are handled**, dispatched automatically by id shape:
 
 Different sites need different handling — verified separately, not wired into this skill:
 
-- **`developer.salesforce.com/docs/...`** (Atlas): also a SPA, but has its own anonymous JSON
-  content API — `GET /docs/get_document/atlas.<lang>.<deliverable>.meta` for the TOC and
-  `doc_version`, then `GET /docs/get_document_content/<deliverable>/<topic>.htm/<lang>/<doc_version>`
-  returns `{id,title,content}` with the body HTML. Same `*.salesforce.com` allowlist.
 - **`trailhead.salesforce.com` modules**: the page HTML exposes only title/description
   (JSON-LD / og tags); the unit body loads via a `/graphql` API (not verified anonymously).
 - **`trailhead.salesforce.com/trailblazer-community/feed/...`**: the feed body is not in the
