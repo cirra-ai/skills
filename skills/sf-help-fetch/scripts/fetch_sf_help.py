@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
 """
-Fetch readable Salesforce Help article content as HTML — without a browser.
+Fetch readable Salesforce documentation content as text — without a browser.
 
-Salesforce Help (help.salesforce.com/s/articleView?id=<topic>.htm&type=5) is a
-client-rendered Aura/LWC SPA. curl/WebFetch only get the "Loading…" shell. The
-actual article body is DITA-generated XHTML that comes from Zoomin
-(zoominsoftware.io) and is cached/re-served by Salesforce.
+Salesforce docs are JavaScript single-page apps, so curl/WebFetch only get a
+"Loading…" shell. This script pulls the real body through Salesforce's own
+anonymous content APIs, dispatching by host:
 
-Two strategies (default `auto` tries B first, then A):
+  * help.salesforce.com/s/articleView  -> the Aura endpoint (strategies B/A below)
+  * developer.salesforce.com/docs/...   -> the Atlas content API (fetch_developer_docs)
+
+For help.salesforce.com the actual article body is DITA-generated XHTML that
+comes from Zoomin (zoominsoftware.io) and is cached/re-served by Salesforce.
+
+Two Help strategies (default `auto` tries B first, then A):
 
   B. AURA ENDPOINT  (primary; anonymous; only needs help.salesforce.com reachable)
        POST https://help.salesforce.com/s/sfsites/aura   (ApexActionController)
@@ -29,17 +34,31 @@ Two strategies (default `auto` tries B first, then A):
      required header (server-side H&T creds), so it only runs when ZOOMIN_BASIC /
      ZOOMIN_HEADER are supplied. Not anonymously accessible.
 
+  C. DEVELOPER DOCS  (developer.salesforce.com; anonymous)
+       1. MARKDOWN TWIN (fast path): fetch the same path with a '.md' extension;
+          many pages (esp. newer '/docs/<cloud>/<product>/guide/<topic>' ones)
+          return clean Markdown. Detected via Content-Type: text/markdown — a
+          page without a twin still 200s with the HTML shell, so status alone
+          won't tell you.
+       2. ATLAS JSON API (fallback; atlas.<lang>.<deliverable>.meta URLs):
+          GET /docs/get_document/atlas.<lang>.<deliverable>.meta       -> manifest
+          GET /docs/get_document_content/<deliverable>/<topic>.htm/<locale>/<doc_version>
+     The deliverable/locale/doc_version are read from the manifest, so a
+     version-less URL still resolves the current release.
+
 All network calls shell out to `curl` so the session's HTTPS_PROXY + CA bundle
 are honored automatically (Node's built-in fetch and headless Chromium do not
 traverse this proxy reliably).
 
-Retrieval is fully automatic — the caller only supplies the article. Aura is the
-anonymous path that works out of the box; the credentialed Zoomin fallback is used
-only if ZOOMIN_BASIC is set in the environment.
+Retrieval is fully automatic — the caller only supplies the URL (or a Help topic
+id). The host picks the path; for Help, Aura is the anonymous path that works out
+of the box and the credentialed Zoomin fallback is used only if ZOOMIN_BASIC is
+set in the environment.
 
 Usage:
     python3 fetch_sf_help.py "https://help.salesforce.com/s/articleView?id=xcloud.remoteaccess_authenticate.htm&type=5"
     python3 fetch_sf_help.py xcloud.remoteaccess_authenticate           # bare topic id
+    python3 fetch_sf_help.py "https://developer.salesforce.com/docs/atlas.en-us.uiapi.meta/uiapi/ui_api_features_list_views.htm"
 """
 import argparse
 import html
@@ -52,6 +71,7 @@ import urllib.parse
 
 ZOOMIN_HOST = "https://zd-ht-prod.zoominsoftware.io"
 HELP_HOST   = "https://help.salesforce.com"
+DEV_HOST    = "https://developer.salesforce.com"
 LANG        = "en_US"
 
 # --- Strategy B action contract (verified from a live request) ----------------
@@ -96,14 +116,17 @@ def unsupported_url_message(arg):
     it; otherwise return None. Keeps failures self-explanatory instead of a
     generic "could not determine a topic id".
 
-    Note: help.salesforce.com articleView pages are supported for BOTH type=5
-    Help Docs topics and type=1 numeric Knowledge Articles, so they return None."""
+    Note: help.salesforce.com articleView pages (type=5 Help Docs topics and
+    type=1 numeric Knowledge Articles) and developer.salesforce.com/docs pages
+    are all supported, so they return None."""
     if not arg.startswith("http"):
         return None
     parts = urllib.parse.urlparse(arg)
     host, path = parts.netloc.lower(), parts.path
     if host in ("help.salesforce.com", ""):
         return None  # supported: type=5 topics and type=1 Knowledge Articles
+    if host == "developer.salesforce.com" and path.startswith("/docs/"):
+        return None  # supported: Atlas content API (see fetch_developer_docs)
     if host == "trailhead.salesforce.com":
         if "/trailblazer-community/" in path:
             return (
@@ -117,21 +140,9 @@ def unsupported_url_message(arg):
             "description are anonymously available (JSON-LD / og tags on the page); the unit "
             "body loads via a token/auth-gated /graphql API."
         )
-    if host == "developer.salesforce.com":
-        return (
-            "developer.salesforce.com docs aren't handled by sf-help-fetch, but many pages have "
-            "a plain-Markdown twin: append '.md' to the page URL and curl/WebFetch it directly "
-            "(e.g. .../guide/mcp.md). Gate on the response Content-Type, not the HTTP status: a "
-            "real twin returns Content-Type text/markdown; a page without one returns text/html "
-            "(the SPA shell) or 404, so status alone won't tell you. Newer docs/<cloud>/<product>/"
-            "guide/<topic> pages tend to have twins; older atlas.<lang>.<deliverable>.meta ones "
-            "usually don't. When there's no twin, fall back to the anonymous Atlas content API: "
-            "GET /docs/get_document/atlas.<lang>.<deliverable>.meta for the TOC + doc_version, then "
-            "GET /docs/get_document_content/<deliverable>/<topic>.htm/<lang>/<doc_version>."
-        )
     return (
-        f"{host} isn't handled by sf-help-fetch — this skill only reads "
-        "help.salesforce.com/s/articleView pages."
+        f"{host} isn't handled by sf-help-fetch — this skill reads "
+        "help.salesforce.com/s/articleView and developer.salesforce.com/docs pages."
     )
 
 
@@ -349,12 +360,167 @@ def fetch_aura(topic_id):
     return _fetch_helpdocs(ctx, topic_id)
 
 
+# --- developer.salesforce.com "Atlas" docs (anonymous JSON content API) -------
+def is_dev_docs_url(arg):
+    """True for a developer.salesforce.com/docs Atlas URL (its own content API)."""
+    if not arg.startswith("http"):
+        return False
+    p = urllib.parse.urlparse(arg)
+    return p.netloc.lower() == "developer.salesforce.com" and p.path.startswith("/docs/")
+
+
+def _dev_get_json(url):
+    """GET `url` and JSON-parse it, with clear errors for the blank-200 (bad
+    topic id / version) and non-JSON (proxy/error page) failure modes."""
+    r = curl(["-L", url], timeout=30)
+    out = r.stdout
+    if r.returncode != 0 and not out.strip():
+        raise RuntimeError("request failed: " + (r.stderr.strip() or "curl error"))
+    if not out.strip():
+        raise RuntimeError(f"empty response from {url} (topic id / version wrong?)")
+    try:
+        return json.loads(out)
+    except json.JSONDecodeError as e:
+        raise RuntimeError("developer.salesforce.com response was not JSON "
+                           "(proxy or error page?): " + (out[:200] or str(e))) from e
+
+
+def _dev_docs_parts(url):
+    """From a developer.salesforce.com/docs URL return (meta, topic):
+
+    meta  = the 'atlas.<lang>.<deliverable>.meta' path segment (the deliverable
+            manifest); topic = the '<name>.htm' leaf page, or None for the
+            deliverable landing page. A leaf may live in the last path segment
+            or in the URL fragment (developer.salesforce.com uses both)."""
+    p = urllib.parse.urlparse(url)
+    segs = [s for s in p.path.split("/") if s]
+    meta = next((s for s in segs if s.startswith("atlas.") and s.endswith(".meta")), None)
+    topic = None
+    if segs and re.search(r"\.html?$", segs[-1]):
+        topic = re.sub(r"\.html?$", "", segs[-1])
+    elif p.fragment and re.search(r"\.html?$", p.fragment):
+        topic = re.sub(r"\.html?$", "", p.fragment)
+    return meta, topic
+
+
+def _dev_md_twin_url(url):
+    """Return the plain-Markdown twin URL for a developer.salesforce.com/docs page,
+    or None if one can't be formed.
+
+    Salesforce serves a Markdown twin of many docs pages at the same path with a
+    '.md' extension (e.g. .../guide/mcp.html -> .../guide/mcp.md). We can only
+    build it from a page URL whose last path segment is the leaf document
+    ('<name>.htm'/'.html', or already '.md'); deliverable-landing URLs (no leaf,
+    e.g. '.../atlas.en-us.uiapi.meta/uiapi') have no reliable twin, so return
+    None and let the caller use the Atlas JSON API instead."""
+    p = urllib.parse.urlparse(url)
+    segs = p.path.split("/")
+    if not segs or not segs[-1]:
+        return None
+    leaf = segs[-1]
+    if leaf.endswith(".md"):
+        new_leaf = leaf
+    elif re.search(r"\.html?$", leaf):
+        new_leaf = re.sub(r"\.html?$", ".md", leaf)
+    else:
+        return None
+    segs[-1] = new_leaf
+    return urllib.parse.urlunparse(p._replace(path="/".join(segs), fragment=""))
+
+
+def _fetch_dev_md_twin(url):
+    """Try the Markdown twin of a dev-docs page; return its text, or None.
+
+    Availability is signalled by the response Content-Type (`text/markdown`),
+    NOT the HTTP status: a page without a twin still returns 200 with the
+    `text/html` SPA shell (the '.md' effectively falls back to '.htm'), so we
+    must gate on Content-Type. When present the body is already clean Markdown,
+    so it is returned as-is (no HTML-to-text pass)."""
+    twin = _dev_md_twin_url(url)
+    if not twin:
+        return None
+    r = curl(["-L", "-w", "\n__CT__%{content_type}", twin], timeout=30)
+    out = r.stdout
+    marker = out.rfind("\n__CT__")
+    ctype = out[marker + len("\n__CT__"):].strip().lower() if marker >= 0 else ""
+    body = out[:marker] if marker >= 0 else out
+    if "text/markdown" in ctype and body.strip():
+        print(f"# markdown twin: {twin}", file=sys.stderr)
+        return body.strip()
+    return None
+
+
+def fetch_developer_docs(url):
+    """Read a developer.salesforce.com/docs page without a browser.
+
+    Two anonymous paths, tried in order:
+
+      1. MARKDOWN TWIN (fast path). Many pages — notably the newer
+         '/docs/<cloud>/<product>/guide/<topic>' deliverables — expose a
+         plain-Markdown twin at the same path with a '.md' extension. It's a
+         single request and returns clean Markdown. Availability is detected via
+         the response Content-Type (text/markdown); pages without a twin (e.g.
+         the older 'atlas.<lang>.<deliverable>.meta' guides) fall through.
+      2. ATLAS JSON CONTENT API (fallback, atlas.*.meta URLs only):
+           a. GET /docs/get_document/<meta>  -> manifest (deliverable, locale,
+              version.doc_version, and the landing page's own body)
+           b. GET /docs/get_document_content/<deliverable>/<topic>.htm/<locale>/<doc_version>
+              -> {id, title, content}  (content = body HTML)
+         deliverable/locale/doc_version come from the manifest (authoritative)
+         rather than the URL, so a version-less URL still resolves the current
+         release."""
+    assert_reachable("developer.salesforce.com", "*.salesforce.com")
+    md = _fetch_dev_md_twin(url)
+    if md is not None:
+        return md
+    meta, topic = _dev_docs_parts(url)
+    if not meta:
+        raise RuntimeError(
+            f"no Markdown twin (.md) is available for {url!r} and it has no "
+            "'atlas.<lang>.<deliverable>.meta' segment to use the Atlas JSON API — "
+            "pass a developer.salesforce.com/docs/... URL")
+    manifest = _dev_get_json(f"{DEV_HOST}/docs/get_document/{meta}")
+    if not topic:
+        # No leaf page in the URL: the manifest already carries the landing body.
+        body = manifest.get("content")
+        if not body:
+            raise RuntimeError(f"no landing content in the {meta} manifest")
+        return html_to_text(body)
+    deliverable = manifest.get("deliverable")
+    locale = manifest.get("locale")
+    doc_version = (manifest.get("version") or {}).get("doc_version")
+    if not (deliverable and locale and doc_version):
+        raise RuntimeError(f"{meta} manifest missing deliverable/locale/doc_version "
+                           "(page shape changed?)")
+    doc = _dev_get_json(
+        f"{DEV_HOST}/docs/get_document_content/{deliverable}/{topic}.htm/{locale}/{doc_version}")
+    body = doc.get("content")
+    if not body:
+        raise RuntimeError(f"no content for topic {topic!r} in {deliverable} at "
+                           f"{doc_version} (check the topic id)")
+    return html_to_text(body)
+
+
 def main():
     ap = argparse.ArgumentParser(
-        description="Print the readable body of a Salesforce Help article. "
-                    "Give it an articleView URL or a bare topic id — nothing else needed.")
-    ap.add_argument("target", help="a help.salesforce.com/s/articleView URL or a bare topic id")
+        description="Print the readable text of a Salesforce documentation page — "
+                    "help.salesforce.com Help articles or developer.salesforce.com/docs "
+                    "pages. Give it the page URL (or a bare Help topic id); the host "
+                    "selects the retrieval path automatically.")
+    ap.add_argument("target", help="a Salesforce Help / developer-docs URL or a bare Help topic id")
     a = ap.parse_args()
+
+    # developer.salesforce.com/docs has its own anonymous Atlas content API —
+    # route it there directly rather than through the Help Aura path.
+    if is_dev_docs_url(a.target):
+        print("# developer.salesforce.com docs", file=sys.stderr)
+        try:
+            print(fetch_developer_docs(a.target))
+            return 0
+        except Exception as e:
+            print(f"ERROR: could not retrieve the doc. {e}", file=sys.stderr)
+            return 1
+
     try:
         hint = unsupported_url_message(a.target)
         if hint:

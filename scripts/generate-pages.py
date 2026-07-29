@@ -84,7 +84,7 @@ def find_skills() -> list[dict]:
         skill_dir = skill_md.parent
         name = skill_dir.name
         readme = skill_dir / "README.md"
-        description = _readme_first_paragraph(readme) if readme.exists() else ""
+        description = _skill_description(skill_md, readme)
         version = _skill_version(skill_md)
         # Derive primary keyword from skill name (strip known prefixes)
         main_kw = name.removeprefix("cirra-ai-sf-").removeprefix("sf-").removeprefix("cirra-ai-")
@@ -95,6 +95,57 @@ def find_skills() -> list[dict]:
             "keywords": [main_kw] if main_kw and main_kw != name else [],
         })
     return skills
+
+
+def _skill_description(skill_md: Path, readme_path: Path) -> str:
+    """Card description for a skill.
+
+    Prefer the SKILL.md frontmatter ``description`` — the same copy agents match
+    on — so the downloads card and the skill's own trigger text never drift.
+    Fall back to the README's first paragraph when a skill has no frontmatter
+    description. A trailing ``Usage:`` line (a slash-command cue aimed at agents)
+    is dropped: it reads as noise on a human-facing card.
+    """
+    desc = _skill_frontmatter_description(skill_md)
+    if not desc and readme_path.exists():
+        desc = _readme_first_paragraph(readme_path)
+    return desc
+
+
+def _skill_frontmatter_description(skill_md: Path) -> str:
+    """Extract the ``description`` field from SKILL.md YAML frontmatter.
+
+    Handles an inline value and YAML block scalars (folded ``>`` / literal ``|``,
+    with any chomping indicator). Folded blocks are joined with spaces. A
+    trailing ``Usage:`` line is stripped (see ``_skill_description``). Hand-parsed
+    rather than via PyYAML so the page generator keeps zero runtime deps.
+    """
+    text = skill_md.read_text()
+    if not text.startswith("---\n"):
+        return ""
+    end = text.find("\n---\n", 4)
+    if end < 0:
+        return ""
+    lines = text[4:end].split("\n")
+    for idx, line in enumerate(lines):
+        if not line.startswith("description:"):
+            continue
+        value = line[len("description:"):].strip()
+        if value and value[0] in "|>":  # block scalar — gather indented lines
+            block = []
+            for cont in lines[idx + 1:]:
+                if cont.strip() and not cont[:1].isspace():
+                    break  # a column-0 key ends the block scalar
+                block.append(cont.strip())
+            while block and not block[0]:
+                block.pop(0)
+            while block and not block[-1]:
+                block.pop()
+            if block and block[-1].startswith("Usage:"):
+                block.pop()
+            return " ".join(b for b in block if b)
+        return value.strip("\"'")
+    return ""
 
 
 def _readme_first_paragraph(readme_path: Path) -> str:
