@@ -34,11 +34,17 @@ Two Help strategies (default `auto` tries B first, then A):
      required header (server-side H&T creds), so it only runs when ZOOMIN_BASIC /
      ZOOMIN_HEADER are supplied. Not anonymously accessible.
 
-  C. DEVELOPER DOCS  (developer.salesforce.com; anonymous JSON content API)
-       GET /docs/get_document/atlas.<lang>.<deliverable>.meta       -> manifest
-       GET /docs/get_document_content/<deliverable>/<topic>.htm/<locale>/<doc_version>
-     The deliverable/locale/doc_version are read from the manifest (step 1), so
-     a version-less URL still resolves the current release.
+  C. DEVELOPER DOCS  (developer.salesforce.com; anonymous)
+       1. MARKDOWN TWIN (fast path): fetch the same path with a '.md' extension;
+          many pages (esp. newer '/docs/<cloud>/<product>/guide/<topic>' ones)
+          return clean Markdown. Detected via Content-Type: text/markdown — a
+          page without a twin still 200s with the HTML shell, so status alone
+          won't tell you.
+       2. ATLAS JSON API (fallback; atlas.<lang>.<deliverable>.meta URLs):
+          GET /docs/get_document/atlas.<lang>.<deliverable>.meta       -> manifest
+          GET /docs/get_document_content/<deliverable>/<topic>.htm/<locale>/<doc_version>
+     The deliverable/locale/doc_version are read from the manifest, so a
+     version-less URL still resolves the current release.
 
 All network calls shell out to `curl` so the session's HTTPS_PROXY + CA bundle
 are honored automatically (Node's built-in fetch and headless Chromium do not
@@ -397,23 +403,82 @@ def _dev_docs_parts(url):
     return meta, topic
 
 
-def fetch_developer_docs(url):
-    """Read a developer.salesforce.com Atlas doc via its anonymous content API.
+def _dev_md_twin_url(url):
+    """Return the plain-Markdown twin URL for a developer.salesforce.com/docs page,
+    or None if one can't be formed.
 
-    developer.salesforce.com/docs is also a JS SPA, but exposes an anonymous
-    JSON content API:
-      1. GET /docs/get_document/<meta>  -> manifest (deliverable, locale,
-         version.doc_version, and the landing page's own body)
-      2. GET /docs/get_document_content/<deliverable>/<topic>.htm/<locale>/<doc_version>
-         -> {id, title, content}  (content = body HTML)
-    deliverable/locale/doc_version come from the manifest (authoritative) rather
-    than the URL, so a version-less URL still resolves the current release."""
+    Salesforce serves a Markdown twin of many docs pages at the same path with a
+    '.md' extension (e.g. .../guide/mcp.html -> .../guide/mcp.md). We can only
+    build it from a page URL whose last path segment is the leaf document
+    ('<name>.htm'/'.html', or already '.md'); deliverable-landing URLs (no leaf,
+    e.g. '.../atlas.en-us.uiapi.meta/uiapi') have no reliable twin, so return
+    None and let the caller use the Atlas JSON API instead."""
+    p = urllib.parse.urlparse(url)
+    segs = p.path.split("/")
+    if not segs or not segs[-1]:
+        return None
+    leaf = segs[-1]
+    if leaf.endswith(".md"):
+        new_leaf = leaf
+    elif re.search(r"\.html?$", leaf):
+        new_leaf = re.sub(r"\.html?$", ".md", leaf)
+    else:
+        return None
+    segs[-1] = new_leaf
+    return urllib.parse.urlunparse(p._replace(path="/".join(segs), fragment=""))
+
+
+def _fetch_dev_md_twin(url):
+    """Try the Markdown twin of a dev-docs page; return its text, or None.
+
+    Availability is signalled by the response Content-Type (`text/markdown`),
+    NOT the HTTP status: a page without a twin still returns 200 with the
+    `text/html` SPA shell (the '.md' effectively falls back to '.htm'), so we
+    must gate on Content-Type. When present the body is already clean Markdown,
+    so it is returned as-is (no HTML-to-text pass)."""
+    twin = _dev_md_twin_url(url)
+    if not twin:
+        return None
+    r = curl(["-L", "-w", "\n__CT__%{content_type}", twin], timeout=30)
+    out = r.stdout
+    marker = out.rfind("\n__CT__")
+    ctype = out[marker + len("\n__CT__"):].strip().lower() if marker >= 0 else ""
+    body = out[:marker] if marker >= 0 else out
+    if "text/markdown" in ctype and body.strip():
+        print(f"# markdown twin: {twin}", file=sys.stderr)
+        return body.strip()
+    return None
+
+
+def fetch_developer_docs(url):
+    """Read a developer.salesforce.com/docs page without a browser.
+
+    Two anonymous paths, tried in order:
+
+      1. MARKDOWN TWIN (fast path). Many pages — notably the newer
+         '/docs/<cloud>/<product>/guide/<topic>' deliverables — expose a
+         plain-Markdown twin at the same path with a '.md' extension. It's a
+         single request and returns clean Markdown. Availability is detected via
+         the response Content-Type (text/markdown); pages without a twin (e.g.
+         the older 'atlas.<lang>.<deliverable>.meta' guides) fall through.
+      2. ATLAS JSON CONTENT API (fallback, atlas.*.meta URLs only):
+           a. GET /docs/get_document/<meta>  -> manifest (deliverable, locale,
+              version.doc_version, and the landing page's own body)
+           b. GET /docs/get_document_content/<deliverable>/<topic>.htm/<locale>/<doc_version>
+              -> {id, title, content}  (content = body HTML)
+         deliverable/locale/doc_version come from the manifest (authoritative)
+         rather than the URL, so a version-less URL still resolves the current
+         release."""
     assert_reachable("developer.salesforce.com", "*.salesforce.com")
+    md = _fetch_dev_md_twin(url)
+    if md is not None:
+        return md
     meta, topic = _dev_docs_parts(url)
     if not meta:
         raise RuntimeError(
-            "could not find an 'atlas.<lang>.<deliverable>.meta' segment in "
-            f"{url!r} — pass a developer.salesforce.com/docs/... URL")
+            f"no Markdown twin (.md) is available for {url!r} and it has no "
+            "'atlas.<lang>.<deliverable>.meta' segment to use the Atlas JSON API — "
+            "pass a developer.salesforce.com/docs/... URL")
     manifest = _dev_get_json(f"{DEV_HOST}/docs/get_document/{meta}")
     if not topic:
         # No leaf page in the URL: the manifest already carries the landing body.
