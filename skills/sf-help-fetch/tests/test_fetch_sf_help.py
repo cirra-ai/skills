@@ -267,6 +267,7 @@ class TestDeveloperDocs:
 
     def test_fetch_developer_docs_leaf(self, monkeypatch):
         monkeypatch.setattr(mod, "assert_reachable", lambda *a, **k: None)
+        monkeypatch.setattr(mod, "_fetch_dev_md_twin", lambda url: None)  # no twin -> JSON API
         calls = []
 
         def fake_json(url):
@@ -288,6 +289,7 @@ class TestDeveloperDocs:
 
     def test_fetch_developer_docs_landing_uses_manifest_body(self, monkeypatch):
         monkeypatch.setattr(mod, "assert_reachable", lambda *a, **k: None)
+        monkeypatch.setattr(mod, "_fetch_dev_md_twin", lambda url: None)  # no twin -> JSON API
 
         def fake_json(url):
             assert "get_document_content" not in url  # landing never hits step 2
@@ -302,6 +304,7 @@ class TestDeveloperDocs:
 
     def test_fetch_developer_docs_blank_content_raises(self, monkeypatch):
         monkeypatch.setattr(mod, "assert_reachable", lambda *a, **k: None)
+        monkeypatch.setattr(mod, "_fetch_dev_md_twin", lambda url: None)  # no twin -> JSON API
 
         def fake_json(url):
             if "get_document/" in url:
@@ -324,3 +327,70 @@ class TestDeveloperDocs:
         monkeypatch.setattr(mod, "curl", lambda *a, **k: _proc(stdout="<html>oops</html>"))
         with pytest.raises(RuntimeError, match="not JSON"):
             mod._dev_get_json(f"{mod.DEV_HOST}/docs/get_document/atlas.en-us.uiapi.meta")
+
+
+class TestDevMarkdownTwin:
+    def test_twin_url_swaps_html_leaf(self):
+        assert mod._dev_md_twin_url(
+            "https://developer.salesforce.com/docs/ai/agentforce/guide/mcp.html"
+        ) == "https://developer.salesforce.com/docs/ai/agentforce/guide/mcp.md"
+
+    def test_twin_url_swaps_htm_leaf(self):
+        assert mod._dev_md_twin_url(
+            "https://developer.salesforce.com/docs/atlas.en-us.uiapi.meta/uiapi/ui_api_x.htm"
+        ) == "https://developer.salesforce.com/docs/atlas.en-us.uiapi.meta/uiapi/ui_api_x.md"
+
+    def test_twin_url_keeps_md_leaf_and_drops_fragment(self):
+        assert mod._dev_md_twin_url(
+            "https://developer.salesforce.com/docs/ai/agentforce/guide/mcp.md#section"
+        ) == "https://developer.salesforce.com/docs/ai/agentforce/guide/mcp.md"
+
+    def test_twin_url_none_for_landing_without_leaf(self):
+        # A deliverable-landing URL (no leaf document) has no reliable twin.
+        assert mod._dev_md_twin_url(
+            "https://developer.salesforce.com/docs/atlas.en-us.uiapi.meta/uiapi"
+        ) is None
+
+    def test_fetch_twin_returns_markdown_on_markdown_content_type(self, monkeypatch):
+        body = "# Title\n\nSome **markdown** body."
+        monkeypatch.setattr(
+            mod, "curl",
+            lambda *a, **k: _proc(stdout=body + "\n__CT__text/markdown; charset=utf-8"),
+        )
+        out = mod._fetch_dev_md_twin(
+            "https://developer.salesforce.com/docs/ai/agentforce/guide/mcp.html"
+        )
+        assert out == body  # returned as-is (no HTML-to-text), trailing marker stripped
+
+    def test_fetch_twin_returns_none_on_html_shell(self, monkeypatch):
+        # A page without a twin still 200s but with text/html (the SPA shell).
+        monkeypatch.setattr(
+            mod, "curl",
+            lambda *a, **k: _proc(stdout="<!DOCTYPE html>...\n__CT__text/html; charset=utf-8"),
+        )
+        out = mod._fetch_dev_md_twin(
+            "https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/x.htm"
+        )
+        assert out is None
+
+    def test_fetch_developer_docs_prefers_twin(self, monkeypatch):
+        monkeypatch.setattr(mod, "assert_reachable", lambda *a, **k: None)
+        monkeypatch.setattr(mod, "_fetch_dev_md_twin", lambda url: "# md body")
+
+        def boom(url):  # JSON API must NOT be hit when a twin exists
+            raise AssertionError("Atlas JSON API should not be called when a twin exists")
+
+        monkeypatch.setattr(mod, "_dev_get_json", boom)
+        out = mod.fetch_developer_docs(
+            "https://developer.salesforce.com/docs/ai/agentforce/guide/mcp.html"
+        )
+        assert out == "# md body"
+
+    def test_fetch_developer_docs_no_twin_no_meta_raises(self, monkeypatch):
+        # Newer guide-style URL: no twin available AND no atlas.*.meta segment.
+        monkeypatch.setattr(mod, "assert_reachable", lambda *a, **k: None)
+        monkeypatch.setattr(mod, "_fetch_dev_md_twin", lambda url: None)
+        with pytest.raises(RuntimeError, match="Markdown twin"):
+            mod.fetch_developer_docs(
+                "https://developer.salesforce.com/docs/ai/agentforce/guide/mcp.html"
+            )
