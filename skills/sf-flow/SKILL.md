@@ -3,7 +3,7 @@ name: sf-flow
 plugin: cirra-ai-sf
 argument-hint: '[create|update|validate] {FlowName} ...'
 metadata:
-  version: 2.3.1
+  version: 2.4.0
 description: >
   Creates and validates Salesforce flows with 110-point scoring and Winter '26 best practices
   using Cirra AI MCP Server. Use when building record-triggered flows, screen flows,
@@ -1367,6 +1367,73 @@ To deactivate all versions: set `activeVersionNumber` to `0`.
 ```
 tooling_api_query(sObject="Flow", fields=["Definition.DeveloperName"], whereClause="Status = 'Active' AND (ProcessType = 'AutolaunchedFlow' OR ProcessType = 'Workflow' OR ProcessType = 'CustomEvent' OR ProcessType = 'InvocableProcess') AND Id NOT IN (SELECT FlowVersionId FROM FlowTestCoverage)")
 ```
+
+### Create a native Flow Test (FlowTest metadata type)
+
+Native **Flow Tests** are declarative tests (the "Create Test" / "View Tests"
+button in Flow Builder) that Salesforce stores as the `FlowTest` metadata type.
+They apply **only to record-triggered flows** (`RecordBeforeSave` /
+`RecordAfterSave`). This is distinct from Apex test coverage of flows (see
+_Check flow test coverage_ above) — a `FlowTest` needs no Apex.
+
+**Verified end-to-end via the Cirra MCP** — `metadata_create` accepts the
+`FlowTest` type and the payload below round-trips through `metadata_read` and the
+`FlowTest` Tooling object. Every field name and nesting level below is accepted
+verbatim. Structure reference:
+[FlowTest metadata docs](https://developer.salesforce.com/docs/atlas.en-us.api_meta.meta/api_meta/meta_flowtest.htm).
+
+A `FlowTest` has exactly two kinds of test point:
+
+- **`Start`** — carries the triggering-record input. `leftValueReference` **must
+  be `$Record`**; `type` is `InputTriggeringRecordInitial` (or
+  `InputTriggeringRecordUpdated` for the "after update" record). The record
+  itself is a **JSON string** in `sobjectValue`.
+- **`Finish`** — carries the assertions evaluated after the flow runs.
+
+```
+metadata_create(type="FlowTest", metadata=[{
+  "fullName": "Test_CR_Priority_High",
+  "label": "CR Priority High",
+  "description": "Priority is set to High when Impact is High.",
+  "flowApiName": "SDO_Change_Request_Set_Priority_Based_on_Impact",
+  "testType": "WithAssertion",
+  "testPoints": [
+    {"elementApiName": "Start", "parameters": [
+      {"leftValueReference": "$Record", "type": "InputTriggeringRecordInitial",
+       "value": {"sobjectValue": "{\"Impact\":\"High\"}"}}]},
+    {"elementApiName": "Finish", "assertions": [
+      {"conditions": [
+        {"leftValueReference": "$Record.Priority", "operator": "EqualTo",
+         "rightValue": {"stringValue": "High"}}],
+       "errorMessage": "Priority should be High when Impact is High"}]}
+  ]
+}])
+```
+
+Verify (metadata round-trip, then the Tooling object) and delete:
+
+```
+metadata_read(type="FlowTest", fullNames=["Test_CR_Priority_High"])
+tooling_api_query(sObject="FlowTest", fields=["Id","DeveloperName","MasterLabel","TestType"], whereClause="DeveloperName='Test_CR_Priority_High'")
+metadata_delete(type="FlowTest", fullNames=["Test_CR_Priority_High"])
+```
+
+**Gotchas (all observed against a live org):**
+
+- **Creation ≠ execution.** `metadata_create` only _creates_ the test; it does
+  **not** run it, so the assertion is not evaluated at create time. A syntactically
+  valid `FlowTest` is created even if its assertion would fail. Running the test
+  (and reading pass/fail) is a separate step not covered here.
+- **`metadata_read` collapses single-element arrays to bare objects.** A test
+  point with one `parameters` / `assertions` / `conditions` entry reads back as
+  `parameters: {…}` (object), not `parameters: [{…}]` (array) — standard Metadata
+  API XML→JSON behavior, not data loss. Code that assumes a list will break on
+  single-element test points; normalize to an array before iterating.
+- **The platform injects `isUseMockOutput` on each test point as the string
+  `"false"`** (not a boolean) on read-back.
+- **Tooling field names differ from metadata field names:** `DeveloperName` ↔
+  `fullName`, `MasterLabel` ↔ `label`, `TestType` ↔ `testType`. The `FlowTest`
+  key prefix is `320`.
 
 ### Find paused or failed flow interviews
 
