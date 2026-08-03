@@ -12,7 +12,9 @@ anonymous content APIs, picking the right one by host.
   - `help.salesforce.com/s/articleView` — via the anonymous Aura endpoint, covering both
     `type=5` Help Docs topics (ids like `xcloud.remoteaccess_authenticate.htm`) and `type=1`
     numeric Knowledge Articles (ids like `005360285`).
-  - `developer.salesforce.com/docs/...` — via the anonymous "Atlas" JSON content API.
+  - `developer.salesforce.com/docs/...` — a page's plain-Markdown twin (append `.md`) when it
+    has one, otherwise the anonymous "Atlas" JSON content API. The Markdown twin is the only
+    way to reach the newer `docs/{cloud}/{product}/guide/{topic}` pages.
 - **One argument** — the page URL (or a bare Help topic id); no flags, retrieval is fully
   automatic.
 - **Self-maintaining** — scrapes the live `aura.context` and self-discovers the Salesforce
@@ -36,6 +38,7 @@ Invoke the skill with a Salesforce Help / developer-docs URL or a bare Help topi
 /sf-help-fetch xcloud.remoteaccess_authenticate
 /sf-help-fetch https://help.salesforce.com/s/articleView?id=005360285&type=1
 /sf-help-fetch https://developer.salesforce.com/docs/atlas.en-us.uiapi.meta/uiapi/ui_api_features_list_views.htm
+/sf-help-fetch https://developer.salesforce.com/docs/ai/agentforce/guide/mcp.html
 ```
 
 Or run the script directly:

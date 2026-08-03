@@ -3,7 +3,7 @@ name: sf-help-fetch
 plugin: cirra-ai-sf
 argument-hint: '[url|topic-id]'
 metadata:
-  version: 1.1.0
+  version: 1.2.0
 description: >
   Read the full text of a Salesforce documentation page — both Salesforce Help
   (help.salesforce.com) and the developer docs (developer.salesforce.com) — without a
@@ -44,7 +44,8 @@ The readable text is written to stdout; a one-line progress note goes to stderr.
 I/O shells out to `curl` so an ambient `HTTPS_PROXY` + CA bundle are honored automatically.
 `help.salesforce.com` URLs use the anonymous Aura path (below), silently falling back to the
 credentialed Zoomin path only if `ZOOMIN_BASIC` is set; `developer.salesforce.com/docs` URLs
-use the Atlas content API (Strategy C). The caller never chooses.
+use Strategy C (a page's Markdown twin when it has one, else the Atlas content API). The caller
+never chooses.
 
 ## Requirements & no-Python environments
 
@@ -128,10 +129,32 @@ ZOOMIN_BASIC="user:pass" ZOOMIN_HEADER="Name: value" ZOOMIN_VERSION="262.0.0" \
 When those env vars are present the script tries Zoomin automatically as a fallback if the Aura
 path fails; otherwise it never touches Zoomin. There is no user-facing strategy switch.
 
-## Strategy C — developer.salesforce.com Atlas docs (anonymous)
+## Strategy C — developer.salesforce.com docs (anonymous)
 
-`developer.salesforce.com/docs` is a JS SPA too, but Salesforce exposes an anonymous JSON
-content API for it — no auth, no tokens:
+`developer.salesforce.com/docs` is a JS SPA too. Two anonymous paths are tried in order, both
+automatic (routed by host — any `developer.salesforce.com/docs/...` URL uses this strategy):
+
+### C1 — Markdown twin (fast path)
+
+Many docs pages expose a **plain-Markdown twin at the same path with a `.md` extension** — the
+skill fetches it in one request and returns the Markdown as-is (no HTML-to-text pass). E.g.
+`https://developer.salesforce.com/docs/ai/agentforce/guide/mcp.html` →
+`https://developer.salesforce.com/docs/ai/agentforce/guide/mcp.md`.
+
+**This is not universal, so availability is detected by the response `Content-Type`, not the
+HTTP status.** A page with a twin returns `Content-Type: text/markdown`; a page without one
+still returns `200` but with `Content-Type: text/html` (the SPA shell — the `.md` effectively
+falls back to `.htm`), so checking the status alone is not enough. The newer
+`docs/<cloud>/<product>/guide/<topic>` deliverables tend to have twins (and are **only**
+reachable this way — they have no `atlas.*.meta` segment for C2); the older
+`atlas.<lang>.<deliverable>.meta/...` guides (e.g. the Apex Developer Guide) generally do not,
+and fall through to C2. The twin is only attempted when the URL has a leaf document segment
+(`<name>.htm`/`.html`/`.md`); a deliverable-landing URL with no leaf skips straight to C2.
+
+### C2 — Atlas JSON content API (fallback)
+
+For `atlas.<lang>.<deliverable>.meta` URLs without a Markdown twin, Salesforce exposes an
+anonymous JSON content API — no auth, no tokens:
 
 ```text
 1. GET /docs/get_document/<meta>
@@ -146,8 +169,7 @@ The `deliverable`/`locale`/`doc_version` are read from the step-1 manifest (auth
 **not** parsed out of the URL, so a version-less URL still resolves the current release. The
 `<topic>` leaf is taken from the last `.htm`/`.html` path segment (or the URL fragment); a URL
 with no leaf returns the deliverable's landing document. A blank `200` from step 2 means a bad
-topic id / version and is reported as such. Routed automatically by host — any
-`developer.salesforce.com/docs/...` URL uses this path.
+topic id / version and is reported as such.
 
 ## Scope: which Help articles are covered
 
