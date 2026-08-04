@@ -3,7 +3,7 @@ name: sf-metadata
 plugin: cirra-ai-sf
 argument-hint: '[create|update|delete|describe] {ObjectName|FieldName|type} ...'
 metadata:
-  version: 2.1.0
+  version: 2.1.1
 description: >
   Salesforce metadata operations expert. Use when creating custom objects, fields, validation
   rules, record types, permission sets, or querying org metadata structures via the Cirra AI
@@ -286,6 +286,9 @@ metadata_create(
     "fullName": "Invoice__c.Amount__c",
     "label": "Amount",
     "type": "Currency",
+    // precision is TOTAL digits (integer digits + scale), not the Setup UI "Length".
+    // Setup Length 16 + scale 2 -> precision 18 (16 + 2), NOT precision 16.
+    // See "Numeric Fields" in references/field-types-guide.md for the full explanation.
     "precision": 18,
     "scale": 2,
     "required": false,
