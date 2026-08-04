@@ -279,6 +279,10 @@ metadata_create(
 
 Use `metadata_create` for new fields:
 
+`precision` is TOTAL digits (integer digits plus `scale`), not the Setup UI "Length". A field meant
+to show Setup Length 16 with scale 2 needs `precision: 18` (16 plus 2), NOT `precision: 16`. See
+"Numeric Fields" in `references/field-types-guide.md` for the full explanation.
+
 ```
 metadata_create(
   type="CustomField",
@@ -286,9 +290,6 @@ metadata_create(
     "fullName": "Invoice__c.Amount__c",
     "label": "Amount",
     "type": "Currency",
-    // precision is TOTAL digits (integer digits + scale), not the Setup UI "Length".
-    // Setup Length 16 + scale 2 -> precision 18 (16 + 2), NOT precision 16.
-    // See "Numeric Fields" in references/field-types-guide.md for the full explanation.
     "precision": 18,
     "scale": 2,
     "required": false,
