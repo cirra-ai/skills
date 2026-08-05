@@ -3,7 +3,7 @@ name: sf-metadata
 plugin: cirra-ai-sf
 argument-hint: '[create|update|delete|describe] {ObjectName|FieldName|type} ...'
 metadata:
-  version: 2.1.0
+  version: 2.2.0
 description: >
   Salesforce metadata operations expert. Use when creating custom objects, fields, validation
   rules, record types, permission sets, or querying org metadata structures via the Cirra AI
@@ -57,6 +57,10 @@ Modify existing metadata components in an org.
 1. **Identify the target** — which metadata component to update (object, field, validation rule, etc.)
 2. **Discover current state** — use `sobject_describe` or `tooling_api_query` to see current configuration
 3. **Apply changes** — use `metadata_update` with the updated metadata definition
+   - If changing a field's type fails with "Cannot change type due to existing data", do NOT assume
+     this means the field/object has data -- see "Converting an Existing Field's Type" in
+     `references/field-types-guide.md` for how to find the real cause (often a Flow/Apex/Visualforce
+     reference, not data) before reporting it or proposing a workaround
 4. **Verify** — confirm the changes took effect
 5. **Report** — summarize what changed
 

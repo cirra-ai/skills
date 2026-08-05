@@ -42,6 +42,45 @@ What kind of data?
 
 ---
 
+## Converting an Existing Field's Type
+
+When changing an existing field's type fails with **"Cannot change type due to existing data"**,
+this message does NOT necessarily mean the field or its object has data. Per Salesforce Help,
+["Considerations for Converting the Field Type of a Custom Field"](https://help.salesforce.com/s/articleView?id=platform.notes_on_changing_custom_field_types.htm):
+
+> You can't change the data type of a custom field referenced by other items in Setup such as
+> Visualforce pages, Apex code, processes, or flows.
+
+The same generic error text covers both causes (existing data vs. a Setup reference), and a field
+can be completely empty on every record while still failing solely because a Flow, Process Builder
+process, Apex class, or Visualforce page references it -- even on an object with millions of
+records where the field itself was never populated.
+
+**Before reporting a cause or proposing a workaround (like deleting and recreating the field),
+find out what actually references it:**
+
+1. Resolve the field's 18-character ID (via `EntityParticle`/`FieldDefinition`, or from a prior
+   describe call).
+2. Query the Tooling API's `MetadataComponentDependency` object:
+   ```sql
+   SELECT MetadataComponentId, MetadataComponentType, MetadataComponentName
+   FROM MetadataComponentDependency
+   WHERE RefMetadataComponentId = '<field 18-char id>'
+     AND RefMetadataComponentType = 'CustomField'
+   ```
+   Each row is a component that references the field; `MetadataComponentType` tells you what kind
+   (`Flow`, `ApexClass`, `Layout`, etc.) and `MetadataComponentName` tells you which one.
+3. Report the actual references found. Only if none are found -- and the field's data was already
+   confirmed empty -- is "existing data on the object" a plausible remaining explanation, and even
+   then it should be stated as a hypothesis, not a confirmed cause.
+
+Also note (same Salesforce Help article) that many type changes cause data loss even when they
+succeed -- e.g. changing to Number/Percent/Currency from any other type, or from Text Area (Long)
+to any type except Email/Phone/Text/Text Area/URL -- so confirm the field has no meaningful data
+before converting, independent of whether the conversion is technically blocked.
+
+---
+
 ## Text Fields
 
 ### Text (Standard)
