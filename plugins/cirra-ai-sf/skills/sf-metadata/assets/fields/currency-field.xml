@@ -7,17 +7,24 @@
     Placeholders:
     - {{FIELD_API_NAME}} - API name ending in __c (e.g., "Total_Amount__c")
     - {{FIELD_LABEL}} - User-friendly label (e.g., "Total Amount")
-    - {{PRECISION}} - Total digits (1-18)
+    - {{PRECISION}} - Total digits, i.e. integer digits + scale (1-18)
     - {{SCALE}} - Decimal places (0-17, typically 2 for currency)
     - {{REQUIRED}} - true or false
     - {{DEFAULT_VALUE}} - Optional default (e.g., "0.00")
     - {{DESCRIPTION}} - Field purpose
     - {{HELP_TEXT}} - Inline help for users
 
+    IMPORTANT -- precision includes the decimal digits, it is NOT the integer-digit count:
+    precision = (integer digits) + scale. The Setup UI's "Length" field shows only the integer
+    digits (Setup Length = precision - scale). Example: a currency field meant to show Setup
+    "Length 16, 2 decimal places" needs precision=18 (16 + 2), NOT precision=16 -- the latter
+    produces a field two integer digits short of what was requested, even though the create/update
+    call reports success.
+
     Notes:
     - Automatically displays with org's currency symbol
     - In multi-currency orgs, stores in corporate currency
-    - Use precision=18, scale=2 for standard currency
+    - Use precision=18, scale=2 for a standard currency field (Setup Length 16, 2 decimals)
 -->
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>{{FIELD_API_NAME}}</fullName>
