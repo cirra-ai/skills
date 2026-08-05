@@ -174,10 +174,18 @@ Invalid field:<ChildObject>.<LookupOrMasterDetailFieldName> in related list:<Lis
 
 even though the field, its relationship name, and the patch are otherwise correct. The Tooling API (used for most quick diagnostics) does **not** filter by FLS, so the field can look completely normal there — this is what makes the failure confusing.
 
+**This is not limited to Layout related lists.** `MatchingRule` rejects a field referenced in its matching criteria with a _different_ error code and shape:
+
+```
+MATCH_DEFINITION_ERROR: Your organization doesn't have access to the following fields: <Field>
+```
+
+`DuplicateRule` is built on `MatchingRule` and is presumed to share this for any field it references, though this hasn't been independently confirmed. Expect other metadata types that validate field references against the connected user's describe() to have their own error shape for the same root cause — when a creation/update error calls a field inaccessible, not found, or invalid in a way that contradicts what `sobject_describe`/the Tooling API shows, suspect connected-user FLS first.
+
 **How to avoid it:**
 
 - Always create new fields with `sobject_field_create`, never `metadata_create(type="CustomField", ...)`. `sobject_field_create` grants read-only FLS to System Administrator and to the connected user's own profile by default (see the Phase 3 example below), which is exactly what's needed here.
-- If a field was created some other way (bulk data load, another tool, or an older org where this default didn't apply), and you hit either `FIELD_INTEGRITY_EXCEPTION` shape above, do **not** assume a relationship-name collision or a syntax error. Grant FLS on the field to the connected user's profile first (`sobject_field_update` with `flsUpdates`), then retry.
+- If a field was created some other way (bulk data load, another tool, or an older org where this default didn't apply), and you hit any of the shapes above, do **not** assume a relationship-name collision or a syntax error. Grant FLS on the field to the connected user's profile first (`sobject_field_update` with `flsUpdates`), then retry.
 - This is a real, separate credit-cost line item beyond the Phase 3.5 permission-set strategy — it applies even when the end-user plan grants FLS entirely through permission sets, because a permission set only helps a user who is _assigned_ it, and the connected user usually holds neither that permission set nor an assignment to it.
 
 ---
@@ -605,6 +613,7 @@ Parameters:
 | `DUPLICATE_DEVELOPER_NAME`                                                                          | FlexiPage name already exists; use `metadata_update` or rename                                                                                            |
 | `FIELD_INTEGRITY_EXCEPTION` (vis rule)                                                              | Only EQUAL operator supported in visibility rules                                                                                                         |
 | `FIELD_INTEGRITY_EXCEPTION` (`Invalid related list:...` or `Invalid field:... in related list:...`) | Field has no FLS granted to the connected user — grant FLS (`sobject_field_update` with `flsUpdates`) and retry. See "CRITICAL: Connected-User FLS" above |
+| `MATCH_DEFINITION_ERROR` (`...doesn't have access to the following fields:...`)                     | Same connected-user FLS problem, on a `MatchingRule`. Same fix. See "CRITICAL: Connected-User FLS" above                                                  |
 | `force:recordDetail` not found                                                                      | Use `force:detailPanel` instead                                                                                                                           |
 | `Cannot read properties of undefined`                                                               | JSON Patch path is out of bounds; check section index                                                                                                     |
 
