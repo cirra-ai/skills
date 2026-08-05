@@ -11,7 +11,7 @@ description: >
   via the Cirra AI MCP Server. ALWAYS use this skill for "add a blog post/news item/banner to the
   site", "publish this content", "what content is live", "why isn't this showing on the site", or
   "set up a CMS workspace" requests — even when phrased casually — because it enforces discovering
-  the workspace, content type, and channel BEFORE authoring, keeps the four CMS ID spaces straight,
+  the workspace, content type, and channel BEFORE authoring, keeps the CMS ID spaces straight,
   and treats publishing as a separate, separately-approved step.
   Usage: /sf-cms [create|update|publish|search|delivery|channel] ...
 ---
@@ -78,7 +78,7 @@ channel.
 
 ---
 
-## The four ID spaces
+## The CMS ID spaces
 
 Getting these wrong is the single most common CMS failure. Each operation takes exactly one:
 
@@ -87,6 +87,7 @@ Getting these wrong is the single most common CMS failure. Each operation takes 
 | `contentKeyOrId`      | `cms_content` `search`, or a content reference | `get`, `clone`, `get_taxonomy_terms`, `set_taxonomy_terms` |
 | `variantId`           | the `get` response for a content item          | `update`, `delete`                                         |
 | `spaceId`             | `cms_content` `list_spaces`                    | `get_space`, `update_space`                                |
+| `folderId`            | a content item's folder reference              | `get_folder`, and `contentSpaceOrFolderIds` on `search`    |
 | `channelId` (author)  | `cms_content` `list_channels`                  | `get_channel`, `update_channel`, `delete_channel`          |
 | `channelId` (deliver) | `cms_delivery` `list_channels`                 | every `cms_delivery` operation except `list_channels`      |
 

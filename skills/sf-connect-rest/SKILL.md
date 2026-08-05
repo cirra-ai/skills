@@ -88,8 +88,8 @@ Reads (`GET`) do not need approval.
 
 ## Resource Families
 
-Eight families beyond the core set, all under `/services/data/vXX.X/connect/`. Paths below are
-starting points — confirm each against the reference before calling.
+Nine resource families, all under `/services/data/vXX.X/connect/` — Core plus the eight listed
+after it. Paths below are starting points — confirm each against the reference before calling.
 
 | Family                | Scope                                                                                         | Example paths                                       |
 | --------------------- | --------------------------------------------------------------------------------------------- | --------------------------------------------------- |
