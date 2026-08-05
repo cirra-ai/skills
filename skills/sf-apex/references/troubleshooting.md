@@ -38,16 +38,13 @@ Comprehensive guide to debugging Apex code, LSP validation, dependency managemen
        sobject_field_create grants FLS to the connected user by default, which
        raw Metadata API creation does not)
 
-2. sf-metadata: Create Permission Sets
-   └─> Grant FLS on custom fields
+2. sf-metadata: Create a Permission Set granting FLS on the new field(s)
+   └─> metadata_create(type="PermissionSet", metadata=[{"fullName":"Lead_Score_Access","fieldPermissions":[{"field":"Lead.Score__c","editable":true,"readable":true}]}])
 
-3. sf-deploy: Deploy fields + Permission Sets
-   └─> sobject_field_create(sObject="...", fieldName="...", ...)
-
-4. sf-apex: Deploy Apex classes/triggers
+3. sf-apex: Deploy Apex classes/triggers
    └─> tooling_api_dml(operation="insert", sObject="ApexClass", record={"Name":"MyClass","Body":"...","Status":"Active","ApiVersion":"65.0"})
 
-5. sf-data: Create test data
+4. sf-data: Create test data
    └─> sobject_dml(operation="insert", sobjectType="Account", records=[{Name: "Test"}])
 ```
 

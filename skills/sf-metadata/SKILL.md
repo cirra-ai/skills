@@ -176,7 +176,7 @@ even though the field, its relationship name, and the patch are otherwise correc
 
 **How to avoid it:**
 
-- Always create new fields with `sobject_field_create`, never `metadata_create(type="CustomField", ...)`. `sobject_field_create` grants read-only FLS to System Administrator and to the connected user's own profile by default (see the Phase 3 example above), which is exactly what's needed here.
+- Always create new fields with `sobject_field_create`, never `metadata_create(type="CustomField", ...)`. `sobject_field_create` grants read-only FLS to System Administrator and to the connected user's own profile by default (see the Phase 3 example below), which is exactly what's needed here.
 - If a field was created some other way (bulk data load, another tool, or an older org where this default didn't apply), and you hit either `FIELD_INTEGRITY_EXCEPTION` shape above, do **not** assume a relationship-name collision or a syntax error. Grant FLS on the field to the connected user's profile first (`sobject_field_update` with `flsUpdates`), then retry.
 - This is a real, separate credit-cost line item beyond the Phase 3.5 permission-set strategy — it applies even when the end-user plan grants FLS entirely through permission sets, because a permission set only helps a user who is _assigned_ it, and the connected user usually holds neither that permission set nor an assignment to it.
 
