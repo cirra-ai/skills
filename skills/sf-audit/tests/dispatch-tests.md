@@ -27,7 +27,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 ## apex-only audit
 
 - **Input**: `/sf-audit apex`
-- **Dispatch**: Apex-only audit
+- **Dispatch**: Apex-only audit (C1-C2)
 - **Init required**: yes
 - **Init timing**: before-workflow
 - **Path**: full
@@ -45,7 +45,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 ## flow audit
 
 - **Input**: `/sf-audit flow`
-- **Dispatch**: Flow/automation-only audit
+- **Dispatch**: Flow/automation-only audit (C3-C4)
 - **Init required**: yes
 - **Init timing**: before-workflow
 - **Path**: full
@@ -63,7 +63,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 ## lwc audit
 
 - **Input**: `/sf-audit lwc`
-- **Dispatch**: LWC-only audit
+- **Dispatch**: LWC-only audit (C5)
 - **Init required**: yes
 - **Init timing**: before-workflow
 - **Path**: full
@@ -81,7 +81,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 ## metadata audit
 
 - **Input**: `/sf-audit metadata`
-- **Dispatch**: Metadata/data-model-only audit
+- **Dispatch**: Metadata/data-model-only audit (C7)
 - **Init required**: yes
 - **Init timing**: before-workflow
 - **Path**: full
@@ -99,7 +99,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 ## permissions audit
 
 - **Input**: `/sf-audit permissions`
-- **Dispatch**: Permissions-only audit
+- **Dispatch**: Permissions-only audit (C6)
 - **Init required**: yes
 - **Init timing**: before-workflow
 - **Path**: fast

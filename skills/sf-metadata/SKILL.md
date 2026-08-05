@@ -1,14 +1,14 @@
 ---
 name: sf-metadata
 plugin: cirra-ai-sf
-argument-hint: '[create|update|delete|describe] {ObjectName|FieldName|type} ...'
+argument-hint: '[create|update|delete|describe|clone] {ObjectName|FieldName|type} ...'
 metadata:
-  version: 2.2.0
+  version: 2.2.1
 description: >
   Salesforce metadata operations expert. Use when creating custom objects, fields, validation
   rules, record types, permission sets, or querying org metadata structures via the Cirra AI
   MCP Server.
-  Usage: /sf-metadata [create|update|delete|describe] {ObjectName|FieldName|type} ...
+  Usage: /sf-metadata [create|update|delete|describe|clone] {ObjectName|FieldName|type} ...
 ---
 
 # Salesforce Metadata Operations Expert
@@ -112,13 +112,15 @@ are retrieved.
 
 **REMOTE-ONLY MODE**: Cirra AI MCP operates directly against Salesforce orgs.
 
-| Operation                | Tool                | Org Required? | Output            |
-| ------------------------ | ------------------- | ------------- | ----------------- |
-| **Create Metadata**      | `metadata_create`   | Yes           | Metadata deployed |
-| **Update Metadata**      | `metadata_update`   | Yes           | Metadata updated  |
-| **Describe Object**      | `sobject_describe`  | Yes           | Object structure  |
-| **Query Metadata**       | `tooling_api_query` | Yes           | Metadata records  |
-| **Deploy Code Metadata** | `tooling_api_dml`   | Yes           | Code deployed     |
+| Operation                | Tool                 | Org Required? | Output            |
+| ------------------------ | -------------------- | ------------- | ----------------- |
+| **Create Metadata**      | `metadata_create`    | Yes           | Metadata deployed |
+| **Update Metadata**      | `metadata_update`    | Yes           | Metadata updated  |
+| **Describe Object**      | `sobject_describe`   | Yes           | Object structure  |
+| **Query Metadata**       | `tooling_api_query`  | Yes           | Metadata records  |
+| **Deploy Code Metadata** | `tooling_api_dml`    | Yes           | Code deployed     |
+| **Update Page Layout**   | `page_layout_update` | Yes           | Layout updated    |
+| **Clone Page Layout**    | `page_layout_clone`  | Yes           | Layout cloned     |
 
 **CRITICAL**: Always call `cirra_ai_init()` FIRST before any Cirra AI operations!
 
