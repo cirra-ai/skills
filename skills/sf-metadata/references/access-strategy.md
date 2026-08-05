@@ -65,6 +65,16 @@ Prefer **permission sets** over profile edits (see the cost warning in
 (required, Master-Detail, and Name fields are excluded; formula/roll-up fields
 are read-only).
 
+**Note — this layer is about _end-user_ access, and is separate from the
+connected user's own FLS.** The Cirra AI connection's Salesforce user needs
+FLS on a field before you can reliably do CRUD-based operations against it
+(most notably adding it to a page-layout related list) — a permission set
+created here does not help the connected user unless it is also assigned to
+them. `sobject_field_create` (see `SKILL.md` Phase 3) grants this
+automatically; see "CRITICAL: Connected-User FLS" in `SKILL.md` for the
+failure mode (`FIELD_INTEGRITY_EXCEPTION: Invalid related list`) and the fix
+if you hit it on a field created some other way.
+
 ```
 metadata_create(
   type="PermissionSet",
