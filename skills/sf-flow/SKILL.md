@@ -3,7 +3,7 @@ name: sf-flow
 plugin: cirra-ai-sf
 argument-hint: '[create|update|validate] {FlowName} ...'
 metadata:
-  version: 2.4.0
+  version: 2.5.0
 description: >
   Creates and validates Salesforce flows with 110-point scoring and Winter '26 best practices
   using Cirra AI MCP Server. Use when building record-triggered flows, screen flows,
@@ -1422,8 +1422,9 @@ metadata_delete(type="FlowTest", fullNames=["Test_CR_Priority_High"])
 
 - **Creation ≠ execution.** `metadata_create` only _creates_ the test; it does
   **not** run it, so the assertion is not evaluated at create time. A syntactically
-  valid `FlowTest` is created even if its assertion would fail. Running the test
-  (and reading pass/fail) is a separate step not covered here.
+  valid `FlowTest` is created even if its assertion would fail — a wrong assertion
+  surfaces only once you run it. See _Run a native Flow Test and read the result_
+  below.
 - **`metadata_read` collapses single-element arrays to bare objects.** A test
   point with one `parameters` / `assertions` / `conditions` entry reads back as
   `parameters: {…}` (object), not `parameters: [{…}]` (array) — standard Metadata
@@ -1434,6 +1435,72 @@ metadata_delete(type="FlowTest", fullNames=["Test_CR_Priority_High"])
 - **Tooling field names differ from metadata field names:** `DeveloperName` ↔
   `fullName`, `MasterLabel` ↔ `label`, `TestType` ↔ `testType`. The `FlowTest`
   key prefix is `320`.
+
+### Run a native Flow Test and read the result
+
+Use `run_tests`, which wraps the Tooling API asynchronous test runner. Salesforce
+executes Flow Tests on the **Apex** test infrastructure, so a flow test is addressed
+with a _synthetic_ class name — there is no `ApexClass` record for it. Do not try to
+look one up, and do not try to enqueue a flow test by inserting an
+`ApexTestQueueItem` (that field requires a real Apex class ID and rejects a
+`FlowTest` ID).
+
+- `className` is `FlowTesting.{flowApiName}`
+- each test method is `{flowApiName}_{flowTestApiName}`
+
+Both are **API names, not labels**, and the flow API name appears in both. Flow test
+support requires API version 65.0 or later. Reference:
+[runTestsAsynchronous](https://developer.salesforce.com/docs/atlas.en-us.api_tooling.meta/api_tooling/intro_rest_resources_testing_runner_async.htm).
+
+```
+run_tests(tests=[{
+  "className": "FlowTesting.SDO_Change_Request_Set_Priority_Based_on_Impact",
+  "testMethods": ["SDO_Change_Request_Set_Priority_Based_on_Impact_Test_CR_Priority_High"]
+}], skipCodeCoverage="true")
+```
+
+The run is **asynchronous**: `run_tests` returns `{"jobId": "707…"}` (an AsyncApexJob
+ID) and you poll for results. Poll by re-issuing the status query — a couple of flow
+tests finish within seconds.
+
+**1. Is the run finished?** `Status` is `Queued`, `Preparing` or `Processing` while
+running, and `Completed`, `Failed` or `Aborted` once finished:
+
+```
+tooling_api_query(sObject="ApexTestRunResult", fields=["Id","AsyncApexJobId","Status","MethodsEnqueued","MethodsCompleted","MethodsFailed"], whereClause="AsyncApexJobId = '{jobId}'")
+```
+
+**2. Per-test outcome.** `Outcome` is `Pass`, `Fail`, `CompileFail` or `Skip`;
+`Message` carries the `errorMessage` from the failing assertion:
+
+```
+tooling_api_query(sObject="ApexTestResult", fields=["Id","MethodName","Outcome","Message","StackTrace"], whereClause="AsyncApexJobId = '{jobId}'")
+```
+
+**3. Flow-specific results.** `FlowTestResult` links the same run back to the
+`FlowTest` record and the flow version that ran:
+
+```
+tooling_api_query(sObject="FlowTestResult", fields=["Id","FlowTestId","FlowDefinitionId","FlowVersionNumber","Result","TestStartDateTime","TestEndDateTime"], whereClause="ApexTestResultId != null")
+```
+
+To run **every** flow test in the org rather than named ones, use the org-wide form:
+
+```
+run_tests(testLevel="RunLocalTests", category=["Flow"], skipCodeCoverage="true")
+```
+
+**Notes:**
+
+- Pass `skipCodeCoverage="true"` for flow tests — coverage collection only slows the
+  run down.
+- `skipCodeCoverage` and `maxFailedTests` are **strings** on this endpoint, not
+  booleans/numbers.
+- `maxFailedTests` does **not** apply to flow tests; flow failures are not counted
+  against that threshold.
+- Runs consume the org's daily async Apex test limit (`DailyAsyncApexTests`).
+- `run_tests` also runs Apex tests — pass a real Apex class name as `className`, or
+  use `testLevel` with `category=["Apex"]`.
 
 ### Find paused or failed flow interviews
 
