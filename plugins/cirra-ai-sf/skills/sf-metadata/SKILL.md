@@ -3,7 +3,7 @@ name: sf-metadata
 plugin: cirra-ai-sf
 argument-hint: '[create|update|delete|describe] {ObjectName|FieldName|type} ...'
 metadata:
-  version: 2.1.1
+  version: 2.2.0
 description: >
   Salesforce metadata operations expert. Use when creating custom objects, fields, validation
   rules, record types, permission sets, or querying org metadata structures via the Cirra AI
@@ -45,7 +45,7 @@ Create new Salesforce metadata components in an org.
 
 1. **Gather requirements** — metadata type (Custom Object, Field, Validation Rule, Record Type, Permission Set, List View), target object, specific requirements (field type, formula, picklist values; for list views: columns, `filterScope`, filters, and `sharedTo` visibility)
 2. **Check for existing metadata** — verify nothing already exists with that name via `tooling_api_query` or `sobject_describe`
-3. **Create** — use `metadata_create` with the appropriate type and metadata definition
+3. **Create** — use `metadata_create` with the appropriate type and metadata definition, **except for fields: use `sobject_field_create`** so the connected user gets FLS automatically (see "CRITICAL: Connected-User FLS" below)
 4. **Propose an access strategy (MANDATORY — no guesswork)** — after creating objects, fields, or list views, have the user confirm the **specific** profiles and permission sets for object/FLS access, plus page-layout, Lightning-record-page, and list-view (incl. Kanban) visibility. See Phase 3.5 and `references/access-strategy.md`
 5. **Verify** — describe the object to confirm creation
 6. **Report** — show what was created, validation score, who has access at each layer, and next steps
@@ -158,6 +158,35 @@ sf-data requires objects deployed to org. Always deploy metadata BEFORE creating
 4. **List View visibility** — visible to all users, or shared to specific groups/roles/queues (`sharedTo`) — **including Kanban**, which rides on a list view
 
 **Deployed fields are INVISIBLE until FLS is configured.** Permission sets can grant object/FLS access, but **page-layout and Lightning-page assignment can only be expressed against profiles**, so a complete plan usually names specific profiles too. See Phase 3.5 below and `references/access-strategy.md` for the full matrix, prompts, and metadata examples.
+
+---
+
+## CRITICAL: Connected-User FLS — a separate, mandatory prerequisite
+
+**This is different from the Phase 3.5 access strategy above.** Phase 3.5 is about which _end-user_ profiles/permission sets should see the field. This section is about the **Cirra AI connection's own Salesforce user** — the one every MCP tool call authenticates as. That user needs FLS on a field **before** you do anything else with it via CRUD-based Metadata API calls (most notably adding it to a page-layout related list), regardless of what the end-user access plan ends up being.
+
+Why: a field with no FLS granted to the connected user is absent from that user's `describe()` output, including the parent object's `childRelationships`. Metadata API operations that go through the CRUD path (e.g. `page_layout_update`, `metadata_update` on `Layout`) check visibility this way, so they reject a related list for that field with a `FIELD_INTEGRITY_EXCEPTION` in either of these message shapes:
+
+```
+Invalid related list:<ChildObject>.<LookupOrMasterDetailFieldName>
+Invalid field:<ChildObject>.<LookupOrMasterDetailFieldName> in related list:<ListName>
+```
+
+even though the field, its relationship name, and the patch are otherwise correct. The Tooling API (used for most quick diagnostics) does **not** filter by FLS, so the field can look completely normal there — this is what makes the failure confusing.
+
+**This is not limited to Layout related lists.** `MatchingRule` rejects a field referenced in its matching criteria with a _different_ error code and shape:
+
+```
+MATCH_DEFINITION_ERROR: Your organization doesn't have access to the following fields: <Field>
+```
+
+`DuplicateRule` is built on `MatchingRule` and is presumed to share this for any field it references, though this hasn't been independently confirmed. Expect other metadata types that validate field references against the connected user's describe() to have their own error shape for the same root cause — when a creation/update error calls a field inaccessible, not found, or invalid in a way that contradicts what `sobject_describe`/the Tooling API shows, suspect connected-user FLS first.
+
+**How to avoid it:**
+
+- Always create new fields with `sobject_field_create`, never `metadata_create(type="CustomField", ...)`. `sobject_field_create` grants read-only FLS to System Administrator and to the connected user's own profile by default (see the Phase 3 example below), which is exactly what's needed here.
+- If a field was created some other way (bulk data load, another tool, or an older org where this default didn't apply), and you hit any of the shapes above, do **not** assume a relationship-name collision or a syntax error. Grant FLS on the field to the connected user's profile first (`sobject_field_update` with `flsUpdates`), then retry.
+- This is a real, separate credit-cost line item beyond the Phase 3.5 permission-set strategy — it applies even when the end-user plan grants FLS entirely through permission sets, because a permission set only helps a user who is _assigned_ it, and the connected user usually holds neither that permission set nor an assignment to it.
 
 ---
 
@@ -277,27 +306,26 @@ metadata_create(
 )
 ```
 
-Use `metadata_create` for new fields:
+**Use `sobject_field_create` for new fields — not `metadata_create`.** `metadata_create(type="CustomField", ...)` is redirected to an error: it grants no Field-Level Security, and a field with no FLS is invisible to the connected user, which later breaks CRUD-based operations that reference it (e.g. `page_layout_update` rejects a related list for the field with a `FIELD_INTEGRITY_EXCEPTION` — `Invalid related list:...` or `Invalid field:... in related list:...`). `sobject_field_create` grants FLS to the connected user's profile (and System Administrator) by default, so this failure mode does not happen:
 
 `precision` is TOTAL digits (integer digits plus `scale`), not the Setup UI "Length". A field meant
 to show Setup Length 16 with scale 2 needs `precision: 18` (16 plus 2), NOT `precision: 16`. See
 "Numeric Fields" in `references/field-types-guide.md` for the full explanation.
 
 ```
-metadata_create(
-  type="CustomField",
-  metadata=[{
-    "fullName": "Invoice__c.Amount__c",
-    "label": "Amount",
-    "type": "Currency",
-    "precision": 18,
-    "scale": 2,
-    "required": false,
-    "description": "Total invoice amount"
-  }],
+sobject_field_create(
+  sObject="Invoice__c",
+  fieldName="Amount__c",
+  fieldType="Currency",
+  label="Amount",
+  description="Total invoice amount",
+  inlineHelpText="",
+  properties={"precision": 18, "scale": 2, "required": false},
   sf_user="<sf_user>"
 )
 ```
+
+`defaultFLS` / `flsOverrides` on this call only widen FLS beyond the connected user's default grant — they do not replace it, so it is always safe to omit them here and handle end-user FLS separately in Phase 3.5.
 
 Use `metadata_update` to modify existing metadata:
 
@@ -579,17 +607,19 @@ Parameters:
 
 ## Common Errors
 
-| Error                                  | Fix                                                            |
-| -------------------------------------- | -------------------------------------------------------------- |
-| `Cannot deploy to required field`      | Remove from fieldPermissions (auto-visible)                    |
-| `Field does not exist`                 | Create Permission Set with field access                        |
-| `SObject type 'X' not supported`       | Deploy metadata first                                          |
-| `Element X is duplicated`              | Check for duplicate field names                                |
-| `cirra_ai_init not called`             | Always call `cirra_ai_init()` FIRST                            |
-| `DUPLICATE_DEVELOPER_NAME`             | FlexiPage name already exists; use `metadata_update` or rename |
-| `FIELD_INTEGRITY_EXCEPTION` (vis rule) | Only EQUAL operator supported in visibility rules              |
-| `force:recordDetail` not found         | Use `force:detailPanel` instead                                |
-| `Cannot read properties of undefined`  | JSON Patch path is out of bounds; check section index          |
+| Error                                                                                               | Fix                                                                                                                                                       |
+| --------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Cannot deploy to required field`                                                                   | Remove from fieldPermissions (auto-visible)                                                                                                               |
+| `Field does not exist`                                                                              | Create Permission Set with field access                                                                                                                   |
+| `SObject type 'X' not supported`                                                                    | Deploy metadata first                                                                                                                                     |
+| `Element X is duplicated`                                                                           | Check for duplicate field names                                                                                                                           |
+| `cirra_ai_init not called`                                                                          | Always call `cirra_ai_init()` FIRST                                                                                                                       |
+| `DUPLICATE_DEVELOPER_NAME`                                                                          | FlexiPage name already exists; use `metadata_update` or rename                                                                                            |
+| `FIELD_INTEGRITY_EXCEPTION` (vis rule)                                                              | Only EQUAL operator supported in visibility rules                                                                                                         |
+| `FIELD_INTEGRITY_EXCEPTION` (`Invalid related list:...` or `Invalid field:... in related list:...`) | Field has no FLS granted to the connected user — grant FLS (`sobject_field_update` with `flsUpdates`) and retry. See "CRITICAL: Connected-User FLS" above |
+| `MATCH_DEFINITION_ERROR` (`...doesn't have access to the following fields:...`)                     | Same connected-user FLS problem, on a `MatchingRule`. Same fix. See "CRITICAL: Connected-User FLS" above                                                  |
+| `force:recordDetail` not found                                                                      | Use `force:detailPanel` instead                                                                                                                           |
+| `Cannot read properties of undefined`                                                               | JSON Patch path is out of bounds; check section index                                                                                                     |
 
 ---
 
