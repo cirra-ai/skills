@@ -33,18 +33,18 @@ Comprehensive guide to debugging Apex code, LSP validation, dependency managemen
 
 ```
 1. sf-metadata: Create custom fields
-   └─> metadata_create(type="CustomField", fullName="Lead.Score__c", metadata={...})
+   └─> sobject_field_create(sObject="Lead", fieldName="Score__c", ...)
+       (do NOT use metadata_create(type="CustomField", ...) — it is redirected;
+       sobject_field_create grants FLS to the connected user by default, which
+       raw Metadata API creation does not)
 
-2. sf-metadata: Create Permission Sets
-   └─> Grant FLS on custom fields
+2. sf-metadata: Create a Permission Set granting FLS on the new field(s)
+   └─> metadata_create(type="PermissionSet", metadata=[{"fullName":"Lead_Score_Access","fieldPermissions":[{"field":"Lead.Score__c","editable":true,"readable":true}]}])
 
-3. sf-deploy: Deploy fields + Permission Sets
-   └─> metadata_create(type="CustomField", ...)
-
-4. sf-apex: Deploy Apex classes/triggers
+3. sf-apex: Deploy Apex classes/triggers
    └─> tooling_api_dml(operation="insert", sObject="ApexClass", record={"Name":"MyClass","Body":"...","Status":"Active","ApiVersion":"65.0"})
 
-5. sf-data: Create test data
+4. sf-data: Create test data
    └─> sobject_dml(operation="insert", sobjectType="Account", records=[{Name: "Test"}])
 ```
 
@@ -111,8 +111,11 @@ Error: Field Account.Custom_Field__c does not exist
 2. Deploy field first:
 
    ```
-   metadata_create(type="CustomField", fullName="Account.Custom_Field__c", metadata={...})
+   sobject_field_create(sObject="Account", fieldName="Custom_Field__c", ...)
    ```
+
+   (`metadata_create(type="CustomField", ...)` is redirected — use
+   `sobject_field_create` so the connected user gets FLS on the new field.)
 
 3. Then deploy Apex
 
