@@ -67,5 +67,7 @@ jobs:
       - name: Install test dependencies
         run: python -m pip install -r requirements-dev.txt
 
+      # Globbed rather than enumerated so a new skill's tests are picked up
+      # automatically. Enumerating silently excluded sf-data and sf-audit.
       - name: Run unit tests
-        run: pytest tests/ skills/sf-flow/tests/ skills/sf-apex/tests/ skills/sf-lwc/tests/ skills/sf-metadata/tests/ skills/sf-help-fetch/tests/ -v
+        run: pytest tests/ skills/*/tests/ -v
