@@ -1,0 +1,7 @@
+interface:
+  display_name: "Cirra AI Salesforce Connect REST"
+  short_description: "Call Salesforce Connect REST API resources using Cirra AI"
+  icon_small: "./assets/icon-small.png"
+  icon_large: "./assets/icon-large.png"
+  brand_color: "#4068EB"
+  default_prompt: "Use $sf-connect-rest to reach Salesforce capabilities that have no dedicated tool, such as named credentials, custom domains, and Experience Cloud site publishing."
