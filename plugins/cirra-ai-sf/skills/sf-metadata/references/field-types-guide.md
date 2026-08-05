@@ -162,6 +162,30 @@ What kind of data?
 
 ## Numeric Fields
 
+> **`precision` includes the decimal digits -- it is not the integer-digit count.** In the Metadata
+> API, `precision` = total digits = integer digits + `scale`. The Setup UI's "Length" field shows
+> only the integer-digit part: **Setup Length = precision - scale**. These two numbers are commonly
+> confused, and confusing them silently produces a field with fewer integer digits than intended.
+>
+> **Worked example:** a request for "Currency with Setup Length 16, 2 decimal places" needs
+> `precision: 18, scale: 2` (16 + 2 = 18) -- NOT `precision: 16, scale: 2` (which Setup would show as
+> Length 14, not 16). This exact mistake has shipped to a customer: it produced a field two integer
+> digits short of what was asked for, was then "fixed" to Length 14 by someone who also confused the
+> units, and Salesforce's `create`/`update` calls returned `success: true` throughout, because the
+> operation genuinely succeeded -- it just wasn't fed the number the requester meant.
+>
+> If you're driving Salesforce through the Cirra AI MCP Server's `sobject_field_create` /
+> `sobject_field_update` tools, you can skip the arithmetic entirely: pass `length` (the Setup UI
+> integer-digit count) instead of `precision`, e.g. `properties: { length: 16, scale: 2 }` -- the
+> server computes `precision: 18` for you and rejects the call if you send both `length` and
+> `precision` together. Raw Metadata API calls (or other MCP servers) do not have this alias and need
+> `precision` computed by hand as shown above.
+>
+> After any create/update, verify what was actually applied (e.g. via `metadata_read`, or the
+> `appliedMetadata` field the Cirra `sobject_field_create`/`sobject_field_update` tools return)
+> instead of trusting `success: true` alone -- a successful call can still have used the wrong
+> precision if the units were confused.
+
 ### Number
 
 **Use When:** Numeric values (integers or decimals)
@@ -170,15 +194,15 @@ What kind of data?
 
 **Configuration:**
 
-- `precision`: Total digits (1-18)
+- `precision`: Total digits, i.e. integer digits + `scale` (1-18) -- see the units callout above
 - `scale`: Decimal places (0-17)
 
 **Examples:**
-| Use Case | Precision | Scale |
-|----------|-----------|-------|
-| Integer | 18 | 0 |
-| Two decimals | 18 | 2 |
-| Percentage | 5 | 2 |
+| Use Case | Setup "Length" (integer digits) | Scale | Precision (Setup Length + Scale) |
+|----------|----------------------------------|-------|-----------------------------------|
+| Integer | 18 | 0 | 18 |
+| Two decimals | 16 | 2 | 18 |
+| Percentage | 3 | 2 | 5 |
 
 ```xml
 <type>Number</type>
@@ -197,7 +221,9 @@ What kind of data?
 - Multi-currency support
 - Respects locale formatting
 
-**Best Practice:** Use precision=18, scale=2 for standard currency
+**Best Practice:** `precision: 18, scale: 2` gives a Setup "Length" of 16 with 2 decimal places --
+Salesforce's own default for a standard currency field. Do not use `precision: 16, scale: 2`: that's
+a Setup Length of only 14, two digits short (see the units callout above).
 
 ```xml
 <type>Currency</type>
