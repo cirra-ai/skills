@@ -7,7 +7,7 @@
     Placeholders:
     - {{FIELD_API_NAME}} - API name ending in __c (e.g., "Quantity__c")
     - {{FIELD_LABEL}} - User-friendly label (e.g., "Quantity")
-    - {{PRECISION}} - Total digits (1-18)
+    - {{PRECISION}} - Total digits, i.e. integer digits + scale (1-18)
     - {{SCALE}} - Decimal places (0-17, must be less than precision)
     - {{REQUIRED}} - true or false
     - {{UNIQUE}} - true or false
@@ -16,10 +16,15 @@
     - {{DESCRIPTION}} - Field purpose
     - {{HELP_TEXT}} - Inline help for users
 
-    Examples:
-    - Integer: precision=18, scale=0
-    - Decimal (2 places): precision=18, scale=2
-    - Percentage: precision=5, scale=2 (stores as decimal, displays as %)
+    IMPORTANT -- precision includes the decimal digits, it is NOT the integer-digit count:
+    precision = (integer digits) + scale. The Setup UI's "Length" field shows only the integer
+    digits (Setup Length = precision - scale). Example: a field meant to show Setup "Length 16,
+    2 decimal places" needs precision=18 (16 + 2), NOT precision=16.
+
+    Examples (Setup "Length" is the integer-digit count Setup displays, i.e. precision - scale):
+    - Integer, Setup Length 18: precision=18, scale=0
+    - Decimal, Setup Length 16 + 2 decimal places: precision=18, scale=2
+    - Percentage, Setup Length 3 + 2 decimal places: precision=5, scale=2 (stores as decimal, displays as %)
 -->
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>{{FIELD_API_NAME}}</fullName>

@@ -308,6 +308,10 @@ metadata_create(
 
 **Use `sobject_field_create` for new fields — not `metadata_create`.** `metadata_create(type="CustomField", ...)` is redirected to an error: it grants no Field-Level Security, and a field with no FLS is invisible to the connected user, which later breaks CRUD-based operations that reference it (e.g. `page_layout_update` rejects a related list for the field with a `FIELD_INTEGRITY_EXCEPTION` — `Invalid related list:...` or `Invalid field:... in related list:...`). `sobject_field_create` grants FLS to the connected user's profile (and System Administrator) by default, so this failure mode does not happen:
 
+`precision` is TOTAL digits (integer digits plus `scale`), not the Setup UI "Length". A field meant
+to show Setup Length 16 with scale 2 needs `precision: 18` (16 plus 2), NOT `precision: 16`. See
+"Numeric Fields" in `references/field-types-guide.md` for the full explanation.
+
 ```
 sobject_field_create(
   sObject="Invoice__c",
