@@ -165,10 +165,11 @@ sf-data requires objects deployed to org. Always deploy metadata BEFORE creating
 
 **This is different from the Phase 3.5 access strategy above.** Phase 3.5 is about which _end-user_ profiles/permission sets should see the field. This section is about the **Cirra AI connection's own Salesforce user** — the one every MCP tool call authenticates as. That user needs FLS on a field **before** you do anything else with it via CRUD-based Metadata API calls (most notably adding it to a page-layout related list), regardless of what the end-user access plan ends up being.
 
-Why: a field with no FLS granted to the connected user is absent from that user's `describe()` output, including the parent object's `childRelationships`. Metadata API operations that go through the CRUD path (e.g. `page_layout_update`, `metadata_update` on `Layout`) check visibility this way, so they reject a related list for that field with:
+Why: a field with no FLS granted to the connected user is absent from that user's `describe()` output, including the parent object's `childRelationships`. Metadata API operations that go through the CRUD path (e.g. `page_layout_update`, `metadata_update` on `Layout`) check visibility this way, so they reject a related list for that field with a `FIELD_INTEGRITY_EXCEPTION` in either of these message shapes:
 
 ```
-FIELD_INTEGRITY_EXCEPTION: Invalid related list: <ChildObject>.<LookupOrMasterDetailFieldName>
+Invalid related list:<ChildObject>.<LookupOrMasterDetailFieldName>
+Invalid field:<ChildObject>.<LookupOrMasterDetailFieldName> in related list:<ListName>
 ```
 
 even though the field, its relationship name, and the patch are otherwise correct. The Tooling API (used for most quick diagnostics) does **not** filter by FLS, so the field can look completely normal there — this is what makes the failure confusing.
@@ -176,7 +177,7 @@ even though the field, its relationship name, and the patch are otherwise correc
 **How to avoid it:**
 
 - Always create new fields with `sobject_field_create`, never `metadata_create(type="CustomField", ...)`. `sobject_field_create` grants read-only FLS to System Administrator and to the connected user's own profile by default (see the Phase 3 example above), which is exactly what's needed here.
-- If a field was created some other way (bulk data load, another tool, or an older org where this default didn't apply), and you hit `FIELD_INTEGRITY_EXCEPTION: Invalid related list`, do **not** assume a relationship-name collision or a syntax error. Grant FLS on the field to the connected user's profile first (`sobject_field_update` with `flsUpdates`), then retry.
+- If a field was created some other way (bulk data load, another tool, or an older org where this default didn't apply), and you hit either `FIELD_INTEGRITY_EXCEPTION` shape above, do **not** assume a relationship-name collision or a syntax error. Grant FLS on the field to the connected user's profile first (`sobject_field_update` with `flsUpdates`), then retry.
 - This is a real, separate credit-cost line item beyond the Phase 3.5 permission-set strategy — it applies even when the end-user plan grants FLS entirely through permission sets, because a permission set only helps a user who is _assigned_ it, and the connected user usually holds neither that permission set nor an assignment to it.
 
 ---
@@ -297,7 +298,7 @@ metadata_create(
 )
 ```
 
-**Use `sobject_field_create` for new fields — not `metadata_create`.** `metadata_create(type="CustomField", ...)` is redirected to an error: it grants no Field-Level Security, and a field with no FLS is invisible to the connected user, which later breaks CRUD-based operations that reference it (e.g. `page_layout_update` rejects a related list for the field with `FIELD_INTEGRITY_EXCEPTION: Invalid related list`). `sobject_field_create` grants FLS to the connected user's profile (and System Administrator) by default, so this failure mode does not happen:
+**Use `sobject_field_create` for new fields — not `metadata_create`.** `metadata_create(type="CustomField", ...)` is redirected to an error: it grants no Field-Level Security, and a field with no FLS is invisible to the connected user, which later breaks CRUD-based operations that reference it (e.g. `page_layout_update` rejects a related list for the field with a `FIELD_INTEGRITY_EXCEPTION` — `Invalid related list:...` or `Invalid field:... in related list:...`). `sobject_field_create` grants FLS to the connected user's profile (and System Administrator) by default, so this failure mode does not happen:
 
 ```
 sobject_field_create(
@@ -594,18 +595,18 @@ Parameters:
 
 ## Common Errors
 
-| Error                                             | Fix                                                                                                                                                       |
-| ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Cannot deploy to required field`                 | Remove from fieldPermissions (auto-visible)                                                                                                               |
-| `Field does not exist`                            | Create Permission Set with field access                                                                                                                   |
-| `SObject type 'X' not supported`                  | Deploy metadata first                                                                                                                                     |
-| `Element X is duplicated`                         | Check for duplicate field names                                                                                                                           |
-| `cirra_ai_init not called`                        | Always call `cirra_ai_init()` FIRST                                                                                                                       |
-| `DUPLICATE_DEVELOPER_NAME`                        | FlexiPage name already exists; use `metadata_update` or rename                                                                                            |
-| `FIELD_INTEGRITY_EXCEPTION` (vis rule)            | Only EQUAL operator supported in visibility rules                                                                                                         |
-| `FIELD_INTEGRITY_EXCEPTION: Invalid related list` | Field has no FLS granted to the connected user — grant FLS (`sobject_field_update` with `flsUpdates`) and retry. See "CRITICAL: Connected-User FLS" above |
-| `force:recordDetail` not found                    | Use `force:detailPanel` instead                                                                                                                           |
-| `Cannot read properties of undefined`             | JSON Patch path is out of bounds; check section index                                                                                                     |
+| Error                                                                                               | Fix                                                                                                                                                       |
+| --------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Cannot deploy to required field`                                                                   | Remove from fieldPermissions (auto-visible)                                                                                                               |
+| `Field does not exist`                                                                              | Create Permission Set with field access                                                                                                                   |
+| `SObject type 'X' not supported`                                                                    | Deploy metadata first                                                                                                                                     |
+| `Element X is duplicated`                                                                           | Check for duplicate field names                                                                                                                           |
+| `cirra_ai_init not called`                                                                          | Always call `cirra_ai_init()` FIRST                                                                                                                       |
+| `DUPLICATE_DEVELOPER_NAME`                                                                          | FlexiPage name already exists; use `metadata_update` or rename                                                                                            |
+| `FIELD_INTEGRITY_EXCEPTION` (vis rule)                                                              | Only EQUAL operator supported in visibility rules                                                                                                         |
+| `FIELD_INTEGRITY_EXCEPTION` (`Invalid related list:...` or `Invalid field:... in related list:...`) | Field has no FLS granted to the connected user — grant FLS (`sobject_field_update` with `flsUpdates`) and retry. See "CRITICAL: Connected-User FLS" above |
+| `force:recordDetail` not found                                                                      | Use `force:detailPanel` instead                                                                                                                           |
+| `Cannot read properties of undefined`                                                               | JSON Patch path is out of bounds; check section index                                                                                                     |
 
 ---
 

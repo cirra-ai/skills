@@ -72,8 +72,9 @@ FLS on a field before you can reliably do CRUD-based operations against it
 created here does not help the connected user unless it is also assigned to
 them. `sobject_field_create` (see `SKILL.md` Phase 3) grants this
 automatically; see "CRITICAL: Connected-User FLS" in `SKILL.md` for the
-failure mode (`FIELD_INTEGRITY_EXCEPTION: Invalid related list`) and the fix
-if you hit it on a field created some other way.
+failure mode (`FIELD_INTEGRITY_EXCEPTION` — `Invalid related list:...` or
+`Invalid field:... in related list:...`) and the fix if you hit it on a field
+created some other way.
 
 ```
 metadata_create(
