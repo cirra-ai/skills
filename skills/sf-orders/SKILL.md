@@ -3,7 +3,7 @@ name: sf-orders
 plugin: cirra-ai-sf
 argument-hint: '[order|return|case] {details} ...'
 metadata:
-  version: 2.0.1
+  version: 2.0.2
 description: >
   Salesforce Order Management for orders, returns, and cases via Cirra AI MCP Server.
   Use when asked about order status, return orders, return labels, support cases from

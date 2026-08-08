@@ -426,11 +426,60 @@
 
       <!-- @@PLUGIN_CARDS@@ -->
 
+      <!-- ── OpenAI / ChatGPT Package ── -->
+      <h2>
+        ChatGPT &amp; Codex Package
+        <span class="badge badge-green">Recommended for ChatGPT Work and Codex</span>
+      </h2>
+      <p style="color: var(--muted); font-size: 0.875rem; margin-bottom: 1.25rem">
+        Slimmed plugin built for
+        <a href="https://developers.openai.com/codex/plugins/build" target="_blank"
+          >OpenAI Codex / ChatGPT plugins</a
+        >
+        (<code>.codex-plugin</code>). Frontmatter is restricted to
+        <code>name</code> + <code>description</code>, development files are excluded, and each skill
+        ships a single SVG icon. Also suitable for clients that speak
+        <a href="https://agent-plugins.org/" target="_blank">Agent Plugins</a> via the portable zip
+        below.
+      </p>
+      <div class="card featured">
+        <div class="card-body">
+          <div class="card-title">cirra-ai-sf (OpenAI)</div>
+          <div class="card-desc">
+            ChatGPT Work + Codex plugin with all Cirra AI Salesforce skills and Cirra MCP mapping.
+          </div>
+          <div class="card-tags">
+            <span class="tag">chatgpt</span>
+            <span class="tag">codex</span>
+            <span class="tag">openai</span>
+          </div>
+        </div>
+        <a class="btn btn-outline" href="@@DL_BASE@@/cirra-ai-sf-openai.zip">&#11015; Download</a>
+      </div>
+      <div class="card" style="margin-top: 0.75rem">
+        <div class="card-body">
+          <div class="card-title">cirra-ai-sf (Agent Plugins)</div>
+          <div class="card-desc">
+            Portable Agent Plugins 1.0 package (<code>plugin.json</code> + <code>mcp.json</code> +
+            slim skills) for compatible clients such as Cursor and VS Code.
+          </div>
+          <div class="card-tags">
+            <span class="tag">agent-plugins</span>
+            <span class="tag">portable</span>
+          </div>
+        </div>
+        <a class="btn btn-outline" href="@@DL_BASE@@/cirra-ai-sf-agent-plugins.zip"
+          >&#11015; Download</a
+        >
+      </div>
+
       <!-- ── Skill-Only Files ── -->
       <h2>Skill-Only Files <span class="badge badge-green">Lightweight</span></h2>
       <p style="color: var(--muted); font-size: 0.875rem; margin-bottom: 1.25rem">
         If you prefer to install individual skills use the downloads below. Each package includes
-        the <code>SKILL.md</code> file and all supporting assets and scripts.
+        the <code>SKILL.md</code> file and all supporting assets and scripts. For ChatGPT Work and
+        Codex, prefer the OpenAI plugin zip above — individual <code>.skill</code> files are the
+        generic Agent Skills packages.
       </p>
       <p style="color: var(--muted); font-size: 0.875rem; margin-bottom: 1.25rem">
         See <a href="#how-to-install">below &#8595;</a> for detailed install instructions.
@@ -450,9 +499,9 @@
       >
         <li><a href="#claude-cowork">Claude Cowork</a></li>
         <li><a href="#claude-code-cli">Claude Code (CLI)</a></li>
+        <li><a href="#chatgpt">ChatGPT Work</a></li>
         <li><a href="#openai-codex">OpenAI Codex</a></li>
         <li><a href="#claude-web-or-desktop">Claude Chat (web or desktop)</a></li>
-        <li><a href="#chatgpt">ChatGPT</a></li>
       </ul>
       <p>
         Installation steps may change as the AI platforms and the skills standards evolve. Please
@@ -492,21 +541,58 @@
       </div>
 
       <div class="install-box">
+        <h3 id="chatgpt">ChatGPT Work</h3>
+        <p>
+          ChatGPT Work supports plugins that bundle skills and MCP connectors. Use the
+          <strong>ChatGPT &amp; Codex Package</strong> above (not the Claude plugin zip, and not a
+          raw clone of this repository).
+        </p>
+        <ol>
+          <li>
+            Install / enable
+            <a href="https://chatgpt.com/" target="_blank">ChatGPT Work</a> (web or desktop switcher
+            → Work).
+          </li>
+          <li>
+            Download <code>cirra-ai-sf-openai.zip</code> from this page (or from the GitHub
+            release).
+          </li>
+          <li>
+            Open <strong>Plugins</strong>, add / install the zip as a personal plugin, and connect
+            the Cirra AI MCP server when prompted.
+          </li>
+          <li>
+            Start a <strong>new</strong> chat and invoke a skill with <code>@</code> /
+            <code>$sf-…</code>, or describe the Salesforce task you want done.
+          </li>
+        </ol>
+        <p>
+          Cirra AI is also available as an MCP app in the ChatGPT App Directory. That connector
+          provides Salesforce tools; this OpenAI plugin package adds the admin skills on top.
+        </p>
+      </div>
+
+      <div class="install-box">
         <h3 id="openai-codex">OpenAI Codex</h3>
         <ol>
           <li>
-            Install <a href="https://openai.com/codex/" target="_blank">OpenAI Codex</a> if you
-            haven't already.
+            Install <a href="https://openai.com/codex/" target="_blank">OpenAI Codex</a> (CLI or
+            ChatGPT desktop → Codex) if you haven't already.
           </li>
           <li>
-            In a new thread, say "Install the skills from the <code>cirra-ai/skills</code> GitHub
-            repo"
+            Prefer the <code>cirra-ai-sf-openai.zip</code> package from this page — it is the
+            ChatGPT/Codex-normalized distro (<code>.codex-plugin</code>, slim skills,
+            <code>agents/openai.yaml</code>).
           </li>
           <li>
-            This should invoke the built-in <code>skill-installer</code> skill to download the
-            latest skills and install them for you
+            Install via the Codex plugin browser / personal marketplace, or ask Codex to install the
+            downloaded zip.
           </li>
-          <li>You may need to restart the app to see the skills</li>
+          <li>
+            Do <strong>not</strong> install the raw <code>cirra-ai/skills</code> tree for Codex —
+            Claude-only frontmatter and development files cause ingest failures.
+          </li>
+          <li>Start a new session after install so bundled skills are loaded.</li>
         </ol>
       </div>
 
@@ -528,20 +614,6 @@
           <li>Download a <code>.skill</code> file above</li>
           <li>Click <strong>+</strong> to upload the file</li>
         </ol>
-      </div>
-
-      <div class="install-box">
-        <h3 id="chatgpt">ChatGPT</h3>
-        <p>ChatGPT does not support skills directly. We recommend you use Codex instead.</p>
-        <p>However, if you only have access to ChatGPT you can still use the skills as follows:</p>
-        <ol>
-          <li>Download the individual <code>.skill</code> file using the links above</li>
-          <li>Add the skill to a chat that has the <strong>Cirra AI</strong> app enabled.</li>
-        </ol>
-        <p>
-          Note that (unfortunately) neither Agent mode nor Custom GPTs support custom MCP apps at
-          this time.
-        </p>
       </div>
 
       <div class="install-box">

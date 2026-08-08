@@ -1,0 +1,7 @@
+interface:
+  display_name: "Cirra AI Salesforce Help Fetch"
+  short_description: "Read Salesforce Help and developer docs without a browser"
+  icon_small: "./assets/icon.svg"
+  icon_large: "./assets/icon.svg"
+  brand_color: "#4068EB"
+  default_prompt: "Use $sf-help-fetch to read a Salesforce documentation page."

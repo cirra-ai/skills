@@ -53,15 +53,15 @@ To learn more about skills see [What are skills?](https://support.claude.com/en/
 
 First, sign up for a free trial of the [Cirra AI MCP Server](https://cirra.ai/free-trial/) if you have not already.
 
-Ask your AI to "Install the skills from the `cirra-ai/skills` GitHub repo". Exact implementation steps vary by platform; follow the guidance of your AI.
-
 **Claude Code (CLI):**
 
 ```
 claude plugin install cirra-ai-sf@cirra-ai
 ```
 
-**Claude Cowork / OpenAI Codex / Claude Chat:** Ask your AI to "Install the skills from the `cirra-ai/skills` GitHub repo"
+**Claude Cowork / Claude Chat:** Ask your AI to "Install the skills from the `cirra-ai/skills` GitHub repo" (Claude marketplace / plugin format under `plugins/cirra-ai-sf`).
+
+**ChatGPT Work / OpenAI Codex:** Do **not** install the raw GitHub tree. Download the OpenAI plugin zip (`cirra-ai-sf-openai.zip`) from [skills.cirra.ai](https://skills.cirra.ai/) — it is a slimmed `.codex-plugin` package generated from this repo. A portable Agent Plugins zip is also published for compatible clients.
 
 **Other platforms:** Navigate to [skills.cirra.ai](https://skills.cirra.ai/) for a full install guide and downloadable packages.
 

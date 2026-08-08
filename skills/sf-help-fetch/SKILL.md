@@ -3,7 +3,7 @@ name: sf-help-fetch
 plugin: cirra-ai-sf
 argument-hint: '[url|topic-id]'
 metadata:
-  version: 1.2.0
+  version: 1.2.1
 description: >
   Read the full text of a Salesforce documentation page — both Salesforce Help
   (help.salesforce.com) and the developer docs (developer.salesforce.com) — without a
