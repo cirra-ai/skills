@@ -61,9 +61,9 @@ claude plugin install cirra-ai-sf@cirra-ai
 
 **Claude Cowork / Claude Chat:** Ask your AI to "Install the skills from the `cirra-ai/skills` GitHub repo" (Claude marketplace / plugin format under `plugins/cirra-ai-sf`).
 
-**ChatGPT Work / OpenAI Codex:** Do **not** install the raw GitHub tree. Download the OpenAI plugin zip (`cirra-ai-sf-openai.zip`) from [skills.cirra.ai](https://skills.cirra.ai/) — it is a slimmed `.codex-plugin` package generated from this repo.
+**ChatGPT Work / OpenAI Codex:** Do **not** install the raw GitHub tree. Download the OpenAI plugin zip (`cirra-ai-sf-openai.zip`) from [skills.cirra.ai](https://skills.cirra.ai/) — it is the default ChatGPT/Codex package (slimmed `.codex-plugin`).
 
-**Agent Plugins clients** (Cursor, VS Code, and others implementing [Agent Plugins 1.0](https://agent-plugins.org/)): download `cirra-ai-sf-agent-plugins.zip` (root `plugin.json` + `mcp.json` + `skills/`). Claude, OpenAI, and Agent Plugins artifacts are published separately on purpose — see [AGENT-3](https://cirra-ai.atlassian.net/browse/AGENT-3).
+**Agent Plugins clients** (Beta — non-OpenAI clients such as Cursor or VS Code that implement [Agent Plugins 1.0](https://agent-plugins.org/)): download `cirra-ai-sf-agent-plugins.zip` (root `plugin.json` + `mcp.json` + `skills/`). Cirra's reserved extension namespace is `ai.cirra`. Claude, OpenAI, and Agent Plugins artifacts are published separately — see [AGENT-3](https://cirra-ai.atlassian.net/browse/AGENT-3).
 
 **Other platforms:** Navigate to [skills.cirra.ai](https://skills.cirra.ai/) for a full install guide and downloadable packages.
 

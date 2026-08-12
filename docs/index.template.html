@@ -438,9 +438,8 @@
         >
         (<code>.codex-plugin</code>). Frontmatter is restricted to
         <code>name</code> + <code>description</code>, development files are excluded, and each skill
-        ships a single SVG icon. Also suitable for clients that speak
-        <a href="https://agent-plugins.org/" target="_blank">Agent Plugins</a> via the portable zip
-        below.
+        ships a single SVG icon. This is the default install for ChatGPT Work and Codex — not the
+        Agent Plugins zip below.
       </p>
       <div class="card featured">
         <div class="card-body">
@@ -456,15 +455,27 @@
         </div>
         <a class="btn btn-outline" href="@@DL_BASE@@/cirra-ai-sf-openai.zip">&#11015; Download</a>
       </div>
-      <div class="card" style="margin-top: 0.75rem">
+
+      <h2 style="margin-top: 2rem">
+        Agent Plugins Package
+        <span class="badge badge-blue">Beta — non-OpenAI clients</span>
+      </h2>
+      <p style="color: var(--muted); font-size: 0.875rem; margin-bottom: 1.25rem">
+        Portable
+        <a href="https://agent-plugins.org/" target="_blank">Agent Plugins 1.0</a> package for
+        non-OpenAI clients that load root <code>plugin.json</code> + <code>mcp.json</code> (for
+        example Cursor or VS Code). ChatGPT Work and Codex should keep using the OpenAI zip above.
+        Cirra's reserved extension namespace is <code>ai.cirra</code>.
+      </p>
+      <div class="card">
         <div class="card-body">
           <div class="card-title">cirra-ai-sf (Agent Plugins)</div>
           <div class="card-desc">
-            Portable Agent Plugins 1.0 package (<code>plugin.json</code> + <code>mcp.json</code> +
-            slim skills) for compatible clients such as Cursor and VS Code. Published as a separate
-            artifact from the Claude and ChatGPT/Codex packages (not a dual-format zip).
+            Beta portable package (<code>plugin.json</code> + <code>mcp.json</code> + slim skills).
+            Published separately from the Claude and ChatGPT/Codex packages (not a dual-format zip).
           </div>
           <div class="card-tags">
+            <span class="tag">beta</span>
             <span class="tag">agent-plugins</span>
             <span class="tag">portable</span>
           </div>

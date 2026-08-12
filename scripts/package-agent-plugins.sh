@@ -21,7 +21,8 @@ SOURCE_COMMIT=$(git -C "$REPO_ROOT" rev-parse HEAD)
 rm -rf "$OUT_DIR"
 mkdir -p "$OUT_DIR/skills"
 
-# Portable Agent Plugins manifest (root plugin.json)
+# Portable Agent Plugins manifest (root plugin.json).
+# Cirra's reserved client-extension namespace is ai.cirra (AGENT-3).
 cat > "$OUT_DIR/plugin.json" <<EOF
 {
   "\$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
@@ -36,7 +37,14 @@ cat > "$OUT_DIR/plugin.json" <<EOF
   "homepage": "https://skills.cirra.ai/",
   "repository": "https://github.com/cirra-ai/skills",
   "license": "MIT",
-  "keywords": ["salesforce", "cirra-ai", "mcp", "apex", "flow"]
+  "keywords": ["salesforce", "cirra-ai", "mcp", "apex", "flow"],
+  "extensions": {
+    "ai.cirra": {
+      "status": "beta",
+      "audience": "non-openai-agent-plugins-clients",
+      "openaiDefaultArtifact": "cirra-ai-sf-openai.zip"
+    }
+  }
 }
 EOF
 
@@ -57,6 +65,20 @@ EOF
 # Copy slim skills; keep agents/ under OpenAI extension namespace guidance.
 # Agent Plugins allows extra files; clients ignore unknown skill files.
 cp -a "$OPENAI_DIST/skills/." "$OUT_DIR/skills/"
+
+# Cirra-owned extension namespace (reserved; clients ignore unknown namespaces).
+mkdir -p "$OUT_DIR/ai.cirra"
+cat > "$OUT_DIR/ai.cirra/README.md" <<'EOF'
+# ai.cirra
+
+Reserved Cirra AI extension namespace for Agent Plugins packages.
+
+Cirra-specific metadata that is not part of the portable Agent Plugins core
+belongs under `ai.cirra/` and/or `plugin.json` → `extensions["ai.cirra"]`.
+
+This package is **Beta** for non-OpenAI Agent Plugins clients. ChatGPT Work
+and Codex should install `cirra-ai-sf-openai.zip` instead.
+EOF
 
 # OpenAI-specific UI metadata lives under a client extension directory copy as well
 mkdir -p "$OUT_DIR/com.openai.codex"

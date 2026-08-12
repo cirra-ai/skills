@@ -47,6 +47,8 @@ def test_plugin_json_schema(agent_plugins_dist: Path):
     assert plugin["name"] == "cirra-ai-sf"
     assert "skills" not in plugin
     assert "mcpServers" not in plugin
+    assert plugin["extensions"]["ai.cirra"]["status"] == "beta"
+    assert (agent_plugins_dist / "ai.cirra" / "README.md").is_file()
 
 
 def test_mcp_json_schema_and_cirra_server(agent_plugins_dist: Path):
