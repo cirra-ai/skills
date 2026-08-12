@@ -121,9 +121,9 @@ read_plugin_key() {
 SYNCED=0
 STALE=0
 
-# Plugin copies are Claude-only: exclude shared icons (Codex-only) and
-# agents/ (OpenAI-only) when comparing and copying.
-PLUGIN_EXCLUDES=(--exclude='.DS_Store' --exclude='icon-large.png' --exclude='icon-small.png' --exclude='agents' --exclude='tests')
+# Plugin copies are Claude-only: exclude Codex/OpenAI UI metadata and shared
+# icons used by the OpenAI/ChatGPT distro (PNG + SVG).
+PLUGIN_EXCLUDES=(--exclude='.DS_Store' --exclude='icon-large.png' --exclude='icon-small.png' --exclude='icon.svg' --exclude='agents' --exclude='tests')
 
 for plugin_json in "$REPO_ROOT"/plugins/*/.claude-plugin/plugin.json; do
   [[ -f "$plugin_json" ]] || continue

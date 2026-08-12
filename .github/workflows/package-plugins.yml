@@ -61,13 +61,15 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
-          for artifact in install/plugins/*.zip install/skills/*.skill; do
+          for artifact in install/plugins/*.zip install/skills/*.skill install/openai/*.zip install/agent-plugins/*.zip; do
+            [[ -f "$artifact" ]] || continue
             gh release upload "${RELEASE_TAG}" "$artifact" --clobber
           done
 
       - name: Generate downloads page
         run: |
           cp install/plugins/*.zip install/skills/*.skill docs/
+          cp install/openai/*.zip install/agent-plugins/*.zip docs/
           bash scripts/generate-pages.sh --dl-base=.
 
       - name: Deploy to Cloudflare Pages

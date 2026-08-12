@@ -19,6 +19,16 @@ These have broken published skills. Verify every one before pushing a skill chan
 3. **Bump `metadata.version`** in `skills/<skill-name>/SKILL.md` on any change to that skill.
 4. **Do not edit `plugins/`** — it is generated from `skills/` by `sync-plugins.yml` after merge.
 
+## Client distributions
+
+- `plugins/cirra-ai-sf/` — Claude Code / Cowork plugin (committed mirror; do not hand-edit).
+- `dist/openai/` — generated ChatGPT Work / Codex plugin (`.codex-plugin`, slim skills). Build with `bash scripts/package-openai.sh`.
+- `dist/agent-plugins/` — generated Agent Plugins 1.0 portable package (**Beta** for non-OpenAI clients). Build with `bash scripts/package-agent-plugins.sh`. Reserved Cirra extension namespace: `ai.cirra`.
+
+**Separate artifacts (AGENT-3):** We publish distinct Claude, OpenAI/ChatGPT, and Agent Plugins zips from the same `skills/` source rather than one dual-format zip. ChatGPT Work / Codex use the OpenAI zip by default; the Agent Plugins zip is Beta for other Agent Plugins clients. Validate with `scripts/validate_openai_dist.py` and `scripts/validate_agent_plugins.py` (schemas vendored under `scripts/schemas/agent-plugins/1.0.0/`).
+
+Do not install the raw `skills/` tree into ChatGPT/Codex — use the OpenAI zip from [skills.cirra.ai](https://skills.cirra.ai/).
+
 ## Before every push
 
 Run the gates and fix any issues:
@@ -26,3 +36,4 @@ Run the gates and fix any issues:
 - `npm run lint` (prettier `--check` + `ruff check`)
 - `pytest tests/ skills/*/tests/`
 - `bash scripts/validate-skills.sh`
+- `bash scripts/package-openai.sh && bash scripts/package-agent-plugins.sh` (when touching packaging, manifests, or install paths)

@@ -90,3 +90,10 @@ echo ""
 skills_args=()
 [[ $STRICT -eq 1 ]] && skills_args+=(--strict)
 "$SCRIPT_DIR/package-skills.sh" ${skills_args[@]+"${skills_args[@]}"}
+
+echo ""
+
+# ChatGPT / Codex + portable Agent Plugins distros (slimmed skill payloads)
+"$SCRIPT_DIR/package-openai.sh"
+echo ""
+"$SCRIPT_DIR/package-agent-plugins.sh"

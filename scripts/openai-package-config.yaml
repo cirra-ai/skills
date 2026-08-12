@@ -1,0 +1,92 @@
+# OpenAI / ChatGPT / Codex packaging profile.
+# Applied by scripts/package-openai.sh when building dist/openai/.
+
+budgets:
+  max_skill_md_lines: 550
+  max_files_per_skill: 80
+  # After excluding fixtures/schemas/templates, runtime scripts + references
+  # for heavy skills (flow/apex) still land ~500–700KB. Reject the old ~2MB
+  # shape; keep headroom under 800KB per skill.
+  max_bytes_per_skill: 800000
+  max_plugin_bytes: 8000000
+
+# Always excluded from installable OpenAI skill packages.
+exclude_always:
+  - README.md
+  - tests
+  - fixtures
+  - __pycache__
+  - .pytest_cache
+  - .ruff_cache
+  - "*.pyc"
+  - .DS_Store
+  - icon-large.png
+  - icon-small.png
+
+# Extra excludes for skills that previously failed ChatGPT ingest.
+exclude_by_skill:
+  sf-flow:
+    - references/flow-metadata-schema.json
+    - assets/elements
+    - assets/subflows
+    - assets/apex-action-template.xml
+    - assets/autolaunched-flow-template.xml
+    - assets/bypass-check-decision.xml
+    - assets/platform-event-flow-template.xml
+    - assets/record-triggered-after-save.xml
+    - assets/record-triggered-before-delete.xml
+    - assets/record-triggered-before-save.xml
+    - assets/scheduled-flow-template.xml
+    - assets/screen-flow-template.xml
+    - assets/screen-flow-with-lwc.xml
+    - assets/wait-template.xml
+    - assets/architecture-review-template.md
+    - assets/error-logging-example.md
+    - assets/flow-documentation-template.md
+    - assets/json-deployment-reference.md
+    - assets/multi-step-dml-rollback-example.md
+    - assets/orchestration-conditional.md
+    - assets/orchestration-parent-child.md
+    - assets/orchestration-sequential.md
+    - assets/record-trigger-example.md
+    - assets/screen-flow-example.md
+  sf-lwc:
+    - assets/apex-controller
+    - assets/async-notification-patterns.md
+    - assets/basic-component
+    - assets/datatable-component
+    - assets/flow-integration-guide.md
+    - assets/flow-screen-component
+    - assets/form-component
+    - assets/graphql-component
+    - assets/jest-test
+    - assets/lwc-best-practices.md
+    - assets/message-channel
+    - assets/modal-component
+    - assets/record-picker
+    - assets/state-management.md
+    - assets/state-store
+    - assets/template-anti-patterns.md
+    - assets/triangle-pattern.md
+    - assets/typescript-component
+    - assets/workspace-api
+  sf-data:
+    - assets/bulk
+    - assets/bulk-testing-example.md
+    - assets/cleanup
+    - assets/cleanup-rollback-example.md
+    - assets/crud-workflow-example.md
+    - assets/csv
+    - assets/factories
+    - assets/json
+    - assets/mcp-validation
+    - assets/relationship-query-examples.md
+    - assets/soql
+    - assets/test-data-factory-usage.md
+  sf-diagram:
+    - assets/agentforce
+    - assets/architecture
+    - assets/datamodel
+    - assets/integration
+    - assets/oauth
+    - assets/role-hierarchy

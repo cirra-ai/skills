@@ -275,6 +275,7 @@ def generate() -> str:
 
     output = template.replace("      <!-- @@PLUGIN_CARDS@@ -->", plugin_cards)
     output = output.replace("      <!-- @@SKILL_CARDS@@ -->", skill_cards)
+    output = output.replace("@@DL_BASE@@", DL_BASE)
 
     if "<!-- @@PLUGIN_CARDS@@ -->" in output:
         print("Warning: @@PLUGIN_CARDS@@ placeholder not found/replaced!", file=sys.stderr)
