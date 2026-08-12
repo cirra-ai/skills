@@ -81,7 +81,7 @@ uv tool install pytest --with jsonschema   # alternative: adds pytest to PATH vi
 - `skills/` — **Source of truth** for all skill code (scripts, assets, references, tests).
 - `plugins/` — **Generated copies** of skills packaged for Claude. Do NOT edit files here directly; changes will be overwritten. Always edit in `skills/` and let the build step copy to `plugins/`.
 - `dist/openai/` — Generated ChatGPT Work / Codex plugin (`scripts/package-openai.sh`). Not committed; published as `cirra-ai-sf-openai.zip`.
-- `dist/agent-plugins/` — Generated Agent Plugins 1.0 package (`scripts/package-agent-plugins.sh`).
+- `dist/agent-plugins/` — Generated Agent Plugins 1.0 package (`scripts/package-agent-plugins.sh`). Validated against vendored schemas in `scripts/schemas/agent-plugins/1.0.0/`. Published separately from the Claude zip (AGENT-3).
 - `tests/` — Repo-root test directory for cross-skill tests (conftest.py lives here).
 - `skills/<skill-name>/tests/` — Skill-specific tests. These import `conftest.load_script()` from the repo root.
 

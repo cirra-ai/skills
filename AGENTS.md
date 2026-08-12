@@ -25,6 +25,8 @@ These have broken published skills. Verify every one before pushing a skill chan
 - `dist/openai/` — generated ChatGPT Work / Codex plugin (`.codex-plugin`, slim skills). Build with `bash scripts/package-openai.sh`.
 - `dist/agent-plugins/` — generated Agent Plugins 1.0 portable package. Build with `bash scripts/package-agent-plugins.sh`.
 
+**Separate artifacts (AGENT-3):** We publish distinct Claude, OpenAI/ChatGPT, and Agent Plugins zips from the same `skills/` source rather than one dual-format zip. Claude clients need `.claude-plugin/` + hooks; ChatGPT/Codex need slim skills + `.codex-plugin/`; Agent Plugins clients need root `plugin.json` + `mcp.json`. Mixing those shells caused ingest failures. Validate with `scripts/validate_openai_dist.py` and `scripts/validate_agent_plugins.py` (schemas vendored under `scripts/schemas/agent-plugins/1.0.0/`).
+
 Do not install the raw `skills/` tree into ChatGPT/Codex — use the OpenAI zip from [skills.cirra.ai](https://skills.cirra.ai/).
 
 ## Before every push
@@ -34,4 +36,4 @@ Run the gates and fix any issues:
 - `npm run lint` (prettier `--check` + `ruff check`)
 - `pytest tests/ skills/*/tests/`
 - `bash scripts/validate-skills.sh`
-- `bash scripts/package-openai.sh` (when touching packaging, skill frontmatter, or OpenAI/ChatGPT install paths)
+- `bash scripts/package-openai.sh && bash scripts/package-agent-plugins.sh` (when touching packaging, manifests, or install paths)

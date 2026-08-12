@@ -40,13 +40,14 @@ cat > "$OUT_DIR/plugin.json" <<EOF
 }
 EOF
 
-# Agent Plugins uses mcp.json (not .mcp.json)
+# Agent Plugins uses mcp.json (not .mcp.json). Transport type must be the
+# schema enum value "streamable-http" (not camelCase).
 cat > "$OUT_DIR/mcp.json" <<'EOF'
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
   "mcpServers": {
     "cirra-ai": {
-      "type": "streamableHttp",
+      "type": "streamable-http",
       "url": "https://mcp.cirra.ai/mcp"
     }
   }
@@ -89,6 +90,11 @@ mkdir -p "$OUT_ZIP_DIR"
     -x "*.DS_Store" "*__pycache__*" "*.pyc"
 )
 
+echo ""
+echo "=== Validating Agent Plugins distro ==="
+python3 "$SCRIPT_DIR/validate_agent_plugins.py" --dist "$OUT_DIR"
+
+echo ""
 echo "=== Agent Plugins package ready ==="
 echo "Tree: $OUT_DIR"
 echo "Zip:  $OUT_ZIP_DIR/cirra-ai-sf-agent-plugins.zip"
