@@ -1181,7 +1181,7 @@ Treat a read-back as **evidence of shape**, not as a deployable payload.
 
 1. Call `metadata_read` to learn current state and component shapes
 2. Analyze current elements and dependencies
-3. Author a **fresh** full-object payload (never paste the raw read-back back)
+3. Author a **fresh** full-object payload (never paste the raw read-back into the deploy)
 4. Call `metadata_update` with `metadata=[...]` (full object), not `patch`
 
 ### Lesson 4.5: JSON Patch mode is unsafe on flows with choice sets
