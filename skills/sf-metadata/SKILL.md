@@ -473,7 +473,7 @@ Check FLS by querying Permission Set assignments if needed.
 **Structure & Format** (20 points):
 
 - Valid metadata structure (-10 if invalid)
-- API version present and >= 65.0 (-5 if outdated)
+- API version present and >= 67.0 (-5 if outdated)
 - Correct naming structure (-5 if wrong)
 
 **Naming Conventions** (20 points):

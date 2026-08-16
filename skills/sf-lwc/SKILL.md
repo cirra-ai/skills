@@ -140,7 +140,7 @@ metadata_create(
   type="LightningComponentBundle",
   metadata=[{
     "fullName": "<componentName>",
-    "apiVersion": "66.0",
+    "apiVersion": "67.0",
     "isExposed": true,
     "masterLabel": "<Component Label>",
     "lwcResources": {
@@ -223,7 +223,7 @@ metadata_update(
   type="LightningComponentBundle",
   metadata=[{
     "fullName": "<ComponentName>",
-    "apiVersion": "66.0",
+    "apiVersion": "67.0",
     "isExposed": true,
     "masterLabel": "<Component Label>",
     "lwcResources": {
@@ -304,7 +304,7 @@ Before sending the updated `js-meta.xml`:
 
 - **Do not invent `userPermissions`**. If you need to gate visibility, use `tooling_api_query` on `PermissionSet` describes (or `soql_query` on `PermissionSetTabSetting` / known standard permissions) to confirm the name is real before referencing it. Standard SF user permissions (`ViewSetup`, `ManageUsers`, etc.) are safe; custom/named ones are not.
 - **Each `<targetConfig targets="X">`** must reference a target that's also present in the bundle's `<targets>` block.
-- **API version on `<apiVersion>`** must be one the org supports — query an existing component if unsure.
+- **API version on `<apiVersion>`** must be one the org supports — query an existing component if unsure. **Apply version rules to the component's actual version**: new components default to 67.0 (Summer '26); when updating an existing component, keep its declared `apiVersion` unless asked to raise it — LWC API versioning changes framework behavior per component, and a bump is a deliberate opt-in. Spring '26 features (`lwc:on`, GraphQL mutations, TypeScript, complex template expressions) require 66.0+ — do not add them to a component pinned below that without raising its version.
 
 ### 4. Listing many LWC components in large orgs
 
@@ -808,7 +808,7 @@ WCAG compliance is mandatory for all components.
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>66.0</apiVersion>
+    <apiVersion>67.0</apiVersion>
     <isExposed>true</isExposed>
     <masterLabel>Account Dashboard</masterLabel>
     <description>SLDS 2 compliant account dashboard with dark mode support</description>
@@ -870,7 +870,7 @@ metadata_create(
   type="LightningComponentBundle",
   metadata=[{
     "fullName": "accountDashboard",
-    "apiVersion": "66.0",
+    "apiVersion": "67.0",
     "isExposed": true,
     "masterLabel": "Account Dashboard",
     "description": "SLDS 2 compliant account metrics dashboard",

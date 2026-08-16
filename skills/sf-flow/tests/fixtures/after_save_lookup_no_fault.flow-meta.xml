@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>65.0</apiVersion>
+    <apiVersion>67.0</apiVersion>
     <description>After-save flow that looks up a related Account but does not handle lookup failures. The recordLookups element lacks a faultConnector.</description>
     <label>Auto Booking Lookup</label>
     <processType>AutoLaunchedFlow</processType>

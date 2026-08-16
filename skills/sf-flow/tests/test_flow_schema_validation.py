@@ -200,7 +200,7 @@ class TestInvalidXmlRejection:
         """Invalid processType enum value is rejected."""
         xml = """<?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>65.0</apiVersion>
+    <apiVersion>67.0</apiVersion>
     <label>Bad Flow</label>
     <processType>NotARealType</processType>
     <status>Draft</status>
@@ -214,7 +214,7 @@ class TestInvalidXmlRejection:
         """Missing required 'label' field is rejected."""
         xml = """<?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>65.0</apiVersion>
+    <apiVersion>67.0</apiVersion>
     <processType>AutoLaunchedFlow</processType>
     <status>Draft</status>
 </Flow>"""
@@ -243,7 +243,7 @@ class TestInvalidXmlRejection:
         """Invalid status enum value is rejected."""
         xml = """<?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>65.0</apiVersion>
+    <apiVersion>67.0</apiVersion>
     <label>Bad Status</label>
     <processType>AutoLaunchedFlow</processType>
     <status>Published</status>
@@ -256,7 +256,7 @@ class TestInvalidXmlRejection:
         """Minimal valid flow passes schema validation."""
         xml = """<?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>65.0</apiVersion>
+    <apiVersion>67.0</apiVersion>
     <label>Minimal Flow</label>
     <processType>AutoLaunchedFlow</processType>
     <status>Draft</status>

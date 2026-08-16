@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>65.0</apiVersion>
+    <apiVersion>67.0</apiVersion>
     <description>Save-gating: this flow validates regulatory state after save and intentionally propagates faults to block invalid saves. Triggered after save because the validation requires the saved record's Id.</description>
     <label>Auto Regulatory Validation</label>
     <processType>AutoLaunchedFlow</processType>

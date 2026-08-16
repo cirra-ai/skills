@@ -140,7 +140,7 @@ public static List<Account> getAccounts(String searchTerm) {
         SELECT Id, Name, Industry
         FROM Account
         WHERE Name LIKE :searchKey
-        WITH SECURITY_ENFORCED
+        WITH USER_MODE
         LIMIT 50
     ];
 }
@@ -1373,7 +1373,7 @@ public with sharing class LwcController {
             SELECT Id, Name, Industry, AnnualRevenue
             FROM Account
             WHERE Name LIKE :searchKey
-            WITH SECURITY_ENFORCED
+            WITH USER_MODE
             ORDER BY Name
             LIMIT 50
         ];
@@ -1430,7 +1430,7 @@ public static void deleteAccounts(List<Id> accountIds) {
     List<Account> toDelete = [
         SELECT Id FROM Account
         WHERE Id IN :accountIds
-        WITH SECURITY_ENFORCED
+        WITH USER_MODE
     ];
 
     delete toDelete;
@@ -1451,7 +1451,7 @@ public static List<Contact> getContactsWithErrorHandling(Id accountId) {
             SELECT Id, Name, Email, Phone
             FROM Contact
             WHERE AccountId = :accountId
-            WITH SECURITY_ENFORCED
+            WITH USER_MODE
             ORDER BY Name
             LIMIT 100
         ];

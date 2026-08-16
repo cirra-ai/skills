@@ -154,7 +154,7 @@ determines how large responses are handled and whether local tooling
 - An AI coding tool with skill/plugin support
 - Cirra AI MCP Server
 - Target Salesforce org
-- API Version 65.0+ (Winter '26), 66.0+ recommended (Spring '26)
+- API Version 67.0+ (Summer '26) recommended; Spring '26 features require 66.0+
 - Node.js 18+ (for running Jest tests locally)
 
 ## For Contributors

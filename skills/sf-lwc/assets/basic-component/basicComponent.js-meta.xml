@@ -9,7 +9,7 @@
     properties: Configurable attributes in App Builder
 -->
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>66.0</apiVersion>
+    <apiVersion>67.0</apiVersion>
     <isExposed>true</isExposed>
     <masterLabel>Basic Component</masterLabel>
     <description>A reusable component that displays a list of records with loading, error, and empty states.</description>

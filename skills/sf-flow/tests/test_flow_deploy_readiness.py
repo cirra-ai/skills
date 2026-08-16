@@ -1,7 +1,7 @@
 """Tests for Flow deployment readiness — structural checks verified against live org.
 
 These checks were derived from actual MCP metadata_create deployments to a
-Salesforce sandbox (Master Demo Org 2, API 65.0). Flows that fail these checks
+Salesforce sandbox (Master Demo Org 2, API 67.0). Flows that fail these checks
 will deploy but end up as InvalidDraft (cannot be activated).
 
 Findings from live deployment testing (2026-03-05):
@@ -156,7 +156,7 @@ class TestDeploymentRegressions:
         """A scheduled flow missing triggerType must be flagged."""
         xml = """<?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>65.0</apiVersion>
+    <apiVersion>67.0</apiVersion>
     <label>Bad Scheduled Flow</label>
     <processType>AutoLaunchedFlow</processType>
     <start>
@@ -185,11 +185,11 @@ class TestDeploymentRegressions:
         finally:
             os.unlink(tmp)
 
-    def test_bulk_support_in_api_65_detected(self):
-        """bulkSupport in API 65.0 flow must be flagged as ERROR."""
+    def test_bulk_support_detected(self):
+        """bulkSupport in a current-API flow must be flagged as ERROR."""
         xml = """<?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>65.0</apiVersion>
+    <apiVersion>67.0</apiVersion>
     <label>Flow With BulkSupport</label>
     <processType>AutoLaunchedFlow</processType>
     <start>
@@ -227,7 +227,7 @@ class TestDeploymentRegressions:
         """Custom field references should produce a warning (not error)."""
         xml = """<?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>65.0</apiVersion>
+    <apiVersion>67.0</apiVersion>
     <assignments>
         <name>Set_Field</name>
         <label>Set Field</label>

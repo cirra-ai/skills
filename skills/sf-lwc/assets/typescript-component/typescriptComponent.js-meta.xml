@@ -13,7 +13,7 @@
     The Salesforce platform does not store TypeScript source code.
 -->
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>66.0</apiVersion>
+    <apiVersion>67.0</apiVersion>
     <isExposed>true</isExposed>
     <masterLabel>TypeScript Component</masterLabel>
     <description>TypeScript-based LWC demonstrating type-safe patterns with @salesforce/lightning-types</description>

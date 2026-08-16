@@ -123,3 +123,34 @@ class TestResultStructure:
         body = _read_fixture("perfect_service.cls")
         r = _mcp_create("ApexClass", "Custom_Name__c", body)
         assert r["full_name"] == "Custom_Name__c"
+
+
+class TestApiVersionAwareness:
+    """The deploy payload's ApiVersion drives version-sensitive checks."""
+
+    def _deploy(self, api_version):
+        record = {
+            "Name": "SecurityEnforcedQuery",
+            "Body": _read_fixture("security_enforced_query.cls"),
+            "Status": "Active",
+        }
+        if api_version is not None:
+            record["ApiVersion"] = api_version
+        return ApexMCPValidator().validate(
+            {"tool": "tooling_api_dml", "params": {"sObject": "ApexClass", "record": record}}
+        )
+
+    def test_security_enforced_critical_at_67(self):
+        r = self._deploy("67.0")
+        msgs = [i["message"] for i in r.get("issues", []) if i.get("severity") == "CRITICAL"]
+        assert any("SECURITY_ENFORCED" in m for m in msgs)
+
+    def test_security_enforced_not_critical_at_66(self):
+        r = self._deploy("66.0")
+        msgs = [i["message"] for i in r.get("issues", []) if i.get("severity") == "CRITICAL"]
+        assert not any("SECURITY_ENFORCED" in m for m in msgs)
+
+    def test_security_enforced_warned_without_version(self):
+        r = self._deploy(None)
+        msgs = [i["message"] for i in r.get("issues", []) if i.get("severity") == "WARNING"]
+        assert any("SECURITY_ENFORCED" in m for m in msgs)
