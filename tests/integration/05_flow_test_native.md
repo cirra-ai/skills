@@ -41,13 +41,13 @@ Three things this phase is specifically designed to catch:
 
 Set these once; every step below refers to them.
 
-| Parameter  | Value used in the reference run                               |
-| ---------- | ------------------------------------------------------------- |
-| `{ORG}`    | `jelle@sdo260220.cirra.ai` — Cirra AI, Inc.                   |
-| `{FLOW}`   | `SDO_Change_Request_Set_Priority_Based_on_Impact`             |
-| `{OBJECT}` | `ChangeRequest`                                               |
-| `{BRANCH}` | `Impact = High` → `Priority = High`                           |
-| `{PREFIX}` | `Cirra_Probe_` — every artifact this phase creates carries it |
+| Parameter  | Value used in the reference run                                           |
+| ---------- | ------------------------------------------------------------------------- |
+| `{ORG}`    | your selected org connection — reference run used a Cirra AI SDO demo org |
+| `{FLOW}`   | `SDO_Change_Request_Set_Priority_Based_on_Impact`                         |
+| `{OBJECT}` | `ChangeRequest`                                                           |
+| `{BRANCH}` | `Impact = High` → `Priority = High`                                       |
+| `{PREFIX}` | `Cirra_Probe_` — every artifact this phase creates carries it             |
 
 **Substituting a different flow:** pick a before-save flow whose branch is
 unconditional in the org (no gate custom permission, no org-default toggle that
@@ -542,8 +542,8 @@ Recorded so a future run can tell "the platform changed" from "this script is wr
 
 | Item                      | Observation                                                         |
 | ------------------------- | ------------------------------------------------------------------- |
-| Org                       | Cirra AI, Inc. — `jelle@sdo260220.cirra.ai`, NA251, production      |
-| Flow                      | `{FLOW}`, active version **2**, FlowDefinition `300Kh000000sI3NIAU` |
+| Org                       | Cirra AI SDO demo org — production instance, API 65.0+              |
+| Flow                      | `{FLOW}`, active version **2**                                      |
 | TC-501 create             | 3/3 succeeded, including the wrong-assertion variant                |
 | TC-502 read-back          | Arrays collapsed; `isUseMockOutput: "false"` injected as a string   |
 | TC-503 tooling            | 3 records, `320` key prefix                                         |

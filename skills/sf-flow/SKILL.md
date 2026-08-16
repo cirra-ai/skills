@@ -1538,7 +1538,8 @@ metadata_delete(type="FlowTest", fullNames=["Test_CR_Priority_High"])
   depends on how many siblings exist, a pointer into a single-element list omits
   the index that a multi-element list requires —
   `/testPoints/1/assertions/conditions/rightValue/stringValue` for one condition
-  versus `/…/conditions/0/rightValue/stringValue` for several. Generic patch-path
+  versus `/testPoints/1/assertions/conditions/0/rightValue/stringValue` for
+  several. Generic patch-path
   builders break on one case or the other, and a wrong pointer surfaces as a patch
   error rather than a wrong value. Read the current shape before constructing a
   patch, or send the whole object with `metadata`.
