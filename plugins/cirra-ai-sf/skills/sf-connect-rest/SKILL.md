@@ -2,7 +2,7 @@
 name: sf-connect-rest
 plugin: cirra-ai-sf
 metadata:
-  version: 1.0.0
+  version: 1.0.1
 argument-hint: '[find|core|experience-cloud|agentforce|files|commerce] {resource-path|details} ...'
 description: >
   Salesforce Connect REST API expert for the generic connect_rest tool. Use when a Salesforce task
