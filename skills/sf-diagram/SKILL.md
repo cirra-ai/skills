@@ -3,7 +3,7 @@ name: sf-diagram
 plugin: cirra-ai-sf
 argument-hint: '[oauth|erd|integration|landscape|hierarchy|agentforce] ...'
 metadata:
-  version: 2.0.1
+  version: 2.0.2
 description: >
   Creates Salesforce architecture diagrams using Mermaid with ASCII fallback. Use when
   visualizing OAuth flows, data models (ERDs), integration sequences, system landscapes,

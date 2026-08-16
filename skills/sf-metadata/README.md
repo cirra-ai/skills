@@ -39,7 +39,7 @@ Request: "Create a custom object called Invoice__c with Amount, Status, and Due 
 | Operation               | Example Request                                                              |
 | ----------------------- | ---------------------------------------------------------------------------- |
 | Create Object           | "Create a custom object called Inspection\_\_c"                              |
-| Create Field            | "Add a Currency field called Amount**c to Invoice**c"                        |
+| Create Field            | "Add a Currency field called Amount\_\_c to Invoice\_\_c"                    |
 | Create Validation       | "Add a validation rule requiring Close Date when Status is Closed"           |
 | Describe Object         | "Describe the Account object and show all fields"                            |
 | Create Permission Set   | "Generate a Permission Set for the Invoice\_\_c object"                      |
