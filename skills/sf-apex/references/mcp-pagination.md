@@ -71,7 +71,8 @@ write("./output/artifact_abc123.json", response.body)
 This gives you the **complete dataset** in a single request, ready for
 local processing (scoring scripts, jq transforms, report generation).
 
-If `downloadUrl` is absent, page through with `fetch_more` instead — the
+If `artifactAccess.downloadUrl` is absent, page through with `fetch_more`
+instead — the
 technique below works in every mode.
 
 ### `mcp-core` — paginate with `fetch_more`
@@ -99,9 +100,9 @@ fetching the next to manage context size.
 
 1. **Check every MCP response** for `artifactAccess.artifactId` — any tool
    can produce an artifact when the result is large enough.
-2. **Prefer `downloadUrl` download** when the environment supports it and the
-   field is present — it is faster and avoids loading large datasets into the
-   conversation.
+2. **Prefer the `artifactAccess.downloadUrl` download** when the environment
+   supports it and the field is present — it is faster and avoids loading large
+   datasets into the conversation.
 3. **In `mcp-core`**, process and discard each page before fetching the
    next. Never hold more than one or two pages in context simultaneously.
 4. **Artifacts expire after 1 hour.** If you get an expiry error, re-run

@@ -99,12 +99,12 @@ see `references/execution-modes.md` for detection logic and full details.
 
 ### Audit-specific mode behaviour
 
-| Mode                      | Body retrieval                      | Queries                |
-| ------------------------- | ----------------------------------- | ---------------------- |
-| `sfdx-repo`               | Read from disk (no API calls)       | MCP for live-only data |
-| `cli`                     | `sf project retrieve start -m`      | `sf data query --json` |
-| `mcp-plus-code-execution` | MCP tools; download `downloadUrl`   | MCP tools              |
-| `mcp-core`                | MCP tools; `fetch_more` with cursor | MCP tools              |
+| Mode                      | Body retrieval                                   | Queries                |
+| ------------------------- | ------------------------------------------------ | ---------------------- |
+| `sfdx-repo`               | Read from disk (no API calls)                    | MCP for live-only data |
+| `cli`                     | `sf project retrieve start -m`                   | `sf data query --json` |
+| `mcp-plus-code-execution` | MCP tools; download `artifactAccess.downloadUrl` | MCP tools              |
+| `mcp-core`                | MCP tools; `fetch_more` with cursor              | MCP tools              |
 
 **`sfdx-repo` specifics:**
 
@@ -539,7 +539,8 @@ Choose your processing strategy based on what the environment supports:
 `mcp-plus-code-execution`):
 
 1. Fetch all bodies to `./audit_output/intermediate/` (via local filesystem,
-   CLI bulk retrieve, or `downloadUrl` download — whichever mode applies)
+   CLI bulk retrieve, or `artifactAccess.downloadUrl` download — whichever
+   mode applies)
 2. Run the pre-scoring orchestrator:
    ```bash
    python scripts/pre_score.py \

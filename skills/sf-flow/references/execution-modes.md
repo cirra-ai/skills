@@ -121,12 +121,12 @@ fails and you cannot write files to disk, you are in `mcp-core`.
 
 ## Mode summary
 
-| Mode                      | Body retrieval   | Artifact handling                     | Code execution | Speed   |
-| ------------------------- | ---------------- | ------------------------------------- | -------------- | ------- |
-| `sfdx-repo`               | Local filesystem | N/A (data on disk)                    | Yes            | Fastest |
-| `cli`                     | `sf` CLI bulk    | N/A (CLI writes to disk)              | Yes            | Fast    |
-| `mcp-plus-code-execution` | MCP tools        | Download `downloadUrl` to working dir | Yes            | Medium  |
-| `mcp-core`                | MCP tools        | `fetch_more` with cursor (in-context) | No             | Slowest |
+| Mode                      | Body retrieval   | Artifact handling                                    | Code execution | Speed   |
+| ------------------------- | ---------------- | ---------------------------------------------------- | -------------- | ------- |
+| `sfdx-repo`               | Local filesystem | N/A (data on disk)                                   | Yes            | Fastest |
+| `cli`                     | `sf` CLI bulk    | N/A (CLI writes to disk)                             | Yes            | Fast    |
+| `mcp-plus-code-execution` | MCP tools        | Download `artifactAccess.downloadUrl` to working dir | Yes            | Medium  |
+| `mcp-core`                | MCP tools        | `fetch_more` with cursor (in-context)                | No             | Slowest |
 
 In all modes, call `cirra_ai_init()` first to establish the MCP connection.
 
