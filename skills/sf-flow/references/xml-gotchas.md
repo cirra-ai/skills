@@ -400,6 +400,12 @@ Common offenders seen in generated flows: `CS_Origin`, `CS_Range`, `CS_SLA`.
 Strip `object`, `displayField`, and `filters` from any picklist-type choice
 set. The flow validator flags this as a CRITICAL issue.
 
+**Cirra `metadata_read` / `metadata_update` `patch` inject these empty fields.**
+A read-back of a valid picklist choice set returns `"object": ""` and
+`"displayField": ""`. Redeploying that payload (or applying a JSON Patch that
+re-fetches the object server-side) fails. Author full-object Flow updates
+fresh; never round-trip a raw read-back. See SKILL.md Lesson 4 / 4.5.
+
 ## Updating an Active Flow Requires `upsert=True` (CRITICAL)
 
 **⚠️ DEPLOYMENT BLOCKER**: When the flow's latest version is **Active**, a plain
