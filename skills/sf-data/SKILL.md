@@ -3,7 +3,7 @@ name: sf-data
 plugin: cirra-ai-sf
 argument-hint: '[query|build-query|insert|update|upsert|delete|validate|describe] {target} ...'
 metadata:
-  version: 2.0.2
+  version: 2.0.3
 description: >
   Salesforce data and SOQL expert. Execute SOQL queries (natural language or raw SOQL),
   build optimized queries with selectivity analysis, insert/update/upsert/delete records,
@@ -356,7 +356,7 @@ Full code quality scoring when deploying Apex or Flow code. Extracts the `body` 
     "metadata": [
       {
         "fullName": "AccountService",
-        "apiVersion": "65.0",
+        "apiVersion": "67.0",
         "status": "Active",
         "body": "public with sharing class AccountService {\n    public static List<Account> getByIndustry(String industry) {\n        return [SELECT Id, Name FROM Account WHERE Industry = :industry LIMIT 1000];\n    }\n}"
       }

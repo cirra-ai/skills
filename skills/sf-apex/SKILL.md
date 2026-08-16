@@ -3,7 +3,7 @@ name: sf-apex
 plugin: cirra-ai-sf
 argument-hint: '[create|update|validate] [class|trigger|test-class] {name} ...'
 metadata:
-  version: 2.0.4
+  version: 2.0.5
 description: >
   Generates and reviews Salesforce Apex code with best practices and 150-point scoring using the Cirra AI
   MCP Server. Use when writing Apex classes, triggers, test classes, batch
@@ -137,7 +137,7 @@ tooling_api_dml(
     "Name": "<HandlerOrActionClassName>",
     "Body": "<class body>",
     "Status": "Active",
-    "ApiVersion": "65.0"
+    "ApiVersion": "67.0"
   }
 )
 ```
@@ -153,7 +153,7 @@ tooling_api_dml(
     "TableEnumOrId": "<ObjectApiName>",
     "Body": "<trigger body>",
     "Status": "Active",
-    "ApiVersion": "65.0"
+    "ApiVersion": "67.0"
   }
 )
 ```
@@ -170,7 +170,7 @@ tooling_api_dml(
     "Name": "<ClassName>",
     "Body": "<class body>",
     "Status": "Active",
-    "ApiVersion": "65.0"
+    "ApiVersion": "67.0"
   }
 )
 ```
@@ -627,7 +627,7 @@ tooling_api_dml(
     "Name": "AccountService",
     "Body": "[YOUR APEX CODE STRING HERE]",
     "Status": "Active",
-    "ApiVersion": "65.0"
+    "ApiVersion": "67.0"
   }
 )
 ```
@@ -668,7 +668,7 @@ tooling_api_query(
 
 ```
 ✓ Apex Code Complete: [ClassName]
-  Type: [type] | API: 65.0
+  Type: [type] | API: 67.0
   Deployment: VIA CIRRA AI MCP (tooling_api_dml)
   Test Class: [TestClassName]
   Validation: PASSED (Score: XX/150)
@@ -744,7 +744,7 @@ tooling_api_dml(
     "Name": "TA_Account_SetDefaults",
     "Body": "[GENERATED APEX CODE]",
     "Status": "Active",
-    "ApiVersion": "65.0"
+    "ApiVersion": "67.0"
   }
 )
 ```
@@ -767,7 +767,7 @@ tooling_api_dml(
 
 ---
 
-## Modern Apex Features (API 65.0)
+## Modern Apex Features (API 67.0)
 
 - **Null coalescing**: `value ?? defaultValue`
 - **Safe navigation**: `record?.Field__c`
@@ -823,7 +823,7 @@ tooling_api_dml(
     "Name": "RecordProcessor",
     "Body": "[YOUR INVOCABLE METHOD CODE]",
     "Status": "Active",
-    "ApiVersion": "65.0"
+    "ApiVersion": "67.0"
   }
 )
 ```
@@ -882,7 +882,7 @@ tooling_api_dml(
     "Name": "AccountServiceTest",
     "Body": "[YOUR TEST CLASS CODE]",
     "Status": "Active",
-    "ApiVersion": "65.0"
+    "ApiVersion": "67.0"
   }
 )
 ```
@@ -960,7 +960,7 @@ tooling_api_dml(
     "Name": "ClassName",
     "Body": "public class ClassName { ... }",
     "Status": "Active",
-    "ApiVersion": "65.0"
+    "ApiVersion": "67.0"
   }
 )
 ```
@@ -993,7 +993,7 @@ tooling_api_dml(
     "TableEnumOrId": "Account",
     "Body": "trigger AccountTrigger on Account (before insert, after insert) { ... }",
     "Status": "Active",
-    "ApiVersion": "65.0"
+    "ApiVersion": "67.0"
   }
 )
 ```
@@ -1136,7 +1136,7 @@ Do **not** use `metadata_read` for ApexClass — it does not return the class bo
 ### Create a class
 
 ```
-tooling_api_dml(operation="insert", sObject="ApexClass", record={"Name": "MyClass", "Body": "public class MyClass { ... }", "Status": "Active", "ApiVersion": "65.0"})
+tooling_api_dml(operation="insert", sObject="ApexClass", record={"Name": "MyClass", "Body": "public class MyClass { ... }", "Status": "Active", "ApiVersion": "67.0"})
 ```
 
 Offer to create a test class alongside. Verify referenced fields/objects exist before creating.
@@ -1172,7 +1172,7 @@ tooling_api_query(sObject="ApexTrigger", fields=["Id","FullName","Name","Namespa
 ### Create a trigger
 
 ```
-tooling_api_dml(operation="insert", sObject="ApexTrigger", record={"Name": "AccountTrigger", "TableEnumOrId": "Account", "Body": "trigger AccountTrigger on Account (...) { ... }", "Status": "Active", "ApiVersion": "65.0"})
+tooling_api_dml(operation="insert", sObject="ApexTrigger", record={"Name": "AccountTrigger", "TableEnumOrId": "Account", "Body": "trigger AccountTrigger on Account (...) { ... }", "Status": "Active", "ApiVersion": "67.0"})
 ```
 
 Suggest creating a helper class and test class alongside. Verify referenced fields/objects exist first.
@@ -1215,7 +1215,7 @@ tooling_api_dml(operation="delete", sObject="ApexTrigger", record={"Id": "<trigg
 
 ## Notes
 
-- **API Version**: Deploy with 65.0 by default. If the org runs an older release, match the org's API version: `soql_query(sObject="Organization", fields=["ApiVersion"])`
+- **API Version**: Deploy with 67.0 by default. If the org runs an older release, match the org's API version: `soql_query(sObject="Organization", fields=["ApiVersion"])`
 - **TAF Optional**: Prefer TAF when package is installed, use standard trigger pattern as fallback
 - **Scoring**: Block deployment if score < 67 (exempt trivial/test classes — see scoring thresholds)
 - **MCP Initialization**: ALWAYS call `cirra_ai_init` first

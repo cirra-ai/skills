@@ -42,7 +42,7 @@ Comprehensive guide to debugging Apex code, LSP validation, dependency managemen
    └─> metadata_create(type="PermissionSet", metadata=[{"fullName":"Lead_Score_Access","fieldPermissions":[{"field":"Lead.Score__c","editable":true,"readable":true}]}])
 
 3. sf-apex: Deploy Apex classes/triggers
-   └─> tooling_api_dml(operation="insert", sObject="ApexClass", record={"Name":"MyClass","Body":"...","Status":"Active","ApiVersion":"65.0"})
+   └─> tooling_api_dml(operation="insert", sObject="ApexClass", record={"Name":"MyClass","Body":"...","Status":"Active","ApiVersion":"67.0"})
 
 4. sf-data: Create test data
    └─> sobject_dml(operation="insert", sobjectType="Account", records=[{Name: "Test"}])

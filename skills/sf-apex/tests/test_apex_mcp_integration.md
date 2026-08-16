@@ -105,7 +105,7 @@ tooling_api_dml(
         "TableEnumOrId": "Account",
         "Body": "trigger TEST_AccountTrigger_Valid on Account (before insert) { for (Account a : Trigger.new) { if (String.isBlank(a.Name)) { a.Name = 'Test Account'; } } }",
         "Status": "Active",
-        "ApiVersion": "65.0"
+        "ApiVersion": "67.0"
     }
 )
 ```

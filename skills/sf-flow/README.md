@@ -1,6 +1,6 @@
 # sf-flow
 
-Creates and validates Salesforce Flows with 110-point scoring and Winter '26 best practices. Build production-ready, performant, and secure flows.
+Creates and validates Salesforce Flows with 110-point scoring and Summer '26 best practices. Build production-ready, performant, and secure flows.
 
 ## Features
 
@@ -158,7 +158,7 @@ available.
 - An AI coding tool with skill/plugin support
 - Cirra AI MCP Server
 - Target Salesforce org
-  - API Version 65.0+ (Winter '26)
+  - API Version 67.0+ (Summer '26)
 
 ## For Contributors
 

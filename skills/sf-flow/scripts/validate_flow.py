@@ -879,12 +879,12 @@ class EnhancedFlowValidator:
 
         # API version (5 points)
         api_version = float(self._get_api_version())
-        if api_version < 65.0:
+        if api_version < 67.0:
             score -= 5
             advisory.append(
                 {
                     "category": "Governance",
-                    "message": f"API version {api_version} is outdated (current: 65.0)",
+                    "message": f"API version {api_version} is outdated (current: 67.0)",
                     "suggestion": "Update to latest API version for new features",
                 }
             )

@@ -3,9 +3,9 @@ name: sf-flow
 plugin: cirra-ai-sf
 argument-hint: '[create|update|validate] {FlowName} ...'
 metadata:
-  version: 2.5.2
+  version: 2.5.3
 description: >
-  Creates and validates Salesforce flows with 110-point scoring and Winter '26 best practices
+  Creates and validates Salesforce flows with 110-point scoring and Summer '26 best practices
   using Cirra AI MCP Server. Use when building record-triggered flows, screen flows,
   autolaunched flows, scheduled flows, or reviewing existing flow performance.
   Usage: /sf-flow [create|update|validate] {FlowName} ...
@@ -13,7 +13,7 @@ description: >
 
 # Salesforce Flow Development and Review
 
-Expert Salesforce Flow Builder with deep knowledge of best practices, bulkification, and Winter '26 (API 65.0) metadata. Create production-ready, performant, secure, and maintainable flows using Cirra AI MCP Server for deployment.
+Expert Salesforce Flow Builder with deep knowledge of best practices, bulkification, and Summer '26 (API 67.0) metadata. Create production-ready, performant, secure, and maintainable flows using Cirra AI MCP Server for deployment.
 
 ## Dispatch
 
@@ -68,7 +68,7 @@ AskUserQuestion(question="Build this as a **Flow Approval Orchestration** (recom
 
 ## Action Workflow: Create Flow
 
-Create a new Flow following Winter '26 best practices.
+Create a new Flow following Summer '26 best practices.
 
 ### Step 1. Gather requirements
 
@@ -131,7 +131,7 @@ If you cannot answer "yes" to all four, do not call the deployment tool. Stop, r
 ```
 metadata_create(
   type="Flow",
-  metadata=[{"fullName": "<FlowApiName>", "label": "<Flow Label>", "apiVersion": 65, "processType": "<ProcessType>", "status": "Draft", ...}]
+  metadata=[{"fullName": "<FlowApiName>", "label": "<Flow Label>", "apiVersion": 67, "processType": "<ProcessType>", "status": "Draft", ...}]
 )
 ```
 
@@ -194,7 +194,7 @@ Fix any CRITICAL or HIGH issues before deploying. Score below 80% (88/110) is a 
 ```
 metadata_update(
   type="Flow",
-  metadata=[{"fullName": "<FlowApiName>", "label": "<Flow Label>", "apiVersion": 65, "processType": "<ProcessType>", "status": "Draft", ...}]
+  metadata=[{"fullName": "<FlowApiName>", "label": "<Flow Label>", "apiVersion": 67, "processType": "<ProcessType>", "status": "Draft", ...}]
 )
 ```
 
@@ -523,7 +523,7 @@ allowBack to false, but not both"_ is the tell — keep `allowFinish: true` on e
 **Generate flow metadata**:
 Construct the complete Flow metadata as a JSON object with:
 
-- API Version: 65.0
+- API Version: 67.0
 - Proper alphabetical property ordering
 - All required metadata fields (`label`, `processType`, `status`, etc.)
 
@@ -580,7 +580,7 @@ metadata_create(
     metadata=[{
         "fullName": "Auto_Lead_Assignment",
         "label": "Auto Lead Assignment",
-        "apiVersion": 65,
+        "apiVersion": 67,
         "description": "Assigns new leads to the appropriate queue based on region",
         "environments": ["Default"],
         "processMetadataValues": [
@@ -639,7 +639,7 @@ tooling_api_query(
 
 **Validation (STRICT MODE)**:
 
-- **BLOCK**: Invalid structure, missing required fields (apiVersion/label/processType/status), API <65.0, broken refs, DML in loops
+- **BLOCK**: Invalid structure, missing required fields (apiVersion/label/processType/status), API <67.0, broken refs, DML in loops
 - **WARN**: Property ordering, deprecated properties, non-zero coords, missing fault paths, unused vars, naming violations
 
 **New v2.0.0 Validations**:
@@ -761,7 +761,7 @@ metadata_create(
     metadata=[{
         "fullName": "Auto_Lead_Assignment",
         "label": "Auto Lead Assignment",
-        "apiVersion": 65,
+        "apiVersion": 67,
         "processType": "AutoLaunchedFlow",
         "status": "Draft",
         # ... full flow structure as JSON properties
@@ -919,7 +919,7 @@ Quick reference:
 
 ```
 ✓ Flow Creation & Deployment Complete: [FlowName]
-  Type: [type] | API: 65.0 | Status: [Draft/Active]
+  Type: [type] | API: 67.0 | Status: [Draft/Active]
   Deployed via: Cirra AI MCP Server (metadata_create)
   Validation: PASSED (Score: XX/110)
   Org: [target-org-username]
@@ -1026,7 +1026,7 @@ Compound fields — the person **`Name`** (on Contact and Lead), **Address** fie
 
 ### Critical Requirements
 
-- **API 65.0**: Latest features
+- **API 67.0**: Latest features
 - **No DML in Loops**: Collect in loop → DML after loop (causes bulk failures otherwise)
 - **Bulkify**: For RELATED records only - platform handles triggered record batching
 - **Fault Paths**: All DML must have fault connectors
@@ -1308,7 +1308,7 @@ Always start with this complete template — include **ALL** empty arrays:
 {
   "fullName": "PLACEHOLDER",
   "label": "PLACEHOLDER",
-  "apiVersion": 65,
+  "apiVersion": 67,
   "processType": "Flow",
   "status": "Draft",
   "interviewLabel": "PLACEHOLDER {!$Flow.CurrentDateTime}",
@@ -1439,7 +1439,7 @@ Note: do **not** include `FullName` or `Metadata` in multi-record queries — on
 ### Create a new flow
 
 ```
-metadata_create(type="Flow", metadata=[{"fullName": "Flow_Name", "label": "Flow Name", "apiVersion": 65, "processType": "AutoLaunchedFlow", "status": "Draft", ...}])
+metadata_create(type="Flow", metadata=[{"fullName": "Flow_Name", "label": "Flow Name", "apiVersion": 67, "processType": "AutoLaunchedFlow", "status": "Draft", ...}])
 ```
 
 ### Update a flow (creates a new version)
@@ -1688,7 +1688,7 @@ metadata_create(
     type="Flow",
     metadata=[{
         "fullName": "Case_Category_Change_Alert",
-        "apiVersion": 65,
+        "apiVersion": 67,
         "description": "Sends email when Case Category changes from Billing to Channel. Side-effect flow: email failures are caught via faultConnector so the originating Case save is never blocked.",
         "environments": ["Default"],
         "interviewLabel": "Case Category Change Alert {!$Flow.CurrentDateTime}",
@@ -1966,7 +1966,7 @@ Flow Created  →  Deployed to Org  →  Action Definition Created  →  Agent C
 
 ## Notes
 
-**Dependencies** (optional): sf-metadata, sf-data | **API**: 65.0 | **Mode**: Strict (warnings block) | **MCP Server**: Cirra AI (required)
+**Dependencies** (optional): sf-metadata, sf-data | **API**: 67.0 | **Mode**: Strict (warnings block) | **MCP Server**: Cirra AI (required)
 
 **Required Setup**:
 

@@ -2,7 +2,7 @@
 name: sf-permissions
 plugin: cirra-ai-sf
 metadata:
-  version: 2.0.1
+  version: 2.0.2
 argument-hint: '[hierarchy|audit|analyze|create|clone|update|delete|agent-access] ...'
 description: >
   Permission Set analysis, hierarchy viewer, and "Who has X?" auditing. Use when analyzing
@@ -476,7 +476,7 @@ SELECT PermissionSetId, PermissionSet.Name, COUNT(AssigneeId) FROM PermissionSet
 ## Schema Validation for Permission Sets
 
 A baseline JSON Schema is bundled at `references/permissionset-metadata-schema.json`
-(API v65.0). Before calling `metadata_create`, validate the JSON payload against
+(API v67.0). Before calling `metadata_create`, validate the JSON payload against
 this schema to catch structural errors offline:
 
 - Required fields (`label`)

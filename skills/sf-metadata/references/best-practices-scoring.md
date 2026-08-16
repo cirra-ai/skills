@@ -8,7 +8,7 @@
 
 - Valid XML syntax (-10 if invalid)
 - Correct Salesforce namespace: `http://soap.sforce.com/2006/04/metadata` (-5 if missing)
-- API version present and >= 65.0 (-5 if outdated)
+- API version present and >= 67.0 (-5 if outdated)
 - Correct file path and naming structure (-5 if wrong)
 
 **Naming Conventions** (20 points):

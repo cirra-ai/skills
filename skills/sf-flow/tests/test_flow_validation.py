@@ -56,9 +56,9 @@ class TestValidFlowCreation:
         assert len(r["critical_issues"]) == 0
 
     def test_before_save_correct_api_version(self):
-        """TC-V1: API version is 65.0."""
+        """TC-V1: API version is 67.0."""
         r = _validate("perfect_before_save.flow-meta.xml")
-        assert r["api_version"] == "65.0"
+        assert r["api_version"] == "67.0"
 
     def test_after_save_scores_above_threshold(self):
         """TC-V2: After-save flow with fault handling scores ≥ 88/110."""

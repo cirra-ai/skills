@@ -3,7 +3,7 @@ name: sf-metadata
 plugin: cirra-ai-sf
 argument-hint: '[create|update|delete|describe] {ObjectName|FieldName|type} ...'
 metadata:
-  version: 2.3.0
+  version: 2.3.1
 description: >
   Salesforce metadata operations expert. Use when creating custom objects, fields, validation
   rules, record types, permission sets, or querying org metadata structures via the Cirra AI
@@ -473,7 +473,7 @@ Check FLS by querying Permission Set assignments if needed.
 **Structure & Format** (20 points):
 
 - Valid metadata structure (-10 if invalid)
-- API version present and >= 65.0 (-5 if outdated)
+- API version present and >= 67.0 (-5 if outdated)
 - Correct naming structure (-5 if wrong)
 
 **Naming Conventions** (20 points):
