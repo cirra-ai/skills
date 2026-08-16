@@ -69,7 +69,7 @@ Only reach for `connect_rest` when the capability is genuinely outside all of th
 | `agentforce` — data libraries, prompt templates                              | Agentforce                       |
 | `files` — files, folders, Files Connect repositories                         | Files and Folders / Other Family |
 | Chatter groups, topics, users, feeds — org-level Chatter requests            | Chatter (Out of Scope)           |
-| `commerce`, personalization                                                  | Files and Folders / Other Family |
+| `commerce` — B2B and B2C Commerce; also covers Personalization resources     | Files and Folders / Other Family |
 | `find` — "Cirra can't do X" / capability gap from another skill              | Find the Resource                |
 | _(unclear)_                                                                  | Ask the user                     |
 

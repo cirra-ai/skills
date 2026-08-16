@@ -216,7 +216,9 @@ Use this for "what is live?" and "why isn't this showing on the site?".
 4. **If nothing comes back, diagnose in this order** — do not just retry:
    1. Is the content published at all? Check with `cms_content`.
    2. Is the workspace connected to _this_ channel? `publish` takes no channel — content goes live
-      only on the channels the workspace is connected to; check `cms_content` `list_channels`.
+      only on the channels the workspace is connected to. Check `cms_content` `list_channels` and
+      compare against the delivery channel **by name**: authoring and delivery channel IDs are
+      different ID spaces, so the names are what match up across the two tools.
    3. Is the channel visible to the current user? `list_channels` is context-user scoped.
    4. For search: is the content type searchable and indexed for the channel? Both are
       `connect_rest` territory (`cms/channels/{channelId}/searchable-content-types` and
@@ -274,23 +276,23 @@ and full details, and `references/mcp-pagination.md` for handling large MCP resp
 
 ## Common Pitfalls
 
-| Pitfall                                                        | Fix                                                                                                               |
-| -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| Trying to update content with a `contentKeyOrId`               | `update` takes a `variantId` — `get` the content first and read it off                                            |
-| Omitting `urlName` on `update`                                 | Salesforce rewrites the URL from the title and breaks the live URL — always send the current one                  |
-| Unpublishing with `contentIds`                                 | Enhanced workspaces reject it ("This content isn't published") — `get` the variant ID and send `variantIds`       |
-| Publishing "to a channel"                                      | `publish` has no channel field — it goes live on every connected channel; name them from `list_channels`          |
-| Treating a deployment ID as "live"                             | A workspace with zero connected channels still accepts publish — check `list_channels`, verify via `cms_delivery` |
-| Putting `cms_delivery` `search` criteria in `queryParams`      | Delivery search is POST-only — `queryTerm`, `filters`, `page`, `pageSize` go in `body`                            |
-| Guessing body field names                                      | `clone` has no `urlName`; `create_channel` uses `type`, not `channelType`; see the per-operation list             |
-| Passing a delivery channel ID to `cms_content` (or vice versa) | They are separate ID spaces; list from the matching tool                                                          |
-| Treating `create` as "published"                               | Nothing is live until `publish`; verify through `cms_delivery`                                                    |
-| Reporting "content not found" from `cms_delivery`              | Work the four-step diagnosis: published? workspace connected to this channel? channel visible? indexed?           |
-| Retrying after an access-denied error                          | It is workspace membership or CMS role, not a bad request — report what access is missing                         |
-| Assuming enhanced CMS resources exist                          | Legacy CMS workspaces expose a different API — reach those with `connect_rest`                                    |
-| `search` returning an argument error                           | Both `contentSpaceOrFolderIds` and `queryTerm` are required                                                       |
-| Publishing bundled into an authoring approval                  | Ask again, separately, naming the connected channels                                                              |
-| Using an old org for taxonomy or space updates                 | `set_taxonomy_terms` needs API 63.0+, `update_space` needs 64.0+ — do not retry on older orgs                     |
+| Pitfall                                                        | Fix                                                                                                                                                    |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Trying to update content with a `contentKeyOrId`               | `update` takes a `variantId` — `get` the content first and read it off                                                                                 |
+| Omitting `urlName` on `update`                                 | Salesforce rewrites the URL from the title and breaks the live URL — always send the current one                                                       |
+| Unpublishing with `contentIds`                                 | Enhanced workspaces reject it ("This content isn't published") — `get` the variant ID and send `variantIds`                                            |
+| Publishing "to a channel"                                      | `publish` has no channel field — it goes live on every connected channel; name them from `list_channels`                                               |
+| Treating a deployment ID as "live"                             | A workspace with zero connected channels still accepts publish — check `list_channels`, verify via `cms_delivery`                                      |
+| Putting `cms_delivery` `search` criteria in `queryParams`      | Delivery search is POST-only — `queryTerm`, `filters`, `page`, `pageSize` go in `body`                                                                 |
+| Guessing body field names                                      | `clone` has no `urlName`; `create_channel` uses `type`, not `channelType`; see the per-operation list                                                  |
+| Passing a delivery channel ID to `cms_content` (or vice versa) | They are separate ID spaces; list from the matching tool                                                                                               |
+| Treating `create` as "published"                               | Nothing is live until `publish`; verify through `cms_delivery`                                                                                         |
+| Reporting "content not found" from `cms_delivery`              | Work the four-step diagnosis: published? workspace connected to this channel (match by name — the IDs are different spaces)? channel visible? indexed? |
+| Retrying after an access-denied error                          | It is workspace membership or CMS role, not a bad request — report what access is missing                                                              |
+| Assuming enhanced CMS resources exist                          | Legacy CMS workspaces expose a different API — reach those with `connect_rest`                                                                         |
+| `search` returning an argument error                           | Both `contentSpaceOrFolderIds` and `queryTerm` are required                                                                                            |
+| Publishing bundled into an authoring approval                  | Ask again, separately, naming the connected channels                                                                                                   |
+| Using an old org for taxonomy or space updates                 | `set_taxonomy_terms` needs API 63.0+, `update_space` needs 64.0+ — do not retry on older orgs                                                          |
 
 ---
 

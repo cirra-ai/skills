@@ -92,7 +92,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Should ask user**: no (diagnostic, read-only)
 - **Follow-up skills**: `sf-connect-rest`, `sf-permissions`
 
-**Notes**: Must work the four-step diagnosis in order rather than retrying: (1) published at all, (2) workspace connected to this channel — `publish` takes no channel, so content is live only on connected channels, (3) channel visible to the context user, (4) content type searchable and indexed. Steps 1 and 2 use `cms_content`; step 4 is `connect_rest` territory (`cms/channels/{channelId}/searchable-content-types`, `cms/channels/{channelId}/search/indexes`). The report must name which of the four applies rather than saying "not found".
+**Notes**: Must work the four-step diagnosis in order rather than retrying: (1) published at all, (2) workspace connected to this channel — `publish` takes no channel, so content is live only on connected channels; compare the `cms_delivery` channel to `cms_content` `list_channels` by name, since the two tools use different channel ID spaces, (3) channel visible to the context user, (4) content type searchable and indexed. Steps 1 and 2 use `cms_content`; step 4 is `connect_rest` territory (`cms/channels/{channelId}/searchable-content-types`, `cms/channels/{channelId}/search/indexes`). The report must name which of the four applies rather than saying "not found".
 
 ---
 
