@@ -543,6 +543,26 @@ metadata_update(..., patch=[{"op":"replace",
 
 ### TC-510 — `maxFailedTests` aborts a flow-test run
 
+**Setup:** create the second test with a triggering record that carries a field
+which does not exist on the object. Expect the create to **succeed** — the bad
+field is not validated at create time and surfaces only as `Result: Error` when
+run (the second `Result: Error` cause):
+
+```
+metadata_create(type="FlowTest", metadata=[
+  {"fullName": "Cirra_Probe_Err_BadField", ..., "testPoints": [
+    {"elementApiName": "Start", "parameters": [
+      {"leftValueReference": "$Record", "type": "InputTriggeringRecordInitial",
+       "value": {"sobjectValue": "{\"Impact\":\"High\",\"No_Such_Field__c\":\"x\"}"}}]},
+    {"elementApiName": "Finish", "assertions": [
+      {"conditions": [{"leftValueReference": "$Record.Priority", "operator": "EqualTo", "rightValue": {"stringValue": "High"}}], "errorMessage": "..."}]}]}
+])
+```
+
+`Cirra_Probe_MultiAssert` is the other failing test: TC-509's final patch
+flipped its first assertion to expect `Low`, so it now fails against the
+`High`-priority record.
+
 **Command:** run two flow tests where the first to execute fails, with
 `maxFailedTests="0"`:
 
