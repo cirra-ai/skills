@@ -640,6 +640,47 @@ def _release_name_of(ctx, release):
         return None
 
 
+def _current_api_anchor():
+    """(api_version, release_major, release_name) for the CURRENT release —
+    e.g. (67, 262, "Summer '26") — or None if not resolvable.
+
+    Read live from the Atlas REST-API doc manifest, whose `version` block ties
+    all three together in one anonymous call: version_text "Summer '26 (API
+    version 67.0)", release_version "67.0", doc_version "262.0". Cross-checked
+    against the REST Versions resource (GET /services/data/ on an instance,
+    which lists label + version pairs and shows one API version per seasonal
+    release while release majors step by 2)."""
+    try:
+        v = _dev_get_json(f"{DEV_HOST}/docs/get_document/atlas.en-us.api_rest.meta").get("version") or {}
+        api = int(float(v["release_version"]))
+        rel = int(float(v["doc_version"]))
+        m = re.search(r"(Spring|Summer|Winter)\s*[’']\s*(\d{2})", v.get("version_text") or "")
+        return api, rel, (f"{m.group(1)} '{m.group(2)}" if m else None)
+    except Exception:
+        return None
+
+
+def _api_version_for(release_major, anchor):
+    """API version ("v67.0") for a release major (262), derived from the live
+    anchor: each seasonal release adds 2 to the release major and 1 to the API
+    version (verified against the /services/data version labels)."""
+    api, rel, _ = anchor
+    return f"v{api + (release_major - rel) // 2}.0"
+
+
+def _prev_release_name(name):
+    """The seasonal release before `name` ("Winter '27" -> "Summer '26").
+    Cadence, verified against the /services/data labels: within a release year
+    Spring 'YY -> Summer 'YY -> Winter 'YY+1."""
+    season, yy = name.rsplit(" '", 1)
+    yy = int(yy)
+    if season == "Winter":
+        return f"Summer '{yy - 1}"
+    if season == "Summer":
+        return f"Spring '{yy}"
+    return f"Winter '{yy}"
+
+
 def _instance_release_info(instance):
     """Release info for one instance: running release + upcoming release windows."""
     # Instance keys are letters/digits/dashes/underscores (NA209, AP52,
@@ -664,10 +705,15 @@ def _instance_release_info(instance):
                 "instance key shown on your org's Company Information page (e.g. NA209, AP52).")
     if code == "404" or "key" not in d:
         raise RuntimeError(f"Trust returned no data for instance {instance!r}")
+    api_note = ""
+    m = re.match(r"(\d+)", d.get("releaseNumber") or "")
+    anchor = _current_api_anchor() if m else None
+    if anchor and m:
+        api_note = f", API {_api_version_for(int(m.group(1)), anchor)}"
     lines = [f"Instance: {d.get('key')} ({d.get('location')}, {d.get('environment')})",
              f"Status: {d.get('status')}" + ("" if d.get("isActive") else " — NOT active (decommissioned or migrated)"),
              f"Running release: {d.get('releaseVersion') or 'unknown'} "
-             f"(releaseNumber {d.get('releaseNumber') or '?'})",
+             f"(releaseNumber {d.get('releaseNumber') or '?'}{api_note})",
              f"Maintenance window: {d.get('maintenanceWindow') or 'unknown'}"]
     rel_lines = _release_maintenance_lines(d.get("Maintenances") or [])
     if rel_lines:
@@ -681,6 +727,11 @@ def _release_summary():
     """Org-independent release overview: current + preview release (from the
     release-notes landing pages) and upcoming release windows (from Trust)."""
     lines = []
+    anchor = _current_api_anchor()  # (api, release_major, name) or None
+
+    def _api(major):
+        return f", API {_api_version_for(major, anchor)}" if anchor else ""
+
     try:
         ctx = scrape_aura_context(RN_LANDING_TOPIC.replace(".htm", ""))
         ctx.update({"dn": [], "globals": {}, "uad": True})
@@ -688,12 +739,25 @@ def _release_summary():
             or _getdata(ctx, RN_LANDING_TOPIC, "").get("latestRNVersion")
         if not current:
             raise RuntimeError("latestRNVersion missing")
+        cur_major = int(current.split(".")[0])
         name = _release_name_of(ctx, current)
-        lines.append(f"Current release: {name or 'unknown name'} ({current})")
-        preview = f"{int(current.split('.')[0]) + 2}.0.0"
+        lines.append(f"Current release: {name or 'unknown name'} ({current}{_api(cur_major)})")
+        preview = f"{cur_major + 2}.0.0"
         preview_name = _release_name_of(ctx, preview)
         if preview_name:
-            lines.append(f"Preview release: {preview_name} ({preview}) — release notes already published")
+            lines.append(f"Preview release: {preview_name} ({preview}{_api(cur_major + 2)}) "
+                         "— release notes already published")
+        if anchor and name:
+            # Recent release <-> API version mapping: current + the 3 before it
+            # (and the preview ahead), all derived from the live anchor.
+            pairs = [f"{name} = {_api_version_for(cur_major, anchor)} (current)"]
+            nm, mj = name, cur_major
+            for _ in range(3):
+                nm, mj = _prev_release_name(nm), mj - 2
+                pairs.append(f"{nm} = {_api_version_for(mj, anchor)}")
+            if preview_name:
+                pairs.insert(0, f"{preview_name} = {_api_version_for(cur_major + 2, anchor)} (preview)")
+            lines.append("Release/API versions: " + ", ".join(pairs))
         lines.append(
             "Release notes are served for roughly the previous, current, and preview releases; "
             f"older ones are linked from the archive index topic {RN_ARCHIVE_TOPIC}.")

@@ -18,10 +18,11 @@ by host.
     way to reach the newer `docs/{cloud}/{product}/guide/{topic}` pages.
 - **Release info** — release-notes URLs fetch the release named in their `release=NNN` query
   param (previous / current / preview; older ones get a clear pointer to the archive index),
-  and the special target `release-info` reports the current + preview Salesforce release and
-  upcoming release maintenance windows — org-wide or for one instance (`release-info AP52`, or
-  a `status.salesforce.com/instances/AP52` URL) — via the anonymous Trust status API
-  (`api.status.salesforce.com`).
+  and the special target `release-info` reports the current + preview Salesforce release,
+  the release-name-to-API-version mapping (e.g. Summer '26 = v67.0, derived live from the
+  Atlas doc manifest), and upcoming release maintenance windows — org-wide or for one
+  instance (`release-info AP52`, or a `status.salesforce.com/instances/AP52` URL) — via the
+  anonymous Trust status API (`api.status.salesforce.com`).
 - **One argument** — the page URL (or a bare Help topic id, or `release-info`); no flags,
   retrieval is fully automatic.
 - **Self-maintaining** — scrapes the live `aura.context` and self-discovers the Salesforce

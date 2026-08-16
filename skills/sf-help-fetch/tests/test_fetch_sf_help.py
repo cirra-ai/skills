@@ -333,9 +333,41 @@ class TestStatusUrlRouting:
         assert "only valid with the 'release-info' target" in capsys.readouterr().err
 
 
+class TestApiVersionMapping:
+    ANCHOR = (67, 262, "Summer '26")
+
+    def test_api_version_for_current_prev_and_preview(self):
+        assert mod._api_version_for(262, self.ANCHOR) == "v67.0"
+        assert mod._api_version_for(260, self.ANCHOR) == "v66.0"
+        assert mod._api_version_for(256, self.ANCHOR) == "v64.0"
+        assert mod._api_version_for(264, self.ANCHOR) == "v68.0"
+
+    def test_prev_release_name_cycle(self):
+        # Cadence per the /services/data labels: ... Summer '25 -> Winter '26
+        # -> Spring '26 -> Summer '26 -> Winter '27 ...
+        assert mod._prev_release_name("Winter '27") == "Summer '26"
+        assert mod._prev_release_name("Summer '26") == "Spring '26"
+        assert mod._prev_release_name("Spring '26") == "Winter '26"
+        assert mod._prev_release_name("Winter '26") == "Summer '25"
+
+    def test_anchor_parsed_from_atlas_manifest(self, monkeypatch):
+        manifest = {"version": {"version_text": "Summer ’26 (API version 67.0)",
+                                "release_version": "67.0", "doc_version": "262.0"}}
+        monkeypatch.setattr(mod, "_dev_get_json", lambda url: manifest)
+        assert mod._current_api_anchor() == (67, 262, "Summer '26")
+
+    def test_anchor_none_on_failure(self, monkeypatch):
+        def boom(url):
+            raise RuntimeError("unreachable")
+
+        monkeypatch.setattr(mod, "_dev_get_json", boom)
+        assert mod._current_api_anchor() is None
+
+
 class TestReleaseInfo:
     def test_instance_info_by_exact_key(self, monkeypatch):
         monkeypatch.setattr(mod, "assert_reachable", lambda *a, **k: None)
+        monkeypatch.setattr(mod, "_current_api_anchor", lambda: (67, 262, "Summer '26"))
 
         def fake_status(path):
             assert path == "/v1/instances/AP52/status"
@@ -354,11 +386,13 @@ class TestReleaseInfo:
         out = mod.fetch_release_info("ap52")
         assert "AP52" in out
         assert "Summer '26 Patch 13.7" in out and "262.13.7" in out
+        assert "API v67.0" in out  # derived from releaseNumber major 262 + anchor
         assert "Winter '27 Major Release: 2026-10-10" in out
         assert "not a release" not in out  # non-release maintenance filtered out
 
     def test_instance_falls_back_to_search(self, monkeypatch):
         monkeypatch.setattr(mod, "assert_reachable", lambda *a, **k: None)
+        monkeypatch.setattr(mod, "_current_api_anchor", lambda: None)
         calls = []
 
         def fake_status(path):
@@ -409,6 +443,7 @@ class TestReleaseInfo:
     def test_summary_names_current_and_preview(self, monkeypatch):
         monkeypatch.setattr(mod, "assert_reachable", lambda *a, **k: None)
         monkeypatch.setattr(mod, "scrape_aura_context", lambda t: {"fwuid": "x"})
+        monkeypatch.setattr(mod, "_current_api_anchor", lambda: (67, 262, "Summer '26"))
         monkeypatch.delenv("HELP_RELEASE", raising=False)
 
         def fake_getdata(ctx, url_name, release, type_number="5", requested_type="HelpDocs"):
@@ -427,14 +462,35 @@ class TestReleaseInfo:
                            {"type": "release", "name": "Winter '27 Major Release",
                             "plannedStartTime": "2026-10-03T00:00:00.000Z"}], "200"))
         out = mod.fetch_release_info()
-        assert "Current release: Summer '26 (262.0.0)" in out
-        assert "Preview release: Winter '27 (264.0.0)" in out
+        assert "Current release: Summer '26 (262.0.0, API v67.0)" in out
+        assert "Preview release: Winter '27 (264.0.0, API v68.0)" in out
+        assert ("Release/API versions: Winter '27 = v68.0 (preview), "
+                "Summer '26 = v67.0 (current), Spring '26 = v66.0, "
+                "Winter '26 = v65.0, Summer '25 = v64.0") in out
         assert "Winter '27 Major Release: 2026-08-13 .. 2026-10-03 (2 scheduled events)" in out
         assert mod.RN_ARCHIVE_TOPIC in out
+
+    def test_summary_without_anchor_omits_api_versions(self, monkeypatch):
+        monkeypatch.setattr(mod, "assert_reachable", lambda *a, **k: None)
+        monkeypatch.setattr(mod, "scrape_aura_context", lambda t: {"fwuid": "x"})
+        monkeypatch.setattr(mod, "_current_api_anchor", lambda: None)
+        monkeypatch.delenv("HELP_RELEASE", raising=False)
+
+        def fake_getdata(ctx, url_name, release, type_number="5", requested_type="HelpDocs"):
+            if release == "":
+                return {"latestRNVersion": "262.0.0"}
+            return {"record": {"Content__c": "<h1>Salesforce Summer ’26 Release Notes</h1>"}}
+
+        monkeypatch.setattr(mod, "_getdata", fake_getdata)
+        monkeypatch.setattr(mod, "_status_get_json", lambda path: ([], "200"))
+        out = mod.fetch_release_info()
+        assert "Current release: Summer '26 (262.0.0)" in out
+        assert "API v" not in out and "Release/API versions" not in out
 
     def test_summary_survives_help_outage(self, monkeypatch):
         # Trust data still prints when the release-notes side fails.
         monkeypatch.setattr(mod, "assert_reachable", lambda *a, **k: None)
+        monkeypatch.setattr(mod, "_current_api_anchor", lambda: None)
 
         def boom(t):
             raise RuntimeError("help.salesforce.com is down")

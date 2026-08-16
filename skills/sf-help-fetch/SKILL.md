@@ -215,6 +215,32 @@ a `status.salesforce.com/instances/KEY` URL routes to the same code path.
   "Summer '26 Patch 13.7" / `262.13.7`), its maintenance window, and its upcoming
   release-maintenance events with planned start dates.
 
+### Release name ↔ API version mapping
+
+`release-info` also reports the **platform API version** for each release (the `vNN.0` used in
+REST/SOAP/Apex endpoints). The mapping is **derived live, not hardcoded**: the anonymous Atlas
+manifest `GET https://developer.salesforce.com/docs/get_document/atlas.en-us.api_rest.meta`
+ties all three identifiers together in its `version` block — `version_text`
+"Summer '26 (API version 67.0)", `release_version` `67.0`, `doc_version` `262.0` — and each
+seasonal release adds 2 to the release major and 1 to the API version, so any release's API
+version follows arithmetically from that anchor. The cadence was cross-checked against the
+[REST Versions resource](https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_versions.htm)
+(`GET https://INSTANCE.salesforce.com/services/data/`, anonymous), which lists every
+`label`/`version` pair (… Winter '25 = 62.0, Spring '25 = 63.0, Summer '25 = 64.0,
+Winter '26 = 65.0, Spring '26 = 66.0, Summer '26 = 67.0). Snapshot of the recent mapping as
+of August 2026 — the tool output is always the live-derived version:
+
+| Release              | Release number | API version |
+| -------------------- | -------------- | ----------- |
+| Winter '27 (preview) | 264            | v68.0       |
+| Summer '26 (current) | 262            | v67.0       |
+| Spring '26           | 260            | v66.0       |
+| Winter '26           | 258            | v65.0       |
+| Summer '25           | 256            | v64.0       |
+
+If the anchor fetch fails (e.g. `developer.salesforce.com` blocked), release-info simply omits
+the API-version annotations rather than failing.
+
 ### Trust status API contract (verified empirically)
 
 `https://api.status.salesforce.com` — anonymous, no tokens. The hosted Swagger UI at
