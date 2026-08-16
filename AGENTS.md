@@ -30,13 +30,20 @@ These have broken published skills. Verify every one before pushing a skill chan
    - **Plain text: escape both pairs** — `Invoice\_\_c`, matching the existing tables.
 
    After editing, re-run `npx prettier --write <files>` and confirm nothing turned into `**`.
-   To sweep the whole repo — expect hits only in `plugins/` (regenerated from `skills/` after
-   merge), deliberate acronym bolding like `**S**ingle Responsibility` in `skills/sf-apex/`,
-   and the counter-example quoted above:
+
+   **This one is enforced.** `scripts/validate-skills.sh` fails on a corrupted name anywhere
+   under `skills/`, so CI catches it — you do not have to spot it by eye. To check a tree
+   yourself:
 
    ```sh
-   git ls-files -z | xargs -0 grep -nE '\*\*(c|r|mdt|x|e|b|kav|Share|History|Feed|Tag|ChangeEvent)\b'
+   python3 scripts/check_md_api_names.py            # skills/ (what CI enforces)
+   python3 scripts/check_md_api_names.py .          # whole repo
    ```
+
+   The checker only reads prose: matches inside code spans and fenced blocks are ignored,
+   because emphasis does not apply there — which is also why backticks are the better fix.
+   For a deliberate case it misreads, put `md-api-names: allow` in an HTML comment on the
+   offending line or the line above.
 
 ## Before every push
 
