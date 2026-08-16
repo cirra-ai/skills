@@ -1,6 +1,6 @@
 # sf-connect-rest
 
-Salesforce Connect REST API skill for AI coding tools. Reach org capabilities that have no dedicated tool — named credentials, custom domains, Experience Cloud site publishing, Agentforce data libraries, Files, Chatter, and more — via the Cirra AI MCP Server.
+Salesforce Connect REST API skill for AI coding tools. Reach org capabilities that have no dedicated tool — named credentials, custom domains, Experience Cloud site publishing, Agentforce data libraries, Files, and more — via the Cirra AI MCP Server.
 
 ## Features
 
@@ -9,7 +9,7 @@ Salesforce Connect REST API skill for AI coding tools. Reach org capabilities th
 - **Experience Cloud**: Site information, audiences, moderation, and site publishing — the step that has no Metadata API equivalent.
 - **Agentforce**: Data libraries and prompt templates.
 - **Safe writes**: Every POST, PATCH, PUT, and DELETE shows the exact method, path, and body and waits for explicit approval.
-- **Error decoding**: Distinguishes a Chatter rate-limit 503 from an outage, and a permission 403 from a malformed request.
+- **Error decoding**: Reads a permission 403 as access rather than a malformed request, never retries a 503 blindly, and treats an out-of-scope rejection (like org-level Chatter) as correct behavior rather than a bug.
 
 ## Installation
 
@@ -34,7 +34,7 @@ Or in CLIs:
 
 ### 2. Paths are looked up, never guessed
 
-The skill consults the official Connect REST API reference for the exact path and HTTP method before calling anything, and confirms the resource exists at your org's API version. If the resource isn't in the documentation, it says so rather than probing candidate paths.
+The skill starts from the Connect directory (an empty path returns every resource the org exposes to the context user), then consults the official Connect REST API reference for the exact path and HTTP method before calling anything, and confirms the resource exists at your org's API version. If the resource isn't in the documentation, it says so rather than probing candidate paths.
 
 ### 3. Reads are free, writes are gated
 
@@ -69,7 +69,7 @@ The skill consults the official Connect REST API reference for the exact path an
 | CMS content and delivery  | `cms_content`, `cms_delivery`                            |
 | Setup record links        | `link_build`                                             |
 
-Paths are relative to `/services/data/vXX.X/connect/` — the version prefix is added automatically. Only Connect REST resources are reachable: paths outside `/connect/` are rejected, because the record-facing tools enforce field-level access checks that a general passthrough would bypass.
+Paths are relative to `/services/data/vXX.X/connect/` — the version prefix is added automatically, and an empty path returns the Connect directory. Only Connect REST resources are reachable: paths outside `/connect/` — including org-level Chatter REST under `/chatter/` — are rejected, because the record-facing tools enforce field-level access checks that a general passthrough would bypass.
 
 ## Requirements
 

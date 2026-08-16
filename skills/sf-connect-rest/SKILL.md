@@ -3,18 +3,18 @@ name: sf-connect-rest
 plugin: cirra-ai-sf
 metadata:
   version: 1.0.0
-argument-hint: '[find|core|experience-cloud|agentforce|chatter|files|commerce] {resource-path|details} ...'
+argument-hint: '[find|core|experience-cloud|agentforce|files|commerce] {resource-path|details} ...'
 description: >
   Salesforce Connect REST API expert for the generic connect_rest tool. Use when a Salesforce task
   needs a capability with no dedicated Cirra tool: named credentials, custom domains, org and user
   settings reads, Experience Cloud site information and site publishing, audiences and moderation,
-  Agentforce data libraries and prompt templates, Chatter groups, topics, users and feeds, Files
-  and Files Connect repositories, personalization, or B2B and B2C Commerce resources. Also use this
-  skill whenever another skill hits a Salesforce feature that the metadata, SOQL, and CMS tools
-  cannot reach — it covers how to find the correct Connect REST resource path from the official
-  reference, call it safely, and interpret its errors, including the Chatter rate limit that
-  surfaces as a 503.
-  Usage: /sf-connect-rest [find|core|experience-cloud|agentforce|chatter|files|commerce] {details} ...
+  Agentforce data libraries and prompt templates, Files and Files Connect repositories,
+  personalization, or B2B and B2C Commerce resources. Also use this skill whenever another skill
+  hits a Salesforce feature that the metadata, SOQL, and CMS tools cannot reach — it covers how to
+  discover what the org exposes via the Connect directory, find the correct Connect REST resource
+  path from the official reference, call it safely, and interpret its errors. Org-level Chatter
+  REST is a separate API root and is not reachable through this tool.
+  Usage: /sf-connect-rest [find|core|experience-cloud|agentforce|files|commerce] {details} ...
 ---
 
 # Salesforce Connect REST API Expert
@@ -29,14 +29,19 @@ This skill uses **Cirra AI MCP tools directly** for all org operations. No sf CL
 `connect_rest` takes an exact resource path. A guessed path returns 404, and trying variations
 burns calls and credits while looking like progress.
 
-1. **Look the resource up** in the Connect REST API reference before calling it:
+1. **Start with the directory.** A `GET` with an empty `path` returns the Connect directory of
+   org and Experience Cloud site resources available to the context user — see what this org
+   actually exposes before hunting through the docs. (`''`, `/connect`, and the fully qualified
+   Connect root all mean the directory.)
+2. **Look the resource up** in the Connect REST API reference before calling it:
    <https://developer.salesforce.com/docs/platform/connect-rest-api/references/connect-rest-api-about>
    Use `sf-help-fetch` for `help.salesforce.com` pages, or web access for
    `developer.salesforce.com`.
-2. **Confirm the HTTP method** on the resource's own page, not from the family index. Methods vary
+3. **Confirm the HTTP method** on the resource's own page, not from the family index. Methods vary
    in ways that are not guessable — sibling CMS resources use PUT, PATCH, and POST respectively.
-3. **Confirm the resource exists at the org's API version.** Some resources are recent additions.
-4. **GET before you write.** Read the current state of a resource before modifying it.
+4. **Confirm the resource exists at the org's API version**, and remember feature enablement
+   varies by org — a documented path can 404 when the feature is not on.
+5. **GET before you write.** Read the current state of a resource before modifying it.
 
 If you cannot find the resource in the documentation, say so plainly. Do not invent a path.
 
@@ -57,16 +62,16 @@ Only reach for `connect_rest` when the capability is genuinely outside all of th
 
 ## Dispatch
 
-| Intent                                                                       | Workflow          |
-| ---------------------------------------------------------------------------- | ----------------- |
-| `core` — named credentials, custom domains, org/user settings, notifications | Core Resource     |
-| `experience-cloud` — site info, site publishing, audiences, moderation       | Experience Cloud  |
-| `agentforce` — data libraries, prompt templates                              | Agentforce        |
-| `files` — files, folders, Files Connect repositories                         | Files and Folders |
-| `chatter` — groups, topics, users, feeds, comments                           | Chatter           |
-| `commerce`, personalization                                                  | Other Family      |
-| `find` — "Cirra can't do X" / capability gap from another skill              | Find the Resource |
-| _(unclear)_                                                                  | Ask the user      |
+| Intent                                                                       | Workflow               |
+| ---------------------------------------------------------------------------- | ---------------------- |
+| `core` — named credentials, custom domains, org/user settings, notifications | Core Resource          |
+| `experience-cloud` — site info, site publishing, audiences, moderation       | Experience Cloud       |
+| `agentforce` — data libraries, prompt templates                              | Agentforce             |
+| `files` — files, folders, Files Connect repositories                         | Files and Folders      |
+| Chatter groups, topics, users, feeds — org-level Chatter requests            | Chatter (Out of Scope) |
+| `commerce`, personalization                                                  | Other Family           |
+| `find` — "Cirra can't do X" / capability gap from another skill              | Find the Resource      |
+| _(unclear)_                                                                  | Ask the user           |
 
 When the family or the exact resource is ambiguous, **you MUST use `AskUserQuestion`** rather than
 probing paths speculatively.
@@ -88,20 +93,26 @@ Reads (`GET`) do not need approval.
 
 ## Resource Families
 
-Nine resource families, all under `/services/data/vXX.X/connect/` — Core plus the eight listed
-after it. Paths below are starting points — confirm each against the reference before calling.
+The resource families under `/services/data/vXX.X/connect/`. Example paths are `/connect/`-relative
+and taken from the Connect REST API reference — only live-verified or documented paths are listed;
+where the reference is the only source, look the path up there. Feature enablement still varies by
+org, so a documented path can 404 when the feature is not on. Use the directory (empty `path`) to
+see what this org actually exposes.
 
 | Family                | Scope                                                                                         | Example paths                                       |
 | --------------------- | --------------------------------------------------------------------------------------------- | --------------------------------------------------- |
-| **Core**              | org and user settings, custom domains, named credentials, notifications                       | `named-credentials/credentials`, `custom-domains`   |
+| **Core**              | org and user settings                                                                         | `organization`                                      |
 | **Experience Cloud**  | site information, creation and publishing, audiences, moderation, marketing integration forms | `communities`, `communities/{communityId}`          |
-| **Agentforce**        | data libraries, prompt templates                                                              | `ai/data-libraries`                                 |
+| **Agentforce**        | data libraries, prompt templates                                                              | see the reference                                   |
 | **CMS**               | managed content and enhanced workspaces                                                       | `cms/channels/{channelId}/searchable-content-types` |
-| **Files and Folders** | files, folders, Files Connect repositories                                                    | `files/{fileId}`, `folders`                         |
-| **Chatter**           | directories, groups, missions, recommendations, topics, users                                 | `chatter/groups`, `chatter/users`                   |
-| **Chatter Feeds**     | feeds, feed elements, comments                                                                | `chatter/feeds`                                     |
+| **Files and Folders** | files, folders, Files Connect repositories                                                    | `folders/{folderId}`                                |
 | **Personalization**   | tailoring experiences to users                                                                | see the reference                                   |
-| **Commerce**          | B2B and B2C Commerce                                                                          | `commerce/webstores`                                |
+| **Commerce**          | B2B and B2C Commerce                                                                          | see the reference                                   |
+
+**Chatter is not one of them.** Org-level Chatter REST lives at `/services/data/vXX.X/chatter/`, a
+separate API root, and `connect_rest` rejects it by design — Chatter feeds can surface record data
+without the field-level access checks the record-facing tools enforce. Community-scoped Chatter
+under `communities/{communityId}/chatter` is still a Connect path.
 
 **Most relevant to admin work**: Core (named credentials and custom domains do not round-trip
 cleanly through the Metadata API) and Experience Cloud (site publishing has no Metadata API
@@ -117,13 +128,15 @@ The default workflow when another skill hits a capability gap.
 
 1. **`cirra_ai_init`**.
 2. **Name the capability precisely** — what should change or be read, in Salesforce's own terms.
-3. **Identify the family** from the table above.
-4. **Fetch the reference** for that family and locate the resource. Read the resource's own page for
+3. **GET the directory** — `connect_rest` with an empty `path` — to see which resources this org
+   actually exposes to the context user.
+4. **Identify the family** from the table above.
+5. **Fetch the reference** for that family and locate the resource. Read the resource's own page for
    the exact path, HTTP method, and request shape.
-5. **If the resource does not exist**, say so and stop. Do not approximate with a different
+6. **If the resource does not exist**, say so and stop. Do not approximate with a different
    resource.
-6. **GET first** to confirm the path resolves and to see the current state.
-7. **For a write**: present method, path, and body → approval → end turn → execute → verify with a
+7. **GET first** to confirm the path resolves and to see the current state.
+8. **For a write**: present method, path, and body → approval → end turn → execute → verify with a
    follow-up GET → report.
 
 ### Core Resource
@@ -163,13 +176,18 @@ For data libraries and prompt templates.
 Enablement and permission-set setup for Agentforce is a different job — hand off to the Agentforce
 setup skill if the request is about turning the feature on rather than managing its resources.
 
-### Chatter
+### Chatter (Out of Scope)
 
-1. **`cirra_ai_init`**.
-2. **Read the rate-limit guidance below before making repeated calls.**
-3. **Look up the resource**, GET first, and get approval for any write (posting to a feed is
-   visible to other users).
-4. **Space out calls.** Chatter resources are rate-limited per user, per application, per hour.
+Org-level Chatter REST (`/services/data/vXX.X/chatter/...`) is a separate API root that
+`connect_rest` rejects by design — Chatter feeds can surface record data without the field-level
+access checks the record-facing tools enforce. Relative `chatter/...` paths fail fast for the same
+reason.
+
+1. **Say so plainly** — org-level Chatter groups, topics, users, and feeds are not reachable
+   through Cirra tools. Do not probe `chatter/...` paths; the rejection is correct behavior.
+2. **Community-scoped Chatter is different**: `communities/{communityId}/chatter/...` is a Connect
+   path. Handle it under the Experience Cloud workflow, with the same write approvals — a feed
+   post is visible to other users.
 
 ### Files and Folders / Other Family
 
@@ -195,13 +213,14 @@ and full details, and `references/mcp-pagination.md` for handling large MCP resp
 | Build setup links         | `link_build`                  | for the final report                                  |
 
 **Path format**: pass the path relative to `/services/data/vXX.X/connect/` — the version prefix is
-added automatically. A fully qualified path pasted from the docs is also accepted. Query values go
-in `queryParams`, never in `path`.
+added automatically. A fully qualified Connect path pasted from the docs is also accepted and
+normalized. An empty path, `/connect`, or `/services/data/vXX.X/connect` all mean the directory of
+resources available to the context user. Query values go in `queryParams`, never in `path`.
 
-**Scope limit**: only Connect REST resources are reachable. Paths outside `/connect/` are rejected
-by design, because the record-facing tools enforce field-level access checks that a general
-passthrough would bypass. That rejection is correct behavior — do not try to work around it; use
-the right tool instead.
+**Scope limit**: only Connect REST resources are reachable. Paths outside `/connect/` — including
+org-level Chatter REST under `/chatter/` — are rejected by design, because the record-facing tools
+enforce field-level access checks that a general passthrough would bypass. That rejection is
+correct behavior — do not try to work around it; use the right tool instead.
 
 **CRITICAL**: Always call `cirra_ai_init()` FIRST.
 
@@ -209,34 +228,31 @@ the right tool instead.
 
 ## Reading Errors
 
-| Response    | Meaning                                                                                                                                    | What to do                                                                                        |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
-| **503**     | Rate limited. Only Chatter resources have the per-user, per-application, per-hour limit, and Connect REST returns 503 when it is exceeded. | **Do not retry immediately.** Tell the user the call was throttled and wait. It is not an outage. |
-| **403**     | Permission or feature enablement, not a malformed request                                                                                  | Report what access appears to be missing. Retrying the same call fails the same way.              |
-| **404**     | Wrong path, wrong ID, or a resource newer than the org's API version                                                                       | Re-check the path in the reference. Do not brute-force variations.                                |
-| Error array | One or more `errorCode` / `message` pairs from Salesforce                                                                                  | Read the codes; they name the specific field or record problem.                                   |
+| Response    | Meaning                                                                                     | What to do                                                                           |
+| ----------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| **503**     | The service is unavailable                                                                  | **Do not retry immediately.** Wait, and tell the user the call failed.               |
+| **403**     | Permission or feature enablement, not a malformed request                                   | Report what access appears to be missing. Retrying the same call fails the same way. |
+| **404**     | Wrong path, wrong ID, a feature not enabled, or a resource newer than the org's API version | Re-check the path in the reference and the directory. Do not brute-force variations. |
+| Error array | One or more `errorCode` / `message` pairs from Salesforce                                   | Read the codes; they name the specific field or record problem.                      |
 
-Non-Chatter Connect resources count against the org's normal 24-hour API allocation instead of a
-per-hour limit.
-
-Rate limit reference:
-<https://developer.salesforce.com/docs/atlas.en-us.chatterapi.meta/chatterapi/intro_rate_limits.htm>
+Connect REST calls count against the org's normal 24-hour API allocation.
 
 ---
 
 ## Common Pitfalls
 
-| Pitfall                                          | Fix                                                                             |
-| ------------------------------------------------ | ------------------------------------------------------------------------------- |
-| Guessing a resource path                         | Look it up in the reference; if it is not there, say so                         |
-| Assuming the HTTP method from a sibling resource | Check the resource's own page — sibling resources differ (PUT vs PATCH vs POST) |
-| Retrying a 503                                   | It is a rate limit; wait rather than retrying                                   |
-| Retrying a 403 with variations                   | It is permissions; report what is missing                                       |
-| Using `connect_rest` for records or metadata     | Use `soql_query` / `metadata_*` — they enforce access checks this tool cannot   |
-| Putting query parameters in `path`               | They belong in `queryParams`                                                    |
-| Writing without showing the exact request        | Always show method, path, and body and get approval first                       |
-| Echoing credential material from a Core response | Describe the fields; never print secret values                                  |
-| Bundling a site publish into an earlier approval | Publishing is separately visible to users — approve it separately               |
+| Pitfall                                          | Fix                                                                                                                        |
+| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| Guessing a resource path                         | GET the directory (empty `path`), then look it up in the reference; if it is not there, say so                             |
+| Reaching for org-level Chatter (`chatter/...`)   | A separate API root, rejected by design — say so; community-scoped Chatter lives under `communities/{communityId}/chatter` |
+| Assuming the HTTP method from a sibling resource | Check the resource's own page — sibling resources differ (PUT vs PATCH vs POST)                                            |
+| Retrying a 503                                   | The service is unavailable; wait rather than retrying                                                                      |
+| Retrying a 403 with variations                   | It is permissions; report what is missing                                                                                  |
+| Using `connect_rest` for records or metadata     | Use `soql_query` / `metadata_*` — they enforce access checks this tool cannot                                              |
+| Putting query parameters in `path`               | They belong in `queryParams`                                                                                               |
+| Writing without showing the exact request        | Always show method, path, and body and get approval first                                                                  |
+| Echoing credential material from a Core response | Describe the fields; never print secret values                                                                             |
+| Bundling a site publish into an earlier approval | Publishing is separately visible to users — approve it separately                                                          |
 
 ---
 

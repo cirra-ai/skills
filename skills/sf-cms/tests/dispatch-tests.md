@@ -20,7 +20,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Should ask user**: yes (must present the authoring plan for approval, then ask separately before publishing)
 - **Follow-up skills**: `sf-metadata`, `sf-connect-rest`
 
-**Notes**: Discovery must run before authoring — `cms_content` `list_spaces` to resolve the workspace, `metadata_list` / `metadata_read` on `ManagedContentType` to resolve the content type, and `list_channels` for the target channel. The body should be modelled on an existing item of the same type via `search` then `get`. `create` does NOT publish; publishing requires a second, explicitly separate approval naming the channel. Verification must go through `cms_delivery` `get_content`, not the authoring response.
+**Notes**: Discovery must run before authoring — `cms_content` `list_spaces` to resolve the workspace, `metadata_list` / `metadata_read` on `ManagedContentType` to resolve the content type, and `list_channels` for the connected channels. The body should be modelled on an existing item of the same type via `search` then `get`. `create` does NOT publish; publishing requires a second, explicitly separate approval that names the channels the workspace is connected to — `publish` itself takes no channel field and goes live on all of them. Verification must go through `cms_delivery` `get_content`, not the authoring response.
 
 ---
 
@@ -56,7 +56,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Should ask user**: yes (must state the blast radius — content becomes visible to everyone with channel access — and get explicit approval)
 - **Follow-up skills**: `sf-cms`
 
-**Notes**: Publishing is a separately-approved step even when the content change was already approved. The plan must name the target channel explicitly. After publishing, verification goes through `cms_delivery` `get_content` — an authoring success response is not proof the content is live.
+**Notes**: Publishing is a separately-approved step even when the content change was already approved. `publish` takes `contentIds` or `variantIds` and has no channel field — it makes the content live on every channel the workspace is connected to, so the plan must name those channels from `list_channels` (and if there are none, say the publish will not make anything visible). `unpublish` must send `variantIds`, not `contentIds`, in enhanced workspaces. After publishing, verification goes through `cms_delivery` `get_content` — a deployment ID / `status: Published` is not proof the content is live.
 
 ---
 

@@ -78,21 +78,21 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 
 ---
 
-## chatter feed request — rate limit awareness
+## org-level chatter request — out of scope
 
-- **Input**: `/sf-connect-rest chatter post an announcement to the company Chatter group`
-- **Dispatch**: Chatter
+- **Input**: `/sf-connect-rest post an announcement to the company Chatter group`
+- **Dispatch**: Chatter (Out of Scope)
 - **Init required**: yes
 - **Init timing**: before-workflow
-- **Path**: full
+- **Path**: fast
 - **First tool**: `cirra_ai_init`
 - **Tool params**: `(no parameters)`
-- **Should call**: `cirra_ai_init`, `connect_rest`
-- **Should NOT call**: `sobject_dml`, `metadata_create`
-- **Should ask user**: yes (posting is visible to other users — must show the exact request and get approval)
+- **Should call**: `cirra_ai_init`
+- **Should NOT call**: `connect_rest`, `sobject_dml`
+- **Should ask user**: yes (must explain that org-level Chatter is not reachable and ask how the user wants to proceed)
 - **Follow-up skills**: `sf-connect-rest`
 
-**Notes**: Chatter resources are subject to a per-user, per-application, per-hour rate limit; a 503 means throttling, not an outage, and the skill must NOT retry immediately. Calls should be spaced out. Writes to a feed are visible to other users, so approval is required.
+**Notes**: Org-level Chatter REST lives at `/services/data/vXX.X/chatter/`, a separate API root that `connect_rest` rejects by design — Chatter feeds can surface record data without the field-level access checks the record-facing tools enforce. The skill must say so plainly and must NOT probe `chatter/...` paths; the rejection is correct behavior, not a bug to work around. Community-scoped Chatter under `communities/{communityId}/chatter` remains a Connect path and is handled by the Experience Cloud workflow with the usual write approvals.
 
 ---
 

@@ -44,7 +44,7 @@ The skill will:
 
 ### 3. Publishing is always a separate approval
 
-Creating or updating content never makes it live. The skill asks again, naming the target channel, before publishing — and then verifies through the delivery API rather than trusting the authoring response.
+Creating or updating content never makes it live. The skill asks again before publishing — naming the channels the workspace is connected to, since publish itself takes no channel and goes live on all of them — and then verifies through the delivery API rather than trusting the authoring response.
 
 ### Common Operations
 
@@ -70,16 +70,16 @@ Creating or updating content never makes it live. The skill asks again, naming t
 
 > This section is for Salesforce developers building integrations. Admins can skip it.
 
-| Operation                      | MCP Tool                                                   |
-| ------------------------------ | ---------------------------------------------------------- |
-| Discover workspaces / channels | `cms_content` (`list_spaces`, `list_channels`)             |
-| Discover content types         | `metadata_list` / `metadata_read` (`ManagedContentType`)   |
-| Search content                 | `cms_content` (`search`)                                   |
-| Create / clone content         | `cms_content` (`create`, `clone`)                          |
-| Edit / remove content          | `cms_content` (`update`, `delete`) — operates on a variant |
-| Publish / unpublish            | `cms_content` (`publish`, `unpublish`)                     |
-| Read what is live              | `cms_delivery`                                             |
-| CMS resources without a tool   | `connect_rest`                                             |
+| Operation                      | MCP Tool                                                             |
+| ------------------------------ | -------------------------------------------------------------------- |
+| Discover workspaces / channels | `cms_content` (`list_spaces`, `list_channels`)                       |
+| Discover content types         | `metadata_list` / `metadata_read` (`ManagedContentType`)             |
+| Search content                 | `cms_content` (`search`)                                             |
+| Create / clone content         | `cms_content` (`create`, `clone`)                                    |
+| Edit / remove content          | `cms_content` (`update`, `delete`) — operates on a variant           |
+| Publish / unpublish            | `cms_content` (`publish`, `unpublish`) — unpublish takes variant IDs |
+| Read what is live              | `cms_delivery`                                                       |
+| CMS resources without a tool   | `connect_rest`                                                       |
 
 ## Requirements
 
