@@ -41,8 +41,14 @@ Created by [Jag Valaiyapathy](https://github.com/Jaganpro)
 - [SLDS 2 Blog Post](https://www.salesforce.com/blog/new-design-system/) - Salesforce official announcement
 - [SLDS 2 Trailhead Module](https://trailhead.salesforce.com/content/learn/modules/lightning-design-system) - Learn SLDS fundamentals
 
+### Summer '26 Release (API 67.0)
+
+- [Summer '26 Release in a Box](https://www.salesforce.com/en-us/wp-content/uploads/sites/4/documents/PDF/release-in-a-box-summer-26-v6.pdf) - Salesforce official release overview
+- [The Salesforce Developer's Guide to the Summer '26 Release](https://developer.salesforce.com/blogs/2026/06/the-salesforce-developers-guide-to-the-summer-26-release) - Salesforce Developers Blog
+
 ### Spring '26 Release (API 66.0)
 
+- [Spring '26 Release in a Box](https://www.salesforce.com/en-us/wp-content/uploads/sites/4/documents/release-notes/spring26-release-in-a-box.pdf) - Salesforce official release overview
 - [9 Features for Salesforce Developers in Spring '26](https://www.salesforceben.com/9-features-for-salesforce-developers-in-the-spring-26-release/) - Salesforce Ben
 - [LWC Directives Reference](https://developer.salesforce.com/docs/platform/lwc/guide/reference-directives.html) - lwc:on directive documentation
 - [GraphQL Mutations Guide](https://developer.salesforce.com/docs/platform/graphql/guide/mutations-use.html) - Salesforce GraphQL API

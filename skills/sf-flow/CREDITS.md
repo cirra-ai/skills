@@ -151,6 +151,8 @@ Sources: Salesforce official documentation, Salesforce Architects guidance, Trai
 - **Trailhead Flow Modules**: https://trailhead.salesforce.com/en/content/learn/trails/automate_business_processes
 - **Salesforce Architects Blog**: https://architect.salesforce.com/
 - **Flow Release Notes**: https://help.salesforce.com/s/articleView?id=release-notes.rn_forcecom_flow.htm
+- **Summer '26 Release in a Box** (current release baseline, API 67.0): https://www.salesforce.com/en-us/wp-content/uploads/sites/4/documents/PDF/release-in-a-box-summer-26-v6.pdf
+- **Developer's Guide to the Summer '26 Release**: https://developer.salesforce.com/blogs/2026/06/the-salesforce-developers-guide-to-the-summer-26-release
 
 ---
 
