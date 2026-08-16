@@ -3,7 +3,7 @@ name: sf-metadata
 plugin: cirra-ai-sf
 argument-hint: '[create|update|delete|describe] {ObjectName|FieldName|type} ...'
 metadata:
-  version: 2.2.0
+  version: 2.3.0
 description: >
   Salesforce metadata operations expert. Use when creating custom objects, fields, validation
   rules, record types, permission sets, or querying org metadata structures via the Cirra AI
@@ -579,16 +579,17 @@ Parameters:
 
 ## Supported Metadata Types
 
-| Metadata Type   | `metadata_create` type | Common Operations                                                                                                                                |
-| --------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Custom Object   | `CustomObject`         | Create with label, name field, sharing model                                                                                                     |
-| Custom Field    | `CustomField`          | Create with fullName as `Object.Field__c`                                                                                                        |
-| Permission Set  | `PermissionSet`        | Object + field permissions                                                                                                                       |
-| Validation Rule | `ValidationRule`       | Formula-based validation                                                                                                                         |
-| Record Type     | `RecordType`           | Picklist value assignments                                                                                                                       |
-| Page Layout     | `Layout`               | Section and field placement                                                                                                                      |
-| Lightning Page  | `FlexiPage`            | All page types: Record/App/Home, Forecasting, Omni Supervisor, Email, Slack, Experience Cloud, etc. — see `references/flexipage-capabilities.md` |
-| List View       | `ListView`             | Columns, filters, `filterScope`, `sharedTo` visibility (Kanban is UI-only)                                                                       |
+| Metadata Type    | `metadata_create` type                 | Common Operations                                                                                                                                                            |
+| ---------------- | -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Custom Object    | `CustomObject`                         | Create with label, name field, sharing model                                                                                                                                 |
+| Custom Field     | `CustomField`                          | Create with fullName as `Object.Field__c`                                                                                                                                    |
+| Permission Set   | `PermissionSet`                        | Object + field permissions                                                                                                                                                   |
+| Validation Rule  | `ValidationRule`                       | Formula-based validation                                                                                                                                                     |
+| Record Type      | `RecordType`                           | Picklist value assignments                                                                                                                                                   |
+| Page Layout      | `Layout`                               | Section and field placement                                                                                                                                                  |
+| Lightning Page   | `FlexiPage`                            | All page types: Record/App/Home, Forecasting, Omni Supervisor, Email, Slack, Experience Cloud, etc. — see `references/flexipage-capabilities.md`                             |
+| List View        | `ListView`                             | Columns, filters, `filterScope`, `sharedTo` visibility (Kanban is UI-only)                                                                                                   |
+| ECA OAuth Policy | `ExtlClntAppOauthConfigurablePolicies` | Permitted-users policy, pre-authorized permission sets/profiles, refresh-token and session policy for an External Client App — see `references/external-client-app-oauth.md` |
 
 ---
 
@@ -620,6 +621,8 @@ Parameters:
 | `MATCH_DEFINITION_ERROR` (`...doesn't have access to the following fields:...`)                     | Same connected-user FLS problem, on a `MatchingRule`. Same fix. See "CRITICAL: Connected-User FLS" above                                                  |
 | `force:recordDetail` not found                                                                      | Use `force:detailPanel` instead                                                                                                                           |
 | `Cannot read properties of undefined`                                                               | JSON Patch path is out of bounds; check section index                                                                                                     |
+| `DUPLICATE_VALUE` (`ExtlClntAppOauthSettingsId duplicates value on {name}`)                         | The ECA already has an OAuth policy record — `{name}` in the error IS its real `fullName`. Re-run against it. See "External Client Apps (ECA)" below      |
+| `INVALID_FIELD` (`We couldn't find permission sets called {id}`)                                    | `commaSeparatedPermissionSet` takes Permission Set **Names**, not `0PS…` IDs, despite the docs. See "External Client Apps (ECA)" below                    |
 
 ---
 
@@ -793,6 +796,38 @@ Invalid field names produce clear errors. Use `metadata_read` to discover valid 
 
 ---
 
+## External Client Apps (ECA) — OAuth Policies
+
+Enabling OAuth on an **External Client App** auto-generates a companion
+`ExtlClntAppOauthConfigurablePolicies` record holding the permitted-users policy,
+refresh-token lifetime, IP relaxation, and session level. It is a separate
+metadata component from `ExternalClientApplication`, and Setup never shows its
+name. Full workflow, field reference, and error table:
+**`references/external-client-app-oauth.md`**.
+
+The three failure modes worth knowing before you touch one:
+
+1. **Never guess the policy record's `fullName`** — it is _not_ the ECA's
+   developer name. The observed convention is `{ECA_DeveloperName}_oauthPlcy`, but
+   verify it: try `metadata_list`, then `metadata_read` on the conventional name,
+   and as a last resort upsert a throwaway name to make Salesforce name the real
+   record for you in the `DUPLICATE_VALUE` error.
+2. **`metadata_read` and merge before writing.** An upsert that passes `metadata`
+   replaces the whole record — omitted fields (refresh-token policy, IP
+   relaxation, session level) silently reset to defaults. Use `patch` mode to
+   avoid this once the `fullName` is known.
+3. **`commaSeparatedPermissionSet` takes Permission Set _Names_, not IDs**, despite
+   the Salesforce docs calling them IDs. A `0PS…` ID fails with
+   `INVALID_FIELD: We couldn't find permission sets called {id}`.
+
+Always `metadata_read` the record back afterwards to confirm the fields landed.
+If the External Client App Manager page in Setup then fails to load
+("We couldn't load the external client app"), that is a known Setup-UI caching
+glitch, not lost data — verify with `metadata_read`, have the user re-enter from
+the ECA list, and wait a minute. Do **not** rewrite the record to "fix" it.
+
+---
+
 ## Cross-Skill Integration
 
 | From Skill     | To sf-metadata | When                                                      |
@@ -820,6 +855,7 @@ Invalid field names produce clear errors. Use `metadata_read` to discover valid 
 | List views need a visibility decision      | Kanban rides on a list view's `sharedTo`                          | Set `filterScope`/`sharedTo` explicitly; Kanban is UI-only |
 | Required Fields != Permission Sets         | Salesforce rejects required fields in PS                          | Filter out required fields from fieldPermissions           |
 | Orchestration Order                        | sf-data fails if objects not deployed                             | metadata first, then data                                  |
+| ECA OAuth policy names are hidden          | Guessed `fullName` matches nothing, or clobbers the wrong record  | Discover it — never guess; then read-merge-write           |
 
 ---
 

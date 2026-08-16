@@ -18,6 +18,32 @@ These have broken published skills. Verify every one before pushing a skill chan
    A skill missing from the README is effectively invisible to users.
 3. **Bump `metadata.version`** in `skills/<skill-name>/SKILL.md` on any change to that skill.
 4. **Do not edit `plugins/`** — it is generated from `skills/` by `sync-plugins.yml` after merge.
+5. **Never write a bare `Object__c` / `Field__c` / `__r` / `__mdt` in Markdown prose or tables.**
+   A pair of `__` is Markdown strong-emphasis, so `prettier --write` (which every push runs)
+   rewrites `Amount__c to Invoice__c` into `Amount**c to Invoice**c` — the API name is now
+   wrong and renders as bold. This is silent: prettier reports the file as merely reformatted,
+   and it has already shipped broken API names in published docs more than once. Write API
+   names one of two ways:
+   - **Preferred: wrap in backticks** — `` `Invoice__c` ``. Emphasis does not apply inside a
+     code span, so prettier leaves it alone and it renders as code, which is what an API name
+     should look like anyway.
+   - **Plain text: escape both pairs** — `Invoice\_\_c`, matching the existing tables.
+
+   After editing, re-run `npx prettier --write <files>` and confirm nothing turned into `**`.
+
+   **This one is enforced.** `scripts/validate-skills.sh` fails on a corrupted name anywhere
+   under `skills/`, so CI catches it — you do not have to spot it by eye. To check a tree
+   yourself:
+
+   ```sh
+   python3 scripts/check_md_api_names.py            # skills/ (what CI enforces)
+   python3 scripts/check_md_api_names.py .          # whole repo
+   ```
+
+   The checker only reads prose: matches inside code spans and fenced blocks are ignored,
+   because emphasis does not apply there — which is also why backticks are the better fix.
+   For a deliberate case it misreads, put `md-api-names: allow` in an HTML comment on the
+   offending line or the line above.
 
 ## Before every push
 

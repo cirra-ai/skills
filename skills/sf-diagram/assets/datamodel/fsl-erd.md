@@ -318,12 +318,12 @@ flowchart LR
 
 ## FSL Managed Package Objects
 
-| Object                      | Purpose               |
-| --------------------------- | --------------------- |
-| FSL**Scheduling_Policy**c   | Optimization rules    |
-| FSL**Service_Goal**c        | SLA definitions       |
-| FSL**Resource_Preference**c | Customer preferences  |
-| FSL**Time_Dependency**c     | Appointment sequences |
+| Object                          | Purpose               |
+| ------------------------------- | --------------------- |
+| FSL\_\_Scheduling_Policy\_\_c   | Optimization rules    |
+| FSL\_\_Service_Goal\_\_c        | SLA definitions       |
+| FSL\_\_Resource_Preference\_\_c | Customer preferences  |
+| FSL\_\_Time_Dependency\_\_c     | Appointment sequences |
 
 ---
 

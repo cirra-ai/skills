@@ -115,6 +115,19 @@ fi
 
 # ── Custom checks ─────────────────────────────────────────────────────────────
 
+# Returns errors for a skill dir (one per line, no trailing newline).
+#
+# API names corrupted by Markdown strong-emphasis: a `__` pair is emphasis, so
+# `prettier --write` rewrites `Amount__c` into `Amount**c` in prose and tables.
+# This is an error rather than a warning because it silently ships a wrong API
+# name to users, and CI runs this script without --strict (warnings do not fail).
+# The checker only looks at prose — never inside code spans or fenced blocks —
+# and honors an inline `md-api-names: allow` waiver. See scripts/check_md_api_names.py.
+custom_errors() {
+  local dir="$1"
+  python3 "$REPO_ROOT/scripts/check_md_api_names.py" "$dir" 2>/dev/null
+}
+
 # Returns warnings for a skill dir (one per line, no trailing newline).
 custom_checks() {
   local dir="$1"
@@ -188,9 +201,10 @@ for dir in "${skill_dirs[@]}"; do
   fi
 
   # Run custom checks
+  skill_errors=$(custom_errors "$dir")
   skill_warnings=$(custom_checks "$dir")
 
-  if [[ -z "$ref_errors" && -z "$skill_warnings" ]]; then
+  if [[ -z "$ref_errors" && -z "$skill_errors" && -z "$skill_warnings" ]]; then
     echo "✓  $rel"
     continue
   fi
@@ -199,6 +213,11 @@ for dir in "${skill_dirs[@]}"; do
 
   if [[ -n "$ref_errors" ]]; then
     printf '%s\n' "$ref_errors" | sed 's/^  - /   error: /'
+    errors=$((errors + 1))
+  fi
+
+  if [[ -n "$skill_errors" ]]; then
+    printf '%s\n' "$skill_errors" | sed 's/^/   error: /'
     errors=$((errors + 1))
   fi
 
