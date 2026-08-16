@@ -3,7 +3,7 @@ name: sf-kugamon
 plugin: cirra-ai-sf
 argument-hint: '[quote|order|contract|renewal|subscription] {details} ...'
 metadata:
-  version: 2.0.1
+  version: 2.0.2
 description: >
   Kugamon CPQ quote and subscription management for Salesforce via Cirra AI MCP Server.
   Use when creating, verifying, or managing opportunities, quotes, orders, contracts,
