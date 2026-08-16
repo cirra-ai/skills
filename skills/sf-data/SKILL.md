@@ -423,12 +423,12 @@ Parameters:
   - sf_user: Connection identifier
 ```
 
-> **Large results**: When a response includes `instructions.artifactId`, the
+> **Large results**: When a response includes `artifactAccess.artifactId`, the
 > full result exceeded ~75 k and was stored as an artifact. Retrieve it
 > using the strategy for your execution mode — see
 > `references/mcp-pagination.md` for details. In short:
 >
-> - **`mcp-plus-code-execution`**: download `instructions.artifactUrl`
+> - **`mcp-plus-code-execution`**: download `artifactAccess.downloadUrl`
 > - **`mcp-core`**: `fetch_more(artifactId=..., cursor=_pagination.nextCursor)`
 >   — cursor is **required**
 

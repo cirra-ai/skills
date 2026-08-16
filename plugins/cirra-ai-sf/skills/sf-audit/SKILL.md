@@ -15,7 +15,7 @@ description: >
   standalone analysis documents including a customer report and strategic engagement plan.
   Usage: /sf-audit [full|apex|flow|lwc|metadata|permissions|reports|integrations|coverage|licensing|team|change-history|data-quality] ...
 metadata:
-  version: 3.1.0
+  version: 3.1.1
 ---
 
 # Salesforce Org Audit
@@ -99,12 +99,12 @@ see `references/execution-modes.md` for detection logic and full details.
 
 ### Audit-specific mode behaviour
 
-| Mode                      | Body retrieval                      | Queries                |
-| ------------------------- | ----------------------------------- | ---------------------- |
-| `sfdx-repo`               | Read from disk (no API calls)       | MCP for live-only data |
-| `cli`                     | `sf project retrieve start -m`      | `sf data query --json` |
-| `mcp-plus-code-execution` | MCP tools; download `artifactUrl`   | MCP tools              |
-| `mcp-core`                | MCP tools; `fetch_more` with cursor | MCP tools              |
+| Mode                      | Body retrieval                                   | Queries                |
+| ------------------------- | ------------------------------------------------ | ---------------------- |
+| `sfdx-repo`               | Read from disk (no API calls)                    | MCP for live-only data |
+| `cli`                     | `sf project retrieve start -m`                   | `sf data query --json` |
+| `mcp-plus-code-execution` | MCP tools; download `artifactAccess.downloadUrl` | MCP tools              |
+| `mcp-core`                | MCP tools; `fetch_more` with cursor              | MCP tools              |
 
 **`sfdx-repo` specifics:**
 
@@ -123,7 +123,7 @@ see `references/execution-modes.md` for detection logic and full details.
 
 - Bulk query first (e.g. `tooling_api_query: SELECT Id, Name, Body FROM
 ApexClass WHERE NamespacePrefix = null ORDER BY Id`).
-- When the response includes `instructions.artifactUrl`, download it and
+- When the response includes `artifactAccess.downloadUrl`, download it and
   write the JSON to `./audit_output/intermediate/` for local processing.
 - Run `pre_score.py` on the downloaded files (Strategy A).
 
@@ -186,7 +186,7 @@ Track these categories in `audit_state.md` and in the final reports.
 See `references/mcp-pagination.md` for the full artifact and pagination
 reference. Key points for audits:
 
-- **`mcp-plus-code-execution`**: download `instructions.artifactUrl` and
+- **`mcp-plus-code-execution`**: download `artifactAccess.downloadUrl` and
   write JSON to `./audit_output/intermediate/` for local processing with
   `pre_score.py`.
 - **`mcp-core`**: page through with
@@ -269,7 +269,7 @@ tooling_api_query: SELECT Id, Name, LengthWithoutComments, ApiVersion
   ORDER BY Id
 ```
 
-If the response includes `instructions.artifactId`, retrieve using the
+If the response includes `artifactAccess.artifactId`, retrieve using the
 strategy for your execution mode (see `references/mcp-pagination.md`).
 
 **sfdx-repo mode** — read `-meta.xml` files for ApiVersion; use file size as
@@ -539,7 +539,8 @@ Choose your processing strategy based on what the environment supports:
 `mcp-plus-code-execution`):
 
 1. Fetch all bodies to `./audit_output/intermediate/` (via local filesystem,
-   CLI bulk retrieve, or `artifactUrl` download — whichever mode applies)
+   CLI bulk retrieve, or `artifactAccess.downloadUrl` download — whichever
+   mode applies)
 2. Run the pre-scoring orchestrator:
    ```bash
    python scripts/pre_score.py \
@@ -593,7 +594,7 @@ previous scores for unchanged components. Mark removed components.
      (bulk, one CLI call for all classes)
    - **MCP modes**: bulk query first — `tooling_api_query: SELECT Id, Name,
 Body FROM ApexClass WHERE NamespacePrefix = null ORDER BY Id`. If the
-     response includes `instructions.artifactId`, retrieve using the
+     response includes `artifactAccess.artifactId`, retrieve using the
      strategy for your mode (see `references/mcp-pagination.md`). Fall back
      to `SELECT Body FROM ApexClass WHERE Id = '<id>'` one at a time only
      if bulk query is not available.

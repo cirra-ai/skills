@@ -88,7 +88,7 @@ code is the key differentiator from `mcp-core`.
 
 - All metadata via `tooling_api_query`, `metadata_read`, `soql_query`,
   `sobject_describe`, etc.
-- **Artifact download**: when a response includes `instructions.artifactUrl`,
+- **Artifact download**: when a response includes `artifactAccess.downloadUrl`,
   fetch the URL and write the full JSON to a local file for processing.
   See `references/mcp-pagination.md` for details.
 - Code execution for post-processing (scoring scripts, report generation,
@@ -121,12 +121,12 @@ fails and you cannot write files to disk, you are in `mcp-core`.
 
 ## Mode summary
 
-| Mode                      | Body retrieval   | Artifact handling                     | Code execution | Speed   |
-| ------------------------- | ---------------- | ------------------------------------- | -------------- | ------- |
-| `sfdx-repo`               | Local filesystem | N/A (data on disk)                    | Yes            | Fastest |
-| `cli`                     | `sf` CLI bulk    | N/A (CLI writes to disk)              | Yes            | Fast    |
-| `mcp-plus-code-execution` | MCP tools        | Download `artifactUrl` to working dir | Yes            | Medium  |
-| `mcp-core`                | MCP tools        | `fetch_more` with cursor (in-context) | No             | Slowest |
+| Mode                      | Body retrieval   | Artifact handling                                    | Code execution | Speed   |
+| ------------------------- | ---------------- | ---------------------------------------------------- | -------------- | ------- |
+| `sfdx-repo`               | Local filesystem | N/A (data on disk)                                   | Yes            | Fastest |
+| `cli`                     | `sf` CLI bulk    | N/A (CLI writes to disk)                             | Yes            | Fast    |
+| `mcp-plus-code-execution` | MCP tools        | Download `artifactAccess.downloadUrl` to working dir | Yes            | Medium  |
+| `mcp-core`                | MCP tools        | `fetch_more` with cursor (in-context)                | No             | Slowest |
 
 In all modes, call `cirra_ai_init()` first to establish the MCP connection.
 
