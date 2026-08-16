@@ -115,10 +115,10 @@ Write the generated code to a temp file and validate:
 
 ```bash
 # For a class:
-python3 "${CLAUDE_PLUGIN_ROOT}/skills/sf-apex/scripts/validate_apex_cli.py" "/tmp/<ClassName>.cls"
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/sf-apex/scripts/validate_apex_cli.py" "/tmp/<ClassName>.cls" <ApiVersion>
 
 # For a trigger:
-python3 "${CLAUDE_PLUGIN_ROOT}/skills/sf-apex/scripts/validate_apex_cli.py" "/tmp/<TriggerName>.trigger"
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/sf-apex/scripts/validate_apex_cli.py" "/tmp/<TriggerName>.trigger" <ApiVersion>
 ```
 
 Fix any CRITICAL or HIGH issues before proceeding. When installed as part of the `cirra-ai-sf` plugin, the pre-deployment hook also validates automatically when `tooling_api_dml` is called; standalone skill installs do not get the hook, so the manual run above is the contract.
@@ -245,10 +245,10 @@ Write the updated code to a temp file and validate:
 
 ```bash
 # For a class:
-python3 "${CLAUDE_PLUGIN_ROOT}/skills/sf-apex/scripts/validate_apex_cli.py" "/tmp/<Name>.cls"
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/sf-apex/scripts/validate_apex_cli.py" "/tmp/<Name>.cls" <ApiVersion>
 
 # For a trigger:
-python3 "${CLAUDE_PLUGIN_ROOT}/skills/sf-apex/scripts/validate_apex_cli.py" "/tmp/<Name>.trigger"
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/sf-apex/scripts/validate_apex_cli.py" "/tmp/<Name>.trigger" <ApiVersion>
 ```
 
 Fix any CRITICAL or HIGH issues before proceeding. When installed as part of the `cirra-ai-sf` plugin, the pre-deployment hook also validates automatically when `tooling_api_dml` is called; standalone skill installs do not get the hook, so the manual run above is the contract.
@@ -1216,7 +1216,7 @@ tooling_api_dml(operation="delete", sObject="ApexTrigger", record={"Id": "<trigg
 ## Notes
 
 - **API Version**: Deploy with 67.0 by default. If the org runs an older release, match the org's API version: `soql_query(sObject="Organization", fields=["ApiVersion"])`
-- **API 67.0 behavior changes** (Summer '26 — [release notes](https://help.salesforce.com/s/articleView?id=release-notes.rn_apex.htm&release=262&type=5)): database operations default to **user mode** (not system mode); classes without a sharing declaration default to **`with sharing`** (previously `without sharing`); **`WITH SECURITY_ENFORCED` is removed** — classes at 67.0+ that use it do not compile, use `WITH USER_MODE` instead; DML/SOQL inside trigger bodies also runs in user mode unless system mode is explicit. Keep declaring sharing mode explicitly and prefer `WITH USER_MODE` — code that intentionally needs system-mode access must say `without sharing` / `AccessLevel.SYSTEM_MODE` explicitly at 67.0
+- **API 67.0 behavior changes** (Summer '26 — [release notes](https://help.salesforce.com/s/articleView?id=release-notes.rn_apex.htm&release=262&type=5)): database operations default to **user mode** (not system mode); classes without a sharing declaration default to **`with sharing`** (previously `without sharing`); **`WITH SECURITY_ENFORCED` is removed** — classes at 67.0+ that use it do not compile, use `WITH USER_MODE` instead; DML/SOQL inside trigger bodies also runs in user mode unless system mode is explicit. Keep declaring sharing mode explicitly and prefer `WITH USER_MODE` — code that intentionally needs system-mode access must say `without sharing` / `AccessLevel.SYSTEM_MODE` explicitly at 67.0. **These changes are versioned per class**: a class pinned at ApiVersion 66.0 or earlier keeps the old semantics and still compiles with `WITH SECURITY_ENFORCED` — do not report existing older classes as broken. When updating such a class, keep its ApiVersion unless asked to raise it; migrate `WITH SECURITY_ENFORCED` to `WITH USER_MODE` (available since API 58.0) whenever touching the code, and always before raising ApiVersion to 67.0. Pass the class's ApiVersion to the validator so this check applies at the right severity
 - **Invocable action parameters**: custom Apex classes used as invocable action parameters must have a visible no-argument constructor (global for packaged classes); API calls validate this from version 66.0
 - **TAF Optional**: Prefer TAF when package is installed, use standard trigger pattern as fallback
 - **Scoring**: Block deployment if score < 67 (exempt trivial/test classes — see scoring thresholds)

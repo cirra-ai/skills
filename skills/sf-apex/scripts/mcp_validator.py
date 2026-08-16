@@ -41,15 +41,23 @@ _SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 # Code body extraction
 # ═══════════════════════════════════════════════════════════════════════
 
-def _extract_code_body(tool: str, params: dict[str, Any]) -> tuple[str, str, str]:
-    """Extract metadata type, code body, and fullName from tool params.
+def _extract_code_body(tool: str, params: dict[str, Any]) -> tuple[str, str, str, float | None]:
+    """Extract metadata type, code body, fullName, and ApiVersion from tool params.
 
     Returns:
-        (metadata_type, body, full_name) — any can be empty string if not found.
+        (metadata_type, body, full_name, api_version) — strings can be empty if
+        not found; api_version is None when the payload doesn't carry one.
     """
     metadata_type = ""
     body = ""
     full_name = ""
+    api_version: float | None = None
+
+    def _parse_version(value: Any) -> float | None:
+        try:
+            return float(value) if value not in (None, "") else None
+        except (TypeError, ValueError):
+            return None
 
     if tool in ("metadata_create", "metadata_update"):
         metadata_type = params.get("type", "")
@@ -59,6 +67,7 @@ def _extract_code_body(tool: str, params: dict[str, Any]) -> tuple[str, str, str
             if isinstance(first, dict):
                 body = first.get("body", "")
                 full_name = first.get("fullName", "")
+                api_version = _parse_version(first.get("apiVersion", first.get("ApiVersion")))
 
     elif tool == "tooling_api_dml":
         sobject = params.get("sObject", "")
@@ -73,21 +82,22 @@ def _extract_code_body(tool: str, params: dict[str, Any]) -> tuple[str, str, str
         if isinstance(record, dict):
             body = record.get("Body", record.get("body", ""))
             full_name = record.get("Name", record.get("FullName", record.get("fullName", "")))
+            api_version = _parse_version(record.get("ApiVersion", record.get("apiVersion")))
 
-    return metadata_type, body, full_name
+    return metadata_type, body, full_name, api_version
 
 
 # ═══════════════════════════════════════════════════════════════════════
 # ApexValidator delegation
 # ═══════════════════════════════════════════════════════════════════════
 
-def _run_apex_validator(file_path: str) -> dict[str, Any] | None:
+def _run_apex_validator(file_path: str, api_version: float | None = None) -> dict[str, Any] | None:
     """Import and run the local ApexValidator. Returns None if import fails."""
     try:
         if _SCRIPT_DIR not in sys.path:
             sys.path.insert(0, _SCRIPT_DIR)
         from validate_apex import ApexValidator
-        validator = ApexValidator(file_path)
+        validator = ApexValidator(file_path, api_version=api_version)
         return validator.validate()
     except (ImportError, Exception):
         return None
@@ -261,7 +271,7 @@ def validate_apex_deployment(input_data: dict[str, Any]) -> dict[str, Any]:
     tool = input_data.get("tool", "")
     params = input_data.get("params", {})
 
-    metadata_type, body, full_name = _extract_code_body(tool, params)
+    metadata_type, body, full_name, api_version = _extract_code_body(tool, params)
 
     base = {
         "tier": "code_deployment",
@@ -305,7 +315,7 @@ def validate_apex_deployment(input_data: dict[str, Any]) -> dict[str, Any]:
         with open(tmp_path, "w", encoding="utf-8") as f:
             f.write(body)
 
-        result = _run_apex_validator(tmp_path)
+        result = _run_apex_validator(tmp_path, api_version=api_version)
         if result is not None:
             return {**base, "validator": "ApexValidator", "status": "scored", **result}
         else:

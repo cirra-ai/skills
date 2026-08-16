@@ -791,9 +791,11 @@ it('displays data', async () => {
 ### FLS Enforcement
 
 ```apex
-// Always use WITH USER_MODE or stripInaccessible.
-// Do NOT use WITH SECURITY_ENFORCED — it is removed in API 67.0 (Summer '26)
-// and classes at that version no longer compile with it.
+// Always use WITH USER_MODE (available since API 58.0) or stripInaccessible.
+// Do NOT use WITH SECURITY_ENFORCED in new code — it is removed in API 67.0
+// (Summer '26) and classes at that version no longer compile with it.
+// Existing controllers pinned at ApiVersion 66.0 or earlier still compile
+// with it; migrate them to WITH USER_MODE before raising their ApiVersion.
 @AuraEnabled(cacheable=true)
 public static List<Account> getAccounts() {
     return [SELECT Id, Name FROM Account WITH USER_MODE];

@@ -95,3 +95,40 @@ private class AccountServiceTest {
         r = ApexValidator(str(path)).validate()
         warns = _warning_messages(r)
         assert not any("sharing" in m.lower() for m in warns)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# VERSION-AWARE SECURITY_ENFORCED DETECTION (removed in API 67.0 / Summer '26)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+class TestSecurityEnforcedVersionAware:
+    def _validate_at(self, api_version):
+        path = os.path.join(FIXTURES_DIR, "security_enforced_query.cls")
+        return ApexValidator(path, api_version=api_version).validate()
+
+    def test_critical_at_api_67(self):
+        """At API 67.0+ the clause no longer compiles — must be CRITICAL."""
+        r = self._validate_at(67.0)
+        crits = _critical_messages(r)
+        assert any("SECURITY_ENFORCED" in m for m in crits)
+
+    def test_info_only_below_67(self):
+        """At API <= 66.0 the clause still compiles — advisory only, no penalty."""
+        r = self._validate_at(66.0)
+        assert not any("SECURITY_ENFORCED" in m for m in _critical_messages(r))
+        assert not any("SECURITY_ENFORCED" in m for m in _warning_messages(r))
+        infos = [i["message"] for i in r["issues"] if i["severity"] == "INFO"]
+        assert any("SECURITY_ENFORCED" in m for m in infos)
+
+    def test_warning_when_version_unknown(self):
+        """Unknown version — warn, since new deployments default to 67.0."""
+        r = self._validate_at(None)
+        warns = _warning_messages(r)
+        assert any("SECURITY_ENFORCED" in m for m in warns)
+
+    def test_clean_class_unaffected(self):
+        """A USER_MODE class raises no SECURITY_ENFORCED finding at any version."""
+        path = os.path.join(FIXTURES_DIR, "perfect_service.cls")
+        r = ApexValidator(path, api_version=67.0).validate()
+        assert not any("SECURITY_ENFORCED" in i["message"] for i in r["issues"])

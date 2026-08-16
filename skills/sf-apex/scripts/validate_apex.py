@@ -24,14 +24,18 @@ import os
 class ApexValidator:
     """Validates Apex code for best practices."""
 
-    def __init__(self, file_path: str):
+    def __init__(self, file_path: str, api_version: float | None = None):
         """
         Initialize the validator with an Apex file.
 
         Args:
             file_path: Path to .cls or .trigger file
+            api_version: The ApiVersion the class is (or will be) deployed at.
+                Version-sensitive checks (e.g. WITH SECURITY_ENFORCED, removed
+                in API 67.0) scale their severity on this. None = unknown.
         """
         self.file_path = file_path
+        self.api_version = float(api_version) if api_version is not None else None
         self.content = ""
         self.lines = []
         self.issues = []
@@ -330,6 +334,56 @@ class ApexValidator:
                     )
                     self.scores["security"] -= 5
 
+        # WITH SECURITY_ENFORCED is removed in API 67.0 (Summer '26): classes at
+        # 67.0+ that use it do not compile. At <= 66.0 it still compiles, but
+        # WITH USER_MODE (available since API 58.0) is the replacement either way.
+        for i, line in enumerate(self.lines, 1):
+            stripped = line.strip()
+            if stripped.startswith("//") or stripped.startswith("*") or stripped.startswith("/*"):
+                continue
+            if re.search(r"\bWITH\s+SECURITY_ENFORCED\b", line, re.IGNORECASE):
+                if self.api_version is not None and self.api_version >= 67.0:
+                    self.issues.append(
+                        {
+                            "severity": "CRITICAL",
+                            "category": "security",
+                            "message": (
+                                f"WITH SECURITY_ENFORCED does not compile at API "
+                                f"{self.api_version:g} (removed in 67.0)"
+                            ),
+                            "line": i,
+                            "fix": "Replace with WITH USER_MODE",
+                        }
+                    )
+                    self.scores["security"] -= 10
+                elif self.api_version is not None:
+                    self.issues.append(
+                        {
+                            "severity": "INFO",
+                            "category": "security",
+                            "message": (
+                                f"WITH SECURITY_ENFORCED still compiles at API "
+                                f"{self.api_version:g} but is removed in 67.0"
+                            ),
+                            "line": i,
+                            "fix": "Migrate to WITH USER_MODE before raising ApiVersion to 67.0",
+                        }
+                    )
+                else:
+                    self.issues.append(
+                        {
+                            "severity": "WARNING",
+                            "category": "security",
+                            "message": (
+                                "WITH SECURITY_ENFORCED is removed in API 67.0 "
+                                "(the default deploy version) - class will not compile there"
+                            ),
+                            "line": i,
+                            "fix": "Replace with WITH USER_MODE, or pin ApiVersion <= 66.0 deliberately",
+                        }
+                    )
+                    self.scores["security"] -= 5
+
         # Check for SOQL injection vulnerability
         dynamic_soql_pattern = r"Database\.query\s*\("
         for i, line in enumerate(self.lines, 1):
@@ -450,7 +504,7 @@ class ApexValidator:
 def main():
     """Command-line interface for Apex validation."""
     if len(sys.argv) < 2:
-        print("Usage: python validate_apex.py <file.cls|file.trigger>")
+        print("Usage: python validate_apex.py <file.cls|file.trigger> [api_version]")
         sys.exit(1)
 
     file_path = sys.argv[1]
@@ -459,7 +513,15 @@ def main():
         print(f"Error: File not found: {file_path}")
         sys.exit(1)
 
-    validator = ApexValidator(file_path)
+    api_version = None
+    if len(sys.argv) > 2:
+        try:
+            api_version = float(sys.argv[2])
+        except ValueError:
+            print(f"Error: api_version must be a number, got: {sys.argv[2]}")
+            sys.exit(1)
+
+    validator = ApexValidator(file_path, api_version=api_version)
     results = validator.validate()
 
     # Print results
