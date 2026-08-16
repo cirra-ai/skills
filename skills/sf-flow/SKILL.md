@@ -1535,20 +1535,31 @@ metadata_delete(type="FlowTest", fullNames=["Test_CR_Priority_High"])
   single-element test points; normalize to an array before iterating.
   Read-back output is redeployable verbatim, so read-modify-write of a **whole**
   object is safe.
-- **The collapse changes `metadata_update` JSON Patch paths.** Because the shape
-  depends on how many siblings exist, a pointer into a single-element list omits
-  the index that a multi-element list requires —
-  `/testPoints/1/assertions/conditions/rightValue/stringValue` for one condition
-  versus `/testPoints/1/assertions/conditions/0/rightValue/stringValue` for
-  several. Generic patch-path
-  builders break on one case or the other, and a wrong pointer surfaces as a patch
-  error rather than a wrong value. Read the current shape before constructing a
+- **An assertion takes exactly one condition.** More than one is rejected at
+  create time with `FLOW_TEST_CONDITION_LIMIT` ("Enter only one condition for each
+  assertion"), so `conditions` is never a multi-element array. To assert several
+  things, add several **assertions** to the `Finish` test point — that is allowed.
+- **The collapse changes `metadata_update` JSON Patch paths, at the `assertions`
+  level.** A test point with one assertion reads back as
+  `assertions: {…}` and is addressed as
+  `/testPoints/1/assertions/conditions/rightValue/stringValue`. With two or more,
+  `assertions` is a real array and the same target needs the index:
+  `/testPoints/1/assertions/0/conditions/rightValue/stringValue`. Omitting it
+  fails with `NAME_PATH_NOT_FOUND`, not a wrong value. Generic patch-path builders
+  break on one arity or the other — read the current shape before constructing a
   patch, or send the whole object with `metadata`.
 - **The platform injects `isUseMockOutput` on each test point as the string
   `"false"`** (not a boolean) on read-back.
 - **Tooling field names differ from metadata field names:** `DeveloperName` ↔
   `fullName`, `MasterLabel` ↔ `label`, `TestType` ↔ `testType`. The `FlowTest`
   key prefix is `320`.
+- **A batch create fails in one of two ways.** A per-record validation error
+  (`FLOW_EXCEPTION` for a bad flow name or malformed record,
+  `FLOW_TEST_CONDITION_LIMIT` for too many conditions) fails
+  only that record and the rest of the batch still deploys. A schema-level error,
+  such as an invalid `testType` enum, is rejected at the SOAP layer and **the whole
+  batch is discarded**, including valid records. Check `successCount` against the
+  number you sent rather than assuming a partial failure.
 
 ### Run a native Flow Test and read the result
 
@@ -1624,11 +1635,15 @@ run_tests(testLevel="RunLocalTests", category=["Flow"], skipCodeCoverage="true")
 
 **Notes:**
 
-- **Give the triggering record enough fields.** A record carrying only the field the
-  flow branches on is often not enough: `{"Impact":"High"}` yields `Result: Error`,
-  while `{"Impact":"High","Subject":"…"}` yields `Result: Pass` under the identical
-  assertion. If a test reports `Error` rather than `Pass`/`Fail`, add the fields a
-  real record of that object would carry before suspecting the assertion.
+- **`Result: Error` means the triggering record is wrong, not the assertion.** Two
+  causes, both surfacing identically:
+  - **Too few fields.** `{"Impact":"High"}` yields `Result: Error`, while
+    `{"Impact":"High","Subject":"…"}` yields `Result: Pass` under the identical
+    assertion. Populate what a real record of that object would carry.
+  - **A field that doesn't exist on the object.** This is **not** validated at
+    create time — the `FlowTest` saves without complaint and fails only when run.
+    If a test reports `Error` rather than `Pass`/`Fail`, check the record before
+    suspecting the assertion.
 - **`category` does not reliably filter the run.** `category=["Flow"]` may enqueue
   every local Apex test as well. Treat the org-wide form as "run everything", and
   prefer naming tests explicitly when you only want flow tests.
@@ -1636,8 +1651,12 @@ run_tests(testLevel="RunLocalTests", category=["Flow"], skipCodeCoverage="true")
   run down.
 - `skipCodeCoverage` and `maxFailedTests` are **strings** on this endpoint, not
   booleans/numbers.
-- `maxFailedTests` does **not** apply to flow tests; flow failures are not counted
-  against that threshold.
+- **`maxFailedTests` does apply to flow tests.** Flow failures count against the
+  threshold and abort the run: `maxFailedTests="0"` over two flow tests where the
+  first fails leaves the second unrun, and `ApexTestRunResult` reports
+  `Status: Failed` with `MethodsEnqueued: 2, MethodsCompleted: 1`. An aborted run
+  looks like corrupt counters — check whether you set the threshold before
+  concluding the roll-up is unreliable. Use `maxFailedTests="-1"` to never abort.
 - Runs consume the org's daily async Apex test limit (`DailyAsyncApexTests`).
 - `run_tests` also runs Apex tests — pass a real Apex class name as `className`, or
   use `testLevel` with `category=["Apex"]`.
