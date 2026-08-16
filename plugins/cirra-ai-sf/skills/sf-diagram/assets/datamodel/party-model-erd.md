@@ -100,12 +100,12 @@ Person Accounts merge Account + Contact into single record.
 
 ### Industry Cloud Extensions
 
-| Object                       | Cloud       | Purpose                        |
-| ---------------------------- | ----------- | ------------------------------ |
-| ContactContactRelation       | FSC, Health | Family/household relationships |
-| AccountAccountRelation       | FSC, Health | Business relationships         |
-| FinancialAccount             | FSC         | Financial accounts             |
-| HealthCloudGA**EhrPatient**c | Health      | Patient records                |
+| Object                           | Cloud       | Purpose                        |
+| -------------------------------- | ----------- | ------------------------------ |
+| ContactContactRelation           | FSC, Health | Family/household relationships |
+| AccountAccountRelation           | FSC, Health | Business relationships         |
+| FinancialAccount                 | FSC         | Financial accounts             |
+| HealthCloudGA\_\_EhrPatient\_\_c | Health      | Patient records                |
 
 ---
 
