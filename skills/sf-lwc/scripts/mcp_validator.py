@@ -7,6 +7,7 @@ returns a stable, machine-readable result for orchestration logic.
 
 from __future__ import annotations
 
+import base64
 import os
 import re
 import sys
@@ -20,11 +21,40 @@ SUPPORTED_TOOLS = ("metadata_create", "metadata_update", "tooling_api_dml")
 TARGET_METADATA_TYPE = "LightningComponentBundle"
 
 
+def _parse_api_version(value: Any) -> float | None:
+    """Parse an apiVersion value ('67.0', 67, 67.0) to float, None if absent/bad."""
+    try:
+        return float(value) if value not in (None, "") else None
+    except (TypeError, ValueError):
+        return None
+
+
+def _maybe_b64decode(source: str) -> str:
+    """Return the decoded text when `source` is Base64, the raw text otherwise.
+
+    The MCP deploy format sends lwcResource sources Base64-encoded, but tests
+    and some integrations pass plain text. Plain HTML/JS always contains
+    characters outside the Base64 alphabet (e.g. '<', ';', whitespace), so a
+    strict decode succeeding is a reliable signal.
+    """
+    stripped = source.strip()
+    if not stripped or not re.fullmatch(r"[A-Za-z0-9+/=\s]+", stripped):
+        return source
+    try:
+        decoded = base64.b64decode(stripped, validate=True).decode("utf-8")
+    except (ValueError, UnicodeDecodeError):
+        return source
+    return decoded
+
+
 def _extract_payload(tool: str, params: dict[str, Any]) -> tuple[str, str, str, str, float | None]:
     """Extract (metadata_type, content, full_name, js_content, api_version) from MCP params.
 
-    api_version is parsed from the bundle's .js-meta.xml resource when present,
-    None otherwise; js_content joins the bundle's .js sources.
+    api_version comes from the top-level metadata field (the MCP deploy format —
+    the .js-meta.xml is generated server-side from it), falling back to a
+    .js-meta.xml resource when one is included; None when neither is present.
+    js_content joins the bundle's .js sources. Sources are Base64-decoded when
+    encoded, per the MCP deploy format.
     """
     metadata_type = ""
     content = ""
@@ -39,6 +69,7 @@ def _extract_payload(tool: str, params: dict[str, Any]) -> tuple[str, str, str, 
             first = metadata_list[0]
             if isinstance(first, dict):
                 full_name = first.get("fullName", "")
+                api_version = _parse_api_version(first.get("apiVersion", first.get("ApiVersion")))
                 # Most common representations for tests and integrations.
                 content = first.get("content", "") or first.get("body", "") or first.get("html", "")
 
@@ -61,17 +92,15 @@ def _extract_payload(tool: str, params: dict[str, Any]) -> tuple[str, str, str, 
                         source = r.get("source", "")
                         if not source:
                             continue
+                        source = _maybe_b64decode(source)
                         if file_path.endswith(".html"):
                             html_sources.append(source)
                         elif file_path.endswith(".js") and not file_path.endswith(".js-meta.xml"):
                             js_sources.append(source)
-                        elif file_path.endswith(".js-meta.xml"):
+                        elif file_path.endswith(".js-meta.xml") and api_version is None:
                             m = re.search(r"<apiVersion>\s*([\d.]+)\s*</apiVersion>", source)
                             if m:
-                                try:
-                                    api_version = float(m.group(1))
-                                except ValueError:
-                                    api_version = None
+                                api_version = _parse_api_version(m.group(1))
                     if not content:
                         content = "\n".join(html_sources)
                     js_content = "\n".join(js_sources)

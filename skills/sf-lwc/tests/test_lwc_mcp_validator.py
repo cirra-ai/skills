@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import base64
+
 from conftest import load_script
 
 mod = load_script("skills/sf-lwc/scripts/mcp_validator.py")
@@ -208,3 +210,65 @@ def test_no_meta_resource_not_judged():
         },
     }
     assert not _version_issues(LWCMCPValidator().validate(payload))
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# MCP DEPLOY FORMAT — top-level apiVersion field and Base64-encoded sources
+# (the real payload shape per SKILL.md: apiVersion is a top-level metadata
+# field, no .js-meta.xml resource is shipped, and sources are Base64)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+def _mcp_deploy_payload(api_version, html, js="", b64=False):
+    def enc(s):
+        return base64.b64encode(s.encode("utf-8")).decode("ascii") if b64 else s
+
+    resources = [{"filePath": "lwc/myComponent/myComponent.html", "source": enc(html)}]
+    if js:
+        resources.append({"filePath": "lwc/myComponent/myComponent.js", "source": enc(js)})
+    meta = {
+        "fullName": "myComponent",
+        "isExposed": True,
+        "lwcResources": {"lwcResource": resources},
+    }
+    if api_version is not None:
+        meta["apiVersion"] = api_version
+    return {
+        "tool": "metadata_create",
+        "params": {"type": "LightningComponentBundle", "metadata": [meta]},
+    }
+
+
+def test_top_level_api_version_below_floor_flagged():
+    """apiVersion as a top-level metadata field (the MCP deploy format) is honored."""
+    r = LWCMCPValidator().validate(_mcp_deploy_payload("65.0", LWC_ON_HTML))
+    assert any("lwc:on" in i["message"] for i in _version_issues(r))
+
+
+def test_top_level_api_version_at_floor_clean():
+    r = LWCMCPValidator().validate(_mcp_deploy_payload("67.0", LWC_ON_HTML))
+    assert not _version_issues(r)
+
+
+def test_base64_sources_decoded_for_floor_check():
+    """Base64-encoded sources (the real MCP payload) are decoded before scanning."""
+    r = LWCMCPValidator().validate(
+        _mcp_deploy_payload("65.0", LWC_ON_HTML, js=MUTATION_JS, b64=True)
+    )
+    msgs = [i["message"] for i in _version_issues(r)]
+    assert any("lwc:on" in m for m in msgs)
+    assert any("executeMutation" in m for m in msgs)
+
+
+def test_base64_html_decoded_for_template_validation():
+    """Template validation scans decoded HTML, not the Base64 text."""
+    r = LWCMCPValidator().validate(
+        _mcp_deploy_payload("67.0", "<template><p>{greeting}</p></template>", b64=True)
+    )
+    assert r["status"] == "scored"
+
+
+def test_meta_resource_fallback_still_works():
+    """A payload shipping a .js-meta.xml (no top-level field) still resolves the version."""
+    r = LWCMCPValidator().validate(_bundle_payload("65.0", LWC_ON_HTML))
+    assert any("lwc:on" in i["message"] for i in _version_issues(r))
