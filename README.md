@@ -43,7 +43,7 @@ The following skills are available or planned:
 | [sf-diagram](skills/sf-diagram/README.md)           | Salesforce architecture diagrams (ERDs, OAuth flows, integrations) in Mermaid                                                        |
 | [sf-kugamon](skills/sf-kugamon/README.md)           | Kugamon CPQ quote management — create, verify, and manage opportunities, quotes, and orders with [Kugamon](https://www.kugamon.com/) |
 | [sf-orders](skills/sf-orders/README.md)             | Order management — orders, returns, cases, and the order-to-return lifecycle                                                         |
-| [sf-help-fetch](skills/sf-help-fetch/README.md)     | Read Salesforce Help article bodies (help.salesforce.com) headlessly — Help Docs topics and Knowledge Articles                       |
+| [sf-help-fetch](skills/sf-help-fetch/README.md)     | Read Salesforce Help article bodies (help.salesforce.com) headlessly — Help Docs topics, Knowledge Articles, and release info        |
 | [sf-provisioning](skills/sf-provisioning/README.md) | User and access provisioning — create users, grant or revoke capabilities, mirror access, offboard logins                            |
 | [sf-cms](skills/sf-cms/README.md)                   | Salesforce CMS content — author, publish, and verify what is live on a delivery channel                                              |
 | [sf-connect-rest](skills/sf-connect-rest/README.md) | Connect REST API access for capabilities with no dedicated tool — named credentials, custom domains, site publishing                 |
