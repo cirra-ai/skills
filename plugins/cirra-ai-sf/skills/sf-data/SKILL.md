@@ -356,7 +356,7 @@ Full code quality scoring when deploying Apex or Flow code. Extracts the `body` 
     "metadata": [
       {
         "fullName": "AccountService",
-        "apiVersion": "65.0",
+        "apiVersion": "67.0",
         "status": "Active",
         "body": "public with sharing class AccountService {\n    public static List<Account> getByIndustry(String industry) {\n        return [SELECT Id, Name FROM Account WHERE Industry = :industry LIMIT 1000];\n    }\n}"
       }

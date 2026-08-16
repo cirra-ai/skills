@@ -7,8 +7,12 @@ Runs the same 150-point + LLM anti-pattern pipeline as the PostToolUse hook
 and prints a scored report to stdout.
 
 Usage:
-  python3 validate_apex_cli.py path/to/MyClass.cls
-  python3 validate_apex_cli.py path/to/AccountTrigger.trigger
+  python3 validate_apex_cli.py path/to/MyClass.cls [api_version]
+  python3 validate_apex_cli.py path/to/AccountTrigger.trigger [api_version]
+
+Pass the ApiVersion the code is (or will be) deployed at so version-sensitive
+checks apply correctly (e.g. WITH SECURITY_ENFORCED: CRITICAL at 67.0+ where it
+no longer compiles, informational at <= 66.0 where it still does).
 
 Exit codes:
   0  — validation passed (score >= 67%)
@@ -24,7 +28,7 @@ sys.path.insert(0, SCRIPT_DIR)
 THRESHOLD_PCT = 67
 
 
-def run_validation(file_path: str) -> dict:
+def run_validation(file_path: str, api_version: float | None = None) -> dict:
     """Run full validation pipeline on an Apex file.
 
     Returns a dict with keys: success, output, score, max_score, pct.
@@ -34,7 +38,7 @@ def run_validation(file_path: str) -> dict:
     try:
         from validate_apex import ApexValidator
 
-        validator = ApexValidator(file_path)
+        validator = ApexValidator(file_path, api_version=api_version)
         max_scores = dict(validator.scores)  # capture before validate() mutates in place
         results = validator.validate()
 
@@ -134,7 +138,7 @@ def run_validation(file_path: str) -> dict:
 def main() -> int:
     args = sys.argv[1:]
     if not args or args[0] in ("-h", "--help"):
-        print("Usage: validate_apex_cli.py <file.cls|file.trigger>", file=sys.stderr)
+        print("Usage: validate_apex_cli.py <file.cls|file.trigger> [api_version]", file=sys.stderr)
         return 1
 
     file_path = args[0]
@@ -142,7 +146,15 @@ def main() -> int:
         print(f"File not found: {file_path}", file=sys.stderr)
         return 1
 
-    result = run_validation(file_path)
+    api_version = None
+    if len(args) > 1:
+        try:
+            api_version = float(args[1])
+        except ValueError:
+            print(f"api_version must be a number, got: {args[1]}", file=sys.stderr)
+            return 1
+
+    result = run_validation(file_path, api_version=api_version)
     print(result["output"])
     return 0 if result.get("success") and result.get("pct", 0) >= THRESHOLD_PCT else 1
 
