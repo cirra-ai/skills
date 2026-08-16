@@ -1553,7 +1553,8 @@ metadata_delete(type="FlowTest", fullNames=["Test_CR_Priority_High"])
   `fullName`, `MasterLabel` ↔ `label`, `TestType` ↔ `testType`. The `FlowTest`
   key prefix is `320`.
 - **A batch create fails in one of two ways.** A per-record validation error
-  (`FLOW_EXCEPTION` — bad flow name, malformed record, too many conditions) fails
+  (`FLOW_EXCEPTION` for a bad flow name or malformed record,
+  `FLOW_TEST_CONDITION_LIMIT` for too many conditions) fails
   only that record and the rest of the batch still deploys. A schema-level error,
   such as an invalid `testType` enum, is rejected at the SOAP layer and **the whole
   batch is discarded**, including valid records. Check `successCount` against the
@@ -1654,7 +1655,7 @@ run_tests(testLevel="RunLocalTests", category=["Flow"], skipCodeCoverage="true")
   first fails leaves the second unrun, and `ApexTestRunResult` reports
   `Status: Failed` with `MethodsEnqueued: 2, MethodsCompleted: 1`. An aborted run
   looks like corrupt counters — check whether you set the threshold before
-  concluding the roll-up is unreliable. Use `-1` to never abort.
+  concluding the roll-up is unreliable. Use `maxFailedTests="-1"` to never abort.
 - Runs consume the org's daily async Apex test limit (`DailyAsyncApexTests`).
 - `run_tests` also runs Apex tests — pass a real Apex class name as `className`, or
   use `testLevel` with `category=["Apex"]`.
