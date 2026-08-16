@@ -1,16 +1,20 @@
 ---
 name: sf-help-fetch
 plugin: cirra-ai-sf
-argument-hint: '[url|topic-id]'
+argument-hint: '[url|topic-id|release-info [instance]]'
 metadata:
-  version: 1.2.0
+  version: 1.3.0
 description: >
   Read the full text of a Salesforce documentation page — both Salesforce Help
   (help.salesforce.com) and the developer docs (developer.salesforce.com) — without a
-  browser. These pages render their content with JavaScript, so a plain fetch only returns
-  an empty "Loading…" shell; this skill pulls the real article body through Salesforce's own
-  content APIs. Just pass the page URL (or a Help topic id) and it returns the readable text.
-  Usage: /sf-help-fetch [url|topic-id]
+  browser, and answer Salesforce release questions. Doc pages render their content with
+  JavaScript, so a plain fetch only returns an empty "Loading…" shell; this skill pulls the
+  real article body through Salesforce's own content APIs. Just pass the page URL (or a Help
+  topic id) and it returns the readable text. Release-notes URLs fetch the release named in
+  the URL (current, preview, or previous). The special target release-info reports the
+  current and preview Salesforce release and upcoming release windows — org-wide, or for one
+  instance (also reachable by passing a status.salesforce.com instance URL). Usage:
+  /sf-help-fetch [url|topic-id|release-info [instance]]
 ---
 
 # sf-help-fetch
@@ -31,14 +35,21 @@ content API (Strategy C). This skill picks the right one by host, automatically.
 
 ## Usage
 
-One argument — the page URL (or a bare Help topic id). No flags, no options; the host picks
-the retrieval path automatically.
+One argument — the page URL (or a bare Help topic id, or the literal `release-info`). No
+flags, no options; the host picks the retrieval path automatically.
 
 ```bash
 python3 scripts/fetch_sf_help.py "https://help.salesforce.com/s/articleView?id=xcloud.remoteaccess_authenticate.htm&type=5"
 python3 scripts/fetch_sf_help.py xcloud.remoteaccess_authenticate   # bare Help topic id
 python3 scripts/fetch_sf_help.py "https://developer.salesforce.com/docs/atlas.en-us.uiapi.meta/uiapi/ui_api_features_list_views.htm"
+python3 scripts/fetch_sf_help.py "https://help.salesforce.com/s/articleView?id=release-notes.rn_automate_flow.htm&release=264&type=5"
+python3 scripts/fetch_sf_help.py release-info         # current + preview release, upcoming windows
+python3 scripts/fetch_sf_help.py release-info AP52    # one instance's release + windows
 ```
+
+The only exception to "one argument" is release info: the literal target `release-info` takes
+an optional second argument (a Salesforce instance key like `NA209`). A
+`status.salesforce.com/instances/KEY` URL routes to the same path with one argument.
 
 The readable text is written to stdout; a one-line progress note goes to stderr. All network
 I/O shells out to `curl` so an ambient `HTTPS_PROXY` + CA bundle are honored automatically.
@@ -96,10 +107,12 @@ automatically each run:
 
 1. **`aura.context`** (`fwuid`, `app`, `loaded`) — rotates every Salesforce release. Scraped
    live from the article page (URL-decode + JSON-parse, not brittle regex).
-2. **`release`** (e.g. `262.0.0`, HelpDocs only) — MUST be the current Salesforce release or the
+2. **`release`** (e.g. `262.0.0`, HelpDocs only) — MUST be a release the API serves or the
    call returns `SUCCESS` with empty content. Self-discovered: one throwaway call with
    `release=""` still returns `returnValue.latestRNVersion`, which is then reused for the real
-   fetch. Override with `HELP_RELEASE=262.0.0` if ever needed.
+   fetch. A `release=NNN` query param in the input URL (release-notes pages) takes precedence
+   over discovery — see "Release info" below. Override with `HELP_RELEASE=262.0.0` if ever
+   needed (precedence: URL param, then `HELP_RELEASE`, then discovery).
 
 This is the default path and needs nothing beyond `help.salesforce.com` being reachable.
 
@@ -170,6 +183,56 @@ The `deliverable`/`locale`/`doc_version` are read from the step-1 manifest (auth
 `<topic>` leaf is taken from the last `.htm`/`.html` path segment (or the URL fragment); a URL
 with no leaf returns the deliverable's landing document. A blank `200` from step 2 means a bad
 topic id / version and is reported as such.
+
+## Release info (release notes + Trust status API)
+
+The skill answers Salesforce release questions from two anonymous sources, both verified live:
+
+### Release-notes pages honor the URL's release
+
+Release-notes URLs carry the release in the query string, e.g.
+`help.salesforce.com/s/articleView?id=release-notes.rn_automate_flow.htm&release=264&type=5`.
+The `release` param is passed through to the Aura call (normalized `264` → `264.0.0`) instead
+of the discovered current release — without this, an archived- or preview-release URL would
+silently return the **current** release's notes. Coverage (verified): the Aura API serves
+roughly the **previous, current, and preview** releases (e.g. `260.0.0`/`262.0.0`/`264.0.0`
+when current is 262); anything older returns `type: "NotFound"` and the skill fails with a
+message pointing at the archive index topic `release-notes.rn_previous_release_notes.htm`
+(itself fetchable by this skill — it links every older release's notes).
+
+### The `release-info` target
+
+`release-info` is the one non-URL special target (optionally followed by an instance key);
+a `status.salesforce.com/instances/KEY` URL routes to the same code path.
+
+- **`release-info`** (no instance) — prints the current release ("Summer '26 (262.0.0)" —
+  number from `latestRNVersion`, seasonal name read from the release-notes landing title, no
+  hardcoded mapping), the preview release when its notes are already published (current major
+  - 2), and upcoming release maintenance windows across all instances. Degrades gracefully:
+    if one source is unreachable the other still prints.
+- **`release-info NA209`** (or `ap52` — case-insensitive, resolved via search) — that
+  instance's running release (`releaseVersion`/`releaseNumber`, e.g.
+  "Summer '26 Patch 13.7" / `262.13.7`), its maintenance window, and its upcoming
+  release-maintenance events with planned start dates.
+
+### Trust status API contract (verified empirically)
+
+`https://api.status.salesforce.com` — anonymous, no tokens. The hosted Swagger UI at
+`/v1/docs/` ships the default petstore stub, so these routes were verified by probing:
+
+```text
+GET /v1/instances/KEY/status   -> releaseVersion, releaseNumber, maintenanceWindow,
+                                  status, isActive, embedded Maintenances[] (upcoming,
+                                  with name/releaseType/plannedStartTime/plannedEndTime)
+                                  404 {"message":"Instance Not Found"} for a bad key
+GET /v1/search/QUERY           -> case-insensitive instance lookup: [{key, location,
+                                  environment, isActive}, ...]
+GET /v1/maintenances?limit=N   -> upcoming events across all instances; release events
+                                  have type "release" and carry instanceKeys
+```
+
+Release maintenance events sharing a name (one per instance group / product) are collapsed to
+`name: earliest .. latest planned start (N scheduled events)`.
 
 ## Scope: which Help articles are covered
 

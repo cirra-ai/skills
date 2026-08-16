@@ -55,10 +55,28 @@ id). The host picks the path; for Help, Aura is the anonymous path that works ou
 of the box and the credentialed Zoomin fallback is used only if ZOOMIN_BASIC is
 set in the environment.
 
+Release info (strategy D): the skill also answers Salesforce release questions.
+
+  * A help.salesforce.com URL with a `release=NNN` query param (release-notes
+    pages) fetches that release's notes, not silently the current one. The Aura
+    API serves roughly the previous, current, and preview releases; older
+    releases return NotFound and the error points at the archive index topic
+    (release-notes.rn_previous_release_notes.htm).
+  * `fetch_sf_help.py release-info` prints the current + preview release
+    (name and version, self-discovered from the release-notes landing pages)
+    and upcoming release maintenance windows from the anonymous Salesforce
+    Trust status API (https://api.status.salesforce.com/v1/docs/).
+  * `fetch_sf_help.py release-info <INSTANCE>` (e.g. NA209) prints that
+    instance's running release and its upcoming release maintenance windows.
+    A https://status.salesforce.com/instances/<KEY> URL routes here too.
+
 Usage:
     python3 fetch_sf_help.py "https://help.salesforce.com/s/articleView?id=xcloud.remoteaccess_authenticate.htm&type=5"
     python3 fetch_sf_help.py xcloud.remoteaccess_authenticate           # bare topic id
     python3 fetch_sf_help.py "https://developer.salesforce.com/docs/atlas.en-us.uiapi.meta/uiapi/ui_api_features_list_views.htm"
+    python3 fetch_sf_help.py "https://help.salesforce.com/s/articleView?id=release-notes.rn_automate_flow.htm&release=262&type=5"
+    python3 fetch_sf_help.py release-info            # current + preview release, upcoming windows
+    python3 fetch_sf_help.py release-info AP52       # one instance's release + windows
 """
 import argparse
 import html
@@ -72,7 +90,16 @@ import urllib.parse
 ZOOMIN_HOST = "https://zd-ht-prod.zoominsoftware.io"
 HELP_HOST   = "https://help.salesforce.com"
 DEV_HOST    = "https://developer.salesforce.com"
+STATUS_HOST = "https://api.status.salesforce.com"
 LANG        = "en_US"
+
+# The archive index for release notes older than the served window (previous /
+# current / preview). Itself a normal HelpDocs topic this skill can fetch.
+RN_ARCHIVE_TOPIC = "release-notes.rn_previous_release_notes.htm"
+# The release-notes landing topic; its title carries the seasonal release name
+# ("Salesforce Summer '26 Release Notes"), which is how release-info resolves
+# a release number to a name without any hardcoded mapping.
+RN_LANDING_TOPIC = "release-notes.salesforce_release_notes.htm"
 
 # --- Strategy B action contract (verified from a live request) ----------------
 # The Salesforce Help SPA fetches article bodies via this guest-accessible Aura
@@ -127,6 +154,8 @@ def unsupported_url_message(arg):
         return None  # supported: type=5 topics and type=1 Knowledge Articles
     if host == "developer.salesforce.com" and path.startswith("/docs/"):
         return None  # supported: Atlas content API (see fetch_developer_docs)
+    if host in ("status.salesforce.com", "api.status.salesforce.com"):
+        return None  # supported: Trust status API (see fetch_release_info)
     if host == "trailhead.salesforce.com":
         if "/trailblazer-community/" in path:
             return (
@@ -159,6 +188,26 @@ def topic_id_from(arg):
             f"could not determine a topic id from {arg!r} — pass a "
             "help.salesforce.com/s/articleView?id=<topic>.htm URL or a bare topic id")
     return topic
+
+
+def release_from(arg):
+    """Explicit `release` query param from a help.salesforce.com URL, normalized
+    to the three-part form the Aura API expects (256 -> 256.0.0), or None when
+    absent (a bare topic id, or a URL without the param).
+
+    Release-notes URLs carry the release as e.g. `release=262`; passing it
+    through matters because the Aura API otherwise defaults to the current
+    release — the caller would silently get the wrong release's notes."""
+    if not arg.startswith("http"):
+        return None
+    q = urllib.parse.parse_qs(urllib.parse.urlparse(arg).query)
+    raw = (q.get("release") or [""])[0].strip()
+    if not raw:
+        return None
+    if not re.fullmatch(r"\d+(\.\d+){0,2}", raw):
+        raise ValueError(f"unrecognized release {raw!r} in {arg!r} — expected a "
+                         "number like 262 or 262.0.0")
+    return ".".join((raw.split(".") + ["0", "0"])[:3])
 
 
 def html_to_text(markup):
@@ -320,16 +369,26 @@ def _knowledge_text(rec):
     return "\n\n".join(p for p in parts if p.strip())
 
 
-def _fetch_helpdocs(ctx, topic_id):
+def _fetch_helpdocs(ctx, topic_id, release=None):
     url_name = topic_id if topic_id.endswith(".htm") else topic_id + ".htm"
-    # 1) discover the current SF release (wrong/empty release => empty content)
-    release = os.environ.get("HELP_RELEASE") \
+    # Precedence: explicit release from the URL > HELP_RELEASE override >
+    # self-discovery. Discovery: a call with release="" still returns
+    # returnValue.latestRNVersion (wrong/empty release => empty content).
+    explicit = release
+    release = release or os.environ.get("HELP_RELEASE") \
         or _getdata(ctx, url_name, "").get("latestRNVersion")
     if not release:
         raise RuntimeError("could not determine current SF release (latestRNVersion missing)")
-    # 2) real fetch
-    rec = _getdata(ctx, url_name, release).get("record")
+    rv = _getdata(ctx, url_name, release)
+    rec = rv.get("record")
     if not rec or not rec.get("Content__c"):
+        if explicit and rv.get("type") == "NotFound":
+            current = rv.get("latestRNVersion") or "unknown"
+            raise RuntimeError(
+                f"no content for {url_name} at release {explicit}: the Help API only "
+                f"serves roughly the previous, current, and preview releases (current is "
+                f"{current}). Older release notes are linked from the archive index — "
+                f"fetch {RN_ARCHIVE_TOPIC} for the list.")
         raise RuntimeError(f"no content for {url_name} at release {release} "
                            f"(check the topic id / language)")
     return html_to_text(rec["Content__c"])
@@ -350,14 +409,15 @@ def _fetch_knowledge(ctx, article_id):
     return text
 
 
-def fetch_aura(topic_id):
+def fetch_aura(topic_id, release=None):
     assert_reachable("help.salesforce.com", "*.salesforce.com")
     ctx = scrape_aura_context(topic_id)              # live fwuid/app/loaded (global)
     ctx.update({"dn": [], "globals": {}, "uad": True})
-    # A purely numeric id is a type=1 Knowledge Article; otherwise a HelpDocs topic.
+    # A purely numeric id is a type=1 Knowledge Article (no release concept);
+    # otherwise a HelpDocs topic, honoring an explicit release from the URL.
     if topic_id.isdigit():
         return _fetch_knowledge(ctx, topic_id)
-    return _fetch_helpdocs(ctx, topic_id)
+    return _fetch_helpdocs(ctx, topic_id, release)
 
 
 # --- developer.salesforce.com "Atlas" docs (anonymous JSON content API) -------
@@ -501,14 +561,188 @@ def fetch_developer_docs(url):
     return html_to_text(body)
 
 
+# --- Strategy D: Salesforce release info (Trust status API + release notes) ---
+# VERIFIED CONTRACT (probed live; the hosted Swagger UI at
+# https://api.status.salesforce.com/v1/docs/ ships the default petstore stub,
+# so the routes below were verified empirically):
+#   GET /v1/instances/<KEY>/status  -> instance detail incl. releaseVersion
+#       ("Summer '26 Patch 13.7"), releaseNumber ("262.13.7"),
+#       maintenanceWindow, and embedded Maintenances[] (upcoming events with
+#       name/releaseType/plannedStartTime/plannedEndTime). 404
+#       {"message":"Instance Not Found"} for a bad key.
+#   GET /v1/search/<QUERY>          -> instance lookup (case-insensitive),
+#       returns [{key, location, environment, isActive}, ...].
+#   GET /v1/maintenances?limit=N    -> upcoming maintenance events across all
+#       instances; release events have type "release" and carry instanceKeys.
+# All anonymous — no auth, no tokens.
+def is_status_url(arg):
+    """True for a Salesforce Trust status URL (status.salesforce.com)."""
+    if not arg.startswith("http"):
+        return False
+    return urllib.parse.urlparse(arg).netloc.lower() in (
+        "status.salesforce.com", "api.status.salesforce.com")
+
+
+def status_instance_from(arg):
+    """Instance key from a status.salesforce.com URL ('/instances/NA209/...'),
+    or None for status pages that aren't about one instance."""
+    segs = [s for s in urllib.parse.urlparse(arg).path.split("/") if s]
+    for i, s in enumerate(segs):
+        if s.lower() == "instances" and i + 1 < len(segs):
+            return segs[i + 1]
+    return None
+
+
+def _status_get_json(path):
+    """GET a Trust status API route and JSON-parse it; returns (json, http_code)."""
+    r = curl(["-L", "-w", "\n__HTTP__%{http_code}", f"{STATUS_HOST}{path}"], timeout=30)
+    out = r.stdout
+    marker = out.rfind("\n__HTTP__")
+    code = out[marker + len("\n__HTTP__"):].strip() if marker >= 0 else ""
+    body = out[:marker] if marker >= 0 else out
+    if r.returncode != 0 and not body.strip():
+        raise RuntimeError("status API request failed: " + (r.stderr.strip() or "curl error"))
+    try:
+        return json.loads(body), code
+    except json.JSONDecodeError as e:
+        raise RuntimeError("status API response was not JSON (proxy or error page?): "
+                           + (body[:200] or str(e))) from e
+
+
+def _release_maintenance_lines(maints):
+    """Upcoming release-maintenance events as text lines, deduped by name.
+
+    Several events share one name (per instance group / product); collapse them
+    to 'name: earliest .. latest planned start'."""
+    windows = {}
+    for m in maints:
+        if m.get("type") != "release" or not m.get("plannedStartTime"):
+            continue
+        windows.setdefault(m.get("name") or "?", []).append(m["plannedStartTime"])
+    lines = []
+    for name, starts in sorted(windows.items(), key=lambda kv: min(kv[1])):
+        lo, hi = min(starts)[:10], max(starts)[:10]
+        when = lo if lo == hi else f"{lo} .. {hi}"
+        lines.append(f"- {name}: {when} ({len(starts)} scheduled event"
+                     f"{'s' if len(starts) != 1 else ''})")
+    return lines
+
+
+def _release_name_of(ctx, release):
+    """Seasonal name ("Summer '26") for a release number, read from that
+    release's own release-notes landing title; None if not resolvable."""
+    try:
+        rec = _getdata(ctx, RN_LANDING_TOPIC, release).get("record") or {}
+        m = re.search(r"(Spring|Summer|Winter)\s*[’']\s*(\d{2})",
+                      rec.get("Content__c") or "")
+        return f"{m.group(1)} '{m.group(2)}" if m else None
+    except RuntimeError:
+        return None
+
+
+def _instance_release_info(instance):
+    """Release info for one instance: running release + upcoming release windows."""
+    d, code = _status_get_json(f"/v1/instances/{instance.upper()}/status")
+    if code == "404" or "key" not in d:
+        # Not a key — try the case-insensitive search (e.g. 'ap52', partial keys).
+        results, _ = _status_get_json(f"/v1/search/{urllib.parse.quote(instance)}")
+        keys = [r.get("key") for r in results if isinstance(r, dict) and r.get("key")]
+        if len(keys) == 1:
+            d, code = _status_get_json(f"/v1/instances/{keys[0]}/status")
+        elif keys:
+            raise RuntimeError(f"instance {instance!r} is ambiguous on Trust: {', '.join(keys[:10])} "
+                               "— pass one exact instance key")
+        else:
+            raise RuntimeError(
+                f"no instance {instance!r} on Trust (https://status.salesforce.com). Pass the "
+                "instance key shown on your org's Company Information page (e.g. NA209, AP52).")
+    if code == "404" or "key" not in d:
+        raise RuntimeError(f"Trust returned no data for instance {instance!r}")
+    lines = [f"Instance: {d.get('key')} ({d.get('location')}, {d.get('environment')})",
+             f"Status: {d.get('status')}" + ("" if d.get("isActive") else " — NOT active (decommissioned or migrated)"),
+             f"Running release: {d.get('releaseVersion') or 'unknown'} "
+             f"(releaseNumber {d.get('releaseNumber') or '?'})",
+             f"Maintenance window: {d.get('maintenanceWindow') or 'unknown'}"]
+    rel_lines = _release_maintenance_lines(d.get("Maintenances") or [])
+    if rel_lines:
+        lines += ["", "Upcoming release maintenance windows:"] + rel_lines
+    else:
+        lines += ["", "No upcoming release maintenance events published for this instance."]
+    return "\n".join(lines)
+
+
+def _release_summary():
+    """Org-independent release overview: current + preview release (from the
+    release-notes landing pages) and upcoming release windows (from Trust)."""
+    lines = []
+    try:
+        ctx = scrape_aura_context(RN_LANDING_TOPIC.replace(".htm", ""))
+        ctx.update({"dn": [], "globals": {}, "uad": True})
+        current = os.environ.get("HELP_RELEASE") \
+            or _getdata(ctx, RN_LANDING_TOPIC, "").get("latestRNVersion")
+        if not current:
+            raise RuntimeError("latestRNVersion missing")
+        name = _release_name_of(ctx, current)
+        lines.append(f"Current release: {name or 'unknown name'} ({current})")
+        preview = f"{int(current.split('.')[0]) + 2}.0.0"
+        preview_name = _release_name_of(ctx, preview)
+        if preview_name:
+            lines.append(f"Preview release: {preview_name} ({preview}) — release notes already published")
+        lines.append(
+            "Release notes are served for roughly the previous, current, and preview releases; "
+            f"older ones are linked from the archive index topic {RN_ARCHIVE_TOPIC}.")
+    except RuntimeError as e:
+        lines.append(f"Current release: unavailable ({e})")
+    try:
+        maints, _ = _status_get_json("/v1/maintenances?limit=500")
+        rel_lines = _release_maintenance_lines(maints if isinstance(maints, list) else [])
+        if rel_lines:
+            lines += ["", "Upcoming release maintenance windows (all instances, from Trust):"] + rel_lines
+    except RuntimeError as e:
+        lines += ["", f"Upcoming maintenance windows: unavailable ({e})"]
+    lines += ["", "For one instance's dates and running release: "
+                  "python3 fetch_sf_help.py release-info YOUR_INSTANCE (e.g. NA209)."]
+    return "\n".join(lines)
+
+
+def fetch_release_info(instance=None):
+    """Answer 'what release…' questions from the anonymous Trust status API
+    (plus the release-notes landing pages for the org-independent summary)."""
+    assert_reachable("api.status.salesforce.com", "*.salesforce.com")
+    if instance:
+        return _instance_release_info(instance)
+    return _release_summary()
+
+
 def main():
     ap = argparse.ArgumentParser(
         description="Print the readable text of a Salesforce documentation page — "
                     "help.salesforce.com Help articles or developer.salesforce.com/docs "
-                    "pages. Give it the page URL (or a bare Help topic id); the host "
-                    "selects the retrieval path automatically.")
-    ap.add_argument("target", help="a Salesforce Help / developer-docs URL or a bare Help topic id")
+                    "pages — or Salesforce release info. Give it the page URL (or a "
+                    "bare Help topic id); the host selects the retrieval path "
+                    "automatically. The literal target 'release-info' prints current/"
+                    "preview release and upcoming release windows instead.")
+    ap.add_argument("target", help="a Salesforce Help / developer-docs / Trust status URL, "
+                                   "a bare Help topic id, or the literal 'release-info'")
+    ap.add_argument("instance", nargs="?",
+                    help="with 'release-info' only: a Salesforce instance key (e.g. NA209)")
     a = ap.parse_args()
+
+    # Release info: the literal 'release-info' target, or a Trust status URL.
+    if a.target.lower() == "release-info" or is_status_url(a.target):
+        instance = a.instance if a.target.lower() == "release-info" \
+            else status_instance_from(a.target)
+        print(f"# release info{': ' + instance if instance else ''}", file=sys.stderr)
+        try:
+            print(fetch_release_info(instance))
+            return 0
+        except Exception as e:
+            print(f"ERROR: could not retrieve release info. {e}", file=sys.stderr)
+            return 1
+    if a.instance:
+        print("ERROR: a second argument is only valid with the 'release-info' target",
+              file=sys.stderr)
+        return 2
 
     # developer.salesforce.com/docs has its own anonymous Atlas content API —
     # route it there directly rather than through the Help Aura path.
@@ -527,14 +761,15 @@ def main():
             print(f"ERROR: {hint}", file=sys.stderr)
             return 2
         topic = topic_id_from(a.target)
+        release = release_from(a.target)  # explicit release=NNN (release-notes URLs)
     except ValueError as e:
         print(f"ERROR: {e}", file=sys.stderr)
         return 2
-    print(f"# topic: {topic}", file=sys.stderr)
+    print(f"# topic: {topic}" + (f" (release {release})" if release else ""), file=sys.stderr)
 
     # Retrieval is fully automatic: Aura is the anonymous path that works out of
     # the box; Zoomin is tried only as a fallback when service creds are present.
-    strategies = [("aura", fetch_aura)]
+    strategies = [("aura", lambda t: fetch_aura(t, release))]
     if os.environ.get("ZOOMIN_BASIC"):
         strategies.append(("zoomin", fetch_zoomin))
     last = None
