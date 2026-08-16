@@ -128,3 +128,83 @@ def test_lwc_resources_list_format_is_scored():
         f"Expected 'scored' but got '{result['status']}': {result.get('message', '')}"
     )
     assert result["score"] > 0
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# VERSION-AWARE FEATURE FLOORS — Spring '26 features require apiVersion 66.0+
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+def _bundle_payload(api_version, html, js=""):
+    resources = [
+        {"filePath": "lwc/myComponent/myComponent.html", "source": html},
+        {
+            "filePath": "lwc/myComponent/myComponent.js-meta.xml",
+            "source": (
+                '<?xml version="1.0" encoding="UTF-8"?>'
+                "<LightningComponentBundle><apiVersion>"
+                f"{api_version}"
+                "</apiVersion></LightningComponentBundle>"
+            ),
+        },
+    ]
+    if js:
+        resources.append({"filePath": "lwc/myComponent/myComponent.js", "source": js})
+    return {
+        "tool": "metadata_create",
+        "params": {
+            "type": "LightningComponentBundle",
+            "metadata": [{"fullName": "myComponent", "lwcResources": resources}],
+        },
+    }
+
+
+LWC_ON_HTML = '<template><p lwc:on={handlers}>{greeting}</p></template>'
+MUTATION_JS = "import { executeMutation } from 'lightning/graphqlApi';"
+
+
+def _version_issues(result):
+    return [i for i in result.get("issues", []) if i.get("category") == "api_version"]
+
+
+def test_lwc_on_below_floor_flagged():
+    """lwc:on on a bundle declared at 65.0 must be CRITICAL (requires 66.0+)."""
+    r = LWCMCPValidator().validate(_bundle_payload("65.0", LWC_ON_HTML))
+    issues = _version_issues(r)
+    assert any("lwc:on" in i["message"] for i in issues)
+    assert all(i["severity"] == "CRITICAL" for i in issues)
+
+
+def test_lwc_on_at_floor_not_flagged():
+    """lwc:on at 66.0 (or later) is fine."""
+    r = LWCMCPValidator().validate(_bundle_payload("66.0", LWC_ON_HTML))
+    assert not _version_issues(r)
+    r = LWCMCPValidator().validate(_bundle_payload("67.0", LWC_ON_HTML))
+    assert not _version_issues(r)
+
+
+def test_graphql_mutation_below_floor_flagged():
+    """executeMutation in JS on a 65.0 bundle must be CRITICAL (requires 66.0+)."""
+    r = LWCMCPValidator().validate(
+        _bundle_payload("65.0", "<template></template>", js=MUTATION_JS)
+    )
+    assert any("executeMutation" in i["message"] for i in _version_issues(r))
+
+
+def test_no_meta_resource_not_judged():
+    """Without a .js-meta.xml in the payload, version floors are not judged."""
+    payload = {
+        "tool": "metadata_create",
+        "params": {
+            "type": "LightningComponentBundle",
+            "metadata": [
+                {
+                    "fullName": "myComponent",
+                    "lwcResources": [
+                        {"filePath": "lwc/myComponent/myComponent.html", "source": LWC_ON_HTML}
+                    ],
+                }
+            ],
+        },
+    }
+    assert not _version_issues(LWCMCPValidator().validate(payload))
