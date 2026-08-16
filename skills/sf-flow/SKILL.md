@@ -3,7 +3,7 @@ name: sf-flow
 plugin: cirra-ai-sf
 argument-hint: '[create|update|validate] {FlowName} ...'
 metadata:
-  version: 2.3.1
+  version: 2.5.1
 description: >
   Creates and validates Salesforce flows with 110-point scoring and Winter '26 best practices
   using Cirra AI MCP Server. Use when building record-triggered flows, screen flows,
@@ -344,6 +344,13 @@ available for post-processing and how large query results are retrieved.
 3. **Cirra AI Integration**: Deploy via metadata_create, retrieve via metadata_read/metadata_list
 4. **Testing Guidance**: Provide type-specific testing checklists and verification steps
 
+**When the metadata contract is unpublished, the UI is the faster tool.** The API is the
+right tool for schema, Apex, bulk flow structure and repeatable edits. It is the wrong tool
+for a first encounter with a screen component whose contract Salesforce does not document.
+In that situation, ask the user for two minutes in Flow Builder, read the result back, and
+then continue via the API with a shape you can trust. Do not let the cost already sunk into
+an API approach carry you past that decision.
+
 ---
 
 ## ⚠️ CRITICAL: Cirra AI MCP Server Setup
@@ -490,6 +497,11 @@ Covers XML-to-JSON translation, property placement rules, start patterns for all
 | Last   | true      | true        | "Finish"            |
 
 Rule: `allowFinish="true"` required on all screens. Connector present → "Next", absent → "Finish".
+
+**`allowFinish` is the forward button** (Next/Finish), not "this is a terminal screen". Setting
+`allowFinish: false` on an intermediate screen removes the only way forward and the screen
+appears to hang with no error. The validator message _"You can set either allowFinish or
+allowBack to false, but not both"_ is the tell — keep `allowFinish: true` on every screen.
 
 **Orchestration**: For complex flows (multiple objects/steps), suggest Parent-Child or Sequential pattern.
 
@@ -663,21 +675,70 @@ If ANY of these patterns would be generated, **STOP and ask the user**:
 > A) Refactor to use [correct pattern]
 > B) Proceed anyway (not recommended)"
 
-| Anti-Pattern                                                            | Impact                                                                                                                                                                                                                                   | Correct Pattern                                                                                                                     |
-| ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| After-Save updating same object without entry conditions                | **Infinite loop** (critical)                                                                                                                                                                                                             | MUST add entry conditions: "Only when [field] is changed"                                                                           |
-| Get Records inside Loop                                                 | Governor limit failure (100 SOQL)                                                                                                                                                                                                        | Query BEFORE loop, use collection variable                                                                                          |
-| Create/Update/Delete Records inside Loop                                | Governor limit failure (150 DML)                                                                                                                                                                                                         | Collect in loop → single DML after loop                                                                                             |
-| Apex Action inside Loop                                                 | Callout limits                                                                                                                                                                                                                           | Pass collection to single Apex invocation                                                                                           |
-| Fallible element in `RecordAfterSave` flow without `faultConnector`     | **Blocks the originating save** (`CANNOT_EXECUTE_FLOW_TRIGGER`). Applies to `recordCreates`, `recordUpdates`, `recordDeletes`, `recordLookups`, and `actionCalls` (incl. `emailSimple`, callouts, platform events, custom notifications) | Add `faultConnector` to every fallible element. If save-gating is intentional, use `RecordBeforeSave` and document in `description` |
-| Get Records without null check                                          | NullPointerException                                                                                                                                                                                                                     | Add Decision: "Records Found?" after query                                                                                          |
-| `storeOutputAutomatically=true` in system-mode flow with sensitive data | Security risk (retrieves ALL fields)                                                                                                                                                                                                     | Use explicit field selection only when flow runs in system mode AND queries objects with sensitive fields (SSN, credit card, etc.)  |
-| Query same object as trigger in Record-Triggered                        | Wasted SOQL                                                                                                                                                                                                                              | Use `{!$Record.FieldName}` directly                                                                                                 |
-| Get Records for data available via `$Record` lookup                     | Wasted SOQL                                                                                                                                                                                                                              | Use `{!$Record.Lookup__r.Field}` — traversal works up to 5 levels                                                                   |
-| Hardcoded Salesforce ID                                                 | Deployment failure across orgs                                                                                                                                                                                                           | Use input variable or Custom Label                                                                                                  |
-| Get Records without filters                                             | Too many records returned                                                                                                                                                                                                                | Always include WHERE conditions                                                                                                     |
+| Anti-Pattern                                                                                                                                                                                               | Impact                                                                                                                                                                                                                                                | Correct Pattern                                                                                                                                                                                                                              |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| After-Save updating same object without entry conditions                                                                                                                                                   | **Infinite loop** (critical)                                                                                                                                                                                                                          | MUST add entry conditions: "Only when [field] is changed"                                                                                                                                                                                    |
+| Get Records inside Loop                                                                                                                                                                                    | Governor limit failure (100 SOQL)                                                                                                                                                                                                                     | Query BEFORE loop, use collection variable                                                                                                                                                                                                   |
+| Create/Update/Delete Records inside Loop                                                                                                                                                                   | Governor limit failure (150 DML)                                                                                                                                                                                                                      | Collect in loop → single DML after loop                                                                                                                                                                                                      |
+| Apex Action inside Loop                                                                                                                                                                                    | Callout limits                                                                                                                                                                                                                                        | Pass collection to single Apex invocation                                                                                                                                                                                                    |
+| Fallible element in `RecordAfterSave` flow without `faultConnector`                                                                                                                                        | **Blocks the originating save** (`CANNOT_EXECUTE_FLOW_TRIGGER`). Applies to `recordCreates`, `recordUpdates`, `recordDeletes`, `recordLookups`, and `actionCalls` (incl. `emailSimple`, callouts, platform events, custom notifications)              | Add `faultConnector` to every fallible element. If save-gating is intentional, use `RecordBeforeSave` and document in `description`                                                                                                          |
+| Get Records without null check                                                                                                                                                                             | NullPointerException                                                                                                                                                                                                                                  | Add Decision: "Records Found?" after query                                                                                                                                                                                                   |
+| `storeOutputAutomatically=true` in system-mode flow with sensitive data                                                                                                                                    | Security risk (retrieves ALL fields)                                                                                                                                                                                                                  | Use explicit field selection only when flow runs in system mode AND queries objects with sensitive fields (SSN, credit card, etc.)                                                                                                           |
+| Query same object as trigger in Record-Triggered                                                                                                                                                           | Wasted SOQL                                                                                                                                                                                                                                           | Use `{!$Record.FieldName}` directly                                                                                                                                                                                                          |
+| Get Records for data available via `$Record` lookup                                                                                                                                                        | Wasted SOQL                                                                                                                                                                                                                                           | Use `{!$Record.Lookup__r.Field}` — traversal works up to 5 levels                                                                                                                                                                            |
+| Hardcoded Salesforce ID                                                                                                                                                                                    | Deployment failure across orgs                                                                                                                                                                                                                        | Use input variable or Custom Label                                                                                                                                                                                                           |
+| Get Records without filters                                                                                                                                                                                | Too many records returned                                                                                                                                                                                                                             | Always include WHERE conditions                                                                                                                                                                                                              |
+| Authoring a screen field with `fieldType: ComponentInstance` / `ComponentChoice`, or referencing a component's output as `[Component].[attr]`, **without having read that exact shape back from this org** | Deploy fails with `FIELD_INTEGRITY_EXCEPTION: The element has an invalid reference to "[x]"`, which does **not** name the offending element. The metadata contract for standard components is not published, so the value cannot be derived from docs | Obtain the shape from a flow version where Flow Builder placed the component (see "Standard screen components" workflow below). Never infer `extensionName`, `fieldType` or output attribute names from training data or from a Help article |
 
 **DO NOT generate anti-patterns even if explicitly requested.** Ask user to confirm the exception with documented justification.
+
+### 🧩 Standard screen components: get the shape, don't guess it
+
+Standard Flow screen components (Choice Lookup, Lookup, Data Table, Address, File Upload,
+Record Picker, Section, and any `lightning__FlowScreen` LWC) have a metadata contract that
+Salesforce **does not publish**. The Metadata API reference documents only the generic
+envelope. Help articles document behaviour, not metadata.
+
+You cannot derive `extensionName`, `fieldType`, input parameter names, or output attribute
+names from documentation or from memory. Get them from the org.
+
+**Order of preference:**
+
+1. **Search the org for an existing instance.** Cheapest and authoritative.
+   ```
+   soql_query FlowDefinitionView → candidate flows
+   metadata_read Flow '[FlowName]-[version]' → grep for extensionName
+   ```
+2. **Have the user place the component once in Flow Builder**, save as a new _Draft_
+   (do not activate), then `metadata_read` that version. Roughly two minutes of the
+   user's time and it settles input names, output names, `fieldType` and defaults at once.
+3. **Only if neither is possible**, build a probe flow — subject to the rule below.
+
+**Probe flows must be wired, not orphaned.** Salesforce validates references far more
+loosely on elements that are unreachable or that reference a component by a name it can
+resolve. A probe that declares a component and references an invented sub-attribute of it
+**can pass validation and still be wrong**. A probe only counts as evidence when:
+
+- the component name in the probe is **identical** to the one you will use, and
+- the referencing element is **connected on the executed path**, not orphaned, and
+- the probe exercises **every** place the reference will appear (assignment, Get Records
+  filter, decision condition, formula) — these validate differently.
+
+If those conditions are not all met, treat the probe as unproven and fall back to option 1
+or 2.
+
+**Known-good shapes** (confirmed against Summer '26; still re-verify per org, because
+component versions differ):
+
+| Component     | `fieldType`       | `extensionName`            | Output reference                                                                |
+| ------------- | ----------------- | -------------------------- | ------------------------------------------------------------------------------- |
+| Choice Lookup | `ComponentChoice` | `flowruntime:choiceLookup` | `[Name].selectedChoiceValues` (values) / `[Name].selectedChoiceLabels` (labels) |
+
+Bind Choice Lookup to a choice set via `choiceReferences`; set
+`storeOutputAutomatically: true`; it takes no `inputParameters`. Its output is **not** a
+plain string, so it cannot be referenced as `{![Name]}` the way a `RadioButtons` field can.
+
+Add a row to this table whenever you confirm another component's shape from an org.
 
 ### Phase 4: Deployment & Integration (via Cirra AI MCP)
 
@@ -823,8 +884,14 @@ fix it before activation.
 6. **Which category is this flow?** Side-effect or save-gating? Is the
    `description` clear about the intent so the next maintainer knows?
 
+7. **Reference-shape check.** For every element referencing a screen component output
+   (`[Component].[attribute]`), state where that exact shape came from: an org read-back, or a
+   wired probe meeting all three conditions in "Standard screen components" above. If the
+   answer is "it looked right" or "the docs implied it", stop and go get it. An unnamed
+   `FIELD_INTEGRITY_EXCEPTION` on a large flow costs far more than one `metadata_read`.
+
 This checklist takes 60 seconds and catches the failure modes the validator
-can't see (intent, idempotency design, downstream cascading).
+can't see (intent, idempotency design, downstream cascading, unpublished component contracts).
 
 ### Phase 5: Testing & Documentation
 
@@ -832,7 +899,9 @@ can't see (intent, idempotency design, downstream cascading).
 
 Quick reference:
 
-- **Screen**: Setup → Flows → Run, test all paths/profiles
+- **Screen**: Setup → Flows → Run, test all paths/profiles. **Screen flows cannot be verified
+  through the API** — component and Apex tests prove the parts, not the path. Do not report a
+  screen flow as "verified" on the strength of API checks alone.
 - **Record-Triggered**: Create record, verify Debug Logs, **bulk test 200+ records**
 - **Autolaunched**: Apex test class, edge cases, bulkification
 - **Scheduled**: Verify schedule, manual Run first, monitor logs
@@ -1041,15 +1110,17 @@ screens → start → status → subflows → textTemplates → variables → wa
 
 ### Error → Solution Quick Reference
 
-| Error Message                                       | Solution                                                                     |
-| --------------------------------------------------- | ---------------------------------------------------------------------------- |
-| `Duplicate developer name: X`                       | Screen field already created this reference — don't add a separate variable  |
-| `Can't use object field with sObjectInputReference` | Remove `object` property when using `inputReference`                         |
-| `isCollection invalid in FlowConstant`              | Use Decision + Variable counter instead of a constant collection             |
-| `Invalid element reference X not found`             | Check all element names are unique and connectors point to existing elements |
-| Flow won't open in Flow Builder                     | Add all empty element type arrays to flow metadata                           |
-| Silent failure on `metadata_update`                 | Read current state first with `metadata_read`; build iteratively             |
-| Required field missing                              | Add `processMetadataValues: []` to every element                             |
+| Error Message                                                        | Solution                                                                                                                                   |
+| -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Duplicate developer name: X`                                        | Screen field already created this reference — don't add a separate variable                                                                |
+| `Can't use object field with sObjectInputReference`                  | Remove `object` property when using `inputReference`                                                                                       |
+| `isCollection invalid in FlowConstant`                               | Use Decision + Variable counter instead of a constant collection                                                                           |
+| `Invalid element reference X not found`                              | Check all element names are unique and connectors point to existing elements                                                               |
+| `FIELD_INTEGRITY_EXCEPTION: The element has an invalid reference`    | Screen-component output shape is wrong or unpublished — `metadata_read` a Builder-placed instance; do not guess `[Component].[attr]`       |
+| `SETTING_FIELD_MAKES_OTHER_FIELD_UNSUPPORTED` on `dynamicChoiceSets` | Strip empty `object`/`displayField` from picklist choice sets; do not redeploy a raw Cirra read-back or use JSON Patch on choice-set flows |
+| Flow won't open in Flow Builder                                      | Add all empty element type arrays to flow metadata                                                                                         |
+| Silent failure on `metadata_update`                                  | Read current state first with `metadata_read`; author a fresh full-object payload (do not redeploy the raw read-back)                      |
+| Required field missing                                               | Add `processMetadataValues: []` to every element                                                                                           |
 
 **Metadata Gotchas**: See `references/xml-gotchas.md`
 
@@ -1090,14 +1161,45 @@ When creating records from a collection using `inputReference`, do **NOT** inclu
 
 Flow constants cannot be collections or SObjects. Use a Decision + Counter Variable instead.
 
-### Lesson 4: Read Current State Before Complex Updates
+### Lesson 4: Read Current State Before Complex Updates — but do not redeploy a read-back
 
-**ALWAYS** call `metadata_read` immediately before `metadata_update` for complex changes. Salesforce replaces the entire flow version on update — working with stale metadata will overwrite recent changes.
+**ALWAYS** call `metadata_read` immediately before a complex update so you know what is live.
+Salesforce replaces the entire flow version on a full-object update — working from memory
+will overwrite recent changes.
 
-1. Call `metadata_read` to get current state
+**Read-back is not round-trip safe.** A Cirra/Metadata fetch:
+
+- injects empty strings into absent fields (notably `object: ""` / `displayField: ""` on
+  picklist `dynamicChoiceSets` — Salesforce then rejects with
+  `SETTING_FIELD_MAKES_OTHER_FIELD_UNSUPPORTED`),
+- alphabetises array elements (so numeric JSON Patch indices derived from your own payload
+  are wrong),
+- drops `getFirstRecordOnly` from some `recordLookups`, and
+- coerces scalar types.
+
+Treat a read-back as **evidence of shape**, not as a deployable payload.
+
+1. Call `metadata_read` to learn current state and component shapes
 2. Analyze current elements and dependencies
-3. Modify the retrieved metadata
-4. Call `metadata_update` with complete state
+3. Author a **fresh** full-object payload (never paste the raw read-back into the deploy)
+4. Call `metadata_update` with `metadata=[...]` (full object), not `patch`
+
+### Lesson 4.5: JSON Patch mode is unsafe on flows with choice sets
+
+`metadata_update` with `patch` fetches the current object server-side. That fetch carries the
+same empty-field injection as a client `metadata_read`. Patching a flow that has picklist or
+Apex-backed `dynamicChoiceSets` then fails (`SETTING_FIELD_MAKES_OTHER_FIELD_UNSUPPORTED`, or
+opaque `.value` reference errors on collection choice sets).
+
+**Use full-object `metadata` mode, authored fresh — never `patch` on flows that contain
+choice sets.** Prefer `page_layout_update` / `permission_set_update` for surgical JSON Patch
+elsewhere; do not treat Flow the same way.
+
+### Lesson 4.6: Full-object upsert overwrites an existing Draft in place
+
+A full-object Flow upsert only creates a **new** version when the current latest is Active.
+If the latest is already Draft, the deploy overwrites that Draft in place. Always re-query
+`Flow.VersionNumber` / `Status` after deploying — do not assume a new version number.
 
 ### Lesson 5: All Element Names Must Be Globally Unique
 
@@ -1367,6 +1469,172 @@ To deactivate all versions: set `activeVersionNumber` to `0`.
 ```
 tooling_api_query(sObject="Flow", fields=["Definition.DeveloperName"], whereClause="Status = 'Active' AND (ProcessType = 'AutolaunchedFlow' OR ProcessType = 'Workflow' OR ProcessType = 'CustomEvent' OR ProcessType = 'InvocableProcess') AND Id NOT IN (SELECT FlowVersionId FROM FlowTestCoverage)")
 ```
+
+### Create a native Flow Test (FlowTest metadata type)
+
+Native **Flow Tests** are declarative tests (the "Create Test" / "View Tests"
+button in Flow Builder) that Salesforce stores as the `FlowTest` metadata type.
+They apply **only to record-triggered flows** (`RecordBeforeSave` /
+`RecordAfterSave`). This is distinct from Apex test coverage of flows (see
+_Check flow test coverage_ above) — a `FlowTest` needs no Apex.
+
+**Verified end-to-end via the Cirra MCP** — `metadata_create` accepts the
+`FlowTest` type and the payload below round-trips through `metadata_read` and the
+`FlowTest` Tooling object. Every field name and nesting level below is accepted
+verbatim. Structure reference:
+[FlowTest metadata docs](https://developer.salesforce.com/docs/atlas.en-us.api_meta.meta/api_meta/meta_flowtest.htm).
+
+A `FlowTest` has exactly two kinds of test point:
+
+- **`Start`** — carries the triggering-record input. `leftValueReference` **must
+  be `$Record`**; `type` is `InputTriggeringRecordInitial` (or
+  `InputTriggeringRecordUpdated` for the "after update" record). The record
+  itself is a **JSON string** in `sobjectValue`. Populate more than just the field
+  the flow branches on — a too-sparse record makes the test `Error` at run time
+  rather than pass or fail (see _Run a native Flow Test_ below).
+- **`Finish`** — carries the assertions evaluated after the flow runs.
+
+```
+metadata_create(type="FlowTest", metadata=[{
+  "fullName": "Test_CR_Priority_High",
+  "label": "CR Priority High",
+  "description": "Priority is set to High when Impact is High.",
+  "flowApiName": "SDO_Change_Request_Set_Priority_Based_on_Impact",
+  "testType": "WithAssertion",
+  "testPoints": [
+    {"elementApiName": "Start", "parameters": [
+      {"leftValueReference": "$Record", "type": "InputTriggeringRecordInitial",
+       "value": {"sobjectValue": "{\"Impact\":\"High\",\"Subject\":\"Router upgrade\"}"}}]},
+    {"elementApiName": "Finish", "assertions": [
+      {"conditions": [
+        {"leftValueReference": "$Record.Priority", "operator": "EqualTo",
+         "rightValue": {"stringValue": "High"}}],
+       "errorMessage": "Priority should be High when Impact is High"}]}
+  ]
+}])
+```
+
+Verify (metadata round-trip, then the Tooling object) and delete:
+
+```
+metadata_read(type="FlowTest", fullNames=["Test_CR_Priority_High"])
+tooling_api_query(sObject="FlowTest", fields=["Id","DeveloperName","MasterLabel","TestType"], whereClause="DeveloperName='Test_CR_Priority_High'")
+metadata_delete(type="FlowTest", fullNames=["Test_CR_Priority_High"])
+```
+
+**Gotchas (all observed against a live org):**
+
+- **Creation ≠ execution.** `metadata_create` only _creates_ the test; it does
+  **not** run it, so the assertion is not evaluated at create time. A syntactically
+  valid `FlowTest` is created even if its assertion would fail — a wrong assertion
+  surfaces only once you run it. See _Run a native Flow Test and read the result_
+  below.
+- **`metadata_read` collapses single-element arrays to bare objects.** A test
+  point with one `parameters` / `assertions` / `conditions` entry reads back as
+  `parameters: {…}` (object), not `parameters: [{…}]` (array) — standard Metadata
+  API XML→JSON behavior, not data loss. Code that assumes a list will break on
+  single-element test points; normalize to an array before iterating.
+- **The platform injects `isUseMockOutput` on each test point as the string
+  `"false"`** (not a boolean) on read-back.
+- **Tooling field names differ from metadata field names:** `DeveloperName` ↔
+  `fullName`, `MasterLabel` ↔ `label`, `TestType` ↔ `testType`. The `FlowTest`
+  key prefix is `320`.
+
+### Run a native Flow Test and read the result
+
+Use `run_tests`, which wraps the Tooling API asynchronous test runner. Salesforce
+executes Flow Tests on the **Apex** test infrastructure, so a flow test is addressed
+with a _synthetic_ class name — there is no `ApexClass` record for it. Do not try to
+look one up, and do not try to enqueue a flow test by inserting an
+`ApexTestQueueItem` (that field requires a real Apex class ID and rejects a
+`FlowTest` ID).
+
+- `className` is `FlowTesting.{flowApiName}`
+- each test method is the **bare** `{flowTestApiName}`
+
+Both are **API names, not labels**. Flow test support requires API version 65.0 or
+later. Reference:
+[runTestsAsynchronous](https://developer.salesforce.com/docs/atlas.en-us.api_tooling.meta/api_tooling/intro_rest_resources_testing_runner_async.htm).
+
+> The Salesforce docs describe the method name as `{flowApiName}_{flowTestApiName}`.
+> That form does **not** work: it is accepted, then the run fails with
+> `Could not run tests on class null` and zero tests execute. The bare flow test API
+> name is what actually runs, and it is what `ApexTestResult.MethodName` reports back.
+> The `FlowTesting.` class prefix is correct — a bare flow name is rejected outright
+> with `INVALID_INPUT`.
+
+```
+run_tests(tests=[{
+  "className": "FlowTesting.SDO_Change_Request_Set_Priority_Based_on_Impact",
+  "testMethods": ["Test_CR_Priority_High"]
+}], skipCodeCoverage="true")
+```
+
+The run is **asynchronous**: `run_tests` returns `{"jobId": "707…"}` (an AsyncApexJob
+ID) and you poll for results. Poll by re-issuing the status query — a couple of flow
+tests finish within seconds.
+
+**1. Is the run finished?** `Status` is `Queued`, `Preparing` or `Processing` while
+running, and `Completed`, `Failed` or `Aborted` once finished:
+
+```
+tooling_api_query(sObject="ApexTestRunResult", fields=["Id","AsyncApexJobId","Status","MethodsEnqueued","MethodsCompleted","MethodsFailed"], whereClause="AsyncApexJobId = '{jobId}'")
+```
+
+Use this only to tell "finished" from "still running". **The counters are unreliable
+for flow tests** — a completed run has been observed reporting
+`Status: Failed, MethodsCompleted: 0, MethodsFailed: 0` while a flow test inside it
+passed. Take the verdict from steps 2 and 3, never from this roll-up.
+
+**2. Per-test outcome.** `Outcome` is `Pass`, `Fail`, `CompileFail` or `Skip`;
+`Message` carries the `errorMessage` from the failing assertion:
+
+```
+tooling_api_query(sObject="ApexTestResult", fields=["Id","MethodName","Outcome","Message","StackTrace"], whereClause="AsyncApexJobId = '{jobId}'")
+```
+
+**3. Flow-specific results.** `FlowTestResult` links the same run back to the
+`FlowTest` record and the flow version that ran. `Result` is `Pass`, `Fail` or
+**`Error`** — `Error` means the test could not execute (see the triggering-record note
+below) and is distinct from an assertion that evaluated and failed:
+
+```
+tooling_api_query(sObject="FlowTestResult", fields=["Id","FlowTestId","FlowDefinitionId","FlowVersionNumber","Result","TestStartDateTime","TestEndDateTime"], whereClause="ApexTestResultId != null")
+```
+
+To run **every** flow test in the org rather than named ones, use the org-wide form —
+but read the `category` warning below first:
+
+```
+run_tests(testLevel="RunLocalTests", category=["Flow"], skipCodeCoverage="true")
+```
+
+**Notes:**
+
+- **Give the triggering record enough fields.** A record carrying only the field the
+  flow branches on is often not enough: `{"Impact":"High"}` alone produced
+  `Result: Error`, while `{"Impact":"High","Subject":"…"}` produced `Result: Pass`
+  with the identical assertion. If a test reports `Error` rather than `Pass`/`Fail`,
+  add the fields a real record of that object would carry before suspecting the
+  assertion.
+- **`category` does not reliably filter the run.** `category=["Flow"]` has been
+  observed enqueueing **236** methods in an org containing exactly **2** flow tests —
+  it ran every local Apex test as well. Treat the org-wide form as "run everything",
+  and prefer naming tests explicitly when you only want flow tests.
+- **A newly created `FlowTest` may not be runnable immediately.** Freshly created
+  tests have been observed failing to resolve — `Could not run tests on class null`
+  from the `tests` form, and silently skipped by an org-wide run that executed every
+  other flow test in the org. No reliable delay has been established; re-run, or
+  update an already-runnable test instead of creating a new one.
+- Pass `skipCodeCoverage="true"` for flow tests — coverage collection only slows the
+  run down.
+- `skipCodeCoverage` and `maxFailedTests` are **strings** on this endpoint, not
+  booleans/numbers.
+- `maxFailedTests` does **not** apply to flow tests; flow failures are not counted
+  against that threshold.
+- Runs consume the org's daily async Apex test limit (`DailyAsyncApexTests`).
+- `run_tests` also runs Apex tests — pass a real Apex class name as `className`, or
+  use `testLevel` with `category=["Apex"]`.
 
 ### Find paused or failed flow interviews
 

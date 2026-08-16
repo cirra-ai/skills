@@ -31,19 +31,22 @@ All skills are bundled in the `cirra-ai-sf` plugin. They can also be installed i
 
 The following skills are available or planned:
 
-| Skill                                             | Description                                                                                                                          |
-| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| [sf-apex](skills/sf-apex/README.md)               | Create, update and review Apex classes and triggers                                                                                  |
-| [sf-flow](skills/sf-flow/README.md)               | Create, update and review flows. Includes porting from Process Builders                                                              |
-| [sf-data](skills/sf-data/README.md)               | SOQL queries, DML operations, test data factories, and pre-flight SOQL validation                                                    |
-| [sf-lwc](skills/sf-lwc/README.md)                 | Lightning Web Components development                                                                                                 |
-| [sf-audit](skills/sf-audit/README.md)             | Full org audit across Apex, Flows, and LWC with scored reports                                                                       |
-| [sf-metadata](skills/sf-metadata/README.md)       | Metadata creation, org queries, permission set generation                                                                            |
-| [sf-permissions](skills/sf-permissions/README.md) | Permission Set analysis, hierarchy viewer, "Who has X?" auditing                                                                     |
-| [sf-diagram](skills/sf-diagram/README.md)         | Salesforce architecture diagrams (ERDs, OAuth flows, integrations) in Mermaid                                                        |
-| [sf-kugamon](skills/sf-kugamon/README.md)         | Kugamon CPQ quote management — create, verify, and manage opportunities, quotes, and orders with [Kugamon](https://www.kugamon.com/) |
-| [sf-orders](skills/sf-orders/README.md)           | Order management — orders, returns, cases, and the order-to-return lifecycle                                                         |
-| [sf-help-fetch](skills/sf-help-fetch/README.md)   | Read Salesforce Help article bodies (help.salesforce.com) headlessly — Help Docs topics and Knowledge Articles                       |
+| Skill                                               | Description                                                                                                                          |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| [sf-apex](skills/sf-apex/README.md)                 | Create, update and review Apex classes and triggers                                                                                  |
+| [sf-flow](skills/sf-flow/README.md)                 | Create, update and review flows. Includes porting from Process Builders                                                              |
+| [sf-data](skills/sf-data/README.md)                 | SOQL queries, DML operations, test data factories, and pre-flight SOQL validation                                                    |
+| [sf-lwc](skills/sf-lwc/README.md)                   | Lightning Web Components development                                                                                                 |
+| [sf-audit](skills/sf-audit/README.md)               | Full org audit across Apex, Flows, and LWC with scored reports                                                                       |
+| [sf-metadata](skills/sf-metadata/README.md)         | Metadata creation, org queries, permission set generation                                                                            |
+| [sf-permissions](skills/sf-permissions/README.md)   | Permission Set analysis, hierarchy viewer, "Who has X?" auditing                                                                     |
+| [sf-diagram](skills/sf-diagram/README.md)           | Salesforce architecture diagrams (ERDs, OAuth flows, integrations) in Mermaid                                                        |
+| [sf-kugamon](skills/sf-kugamon/README.md)           | Kugamon CPQ quote management — create, verify, and manage opportunities, quotes, and orders with [Kugamon](https://www.kugamon.com/) |
+| [sf-orders](skills/sf-orders/README.md)             | Order management — orders, returns, cases, and the order-to-return lifecycle                                                         |
+| [sf-help-fetch](skills/sf-help-fetch/README.md)     | Read Salesforce Help article bodies (help.salesforce.com) headlessly — Help Docs topics and Knowledge Articles                       |
+| [sf-provisioning](skills/sf-provisioning/README.md) | User and access provisioning — create users, grant or revoke capabilities, mirror access, offboard logins                            |
+| [sf-cms](skills/sf-cms/README.md)                   | Salesforce CMS content — author, publish, and verify what is live on a delivery channel                                              |
+| [sf-connect-rest](skills/sf-connect-rest/README.md) | Connect REST API access for capabilities with no dedicated tool — named credentials, custom domains, site publishing                 |
 
 The skills can either be installed individually, or as a bundle. See details for each AI platform below.
 
