@@ -3,7 +3,7 @@ name: sf-flow
 plugin: cirra-ai-sf
 argument-hint: '[create|update|validate] {FlowName} ...'
 metadata:
-  version: 2.5.0
+  version: 2.5.1
 description: >
   Creates and validates Salesforce flows with 110-point scoring and Winter '26 best practices
   using Cirra AI MCP Server. Use when building record-triggered flows, screen flows,
@@ -1489,7 +1489,9 @@ A `FlowTest` has exactly two kinds of test point:
 - **`Start`** — carries the triggering-record input. `leftValueReference` **must
   be `$Record`**; `type` is `InputTriggeringRecordInitial` (or
   `InputTriggeringRecordUpdated` for the "after update" record). The record
-  itself is a **JSON string** in `sobjectValue`.
+  itself is a **JSON string** in `sobjectValue`. Populate more than just the field
+  the flow branches on — a too-sparse record makes the test `Error` at run time
+  rather than pass or fail (see _Run a native Flow Test_ below).
 - **`Finish`** — carries the assertions evaluated after the flow runs.
 
 ```
@@ -1502,7 +1504,7 @@ metadata_create(type="FlowTest", metadata=[{
   "testPoints": [
     {"elementApiName": "Start", "parameters": [
       {"leftValueReference": "$Record", "type": "InputTriggeringRecordInitial",
-       "value": {"sobjectValue": "{\"Impact\":\"High\"}"}}]},
+       "value": {"sobjectValue": "{\"Impact\":\"High\",\"Subject\":\"Router upgrade\"}"}}]},
     {"elementApiName": "Finish", "assertions": [
       {"conditions": [
         {"leftValueReference": "$Record.Priority", "operator": "EqualTo",
@@ -1548,16 +1550,23 @@ look one up, and do not try to enqueue a flow test by inserting an
 `FlowTest` ID).
 
 - `className` is `FlowTesting.{flowApiName}`
-- each test method is `{flowApiName}_{flowTestApiName}`
+- each test method is the **bare** `{flowTestApiName}`
 
-Both are **API names, not labels**, and the flow API name appears in both. Flow test
-support requires API version 65.0 or later. Reference:
+Both are **API names, not labels**. Flow test support requires API version 65.0 or
+later. Reference:
 [runTestsAsynchronous](https://developer.salesforce.com/docs/atlas.en-us.api_tooling.meta/api_tooling/intro_rest_resources_testing_runner_async.htm).
+
+> The Salesforce docs describe the method name as `{flowApiName}_{flowTestApiName}`.
+> That form does **not** work: it is accepted, then the run fails with
+> `Could not run tests on class null` and zero tests execute. The bare flow test API
+> name is what actually runs, and it is what `ApexTestResult.MethodName` reports back.
+> The `FlowTesting.` class prefix is correct — a bare flow name is rejected outright
+> with `INVALID_INPUT`.
 
 ```
 run_tests(tests=[{
   "className": "FlowTesting.SDO_Change_Request_Set_Priority_Based_on_Impact",
-  "testMethods": ["SDO_Change_Request_Set_Priority_Based_on_Impact_Test_CR_Priority_High"]
+  "testMethods": ["Test_CR_Priority_High"]
 }], skipCodeCoverage="true")
 ```
 
@@ -1572,6 +1581,11 @@ running, and `Completed`, `Failed` or `Aborted` once finished:
 tooling_api_query(sObject="ApexTestRunResult", fields=["Id","AsyncApexJobId","Status","MethodsEnqueued","MethodsCompleted","MethodsFailed"], whereClause="AsyncApexJobId = '{jobId}'")
 ```
 
+Use this only to tell "finished" from "still running". **The counters are unreliable
+for flow tests** — a completed run has been observed reporting
+`Status: Failed, MethodsCompleted: 0, MethodsFailed: 0` while a flow test inside it
+passed. Take the verdict from steps 2 and 3, never from this roll-up.
+
 **2. Per-test outcome.** `Outcome` is `Pass`, `Fail`, `CompileFail` or `Skip`;
 `Message` carries the `errorMessage` from the failing assertion:
 
@@ -1580,13 +1594,16 @@ tooling_api_query(sObject="ApexTestResult", fields=["Id","MethodName","Outcome",
 ```
 
 **3. Flow-specific results.** `FlowTestResult` links the same run back to the
-`FlowTest` record and the flow version that ran:
+`FlowTest` record and the flow version that ran. `Result` is `Pass`, `Fail` or
+**`Error`** — `Error` means the test could not execute (see the triggering-record note
+below) and is distinct from an assertion that evaluated and failed:
 
 ```
 tooling_api_query(sObject="FlowTestResult", fields=["Id","FlowTestId","FlowDefinitionId","FlowVersionNumber","Result","TestStartDateTime","TestEndDateTime"], whereClause="ApexTestResultId != null")
 ```
 
-To run **every** flow test in the org rather than named ones, use the org-wide form:
+To run **every** flow test in the org rather than named ones, use the org-wide form —
+but read the `category` warning below first:
 
 ```
 run_tests(testLevel="RunLocalTests", category=["Flow"], skipCodeCoverage="true")
@@ -1594,6 +1611,21 @@ run_tests(testLevel="RunLocalTests", category=["Flow"], skipCodeCoverage="true")
 
 **Notes:**
 
+- **Give the triggering record enough fields.** A record carrying only the field the
+  flow branches on is often not enough: `{"Impact":"High"}` alone produced
+  `Result: Error`, while `{"Impact":"High","Subject":"…"}` produced `Result: Pass`
+  with the identical assertion. If a test reports `Error` rather than `Pass`/`Fail`,
+  add the fields a real record of that object would carry before suspecting the
+  assertion.
+- **`category` does not reliably filter the run.** `category=["Flow"]` has been
+  observed enqueueing **236** methods in an org containing exactly **2** flow tests —
+  it ran every local Apex test as well. Treat the org-wide form as "run everything",
+  and prefer naming tests explicitly when you only want flow tests.
+- **A newly created `FlowTest` may not be runnable immediately.** Freshly created
+  tests have been observed failing to resolve — `Could not run tests on class null`
+  from the `tests` form, and silently skipped by an org-wide run that executed every
+  other flow test in the org. No reliable delay has been established; re-run, or
+  update an already-runnable test instead of creating a new one.
 - Pass `skipCodeCoverage="true"` for flow tests — coverage collection only slows the
   run down.
 - `skipCodeCoverage` and `maxFailedTests` are **strings** on this endpoint, not
