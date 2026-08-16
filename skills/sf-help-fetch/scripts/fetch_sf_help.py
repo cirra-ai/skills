@@ -642,6 +642,12 @@ def _release_name_of(ctx, release):
 
 def _instance_release_info(instance):
     """Release info for one instance: running release + upcoming release windows."""
+    # Instance keys are letters/digits/dashes/underscores (NA209, AP52,
+    # RUNTIMEPLANE-EU). Validate before building the request path so bad input
+    # (slashes, query chars) gets a clear error instead of a mangled URL.
+    if not re.fullmatch(r"[A-Za-z0-9_-]+", instance):
+        raise RuntimeError(f"invalid instance {instance!r} — expected an instance key like "
+                           "NA209 or AP52 (letters, digits, dashes)")
     d, code = _status_get_json(f"/v1/instances/{instance.upper()}/status")
     if code == "404" or "key" not in d:
         # Not a key — try the case-insensitive search (e.g. 'ap52', partial keys).
@@ -729,6 +735,13 @@ def main():
     a = ap.parse_args()
 
     # Release info: the literal 'release-info' target, or a Trust status URL.
+    # The optional second argument is only meaningful with the literal target —
+    # a status URL already names its instance, so an extra argument there is a
+    # mistake to surface, not to silently ignore.
+    if a.instance and a.target.lower() != "release-info":
+        print("ERROR: a second argument is only valid with the 'release-info' target",
+              file=sys.stderr)
+        return 2
     if a.target.lower() == "release-info" or is_status_url(a.target):
         instance = a.instance if a.target.lower() == "release-info" \
             else status_instance_from(a.target)
@@ -739,10 +752,6 @@ def main():
         except Exception as e:
             print(f"ERROR: could not retrieve release info. {e}", file=sys.stderr)
             return 1
-    if a.instance:
-        print("ERROR: a second argument is only valid with the 'release-info' target",
-              file=sys.stderr)
-        return 2
 
     # developer.salesforce.com/docs has its own anonymous Atlas content API —
     # route it there directly rather than through the Help Aura path.

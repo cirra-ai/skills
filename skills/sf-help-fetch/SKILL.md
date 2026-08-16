@@ -207,9 +207,9 @@ a `status.salesforce.com/instances/KEY` URL routes to the same code path.
 
 - **`release-info`** (no instance) — prints the current release ("Summer '26 (262.0.0)" —
   number from `latestRNVersion`, seasonal name read from the release-notes landing title, no
-  hardcoded mapping), the preview release when its notes are already published (current major
-  - 2), and upcoming release maintenance windows across all instances. Degrades gracefully:
-    if one source is unreachable the other still prints.
+  hardcoded mapping), the preview release when its notes are already published (the current
+  major version plus 2, e.g. 262 → 264), and upcoming release maintenance windows across all
+  instances. Degrades gracefully: if one source is unreachable the other still prints.
 - **`release-info NA209`** (or `ap52` — case-insensitive, resolved via search) — that
   instance's running release (`releaseVersion`/`releaseNumber`, e.g.
   "Summer '26 Patch 13.7" / `262.13.7`), its maintenance window, and its upcoming

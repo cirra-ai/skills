@@ -317,6 +317,21 @@ class TestStatusUrlRouting:
     def test_status_url_is_supported(self):
         assert mod.unsupported_url_message("https://status.salesforce.com/instances/AP52") is None
 
+    def test_second_arg_with_status_url_rejected(self, monkeypatch, capsys):
+        # A status URL already names its instance — a stray second argument is
+        # an error (exit 2), not silently ignored. Rejected before any network I/O.
+        import sys as _sys
+        monkeypatch.setattr(_sys, "argv", [
+            "fetch_sf_help.py", "https://status.salesforce.com/instances/AP52", "NA1"])
+        assert mod.main() == 2
+        assert "only valid with the 'release-info' target" in capsys.readouterr().err
+
+    def test_second_arg_with_plain_topic_rejected(self, monkeypatch, capsys):
+        import sys as _sys
+        monkeypatch.setattr(_sys, "argv", ["fetch_sf_help.py", "xcloud.foo", "NA1"])
+        assert mod.main() == 2
+        assert "only valid with the 'release-info' target" in capsys.readouterr().err
+
 
 class TestReleaseInfo:
     def test_instance_info_by_exact_key(self, monkeypatch):
@@ -362,6 +377,16 @@ class TestReleaseInfo:
         out = mod.fetch_release_info("gs0")
         assert "GS0X" in out
         assert "No upcoming release maintenance events" in out
+
+    def test_invalid_instance_key_rejected_before_any_request(self, monkeypatch):
+        monkeypatch.setattr(mod, "assert_reachable", lambda *a, **k: None)
+
+        def boom(path):
+            raise AssertionError("no request should be made for an invalid key")
+
+        monkeypatch.setattr(mod, "_status_get_json", boom)
+        with pytest.raises(RuntimeError, match="invalid instance"):
+            mod.fetch_release_info("AP52/../secrets")
 
     def test_unknown_instance_raises_actionable_error(self, monkeypatch):
         monkeypatch.setattr(mod, "assert_reachable", lambda *a, **k: None)
