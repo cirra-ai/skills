@@ -15,6 +15,25 @@
     ]
   },
   "permissions": {
-    "allow": ["mcp__cirra-ai__*"]
+    "allow": [
+      "mcp__cirra-ai__*",
+      "mcp__github__pull_request_read",
+      "mcp__github__add_reply_to_pull_request_comment",
+      "mcp__github__add_issue_comment",
+      "mcp__github__resolve_review_thread",
+      "mcp__github__update_pull_request",
+      "mcp__github__subscribe_pr_activity",
+      "mcp__github__unsubscribe_pr_activity",
+      "mcp__github__actions_list",
+      "mcp__github__actions_get",
+      "mcp__github__get_job_logs",
+      "mcp__github__get_file_contents",
+      "mcp__claude-code-remote__send_later",
+      "mcp__claude-code-remote__subscribe_pr_activity",
+      "mcp__claude-code-remote__unsubscribe_pr_activity",
+      "mcp__Claude_Code_Remote__send_later",
+      "mcp__Claude_Code_Remote__subscribe_pr_activity",
+      "mcp__Claude_Code_Remote__unsubscribe_pr_activity"
+    ]
   }
 }
