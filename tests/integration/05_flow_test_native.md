@@ -486,6 +486,90 @@ constructing a patch, or send the whole object via `metadata`.
 
 ---
 
+### TC-509 — Assertion arity: one condition, many assertions
+
+Establishes which node actually varies, so TC-508's pointer rule is anchored
+rather than inferred.
+
+**Command — expect the first to be REJECTED and the second to succeed:**
+
+```
+metadata_create(type="FlowTest", metadata=[
+  {"fullName": "Cirra_Probe_MultiCond", ..., "testPoints": [
+    {"elementApiName": "Start", "parameters": [...]},
+    {"elementApiName": "Finish", "assertions": [
+      {"conditions": [
+        {"leftValueReference": "$Record.Priority", "operator": "EqualTo", "rightValue": {"stringValue": "High"}},
+        {"leftValueReference": "$Record.Impact",   "operator": "EqualTo", "rightValue": {"stringValue": "High"}}],
+       "errorMessage": "..."}]}]},
+  {"fullName": "Cirra_Probe_MultiAssert", ..., "testPoints": [
+    {"elementApiName": "Start", "parameters": [...]},
+    {"elementApiName": "Finish", "assertions": [
+      {"conditions": [{"leftValueReference": "$Record.Priority", "operator": "EqualTo", "rightValue": {"stringValue": "High"}}], "errorMessage": "..."},
+      {"conditions": [{"leftValueReference": "$Record.Impact",   "operator": "EqualTo", "rightValue": {"stringValue": "High"}}], "errorMessage": "..."}]}]}
+])
+```
+
+**Expected:**
+
+- `Cirra_Probe_MultiCond` fails with `FLOW_TEST_CONDITION_LIMIT` — "Enter only one
+  condition for each assertion." **`conditions` can never be a multi-element
+  array.**
+- `Cirra_Probe_MultiAssert` succeeds. `assertions` **can** be. This is a
+  per-record validation error, so the batch-mate still deploys — contrast TC-510.
+- `metadata_read` on the survivor returns `assertions` as a real 2-element array,
+  each with `conditions` collapsed to a bare object.
+
+Then confirm the pointer rule both ways:
+
+```
+metadata_update(..., patch=[{"op":"replace",
+  "path":"/testPoints/1/assertions/conditions/rightValue/stringValue","value":"Low"}])   → NAME_PATH_NOT_FOUND
+metadata_update(..., patch=[{"op":"replace",
+  "path":"/testPoints/1/assertions/0/conditions/rightValue/stringValue","value":"Low"}]) → succeeds
+```
+
+**Result:**
+
+| Field                                    | Value |
+| ---------------------------------------- | ----- |
+| Multi-condition rejected                 |       |
+| Multi-assertion accepted                 |       |
+| Batch-mate survived the per-record error |       |
+| Indexless pointer error                  |       |
+| Indexed pointer succeeded                |       |
+
+---
+
+### TC-510 — `maxFailedTests` aborts a flow-test run
+
+**Command:** run two flow tests where the first to execute fails, with
+`maxFailedTests="0"`:
+
+```
+run_tests(tests=[{"className": "FlowTesting.{FLOW}",
+  "testMethods": ["Cirra_Probe_MultiAssert", "Cirra_Probe_Err_BadField"]}],
+  skipCodeCoverage="true", maxFailedTests="0")
+```
+
+**Expected:** the run **aborts**. `ApexTestRunResult` reports `Status: Failed`
+with `MethodsEnqueued: 2, MethodsCompleted: 1`, and `ApexTestResult` carries only
+the one method. Flow failures do count against the threshold.
+
+This is the likeliest explanation for a run that appears to report corrupt
+counters: an aborted run, not a broken roll-up. Use `maxFailedTests="-1"` when you
+want every test to execute regardless.
+
+**Result:**
+
+| Field                                 | Value |
+| ------------------------------------- | ----- |
+| Run aborted                           |       |
+| Enqueued / Completed                  |       |
+| Methods missing from `ApexTestResult` |       |
+
+---
+
 ## Cleanup — mandatory
 
 ```
@@ -494,7 +578,9 @@ metadata_delete(type="FlowTest", fullNames=[
   "Cirra_Probe_CR_Priority_Fail",
   "Cirra_Probe_CR_Priority_Sparse",
   "Cirra_Probe_RT_Copy",
-  "Cirra_Probe_Gap_Check"])
+  "Cirra_Probe_Gap_Check",
+  "Cirra_Probe_MultiAssert",
+  "Cirra_Probe_Err_BadField"])
 ```
 
 Then confirm the org is clean:
