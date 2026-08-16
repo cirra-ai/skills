@@ -2,7 +2,7 @@
 name: sf-connect-rest
 plugin: cirra-ai-sf
 metadata:
-  version: 1.0.0
+  version: 1.0.1
 argument-hint: '[find|core|experience-cloud|agentforce|files|commerce] {resource-path|details} ...'
 description: >
   Salesforce Connect REST API expert for the generic connect_rest tool. Use when a Salesforce task
@@ -62,16 +62,16 @@ Only reach for `connect_rest` when the capability is genuinely outside all of th
 
 ## Dispatch
 
-| Intent                                                                       | Workflow               |
-| ---------------------------------------------------------------------------- | ---------------------- |
-| `core` — named credentials, custom domains, org/user settings, notifications | Core Resource          |
-| `experience-cloud` — site info, site publishing, audiences, moderation       | Experience Cloud       |
-| `agentforce` — data libraries, prompt templates                              | Agentforce             |
-| `files` — files, folders, Files Connect repositories                         | Files and Folders      |
-| Chatter groups, topics, users, feeds — org-level Chatter requests            | Chatter (Out of Scope) |
-| `commerce`, personalization                                                  | Other Family           |
-| `find` — "Cirra can't do X" / capability gap from another skill              | Find the Resource      |
-| _(unclear)_                                                                  | Ask the user           |
+| Intent                                                                       | Workflow                         |
+| ---------------------------------------------------------------------------- | -------------------------------- |
+| `core` — named credentials, custom domains, org/user settings, notifications | Core Resource                    |
+| `experience-cloud` — site info, site publishing, audiences, moderation       | Experience Cloud                 |
+| `agentforce` — data libraries, prompt templates                              | Agentforce                       |
+| `files` — files, folders, Files Connect repositories                         | Files and Folders / Other Family |
+| Chatter groups, topics, users, feeds — org-level Chatter requests            | Chatter (Out of Scope)           |
+| `commerce`, personalization                                                  | Files and Folders / Other Family |
+| `find` — "Cirra can't do X" / capability gap from another skill              | Find the Resource                |
+| _(unclear)_                                                                  | Ask the user                     |
 
 When the family or the exact resource is ambiguous, **you MUST use `AskUserQuestion`** rather than
 probing paths speculatively.

@@ -2,7 +2,7 @@
 name: sf-cms
 plugin: cirra-ai-sf
 metadata:
-  version: 1.0.0
+  version: 1.0.1
 argument-hint: '[create|update|publish|search|delivery|channel] {content|space|channel} ...'
 description: >
   Salesforce CMS content expert. Use whenever the user wants to create, update, clone, publish,
@@ -215,7 +215,8 @@ Use this for "what is live?" and "why isn't this showing on the site?".
    default 25).
 4. **If nothing comes back, diagnose in this order** — do not just retry:
    1. Is the content published at all? Check with `cms_content`.
-   2. Is it published to _this_ channel? Publishing is per channel.
+   2. Is the workspace connected to _this_ channel? `publish` takes no channel — content goes live
+      only on the channels the workspace is connected to; check `cms_content` `list_channels`.
    3. Is the channel visible to the current user? `list_channels` is context-user scoped.
    4. For search: is the content type searchable and indexed for the channel? Both are
       `connect_rest` territory (`cms/channels/{channelId}/searchable-content-types` and
@@ -284,7 +285,7 @@ and full details, and `references/mcp-pagination.md` for handling large MCP resp
 | Guessing body field names                                      | `clone` has no `urlName`; `create_channel` uses `type`, not `channelType`; see the per-operation list             |
 | Passing a delivery channel ID to `cms_content` (or vice versa) | They are separate ID spaces; list from the matching tool                                                          |
 | Treating `create` as "published"                               | Nothing is live until `publish`; verify through `cms_delivery`                                                    |
-| Reporting "content not found" from `cms_delivery`              | Work the four-step diagnosis: published? this channel? channel visible? indexed?                                  |
+| Reporting "content not found" from `cms_delivery`              | Work the four-step diagnosis: published? workspace connected to this channel? channel visible? indexed?           |
 | Retrying after an access-denied error                          | It is workspace membership or CMS role, not a bad request — report what access is missing                         |
 | Assuming enhanced CMS resources exist                          | Legacy CMS workspaces expose a different API — reach those with `connect_rest`                                    |
 | `search` returning an argument error                           | Both `contentSpaceOrFolderIds` and `queryTerm` are required                                                       |
