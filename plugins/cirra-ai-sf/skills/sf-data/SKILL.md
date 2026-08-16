@@ -3,7 +3,7 @@ name: sf-data
 plugin: cirra-ai-sf
 argument-hint: '[query|build-query|insert|update|upsert|delete|validate|describe] {target} ...'
 metadata:
-  version: 2.0.2
+  version: 2.0.3
 description: >
   Salesforce data and SOQL expert. Execute SOQL queries (natural language or raw SOQL),
   build optimized queries with selectivity analysis, insert/update/upsert/delete records,
@@ -423,12 +423,12 @@ Parameters:
   - sf_user: Connection identifier
 ```
 
-> **Large results**: When a response includes `instructions.artifactId`, the
+> **Large results**: When a response includes `artifactAccess.artifactId`, the
 > full result exceeded ~75 k and was stored as an artifact. Retrieve it
 > using the strategy for your execution mode — see
 > `references/mcp-pagination.md` for details. In short:
 >
-> - **`mcp-plus-code-execution`**: download `instructions.artifactUrl`
+> - **`mcp-plus-code-execution`**: download `artifactAccess.downloadUrl`
 > - **`mcp-core`**: `fetch_more(artifactId=..., cursor=_pagination.nextCursor)`
 >   — cursor is **required**
 

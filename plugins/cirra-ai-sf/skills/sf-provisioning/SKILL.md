@@ -2,7 +2,7 @@
 name: sf-provisioning
 plugin: cirra-ai-sf
 metadata:
-  version: 1.0.1
+  version: 1.0.2
 argument-hint: '[create-user|grant|revoke|deactivate|mirror] {user|capability} ...'
 description: >
   Salesforce user and access provisioning expert. Use whenever the user wants to create a

@@ -2,7 +2,7 @@
 name: sf-cms
 plugin: cirra-ai-sf
 metadata:
-  version: 1.0.0
+  version: 1.0.1
 argument-hint: '[create|update|publish|search|delivery|channel] {content|space|channel} ...'
 description: >
   Salesforce CMS content expert. Use whenever the user wants to create, update, clone, publish,
