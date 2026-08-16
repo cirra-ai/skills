@@ -1216,6 +1216,8 @@ tooling_api_dml(operation="delete", sObject="ApexTrigger", record={"Id": "<trigg
 ## Notes
 
 - **API Version**: Deploy with 67.0 by default. If the org runs an older release, match the org's API version: `soql_query(sObject="Organization", fields=["ApiVersion"])`
+- **API 67.0 behavior changes** (Summer '26 — [release notes](https://help.salesforce.com/s/articleView?id=release-notes.rn_apex.htm&release=262&type=5)): database operations default to **user mode** (not system mode); classes without a sharing declaration default to **`with sharing`** (previously `without sharing`); **`WITH SECURITY_ENFORCED` is removed** — classes at 67.0+ that use it do not compile, use `WITH USER_MODE` instead; DML/SOQL inside trigger bodies also runs in user mode unless system mode is explicit. Keep declaring sharing mode explicitly and prefer `WITH USER_MODE` — code that intentionally needs system-mode access must say `without sharing` / `AccessLevel.SYSTEM_MODE` explicitly at 67.0
+- **Invocable action parameters**: custom Apex classes used as invocable action parameters must have a visible no-argument constructor (global for packaged classes); API calls validate this from version 66.0
 - **TAF Optional**: Prefer TAF when package is installed, use standard trigger pattern as fallback
 - **Scoring**: Block deployment if score < 67 (exempt trivial/test classes — see scoring thresholds)
 - **MCP Initialization**: ALWAYS call `cirra_ai_init` first

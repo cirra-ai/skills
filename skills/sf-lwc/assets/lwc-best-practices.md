@@ -791,10 +791,12 @@ it('displays data', async () => {
 ### FLS Enforcement
 
 ```apex
-// Always use SECURITY_ENFORCED or stripInaccessible
+// Always use WITH USER_MODE or stripInaccessible.
+// Do NOT use WITH SECURITY_ENFORCED — it is removed in API 67.0 (Summer '26)
+// and classes at that version no longer compile with it.
 @AuraEnabled(cacheable=true)
 public static List<Account> getAccounts() {
-    return [SELECT Id, Name FROM Account WITH SECURITY_ENFORCED];
+    return [SELECT Id, Name FROM Account WITH USER_MODE];
 }
 
 // For DML operations
