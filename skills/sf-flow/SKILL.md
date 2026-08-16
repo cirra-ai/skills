@@ -639,8 +639,9 @@ tooling_api_query(
 
 **Validation (STRICT MODE)**:
 
-- **BLOCK**: Invalid structure, missing required fields (apiVersion/label/processType/status), API <67.0, broken refs, DML in loops
+- **BLOCK**: Invalid structure, missing required fields (apiVersion/label/processType/status), broken refs, DML in loops
 - **WARN**: Property ordering, deprecated properties, non-zero coords, missing fault paths, unused vars, naming violations
+- **ADVISORY** (score only, non-blocking): API version below current (<67.0, −5 points) — older flows are still accepted
 
 **New v2.0.0 Validations**:
 

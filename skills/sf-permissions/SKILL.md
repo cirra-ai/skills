@@ -476,7 +476,9 @@ SELECT PermissionSetId, PermissionSet.Name, COUNT(AssigneeId) FROM PermissionSet
 ## Schema Validation for Permission Sets
 
 A baseline JSON Schema is bundled at `references/permissionset-metadata-schema.json`
-(API v67.0). Before calling `metadata_create`, validate the JSON payload against
+(API v66.0 — the version stamped in the schema itself; regenerate with
+`scripts/pull_schema.sh` against a Summer '26 org to refresh). Before calling
+`metadata_create`, validate the JSON payload against
 this schema to catch structural errors offline:
 
 - Required fields (`label`)
