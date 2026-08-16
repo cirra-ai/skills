@@ -3,7 +3,7 @@ name: sf-flow
 plugin: cirra-ai-sf
 argument-hint: '[create|update|validate] {FlowName} ...'
 metadata:
-  version: 2.5.1
+  version: 2.5.2
 description: >
   Creates and validates Salesforce flows with 110-point scoring and Winter '26 best practices
   using Cirra AI MCP Server. Use when building record-triggered flows, screen flows,
@@ -1478,10 +1478,8 @@ They apply **only to record-triggered flows** (`RecordBeforeSave` /
 `RecordAfterSave`). This is distinct from Apex test coverage of flows (see
 _Check flow test coverage_ above) — a `FlowTest` needs no Apex.
 
-**Verified end-to-end via the Cirra MCP** — `metadata_create` accepts the
-`FlowTest` type and the payload below round-trips through `metadata_read` and the
-`FlowTest` Tooling object. Every field name and nesting level below is accepted
-verbatim. Structure reference:
+`metadata_create` accepts the `FlowTest` type, and the payload below round-trips
+through `metadata_read` and the `FlowTest` Tooling object. Structure reference:
 [FlowTest metadata docs](https://developer.salesforce.com/docs/atlas.en-us.api_meta.meta/api_meta/meta_flowtest.htm).
 
 A `FlowTest` has exactly two kinds of test point:
@@ -1522,7 +1520,7 @@ tooling_api_query(sObject="FlowTest", fields=["Id","DeveloperName","MasterLabel"
 metadata_delete(type="FlowTest", fullNames=["Test_CR_Priority_High"])
 ```
 
-**Gotchas (all observed against a live org):**
+**Gotchas:**
 
 - **Creation ≠ execution.** `metadata_create` only _creates_ the test; it does
   **not** run it, so the assertion is not evaluated at create time. A syntactically
@@ -1534,6 +1532,17 @@ metadata_delete(type="FlowTest", fullNames=["Test_CR_Priority_High"])
   `parameters: {…}` (object), not `parameters: [{…}]` (array) — standard Metadata
   API XML→JSON behavior, not data loss. Code that assumes a list will break on
   single-element test points; normalize to an array before iterating.
+  Read-back output is redeployable verbatim, so read-modify-write of a **whole**
+  object is safe.
+- **The collapse changes `metadata_update` JSON Patch paths.** Because the shape
+  depends on how many siblings exist, a pointer into a single-element list omits
+  the index that a multi-element list requires —
+  `/testPoints/1/assertions/conditions/rightValue/stringValue` for one condition
+  versus `/testPoints/1/assertions/conditions/0/rightValue/stringValue` for
+  several. Generic patch-path
+  builders break on one case or the other, and a wrong pointer surfaces as a patch
+  error rather than a wrong value. Read the current shape before constructing a
+  patch, or send the whole object with `metadata`.
 - **The platform injects `isUseMockOutput` on each test point as the string
   `"false"`** (not a boolean) on read-back.
 - **Tooling field names differ from metadata field names:** `DeveloperName` ↔
@@ -1549,19 +1558,16 @@ look one up, and do not try to enqueue a flow test by inserting an
 `ApexTestQueueItem` (that field requires a real Apex class ID and rejects a
 `FlowTest` ID).
 
-- `className` is `FlowTesting.{flowApiName}`
-- each test method is the **bare** `{flowTestApiName}`
+- `className` is `FlowTesting.{flowApiName}`. The `FlowTesting.` prefix is
+  required — a bare flow name is rejected with `INVALID_INPUT`.
+- each test method is the **bare** `{flowTestApiName}`. The
+  `{flowApiName}_{flowTestApiName}` form used in the Salesforce docs also
+  resolves; either way, results report back under the bare name in
+  `ApexTestResult.MethodName`.
 
 Both are **API names, not labels**. Flow test support requires API version 65.0 or
 later. Reference:
 [runTestsAsynchronous](https://developer.salesforce.com/docs/atlas.en-us.api_tooling.meta/api_tooling/intro_rest_resources_testing_runner_async.htm).
-
-> The Salesforce docs describe the method name as `{flowApiName}_{flowTestApiName}`.
-> That form does **not** work: it is accepted, then the run fails with
-> `Could not run tests on class null` and zero tests execute. The bare flow test API
-> name is what actually runs, and it is what `ApexTestResult.MethodName` reports back.
-> The `FlowTesting.` class prefix is correct — a bare flow name is rejected outright
-> with `INVALID_INPUT`.
 
 ```
 run_tests(tests=[{
@@ -1581,22 +1587,28 @@ running, and `Completed`, `Failed` or `Aborted` once finished:
 tooling_api_query(sObject="ApexTestRunResult", fields=["Id","AsyncApexJobId","Status","MethodsEnqueued","MethodsCompleted","MethodsFailed"], whereClause="AsyncApexJobId = '{jobId}'")
 ```
 
-Use this only to tell "finished" from "still running". **The counters are unreliable
-for flow tests** — a completed run has been observed reporting
-`Status: Failed, MethodsCompleted: 0, MethodsFailed: 0` while a flow test inside it
-passed. Take the verdict from steps 2 and 3, never from this roll-up.
+Use this to tell "finished" from "still running". Take the per-test verdict from
+step 3, not from this roll-up.
 
-**2. Per-test outcome.** `Outcome` is `Pass`, `Fail`, `CompileFail` or `Skip`;
-`Message` carries the `errorMessage` from the failing assertion:
+**2. Per-test outcome.** `Outcome` is `Pass`, `Fail`, `CompileFail` or `Skip`.
+`Message` is frequently **empty** on a failing flow test — it does not reliably
+carry the assertion's `errorMessage`, so do not surface it as the failure reason:
 
 ```
 tooling_api_query(sObject="ApexTestResult", fields=["Id","MethodName","Outcome","Message","StackTrace"], whereClause="AsyncApexJobId = '{jobId}'")
 ```
 
+> **`ApexTestResult.Outcome` cannot distinguish a failed assertion from a test
+> that never ran.** Both report `Fail`. A flow test whose triggering record is too
+> sparse to execute is indistinguishable here from one whose assertion evaluated
+> and was false. Always join to `FlowTestResult` (step 3) before reporting a
+> verdict — otherwise a broken test is reported as a failing one, sending the
+> reader to debug an assertion that was never reached.
+
 **3. Flow-specific results.** `FlowTestResult` links the same run back to the
-`FlowTest` record and the flow version that ran. `Result` is `Pass`, `Fail` or
-**`Error`** — `Error` means the test could not execute (see the triggering-record note
-below) and is distinct from an assertion that evaluated and failed:
+`FlowTest` record and the flow version that ran, and is the **only** place the
+three outcomes are distinct. `Result` is `Pass`, `Fail` or **`Error`** — `Error`
+means the test could not execute (see the triggering-record note below):
 
 ```
 tooling_api_query(sObject="FlowTestResult", fields=["Id","FlowTestId","FlowDefinitionId","FlowVersionNumber","Result","TestStartDateTime","TestEndDateTime"], whereClause="ApexTestResultId != null")
@@ -1612,20 +1624,13 @@ run_tests(testLevel="RunLocalTests", category=["Flow"], skipCodeCoverage="true")
 **Notes:**
 
 - **Give the triggering record enough fields.** A record carrying only the field the
-  flow branches on is often not enough: `{"Impact":"High"}` alone produced
-  `Result: Error`, while `{"Impact":"High","Subject":"…"}` produced `Result: Pass`
-  with the identical assertion. If a test reports `Error` rather than `Pass`/`Fail`,
-  add the fields a real record of that object would carry before suspecting the
-  assertion.
-- **`category` does not reliably filter the run.** `category=["Flow"]` has been
-  observed enqueueing **236** methods in an org containing exactly **2** flow tests —
-  it ran every local Apex test as well. Treat the org-wide form as "run everything",
-  and prefer naming tests explicitly when you only want flow tests.
-- **A newly created `FlowTest` may not be runnable immediately.** Freshly created
-  tests have been observed failing to resolve — `Could not run tests on class null`
-  from the `tests` form, and silently skipped by an org-wide run that executed every
-  other flow test in the org. No reliable delay has been established; re-run, or
-  update an already-runnable test instead of creating a new one.
+  flow branches on is often not enough: `{"Impact":"High"}` yields `Result: Error`,
+  while `{"Impact":"High","Subject":"…"}` yields `Result: Pass` under the identical
+  assertion. If a test reports `Error` rather than `Pass`/`Fail`, add the fields a
+  real record of that object would carry before suspecting the assertion.
+- **`category` does not reliably filter the run.** `category=["Flow"]` may enqueue
+  every local Apex test as well. Treat the org-wide form as "run everything", and
+  prefer naming tests explicitly when you only want flow tests.
 - Pass `skipCodeCoverage="true"` for flow tests — coverage collection only slows the
   run down.
 - `skipCodeCoverage` and `maxFailedTests` are **strings** on this endpoint, not
