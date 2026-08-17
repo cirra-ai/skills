@@ -175,20 +175,34 @@ metadata_read(type="FlowTest", fullNames=[
 **Expected — three shape assertions:**
 
 1. All three read back with `flowApiName`, `testType`, `label`, `description` intact.
-2. **Single-element arrays collapse to bare objects.** `parameters`,
-   `assertions` and `conditions` each read back as `{…}`, not `[{…}]`. This is
-   standard Metadata API XML→JSON behaviour, not data loss.
+2. **Repeating children read back as arrays at every arity.** `testPoints`,
+   `parameters`, `assertions` and `conditions` each read back as `[{…}]`, not
+   `{…}`, even with a single element. A bare object here is a regression — it was
+   the behaviour before read-back normalization, and it invalidates every patch
+   pointer in TC-508/TC-509.
 3. **`isUseMockOutput` is injected on every test point as the string `"false"`**,
    not a boolean, and was not present in the create payload.
 
-Any consumer that iterates these fields must normalize to an array first.
+Patch-path builders must index every repeating level — see TC-508.
+
+**Shape regression guard.** These assertions are cheap, deterministic and
+independent of the test's _content_; check them explicitly on every run. Nothing
+else in this phase asserts read-back shape as distinct from read-back content,
+which is how a shape change would otherwise slip through unnoticed.
+
+| Assertion                                | Expected                      |
+| ---------------------------------------- | ----------------------------- |
+| `testPoints[0].parameters`               | array, length 1               |
+| `testPoints[1].assertions`               | array, length 1               |
+| `testPoints[1].assertions[0].conditions` | array, length 1               |
+| `testPoints[0].isUseMockOutput`          | string `"false"`, not boolean |
 
 **Result:**
 
 | Field                             | Value |
 | --------------------------------- | ----- |
 | Status                            |       |
-| Arrays collapsed to objects       |       |
+| Repeating children are arrays     |       |
 | `isUseMockOutput` present, string |       |
 | Any field lost in read-back       |       |
 | Notes                             |       |
@@ -242,8 +256,11 @@ Notes on the call shape:
 - `className` **must** carry the `FlowTesting.` prefix. A bare flow name is
   rejected with `INVALID_INPUT`.
 - `skipCodeCoverage` is a **string**, not a boolean, on this endpoint.
-- The response `testCount` counts **classes**, not methods. A `testCount: 1` for
-  three methods is correct, not a truncation.
+- The response `testCount` counts **methods**, not classes. The call above names
+  three `testMethods` under one `className`, so `testCount: 3` is correct — it
+  matches `ApexTestRunResult.MethodsEnqueued`. A `testCount: 1` here means the
+  count regressed to one-per-class. (A class listed **without** `testMethods`
+  does count as 1, because its method count is unknown until the run finishes.)
 
 **Expected:** a `jobId` beginning `707`. Then poll:
 
@@ -370,11 +387,11 @@ form executed and reported back under the bare name
 
 ### TC-507 — Read → re-deploy round-trip
 
-Confirms the TC-502 read-back shape is _cosmetic_, not lossy: the collapsed-array
+Confirms the TC-502 read-back shape is _cosmetic_, not lossy: the normalized
 output must be redeployable **verbatim**.
 
 **Command:** Take the `metadata_read` output for `Cirra_Probe_CR_Priority_Pass`
-exactly as returned — collapsed objects, injected `isUseMockOutput: "false"`,
+exactly as returned — arrays at every arity, injected `isUseMockOutput: "false"`,
 reordered keys, all of it — change only `fullName` and `label`, and create it:
 
 ```
@@ -385,11 +402,11 @@ metadata_create(type="FlowTest", metadata=[{
   "flowApiName": "{FLOW}",
   "testPoints": [
     {"elementApiName": "Start", "isUseMockOutput": "false",
-     "parameters": {"leftValueReference": "$Record", "type": "InputTriggeringRecordInitial",
-       "value": {"sobjectValue": "{\"Impact\":\"High\",\"Subject\":\"Router upgrade\"}"}}},
-    {"assertions": {"conditions": {"leftValueReference": "$Record.Priority",
-       "operator": "EqualTo", "rightValue": {"stringValue": "High"}},
-      "errorMessage": "Priority should be High when Impact is High"},
+     "parameters": [{"leftValueReference": "$Record", "type": "InputTriggeringRecordInitial",
+       "value": {"sobjectValue": "{\"Impact\":\"High\",\"Subject\":\"Router upgrade\"}"}}]},
+    {"assertions": [{"conditions": [{"leftValueReference": "$Record.Priority",
+       "operator": "EqualTo", "rightValue": {"stringValue": "High"}}],
+      "errorMessage": "Priority should be High when Impact is High"}],
      "elementApiName": "Finish", "isUseMockOutput": "false"}
   ],
   "testType": "WithAssertion"
@@ -405,8 +422,10 @@ run_tests(tests=[{"className": "FlowTesting.{FLOW}",
 
 **Expected:**
 
-- Create succeeds. Bare objects are accepted where arrays were sent; the injected
-  string `"false"` is accepted as-is.
+- Create succeeds. The array form round-trips unchanged and the injected string
+  `"false"` is accepted as-is. (Bare objects are _also_ still accepted on create —
+  worth confirming separately, but the load-bearing assertion here is that
+  read-back output redeploys verbatim.)
 - The copy runs and returns `Pass` — semantically identical to its source.
 
 A failure here upgrades the TC-502 read-back shape from a cosmetic quirk to a
@@ -454,7 +473,7 @@ metadata_create(type="FlowTest", metadata=[{
 
 metadata_update(type="FlowTest", fullName="Cirra_Probe_Gap_Check", patch=[
   {"op": "replace",
-   "path": "/testPoints/1/assertions/conditions/rightValue/stringValue",
+   "path": "/testPoints/1/assertions/0/conditions/0/rightValue/stringValue",
    "value": "Low"}])
 ```
 
@@ -462,27 +481,31 @@ Then run it and read the outcome.
 
 **Expected:**
 
-- The patch succeeds, and the pointer above has **no array index** on
-  `assertions` or `conditions` — it addresses the _collapsed_ shape. With more
-  than one condition the same logical target requires `/conditions/0/…`.
+- The patch succeeds. The pointer indexes **every** repeating level, even though
+  there is exactly one assertion and one condition. Both shorter forms must be
+  rejected with `NAME_PATH_NOT_FOUND`:
+  `/testPoints/1/assertions/conditions/rightValue/stringValue` and
+  `/testPoints/1/assertions/0/conditions/rightValue/stringValue`. Run all three
+  and record which succeed — a shorter form succeeding means read-back shape has
+  regressed to the pre-normalization behaviour.
 - The updated test now returns `Outcome: Fail` — proving the patch changed
   behaviour, not just the stored payload. An update that returns `success: true`
   without changing the verdict is a silent-write regression and is the main thing
   this test exists to catch.
 
 **Implication to record:** a generic patch-path builder that always emits an index
-(or never does) works on one arity and fails on the other, and a wrong pointer
-surfaces as a patch error rather than a wrong value. Read the current shape before
-constructing a patch, or send the whole object via `metadata`.
+is correct at every arity. A wrong pointer surfaces as a patch error rather than a
+wrong value, so the failure is loud rather than silent.
 
 **Result:**
 
-| Field                                 | Value |
-| ------------------------------------- | ----- |
-| Status                                |       |
-| Patch accepted against collapsed path |       |
-| `Outcome` after update                |       |
-| Notes                                 |       |
+| Field                       | Value |
+| --------------------------- | ----- |
+| Status                      |       |
+| Fully-indexed path accepted |       |
+| Both shorter paths rejected |       |
+| `Outcome` after update      |       |
+| Notes                       |       |
 
 ---
 
@@ -517,16 +540,19 @@ metadata_create(type="FlowTest", metadata=[
   array.**
 - `Cirra_Probe_MultiAssert` succeeds. `assertions` **can** be. This is a
   per-record validation error, so the batch-mate still deploys — contrast TC-510.
-- `metadata_read` on the survivor returns `assertions` as a real 2-element array,
-  each with `conditions` collapsed to a bare object.
+- `metadata_read` on the survivor returns `assertions` as a 2-element array, each
+  with `conditions` as a 1-element array.
 
-Then confirm the pointer rule both ways:
+Then confirm the pointer rule all three ways — the arity of `assertions` differs
+from TC-508 but the rule does not:
 
 ```
 metadata_update(..., patch=[{"op":"replace",
-  "path":"/testPoints/1/assertions/conditions/rightValue/stringValue","value":"Low"}])   → NAME_PATH_NOT_FOUND
+  "path":"/testPoints/1/assertions/conditions/rightValue/stringValue","value":"Low"}])     → NAME_PATH_NOT_FOUND
 metadata_update(..., patch=[{"op":"replace",
-  "path":"/testPoints/1/assertions/0/conditions/rightValue/stringValue","value":"Low"}]) → succeeds
+  "path":"/testPoints/1/assertions/0/conditions/rightValue/stringValue","value":"Low"}])   → NAME_PATH_NOT_FOUND
+metadata_update(..., patch=[{"op":"replace",
+  "path":"/testPoints/1/assertions/0/conditions/0/rightValue/stringValue","value":"Low"}]) → succeeds
 ```
 
 **Result:**
@@ -537,7 +563,8 @@ metadata_update(..., patch=[{"op":"replace",
 | Multi-assertion accepted                 |       |
 | Batch-mate survived the per-record error |       |
 | Indexless pointer error                  |       |
-| Indexed pointer succeeded                |       |
+| Half-indexed pointer error               |       |
+| Fully-indexed pointer succeeded          |       |
 
 ---
 
@@ -646,20 +673,26 @@ not affect the flow or its versions.
 
 Recorded so a future run can tell "the platform changed" from "this script is wrong."
 
-| Item                      | Observation                                                         |
-| ------------------------- | ------------------------------------------------------------------- |
-| Org                       | Cirra AI SDO demo org — production instance, API 65.0+              |
-| Flow                      | `{FLOW}`, active version **2**                                      |
-| TC-501 create             | 3/3 succeeded, including the wrong-assertion variant                |
-| TC-502 read-back          | Arrays collapsed; `isUseMockOutput: "false"` injected as a string   |
-| TC-503 tooling            | 3 records, `320` key prefix                                         |
-| TC-504 run                | `Completed`, enqueued 3 / completed 3 / failed 2 — counters correct |
-| TC-505 verdicts           | `Pass`→Pass/Pass · `Fail`→Fail/Fail · `Sparse`→Fail/**Error**       |
-| TC-505 `Message`          | Empty on both failures                                              |
-| TC-506 prefixed name form | **Resolved and ran**; reported back under the bare name             |
-| TC-507 round-trip         | Created from read-back verbatim, ran, `Pass`                        |
-| TC-508 patch update       | Patch applied against the collapsed path; verdict flipped to `Fail` |
-| Cleanup                   | Clean — `metadata_list` returned zero `FlowTest` records            |
+**Two rows are deliberately superseded.** This run predates read-back
+normalization, so it observed the collapsed shape at TC-502 and a collapsed patch
+pointer at TC-508. Those two rows below carry the **current expected** values, not
+what that run saw — a future run matching them is correct, and a run that observes
+collapsed objects is the regression. Every other row is the original observation.
+
+| Item                      | Observation                                                                                                  |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Org                       | Cirra AI SDO demo org — production instance, API 65.0+                                                       |
+| Flow                      | `{FLOW}`, active version **2**                                                                               |
+| TC-501 create             | 3/3 succeeded, including the wrong-assertion variant                                                         |
+| TC-502 read-back          | _(superseded)_ Repeating children are arrays at every arity; `isUseMockOutput: "false"` injected as a string |
+| TC-503 tooling            | 3 records, `320` key prefix                                                                                  |
+| TC-504 run                | `Completed`, enqueued 3 / completed 3 / failed 2 — counters correct                                          |
+| TC-505 verdicts           | `Pass`→Pass/Pass · `Fail`→Fail/Fail · `Sparse`→Fail/**Error**                                                |
+| TC-505 `Message`          | Empty on both failures                                                                                       |
+| TC-506 prefixed name form | **Resolved and ran**; reported back under the bare name                                                      |
+| TC-507 round-trip         | Created from read-back verbatim, ran, `Pass`                                                                 |
+| TC-508 patch update       | _(superseded)_ Patch applied against the fully-indexed path; verdict flipped to `Fail`                       |
+| Cleanup                   | Clean — `metadata_list` returned zero `FlowTest` records                                                     |
 
 ### Behaviours that were checked and did _not_ occur
 
