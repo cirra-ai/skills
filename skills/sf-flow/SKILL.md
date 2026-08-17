@@ -3,7 +3,7 @@ name: sf-flow
 plugin: cirra-ai-sf
 argument-hint: '[create|update|validate] {FlowName} ...'
 metadata:
-  version: 2.5.4
+  version: 2.5.5
 description: >
   Creates and validates Salesforce flows with 110-point scoring and Summer '26 best practices
   using Cirra AI MCP Server. Use when building record-triggered flows, screen flows,
@@ -1528,26 +1528,27 @@ metadata_delete(type="FlowTest", fullNames=["Test_CR_Priority_High"])
   valid `FlowTest` is created even if its assertion would fail — a wrong assertion
   surfaces only once you run it. See _Run a native Flow Test and read the result_
   below.
-- **`metadata_read` collapses single-element arrays to bare objects.** A test
-  point with one `parameters` / `assertions` / `conditions` entry reads back as
-  `parameters: {…}` (object), not `parameters: [{…}]` (array) — standard Metadata
-  API XML→JSON behavior, not data loss. Code that assumes a list will break on
-  single-element test points; normalize to an array before iterating.
-  Read-back output is redeployable verbatim, so read-modify-write of a **whole**
-  object is safe.
+- **`metadata_read` returns repeating children as arrays at every arity.**
+  `testPoints`, `parameters`, `assertions` and `conditions` each read back as an
+  array — `parameters: [{…}]` — even when there is only one element, so code that
+  iterates them needs no arity special-casing. Read-back output is redeployable
+  verbatim, so read-modify-write of a **whole** object is safe. Bare-object
+  payloads are still accepted on create, so write code written against the older
+  single-element shape keeps working; only read paths and patch-path builders are
+  affected.
 - **An assertion takes exactly one condition.** More than one is rejected at
   create time with `FLOW_TEST_CONDITION_LIMIT` ("Enter only one condition for each
   assertion"), so `conditions` is never a multi-element array. To assert several
   things, add several **assertions** to the `Finish` test point — that is allowed.
-- **The collapse changes `metadata_update` JSON Patch paths, at the `assertions`
-  level.** A test point with one assertion reads back as
-  `assertions: {…}` and is addressed as
-  `/testPoints/1/assertions/conditions/rightValue/stringValue`. With two or more,
-  `assertions` is a real array and the same target needs the index:
-  `/testPoints/1/assertions/0/conditions/rightValue/stringValue`. Omitting it
-  fails with `NAME_PATH_NOT_FOUND`, not a wrong value. Generic patch-path builders
-  break on one arity or the other — read the current shape before constructing a
-  patch, or send the whole object with `metadata`.
+- **`metadata_update` JSON Patch paths must index every repeating level.** The
+  pointer to an assertion's compared value is
+  `/testPoints/1/assertions/0/conditions/0/rightValue/stringValue` — index both
+  `assertions` and `conditions` even when there is only one of each. The rule does
+  not vary with arity, so a generic patch-path builder that always emits an index
+  is correct. A `patch` is applied against a server-side read of the record, so a
+  pointer that omits an index meets an array at a non-numeric segment and fails
+  with `NAME_PATH_NOT_FOUND` rather than writing to the wrong place — the failure
+  is loud, not silent.
 - **The platform injects `isUseMockOutput` on each test point as the string
   `"false"`** (not a boolean) on read-back.
 - **Tooling field names differ from metadata field names:** `DeveloperName` ↔
@@ -1651,6 +1652,11 @@ run_tests(testLevel="RunLocalTests", category=["Flow"], skipCodeCoverage="true")
   run down.
 - `skipCodeCoverage` and `maxFailedTests` are **strings** on this endpoint, not
   booleans/numbers.
+- **`testCount` in the `run_tests` response counts test _methods_, not classes.**
+  Naming three `testMethods` under one `className` returns `testCount: 3`, the same
+  quantity `ApexTestRunResult.MethodsEnqueued` reports once the run is enqueued. A
+  class listed **without** `testMethods` counts as 1, because its method count is
+  not known until the run finishes.
 - **`maxFailedTests` does apply to flow tests.** Flow failures count against the
   threshold and abort the run: `maxFailedTests="0"` over two flow tests where the
   first fails leaves the second unrun, and `ApexTestRunResult` reports
