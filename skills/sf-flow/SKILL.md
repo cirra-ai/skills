@@ -1533,9 +1533,9 @@ metadata_delete(type="FlowTest", fullNames=["Test_CR_Priority_High"])
   array — `parameters: [{…}]` — even when there is only one element, so code that
   iterates them needs no arity special-casing. Read-back output is redeployable
   verbatim, so read-modify-write of a **whole** object is safe. Bare-object
-  payloads are still accepted on create, so write code written against the older
-  single-element shape keeps working; only read paths and patch-path builders are
-  affected.
+  payloads are still accepted on create, so existing write paths built on the
+  older single-element shape keep working; only read paths and patch-path
+  builders are affected.
 - **An assertion takes exactly one condition.** More than one is rejected at
   create time with `FLOW_TEST_CONDITION_LIMIT` ("Enter only one condition for each
   assertion"), so `conditions` is never a multi-element array. To assert several
