@@ -3,7 +3,7 @@ name: sf-flow
 plugin: cirra-ai-sf
 argument-hint: '[create|update|validate] {FlowName} ...'
 metadata:
-  version: 2.5.5
+  version: 2.5.6
 description: >
   Creates and validates Salesforce flows with 110-point scoring and Summer '26 best practices
   using Cirra AI MCP Server. Use when building record-triggered flows, screen flows,
@@ -1413,6 +1413,23 @@ columns (verified via `sobject_describe`): `Id`, `DurableId`, `ApiName`,
 Note: on this object `LastModifiedBy` is a plain **text** field (the user's
 display name), not a relationship — selecting it directly is valid here, and
 there is no `LastModifiedById` column.
+
+**FlowDefinitionView supports no aggregates.** Every aggregate function fails
+on every column — `COUNT(Id)`, `COUNT(DurableId)` and `COUNT(ApiName)` all
+return `MALFORMED_QUERY: field <name> does not support aggregate operator
+COUNT` (verified against a live org). It is a restricted read-only view
+(`sobject_describe` reports `retrieveable: false`, `replicateable: false`,
+`searchable: false`), not an aggregatable table, so `GROUP BY` roll-ups such as
+"how many flows per ProcessType" cannot be pushed to the server here. Instead:
+
+- select the plain rows and tally them client-side —
+  `soql_query(query="SELECT ProcessType FROM FlowDefinitionView")`, then count
+  per value. Raise the limit or page through the artifact link for large orgs.
+- or aggregate over the Tooling API objects (`FlowDefinition`, `Flow`) via
+  `tooling_api_query`, which does support `COUNT(Id)`. Note the different
+  grain: `FlowDefinition` is one row per flow but carries no `ProcessType`,
+  while `Flow` is one row **per version**, so a `COUNT` over it counts versions
+  unless you filter (e.g. `Status = 'Active'`).
 
 Flow catalog query (summary info about flows, e.g. finding Process Builder
 processes to migrate):
