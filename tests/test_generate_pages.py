@@ -175,6 +175,46 @@ def test_find_plugins_skips_spaces(tmp_path):
     assert plugins == []
 
 
+def test_skill_card_defaults_to_zip_with_skill_alt():
+    """Skill cards download .zip by default and offer .skill for Claude."""
+    original = generate_pages.DL_BASE
+    try:
+        generate_pages.DL_BASE = "."
+        html = generate_pages._skill_card({
+            "name": "sf-demo",
+            "description": "A test skill.",
+            "keywords": ["demo"],
+            "version": "1.0.0",
+        })
+    finally:
+        generate_pages.DL_BASE = original
+
+    assert 'href="./sf-demo.zip"' in html
+    assert 'href="./sf-demo.skill"' in html
+    btn_start = html.index("btn btn-outline")
+    btn = html[btn_start:html.index("</a>", btn_start)]
+    assert ".zip" in btn
+    assert ".skill" not in btn
+
+
+def test_plugin_card_still_uses_zip():
+    """Plugin cards keep downloading the plugin zip."""
+    original = generate_pages.DL_BASE
+    try:
+        generate_pages.DL_BASE = "."
+        html = generate_pages._plugin_card({
+            "name": "my-plugin",
+            "description": "Test plugin",
+            "keywords": ["test"],
+            "version": "1.0.0",
+            "is_featured": False,
+        })
+    finally:
+        generate_pages.DL_BASE = original
+
+    assert 'href="./my-plugin.zip"' in html
+
+
 def test_skills_independent_of_plugins(fake_repo):
     """Skills are found even without a plugins/ directory."""
     repo_root = fake_repo(num_skills=2, include_plugins_dir=False)
