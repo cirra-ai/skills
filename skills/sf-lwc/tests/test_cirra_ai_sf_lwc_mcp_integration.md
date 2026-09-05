@@ -21,7 +21,7 @@
 
 Use this prompt in contributor testing sessions:
 
-> "Generate and deploy an LWC bundle named `c/integrationTestCard` using `metadata_create` with type `LightningComponentBundle`. Include minimal valid `html`, `js`, and `css` resources with Base64-encoded sources. Set `apiVersion`, `isExposed`, and `targets` on the bundle (do NOT include a `meta.xml` resource — it is auto-generated). After deployment, run validation and report score and issues."
+> "Generate and deploy an LWC bundle named `c/integrationTestCard` using `metadata_create` with type `LightningComponentBundle`. Include minimal valid `html`, `js`, and `css` resources with Base64-encoded sources. Set `apiVersion`, `isExposed`, `targets`, and (if the component has App Builder properties) Base64-encoded `targetConfigs` on the bundle (do NOT include a `meta.xml` resource — it is auto-generated). After deployment, run validation and report score and issues."
 
 ## Positive Scenarios
 
@@ -30,7 +30,7 @@ Use this prompt in contributor testing sessions:
    - Type: `LightningComponentBundle`
    - **Important**: `source` values must be **Base64-encoded**, and `filePath` must use
      the `lwc/<componentName>/` prefix (e.g., `lwc/integrationTestCard/integrationTestCard.html`).
-     Do NOT include a `*.js-meta.xml` resource — it is auto-generated.
+     Do NOT include a `*.js-meta.xml` resource — it is auto-generated from bundle-level `targets` / `targetConfigs`.
    - Expected: validator result includes `status: scored` and numeric score.
 
    Example payload:
@@ -95,5 +95,5 @@ After successful create/update, run one or more:
 
 1. **Base64 encoding required**: LWC `source` values must be Base64-encoded. Plain text sources cause `UNKNOWN_EXCEPTION` errors from the Metadata API.
 2. **filePath prefix**: Must use `lwc/<componentName>/` prefix (e.g., `lwc/myComp/myComp.js`), not just the filename.
-3. **No meta.xml resource**: The `*.js-meta.xml` is auto-generated from the bundle-level properties (`apiVersion`, `isExposed`, `targets`). Including it manually causes conflicts.
+3. **No meta.xml resource**: The `*.js-meta.xml` is auto-generated from the bundle-level properties (`apiVersion`, `isExposed`, `targets`, `targetConfigs`). Including it manually is rejected. App Builder properties belong in bundle-level `targetConfigs` (Base64-encoded XML), not in a follow-up Tooling write.
 4. **Empty bundles accepted**: The API does not reject empty `lwcResources`. The validator should catch this as an error but currently does not.
