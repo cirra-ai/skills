@@ -211,7 +211,9 @@ def test_card_desc_html_long_is_expandable():
     )
     html = generate_pages._card_desc_html(full)
     assert '<details class="card-desc card-desc--expandable">' in html
-    assert f'<span class="card-desc-full">{full}</span>' in html
+    assert f'<div class="card-desc-full">{full}</div>' in html
+    assert html.index("</summary>") < html.index('class="card-desc-full"')
+    assert "card-desc-full" not in html[: html.index("</summary>")]
     assert "Show more" in html
     assert "Show less" in html
     preview = generate_pages._desc_preview(full)
@@ -241,6 +243,27 @@ def test_skill_card_includes_full_description():
     assert full in html
     assert "Show more" in html
     assert "sf-cms.skill" in html
+
+
+def test_download_href_escapes_name():
+    """Download href attributes escape special characters in the package name."""
+    skill_html = generate_pages._skill_card({
+        "name": 'sf-"cms"',
+        "description": "Short.",
+        "version": "1.0.1",
+        "keywords": ["cms"],
+    })
+    assert 'href="./sf-&quot;cms&quot;.skill"' in skill_html
+    assert 'href="./sf-"cms".skill"' not in skill_html
+
+    plugin_html = generate_pages._plugin_card({
+        "name": 'plug<"in"',
+        "description": "Short.",
+        "version": "1.0.0",
+        "keywords": ["test"],
+        "is_featured": False,
+    })
+    assert 'href="./plug&lt;&quot;in&quot;.zip"' in plugin_html
 
 
 def test_plugin_card_short_description_stays_simple():

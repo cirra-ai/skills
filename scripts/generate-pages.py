@@ -227,7 +227,11 @@ def _desc_preview(text: str, limit: int = CARD_DESC_PREVIEW_LIMIT) -> str | None
 
 
 def _card_desc_html(desc: str) -> str:
-    """Render a card description, expandable when the text exceeds the preview limit."""
+    """Render a card description, expandable when the text exceeds the preview limit.
+
+    ``<summary>`` holds only the preview and the Show more/less label so the
+    full text (details body) can be selected without toggling the control.
+    """
     escaped = _esc(desc)
     preview = _desc_preview(desc)
     if preview is None:
@@ -236,10 +240,10 @@ def _card_desc_html(desc: str) -> str:
         '<details class="card-desc card-desc--expandable">'
         "<summary>"
         f'<span class="card-desc-preview">{_esc(preview)}</span>'
-        f'<span class="card-desc-full">{escaped}</span>'
         '<span class="desc-more">Show more</span>'
         '<span class="desc-less">Show less</span>'
         "</summary>"
+        f'<div class="card-desc-full">{escaped}</div>'
         "</details>"
     )
 
@@ -248,7 +252,7 @@ def _plugin_card(plugin: dict) -> str:
     name = _esc(plugin["name"])
     desc_html = _card_desc_html(plugin["description"])
     tags = _tags_html(plugin["keywords"], plugin["version"])
-    dl_url = f"{DL_BASE}/{plugin['name']}.zip"
+    dl_url = _esc(f"{DL_BASE}/{plugin['name']}.zip")
     cls = "card featured" if plugin["is_featured"] else "card"
     return f"""\
       <div class="{cls}">
@@ -267,7 +271,7 @@ def _skill_card(skill: dict) -> str:
     name = _esc(skill["name"])
     desc_html = _card_desc_html(skill["description"])
     tags = _tags_html(skill["keywords"], version=skill.get("version", ""), extra=["skill-only"])
-    dl_url = f"{DL_BASE}/{skill['name']}.skill"
+    dl_url = _esc(f"{DL_BASE}/{skill['name']}.skill")
     return f"""\
       <div class="card">
         <div class="card-body">

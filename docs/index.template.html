@@ -141,13 +141,25 @@
       .card-desc--expandable > summary {
         list-style: none;
         display: block;
+        cursor: pointer;
       }
       .card-desc--expandable > summary::-webkit-details-marker,
       .card-desc--expandable > summary::marker {
         display: none;
         content: none;
       }
-      .card-desc--expandable .card-desc-full,
+      .card-desc--expandable[open] {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.15rem;
+      }
+      .card-desc--expandable[open] > .card-desc-full {
+        order: 1;
+      }
+      .card-desc--expandable[open] > summary {
+        order: 2;
+      }
       .card-desc--expandable .desc-less {
         display: none;
       }
@@ -155,9 +167,9 @@
       .card-desc--expandable[open] .desc-more {
         display: none;
       }
-      .card-desc--expandable[open] .card-desc-full,
       .card-desc--expandable[open] .desc-less {
         display: inline;
+        margin-left: 0;
       }
       .card-desc--expandable .desc-more,
       .card-desc--expandable .desc-less {
