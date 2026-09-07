@@ -175,6 +175,87 @@ def test_find_plugins_skips_spaces(tmp_path):
     assert plugins == []
 
 
+def test_desc_preview_none_when_short():
+    """Text at or under the preview limit is not truncated."""
+    short = "x" * generate_pages.CARD_DESC_PREVIEW_LIMIT
+    assert generate_pages._desc_preview(short) is None
+    assert generate_pages._desc_preview("short") is None
+
+
+def test_desc_preview_breaks_on_word_boundary():
+    """Over-limit text is cut at the last space and ends with an ellipsis."""
+    text = ("word " * 50).strip()  # 249 chars
+    preview = generate_pages._desc_preview(text)
+    assert preview is not None
+    assert preview.endswith("\u2026")
+    stem = preview[:-1]
+    assert stem.endswith("word")
+    assert text.startswith(stem)
+    assert len(stem) <= generate_pages.CARD_DESC_PREVIEW_LIMIT
+
+
+def test_card_desc_html_short_is_plain_div():
+    """Short descriptions stay a simple div with the full text."""
+    html = generate_pages._card_desc_html("A test skill.")
+    assert html == '<div class="card-desc">A test skill.</div>'
+    assert "details" not in html
+    assert "Show more" not in html
+
+
+def test_card_desc_html_long_is_expandable():
+    """Long descriptions keep the full text behind a Show more control."""
+    full = (
+        "Salesforce CMS content expert. Use whenever the user wants to create, "
+        "update, clone, publish, unpublish, tag, or search CMS managed content, "
+        "manage CMS workspaces (spaces), folders, or channels, or publish to a site."
+    )
+    html = generate_pages._card_desc_html(full)
+    assert '<details class="card-desc card-desc--expandable">' in html
+    assert f'<span class="card-desc-full">{full}</span>' in html
+    assert "Show more" in html
+    assert "Show less" in html
+    preview = generate_pages._desc_preview(full)
+    assert preview is not None
+    assert f'<span class="card-desc-preview">{preview}</span>' in html
+
+
+def test_card_desc_html_escapes_markup():
+    """Preview and full text both escape HTML special characters."""
+    full = "A <script>alert(1)</script> & more " + ("word " * 40)
+    html = generate_pages._card_desc_html(full)
+    assert "<script>" not in html
+    assert "&lt;script&gt;" in html
+    assert "&amp; more" in html
+
+
+def test_skill_card_includes_full_description():
+    """Skill cards no longer drop the tail of a long SKILL.md description."""
+    full = ("Describe the skill for agents and humans. " * 8).strip()
+    assert len(full) > generate_pages.CARD_DESC_PREVIEW_LIMIT
+    html = generate_pages._skill_card({
+        "name": "sf-cms",
+        "description": full,
+        "version": "1.0.1",
+        "keywords": ["cms"],
+    })
+    assert full in html
+    assert "Show more" in html
+    assert "sf-cms.skill" in html
+
+
+def test_plugin_card_short_description_stays_simple():
+    """Plugin cards with short copy stay a non-expandable div."""
+    html = generate_pages._plugin_card({
+        "name": "cirra-ai-sf",
+        "description": "Salesforce admin plugin for use with the Cirra AI MCP Server.",
+        "version": "2.5.0",
+        "keywords": ["apex"],
+        "is_featured": False,
+    })
+    assert '<div class="card-desc">' in html
+    assert "card-desc--expandable" not in html
+
+
 def test_skills_independent_of_plugins(fake_repo):
     """Skills are found even without a plugins/ directory."""
     repo_root = fake_repo(num_skills=2, include_plugins_dir=False)
