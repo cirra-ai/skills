@@ -411,7 +411,7 @@ public static List<Response> createContacts(List<Request> requests) {
 ```apex
 @InvocableMethod(label='Send to External System')
 public static List<Response> sendData(List<Request> requests) {
-    // Note: Callouts in Flow require @future or Queueable
+    // Note: Callouts from Flow use Queueable (Database.AllowsCallouts), not @future
     // This is a sync example - for async, enqueue from here
 
     List<Response> responses = new List<Response>();
@@ -444,22 +444,27 @@ public static List<Response> sendData(List<Request> requests) {
 
 ### Decision Matrix
 
-| Scenario                        | Use                     | Pros                                 | Cons                              |
-| ------------------------------- | ----------------------- | ------------------------------------ | --------------------------------- |
-| Simple callout, fire-and-forget | `@future(callout=true)` | Simple, built-in                     | No return value, no chaining      |
-| Complex logic, needs chaining   | `Queueable`             | Return ID, chain jobs, complex types | More code                         |
-| Process millions of records     | `Batch Apex`            | Handles huge volumes                 | Complex, overhead                 |
-| Scheduled/recurring job         | `Schedulable`           | Cron-like scheduling                 | Requires separate Queueable/Batch |
-| Post-queueable cleanup          | `Queueable Finalizer`   | Guaranteed execution                 | Only for Queueable                |
+Aligned with Salesforce `platform-apex-generate` ([forcedotcom/sf-skills](https://github.com/forcedotcom/sf-skills)).
 
-### @future Pattern
+| Scenario                           | Use                                        | Pros                                             | Cons                                     |
+| ---------------------------------- | ------------------------------------------ | ------------------------------------------------ | ---------------------------------------- |
+| Standard async / callouts          | `Queueable`                                | Job ID, chaining, non-primitives, `AsyncOptions` | More code than `@future`                 |
+| Post-queueable cleanup             | `System.Finalizer`                         | Runs on success or failure                       | Queueable only                           |
+| Large result sets, flexible chunks | Apex Cursors + Queueable                   | Up to 50M rows, no 5-job Batch limit             | No start/finish callbacks                |
+| Process millions with start/finish | `Batch Apex`                               | `QueryLocator`, built-in lifecycle               | Max 5 concurrent, heavier                |
+| Recurring / scheduled              | Scheduled Flow (preferred) / `Schedulable` | Flow has no 100-job Schedulable cap              | `Schedulable` still needed for Apex-only |
+| Legacy fire-and-forget             | `@future` — do not generate                | Simple                                           | No chaining, no Batch caller, primitives |
+
+### Legacy `@future` Pattern (do not generate)
+
+Existing `@future` methods can remain until migrated. New code uses Queueable (`Database.AllowsCallouts` when HTTP is needed) plus `System.Finalizer`.
 
 ```apex
-public class CalloutService {
+public with sharing class CalloutService {
 
     @future(callout=true)
     public static void sendDataToExternalSystem(Set<Id> recordIds) {
-        // Cannot pass complex objects, only primitives
+        // Cannot pass complex objects, only primitives — migrate to Queueable
         List<Account> accounts = [SELECT Id, Name FROM Account WHERE Id IN :recordIds];
 
         HttpRequest req = new HttpRequest();
@@ -469,9 +474,6 @@ public class CalloutService {
 
         Http http = new Http();
         HttpResponse res = http.send(req);
-
-        // Process response (no return to caller)
-        System.debug('Response: ' + res.getBody());
     }
 }
 ```

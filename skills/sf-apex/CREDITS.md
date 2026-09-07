@@ -131,9 +131,11 @@ Key contributions:
 
 ## Official Salesforce Resources
 
+- **Salesforce Skills Library**: https://github.com/forcedotcom/sf-skills — official Apex skills used as the 2026 best-practice source: `platform-apex-generate`, `platform-apex-test-generate`, `platform-apex-test-run`, `platform-apex-logs-debug`, `platform-soql-query`, `dx-code-analyzer-run`, `dx-apexguru-scan`
 - **Salesforce Developer Blog**: https://developer.salesforce.com/blogs
 - **Trailhead**: https://trailhead.salesforce.com
 - **Apex Developer Guide**: https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/
+- **Apex Cursors**: https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_cursors.htm
 - **Summer '26 Release Notes** (API 67.0 — user-mode default, `with sharing` default, `WITH SECURITY_ENFORCED` removed): https://help.salesforce.com/s/articleView?id=release-notes.salesforce_release_notes.htm&release=262&type=5
 - **Spring '26 Release Notes** (API 66.0): https://help.salesforce.com/s/articleView?id=release-notes.salesforce_release_notes.htm&release=260&type=5
 
