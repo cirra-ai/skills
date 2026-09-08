@@ -1416,8 +1416,13 @@ there is no `LastModifiedById` column.
 
 **FlowDefinitionView supports no aggregates.** Every aggregate function fails
 on every column — `COUNT(Id)`, `COUNT(DurableId)` and `COUNT(ApiName)` all
-return `MALFORMED_QUERY: field <name> does not support aggregate operator
-COUNT` (verified against a live org). It is a restricted read-only view
+return the same error (verified against a live org):
+
+```
+MALFORMED_QUERY: field <name> does not support aggregate operator COUNT
+```
+
+It is a restricted read-only view
 (`sobject_describe` reports `retrieveable: false`, `replicateable: false`,
 `searchable: false`), not an aggregatable table, so `GROUP BY` roll-ups such as
 "how many flows per ProcessType" cannot be pushed to the server here. Instead:
