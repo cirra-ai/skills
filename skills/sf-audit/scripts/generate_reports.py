@@ -55,12 +55,76 @@ SCORE_THRESHOLDS = [
     (0, "Critical", "#FDE8E8", "#E74C3C"),
 ]
 
+# Single severity vocabulary shared with sf-apex (validate_apex.SEVERITY_ORDER,
+# re-declared identically here) — Salesforce Code Analyzer ordering, worst first.
+SEVERITY_ORDER = ["CRITICAL", "HIGH", "MODERATE", "LOW", "INFO"]
+SEVERITY_RANK = {name: rank for rank, name in enumerate(SEVERITY_ORDER)}
+_LEGACY_SEVERITY_MAP = {
+    "WARNING": "MODERATE",
+    "WARN": "MODERATE",
+    "ERROR": "HIGH",
+    "MEDIUM": "MODERATE",
+    "MED": "MODERATE",
+    "MINOR": "LOW",
+    "MAJOR": "HIGH",
+}
+
 SEVERITY_COLORS = {
     "CRITICAL": ("#FDE8E8", "#E74C3C"),
     "HIGH": ("#FEF3CD", "#E67E22"),
-    "MEDIUM": ("#EBF1FB", "#417AE4"),
+    "MODERATE": ("#EBF1FB", "#417AE4"),
     "LOW": ("#E9F7EF", "#27AE60"),
+    "INFO": ("#F4F6F8", "#7F8C8D"),
 }
+
+
+def normalize_severity(value, default="MODERATE"):
+    """Map any severity label (including legacy WARNING/ERROR/MEDIUM) onto SEVERITY_ORDER."""
+    if value is None:
+        return default
+    label = str(value).strip().upper()
+    if label in SEVERITY_RANK:
+        return label
+    return _LEGACY_SEVERITY_MAP.get(label, default)
+
+
+def _sev_rank(value, default="LOW"):
+    """Sort key: CRITICAL first (0) ... INFO last (4)."""
+    return SEVERITY_RANK[normalize_severity(value, default)]
+
+
+def _sev_weight(value, default="LOW"):
+    """max() key: higher is worse (CRITICAL=5 ... INFO=1)."""
+    return len(SEVERITY_ORDER) - _sev_rank(value, default)
+
+
+def _worst_severity(findings, default="LOW"):
+    """Worst severity label in a findings list (default when empty)."""
+    if not findings:
+        return default
+    return max(
+        (normalize_severity(f.get("severity"), default) for f in findings),
+        key=_sev_weight,
+    )
+
+
+def _issue_text(issue):
+    """Plain-text label for a scored-component issue (legacy str or {severity,message,line})."""
+    if isinstance(issue, str):
+        return issue
+    msg = issue.get("message", str(issue))
+    parts = []
+    if issue.get("severity"):
+        parts.append(f"[{normalize_severity(issue['severity'])}]")
+    parts.append(msg)
+    if issue.get("line"):
+        parts.append(f"(line {issue['line']})")
+    return " ".join(parts)
+
+
+def _issue_message(issue):
+    """Message only (used for grouping identical issue types)."""
+    return issue if isinstance(issue, str) else issue.get("message", str(issue))
 
 
 def score_rating(pct):
@@ -177,22 +241,32 @@ def compute_summary(data):
         below_threshold[domain] = count
 
     # Severity rollup from permission findings and all declarative-logic findings
-    severity_counts = {"CRITICAL": 0, "HIGH": 0, "MEDIUM": 0, "LOW": 0}
+    severity_counts = {name: 0 for name in SEVERITY_ORDER}
     for finding in data.get("permission_findings", []):
-        sev = finding.get("severity", "LOW").upper()
+        sev = normalize_severity(finding.get("severity"), "LOW")
         if sev in severity_counts:
             severity_counts[sev] += 1
     for source_key in ("validation_rules", "formula_fields", "workflow_rules", "other_rules_findings"):
         for item in data.get(source_key, []):
             for finding in item.get("findings", []):
-                sev = finding.get("severity", "LOW").upper()
+                sev = normalize_severity(finding.get("severity"), "LOW")
                 if sev in severity_counts:
                     severity_counts[sev] += 1
     for source_key in ("unused_fields", "unused_objects"):
         for item in data.get(source_key, []):
-            sev = item.get("severity", "LOW").upper()
+            sev = normalize_severity(item.get("severity"), "LOW")
             if sev in severity_counts:
                 severity_counts[sev] += 1
+    # Validator findings that carry a severity ({severity, message, line} objects);
+    # legacy plain-string issues have no severity and are not counted.
+    for item in data.get("trigger_findings", []):
+        for finding in item.get("findings", []):
+            severity_counts[normalize_severity(finding.get("severity"), "MODERATE")] += 1
+    for items_key in ("apex_scores", "flow_scores", "lwc_scores", "metadata_scores"):
+        for item in data.get(items_key, []):
+            for issue in item.get("issues", []):
+                if isinstance(issue, dict) and issue.get("severity"):
+                    severity_counts[normalize_severity(issue["severity"])] += 1
 
     # Top issues by domain
     top_issues = {}
@@ -200,7 +274,7 @@ def compute_summary(data):
         issue_counts = {}
         for item in data.get(items_key, []):
             for issue in item.get("issues", []):
-                label = issue if isinstance(issue, str) else issue.get("message", str(issue))
+                label = _issue_message(issue)
                 issue_counts[label] = issue_counts.get(label, 0) + 1
         sorted_issues = sorted(issue_counts.items(), key=lambda x: -x[1])
         top_issues[domain] = sorted_issues[:3]
@@ -263,14 +337,14 @@ def compute_summary(data):
     for source_key in ("integrations",):
         for item in data.get(source_key, []):
             for finding in item.get("findings", []):
-                sev = finding.get("severity", "LOW").upper()
+                sev = normalize_severity(finding.get("severity"), "LOW")
                 if sev in severity_counts:
                     severity_counts[sev] += 1
     for source_key in ("test_coverage", "licensing", "team_evaluation",
                        "change_history", "reports_dashboards", "data_quality"):
         obj = data.get(source_key, {})
         for finding in obj.get("findings", []):
-            sev = finding.get("severity", "LOW").upper()
+            sev = normalize_severity(finding.get("severity"), "LOW")
             if sev in severity_counts:
                 severity_counts[sev] += 1
 
@@ -321,7 +395,7 @@ def _collect_hardcoded_values(data):
                     rows.append({
                         "component_type": comp_type,
                         "name": item.get("name", ""),
-                        "severity": finding.get("severity", "MEDIUM"),
+                        "severity": normalize_severity(finding.get("severity"), "MODERATE"),
                         "message": msg,
                     })
     return rows
@@ -331,11 +405,25 @@ def _collect_hardcoded_values(data):
 
 
 def _severity_badge_html(severity):
-    bg, fg = SEVERITY_COLORS.get(severity.upper(), ("#EBF1FB", "#417AE4"))
+    label = normalize_severity(severity)
+    bg, fg = SEVERITY_COLORS.get(label, ("#EBF1FB", "#417AE4"))
     return (
         f'<span style="background:{bg};color:{fg};padding:2px 8px;'
-        f'border-radius:10px;font-size:11px;font-weight:600">{_esc(severity)}</span>'
+        f'border-radius:10px;font-size:11px;font-weight:600">{_esc(label)}</span>'
     )
+
+
+def _issue_html(issue):
+    """HTML for a scored-component issue: severity badge + message + line."""
+    if isinstance(issue, str):
+        return _esc(issue)
+    parts = []
+    if issue.get("severity"):
+        parts.append(_severity_badge_html(issue["severity"]))
+    parts.append(_esc(issue.get("message", str(issue))))
+    if issue.get("line"):
+        parts.append(f'<span style="color:#7F8C8D">(line {_esc(str(issue["line"]))})</span>')
+    return " ".join(parts)
 
 
 def _score_badge_html(score, max_score):
@@ -369,16 +457,17 @@ def _findings_html(findings):
         return "<p>No findings.</p>"
     parts = []
     for f in findings:
-        sev = f.get("severity", "MEDIUM").lower()
+        sev = normalize_severity(f.get("severity"), "MODERATE").lower()
         css_class = {
             "critical": "critical",
             "high": "warning",
-            "medium": "info",
+            "moderate": "info",
             "low": "positive",
+            "info": "positive",
         }.get(sev, "info")
         parts.append(
             f'<div class="finding {css_class}">'
-            f'<span class="finding-badge">{_esc(f.get("severity", "MEDIUM"))}</span> '
+            f'<span class="finding-badge">{_esc(sev.upper())}</span> '
             f'{_esc(f.get("message", f.get("finding", "")))}'
             f"</div>"
         )
@@ -410,7 +499,7 @@ def _recommendations_list(data):
                 top_issue = ""
                 issues = item.get("issues", [])
                 if issues:
-                    top_issue = issues[0] if isinstance(issues[0], str) else issues[0].get("message", "")
+                    top_issue = _issue_message(issues[0])
                 # Priority: 20-69 based on percentage (lower = higher rank)
                 priority = 20 + pct
                 issue_suffix = f" {top_issue}" if top_issue else ""
@@ -419,10 +508,10 @@ def _recommendations_list(data):
                     f"[{domain}] Fix {name} (score {s}/{max_s}).{issue_suffix}",
                 ))
 
-    # Permission findings: CRITICAL=0, HIGH=5, MEDIUM=30, LOW=50
-    sev_priority = {"CRITICAL": 0, "HIGH": 5, "MEDIUM": 30, "LOW": 50}
+    # Permission findings: CRITICAL=0, HIGH=5, MODERATE=30, LOW=50, INFO=60
+    sev_priority = {"CRITICAL": 0, "HIGH": 5, "MODERATE": 30, "LOW": 50, "INFO": 60}
     for f in data.get("permission_findings", []):
-        sev = f.get("severity", "LOW").upper()
+        sev = normalize_severity(f.get("severity"), "LOW")
         scored_recs.append((
             sev_priority.get(sev, 50),
             f"[Permissions] {f.get('message', f.get('finding', ''))}",
@@ -445,7 +534,7 @@ def _recommendations_list(data):
     ]:
         for item in data.get(source_key, []):
             for finding in item.get("findings", []):
-                sev = finding.get("severity", "LOW").upper()
+                sev = normalize_severity(finding.get("severity"), "LOW")
                 msg = finding.get("message", "")
                 if "hardcoded" in msg.lower():
                     scored_recs.append((
@@ -561,14 +650,11 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
     if data.get("apex_scores"):
         rows = []
         for item in sorted(data["apex_scores"], key=lambda x: x.get("score", 0)):
-            issues_str = "; ".join(
-                i if isinstance(i, str) else i.get("message", "")
-                for i in item.get("issues", [])[:3]
-            )
+            issues_str = "; ".join(_issue_html(i) for i in item.get("issues", [])[:3])
             rows.append([
                 _esc(item.get("name", "")),
                 _score_badge_html(item.get("score", 0), item.get("max_score", 150)),
-                _esc(issues_str),
+                issues_str,
             ])
         sections.append(
             f'<div class="card"><h2>Apex Classes</h2>'
@@ -583,11 +669,7 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
                 f.get("message", f.get("finding", ""))
                 for f in item.get("findings", [])[:3]
             )
-            sev = max(
-                (f.get("severity", "LOW") for f in item.get("findings", [])),
-                key=lambda s: {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1}.get(s.upper(), 0),
-                default="LOW",
-            )
+            sev = _worst_severity(item.get("findings", []), "LOW")
             rows.append([
                 _esc(item.get("name", "")),
                 _esc(item.get("object", "")),
@@ -605,8 +687,7 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
         rows = []
         for item in sorted(data["flow_scores"], key=lambda x: x.get("score", 0)):
             issues_str = "; ".join(
-                i if isinstance(i, str) else i.get("message", "")
-                for i in item.get("issues", [])[:3]
+                _issue_text(i) for i in item.get("issues", [])[:3]
             )
             rows.append([
                 _esc(item.get("name", "")),
@@ -640,8 +721,7 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
         rows = []
         for item in sorted(data["lwc_scores"], key=lambda x: x.get("score", 0)):
             issues_str = "; ".join(
-                i if isinstance(i, str) else i.get("message", "")
-                for i in item.get("issues", [])[:3]
+                _issue_text(i) for i in item.get("issues", [])[:3]
             )
             rows.append([
                 _esc(item.get("name", "")),
@@ -658,9 +738,7 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
         sorted_findings = sorted(
             data["permission_findings"],
             key=lambda x: (
-                {"CRITICAL": 0, "HIGH": 1, "MEDIUM": 2, "LOW": 3}.get(
-                    x.get("severity", "LOW").upper(), 4
-                ),
+                SEVERITY_RANK[normalize_severity(x.get("severity"), "LOW")],
                 x.get("name", ""),
             ),
         )
@@ -674,8 +752,7 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
         rows = []
         for item in sorted(data["metadata_scores"], key=lambda x: x.get("score", 0)):
             issues_str = "; ".join(
-                i if isinstance(i, str) else i.get("message", "")
-                for i in item.get("issues", [])[:3]
+                _issue_text(i) for i in item.get("issues", [])[:3]
             )
             rows.append([
                 _esc(item.get("name", "")),
@@ -695,7 +772,7 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
         if data.get("unused_fields"):
             uf_rows = []
             for item in sorted(data["unused_fields"], key=lambda x: (
-                {"HIGH": 0, "MEDIUM": 1, "LOW": 2}.get(x.get("severity", "LOW").upper(), 3),
+                SEVERITY_RANK[normalize_severity(x.get("severity"), "LOW")],
                 x.get("object", ""), x.get("field", ""),
             )):
                 refs = ", ".join(item.get("referenced_in") or []) or "None"
@@ -708,7 +785,7 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
                     _esc(has_data_label),
                     _esc(refs),
                     _esc(item.get("category", "")),
-                    _severity_badge_html(item.get("severity", "LOW")),
+                    _severity_badge_html(normalize_severity(item.get("severity"), "LOW")),
                 ])
             uf_parts.append(
                 f"<h3>Unused Fields ({len(data['unused_fields'])})</h3>"
@@ -720,7 +797,7 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
         if data.get("unused_objects"):
             uo_rows = []
             for item in sorted(data["unused_objects"], key=lambda x: (
-                {"HIGH": 0, "MEDIUM": 1, "LOW": 2}.get(x.get("severity", "LOW").upper(), 3),
+                SEVERITY_RANK[normalize_severity(x.get("severity"), "LOW")],
                 x.get("object", ""),
             )):
                 refs = ", ".join(item.get("referenced_in") or []) or "None"
@@ -729,7 +806,7 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
                     _esc(str(item.get("record_count", 0))),
                     _esc(refs),
                     _esc(item.get("category", "")),
-                    _severity_badge_html(item.get("severity", "LOW")),
+                    _severity_badge_html(normalize_severity(item.get("severity"), "LOW")),
                 ])
             uf_parts.append(
                 f"<h3>Unused Objects ({len(data['unused_objects'])})</h3>"
@@ -751,11 +828,7 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
                 f.get("message", f.get("finding", ""))
                 for f in item.get("findings", [])[:3]
             )
-            sev = max(
-                (f.get("severity", "LOW") for f in item.get("findings", [])),
-                key=lambda s: {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1}.get(s.upper(), 0),
-                default="LOW",
-            ) if item.get("findings") else "LOW"
+            sev = _worst_severity(item.get("findings", []), "LOW") if item.get("findings") else "LOW"
             rows.append([
                 _esc(item.get("name", "")),
                 _esc(item.get("object", "")),
@@ -776,11 +849,7 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
                 f.get("message", f.get("finding", ""))
                 for f in item.get("findings", [])[:3]
             )
-            sev = max(
-                (f.get("severity", "LOW") for f in item.get("findings", [])),
-                key=lambda s: {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1}.get(s.upper(), 0),
-                default="LOW",
-            ) if item.get("findings") else "—"
+            sev = _worst_severity(item.get("findings", []), "LOW") if item.get("findings") else "—"
             rows.append([
                 _esc(item.get("name", "")),
                 _esc(item.get("object", "")),
@@ -822,11 +891,7 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
                 f.get("message", "")
                 for f in item.get("findings", [])[:3]
             )
-            sev = max(
-                (f.get("severity", "LOW") for f in item.get("findings", [])),
-                key=lambda s: {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1}.get(s.upper(), 0),
-                default="LOW",
-            ) if item.get("findings") else "—"
+            sev = _worst_severity(item.get("findings", []), "LOW") if item.get("findings") else "—"
             rows.append([
                 _esc(item.get("type", "")),
                 _esc(item.get("name", "")),
@@ -847,7 +912,7 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
             table_rows.append([
                 _esc(hv["component_type"]),
                 _esc(hv["name"]),
-                _severity_badge_html(hv["severity"]),
+                _severity_badge_html(normalize_severity(hv["severity"])),
                 _esc(hv["message"]),
             ])
         sections.append(
@@ -895,11 +960,7 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
             findings_str = "; ".join(
                 f.get("message", "") for f in item.get("findings", [])[:3]
             )
-            sev = max(
-                (f.get("severity", "LOW") for f in item.get("findings", [])),
-                key=lambda s: {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1}.get(s.upper(), 0),
-                default="LOW",
-            ) if item.get("findings") else "—"
+            sev = _worst_severity(item.get("findings", []), "LOW") if item.get("findings") else "—"
             int_rows.append([
                 _esc(item.get("type", "")),
                 _esc(item.get("name", "")),
@@ -1227,8 +1288,7 @@ def generate_docx(data, summary, org_name, org_id, instance, run_date, output_pa
                 run.font.bold = True
         for item in sorted(items, key=lambda x: x.get("score", 0)):
             issues_str = "; ".join(
-                i if isinstance(i, str) else i.get("message", "")
-                for i in item.get("issues", [])[:3]
+                _issue_text(i) for i in item.get("issues", [])[:3]
             )
             row = table.add_row().cells
             row[0].text = item.get("name", "")
@@ -1250,11 +1310,7 @@ def generate_docx(data, summary, org_name, org_id, instance, run_date, output_pa
             findings_str = "; ".join(
                 f.get("message", f.get("finding", "")) for f in findings[:3]
             )
-            sev = max(
-                (f.get("severity", "LOW") for f in findings),
-                key=lambda s: {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1}.get(s.upper(), 0),
-                default="LOW",
-            ) if findings else "LOW"
+            sev = _worst_severity(findings, "LOW") if findings else "LOW"
             row = table.add_row().cells
             row[0].text = item.get("name", "")
             row[1].text = item.get("object", "")
@@ -1286,14 +1342,12 @@ def generate_docx(data, summary, org_name, org_id, instance, run_date, output_pa
         for f in sorted(
             data["permission_findings"],
             key=lambda x: (
-                {"CRITICAL": 0, "HIGH": 1, "MEDIUM": 2, "LOW": 3}.get(
-                    x.get("severity", "LOW").upper(), 4
-                ),
+                SEVERITY_RANK[normalize_severity(x.get("severity"), "LOW")],
                 x.get("name", ""),
             ),
         ):
             doc.add_paragraph(
-                f"[{f.get('severity', 'MEDIUM')}] {f.get('message', f.get('finding', ''))}",
+                f"[{normalize_severity(f.get('severity'), 'MODERATE')}] {f.get('message', f.get('finding', ''))}",
                 style="List Bullet",
             )
 
@@ -1310,7 +1364,7 @@ def generate_docx(data, summary, org_name, org_id, instance, run_date, output_pa
                 for run in hdr[i].paragraphs[0].runs:
                     run.font.bold = True
             for item in sorted(data["unused_fields"], key=lambda x: (
-                {"HIGH": 0, "MEDIUM": 1, "LOW": 2}.get(x.get("severity", "LOW").upper(), 3),
+                SEVERITY_RANK[normalize_severity(x.get("severity"), "LOW")],
                 x.get("object", ""), x.get("field", ""),
             )):
                 has_data = item.get("has_data")
@@ -1321,7 +1375,7 @@ def generate_docx(data, summary, org_name, org_id, instance, run_date, output_pa
                 row[3].text = "Unknown" if has_data is None else ("Yes" if has_data else "No")
                 row[4].text = ", ".join(item.get("referenced_in") or []) or "None"
                 row[5].text = item.get("category", "")
-                row[6].text = item.get("severity", "LOW")
+                row[6].text = normalize_severity(item.get("severity"), "LOW")
         if data.get("unused_objects"):
             doc.add_heading("Unused Objects", level=2)
             table = doc.add_table(rows=1, cols=5)
@@ -1332,7 +1386,7 @@ def generate_docx(data, summary, org_name, org_id, instance, run_date, output_pa
                 for run in hdr[i].paragraphs[0].runs:
                     run.font.bold = True
             for item in sorted(data["unused_objects"], key=lambda x: (
-                {"HIGH": 0, "MEDIUM": 1, "LOW": 2}.get(x.get("severity", "LOW").upper(), 3),
+                SEVERITY_RANK[normalize_severity(x.get("severity"), "LOW")],
                 x.get("object", ""),
             )):
                 row = table.add_row().cells
@@ -1340,7 +1394,7 @@ def generate_docx(data, summary, org_name, org_id, instance, run_date, output_pa
                 row[1].text = str(item.get("record_count", 0))
                 row[2].text = ", ".join(item.get("referenced_in") or []) or "None"
                 row[3].text = item.get("category", "")
-                row[4].text = item.get("severity", "LOW")
+                row[4].text = normalize_severity(item.get("severity"), "LOW")
 
     # Validation Rules
     if data.get("validation_rules"):
@@ -1357,11 +1411,7 @@ def generate_docx(data, summary, org_name, org_id, instance, run_date, output_pa
             findings_str = "; ".join(
                 f.get("message", f.get("finding", "")) for f in findings[:3]
             )
-            sev = max(
-                (f.get("severity", "LOW") for f in findings),
-                key=lambda s: {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1}.get(s.upper(), 0),
-                default="LOW",
-            ) if findings else "LOW"
+            sev = _worst_severity(findings, "LOW") if findings else "LOW"
             row = table.add_row().cells
             row[0].text = item.get("name", "")
             row[1].text = item.get("object", "")
@@ -1384,11 +1434,7 @@ def generate_docx(data, summary, org_name, org_id, instance, run_date, output_pa
             findings_str = "; ".join(
                 f.get("message", "") for f in findings[:3]
             )
-            sev = max(
-                (f.get("severity", "LOW") for f in findings),
-                key=lambda s: {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1}.get(s.upper(), 0),
-                default="LOW",
-            ) if findings else "—"
+            sev = _worst_severity(findings, "LOW") if findings else "—"
             row = table.add_row().cells
             row[0].text = item.get("name", "")
             row[1].text = item.get("object", "")
@@ -1433,11 +1479,7 @@ def generate_docx(data, summary, org_name, org_id, instance, run_date, output_pa
             findings_str = "; ".join(
                 f.get("message", "") for f in findings[:3]
             )
-            sev = max(
-                (f.get("severity", "LOW") for f in findings),
-                key=lambda s: {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1}.get(s.upper(), 0),
-                default="LOW",
-            ) if findings else "—"
+            sev = _worst_severity(findings, "LOW") if findings else "—"
             row = table.add_row().cells
             row[0].text = item.get("type", "")
             row[1].text = item.get("name", "")
@@ -1463,7 +1505,7 @@ def generate_docx(data, summary, org_name, org_id, instance, run_date, output_pa
             row = table.add_row().cells
             row[0].text = hv["component_type"]
             row[1].text = hv["name"]
-            row[2].text = hv["severity"]
+            row[2].text = normalize_severity(hv["severity"])
             row[3].text = hv["message"]
     else:
         doc.add_paragraph("No hardcoded values detected in formulas or declarative logic.")
@@ -1477,7 +1519,7 @@ def generate_docx(data, summary, org_name, org_id, instance, run_date, output_pa
         doc.add_paragraph(f"{len(rd_items)} total items, {stale} stale")
         for f in rd.get("findings", []):
             doc.add_paragraph(
-                f"[{f.get('severity', 'MEDIUM')}] {f.get('message', '')}",
+                f"[{normalize_severity(f.get('severity'), 'MODERATE')}] {f.get('message', '')}",
                 style="List Bullet",
             )
 
@@ -1558,7 +1600,7 @@ def generate_docx(data, summary, org_name, org_id, instance, run_date, output_pa
             row[4].text = f'{(used / allowed * 100) if allowed > 0 else 0:.0f}%'
         for f in lic.get("findings", []):
             doc.add_paragraph(
-                f"[{f.get('severity', 'MEDIUM')}] {f.get('message', '')}",
+                f"[{normalize_severity(f.get('severity'), 'MODERATE')}] {f.get('message', '')}",
                 style="List Bullet",
             )
 
@@ -1569,7 +1611,7 @@ def generate_docx(data, summary, org_name, org_id, instance, run_date, output_pa
         doc.add_paragraph(f"{team.get('active_users', 0)} active users")
         for f in team.get("findings", []):
             doc.add_paragraph(
-                f"[{f.get('severity', 'MEDIUM')}] {f.get('message', '')}",
+                f"[{normalize_severity(f.get('severity'), 'MODERATE')}] {f.get('message', '')}",
                 style="List Bullet",
             )
 
@@ -1583,7 +1625,7 @@ def generate_docx(data, summary, org_name, org_id, instance, run_date, output_pa
         )
         for f in ch.get("findings", []):
             doc.add_paragraph(
-                f"[{f.get('severity', 'MEDIUM')}] {f.get('message', '')}",
+                f"[{normalize_severity(f.get('severity'), 'MODERATE')}] {f.get('message', '')}",
                 style="List Bullet",
             )
 
@@ -1672,7 +1714,7 @@ def generate_xlsx(data, summary, org_name, org_id, instance, run_date, output_pa
         ws.cell(row=i, column=4, value=score_rating(pct)[0])
         issues = item.get("issues", [])
         ws.cell(row=i, column=5, value="; ".join(
-            x if isinstance(x, str) else x.get("message", "") for x in issues[:3]
+            _issue_text(x) for x in issues[:3]
         ))
     auto_width(ws)
 
@@ -1690,8 +1732,8 @@ def generate_xlsx(data, summary, org_name, org_id, instance, run_date, output_pa
         ))
         if findings:
             sev = max(
-                (f.get("severity", "LOW") for f in findings),
-                key=lambda s: {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1}.get(s.upper(), 0),
+                (normalize_severity(f.get("severity"), "LOW") for f in findings),
+                key=_sev_weight,
             )
             ws2.cell(row=i, column=5, value=sev)
     auto_width(ws2)
@@ -1709,7 +1751,7 @@ def generate_xlsx(data, summary, org_name, org_id, instance, run_date, output_pa
         style_score_cell(sc, s, m)
         ws3.cell(row=i, column=4, value=m)
         ws3.cell(row=i, column=5, value="; ".join(
-            x if isinstance(x, str) else x.get("message", "") for x in item.get("issues", [])[:3]
+            _issue_text(x) for x in item.get("issues", [])[:3]
         ))
     auto_width(ws3)
 
@@ -1739,7 +1781,7 @@ def generate_xlsx(data, summary, org_name, org_id, instance, run_date, output_pa
         ws5.cell(row=i, column=3, value=m)
         ws5.cell(row=i, column=4, value=score_rating(pct)[0])
         ws5.cell(row=i, column=5, value="; ".join(
-            x if isinstance(x, str) else x.get("message", "") for x in item.get("issues", [])[:3]
+            _issue_text(x) for x in item.get("issues", [])[:3]
         ))
     auto_width(ws5)
 
@@ -1784,7 +1826,7 @@ def generate_xlsx(data, summary, org_name, org_id, instance, run_date, output_pa
         ws8.cell(row=i, column=4, value=item.get("field_count", 0))
         ws8.cell(row=i, column=5, value=item.get("relationship_count", 0))
         ws8.cell(row=i, column=6, value="; ".join(
-            x if isinstance(x, str) else x.get("message", "") for x in item.get("issues", [])[:3]
+            _issue_text(x) for x in item.get("issues", [])[:3]
         ))
     auto_width(ws8)
 
@@ -1795,7 +1837,7 @@ def generate_xlsx(data, summary, org_name, org_id, instance, run_date, output_pa
     for i, item in enumerate(sorted(
         data.get("unused_fields", []),
         key=lambda x: (
-            {"HIGH": 0, "MEDIUM": 1, "LOW": 2}.get(x.get("severity", "LOW").upper(), 3),
+            SEVERITY_RANK[normalize_severity(x.get("severity"), "LOW")],
             x.get("object", ""), x.get("field", ""),
         ),
     ), 2):
@@ -1806,7 +1848,7 @@ def generate_xlsx(data, summary, org_name, org_id, instance, run_date, output_pa
         ws9.cell(row=i, column=4, value="Unknown" if has_data is None else ("Yes" if has_data else "No"))
         ws9.cell(row=i, column=5, value=", ".join(item.get("referenced_in") or []) or "None")
         ws9.cell(row=i, column=6, value=item.get("category", ""))
-        ws9.cell(row=i, column=7, value=item.get("severity", "LOW"))
+        ws9.cell(row=i, column=7, value=normalize_severity(item.get("severity"), "LOW"))
     auto_width(ws9)
 
     # Sheet 10 — Unused Objects
@@ -1816,7 +1858,7 @@ def generate_xlsx(data, summary, org_name, org_id, instance, run_date, output_pa
     for i, item in enumerate(sorted(
         data.get("unused_objects", []),
         key=lambda x: (
-            {"HIGH": 0, "MEDIUM": 1, "LOW": 2}.get(x.get("severity", "LOW").upper(), 3),
+            SEVERITY_RANK[normalize_severity(x.get("severity"), "LOW")],
             x.get("object", ""),
         ),
     ), 2):
@@ -1824,7 +1866,7 @@ def generate_xlsx(data, summary, org_name, org_id, instance, run_date, output_pa
         ws10.cell(row=i, column=2, value=item.get("record_count", 0))
         ws10.cell(row=i, column=3, value=", ".join(item.get("referenced_in") or []) or "None")
         ws10.cell(row=i, column=4, value=item.get("category", ""))
-        ws10.cell(row=i, column=5, value=item.get("severity", "LOW"))
+        ws10.cell(row=i, column=5, value=normalize_severity(item.get("severity"), "LOW"))
     auto_width(ws10)
 
     # Sheet 11 — Validation Rules
@@ -1841,8 +1883,8 @@ def generate_xlsx(data, summary, org_name, org_id, instance, run_date, output_pa
         ))
         if findings:
             sev = max(
-                (f.get("severity", "LOW") for f in findings),
-                key=lambda s: {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1}.get(s.upper(), 0),
+                (normalize_severity(f.get("severity"), "LOW") for f in findings),
+                key=_sev_weight,
             )
             ws11.cell(row=i, column=5, value=sev)
     auto_width(ws11)
@@ -1862,8 +1904,8 @@ def generate_xlsx(data, summary, org_name, org_id, instance, run_date, output_pa
         ))
         if findings:
             sev = max(
-                (f.get("severity", "LOW") for f in findings),
-                key=lambda s: {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1}.get(s.upper(), 0),
+                (normalize_severity(f.get("severity"), "LOW") for f in findings),
+                key=_sev_weight,
             )
             ws12.cell(row=i, column=6, value=sev)
     auto_width(ws12)
@@ -1897,8 +1939,8 @@ def generate_xlsx(data, summary, org_name, org_id, instance, run_date, output_pa
         ))
         if findings:
             sev = max(
-                (f.get("severity", "LOW") for f in findings),
-                key=lambda s: {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1}.get(s.upper(), 0),
+                (normalize_severity(f.get("severity"), "LOW") for f in findings),
+                key=_sev_weight,
             )
             ws14.cell(row=i, column=5, value=sev)
     auto_width(ws14)
@@ -1911,7 +1953,7 @@ def generate_xlsx(data, summary, org_name, org_id, instance, run_date, output_pa
     for i, hv in enumerate(hv_rows, 2):
         ws15.cell(row=i, column=1, value=hv["component_type"])
         ws15.cell(row=i, column=2, value=hv["name"])
-        ws15.cell(row=i, column=3, value=hv["severity"])
+        ws15.cell(row=i, column=3, value=normalize_severity(hv["severity"]))
         ws15.cell(row=i, column=4, value=hv["message"])
     auto_width(ws15)
 
@@ -1953,8 +1995,8 @@ def generate_xlsx(data, summary, org_name, org_id, instance, run_date, output_pa
         ))
         if findings:
             sev = max(
-                (f.get("severity", "LOW") for f in findings),
-                key=lambda s: {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1}.get(s.upper(), 0),
+                (normalize_severity(f.get("severity"), "LOW") for f in findings),
+                key=_sev_weight,
             )
             ws17_int.cell(row=i, column=5, value=sev)
     auto_width(ws17_int)
@@ -2057,7 +2099,7 @@ def generate_xlsx(data, summary, org_name, org_id, instance, run_date, output_pa
 
     summary_rows.append(("", ""))
     summary_rows.append(("Severity Counts", ""))
-    for sev in ["CRITICAL", "HIGH", "MEDIUM", "LOW"]:
+    for sev in SEVERITY_ORDER:
         summary_rows.append((f"  {sev}", summary["severity_counts"].get(sev, 0)))
 
     for i, (metric, value) in enumerate(summary_rows, 2):
@@ -2334,7 +2376,7 @@ def generate_standalone_reports(data, summary, org_name, run_date, output_dir):
                     "component": item.get("name", ""),
                     "domain": domain,
                     "score_pct": round(pct, 1),
-                    "risk": "HIGH" if pct < 40 else "MEDIUM",
+                    "risk": "HIGH" if pct < 40 else "MODERATE",
                 })
     # Zero-coverage classes
     for c in tc.get("classes", []):
@@ -2502,7 +2544,7 @@ def generate_standalone_reports(data, summary, org_name, run_date, output_dir):
 
         doc.add_heading("Phase 3 — Improvements (90–180 days)", level=1)
         doc.add_paragraph(
-            f'{sev_counts.get("MEDIUM", 0)} medium-priority and '
+            f'{sev_counts.get("MODERATE", 0)} moderate-priority and '
             f'{sev_counts.get("LOW", 0)} low-priority finding(s).'
         )
 

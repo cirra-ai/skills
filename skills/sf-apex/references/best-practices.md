@@ -299,37 +299,118 @@ public static void processRecord(Id recordId) {
 
 ## 7. Async Apex Selection
 
-### @future
+**Queueable is the default for all new async code.** It accepts complex state, returns a job Id, chains, supports callouts, and integrates with `AsyncOptions`, `Database.Cursor` and `System.Finalizer`. Use Batch only when you need the `QueryLocator` start → execute → finish lifecycle; prefer a Scheduled Flow to `Schedulable`; treat `@future` as legacy.
+
+| Need                                                            | Use                                                          |
+| --------------------------------------------------------------- | ------------------------------------------------------------ |
+| Callout, heavy logic, chaining (default)                        | `Queueable` (+ `Database.AllowsCallouts`)                    |
+| Delay or de-duplicate a job                                     | `Queueable` + `AsyncOptions`                                 |
+| Walk a large result set without Batch                           | `Queueable` + `Database.Cursor`                              |
+| Guaranteed cleanup, retry, logging                              | `System.Finalizer`                                           |
+| `QueryLocator` lifecycle, `Database.Stateful`, millions of rows | `Batch Apex`                                                 |
+| Recurring schedule                                              | Scheduled Flow; `Schedulable` only to enqueue Apex on a cron |
+| Long callout from LWC / Visualforce                             | `Continuation`                                               |
+| `@future`                                                       | Legacy — do not generate; migrate when touching              |
+
+### Queueable (default)
 
 ```apex
-// Simple, fire-and-forget
-@future(callout=true)
-public static void makeCallout(Set<Id> recordIds) {
-    // Cannot return value, cannot chain
-}
-```
+// Complex logic, chains, complex types, job Id, finalizer support
+public with sharing class ProcessRecordsQueueable implements Queueable, Database.AllowsCallouts {
+    private static final Integer MAX_CHAIN_DEPTH = 5;
+    private final List<Id> accountIds;
 
-### Queueable
-
-```apex
-// Complex logic, can chain, can pass complex types
-public class ProcessRecordsQueueable implements Queueable {
-    private List<Account> accounts;
-
-    public ProcessRecordsQueueable(List<Account> accounts) {
-        this.accounts = accounts;
+    public ProcessRecordsQueueable(List<Id> accountIds) {
+        this.accountIds = accountIds;
     }
 
     public void execute(QueueableContext context) {
-        // Process accounts
+        System.attachFinalizer(new ProcessRecordsFinalizer(context.getJobId()));
 
-        // Chain next job if needed
-        if (moreWork) {
+        List<Account> accounts = [SELECT Id, Name FROM Account WHERE Id IN :accountIds WITH USER_MODE];
+        // ... process ...
+        update as user accounts;
+
+        // Chain the next slice — guard the depth, never enqueue inside a loop
+        List<Id> nextBatch = nextSlice();
+        if (!nextBatch.isEmpty() && !AsyncInfo.hasMaxStackDepth()
+                && AsyncInfo.getCurrentQueueableStackDepth() < MAX_CHAIN_DEPTH) {
             System.enqueueJob(new ProcessRecordsQueueable(nextBatch));
+        }
+    }
+
+    private List<Id> nextSlice() {
+        return new List<Id>();
+    }
+}
+```
+
+### AsyncOptions — delay and de-duplication
+
+```apex
+AsyncOptions options = new AsyncOptions();
+options.MinimumQueueableDelayInMinutes = 5;          // do not start before 5 minutes
+options.MaximumQueueableStackDepth = 5;              // cap the chain
+options.DuplicateSignature = QueueableDuplicateSignature.Builder()
+    .addString('AccountSync')
+    .addId(accountId)
+    .build();                                        // second enqueue with the same signature throws DuplicateMessageException
+
+try {
+    System.enqueueJob(new AccountSyncQueueable(accountId), options);
+} catch (DuplicateMessageException e) {
+    // Already queued — nothing to do
+}
+```
+
+### Database.Cursor — large result sets without Batch
+
+```apex
+public with sharing class CursorQueueable implements Queueable {
+    private final Database.Cursor cursor;
+    private final Integer position;
+
+    public CursorQueueable() {
+        this(Database.getCursor('SELECT Id, Name FROM Account WHERE Industry = \'Technology\''), 0);
+    }
+
+    private CursorQueueable(Database.Cursor cursor, Integer position) {
+        this.cursor = cursor;
+        this.position = position;
+    }
+
+    public void execute(QueueableContext context) {
+        List<Account> scope = cursor.fetch(position, 200);
+        // ... process scope ...
+        Integer next = position + scope.size();
+        if (next < cursor.getNumRecords()) {
+            System.enqueueJob(new CursorQueueable(cursor, next));
         }
     }
 }
 ```
+
+### System.Finalizer — guaranteed post-job hook
+
+```apex
+public with sharing class ProcessRecordsFinalizer implements System.Finalizer {
+    private final Id parentJobId;
+
+    public ProcessRecordsFinalizer(Id parentJobId) {
+        this.parentJobId = parentJobId;
+    }
+
+    public void execute(System.FinalizerContext ctx) {
+        if (ctx.getResult() == System.ParentJobResult.UNHANDLED_EXCEPTION) {
+            // Log, notify, or re-enqueue with backoff; ctx.getException() has the cause
+        }
+    }
+}
+```
+
+### @future (legacy — do not generate)
+
+`@future` cannot chain, cannot take complex parameters, returns no job Id and cannot attach a Finalizer. When you touch an existing `@future` method, migrate it to a Queueable; a straight port is usually one class with a constructor holding the former parameters.
 
 ### Batch Apex
 
@@ -349,6 +430,8 @@ public class ProcessAccountsBatch implements Database.Batchable<SObject> {
     }
 }
 ```
+
+Use Batch only when the `QueryLocator` lifecycle (up to 50M rows, per-chunk transactions, `Database.Stateful`, `finish` hook) is actually needed. For a recurring run prefer a **Scheduled Flow** that invokes the job; write a `Schedulable` only when the schedule must enqueue Apex that Flow cannot express, and keep it a one-liner (`System.enqueueJob` / `Database.executeBatch`).
 
 ---
 

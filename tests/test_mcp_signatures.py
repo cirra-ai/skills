@@ -95,6 +95,21 @@ def test_keys_inside_record_literals_are_not_kwargs(tmp_path):
     assert messages(tmp_path, fenced(code)) == []
 
 
+def test_equals_inside_quoted_strings_is_not_a_kwarg(tmp_path):
+    # `query=` and `sobjectType=` here are SOQL/text content, not parameters.
+    code = """soql_query(
+  sObject="Case",
+  fields=["Id", "Subject"],
+  whereClause="Subject LIKE '%query=%' AND Description LIKE '%sobjectType=%'"
+)"""
+    assert messages(tmp_path, fenced(code)) == []
+
+
+def test_escaped_quote_inside_string_does_not_end_it(tmp_path):
+    code = 'soql_query(sObject="Account", fields=["Id"], whereClause="Name = \'O\\\'Brien query=\'")'
+    assert messages(tmp_path, fenced(code)) == []
+
+
 def test_prose_mentions_are_ignored(tmp_path):
     assert messages(tmp_path, "Call soql_query(query) as described above.") == []
 

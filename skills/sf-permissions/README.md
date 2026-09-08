@@ -1,6 +1,6 @@
 # sf-permissions
 
-Salesforce permission analysis and auditing skill for AI coding tools. Analyze Permission Set hierarchies, find "who has access to X?", audit user permissions, and identify security risks via the Cirra AI MCP Server.
+Salesforce permission analysis and management skill for AI coding tools. Analyze Permission Set hierarchies, find "who has access to X?", audit user permissions, identify security risks, and create, update, assign and clone Permission Sets and Profiles via the Cirra AI MCP Server.
 
 ## Features
 
@@ -8,7 +8,9 @@ Salesforce permission analysis and auditing skill for AI coding tools. Analyze P
 - **Permission Detector**: Find which PS/PSG grant a specific permission
 - **User Analyzer**: Show all permissions assigned to a specific user
 - **Security Audit**: Identify overly broad permissions and security risks
-- **Permission Set Creation**: Generate and deploy Permission Sets
+- **Permission Set Lifecycle**: Create, update (JSON Patch), clone, delete and assign Permission Sets
+- **Profile Management**: Inspect, patch and clone Profiles
+- **Agent Access**: Grant and audit Agentforce agent visibility
 
 ## Installation
 
@@ -44,25 +46,36 @@ Request: "Who has delete access to the Account object?"
 | User Analysis  | "What permissions does john@company.com have?"      |
 | Security Audit | "Find all permission sets with ModifyAllData"       |
 | PS Creation    | "Create a read-only permission set for contractors" |
+| PS Update      | "Add delete access to Opportunity on Sales_Admin"   |
+| Assignment     | "Give jane@company.com the Sales_Admin PS"          |
+| Profile        | "What does the Custom Sales User profile grant?"    |
 
 ## Related Skills
 
-| Skill       | When to Use                                          |
-| ----------- | ---------------------------------------------------- |
-| sf-metadata | Create permission sets and manage metadata           |
-| sf-diagram  | Visualize permission hierarchies as Mermaid diagrams |
-| sf-data     | Query user assignments in bulk                       |
+| Skill           | When to Use                                          |
+| --------------- | ---------------------------------------------------- |
+| sf-metadata     | Create permission sets and manage metadata           |
+| sf-diagram      | Visualize permission hierarchies as Mermaid diagrams |
+| sf-data         | Query user assignments in bulk                       |
+| sf-provisioning | Create users, mirror a user's access, offboard       |
 
 ## Cirra AI MCP Tools — for developers
 
 > This section is for Salesforce developers building integrations. Admins can skip it.
 
-| Operation         | MCP Tool                                  |
-| ----------------- | ----------------------------------------- |
-| Query PS/PSG      | `soql_query(sObject="PermissionSet")`     |
-| Query Permissions | `soql_query(sObject="ObjectPermissions")` |
-| Tooling Queries   | `tooling_api_query(sObject, fields)`      |
-| Create PS         | `metadata_create(type="PermissionSet")`   |
+| Operation          | MCP Tool                                                                                                         |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| Query PS/PSG       | `soql_query` on `PermissionSet` / `PermissionSetGroup` / `PermissionSetGroupComponent` (`fields`, `whereClause`) |
+| Query permissions  | `soql_query` on `ObjectPermissions` / `FieldPermissions` / `SetupEntityAccess`                                   |
+| Tooling queries    | `tooling_api_query` (`sObject`, `fields`, `whereClause`) — e.g. `PermissionSet.Type`                             |
+| Read PS metadata   | `metadata_read(type="PermissionSet", fullNames=[...])`                                                           |
+| Create PS          | `metadata_create(type="PermissionSet", metadata=[{fullName, label, ...}])`                                       |
+| Change PS contents | `permission_set_update(permissionSet=..., patch=[...])` — JSON Patch over object/field/system/class/tab access   |
+| Assign / remove PS | `permission_set_assignments(operation="add", permissionSets=[...], users=[...])` — or `operation="remove"`       |
+| Delete PS          | `metadata_delete(type="PermissionSet", fullNames=[...])`                                                         |
+| Profiles           | `profile_describe(profile, permissionTypes, sObject)` / `profile_update(profile, patch)` / `profile_clone`       |
+
+Full signatures: [`shared/references/cirra-mcp-tools.md`](../../shared/references/cirra-mcp-tools.md).
 
 ## Execution Modes
 

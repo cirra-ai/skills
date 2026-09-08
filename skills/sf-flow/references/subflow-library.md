@@ -433,7 +433,13 @@ Screen Flow
 
 ```
 # Example: Test Sub_LogError
-soql_query(query="SELECT Flow_Name__c, Error_Message__c FROM Flow_Error_Log__c ORDER BY CreatedDate DESC LIMIT 5")
+soql_query(
+  sObject="Flow_Error_Log__c",
+  fields=["Flow_Name__c", "Error_Message__c"],
+  whereClause="Id != null",
+  orderBy="CreatedDate DESC",
+  limit=5
+)
 ```
 
 ### Integration Testing in Parent Flows

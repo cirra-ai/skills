@@ -131,8 +131,11 @@ ERROR TESTING:
 
 Debug Logs Query:
 soql_query(
-  query="SELECT Id, Status, NumElements FROM FlowInterview WHERE FlowDefinitionName='Opportunity_Closed_Won_Update_Contacts' AND CreatedDate=TODAY ORDER BY CreatedDate DESC LIMIT 50",
-  orgAlias="sandbox-test"
+  sObject="FlowInterview",
+  fields=["Id", "InterviewStatus", "CurrentElement", "CreatedDate"],
+  whereClause="InterviewStatus = 'Error' AND CreatedDate = TODAY",
+  orderBy="CreatedDate DESC",
+  limit=50
 ) via Cirra AI MCP
 ```
 
@@ -322,8 +325,9 @@ After successful bulk testing in sandbox:
 4. **Set up monitoring:**
    ```
    soql_query(
-     query="SELECT Id, Status, NumElements FROM FlowInterview WHERE FlowDefinitionName='Opportunity_Closed_Won_Update_Contacts' AND Status='Error' AND CreatedDate=LAST_N_DAYS:1",
-     orgAlias="production"
+     sObject="FlowInterview",
+     fields=["Id", "InterviewStatus", "CurrentElement", "CreatedDate"],
+     whereClause="InterviewStatus = 'Error' AND CreatedDate = LAST_N_DAYS:1"
    ) via Cirra AI MCP
    ```
 

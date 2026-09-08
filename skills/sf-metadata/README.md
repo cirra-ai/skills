@@ -4,7 +4,7 @@ Salesforce metadata operations skill for AI coding tools. Create custom objects,
 
 ## Features
 
-- **Metadata Creation**: Create Custom Objects, Fields, Validation Rules, Record Types, Permission Sets, and List Views via MCP
+- **Metadata Creation**: Create Custom Objects, Custom Metadata Types and Custom Settings, Fields, Validation Rules, Record Types, Global Value Sets, Permission Sets, List Views, Page Layouts, Lightning Pages (FlexiPages), Quick Actions, Custom Tabs, Custom Apps, and External Client App OAuth policies via MCP
 - **Org Querying**: Describe objects, list fields, query metadata using Tooling API
 - **Access Strategy**: Propose a specific, no-guesswork access plan after creating objects/fields/list views — exact profiles + permission sets for object/FLS access, page layouts, Lightning record pages, and list-view/Kanban visibility
 - **Validation & Scoring**: Score metadata against 6 categories (0-120 points)
@@ -58,12 +58,20 @@ Request: "Create a custom object called Invoice__c with Amount, Status, and Due 
 
 > This section is for Salesforce developers building integrations. Admins can skip it.
 
-| Operation       | MCP Tool                             |
-| --------------- | ------------------------------------ |
-| Create Metadata | `metadata_create(type, metadata)`    |
-| Update Metadata | `metadata_update(type, metadata)`    |
-| Describe Object | `sobject_describe(sObject)`          |
-| Query Metadata  | `tooling_api_query(sObject, fields)` |
+| Operation                    | MCP Tool                                                                                                                                                                                                                              |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Create custom object         | `sobject_create` (CMDT / Custom Settings: `metadata_create(type="CustomObject")`)                                                                                                                                                     |
+| Create custom field          | `sobject_field_create` (grants connected-user FLS; never `metadata_create` for `CustomField`)                                                                                                                                         |
+| Create record type           | `record_type_create` (layout assignment + profile availability)                                                                                                                                                                       |
+| Create global value set      | `value_set_create`                                                                                                                                                                                                                    |
+| Create other metadata        | `metadata_create(type, metadata)` — ValidationRule, PermissionSet, ListView, Layout, FlexiPage…                                                                                                                                       |
+| Update metadata              | `sobject_update`, `sobject_field_update`, `record_type_update`, `value_set_update`, `page_layout_update`, `permission_set_update`, or `metadata_update(type, metadata \| fullName + patch)` — `metadata` replaces the whole component |
+| Delete metadata              | `metadata_delete(type, fullNames)`                                                                                                                                                                                                    |
+| Describe object              | `sobject_describe(sObject)`                                                                                                                                                                                                           |
+| Discover / read metadata     | `metadata_describe`, `metadata_list(type)`, `metadata_read(type, fullNames, format)`                                                                                                                                                  |
+| Query metadata (Tooling API) | `tooling_api_query(sObject="CustomField", fields=[...], whereClause="...")`                                                                                                                                                           |
+
+Full signatures: [`shared/references/cirra-mcp-tools.md`](../../shared/references/cirra-mcp-tools.md).
 
 ## Execution Modes
 

@@ -1,191 +1,190 @@
 # Multi-Skill Orchestration: sf-data Perspective
 
-This document details how sf-data fits into the multi-skill workflow for Salesforce development.
+How sf-data fits into a multi-skill Salesforce change delivered through the
+Cirra AI MCP Server. Everything below runs against the live org — there are
+no local source files and no separate deploy step: each skill creates or
+updates its metadata in the org directly.
 
 ---
 
-## Standard Orchestration Order
+## Standard orchestration order
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │  STANDARD MULTI-SKILL ORCHESTRATION ORDER                                   │
 ├─────────────────────────────────────────────────────────────────────────────┤
+│  0. cirra_ai_init()                                                         │
+│     └── Establish the connection; confirm the target org                    │
+│                                                                             │
 │  1. sf-metadata                                                             │
-│     └── Create object/field definitions (LOCAL files)                       │
+│     └── Objects, fields, validation rules, permission sets                  │
+│         (sobject_create / sobject_field_create / metadata_create)           │
 │                                                                             │
-│  2. sf-flow                                                                 │
-│     └── Create flow definitions (LOCAL files)                               │
+│  2. sf-flow / sf-apex                                                       │
+│     └── Flows (metadata_create type=Flow), classes and triggers             │
+│         (tooling_api_dml / metadata_create type=ApexClass|ApexTrigger)      │
 │                                                                             │
-│  3. sf-deploy                                                               │
-│     └── Deploy all metadata (REMOTE)                                        │
+│  3. sf-data  ◀── YOU ARE HERE (LAST!)                                       │
+│     └── Seed and verify data (sobject_dml / bulk_dml / soql_query)          │
 │                                                                             │
-│  4. sf-data  ◀── YOU ARE HERE (LAST!)                                      │
-│     └── Create test data (REMOTE - objects must exist!)                     │
+│  4. run_tests                                                               │
+│     └── Apex tests and Flow tests against the seeded data                   │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## ⚠️ Why sf-data Goes LAST
+## Why sf-data goes last
 
-**sf-data operates on REMOTE org data.** Objects/fields must be deployed before sf-data can:
-
-- Insert records
-- Query existing data
-- Run test factories
-- Generate bulk test data
+sf-data reads and writes **org data**. The objects, fields and automation it
+exercises must already exist in the org, or the calls fail:
 
 ```
 ERROR: "SObject type 'Quote__c' is not supported"
-CAUSE: Quote__c object was never deployed to the org
-FIX:   Run sf-deploy BEFORE sf-data
+CAUSE: the object has not been created in this org yet
+FIX:   sf-metadata (sobject_create) first, then sf-data
+```
+
+| Error                                      | Cause                              | Fix                                                                        |
+| ------------------------------------------ | ---------------------------------- | -------------------------------------------------------------------------- |
+| `SObject type 'X' not supported`           | Object does not exist in the org   | sf-metadata `sobject_create` first                                         |
+| `INVALID_FIELD: No such column 'Field__c'` | Field missing **or** FLS blocks it | sf-metadata `sobject_field_create` (grants FLS) or `permission_set_update` |
+| `REQUIRED_FIELD_MISSING`                   | Required field not set             | `sobject_describe`, include every required field                           |
+| `FIELD_CUSTOM_VALIDATION_EXCEPTION`        | Validation rule fired              | Use values that satisfy the rule (sf-metadata can show it)                 |
+
+---
+
+## Test data after triggers and flows
+
+Insert test data **after** the automation is in the org, so the insert
+exercises it:
+
+```
+1. sf-apex   → tooling_api_dml / metadata_create: trigger + handler class
+2. sf-flow   → metadata_create(type="Flow"): record-triggered flow, then activate
+3. sf-data   ◀── seed records now — triggers and flows fire on insert
+4. run_tests → Apex / Flow tests confirm behaviour
 ```
 
 ---
 
-## Common Errors from Wrong Order
+## The 201-record pattern
 
-| Error                                      | Cause                          | Fix                           |
-| ------------------------------------------ | ------------------------------ | ----------------------------- |
-| `SObject type 'X' not supported`           | Object not deployed            | Deploy via sf-deploy first    |
-| `INVALID_FIELD: No such column 'Field__c'` | Field not deployed OR FLS      | Deploy field + Permission Set |
-| `REQUIRED_FIELD_MISSING`                   | Validation rule requires field | Include all required fields   |
-| `FIELD_CUSTOM_VALIDATION_EXCEPTION`        | Validation rule triggered      | Use valid test data values    |
-
----
-
-## Test Data After Triggers/Flows
-
-When testing triggers or flows, always create test data AFTER deployment:
-
-```
-1. sf-apex   → Create trigger handler class
-2. sf-flow   → Create record-triggered flow
-3. sf-deploy → Deploy trigger + flow + objects
-4. sf-data   ◀── CREATE TEST DATA NOW
-              └── Triggers and flows will fire!
-```
-
-**Why?** Test data insertion triggers flows/triggers. If those aren't deployed, you're not testing realistic behavior.
-
----
-
-## The 251-Record Pattern
-
-Always test with **251 records** to cross the 200-record batch boundary:
+Cross the 200-record trigger chunk boundary to expose bulkification bugs:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │  BATCH BOUNDARY TESTING                                                     │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│  Records 1-200:    First batch                                              │
-│  Records 201-251:  Second batch (crosses boundary!)                         │
+│  Records 1-200:    first trigger chunk                                      │
+│  Records 201+:     second chunk (crosses the boundary)                      │
 │                                                                             │
-│  Tests: N+1 queries, bulkification, governor limits                         │
+│  Exposes: N+1 queries, DML in loops, governor limits                        │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-**Command:**
+Two ways to seed 201+ records:
 
 ```
-# Create 251 records via MCP
-sobject_dml(
+# A. One Bulk API job (preferred for 201+; triggers still run per 200-record chunk)
+bulk_dml(
   operation="insert",
-  sobjectType="Account",
-  records=[{"Name": "Test Account 1"}, ..., {"Name": "Test Account 251"}]
+  sObject="Account",
+  records=[{"Name": "Test Account 1"}, ..., {"Name": "Test Account 201"}]
 )
+
+# B. Two sobject_dml calls when you want synchronous per-record results
+sobject_dml(operation="insert", sObject="Account", records=[ ...200 rows... ])
+sobject_dml(operation="insert", sObject="Account", records=[{"Name": "Test Account 201"}])
 ```
+
+Use **251** when the target is a Flow or other automation you want to see
+run across more than one chunk with room to spare.
 
 ---
 
-## Cross-Skill Integration Table
+## Cross-skill integration
 
-| From Skill | To sf-data | When                                               |
-| ---------- | ---------- | -------------------------------------------------- |
-| sf-apex    | → sf-data  | "Create 251 Accounts for bulk testing"             |
-| sf-flow    | → sf-data  | "Create Opportunities with StageName='Closed Won'" |
-| sf-testing | → sf-data  | "Generate test records for test class"             |
+| From skill  | To sf-data | When                                                 |
+| ----------- | ---------- | ---------------------------------------------------- |
+| sf-apex     | → sf-data  | "Create 201 Accounts for bulk testing"               |
+| sf-flow     | → sf-data  | "Create Opportunities with StageName = 'Closed Won'" |
+| sf-metadata | → sf-data  | After creating the object/field, seed sample records |
 
-| From sf-data | To Skill      | When                                                |
-| ------------ | ------------- | --------------------------------------------------- |
-| sf-data      | → sf-metadata | "Describe Invoice\_\_c" (discover object structure) |
-| sf-data      | → sf-deploy   | "Redeploy field after adding validation rule"       |
+| From sf-data | To skill      | When                                                                   |
+| ------------ | ------------- | ---------------------------------------------------------------------- |
+| sf-data      | → sf-metadata | Describe or fix an object (`INVALID_FIELD`, missing External ID field) |
+| sf-data      | → sf-apex     | The seed data needs a deployed test class or an Apex data fix          |
+| sf-data      | → sf-flow     | A flow fault path fired during the insert                              |
 
 ---
 
-## Prerequisites Check
-
-Before using sf-data, verify:
+## Prerequisites check
 
 ```
-# Org info available via initialization
+# Connection and target org
 cirra_ai_init()
 
-# Check objects exist
-sobject_describe(sobjectType="MyObject__c")
+# Object exists and fields are visible
+sobject_describe(sObject="MyObject__c")
 
-# Check field-level security (if field not visible)
-tooling_api_query(
-  sobjectType="FieldPermissions",
-  whereClause="SobjectType='MyObject__c'"
+# Field-level security when a field is missing from describe or SOQL fails
+soql_query(
+  sObject="FieldPermissions",
+  fields=["Field", "PermissionsRead", "PermissionsEdit", "Parent.Name"],
+  whereClause="SobjectType = 'MyObject__c' AND Field = 'MyObject__c.My_Field__c'"
 )
 ```
 
 ---
 
-## Factory Pattern Integration
+## Factory pattern integration
 
-Test Data Factory classes work with sf-data:
+The Apex factories in `assets/factories/` are templates for **sf-apex test
+classes**. Cirra cannot run anonymous Apex, so the flow is:
 
 ```
-sf-apex:  Creates TestDataFactory_Account.cls
-          ↓
-sf-deploy: Deploys factory class
-          ↓
-sf-data:  Calls factory via Anonymous Apex
-          ↓
-          251 records created → triggers fire → flows run
-```
-
-**Anonymous Apex:**
-
-```apex
-List<Account> accounts = TestDataFactory_Account.create(251);
-System.debug('Created ' + accounts.size() + ' accounts');
+sf-apex:   deploys TestDataFactory_Account.cls + AccountTriggerTest.cls
+           ↓
+run_tests: executes AccountTriggerTest (factory builds 251 records in the test transaction)
+           ↓
+sf-data:   seeds persistent sample data for manual / Flow verification via sobject_dml or bulk_dml
 ```
 
 ---
 
-## Cleanup Sequence
+## Cleanup sequence
 
 After testing, clean up in reverse order:
 
 ```
-1. sf-data   → Delete test records
-2. sf-deploy → Deactivate flows (if needed)
-3. sf-deploy → Remove test metadata (if needed)
+1. sf-data   → delete test records (children before parents)
+2. sf-flow   → deactivate or remove the test flow (metadata_update / metadata_delete)
+3. sf-apex   → remove temporary classes/triggers (tooling_api_dml delete / metadata_delete)
+4. sf-metadata → remove temporary fields/objects (metadata_delete)
 ```
 
 **Cleanup command:**
 
 ```
 # Query test records
-soql_query(query="SELECT Id FROM Account WHERE Name LIKE 'Test%'")
+soql_query(sObject="Account", fields=["Id"], whereClause="Name LIKE 'Test%'")
 
-# Delete them
-sobject_dml(
-  operation="delete",
-  sobjectType="Account",
-  records=[{"Id": "001xx..."}, ...]
-)
+# Delete them (up to 200 per call)
+sobject_dml(operation="delete", sObject="Account", recordIds=["001xx...", ...])
+
+# More than 200: one Bulk API job
+bulk_dml(operation="delete", sObject="Account", recordIds=["001xx...", ...])
 ```
 
 ---
 
-## Related Documentation
+## Related documentation
 
-| Topic              | Location                                 |
-| ------------------ | ---------------------------------------- |
-| Test data patterns | `sf-data/docs/test-data-patterns.md`     |
-| Cleanup guide      | `sf-data/docs/cleanup-rollback-guide.md` |
-| Factory templates  | `sf-data/templates/factories/`           |
+| Topic              | Location                                        |
+| ------------------ | ----------------------------------------------- |
+| Bulk operations    | `references/bulk-operations-guide.md`           |
+| Test data patterns | `references/test-data-patterns.md`              |
+| Cleanup guide      | `references/cleanup-rollback-guide.md`          |
+| Factory templates  | `assets/factories/`                             |
+| MCP tool shapes    | `../../../shared/references/cirra-mcp-tools.md` |

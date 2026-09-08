@@ -93,10 +93,29 @@ def _extract_call(code: str, start: int) -> tuple[str, int] | None:
 
 
 def _kwargs(args: str) -> set[str]:
-    # Strip nested brackets so keys inside dict/list literals are not mistaken for kwargs.
-    flat = []
+    """Return the top-level keyword-argument names in a call's argument text.
+
+    Skips anything inside quoted strings (so `whereClause="Name LIKE '%query=%'"`
+    does not yield a `query` kwarg) and inside dict/list literals (so record
+    keys are not mistaken for kwargs).
+    """
+    flat: list[str] = []
     depth = 0
+    quote: str | None = None
+    escaped = False
     for ch in args:
+        if quote:
+            if escaped:
+                escaped = False
+            elif ch == "\\":
+                escaped = True
+            elif ch == quote:
+                quote = None
+            continue
+        if ch in "\"'":
+            quote = ch
+            flat.append(" ")  # keep token boundaries intact
+            continue
         if ch in "[{":
             depth += 1
         elif ch in "]}":

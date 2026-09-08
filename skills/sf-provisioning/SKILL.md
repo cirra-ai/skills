@@ -2,7 +2,7 @@
 name: sf-provisioning
 plugin: cirra-ai-sf
 metadata:
-  version: 1.0.2
+  version: 1.0.3
 argument-hint: '[create-user|grant|revoke|deactivate|mirror] {user|capability} ...'
 description: >
   Salesforce user and access provisioning expert. Use whenever the user wants to create a
@@ -23,6 +23,7 @@ access provisioning. You create users, grant and revoke capabilities, and onboar
 directly in Salesforce orgs using the Cirra AI MCP Server.
 
 This skill uses **Cirra AI MCP tools directly** for all org operations. No sf CLI is needed.
+Tool signatures: `../../shared/references/cirra-mcp-tools.md` (authoritative — check every call shape there).
 
 ## THE GOLDEN RULE: Discover Before You Provision
 
@@ -86,7 +87,9 @@ can be deactivated but never deleted — so this matters more here than for most
    account, read-only/business user. This drives license, profile, and permission sets.
 3. **Discover conventions** (the Golden Rule). Query recent active users of the same archetype and
    read off: username pattern, profile, license, alias style, locale/timezone/language/email
-   encoding. See the Discovery Cookbook below.
+   encoding. See the Discovery Cookbook below. Use `soql_query` for the multi-user scan; once you
+   have picked one comparable user, `user_describe(user="<username>")` gives its full setup
+   (profile, license, role, locale, permission sets) in one call.
 4. **Choose least-privilege license + profile.** Match what comparable users have. Do not consume a
    full `Salesforce` license when a `Salesforce Limited Access - Free` (or Platform/Identity)
    license fits. Confirm the license has available seats (`UserLicense`).
@@ -100,8 +103,8 @@ can be deactivated but never deleted — so this matters more here than for most
    profile/locale/conventions, overriding only `firstName`, `lastName`, `username`, `email`. Fall
    back to `profile` + `properties` only when no good template exists.
 9. **Assign permission set(s)** with `permission_set_assignments` (operation `add`).
-10. **Verify** with a `soql_query` of the new user (profile, alias, locale) and confirm the
-    permission set assignment took.
+10. **Verify** with `user_describe(user="<new username>")` (profile, alias, locale, assigned
+    permission sets) and confirm the permission set assignment took.
 11. **Offer the set-password email — never send it automatically.** A user created
     via the API does **not** receive the welcome/set-password email. That email is
     only triggered by the UI's "Generate new password and notify user immediately"
@@ -139,19 +142,27 @@ For granting an ability to a **new or existing** user.
 1. **`cirra_ai_init`**.
 2. **Decide the mechanism**: remove a specific permission set (`permission_set_assignments`,
    operation `remove`) for a narrow revoke, vs **deactivate** the whole user
-   (`user_update` setting `IsActive=false`) or **freeze** (`sobject_dml` on `UserLogin` with
-   `IsFrozen=true`) for offboarding. Remember users cannot be deleted.
-3. **Check dependencies before deactivating** with `soql_query` — record ownership, running
+   (`user_update(user="<username>", operation="deactivate")` — frees the license) or **freeze**
+   (`user_update(user="<username>", operation="freeze")` — immediate lock-out, keeps the license;
+   `operation="unfreeze"` reverses it) for offboarding. Remember users cannot be deleted.
+3. **Read the user first** with `user_describe(user="<username>")` — profile, license, role,
+   active/frozen state and permission set assignments in one call — so the plan lists exactly
+   what is being removed.
+4. **Check dependencies before deactivating** with `soql_query` — record ownership, running
    automation owned by the user, integration usage. Surface these.
-4. **Present plan → approve → execute → verify.**
+5. **Present plan → approve → execute → verify.** Verify the freeze state on the read side with
+   `soql_query(sObject="UserLogin", fields=["UserId", "IsFrozen", "IsPasswordLocked"], whereClause="UserId = '<user id>'")`;
+   verify deactivation via `user_describe` (`IsActive`).
 
 ### Mirror a User
 
 "Give them the same access as <person>."
 
 1. **`cirra_ai_init`**.
-2. **Read the model user** fully with `soql_query`: profile, license, role, and all assigned
-   permission sets / permission set groups (`PermissionSetAssignment`).
+2. **Read the model user** fully with `user_describe(user="<model user>")` — it returns the
+   profile, license, role, locale settings and all assigned permission sets / permission set
+   groups in one call. Fall back to `soql_query` on `PermissionSetAssignment` only if you need
+   to cross-check group vs direct assignments.
 3. **Resolve new-user identity fields** — `firstName`, `lastName`, `username`, `email` — and
    check username availability with `soql_query`.
 4. **Present the plan and get approval. End your turn.** The plan must enumerate the cloned
@@ -160,7 +171,7 @@ For granting an ability to a **new or existing** user.
    profile/locale.
 6. **Replicate permission sets** — cloning a user does **not** copy permission set assignments, so
    assign each one the model user has with `permission_set_assignments` (operation `add`).
-7. **Verify** with a `soql_query` of the new user and confirm every expected PS assignment took.
+7. **Verify** with `user_describe(user="<new username>")` and confirm every expected PS assignment took.
 8. **Report**: a compact table of the final setup and a `link_build` to the user setup record.
 
 ---
@@ -221,7 +232,8 @@ FROM ObjectPermissions
 WHERE SobjectType IN ('ScratchOrgInfo','ActiveScratchOrg')
 ```
 
-**What a comparable user is actually assigned (the convention to copy):**
+**What a comparable user is actually assigned (the convention to copy)** — for a single
+user prefer `user_describe(user="<model user>")`; use SOQL when comparing several:
 
 ```
 SELECT Assignee.Username, PermissionSet.Name, PermissionSet.Label
@@ -241,15 +253,17 @@ SELECT Id, Username, Name FROM User WHERE Username = '<proposed>' OR Email = '<e
 
 **REMOTE-ONLY MODE**: Cirra AI MCP operates directly against the connected org.
 
-| Operation                           | Tool                                                          | Notes                                                                                                                                                    |
-| ----------------------------------- | ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Discover users / PS / licenses      | `soql_query`                                                  | the discovery phase                                                                                                                                      |
-| Research a capability's access      | live docs (web) + `ObjectPermissions` query                   | don't trust memory for access models                                                                                                                     |
-| Create user                         | `user_create`                                                 | **prefer `template=` (clone)**                                                                                                                           |
-| Assign / remove permission set      | `permission_set_assignments`                                  | `add` / `remove`                                                                                                                                         |
-| Create permission set (last resort) | `metadata_create` (`PermissionSet`) / `permission_set_update` | hand off to `sf-metadata`                                                                                                                                |
-| Deactivate / update user fields     | `user_update` / `sobject_dml` on `User`                       | operations: `deactivate`, `activate`, `freeze`, `unfreeze`, `reset_password` (sends set-password email), `unlock_password`, `update` (with `properties`) |
-| Build setup record links            | `link_build`                                                  | for the post-create report                                                                                                                               |
+| Operation                           | Tool                                                          | Notes                                                                                                                                                                                                                        |
+| ----------------------------------- | ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Discover users / PS / licenses      | `soql_query`                                                  | the discovery phase (multi-user scans)                                                                                                                                                                                       |
+| Read one user fully                 | `user_describe`                                               | `user=` name, username, email or ID — profile, license, role, locale, PS assignments                                                                                                                                         |
+| Research a capability's access      | live docs (web) + `ObjectPermissions` query                   | don't trust memory for access models                                                                                                                                                                                         |
+| Create user                         | `user_create`                                                 | **prefer `template=` (clone)**                                                                                                                                                                                               |
+| Assign / remove permission set      | `permission_set_assignments`                                  | `add` / `remove`                                                                                                                                                                                                             |
+| Create permission set (last resort) | `metadata_create` (`PermissionSet`) / `permission_set_update` | hand off to `sf-metadata`                                                                                                                                                                                                    |
+| Deactivate / freeze / update user   | `user_update`                                                 | `user=`, `operation=` one of `deactivate`, `activate`, `freeze`, `unfreeze`, `reset_password` (sends set-password email), `unlock_password`, `update` (with `properties`); `sobject_dml` on `User` only for bulk field edits |
+| Check frozen / locked state         | `soql_query` on `UserLogin`                                   | read-side only (`IsFrozen`, `IsPasswordLocked`); never write `UserLogin` directly — use `user_update`                                                                                                                        |
+| Build setup record links            | `link_build`                                                  | for the post-create report                                                                                                                                                                                                   |
 
 **CRITICAL**: Always call `cirra_ai_init()` FIRST.
 
@@ -264,7 +278,7 @@ SELECT Id, Username, Name FROM User WHERE Username = '<proposed>' OR Email = '<e
 | Granting more than asked (e.g. delete when only create)     | Scope the capability precisely; offer extras, don't assume                                                                 |
 | Burning a full `Salesforce` license on a limited user       | Use the least-privilege license comparable users have                                                                      |
 | Guessing a capability's required permissions                | Verify against current Salesforce docs                                                                                     |
-| `user_create` `properties` map fails (`No such column '0'`) | Prefer `template=` clone; set residual fields via `sobject_dml` afterward (see Cirra issue PLTFRM-752)                     |
+| `user_create` `properties` map fails (`No such column '0'`) | Prefer `template=` clone; set residual fields afterward with `user_update` (`operation="update"`, `properties={...}`)      |
 | Forgetting permission sets when cloning a user              | Clone copies profile/locale only — re-assign permission sets explicitly                                                    |
 | Assuming API-created users get the welcome email            | They don't — "notify user" is a UI-only action. Don't promise it. Ask, then run `reset_password` only if the user opts in. |
 
@@ -283,8 +297,9 @@ SELECT Id, Username, Name FROM User WHERE Username = '<proposed>' OR Email = '<e
 
 ## Dependencies
 
-- **Cirra AI MCP Server** (required): `cirra_ai_init`, `soql_query`, `user_create`,
-  `permission_set_assignments`, `permission_set_update`, `sobject_dml`, `user_update`, `link_build`.
+- **Cirra AI MCP Server** (required): `cirra_ai_init`, `soql_query`, `user_describe`, `user_create`,
+  `user_update`, `permission_set_assignments`, `permission_set_update`, `sobject_dml`, `link_build`.
+  Signatures: `../../shared/references/cirra-mcp-tools.md`.
 - **Web access** (recommended): to verify capability access models against current Salesforce docs.
 - **sf-metadata** (optional): for creating a new permission set when none exists.
 - **sf-permissions** (optional): for deeper access analysis.

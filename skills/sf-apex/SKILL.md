@@ -3,7 +3,7 @@ name: sf-apex
 plugin: cirra-ai-sf
 argument-hint: '[create|update|validate] [class|trigger|test-class] {name} ...'
 metadata:
-  version: 2.0.5
+  version: 2.1.0
 description: >
   Generates and reviews Salesforce Apex code with best practices and 150-point scoring using the Cirra AI
   MCP Server. Use when writing Apex classes, triggers, test classes, batch
@@ -33,6 +33,40 @@ AskUserQuestion(question="What would you like to do?\n\n1. **Create** — genera
 ```
 
 Do NOT guess the operation or default to one. Wait for the user's answer.
+
+---
+
+## Reference File Index
+
+Load a reference only when the row's "read when" applies — SKILL.md is self-sufficient for the common path.
+
+| File                                                     | Read when                                                                                              |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `references/execution-modes.md`                          | Detecting whether local files / code execution are available (Claude Code, Cowork, Codex, chat-only)   |
+| `references/mcp-pagination.md`                           | An MCP response is truncated or returns `artifactAccess` / `_pagination` (large class bodies, `All`)   |
+| `references/testing-guide.md`                            | Writing tests, mocking callouts, `@TestSetup`, `System.runAs`, or running the `run_tests` fix loop     |
+| `references/testing-patterns.md`                         | Exception types per scenario, async test patterns, coverage tactics for 90%+                           |
+| `references/troubleshooting.md`                          | A deploy or test fails: prerequisite checks, error catalogue, debug logs (TraceFlag/ApexLog), limits   |
+| `references/best-practices.md`                           | Bulkification, SOQL, null safety, error handling, async selection (§7), caching, guard clauses         |
+| `references/anti-patterns.md`                            | Reviewing code — full catalogue of smells with before/after fixes                                      |
+| `references/llm-anti-patterns.md`                        | Reviewing generated code for hallucinated methods, Java types, unsafe Map access                       |
+| `references/bulkification-guide.md`                      | Deep dive on governor limits and collection handling for trigger/batch code                            |
+| `references/security-guide.md`                           | Sharing modes, `WITH USER_MODE`, `stripInaccessible`, injection prevention                             |
+| `references/naming-conventions.md`                       | Naming classes, methods, variables, test methods, trigger actions                                      |
+| `references/code-review-checklist.md`                    | Scoring a class by category (the 150-point rubric in checklist form)                                   |
+| `references/code-smells-guide.md`                        | Refactoring long methods, deep nesting, primitive obsession                                            |
+| `references/solid-principles.md`                         | Designing service/domain/selector layers or reviewing architecture                                     |
+| `references/design-patterns.md`                          | Factory, Strategy, Singleton, Builder and other GoF patterns in Apex                                   |
+| `references/patterns-deep-dive.md`                       | TAF internals, `@InvocableMethod` details, async patterns (Queueable/Finalizer/Cursor/Batch), services |
+| `references/trigger-actions-framework.md`                | Generating or reviewing TAF triggers and `Trigger_Action__mdt` records                                 |
+| `references/flow-integration.md`                         | Building invocable actions consumed by Flow                                                            |
+| `references/triangle-pattern.md`                         | Apex that sits between Flow and LWC (`@AuraEnabled` + invocable in one design)                         |
+| `assets/apex-class.cls`                                  | Template: plain utility/controller class                                                               |
+| `assets/service.cls` / `assets/selector.cls`             | Template: service layer and selector (query) layer                                                     |
+| `assets/trigger.trigger` / `assets/trigger-action.cls`   | Template: TAF trigger and `TA_Object_Purpose` action class                                             |
+| `assets/queueable.cls` / `assets/batch.cls`              | Template: Queueable (default async) and Batch job                                                      |
+| `assets/invocable-method.cls`                            | Template: `@InvocableMethod` with Request/Response wrappers                                            |
+| `assets/test-class.cls` / `assets/test-data-factory.cls` | Template: PNB test class and test data factory                                                         |
 
 ---
 
@@ -91,7 +125,18 @@ Follow the **MANDATORY DELIVERABLES** rule: never put logic directly in the trig
 ```
 tooling_api_query(
   sObject="InstalledSubscriberPackage",
-  whereClause="Name = 'Trigger Actions Framework'"
+  fields=["Id", "SubscriberPackage.Name", "SubscriberPackageVersion.Name"],
+  whereClause="Id != null"
+)
+```
+
+Look for `Trigger Actions Framework` in `SubscriberPackage.Name`. If the package list is inconclusive, check for the framework's handler class directly:
+
+```
+tooling_api_query(
+  sObject="ApexClass",
+  fields=["Id", "Name"],
+  whereClause="Name = 'MetadataTriggerHandler'"
 )
 ```
 
@@ -177,9 +222,19 @@ tooling_api_dml(
 
 Deploy the test class separately.
 
-### 6. Report
+### 6. Run tests
 
-Show the final validation score and deployment status. For TAF triggers, remind the user that a `Trigger_Action__mdt` custom metadata record must be created for each action class to activate it.
+Run the test class you just deployed and read the results — see [Run tests via `run_tests`](#run-tests-via-run_tests) below for the poll/read calls:
+
+```
+run_tests(tests=[{"className": "<ClassName>Test"}])
+```
+
+If any test fails, fix the class or the test, redeploy with `tooling_api_dml(operation="update", ...)` and rerun. Stop after three iterations and report what is still failing (`references/testing-guide.md` → "Test-fix loop" for failure-type guidance).
+
+### 7. Report
+
+Show the final validation score, deployment status, and test results (passed/failed counts and coverage %). For TAF triggers, remind the user that a `Trigger_Action__mdt` custom metadata record must be created for each action class to activate it.
 
 ---
 
@@ -288,9 +343,19 @@ tooling_api_dml(
 
 If related handler/action classes were also modified, deploy each of those as separate `ApexClass` updates.
 
-### 6. Report
+### 6. Run tests
 
-Summarise the changes made and show the final validation score.
+Run the existing test class for the updated code (and any test class you changed), then read the results — see [Run tests via `run_tests`](#run-tests-via-run_tests):
+
+```
+run_tests(tests=[{"className": "<Name>Test"}])
+```
+
+If the class has no test class, generate and deploy one first (MANDATORY DELIVERABLES). On failure, fix, redeploy, rerun — at most three iterations, then stop and report.
+
+### 7. Report
+
+Summarise the changes made and show the final validation score plus test results (passed/failed counts and coverage %).
 
 ---
 
@@ -397,7 +462,7 @@ Validate each body (write → validate → delete), using `.cls` for classes and
 | Name           | Type    | Score   | %   | Status             |
 | -------------- | ------- | ------- | --- | ------------------ |
 | WeakClass      | Class   | 58/150  | 39% | ❌ Below threshold |
-| AccountTrigger | Trigger | 102/150 | 68% | ✅ Pass            |
+| AccountTrigger | Trigger | 108/150 | 72% | ✅ Pass            |
 | MyClass        | Class   | 125/150 | 83% | ✅ Pass            |
 
 ### All
@@ -405,8 +470,8 @@ Validate each body (write → validate → delete), using `.cls` for classes and
 1. Fetch all class names and all trigger names in parallel:
 
 ```
-tooling_api_query(sObject="ApexClass", fields=["Name"], limit=500)
-tooling_api_query(sObject="ApexTrigger", fields=["Name"], limit=200)
+tooling_api_query(sObject="ApexClass", fields=["Name"], whereClause="Id != null", limit=500)
+tooling_api_query(sObject="ApexTrigger", fields=["Name"], whereClause="Id != null", limit=200)
 ```
 
 2. Fetch bodies in batches of 50 (large bodies can make bigger batches fail):
@@ -425,7 +490,7 @@ Repeat with `ApexTrigger` for trigger names.
 
 3. Validate each body (write → validate → delete), using `.cls` or `.trigger` extension as appropriate.
 4. Show the summary table (classes and triggers together) sorted by score ascending.
-5. Highlight any below 100/150 (67%) as requiring attention.
+5. Highlight any below 105/150 (70%) as requiring attention.
 
 ---
 
@@ -433,7 +498,9 @@ Repeat with `ApexTrigger` for trigger names.
 
 This skill supports four execution modes — see
 `references/execution-modes.md` for detection logic and full details,
-and `references/mcp-pagination.md` for handling large MCP responses.
+`references/mcp-pagination.md` for handling large MCP responses, and
+[`../../shared/references/cirra-mcp-tools.md`](../../shared/references/cirra-mcp-tools.md)
+for the authoritative Cirra AI MCP tool signatures used in this skill.
 
 All Apex operations go through MCP tools regardless of mode. The mode
 determines whether local tooling (filesystem, code execution) is
@@ -447,6 +514,7 @@ available for post-processing and how large query results are retrieved.
 2. **Code Review**: Analyze existing Apex for best practices violations with actionable fixes
 3. **Validation & Scoring**: Score code against 8 categories (0-150 points)
 4. **Deployment**: Deploy Apex classes and triggers via `tooling_api_dml` (Tooling API). Use `metadata_create`/`metadata_update` only for non-Apex metadata (Custom Objects, fields, etc.)
+5. **Test Execution**: Run the delivered test classes with `run_tests`, read `ApexTestResult` / `ApexCodeCoverageAggregate`, and iterate on failures (max 3 rounds)
 
 ---
 
@@ -459,6 +527,7 @@ For simple, self-contained requests (utility class, hello-world, single-method c
 3. Run mandatory guardrail checks (anti-patterns only — skip full 150-point scoring)
 4. Deploy via `tooling_api_dml`
 5. Verify deployment
+6. Run the test class with `run_tests` and report pass/fail + coverage
 
 **Use the fast path when**: the request is explicit, the class is self-contained, and there are no ambiguous requirements to clarify.
 
@@ -491,8 +560,8 @@ Do **not** ask for org details before calling `cirra_ai_init()`.
 
 **Then**:
 
-1. Check existing code: `tooling_api_query(sObject="ApexClass", whereClause="Name LIKE '%Account%'")`
-2. Check for existing Trigger Actions Framework: `tooling_api_query(sObject="ApexClass", whereClause="Name LIKE 'TA_%'")`
+1. Check existing code: `tooling_api_query(sObject="ApexClass", fields=["Id", "Name"], whereClause="Name LIKE '%Account%'")`
+2. Check for existing Trigger Actions Framework: `tooling_api_query(sObject="ApexClass", fields=["Id", "Name"], whereClause="Name LIKE 'TA_%'")`
 3. Keep an internal checklist for requirements, generation, validation, deployment, and testing
 
 ---
@@ -528,10 +597,10 @@ Do **not** ask for org details before calling `cirra_ai_init()`.
 
 **For Review**:
 
-1. Run the bundled validator (`python scripts/validate_apex_cli.py <ClassName>`) to fetch and score existing code from the org in one step
-2. Or query manually: `tooling_api_query(sObject="ApexClass", fields=["Id","FullName","Name","Body","Metadata"], whereClause="Id = '<classId>'")`
+1. Fetch the code from the org — the validator only reads local files and never talks to the org: `tooling_api_query(sObject="ApexClass", fields=["Id", "Name", "Body", "ApiVersion"], whereClause="Name = '<ClassName>'")` (or `whereClause="Id = '<classId>'"`)
+2. Write `Body` to a temp file and score it: `python3 scripts/validate_apex_cli.py /tmp/<ClassName>.cls <ApiVersion>` (`.trigger` for triggers)
 3. Analyze against best practices and generate improvement report with specific fixes
-4. For bulk review, run `python scripts/validate_apex_cli.py All` or `python scripts/validate_apex_cli.py Class1,Class2,Class3`
+4. For bulk review, fetch bodies with `whereClause="Name IN ('Class1', 'Class2', 'Class3')"` (or `whereClause="Id != null"` in batches of 50 for the whole org), write each to its own file and validate each — the Validate Apex workflow above has the batching and backoff rules
 
 **Run Validation**:
 
@@ -559,18 +628,22 @@ If ANY of these patterns would be generated, **STOP and ask the user**:
 > A) Refactor to use [correct pattern]
 > B) Proceed anyway (not recommended)"
 
-| Anti-Pattern                 | Detection                                    | Impact                                                  |
-| ---------------------------- | -------------------------------------------- | ------------------------------------------------------- |
-| SOQL inside loop             | `for(...) { [SELECT...] }`                   | Governor limit failure (100 SOQL)                       |
-| DML inside loop              | `for(...) { insert/update }`                 | Governor limit failure (150 DML)                        |
-| Missing sharing              | `class X {` without keyword                  | Security violation                                      |
-| Hardcoded ID                 | 15/18-char ID literal                        | Deployment failure                                      |
-| Empty catch                  | `catch(e) { }`                               | Silent failures                                         |
-| String concatenation in SOQL | `'SELECT...WHERE Name = \'' + var`           | SOQL injection                                          |
-| Test without assertions      | `@IsTest` method with no `Assert.*`          | False positive tests                                    |
-| Java types in Apex           | `ArrayList`, `HashMap`, `int`, `boolean`     | Compile error — use `List`, `Map`, `Integer`, `Boolean` |
-| Non-existent Apex methods    | `.size()` on SObject, `.get()` on non-Map    | Compile error — verify API before using                 |
-| Wrong Map initialization     | `new Map{'key' => val}` (curly-brace syntax) | Compile error — use `new Map<K,V>()` then `.put()`      |
+| Anti-Pattern                  | Detection                                                   | Impact                                                                               |
+| ----------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| SOQL inside loop              | `for(...) { [SELECT...] }`                                  | Governor limit failure (100 SOQL)                                                    |
+| DML inside loop               | `for(...) { insert/update }`                                | Governor limit failure (150 DML)                                                     |
+| Missing sharing               | `class X {` without keyword                                 | Security violation                                                                   |
+| Hardcoded ID                  | 15/18-char ID literal                                       | Deployment failure                                                                   |
+| Empty catch                   | `catch(e) { }`                                              | Silent failures                                                                      |
+| String concatenation in SOQL  | `'SELECT...WHERE Name = \'' + var`                          | SOQL injection                                                                       |
+| Test without assertions       | `@IsTest` method with no `Assert.*`                         | False positive tests                                                                 |
+| Java types in Apex            | `ArrayList`, `HashMap`, `int`, `boolean`                    | Compile error — use `List`, `Map`, `Integer`, `Boolean`                              |
+| Non-existent Apex methods     | `.size()` on SObject, `.get()` on non-Map                   | Compile error — verify API before using                                              |
+| Wrong Map initialization      | `new Map{'key' => val}` (curly-brace syntax)                | Compile error — use `new Map<K,V>()` then `.put()`                                   |
+| `@future` in new code         | `@future` annotation                                        | Legacy — use `Queueable` + `System.Finalizer` (see Async Decision Matrix)            |
+| `System.debug()` on main path | `System.debug(` outside tests / temporary diagnostics       | Log noise, CPU cost, leaks data — use a logging framework or remove before deploy    |
+| Custom metadata via SOQL      | `[SELECT ... FROM X__mdt]`                                  | Counts against SOQL limits — use `X__mdt.getAll()` / `getInstance()`                 |
+| Unhandled partial DML         | `Database.update(records, false)` with no `SaveResult` loop | Silent partial failures — iterate `Database.SaveResult`, log/raise per failed record |
 
 **DO NOT generate anti-patterns even if explicitly requested.** Ask user to confirm the exception with documented justification.
 
@@ -642,14 +715,13 @@ tooling_api_query(
 )
 ```
 
-**Step 4: Test Execution** (via SOQL on ApexTestResult)
+**Step 4: Test Execution** — run the test class and read results (full call sequence in [Run tests via `run_tests`](#run-tests-via-run_tests)):
 
 ```
-tooling_api_query(
-  sObject="ApexTestResult",
-  whereClause="TestClassName = 'AccountServiceTest' ORDER BY CreatedDate DESC LIMIT 10"
-)
+run_tests(tests=[{"className": "AccountServiceTest"}])
 ```
+
+Poll `ApexTestQueueItem` for the returned job id, then read `ApexTestResult` and `ApexCodeCoverageAggregate`. Fix and redeploy on failure (max 3 iterations).
 
 **Error Handling**: If `tooling_api_dml` returns an error:
 
@@ -672,9 +744,12 @@ tooling_api_query(
   Deployment: VIA CIRRA AI MCP (tooling_api_dml)
   Test Class: [TestClassName]
   Validation: PASSED (Score: XX/150)
+  Tests: X passed / Y failed (run_tests job <jobId>) | Coverage: NN%
 
-Next Steps: Run tests via Cirra AI, verify via tooling_api_query, monitor logs
+Next Steps: verify via tooling_api_query, monitor logs (references/troubleshooting.md)
 ```
+
+If tests could not be run (tool unavailable, org restriction), say so explicitly: `Tests: not run — <reason>`. Never report coverage you did not read from `ApexCodeCoverageAggregate`.
 
 ---
 
@@ -691,9 +766,9 @@ Next Steps: Run tests via Cirra AI, verify via tooling_api_query, monitor logs
 | **Performance**    | 10     | Monitor with `Limits`; cache expensive ops; scope variables; async for heavy     |
 | **Documentation**  | 10     | ApexDoc on classes/methods; meaningful params                                    |
 
-**Thresholds**: ✅ 90+ (Deploy) | ⚠️ 67-89 (Review) | ❌ <67 (Block - fix required)
+**Thresholds**: ✅ 90+ (Deploy) | ⚠️ 70-89 (Review) | ❌ <70 (Block - fix required). Findings use one five-level severity scale — `CRITICAL` > `HIGH` > `MODERATE` > `LOW` > `INFO` (Salesforce Code Analyzer ordering) — shared with sf-audit; fix every `CRITICAL`/`HIGH` finding before deploying regardless of score.
 
-**Exemption for trivial classes**: Simple utility classes, hello-world examples, and single-purpose test helpers are exempt from the <67 block threshold. Score them for informational purposes but do not block deployment. The guardrail anti-pattern checks (SOQL in loops, missing sharing, etc.) still apply regardless of complexity.
+**Exemption for trivial classes**: Simple utility classes, hello-world examples, and single-purpose test helpers are exempt from the <70 block threshold. Score them for informational purposes but do not block deployment. The guardrail anti-pattern checks (SOQL in loops, missing sharing, etc.) still apply regardless of complexity.
 
 ---
 
@@ -708,7 +783,18 @@ Next Steps: Run tests via Cirra AI, verify via tooling_api_query, monitor logs
 ```
 tooling_api_query(
   sObject="InstalledSubscriberPackage",
-  whereClause="Name = 'Trigger Actions Framework'"
+  fields=["Id", "SubscriberPackage.Name", "SubscriberPackageVersion.Name"],
+  whereClause="Id != null"
+)
+```
+
+Look for `Trigger Actions Framework` in `SubscriberPackage.Name`. If the package list is inconclusive, check for the framework's handler class directly:
+
+```
+tooling_api_query(
+  sObject="ApexClass",
+  fields=["Id", "Name"],
+  whereClause="Name = 'MetadataTriggerHandler'"
 )
 ```
 
@@ -757,13 +843,20 @@ tooling_api_dml(
 
 ## Async Decision Matrix
 
-| Scenario                        | Use                     |
-| ------------------------------- | ----------------------- |
-| Simple callout, fire-and-forget | `@future(callout=true)` |
-| Complex logic, needs chaining   | `Queueable`             |
-| Process millions of records     | `Batch Apex`            |
-| Scheduled/recurring job         | `Schedulable`           |
-| Post-queueable cleanup          | `Queueable Finalizer`   |
+**Queueable is the default.** Reach for something else only when the row says so.
+
+| Scenario                                                                                                                   | Use                                                                                                                                                     |
+| -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Any async work: callouts, heavy logic, chaining                                                                            | `Queueable` (`implements Queueable, Database.AllowsCallouts`) — supports complex state, chaining, job Id                                                |
+| Delay, or de-duplicate the same job                                                                                        | `Queueable` + `AsyncOptions` (`MinimumQueueableDelayInMinutes`, `DuplicateSignature`) passed to `System.enqueueJob`                                     |
+| Large result set without Batch overhead                                                                                    | `Queueable` + `Database.Cursor` (`Database.getCursor`, `cursor.fetch(position, 200)`, re-enqueue with position)                                         |
+| Guaranteed cleanup / retry / logging after a job                                                                           | `System.Finalizer` attached with `System.attachFinalizer` inside `execute`                                                                              |
+| Needs the `QueryLocator` start → execute → finish lifecycle (millions of rows, `Database.Stateful`, org-wide reprocessing) | `Batch Apex`                                                                                                                                            |
+| Recurring schedule                                                                                                         | **Scheduled Flow** (declarative, no code) — `Schedulable` only when the schedule must enqueue Apex that Flow cannot express                             |
+| Long-running callout from LWC/Visualforce                                                                                  | `Continuation`                                                                                                                                          |
+| `@future`                                                                                                                  | **Legacy — do not generate.** No chaining, no complex parameters, no job Id, no Finalizer. Migrate to `Queueable` when touching existing `@future` code |
+
+Chained Queueables must guard depth (`AsyncInfo.hasMaxStackDepth()` / `AsyncOptions.MaximumQueueableStackDepth`) and must never enqueue from a loop. Full examples: `references/best-practices.md` §7 and `references/patterns-deep-dive.md` → Async Patterns.
 
 ---
 
@@ -773,6 +866,7 @@ tooling_api_dml(
 - **Safe navigation**: `record?.Field__c`
 - **User mode**: `WITH USER_MODE` in SOQL
 - **Assert class**: `Assert.areEqual()`, `Assert.isTrue()`
+- **Async**: `AsyncOptions` (delay / duplicate signature), `Database.Cursor`, `System.Finalizer`
 
 **Breaking Change (API 62.0)**: Cannot modify Set while iterating - throws `System.FinalException`
 
@@ -934,17 +1028,64 @@ Different metadata types require different APIs. Using the wrong one causes sile
 
 ### MCP Tools Mapping
 
-| Operation           | MCP Tool            | Example                                                                                                                         |
-| ------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| Query Apex code     | `soql_query`        | `soql_query(sObject="ApexClass", whereClause="Name = 'AccountService'")`                                                        |
-| Query metadata      | `tooling_api_query` | `tooling_api_query(sObject="ApexClass")`                                                                                        |
-| Deploy class        | `tooling_api_dml`   | `tooling_api_dml(operation="insert", sObject="ApexClass", record={"Name":"MyClass","Body":"...","Status":"Active"})`            |
-| Update class        | `tooling_api_dml`   | `tooling_api_dml(operation="update", sObject="ApexClass", record={"Id":"...","Name":"MyClass","Body":"...","Status":"Active"})` |
-| List classes        | `tooling_api_query` | `tooling_api_query(sObject="ApexClass", whereClause="Name = 'AccountService'")`                                                 |
-| Retrieve class body | `tooling_api_query` | `tooling_api_query(sObject="ApexClass", fields=["Id","FullName","Name","Body","Metadata"], whereClause="Id = '<classId>'")`     |
-| Describe object     | `sobject_describe`  | `sobject_describe(sObject="Account")`                                                                                           |
-| Delete class        | `tooling_api_dml`   | `tooling_api_dml(operation="delete", sObject="ApexClass", record={"Id":"<classId>"})`                                           |
-| Test results        | `tooling_api_query` | `tooling_api_query(sObject="ApexTestResult")`                                                                                   |
+| Operation           | MCP Tool            | Example                                                                                                                            |
+| ------------------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Query Apex code     | `tooling_api_query` | `tooling_api_query(sObject="ApexClass", fields=["Id","Name","Body"], whereClause="Name = 'AccountService'")`                       |
+| Query metadata      | `tooling_api_query` | `tooling_api_query(sObject="ApexTrigger", fields=["Id","Name","TableEnumOrId"], whereClause="TableEnumOrId = 'Account'")`          |
+| Deploy class        | `tooling_api_dml`   | `tooling_api_dml(operation="insert", sObject="ApexClass", record={"Name":"MyClass","Body":"...","Status":"Active"})`               |
+| Update class        | `tooling_api_dml`   | `tooling_api_dml(operation="update", sObject="ApexClass", record={"Id":"...","Name":"MyClass","Body":"...","Status":"Active"})`    |
+| List classes        | `tooling_api_query` | `tooling_api_query(sObject="ApexClass", fields=["Id","Name","ApiVersion"], whereClause="NamespacePrefix = null", limit=500)`       |
+| Retrieve class body | `tooling_api_query` | `tooling_api_query(sObject="ApexClass", fields=["Id","FullName","Name","Body","Metadata"], whereClause="Id = '<classId>'")`        |
+| Describe object     | `sobject_describe`  | `sobject_describe(sObject="Account")`                                                                                              |
+| Delete class        | `tooling_api_dml`   | `tooling_api_dml(operation="delete", sObject="ApexClass", recordId="<classId>")`                                                   |
+| Run tests           | `run_tests`         | `run_tests(tests=[{"className":"AccountServiceTest"}])` → job id                                                                   |
+| Test results        | `tooling_api_query` | `tooling_api_query(sObject="ApexTestResult", fields=["MethodName","Outcome","Message"], whereClause="AsyncApexJobId = '<jobId>'")` |
+
+### Run tests via `run_tests`
+
+`run_tests` is asynchronous: it enqueues the run and returns a job id. Always run the test class after every deploy (Create step 6, Update step 6, Phase 4 step 4).
+
+**1. Start the run** (one or more classes; `testMethods` narrows to specific methods):
+
+```
+run_tests(tests=[{"className": "<ClassName>Test"}])
+```
+
+Org-wide alternative when coverage for a production deploy matters: `run_tests(testLevel="RunLocalTests", category=["Apex"])` — warn the user that this can take minutes on a large org.
+
+**2. Poll until finished** — repeat (waiting ~10–15 s between calls) until every row's `Status` is `Completed`, `Failed`, or `Aborted`:
+
+```
+tooling_api_query(
+  sObject="ApexTestQueueItem",
+  fields=["Id", "Status", "ApexClass.Name", "ExtendedStatus"],
+  whereClause="ParentJobId = '<jobId>'"
+)
+```
+
+**3. Read results**:
+
+```
+tooling_api_query(
+  sObject="ApexTestResult",
+  fields=["MethodName", "Outcome", "Message", "StackTrace", "RunTime"],
+  whereClause="AsyncApexJobId = '<jobId>'"
+)
+```
+
+**4. Read coverage** for the class under test (not the test class):
+
+```
+tooling_api_query(
+  sObject="ApexCodeCoverageAggregate",
+  fields=["ApexClassOrTrigger.Name", "NumLinesCovered", "NumLinesUncovered"],
+  whereClause="ApexClassOrTrigger.Name = '<ClassName>'"
+)
+```
+
+Coverage % = `NumLinesCovered / (NumLinesCovered + NumLinesUncovered) × 100`.
+
+**5. Report and iterate**: show `X passed / Y failed`, each failure's `MethodName` + `Message` + first `StackTrace` line, and the coverage %. If anything failed (or coverage is below 75% for code headed to production), fix the class or the test, redeploy via `tooling_api_dml(operation="update", ...)`, and rerun from step 1. **Maximum three iterations** — then stop, report what still fails, and ask the user how to proceed. Failure-type → fix guidance lives in `references/testing-guide.md` → "Test-fix loop".
 
 ### Apex Class / Trigger DML Format
 
@@ -1021,7 +1162,9 @@ tooling_api_dml(
 ```
 tooling_api_query(
   sObject="ApexClass",
-  limit=100
+  fields=["Id", "Name", "ApiVersion", "Status"],
+  whereClause="Id != null",
+  limit=500
 )
 ```
 
@@ -1030,16 +1173,22 @@ tooling_api_query(
 ```
 tooling_api_query(
   sObject="ApexTestResult",
-  whereClause="TestClassName = 'AccountServiceTest' ORDER BY CreatedDate DESC LIMIT 10"
+  fields=["MethodName", "Outcome", "Message", "StackTrace", "TestTimestamp"],
+  whereClause="ApexClass.Name = 'AccountServiceTest'",
+  orderBy="TestTimestamp DESC",
+  limit=10
 )
 ```
+
+(`ApexTestResult` has no `TestClassName` field — filter on the `ApexClass.Name` relationship, or on `AsyncApexJobId` for a specific `run_tests` job.)
 
 **Find triggers on Account**:
 
 ```
 tooling_api_query(
   sObject="ApexTrigger",
-  whereClause="EntityDefinitionId IN (SELECT Id FROM EntityDefinition WHERE QualifiedApiName = 'Account')"
+  fields=["Id", "Name", "Status", "ApiVersion"],
+  whereClause="TableEnumOrId = 'Account'"
 )
 ```
 
@@ -1048,6 +1197,7 @@ tooling_api_query(
 ```
 soql_query(
   sObject="Account",
+  fields=["Id", "Name", "Industry"],
   whereClause="Industry = 'Technology'",
   limit=10
 )
@@ -1057,15 +1207,16 @@ soql_query(
 
 ## Cross-MCP Tool Integration
 
-| MCP Tool            | Use Case                             | Example                                                                                                                     |
-| ------------------- | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
-| `sobject_describe`  | Discover object/fields before coding | `sobject_describe(sObject="Invoice__c")` → get field names, types, CRUD                                                     |
-| `soql_query`        | Test code behavior after deploy      | `soql_query(sObject="Account", whereClause="Id IN :accountIds")`                                                            |
-| `tooling_api_query` | Check existing Apex classes          | `tooling_api_query(sObject="ApexClass", whereClause="Name LIKE 'Account%'")`                                                |
-| `tooling_api_query` | Retrieve class body for review       | `tooling_api_query(sObject="ApexClass", fields=["Id","FullName","Name","Body","Metadata"], whereClause="Id = '<classId>'")` |
-| `tooling_api_dml`   | Deploy new Apex classes/triggers     | `tooling_api_dml(operation="insert", sObject="ApexClass", record={"Name":"MyClass","Body":"...","Status":"Active"})`        |
-| `tooling_api_dml`   | Update existing Apex code            | `tooling_api_dml(operation="update", sObject="ApexClass", record={"Id":"...","Body":"...","Status":"Active"})`              |
-| `tooling_api_dml`   | Perform DML on metadata objects      | `tooling_api_dml(operation="update", sObject="ApexClass", record={...})`                                                    |
+| MCP Tool            | Use Case                             | Example                                                                                                                                       |
+| ------------------- | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sobject_describe`  | Discover object/fields before coding | `sobject_describe(sObject="Invoice__c")` → get field names, types, CRUD                                                                       |
+| `soql_query`        | Test code behavior after deploy      | `soql_query(sObject="Account", fields=["Id","Name","Industry"], whereClause="Id IN ('001...', '001...')")` — literals only, no bind variables |
+| `tooling_api_query` | Check existing Apex classes          | `tooling_api_query(sObject="ApexClass", fields=["Id","Name"], whereClause="Name LIKE 'Account%'")`                                            |
+| `tooling_api_query` | Retrieve class body for review       | `tooling_api_query(sObject="ApexClass", fields=["Id","FullName","Name","Body","Metadata"], whereClause="Id = '<classId>'")`                   |
+| `tooling_api_dml`   | Deploy new Apex classes/triggers     | `tooling_api_dml(operation="insert", sObject="ApexClass", record={"Name":"MyClass","Body":"...","Status":"Active"})`                          |
+| `tooling_api_dml`   | Update existing Apex code            | `tooling_api_dml(operation="update", sObject="ApexClass", record={"Id":"...","Name":"MyClass","Body":"...","Status":"Active"})`               |
+| `tooling_api_dml`   | Perform DML on metadata objects      | `tooling_api_dml(operation="update", sObject="ApexClass", record={...})`                                                                      |
+| `run_tests`         | Execute tests after deploy           | `run_tests(tests=[{"className":"MyClassTest"}])` → poll `ApexTestQueueItem`, read `ApexTestResult`                                            |
 
 ---
 
@@ -1111,7 +1262,9 @@ accounts = (List<Account>) Security.stripInaccessible(AccessType.READABLE, accou
 - **Tooling API**: Query and update (via DML) metadata objects like ApexClass, ApexTrigger, ApexTestResult
 - **ApexClass**: Apex class metadata object (stored in Salesforce)
 - **ApexTrigger**: Apex trigger metadata object (stored in Salesforce)
-- **ApexTestResult**: Test execution result metadata object
+- **ApexTestResult**: Test execution result metadata object (one row per test method per run; filter on `AsyncApexJobId`)
+- **ApexTestQueueItem**: Per-class status row for a `run_tests` job (filter on `ParentJobId`)
+- **ApexCodeCoverageAggregate**: Covered / uncovered line counts per class or trigger
 
 ---
 
@@ -1122,7 +1275,7 @@ accounts = (List<Account>) Security.stripInaccessible(AccessType.READABLE, accou
 ### List all classes
 
 ```
-tooling_api_query(sObject="ApexClass", fields=["Id","Name","NamespacePrefix","ApiVersion","IsValid","Status","ManageableState"])
+tooling_api_query(sObject="ApexClass", fields=["Id","Name","NamespacePrefix","ApiVersion","IsValid","Status","ManageableState"], whereClause="Id != null", limit=500)
 ```
 
 ### Retrieve class body (for review or edit)
@@ -1150,7 +1303,7 @@ tooling_api_dml(operation="update", sObject="ApexClass", record={"Id": "<classId
 ### Delete a class
 
 ```
-tooling_api_dml(operation="delete", sObject="ApexClass", record={"Id": "<classId>"})
+tooling_api_dml(operation="delete", sObject="ApexClass", recordId="<classId>")
 ```
 
 Before deleting: check for references in other Apex classes, triggers, LWC, and flows. List references and offer to handle them first.
@@ -1160,7 +1313,7 @@ Before deleting: check for references in other Apex classes, triggers, LWC, and 
 ### List all triggers
 
 ```
-tooling_api_query(sObject="ApexTrigger", fields=["Id","Name","NamespacePrefix","TableEnumOrId","ApiVersion","IsValid","Status","ManageableState"])
+tooling_api_query(sObject="ApexTrigger", fields=["Id","Name","NamespacePrefix","TableEnumOrId","ApiVersion","IsValid","Status","ManageableState"], whereClause="Id != null", limit=500)
 ```
 
 ### Retrieve trigger body
@@ -1186,7 +1339,7 @@ tooling_api_dml(operation="update", sObject="ApexTrigger", record={"Id": "<trigg
 ### Delete a trigger
 
 ```
-tooling_api_dml(operation="delete", sObject="ApexTrigger", record={"Id": "<triggerId>"})
+tooling_api_dml(operation="delete", sObject="ApexTrigger", recordId="<triggerId>")
 ```
 
 ---
@@ -1201,6 +1354,7 @@ tooling_api_dml(operation="delete", sObject="ApexTrigger", record={"Id": "<trigg
 - soql_query
 - tooling_api_query
 - tooling_api_dml
+- run_tests (run the delivered test classes after every deploy)
 
 #### Optional
 
@@ -1215,11 +1369,11 @@ tooling_api_dml(operation="delete", sObject="ApexTrigger", record={"Id": "<trigg
 
 ## Notes
 
-- **API Version**: Deploy with 67.0 by default. If the org runs an older release, match the org's API version: `soql_query(sObject="Organization", fields=["ApiVersion"])`
+- **API Version**: Deploy with 67.0 by default. If the org runs an older release, match the org's API version: `soql_query(sObject="Organization", fields=["Id", "InstanceName"], whereClause="Id != null")` — the org's current API version is the highest `ApiVersion` accepted by the Tooling API; when unsure, deploy at the version of the newest existing class (`tooling_api_query(sObject="ApexClass", fields=["ApiVersion"], whereClause="NamespacePrefix = null", orderBy="ApiVersion DESC", limit=1)`)
 - **API 67.0 behavior changes** (Summer '26 — [release notes](https://help.salesforce.com/s/articleView?id=release-notes.rn_apex.htm&release=262&type=5)): database operations default to **user mode** (not system mode); classes without a sharing declaration default to **`with sharing`** (previously `without sharing`); **`WITH SECURITY_ENFORCED` is removed** — classes at 67.0+ that use it do not compile, use `WITH USER_MODE` instead; DML/SOQL inside trigger bodies also runs in user mode unless system mode is explicit. Keep declaring sharing mode explicitly and prefer `WITH USER_MODE` — code that intentionally needs system-mode access must say `without sharing` / `AccessLevel.SYSTEM_MODE` explicitly at 67.0. **These changes are versioned per class**: a class pinned at ApiVersion 66.0 or earlier keeps the old semantics and still compiles with `WITH SECURITY_ENFORCED` — do not report existing older classes as broken. When updating such a class, keep its ApiVersion unless asked to raise it; migrate `WITH SECURITY_ENFORCED` to `WITH USER_MODE` (available since API 58.0) whenever touching the code, and always before raising ApiVersion to 67.0. Pass the class's ApiVersion to the validator so this check applies at the right severity
 - **Invocable action parameters**: custom Apex classes used as invocable action parameters must have a visible no-argument constructor (global for packaged classes); API calls validate this from version 66.0
 - **TAF Optional**: Prefer TAF when package is installed, use standard trigger pattern as fallback
-- **Scoring**: Block deployment if score < 67 (exempt trivial/test classes — see scoring thresholds)
+- **Scoring**: Block deployment if score < 70% (exempt trivial/test classes — see scoring thresholds)
 - **MCP Initialization**: ALWAYS call `cirra_ai_init` first
 - **Code as String**: Generate all Apex as strings, deploy via `tooling_api_dml`
 - **No Local Files**: Apex code is NOT saved to local file system - lives only in Salesforce org via Tooling API

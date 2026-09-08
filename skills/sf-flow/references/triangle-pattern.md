@@ -399,10 +399,10 @@ When deploying integrated triangle solutions:
 
 ## Related Documentation
 
-| Topic                     | Location                                     |
-| ------------------------- | -------------------------------------------- |
-| Apex action template      | `sf-flow/templates/apex-action-template.xml` |
-| Screen Flow with LWC      | `sf-flow/templates/screen-flow-with-lwc.xml` |
-| LWC integration guide     | `sf-flow/docs/lwc-integration-guide.md`      |
-| Apex triangle perspective | `sf-apex/docs/triangle-pattern.md`           |
-| LWC triangle perspective  | `sf-lwc/docs/triangle-pattern.md`            |
+| Topic                     | Location                                      |
+| ------------------------- | --------------------------------------------- |
+| Apex action template      | `sf-flow/assets/apex-action-template.xml`     |
+| Screen Flow with LWC      | `sf-flow/assets/screen-flow-with-lwc.xml`     |
+| LWC integration guide     | `sf-flow/references/lwc-integration-guide.md` |
+| Apex triangle perspective | `sf-apex/references/triangle-pattern.md`      |
+| LWC triangle perspective  | `sf-lwc/assets/triangle-pattern.md`           |

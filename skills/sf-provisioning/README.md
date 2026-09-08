@@ -66,13 +66,16 @@ After approval, the skill creates the user, assigns permission sets, verifies th
 
 > This section is for Salesforce developers building integrations. Admins can skip it.
 
-| Operation                      | MCP Tool                                              |
-| ------------------------------ | ----------------------------------------------------- |
-| Discover users / PS / licenses | `soql_query`                                          |
-| Create user                    | `user_create` (prefer `template=` to clone)           |
-| Assign / remove PS             | `permission_set_assignments` (`add` / `remove`)       |
-| Update user fields             | `user_update` / `sobject_dml` on `User`               |
-| Create permission set          | `metadata_create(type="PermissionSet")` (last resort) |
+| Operation                      | MCP Tool                                                                                                                               |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Discover users / PS / licenses | `soql_query` (`sObject`, `fields`, `whereClause`)                                                                                      |
+| Read one user fully            | `user_describe(user=...)`                                                                                                              |
+| Create user                    | `user_create` (prefer `template=` to clone)                                                                                            |
+| Assign / remove PS             | `permission_set_assignments(operation="add", permissionSets=[...], users=[...])` — or `operation="remove"`                             |
+| Deactivate / freeze / update   | `user_update(user=..., operation="deactivate")` — also `freeze`, `unfreeze`, `activate`, `reset_password`, `unlock_password`, `update` |
+| Create permission set          | `metadata_create(type="PermissionSet", metadata=[...])` (last resort)                                                                  |
+
+Full signatures: [`shared/references/cirra-mcp-tools.md`](../../shared/references/cirra-mcp-tools.md).
 
 ## Requirements
 

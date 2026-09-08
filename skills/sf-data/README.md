@@ -12,9 +12,9 @@ Salesforce data and SOQL expert skill for AI coding tools. Build, optimize, and 
 - **Relationship Queries**: Parent-child, child-parent, polymorphic, semi-joins, anti-joins
 - **Aggregate Functions**: COUNT, SUM, AVG, MIN, MAX with GROUP BY
 - **CRUD Operations**: Create, read, update, delete records via Cirra AI MCP Server
-- **Test Data Factories**: Bulk-ready Apex factories for standard objects
-- **Bulk Operations**: Insert/update/delete/upsert multiple records efficiently
-- **Record Tracking & Cleanup**: Savepoint/rollback, cleanup scripts
+- **Bulk Operations (Bulk API 2.0)**: `bulk_dml` for loads, mass updates, deletes and CSV uploads beyond 200 records; `bulk_query` for exports of thousands of rows
+- **Test Data Seeding**: Seed records through `sobject_dml`/`bulk_dml`; Apex factory templates for sf-apex test classes (Cirra cannot run anonymous Apex)
+- **Record Tracking & Cleanup**: Cleanup queries and delete-order guidance
 - **Pre-Flight Validation**: Lightweight pass/fail checks for data operations (PII detection, missing params, syntax errors)
 
 ## Installation
@@ -31,6 +31,8 @@ Invoke the unified skill:
 /sf-data
 /sf-data query SELECT Id FROM Account LIMIT 10
 /sf-data insert Account records
+/sf-data bulk insert Account from accounts.csv
+/sf-data export Opportunity closed this year
 ```
 
 #### In other tools
@@ -44,29 +46,34 @@ Request: "Create 251 test Account records with varying Industries for trigger te
 
 ### Common Operations
 
-| Operation        | Example Request                                          |
-| ---------------- | -------------------------------------------------------- |
-| Build Query      | "Write a SOQL query to get accounts with their contacts" |
-| Optimize Query   | "Optimize this SOQL query for performance"               |
-| Natural Language | "Who are our top 10 customers by revenue?"               |
-| Execute Query    | "Query all Accounts with related Contacts"               |
-| Create           | "Create 10 test Opportunities at various stages"         |
-| Bulk Insert      | "Insert 500 accounts from accounts.csv"                  |
-| Update           | "Update Account 001xxx with new Industry"                |
-| Delete           | "Delete all test records with Name LIKE 'Test%'"         |
-| Cleanup          | "Generate cleanup script for all records created today"  |
+| Operation        | Example Request                                                 |
+| ---------------- | --------------------------------------------------------------- |
+| Build Query      | "Write a SOQL query to get accounts with their contacts"        |
+| Optimize Query   | "Optimize this SOQL query for performance"                      |
+| Natural Language | "Who are our top 10 customers by revenue?"                      |
+| Execute Query    | "Query all Accounts with related Contacts"                      |
+| Create           | "Create 10 test Opportunities at various stages"                |
+| Bulk Insert      | "Insert 500 accounts from accounts.csv" (`bulk_dml` CSV upload) |
+| Bulk Export      | "Export all Contacts with their Account name" (`bulk_query`)    |
+| Update           | "Update Account 001xxx with new Industry"                       |
+| Delete           | "Delete all test records with Name LIKE 'Test%'"                |
+| Cleanup          | "Generate cleanup queries for all records created today"        |
 
 ## Execution Modes
 
-| Mode                      | When                                              | Speed   |
-| ------------------------- | ------------------------------------------------- | ------- |
-| `sfdx-repo`               | Working directory is an SFDX project              | Fastest |
-| `cli`                     | Salesforce CLI installed and authed               | Fast    |
-| `mcp-plus-code-execution` | MCP + filesystem + code execution (Cowork, Codex) | Medium  |
-| `mcp-core`                | MCP only, no filesystem (chat interfaces)         | Slowest |
+Every query and DML call goes through the Cirra AI MCP Server in every mode —
+no mode is "faster" for data. The mode only changes what happens around the
+call: whether large results can be downloaded to disk and post-processed, or
+must be paged in context.
 
-All data operations go through MCP tools regardless of mode. The mode
-determines how large query results are retrieved — see the skill for details.
+| Mode                      | When                                              | What it adds for sf-data                                              |
+| ------------------------- | ------------------------------------------------- | --------------------------------------------------------------------- |
+| `sfdx-repo`               | Working directory is an SFDX project              | Filesystem + code execution; local metadata for context               |
+| `cli`                     | Salesforce CLI installed and authed               | Filesystem + code execution                                           |
+| `mcp-plus-code-execution` | MCP + filesystem + code execution (Cowork, Codex) | Download `artifactAccess.downloadUrl`, write exports/CSVs             |
+| `mcp-core`                | MCP only, no filesystem (chat interfaces)         | Page large results with `fetch_more`; CSV loads via `bulk_dml` upload |
+
+See `references/execution-modes.md` and `references/mcp-pagination.md`.
 
 ## Related Skills
 
@@ -92,15 +99,22 @@ This skill includes validation scripts that check SOQL queries and data operatio
 
 > This section is for Salesforce developers building integrations. Admins can skip it.
 
-| Operation | MCP Tool                                   |
-| --------- | ------------------------------------------ |
-| Query     | `soql_query(sObject, fields, whereClause)` |
-| Create    | `sobject_dml(operation="insert", ...)`     |
-| Update    | `sobject_dml(operation="update", ...)`     |
-| Delete    | `sobject_dml(operation="delete", ...)`     |
-| Upsert    | `sobject_dml(operation="upsert", ...)`     |
-| Describe  | `sobject_describe(sObject)`                |
-| Tooling   | `tooling_api_query(sObject, fields)`       |
+Authoritative signatures: `../../shared/references/cirra-mcp-tools.md`.
+
+| Operation   | MCP Tool                                                                                                          |
+| ----------- | ----------------------------------------------------------------------------------------------------------------- |
+| Query       | `soql_query(sObject="Account", fields=["Id", "Name"], whereClause="Id != null", limit=200)`                       |
+| Create      | `sobject_dml(operation="insert", sObject="Account", records=[...])`                                               |
+| Update      | `sobject_dml(operation="update", sObject="Account", records=[{"Id": "...", ...}])`                                |
+| Delete      | `sobject_dml(operation="delete", sObject="Account", recordIds=["...", "..."])`                                    |
+| Upsert      | `sobject_dml(operation="upsert", sObject="Account", externalIdField="ExternalId__c", records=[...])`              |
+| Bulk DML    | `bulk_dml(operation="insert", sObject="Account", records=[...])` — omit `records` to open a CSV-upload job        |
+| Bulk export | `bulk_query(sObject="Contact", fields=["Id", "Name", "Account.Name"])`                                            |
+| Describe    | `sobject_describe(sObject="Account")`                                                                             |
+| Tooling     | `tooling_api_query(sObject="CustomField", fields=["Id", "DeveloperName"], whereClause="TableEnumOrId='Account'")` |
+
+`sobject_dml` takes up to 200 records per call; `bulk_dml`/`bulk_query` are Bulk API 2.0
+jobs that wait 90 s and then return a `jobId` to re-poll or abort.
 
 ## For Contributors
 

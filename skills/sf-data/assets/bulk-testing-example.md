@@ -18,12 +18,37 @@ Salesforce processes triggers in batches of 200. Testing with 201+ records ensur
 - No governor limit violations in loops
 - SOQL/DML operations are bulkified
 
-## Method 1: Anonymous Apex Factory
+## Method 1: Bulk API job (`bulk_dml`)
 
-### Create Test Data
+More than 200 records → one Bulk API 2.0 job. Triggers still fire per
+200-record chunk, so the boundary is crossed. Ask for approval first.
+
+```
+bulk_dml(
+  operation="insert",
+  sObject="Account",
+  records=[
+    {"Name": "BulkTest Account 1", "Industry": "Technology", "AnnualRevenue": 1000000},
+    {"Name": "BulkTest Account 2", "Industry": "Healthcare", "AnnualRevenue": 2000000},
+    // ... 251 rows, Industry rotating through 5 values
+  ]
+)
+```
+
+If the job is still running after 90 s the response carries a `jobId`;
+call `bulk_dml(jobId="...")` to wait again. Failed rows come back with
+their Salesforce error.
+
+Alternative for exactly 201-251 rows when you want synchronous per-record
+results: two `sobject_dml(operation="insert", ...)` calls (200 + rest).
+
+## Method 2: Apex factory in a test class (sf-apex)
+
+Cirra cannot run anonymous Apex. This script only runs inside a deployed
+test class created with **sf-apex** and executed with `run_tests`:
 
 ```apex
-// Create 251 Accounts to test trigger bulkification
+// Inside an @isTest method: create 251 Accounts to test trigger bulkification
 List<Account> accounts = new List<Account>();
 
 List<String> industries = new List<String>{
@@ -46,14 +71,13 @@ System.debug('SOQL Queries Used: ' + Limits.getQueries() + '/' + Limits.getLimit
 System.debug('DML Statements: ' + Limits.getDmlStatements() + '/' + Limits.getLimitDmlStatements());
 ```
 
-Save as `bulk-test-accounts.apex` and run:
+Run it:
 
 ```
-# Execute via Apex execution in Salesforce Setup or Cirra AI MCP tooling_api_dml
-# No direct MCP equivalent for anonymous Apex execution
+run_tests(tests=[{"className": "AccountTriggerBulkTest"}])
 ```
 
-## Method 2: CSV Bulk Import
+## Method 3: CSV upload (file never passes through the LLM)
 
 ### Create CSV File
 
@@ -65,23 +89,20 @@ BulkTest Account 3,Finance,5000000
 ... (251 rows)
 ```
 
-### Import via Cirra AI MCP
+### Open the job and let the user upload
 
 ```
-sobject_dml(
-  operation="insert",
-  sobjectType="Account",
-  records=[
-    {Name: "BulkTest Account 1", Industry: "Technology", AnnualRevenue: 1000000},
-    {Name: "BulkTest Account 2", Industry: "Healthcare", AnnualRevenue: 2000000},
-    {Name: "BulkTest Account 3", Industry: "Finance", AnnualRevenue: 5000000}
-    // ... (251 records from CSV)
-  ],
-  orgAlias="dev"
-)
+# Confirm header = field API names first
+sobject_describe(sObject="Account")
+
+# Open an ingest job with no records: the response returns an upload control
+bulk_dml(operation="insert", sObject="Account")
+
+# After the user uploads, wait for the result
+bulk_dml(jobId="<jobId from the previous response>")
 ```
 
-## Method 3: JSON Tree Import
+## Method 4: Parent/child hierarchy
 
 For hierarchical test data with relationships:
 
@@ -106,21 +127,22 @@ For hierarchical test data with relationships:
 }
 ```
 
+The MCP tools do not accept a nested tree. Insert parents first, then
+children with the returned parent IDs:
+
 ```
-# Insert parent records first, then children with parent IDs
+# Insert parent records first
 sobject_dml(
   operation="insert",
-  sobjectType="Account",
-  records=[{Name: "BulkTest Parent 1", Industry: "Technology"}],
-  orgAlias="dev"
+  sObject="Account",
+  records=[{"Name": "BulkTest Parent 1", "Industry": "Technology"}]
 )
 
 # Then insert related Contacts using the returned Account IDs
 sobject_dml(
   operation="insert",
-  sobjectType="Contact",
-  records=[{FirstName: "Test", LastName: "Contact 1", AccountId: "<returned_account_id>"}],
-  orgAlias="dev"
+  sObject="Contact",
+  records=[{"FirstName": "Test", "LastName": "Contact 1", "AccountId": "<returned_account_id>"}]
 )
 ```
 
@@ -130,8 +152,10 @@ sobject_dml(
 
 ```
 soql_query(
-  query="SELECT Id, Name, Industry, Custom_Field__c FROM Account WHERE Name LIKE 'BulkTest%' LIMIT 10",
-  orgAlias="dev"
+  sObject="Account",
+  fields=["Id", "Name", "Industry", "Custom_Field__c"],
+  whereClause="Name LIKE 'BulkTest%'",
+  limit=10
 )
 ```
 
@@ -139,8 +163,9 @@ soql_query(
 
 ```
 soql_query(
-  query="SELECT Id, Subject, WhatId, What.Name FROM Task WHERE What.Name LIKE 'BulkTest%'",
-  orgAlias="dev"
+  sObject="Task",
+  fields=["Id", "Subject", "WhatId", "What.Name"],
+  whereClause="What.Name LIKE 'BulkTest%'"
 )
 ```
 
@@ -148,12 +173,16 @@ soql_query(
 
 ```
 soql_query(
-  query="SELECT COUNT(Id) total FROM Account WHERE Name LIKE 'BulkTest%'",
-  orgAlias="dev"
+  sObject="Account",
+  fields=["COUNT(Id) total"],
+  whereClause="Name LIKE 'BulkTest%'"
 )
 ```
 
 ## Test Bulk Update
+
+Via MCP: `bulk_query` the IDs, then `bulk_dml(operation="update", records=[{"Id": ..., "Description": ...}, ...])`.
+Inside a test class:
 
 ```apex
 // Update all test records - triggers fire again
@@ -174,6 +203,9 @@ System.debug('Updated ' + accounts.size() + ' accounts');
 
 ## Test Bulk Delete
 
+Via MCP: query the IDs (children first), then `bulk_dml(operation="delete", sObject=..., recordIds=[...])`
+— or `sobject_dml` with `recordIds` for 200 or fewer. Inside a test class:
+
 ```apex
 // Delete in reverse order (children first)
 List<Task> tasks = [SELECT Id FROM Task WHERE What.Name LIKE 'BulkTest%'];
@@ -191,7 +223,7 @@ System.debug('Cleanup complete');
 ## Governor Limits Monitoring
 
 ```apex
-// Add to your test script to monitor limits
+// Add to your test class to monitor limits
 System.debug('=== GOVERNOR LIMITS ===');
 System.debug('SOQL: ' + Limits.getQueries() + '/' + Limits.getLimitQueries());
 System.debug('DML Statements: ' + Limits.getDmlStatements() + '/' + Limits.getLimitDmlStatements());
@@ -220,4 +252,4 @@ Score: 128/130 ⭐⭐⭐⭐⭐ Excellent
 | `SOQL 101`         | Query in loop    | Use Map or Set for bulk queries  |
 | `DML 151`          | DML in loop      | Collect records, single DML      |
 | `CPU timeout`      | Complex logic    | Optimize loops, async processing |
-| `Too many records` | >10,000 DML rows | Use Bulk API or Batch Apex       |
+| `Too many records` | >10,000 DML rows | Use `bulk_dml` or Batch Apex     |

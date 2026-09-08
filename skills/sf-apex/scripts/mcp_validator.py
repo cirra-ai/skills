@@ -182,7 +182,7 @@ def _basic_apex_check(body: str, full_name: str) -> dict[str, Any]:
     if re.search(r"(public|global)\s+class", body, re.IGNORECASE) and not is_test_class:
         if not re.search(r"(with sharing|without sharing|inherited sharing)", body, re.IGNORECASE):
             issues.append({
-                "severity": "WARNING",
+                "severity": "MODERATE",
                 "category": "security",
                 "message": "Class missing explicit sharing declaration",
                 "line": 1,

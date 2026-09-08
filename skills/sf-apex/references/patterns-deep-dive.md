@@ -444,37 +444,95 @@ public static List<Response> sendData(List<Request> requests) {
 
 ### Decision Matrix
 
-| Scenario                        | Use                     | Pros                                 | Cons                              |
-| ------------------------------- | ----------------------- | ------------------------------------ | --------------------------------- |
-| Simple callout, fire-and-forget | `@future(callout=true)` | Simple, built-in                     | No return value, no chaining      |
-| Complex logic, needs chaining   | `Queueable`             | Return ID, chain jobs, complex types | More code                         |
-| Process millions of records     | `Batch Apex`            | Handles huge volumes                 | Complex, overhead                 |
-| Scheduled/recurring job         | `Schedulable`           | Cron-like scheduling                 | Requires separate Queueable/Batch |
-| Post-queueable cleanup          | `Queueable Finalizer`   | Guaranteed execution                 | Only for Queueable                |
+**Queueable is the default.** Every other row is an exception with a specific reason.
 
-### @future Pattern
+| Scenario                                                                            | Use                                       | Pros                                                                    | Cons / notes                                                    |
+| ----------------------------------------------------------------------------------- | ----------------------------------------- | ----------------------------------------------------------------------- | --------------------------------------------------------------- |
+| Callouts, heavy logic, chaining (default)                                           | `Queueable` (+ `Database.AllowsCallouts`) | Job Id, complex state, chaining, Finalizer, callouts                    | Guard chain depth; never enqueue in a loop                      |
+| Delay or de-duplicate a job                                                         | `Queueable` + `AsyncOptions`              | `MinimumQueueableDelayInMinutes`, `DuplicateSignature`, stack-depth cap | Duplicate enqueue throws `DuplicateMessageException` — catch it |
+| Large result set, no Batch lifecycle needed                                         | `Queueable` + `Database.Cursor`           | Fetch by position, re-enqueue with offset, no Batch overhead            | Cursor lives for the transaction chain; 50M row cap             |
+| Guaranteed cleanup / retry / logging                                                | `System.Finalizer`                        | Runs even on unhandled exception or limit failure                       | Queueable only; one per job                                     |
+| `QueryLocator` start → execute → finish, `Database.Stateful`, org-wide reprocessing | `Batch Apex`                              | Up to 50M rows, per-chunk transactions, `finish` hook                   | Heavier; one batch per `execute` transaction chain              |
+| Recurring schedule                                                                  | **Scheduled Flow** (preferred)            | Declarative, visible to admins, no test class                           | Use `Schedulable` only to enqueue Apex that Flow cannot express |
+| Long-running callout from LWC / Visualforce                                         | `Continuation`                            | Frees the request thread                                                | UI-initiated only                                               |
+| `@future`                                                                           | **Legacy — do not generate**              | —                                                                       | No chaining, primitives only, no job Id, no Finalizer           |
+
+### Queueable with AsyncOptions (delay + de-duplication)
 
 ```apex
-public class CalloutService {
+public with sharing class AccountSyncQueueable implements Queueable, Database.AllowsCallouts {
+    private final Id accountId;
 
-    @future(callout=true)
-    public static void sendDataToExternalSystem(Set<Id> recordIds) {
-        // Cannot pass complex objects, only primitives
-        List<Account> accounts = [SELECT Id, Name FROM Account WHERE Id IN :recordIds];
+    public AccountSyncQueueable(Id accountId) {
+        this.accountId = accountId;
+    }
+
+    public static Id enqueue(Id accountId) {
+        AsyncOptions options = new AsyncOptions();
+        options.MinimumQueueableDelayInMinutes = 2;
+        options.MaximumQueueableStackDepth = 3;
+        options.DuplicateSignature = QueueableDuplicateSignature.Builder()
+            .addString('AccountSync')
+            .addId(accountId)
+            .build();
+        try {
+            return System.enqueueJob(new AccountSyncQueueable(accountId), options);
+        } catch (DuplicateMessageException e) {
+            return null; // already queued for this account
+        }
+    }
+
+    public void execute(QueueableContext context) {
+        Account acc = [SELECT Id, Name FROM Account WHERE Id = :accountId WITH USER_MODE];
 
         HttpRequest req = new HttpRequest();
         req.setEndpoint('callout:MyNamedCredential/api');
         req.setMethod('POST');
-        req.setBody(JSON.serialize(accounts));
+        req.setBody(JSON.serialize(acc));
+        HttpResponse res = new Http().send(req);
 
-        Http http = new Http();
-        HttpResponse res = http.send(req);
-
-        // Process response (no return to caller)
-        System.debug('Response: ' + res.getBody());
+        if (res.getStatusCode() != 200) {
+            throw new CalloutException('Sync failed: ' + res.getStatus());
+        }
     }
 }
 ```
+
+### Queueable with Database.Cursor (large result sets)
+
+```apex
+public with sharing class AccountCursorQueueable implements Queueable {
+    private static final Integer PAGE_SIZE = 200;
+    private final Database.Cursor cursor;
+    private final Integer position;
+
+    public AccountCursorQueueable() {
+        this(Database.getCursor('SELECT Id, Name FROM Account WHERE Industry = \'Technology\''), 0);
+    }
+
+    private AccountCursorQueueable(Database.Cursor cursor, Integer position) {
+        this.cursor = cursor;
+        this.position = position;
+    }
+
+    public void execute(QueueableContext context) {
+        List<Account> scope = cursor.fetch(position, PAGE_SIZE);
+        for (Account acc : scope) {
+            acc.Description = 'Processed on ' + System.now();
+        }
+        update as user scope;
+
+        Integer next = position + scope.size();
+        if (next < cursor.getNumRecords() && !AsyncInfo.hasMaxStackDepth()) {
+            System.enqueueJob(new AccountCursorQueueable(cursor, next));
+        }
+    }
+}
+```
+
+### Legacy: @future
+
+Do not generate new `@future` methods. They cannot chain, accept only primitive parameters, return no job Id and cannot attach a Finalizer. When updating a class that has one, port it to a Queueable whose constructor holds the former parameters — the body usually moves unchanged into `execute`.
 
 ### Queueable Pattern
 
@@ -546,7 +604,7 @@ public class DataSyncQueueable implements Queueable {
     }
 }
 
-public class DataSyncFinalizer implements Finalizer {
+public class DataSyncFinalizer implements System.Finalizer {
 
     private Id jobId;
 
@@ -554,7 +612,7 @@ public class DataSyncFinalizer implements Finalizer {
         this.jobId = jobId;
     }
 
-    public void execute(FinalizerContext context) {
+    public void execute(System.FinalizerContext context) {
         // This ALWAYS runs, even if job fails
 
         // Log status

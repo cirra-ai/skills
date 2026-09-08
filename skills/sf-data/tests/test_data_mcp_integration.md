@@ -431,19 +431,19 @@ Delete test records and the test field. Offer to the user, don't auto-clean.
 soql_query(sObject="Contact", fields=["Id"],
     whereClause="FirstName = 'DATATEST'")
 sobject_dml(sObject="Contact", operation="delete",
-    records=[{"Id": "<contact ids>"}])
+    recordIds=["<contact ids>"])
 
 # Delete upsert test accounts
 soql_query(sObject="Account", fields=["Id"],
     whereClause="DATATEST_ExtId__c != null")
 sobject_dml(sObject="Account", operation="delete",
-    records=[{"Id": "<upsert account ids>"}])
+    recordIds=["<upsert account ids>"])
 
 # Delete remaining test accounts
 soql_query(sObject="Account", fields=["Id"],
     whereClause="Name LIKE 'DATATEST_%'")
 sobject_dml(sObject="Account", operation="delete",
-    records=[{"Id": "<account ids>"}])
+    recordIds=["<account ids>"])
 
 # Delete test external ID field
 metadata_delete(type="CustomField", fullNames=["Account.DATATEST_ExtId__c"])
@@ -451,19 +451,19 @@ metadata_delete(type="CustomField", fullNames=["Account.DATATEST_ExtId__c"])
 
 ## Error Handling Observations
 
-| Observation                | Expected                             | Actual                    | Notes                                             |
-| -------------------------- | ------------------------------------ | ------------------------- | ------------------------------------------------- |
-| 201-record insert          | Single call succeeds                 | `EXCEEDED_ID_LIMIT` error | MCP server enforces 200-record max per call       |
-| Delete uses `recordIds`    | `records` param with `{"Id": "..."}` | `recordIds` string array  | Different param than insert/update                |
-| `soql_query` default limit | Unlimited                            | 100 records               | Must set explicit `limit` or paginate with `Id >` |
-| Aggregate queries          | `groupBy` as param                   | Works correctly           | COUNT + GROUP BY returns expected groups          |
-| `==` in WHERE clause       | MALFORMED_QUERY                      | MALFORMED_QUERY           | Correctly rejected by Salesforce API              |
+| Observation                | Expected                             | Actual                       | Notes                                             |
+| -------------------------- | ------------------------------------ | ---------------------------- | ------------------------------------------------- |
+| 201-record insert          | Single call succeeds                 | `EXCEEDED_ID_LIMIT` error    | MCP server enforces 200-record max per call       |
+| Delete uses `recordIds`    | `records` param with `{"Id": "..."}` | `recordIds` string array     | Different param than insert/update                |
+| `soql_query` default limit | Unlimited                            | 200 records (schema default) | Must set explicit `limit` or paginate with `Id >` |
+| Aggregate queries          | `groupBy` as param                   | Works correctly              | COUNT + GROUP BY returns expected groups          |
+| `==` in WHERE clause       | MALFORMED_QUERY                      | MALFORMED_QUERY              | Correctly rejected by Salesforce API              |
 
 ## Key Insights from Testing
 
-1. **200-record MCP limit**: `sobject_dml` rejects calls with > 200 records (`EXCEEDED_ID_LIMIT`). Always batch at 200. This applies to insert, update, and delete.
+1. **200-record MCP limit**: `sobject_dml` rejects calls with > 200 records (`EXCEEDED_ID_LIMIT`). This applies to insert, update, and delete. This run batched at 200; since then `bulk_dml` (Bulk API 2.0) is the documented path for anything above 200 records — one job instead of N batches.
 2. **Delete uses `recordIds`**: The `delete` operation uses a `recordIds` string array parameter, not the `records` object array used by insert/update/upsert.
-3. **Query pagination**: `soql_query` defaults to 100 records. For bulk queries, use `orderBy="Id ASC"` + `Id > '<last_id>'` pattern to paginate.
+3. **Query pagination**: `soql_query` defaults to 200 records. For a few pages, use `orderBy="Id ASC"` + `Id > '<last_id>'`; for thousands of rows use `bulk_query`.
 4. **Upsert requires `externalIdField`**: Both the MCP validator and the API enforce this. The field must exist and be marked as External ID.
 5. **Pre-flight validators are offline-only**: Steps 16-18 test Python validators that run locally before MCP calls. They catch structural errors and PII without consuming API calls.
 6. **Relationship queries work**: Child-to-parent dot notation (e.g., `Account.Name` on Contact) works correctly via `soql_query`.

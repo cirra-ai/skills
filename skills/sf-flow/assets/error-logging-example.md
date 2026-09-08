@@ -188,8 +188,11 @@ Create a flow that attempts to update a field that doesn't exist, then check Flo
 
 ```
 soql_query(
-  query="SELECT Flow_Name__c, Error_Message__c FROM Flow_Error_Log__c ORDER BY CreatedDate DESC LIMIT 1",
-  orgAlias="myorg"
+  sObject="Flow_Error_Log__c",
+  fields=["Flow_Name__c", "Error_Message__c"],
+  whereClause="Id != null",
+  orderBy="CreatedDate DESC",
+  limit=1
 ) via Cirra AI MCP
 ```
 
