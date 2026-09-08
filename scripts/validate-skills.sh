@@ -123,9 +123,14 @@ fi
 # name to users, and CI runs this script without --strict (warnings do not fail).
 # The checker only looks at prose — never inside code spans or fenced blocks —
 # and honors an inline `md-api-names: allow` waiver. See scripts/check_md_api_names.py.
+# MCP tool calls in skill Markdown must match the Cirra AI MCP Server schemas
+# (soql_query/tooling_api_query take sObject/fields/whereClause, delete uses
+# recordIds, ...). Honors an inline `mcp-signatures: allow` waiver. See
+# scripts/check_mcp_signatures.py and shared/references/cirra-mcp-tools.md.
 custom_errors() {
   local dir="$1"
   python3 "$REPO_ROOT/scripts/check_md_api_names.py" "$dir" 2>/dev/null
+  python3 "$REPO_ROOT/scripts/check_mcp_signatures.py" "$dir" 2>/dev/null | grep -v '^MCP signatures OK$' || true
 }
 
 # Returns warnings for a skill dir (one per line, no trailing newline).
