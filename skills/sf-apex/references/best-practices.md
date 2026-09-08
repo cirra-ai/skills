@@ -299,7 +299,7 @@ public static void processRecord(Id recordId) {
 
 ## 7. Async Apex Selection
 
-2026 default (Salesforce `platform-apex-generate`): **Queueable** for new async work. Do not generate `@future`. Prefer Apex Cursors + Queueable chaining for large result sets; use Batch Apex when a `QueryLocator` start/finish lifecycle is required. Prefer Scheduled Flow for recurring jobs.
+2026 default: **Queueable** for new async work. Do not generate `@future`. Prefer Apex Cursors + Queueable chaining for large result sets; use Batch Apex when a `QueryLocator` start/finish lifecycle is required. Prefer Scheduled Flow for recurring jobs.
 
 ### Queueable (default)
 

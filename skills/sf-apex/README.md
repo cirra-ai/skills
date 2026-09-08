@@ -117,18 +117,6 @@ Use `/sf-apex validate` at any time for on-demand checks:
 | sf-metadata   | Describe objects/fields; non-Apex metadata  |
 | sf-audit      | Org-wide Apex/Flow/LWC audit                |
 
-When [Salesforce's official skills](https://github.com/forcedotcom/sf-skills) are installed, load them for complementary work:
-
-| Salesforce skill              | When to Use                                                           |
-| ----------------------------- | --------------------------------------------------------------------- |
-| `platform-apex-generate`      | Salesforce's 2026 Apex authoring and review rules                     |
-| `platform-apex-test-generate` | Test class generation (PNB, 251+ bulk, TestDataFactory, Assert class) |
-| `platform-apex-test-run`      | Test execution, coverage, and test-fix loops                          |
-| `platform-apex-logs-debug`    | Debug log and governor-limit analysis                                 |
-| `platform-soql-query`         | SOQL/SOSL authoring and query-plan optimization                       |
-| `dx-code-analyzer-run`        | Salesforce Code Analyzer (PMD, SFGE, ApexGuru engines)                |
-| `dx-apexguru-scan`            | Performance antipattern scan                                          |
-
 ## Documentation
 
 - [Naming Conventions](references/naming-conventions.md)

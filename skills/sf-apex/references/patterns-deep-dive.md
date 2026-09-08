@@ -444,8 +444,6 @@ public static List<Response> sendData(List<Request> requests) {
 
 ### Decision Matrix
 
-Aligned with Salesforce `platform-apex-generate` ([forcedotcom/sf-skills](https://github.com/forcedotcom/sf-skills)).
-
 | Scenario                           | Use                                        | Pros                                             | Cons                                     |
 | ---------------------------------- | ------------------------------------------ | ------------------------------------------------ | ---------------------------------------- |
 | Standard async / callouts          | `Queueable`                                | Job ID, chaining, non-primitives, `AsyncOptions` | More code than `@future`                 |
@@ -453,6 +451,7 @@ Aligned with Salesforce `platform-apex-generate` ([forcedotcom/sf-skills](https:
 | Large result sets, flexible chunks | Apex Cursors + Queueable                   | Up to 50M rows, no 5-job Batch limit             | No start/finish callbacks                |
 | Process millions with start/finish | `Batch Apex`                               | `QueryLocator`, built-in lifecycle               | Max 5 concurrent, heavier                |
 | Recurring / scheduled              | Scheduled Flow (preferred) / `Schedulable` | Flow has no 100-job Schedulable cap              | `Schedulable` still needed for Apex-only |
+| Long-running callouts              | `Continuation`                             | Up to 3 per transaction, 3 in parallel           | Sync invocable still needs Queueable     |
 | Legacy fire-and-forget             | `@future` — do not generate                | Simple                                           | No chaining, no Batch caller, primitives |
 
 ### Legacy `@future` Pattern (do not generate)

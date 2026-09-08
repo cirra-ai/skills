@@ -35,7 +35,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Should ask user**: no
 - **Follow-up skills**: none
 
-**Notes**: `create` + `test-class` routes to Create Apex. Should first fetch AccountService source via `tooling_api_query` on ApexClass to understand what to test, then generate a test class following 2026 best practices (factory patterns, bulk testing with 251+ records to cross the 200-record trigger batch boundary, `Assert` class). When [forcedotcom/sf-skills](https://github.com/forcedotcom/sf-skills) `platform-apex-test-generate` is installed, load it for test authoring.
+**Notes**: `create` + `test-class` routes to Create Apex. Should first fetch AccountService source via `tooling_api_query` on ApexClass to understand what to test, then generate a test class following 2026 best practices (factory patterns, bulk testing with 251+ records to cross the 200-record trigger batch boundary, `Assert` class).
 
 ---
 

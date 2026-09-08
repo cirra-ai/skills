@@ -131,7 +131,6 @@ Key contributions:
 
 ## Official Salesforce Resources
 
-- **Salesforce Skills Library**: https://github.com/forcedotcom/sf-skills — official Apex skills used as the 2026 best-practice source: `platform-apex-generate`, `platform-apex-test-generate`, `platform-apex-test-run`, `platform-apex-logs-debug`, `platform-soql-query`, `dx-code-analyzer-run`, `dx-apexguru-scan`
 - **Salesforce Developer Blog**: https://developer.salesforce.com/blogs
 - **Trailhead**: https://trailhead.salesforce.com
 - **Apex Developer Guide**: https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/

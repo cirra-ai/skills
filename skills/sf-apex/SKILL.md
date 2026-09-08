@@ -40,14 +40,13 @@ Do NOT guess the operation or default to one. Wait for the user's answer.
 
 Create a new Apex class or trigger following 2026 best practices.
 
-Align authoring with Salesforce's official Apex skills in [forcedotcom/sf-skills](https://github.com/forcedotcom/sf-skills) (`platform-apex-generate`, `platform-apex-test-generate`). This skill still owns Cirra MCP discovery, validation, and `tooling_api_dml` deployment. If those official skills are installed in the host environment, load them before generating.
-
 2026 authoring defaults:
 
 - API version **67.0** (Summer '26): user-mode SOQL/DML, explicit sharing on every class, `WITH USER_MODE` instead of `WITH SECURITY_ENFORCED`
 - **Queueable** (plus `System.Finalizer`) for new async work — do not generate `@future` methods
 - **Apex Cursors** (`Database.getCursor` / `Database.Cursor`) with Queueable chaining for large result sets; Batch Apex when `start`/`finish` or a `QueryLocator` lifecycle is required
 - Recurring work: prefer a **Scheduled Flow**; use `Schedulable` only when the job must chain to Batch or needs complex Apex
+- Isolate `without sharing` / `AccessLevel.SYSTEM_MODE` in small named helpers; entry points stay `with sharing`
 - Custom Metadata: use `getAll()` / `getInstance()` on the metadata type, not SOQL
 - No `System.debug()` on main code paths — use a logging framework if tracing is required
 
@@ -113,13 +112,14 @@ Also generate a corresponding test class covering the trigger and its handler/ac
 
 #### For a class
 
-Create the class and its test class following the sf-apex skill guidelines and Salesforce's 2026 Apex skills (`platform-apex-generate` for production code, `platform-apex-test-generate` for tests):
+Create the class and its test class following the sf-apex skill guidelines:
 
 - Proper naming conventions (PascalCase, type suffix where applicable)
 - ApexDoc comments on all public methods
 - Bulkification patterns (no SOQL/DML in loops)
 - Explicit sharing keyword; `WITH USER_MODE` / `AccessLevel.USER_MODE` on SOQL and `Database` DML
 - Corresponding test class with 90%+ coverage patterns, PNB (positive / negative / bulk 251+), `Assert` class, and `TestDataFactory`
+- User-mode SOQL/DML paths are covered with `System.runAs` and a permissioned persona, not only as an admin
 
 ### 4. Validate before deploying
 
@@ -771,7 +771,7 @@ tooling_api_dml(
 
 ## Async Decision Matrix
 
-Aligned with Salesforce's `platform-apex-generate` skill ([forcedotcom/sf-skills](https://github.com/forcedotcom/sf-skills)): Queueable is the default for new async Apex; `@future` is not generated.
+Queueable is the default for new async Apex; `@future` is not generated.
 
 | Scenario                           | Use                                                                |
 | ---------------------------------- | ------------------------------------------------------------------ |
@@ -780,6 +780,7 @@ Aligned with Salesforce's `platform-apex-generate` skill ([forcedotcom/sf-skills
 | Large result sets, flexible chunks | **Apex Cursors** (`Database.getCursor`) chained on Queueable       |
 | Process millions with start/finish | **Batch Apex** (`QueryLocator`; max 5 concurrent)                  |
 | Recurring / scheduled              | **Scheduled Flow** (preferred) or **Schedulable** (Apex-only jobs) |
+| Long-running callouts              | **Continuation** (up to 3 per transaction, 3 in parallel)          |
 | Delays greater than 10 minutes     | `System.scheduleBatch()`                                           |
 | Legacy fire-and-forget             | `@future` — **do not use in new code**; replace with Queueable     |
 
@@ -1213,8 +1214,6 @@ tooling_api_dml(operation="delete", sObject="ApexTrigger", record={"Id": "<trigg
 
 ## Cross-Skill Integration
 
-### Cirra skills in this plugin
-
 | Related Skill | When to Use                                              |
 | ------------- | -------------------------------------------------------- |
 | sf-flow       | Create a Flow that calls `@InvocableMethod`              |
@@ -1222,21 +1221,6 @@ tooling_api_dml(operation="delete", sObject="ApexTrigger", record={"Id": "<trigg
 | sf-data       | SOQL authoring, field coverage, and test data            |
 | sf-metadata   | Describe objects/fields before coding; non-Apex metadata |
 | sf-audit      | Org-wide Apex/Flow/LWC audit                             |
-
-### Official Salesforce skills ([forcedotcom/sf-skills](https://github.com/forcedotcom/sf-skills))
-
-Load these when they are installed in the host environment. They complement this skill; they do not replace Cirra MCP deploy (`tooling_api_dml`).
-
-| Salesforce skill              | Use when                                                                                          |
-| ----------------------------- | ------------------------------------------------------------------------------------------------- |
-| `platform-apex-generate`      | Authoring or reviewing production Apex against Salesforce's 2026 rules                            |
-| `platform-apex-test-generate` | Generating or fixing Apex tests (PNB, 251+ bulk, `TestDataFactory`, `Assert` class)               |
-| `platform-apex-test-run`      | Running tests, coverage analysis, and test-fix loops (`sf apex run test`)                         |
-| `platform-apex-logs-debug`    | Governor limits, stack traces, and debug-log root-cause analysis                                  |
-| `platform-soql-query`         | SOQL/SOSL shape, selectivity, and query-plan work outside a selector class                        |
-| `dx-code-analyzer-run`        | Salesforce Code Analyzer (PMD, SFGE, ApexGuru engines) on local `.cls` / `.trigger` files         |
-| `dx-apexguru-scan`            | Performance antipattern scan (SOQL/DML in loop, unused SOQL fields, `Schema.getGlobalDescribe()`) |
-| `platform-metadata-deploy`    | Local Salesforce DX project deploy — this skill deploys via Cirra `tooling_api_dml`               |
 
 ---
 
@@ -1269,7 +1253,6 @@ Load these when they are installed in the host environment. They complement this
 - **Invocable action parameters**: custom Apex classes used as invocable action parameters must have a visible no-argument constructor (global for packaged classes); API calls validate this from version 66.0
 - **TAF Optional**: Prefer TAF when package is installed, use standard trigger pattern as fallback
 - **2026 async**: Generate Queueable + Finalizer, not `@future`. Prefer Apex Cursors + Queueable over new Batch jobs unless start/finish or a `QueryLocator` is required. Prefer Scheduled Flow over `Schedulable`
-- **Official Salesforce skills**: When [forcedotcom/sf-skills](https://github.com/forcedotcom/sf-skills) is installed, load `platform-apex-generate` / `platform-apex-test-generate` during Create and Update
 - **Scoring**: Block deployment if score < 67 (exempt trivial/test classes — see scoring thresholds)
 - **MCP Initialization**: ALWAYS call `cirra_ai_init` first
 - **Code as String**: Generate all Apex as strings, deploy via `tooling_api_dml`
