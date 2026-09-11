@@ -176,6 +176,19 @@ class TestUnsupportedUrlMessage:
         )
         assert msg is None
 
+    def test_www_and_docs_root_are_supported(self):
+        # www. and /docs (no trailing slash) used to hit the generic "isn't handled"
+        # path and exit 2 — the skill does handle this host.
+        assert mod.unsupported_url_message(
+            "https://www.developer.salesforce.com/docs/atlas.en-us.uiapi.meta/uiapi/x.htm"
+        ) is None
+        assert mod.unsupported_url_message("https://developer.salesforce.com/docs") is None
+        assert mod.unsupported_url_message("https://developer.salesforce.com/docs/") is None
+
+    def test_developer_homepage_names_docs_path(self):
+        msg = mod.unsupported_url_message("https://developer.salesforce.com")
+        assert msg and "/docs/" in msg and "homepage" in msg
+
     def test_other_host_generic(self):
         msg = mod.unsupported_url_message("https://example.com/docs/foo")
         assert msg and "isn't handled" in msg
@@ -514,6 +527,40 @@ class TestDeveloperDocs:
         assert not mod.is_dev_docs_url("xcloud.foo")
         # host match but not a /docs/ path
         assert not mod.is_dev_docs_url("https://developer.salesforce.com/tools/vscode")
+        # www. / docs-root / scheme case must still route to Strategy C (not exit 2)
+        assert mod.is_dev_docs_url(
+            "https://www.developer.salesforce.com/docs/atlas.en-us.uiapi.meta/uiapi/x.htm"
+        )
+        assert mod.is_dev_docs_url("https://developer.salesforce.com/docs")
+        assert mod.is_dev_docs_url("https://developer.salesforce.com/docs/")
+        assert mod.is_dev_docs_url(
+            "HTTPS://developer.salesforce.com/docs/platform/lwc/guide/data-wire-service"
+        )
+        assert not mod.is_dev_docs_url("https://developer.salesforce.com")
+
+    def test_main_routes_dev_docs_instead_of_exit_2(self, monkeypatch, capsys):
+        # Regression: developer.salesforce.com used to be rejected with exit 2
+        # (out-of-scope pointer at the Atlas API) before Strategy C was wired up.
+        import sys as _sys
+        monkeypatch.setattr(_sys, "argv", [
+            "fetch_sf_help.py",
+            "https://developer.salesforce.com/docs/atlas.en-us.uiapi.meta/uiapi/x.htm",
+        ])
+        monkeypatch.setattr(mod, "fetch_developer_docs", lambda url: "BODY")
+        assert mod.main() == 0
+        captured = capsys.readouterr()
+        assert "BODY" in captured.out
+        assert "isn't handled" not in captured.err
+
+    def test_main_routes_www_dev_docs_url(self, monkeypatch, capsys):
+        import sys as _sys
+        monkeypatch.setattr(_sys, "argv", [
+            "fetch_sf_help.py",
+            "https://www.developer.salesforce.com/docs/platform/lwc/guide/data-wire-service",
+        ])
+        monkeypatch.setattr(mod, "fetch_developer_docs", lambda url: "BODY")
+        assert mod.main() == 0
+        assert "BODY" in capsys.readouterr().out
 
     def test_dev_docs_parts_leaf_in_path(self):
         meta, topic = mod._dev_docs_parts(
@@ -616,11 +663,29 @@ class TestDevMarkdownTwin:
             "https://developer.salesforce.com/docs/ai/agentforce/guide/mcp.md#section"
         ) == "https://developer.salesforce.com/docs/ai/agentforce/guide/mcp.md"
 
-    def test_twin_url_none_for_landing_without_leaf(self):
-        # A deliverable-landing URL (no leaf document) has no reliable twin.
+    def test_twin_url_none_for_atlas_meta_segment(self):
+        # Dotted non-document segments (atlas.*.meta) are not topic leaves.
+        assert mod._dev_md_twin_url(
+            "https://developer.salesforce.com/docs/atlas.en-us.uiapi.meta"
+        ) is None
+
+    def test_twin_url_appends_md_for_extensionless_topic(self):
+        # Newer docs platform serves .../guide/<topic> with or without .html.
+        assert mod._dev_md_twin_url(
+            "https://developer.salesforce.com/docs/platform/lwc/guide/data-wire-service"
+        ) == "https://developer.salesforce.com/docs/platform/lwc/guide/data-wire-service.md"
+
+    def test_twin_url_strips_trailing_slash_and_www(self):
+        assert mod._dev_md_twin_url(
+            "https://www.developer.salesforce.com/docs/platform/lwc/guide/data-wire-service/"
+        ) == "https://developer.salesforce.com/docs/platform/lwc/guide/data-wire-service.md"
+
+    def test_twin_url_for_undotted_landing_segment(self):
+        # .../uiapi has no extension; we still *form* a twin URL and let
+        # Content-Type decide. (Atlas fallback handles a text/html miss.)
         assert mod._dev_md_twin_url(
             "https://developer.salesforce.com/docs/atlas.en-us.uiapi.meta/uiapi"
-        ) is None
+        ) == "https://developer.salesforce.com/docs/atlas.en-us.uiapi.meta/uiapi.md"
 
     def test_fetch_twin_returns_markdown_on_markdown_content_type(self, monkeypatch):
         body = "# Title\n\nSome **markdown** body."
@@ -644,6 +709,25 @@ class TestDevMarkdownTwin:
         )
         assert out is None
 
+    def test_fetch_twin_extensionless_requests_md(self, monkeypatch):
+        seen = []
+        body = "# Title\n"
+
+        def fake_curl(args, timeout=30):
+            seen.append(args)
+            return _proc(stdout=body + "\n__CT__text/markdown; charset=utf-8")
+
+        monkeypatch.setattr(mod, "curl", fake_curl)
+        out = mod._fetch_dev_md_twin(
+            "https://www.developer.salesforce.com/docs/platform/lwc/guide/data-wire-service"
+        )
+        assert out == body.strip()
+        assert any(
+            isinstance(a, (list, tuple)) and a[-1].endswith(
+                "developer.salesforce.com/docs/platform/lwc/guide/data-wire-service.md")
+            for a in seen
+        )
+
     def test_fetch_developer_docs_prefers_twin(self, monkeypatch):
         monkeypatch.setattr(mod, "assert_reachable", lambda *a, **k: None)
         monkeypatch.setattr(mod, "_fetch_dev_md_twin", lambda url: "# md body")
@@ -656,6 +740,27 @@ class TestDevMarkdownTwin:
             "https://developer.salesforce.com/docs/ai/agentforce/guide/mcp.html"
         )
         assert out == "# md body"
+
+    def test_fetch_developer_docs_canonicalizes_www(self, monkeypatch):
+        monkeypatch.setattr(mod, "assert_reachable", lambda *a, **k: None)
+        seen = []
+
+        def fake_twin(url):
+            seen.append(url)
+            return "# md body"
+
+        monkeypatch.setattr(mod, "_fetch_dev_md_twin", fake_twin)
+        monkeypatch.setattr(
+            mod, "_dev_get_json",
+            lambda url: (_ for _ in ()).throw(
+                AssertionError("Atlas JSON API should not be called when a twin exists")))
+        out = mod.fetch_developer_docs(
+            "https://www.developer.salesforce.com/docs/platform/lwc/guide/data-wire-service"
+        )
+        assert out == "# md body"
+        assert seen == [
+            "https://developer.salesforce.com/docs/platform/lwc/guide/data-wire-service"
+        ]
 
     def test_fetch_developer_docs_no_twin_no_meta_raises(self, monkeypatch):
         # Newer guide-style URL: no twin available AND no atlas.*.meta segment.

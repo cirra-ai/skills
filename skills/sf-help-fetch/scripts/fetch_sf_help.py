@@ -36,10 +36,10 @@ Two Help strategies (default `auto` tries B first, then A):
 
   C. DEVELOPER DOCS  (developer.salesforce.com; anonymous)
        1. MARKDOWN TWIN (fast path): fetch the same path with a '.md' extension;
-          many pages (esp. newer '/docs/<cloud>/<product>/guide/<topic>' ones)
-          return clean Markdown. Detected via Content-Type: text/markdown — a
-          page without a twin still 200s with the HTML shell, so status alone
-          won't tell you.
+          many pages (esp. newer '/docs/<cloud>/<product>/guide/<topic>' ones,
+          with or without a .html suffix) return clean Markdown. Detected via
+          Content-Type: text/markdown — a page without a twin still 200s with
+          the HTML shell, so status alone won't tell you. `www.` is stripped.
        2. ATLAS JSON API (fallback; atlas.<lang>.<deliverable>.meta URLs):
           GET /docs/get_document/atlas.<lang>.<deliverable>.meta       -> manifest
           GET /docs/get_document_content/<deliverable>/<topic>.htm/<locale>/<doc_version>
@@ -137,6 +137,38 @@ def assert_reachable(host, allowlist):
             f"You may want to add {allowlist} to your domain allowlist and retry.")
 
 
+def _http_url(arg):
+    """Parse an http(s) URL, or None if `arg` isn't one (bare topic ids, etc.)."""
+    if not isinstance(arg, str) or "://" not in arg:
+        return None
+    p = urllib.parse.urlparse(arg)
+    if p.scheme.lower() not in ("http", "https") or not p.netloc:
+        return None
+    return p
+
+
+def _canonical_host(netloc):
+    """Lowercase host, drop www. and explicit default ports."""
+    host = (netloc or "").lower()
+    if "@" in host:
+        host = host.rsplit("@", 1)[-1]
+    if host.startswith("www."):
+        host = host[4:]
+    if host.endswith(":443") or host.endswith(":80"):
+        host = host.rsplit(":", 1)[0]
+    return host
+
+
+def _is_developer_host(netloc):
+    return _canonical_host(netloc) == "developer.salesforce.com"
+
+
+def _is_dev_docs_path(path):
+    """True for /docs and /docs/... (trailing slash optional)."""
+    path = path or ""
+    return path == "/docs" or path.startswith("/docs/")
+
+
 def unsupported_url_message(arg):
     """If `arg` is a URL for a Salesforce doc surface this skill does NOT handle,
     return a clear, actionable message naming the surface and the real path for
@@ -146,17 +178,24 @@ def unsupported_url_message(arg):
     Note: help.salesforce.com articleView pages (type=5 Help Docs topics and
     type=1 numeric Knowledge Articles) and developer.salesforce.com/docs pages
     are all supported, so they return None."""
-    if not arg.startswith("http"):
+    parts = _http_url(arg)
+    if parts is None:
         return None
-    parts = urllib.parse.urlparse(arg)
     host, path = parts.netloc.lower(), parts.path
-    if host in ("help.salesforce.com", ""):
+    if _canonical_host(host) in ("help.salesforce.com", ""):
         return None  # supported: type=5 topics and type=1 Knowledge Articles
-    if host == "developer.salesforce.com" and path.startswith("/docs/"):
-        return None  # supported: Atlas content API (see fetch_developer_docs)
-    if host in ("status.salesforce.com", "api.status.salesforce.com"):
+    if _is_developer_host(host):
+        if _is_dev_docs_path(path):
+            return None  # supported: Markdown twin / Atlas API (see fetch_developer_docs)
+        return (
+            "developer.salesforce.com is handled for /docs/... pages (Atlas JSON "
+            "or a Markdown twin), not the site homepage or other paths. Pass a full "
+            "docs URL such as https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/"
+            "apexcode/apex_intro.htm"
+        )
+    if _canonical_host(host) in ("status.salesforce.com", "api.status.salesforce.com"):
         return None  # supported: Trust status API (see fetch_release_info)
-    if host == "trailhead.salesforce.com":
+    if _canonical_host(host) == "trailhead.salesforce.com":
         if "/trailblazer-community/" in path:
             return (
                 "Trailblazer Community pages aren't handled by sf-help-fetch. The feed body "
@@ -170,7 +209,7 @@ def unsupported_url_message(arg):
             "body loads via a token/auth-gated /graphql API."
         )
     return (
-        f"{host} isn't handled by sf-help-fetch — this skill reads "
+        f"{_canonical_host(host)} isn't handled by sf-help-fetch — this skill reads "
         "help.salesforce.com/s/articleView and developer.salesforce.com/docs pages."
     )
 
@@ -422,11 +461,12 @@ def fetch_aura(topic_id, release=None):
 
 # --- developer.salesforce.com "Atlas" docs (anonymous JSON content API) -------
 def is_dev_docs_url(arg):
-    """True for a developer.salesforce.com/docs Atlas URL (its own content API)."""
-    if not arg.startswith("http"):
-        return False
-    p = urllib.parse.urlparse(arg)
-    return p.netloc.lower() == "developer.salesforce.com" and p.path.startswith("/docs/")
+    """True for a developer.salesforce.com/docs URL (Markdown twin or Atlas API).
+
+    Accepts www. and an optional trailing slash on /docs so a copied host or
+    docs-root URL is routed here instead of the generic 'isn't handled' exit 2."""
+    p = _http_url(arg)
+    return bool(p) and _is_developer_host(p.netloc) and _is_dev_docs_path(p.path)
 
 
 def _dev_get_json(url):
@@ -468,24 +508,30 @@ def _dev_md_twin_url(url):
     or None if one can't be formed.
 
     Salesforce serves a Markdown twin of many docs pages at the same path with a
-    '.md' extension (e.g. .../guide/mcp.html -> .../guide/mcp.md). We can only
-    build it from a page URL whose last path segment is the leaf document
-    ('<name>.htm'/'.html', or already '.md'); deliverable-landing URLs (no leaf,
-    e.g. '.../atlas.en-us.uiapi.meta/uiapi') have no reliable twin, so return
-    None and let the caller use the Atlas JSON API instead."""
+    '.md' extension (e.g. .../guide/mcp.html -> .../guide/mcp.md). Built from a
+    leaf document segment: '<name>.htm'/'.html', already '.md', or an
+    extensionless topic (the newer docs platform serves both
+    .../guide/data-wire-service and .../guide/data-wire-service.html). Dotted
+    non-document segments (e.g. 'atlas.en-us.uiapi.meta') are not twins.
+    Availability is still gated on Content-Type by the caller."""
     p = urllib.parse.urlparse(url)
-    segs = p.path.split("/")
-    if not segs or not segs[-1]:
+    netloc = _canonical_host(p.netloc) if p.netloc else p.netloc
+    path = (p.path or "").rstrip("/") or "/"
+    segs = path.split("/")
+    if not segs or not segs[-1] or segs[-1] == "docs":
         return None
     leaf = segs[-1]
     if leaf.endswith(".md"):
         new_leaf = leaf
     elif re.search(r"\.html?$", leaf):
         new_leaf = re.sub(r"\.html?$", ".md", leaf)
+    elif "." in leaf:
+        return None  # atlas.*.meta (and similar) — not a topic leaf
     else:
-        return None
+        new_leaf = leaf + ".md"  # extensionless topic URL
     segs[-1] = new_leaf
-    return urllib.parse.urlunparse(p._replace(path="/".join(segs), fragment=""))
+    return urllib.parse.urlunparse(
+        p._replace(netloc=netloc or p.netloc, path="/".join(segs), fragment=""))
 
 
 def _fetch_dev_md_twin(url):
@@ -530,6 +576,10 @@ def fetch_developer_docs(url):
          rather than the URL, so a version-less URL still resolves the current
          release."""
     assert_reachable("developer.salesforce.com", "*.salesforce.com")
+    # Canonicalize www. / default ports so the Markdown-twin and Atlas calls
+    # hit developer.salesforce.com rather than a host variant the CDN 404s.
+    p = urllib.parse.urlparse(url)
+    url = urllib.parse.urlunparse(p._replace(netloc=_canonical_host(p.netloc) or p.netloc))
     md = _fetch_dev_md_twin(url)
     if md is not None:
         return md

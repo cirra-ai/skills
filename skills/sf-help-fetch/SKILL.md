@@ -3,7 +3,7 @@ name: sf-help-fetch
 plugin: cirra-ai-sf
 argument-hint: '[url|topic-id|release-info [instance]]'
 metadata:
-  version: 1.3.1
+  version: 1.3.2
 description: >
   Read the full text of a Salesforce documentation page — both Salesforce Help
   (help.salesforce.com) and the developer docs (developer.salesforce.com) — without a
@@ -158,11 +158,14 @@ skill fetches it in one request and returns the Markdown as-is (no HTML-to-text 
 HTTP status.** A page with a twin returns `Content-Type: text/markdown`; a page without one
 still returns `200` but with `Content-Type: text/html` (the SPA shell — the `.md` effectively
 falls back to `.htm`), so checking the status alone is not enough. The newer
-`docs/<cloud>/<product>/guide/<topic>` deliverables tend to have twins (and are **only**
+`docs/[cloud]/[product]/guide/[topic]` deliverables tend to have twins (and are **only**
 reachable this way — they have no `atlas.*.meta` segment for C2); the older
-`atlas.<lang>.<deliverable>.meta/...` guides (e.g. the Apex Developer Guide) generally do not,
-and fall through to C2. The twin is only attempted when the URL has a leaf document segment
-(`<name>.htm`/`.html`/`.md`); a deliverable-landing URL with no leaf skips straight to C2.
+`atlas.[lang].[deliverable].meta/...` guides (e.g. the Apex Developer Guide) generally do not,
+and fall through to C2. The twin is attempted for a leaf document segment (`[name].htm` /
+`.html` / `.md`, or an extensionless topic such as `.../guide/data-wire-service` — the newer
+platform serves those with or without `.html`). A deliverable-landing URL with no topic leaf
+skips straight to C2. `www.developer.salesforce.com` and `/docs` (no trailing slash) are
+normalized onto this same path; they must not be rejected as an unknown host.
 
 ### C2 — Atlas JSON content API (fallback)
 
@@ -277,7 +280,9 @@ param — **both are handled**, dispatched automatically by id shape:
 
 ## Other Salesforce doc surfaces (out of scope)
 
-Different sites need different handling — verified separately, not wired into this skill:
+`developer.salesforce.com/docs` is **in scope** (Strategy C above) — including `www.` and
+extensionless `/docs/[cloud]/[product]/guide/[topic]` URLs. Different sites still need
+different handling and are **not** wired into this skill:
 
 - **`trailhead.salesforce.com` modules**: the page HTML exposes only title/description
   (JSON-LD / og tags); the unit body loads via a `/graphql` API (not verified anonymously).
