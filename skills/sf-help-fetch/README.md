@@ -15,7 +15,8 @@ by host.
     numeric Knowledge Articles (ids like `005360285`).
   - `developer.salesforce.com/docs/...` — a page's plain-Markdown twin (append `.md`) when it
     has one, otherwise the anonymous "Atlas" JSON content API. The Markdown twin is the only
-    way to reach the newer `docs/{cloud}/{product}/guide/{topic}` pages.
+    way to reach the newer `docs/{cloud}/{product}/guide/{topic}` pages, including extensionless
+    topic URLs (with or without `.html`) and `www.` host variants.
 - **Release info** — release-notes URLs fetch the release named in their `release=NNN` query
   param (previous / current / preview; older ones get a clear pointer to the archive index),
   and the special target `release-info` reports the current + preview Salesforce release,
