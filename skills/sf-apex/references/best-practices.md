@@ -299,21 +299,13 @@ public static void processRecord(Id recordId) {
 
 ## 7. Async Apex Selection
 
-### @future
+2026 default: **Queueable** for new async work. Do not generate `@future`. Prefer Apex Cursors + Queueable chaining for large result sets; use Batch Apex when a `QueryLocator` start/finish lifecycle is required. Prefer Scheduled Flow for recurring jobs.
+
+### Queueable (default)
 
 ```apex
-// Simple, fire-and-forget
-@future(callout=true)
-public static void makeCallout(Set<Id> recordIds) {
-    // Cannot return value, cannot chain
-}
-```
-
-### Queueable
-
-```apex
-// Complex logic, can chain, can pass complex types
-public class ProcessRecordsQueueable implements Queueable {
+// Callouts, chaining, non-primitive types, job ID
+public with sharing class ProcessRecordsQueueable implements Queueable, Database.AllowsCallouts {
     private List<Account> accounts;
 
     public ProcessRecordsQueueable(List<Account> accounts) {
@@ -321,11 +313,42 @@ public class ProcessRecordsQueueable implements Queueable {
     }
 
     public void execute(QueueableContext context) {
-        // Process accounts
+        // Process accounts; HTTP callouts allowed
 
-        // Chain next job if needed
         if (moreWork) {
             System.enqueueJob(new ProcessRecordsQueueable(nextBatch));
+        }
+    }
+}
+```
+
+Use `System.Finalizer` for cleanup that must run after the Queueable succeeds or fails.
+
+### Apex Cursors (large result sets)
+
+```apex
+public with sharing class QueryChunkingQueueable implements Queueable {
+    private Database.Cursor locator;
+    private Integer position;
+
+    public QueryChunkingQueueable() {
+        locator = Database.getCursor(
+            'SELECT Id FROM Contact WHERE LastActivityDate = LAST_N_DAYS:400',
+            AccessLevel.USER_MODE
+        );
+        position = 0;
+    }
+
+    public void execute(QueueableContext ctx) {
+        Integer remaining = locator.getNumRecords() - position;
+        if (remaining <= 0) {
+            return;
+        }
+        List<Contact> scope = locator.fetch(position, Math.min(200, remaining));
+        position += scope.size();
+        // process scope
+        if (position < locator.getNumRecords()) {
+            System.enqueueJob(this);
         }
     }
 }
@@ -334,8 +357,8 @@ public class ProcessRecordsQueueable implements Queueable {
 ### Batch Apex
 
 ```apex
-// Large data volumes (millions of records)
-public class ProcessAccountsBatch implements Database.Batchable<SObject> {
+// Large data volumes when start/finish or QueryLocator lifecycle is required
+public with sharing class ProcessAccountsBatch implements Database.Batchable<SObject> {
     public Database.QueryLocator start(Database.BatchableContext bc) {
         return Database.getQueryLocator('SELECT Id FROM Account');
     }
@@ -349,6 +372,10 @@ public class ProcessAccountsBatch implements Database.Batchable<SObject> {
     }
 }
 ```
+
+### Legacy `@future` (do not generate)
+
+`@future` cannot chain, cannot be called from Batch, and accepts only primitives. Existing methods can stay until migrated; new code uses Queueable + Finalizer.
 
 ---
 
