@@ -44,6 +44,29 @@ All LWC operations go through MCP tools regardless of mode. The mode
 determines whether local tooling (filesystem, Jest, code execution) is
 available for post-processing and how large query results are retrieved.
 
+## Reference File Index
+
+Read the file for the task at hand before generating code — the tables in this
+SKILL.md are summaries; the full patterns live in these files.
+
+| File                                                                                     | Read when                                                                                                                                                |
+| ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [../../shared/references/cirra-mcp-tools.md](../../shared/references/cirra-mcp-tools.md) | Before any MCP call — authoritative tool signatures (`metadata_read` formats, `tooling_api_query`, `connect_rest` limits)                                |
+| [references/execution-modes.md](references/execution-modes.md)                           | Detecting the execution mode and what local tooling is available                                                                                         |
+| [references/mcp-pagination.md](references/mcp-pagination.md)                             | An MCP response is truncated or paginated (`fetch_more`)                                                                                                 |
+| [references/component-patterns.md](references/component-patterns.md)                     | Writing Wire, imperative Apex, GraphQL, Modal, Navigation or TypeScript code                                                                             |
+| [references/lms-guide.md](references/lms-guide.md)                                       | Cross-DOM communication with Lightning Message Service                                                                                                   |
+| [references/jest-testing.md](references/jest-testing.md)                                 | Generating or running Jest tests                                                                                                                         |
+| [references/accessibility-guide.md](references/accessibility-guide.md)                   | ARIA, keyboard navigation, focus management, WCAG checks                                                                                                 |
+| [references/performance-guide.md](references/performance-guide.md)                       | Dark mode migration, lazy loading, render optimisation                                                                                                   |
+| [assets/lwc-best-practices.md](assets/lwc-best-practices.md)                             | Security (`USER_MODE`), Apex controller and general LWC best practices                                                                                   |
+| [assets/state-management.md](assets/state-management.md)                                 | Shared state: `@track`, Singleton Store, `@lwc/state`, Platform State Managers                                                                           |
+| [assets/template-anti-patterns.md](assets/template-anti-patterns.md)                     | Before writing any HTML template — inline expressions, ternaries and other invalid template syntax                                                       |
+| [assets/async-notification-patterns.md](assets/async-notification-patterns.md)           | Platform Events and `empApi` subscriptions                                                                                                               |
+| [assets/flow-integration-guide.md](assets/flow-integration-guide.md)                     | Flow screen components, `apex://` type bindings                                                                                                          |
+| [assets/triangle-pattern.md](assets/triangle-pattern.md)                                 | LWC + Apex + Flow composition                                                                                                                            |
+| [assets/](assets/)                                                                       | Scaffold templates (`basic-component`, `datatable-component`, `form-component`, `graphql-component`, `modal-component`, `record-picker`, `jest-test`, …) |
+
 ---
 
 ## Source encoding rules (read this before any deploy/update)
@@ -182,9 +205,14 @@ If no name is given, ask the user which component to update and what changes are
 ```
 metadata_read(
   type="LightningComponentBundle",
-  fullNames=["c/<ComponentName>"]
+  fullNames=["c/<ComponentName>"],
+  format="source"
 )
 ```
+
+`format="source"` returns the DX source files (`lwc/<name>/<name>.js`, `.html`, `.css`, `.js-meta.xml`) as decoded plain text keyed by path — no Base64 handling is needed. The default `format="json"` returns the same files Base64-encoded in `lwcResources.lwcResource[].source`; only use it when you need the raw Metadata API shape.
+
+If `metadata_read` is unavailable or fails, fall back to the Tooling API: `tooling_api_query` on `LightningComponentResource` with `fields=["Id", "FilePath", "Format", "Source"]` returns each file's `Source` as plain text (see [Tooling API fallback](#tooling-api-fallback--per-file-edits)).
 
 If not found, suggest `create <ComponentName>` instead.
 
@@ -368,9 +396,12 @@ python3 "$VALIDATOR" "<file_path>"
 ```
 metadata_read(
   type="LightningComponentBundle",
-  fullNames=["c/<ComponentName>"]
+  fullNames=["c/<ComponentName>"],
+  format="source"
 )
 ```
+
+`format="source"` returns decoded DX source files keyed by path, so the content can be written to disk as-is. (The default `json` format Base64-encodes each file in `lwcResources.lwcResource[].source`.) If `metadata_read` fails, resolve the bundle id and read each `LightningComponentResource` with `tooling_api_query` as shown in [Tooling API fallback](#tooling-api-fallback--per-file-edits) — `Source` is plain text on that path too.
 
 If not found, tell the user the component was not found in the org.
 
@@ -422,7 +453,7 @@ tooling_api_query(
 )
 ```
 
-2. Fetch and validate each component bundle in batches of 10.
+2. Fetch each component bundle with `metadata_read(type="LightningComponentBundle", fullNames=[...], format="source")` in batches of 10 — see [references/mcp-pagination.md](references/mcp-pagination.md) if a batch response is paginated.
 
 **Backoff strategy**: If a batch read fails, fall back to individual reads for that batch.
 
@@ -481,17 +512,17 @@ tooling_api_query(
 
 ### MCP Tools Mapping
 
-| Operation              | CLI Command                                           | MCP Tool             | Example                                                                              |
-| ---------------------- | ----------------------------------------------------- | -------------------- | ------------------------------------------------------------------------------------ |
-| Generate component     | `sf lightning generate component`                     | (generated directly) | Write JS/HTML/CSS/meta.xml directly                                                  |
-| Deploy component       | `sf project deploy start -m LightningComponentBundle` | `metadata_create`    | `metadata_create(type="LightningComponentBundle", metadata=[...])`                   |
-| Update component       | `sf project deploy` (existing)                        | `metadata_update`    | `metadata_update(type="LightningComponentBundle", metadata=[...])`                   |
-| Retrieve component     | `sf project retrieve`                                 | `metadata_read`      | `metadata_read(type="LightningComponentBundle", fullNames=["c/accountDashboard"])`   |
-| List components        | `sf metadata list`                                    | `metadata_list`      | `metadata_list(type="LightningComponentBundle")`                                     |
-| Query metadata objects | `sf data query --use-tooling-api`                     | `tooling_api_query`  | `tooling_api_query(sObject="LightningComponentBundle", whereClause="...")`           |
-| Describe sObject       | `sf sobject describe`                                 | `sobject_describe`   | `sobject_describe(sObject="Account")`                                                |
-| Query data             | `sf data query`                                       | `soql_query`         | `soql_query(sObject="Account", fields=["Id","Name"], whereClause="Industry='Tech'")` |
-| Delete component       | `sf project delete`                                   | `metadata_delete`    | `metadata_delete(type="LightningComponentBundle", fullNames=["c/accountDashboard"])` |
+| Operation              | CLI Command                                           | MCP Tool             | Example                                                                                                                      |
+| ---------------------- | ----------------------------------------------------- | -------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Generate component     | `sf lightning generate component`                     | (generated directly) | Write JS/HTML/CSS/meta.xml directly                                                                                          |
+| Deploy component       | `sf project deploy start -m LightningComponentBundle` | `metadata_create`    | `metadata_create(type="LightningComponentBundle", metadata=[...])`                                                           |
+| Update component       | `sf project deploy` (existing)                        | `metadata_update`    | `metadata_update(type="LightningComponentBundle", metadata=[...])`                                                           |
+| Retrieve component     | `sf project retrieve`                                 | `metadata_read`      | `metadata_read(type="LightningComponentBundle", fullNames=["c/accountDashboard"])`                                           |
+| List components        | `sf metadata list`                                    | `metadata_list`      | `metadata_list(type="LightningComponentBundle")`                                                                             |
+| Query metadata objects | `sf data query --use-tooling-api`                     | `tooling_api_query`  | `tooling_api_query(sObject="LightningComponentBundle", fields=["Id","DeveloperName"], whereClause="NamespacePrefix = null")` |
+| Describe sObject       | `sf sobject describe`                                 | `sobject_describe`   | `sobject_describe(sObject="Account")`                                                                                        |
+| Query data             | `sf data query`                                       | `soql_query`         | `soql_query(sObject="Account", fields=["Id","Name"], whereClause="Industry='Tech'")`                                         |
+| Delete component       | `sf project delete`                                   | `metadata_delete`    | `metadata_delete(type="LightningComponentBundle", fullNames=["c/accountDashboard"])`                                         |
 
 ### Required Initialization
 
@@ -541,15 +572,15 @@ The **PICKLES Framework** provides a structured approach to designing robust Lig
 
 ### Quick Reference
 
-| Principle           | Key Actions                                                                |
-| ------------------- | -------------------------------------------------------------------------- |
-| **P - Prototype**   | Wireframes, mock data, stakeholder review, separation of concerns          |
-| **I - Integrate**   | LDS for single records, Apex for complex queries, GraphQL for related data |
-| **C - Composition** | `@api` for parent→child, CustomEvent for child→parent, LMS for cross-DOM   |
-| **K - Kinetics**    | Debounce search (300ms), disable during submit, keyboard navigation        |
-| **L - Libraries**   | Use `lightning/*` modules, base components, avoid reinventing              |
-| **E - Execution**   | Lazy load with `lwc:if`, cache computed values, avoid infinite loops       |
-| **S - Security**    | `WITH SECURITY_ENFORCED`, input validation, FLS/CRUD checks                |
+| Principle           | Key Actions                                                                                                                             |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| **P - Prototype**   | Wireframes, mock data, stakeholder review, separation of concerns                                                                       |
+| **I - Integrate**   | LDS for single records, Apex for complex queries, GraphQL for related data                                                              |
+| **C - Composition** | `@api` for parent→child, CustomEvent for child→parent, LMS for cross-DOM                                                                |
+| **K - Kinetics**    | Debounce search (300ms), disable during submit, keyboard navigation                                                                     |
+| **L - Libraries**   | Use `lightning/*` modules, base components, avoid reinventing                                                                           |
+| **E - Execution**   | Lazy load with `lwc:if`, cache computed values, avoid infinite loops                                                                    |
+| **S - Security**    | `WITH USER_MODE` / `AccessLevel.USER_MODE` in Apex (`WITH SECURITY_ENFORCED` is removed in API 67.0), input validation, FLS/CRUD checks |
 
 **For detailed PICKLES implementation patterns, see [references/component-patterns.md](references/component-patterns.md)**
 
@@ -581,6 +612,8 @@ The **PICKLES Framework** provides a structured approach to designing robust Lig
 | Related records     | GraphQL wire adapter                                   |
 | Real-time updates   | Platform Events / Streaming API                        |
 | External data       | Named Credentials + Apex callout                       |
+
+> **GraphQL field validation**: `connect_rest` cannot reach `/graphql` (only `/connect/` resources), so GraphQL schema introspection is not available through Cirra. Validate every object, field and relationship name used in a GraphQL query with `sobject_describe` before deploying.
 
 ### Communication Patterns
 
@@ -637,16 +670,19 @@ The **PICKLES Framework** provides a structured approach to designing robust Lig
 
 The sf-lwc skill includes automated SLDS 2 validation that ensures dark mode compatibility, accessibility, and modern styling.
 
-| Category                | Points | Key Checks                                        |
-| ----------------------- | ------ | ------------------------------------------------- |
-| **SLDS Class Usage**    | 25     | Valid class names, proper `slds-*` utilities      |
-| **Accessibility**       | 25     | ARIA labels, roles, alt-text, keyboard navigation |
-| **Dark Mode Readiness** | 25     | No hardcoded colors, CSS variables only           |
-| **SLDS Migration**      | 20     | No deprecated SLDS 1 patterns/tokens              |
-| **Styling Hooks**       | 20     | Proper `--slds-g-*` variable usage                |
-| **Component Structure** | 15     | Uses `lightning-*` base components                |
-| **Performance**         | 10     | Efficient selectors, no `!important`              |
-| **PICKLES Compliance**  | 25     | Architecture methodology adherence (optional)     |
+The categories and weights below are those in `scripts/validate_slds.py` (`SLDSValidator.max_scores`) — the script is the source of truth.
+
+| Category                | Points | Key Checks                                                                            |
+| ----------------------- | ------ | ------------------------------------------------------------------------------------- |
+| **SLDS Class Usage**    | 25     | Valid class names, proper `slds-*` utilities                                          |
+| **Accessibility**       | 25     | ARIA labels, roles, alt-text, keyboard navigation                                     |
+| **Dark Mode Readiness** | 25     | No hardcoded colors, CSS variables only                                               |
+| **SLDS Migration**      | 20     | No deprecated SLDS 1 patterns/tokens                                                  |
+| **Styling Hooks**       | 20     | Proper `--slds-g-*` variable usage                                                    |
+| **Component Structure** | 15     | Uses `lightning-*` base components                                                    |
+| **GraphQL Patterns**    | 15     | `lightning/uiGraphQLApi` wire result stored, `first:` with pagination, error handling |
+| **Performance**         | 10     | Efficient selectors, no `!important`                                                  |
+| **Focus Management**    | 10     | Modals/dialogs handle Escape, trap and restore focus                                  |
 
 **Scoring Thresholds**:
 
@@ -914,6 +950,7 @@ metadata_create(
 ```
 tooling_api_query(
   sObject="LightningComponentBundle",
+  fields=["Id", "DeveloperName", "ApiVersion", "LastModifiedDate"],
   whereClause="DeveloperName = 'accountDashboard'"
 )
 ```
@@ -1183,18 +1220,7 @@ Make components discoverable by Agentforce agents:
 
 ### Documentation Files
 
-| Resource                                                                       | Purpose                                                               |
-| ------------------------------------------------------------------------------ | --------------------------------------------------------------------- |
-| [references/component-patterns.md](references/component-patterns.md)           | Complete code examples (Wire, GraphQL, Modal, Navigation, TypeScript) |
-| [references/lms-guide.md](references/lms-guide.md)                             | Lightning Message Service deep dive                                   |
-| [references/jest-testing.md](references/jest-testing.md)                       | Advanced testing patterns (James Simone)                              |
-| [references/accessibility-guide.md](references/accessibility-guide.md)         | WCAG compliance, ARIA patterns, focus management                      |
-| [references/performance-guide.md](references/performance-guide.md)             | Dark mode migration, lazy loading, optimization                       |
-| [assets/state-management.md](assets/state-management.md)                       | @track, Singleton Store, @lwc/state, Platform State Managers          |
-| [assets/template-anti-patterns.md](assets/template-anti-patterns.md)           | LLM template mistakes (inline expressions, ternary operators)         |
-| [assets/async-notification-patterns.md](assets/async-notification-patterns.md) | Platform Events + empApi subscription patterns                        |
-| [assets/flow-integration-guide.md](assets/flow-integration-guide.md)           | Flow-LWC communication, apex:// type bindings                         |
-| [assets/triangle-pattern.md](assets/triangle-pattern.md)                       | Triangle pattern for LWC component design                             |
+See the [Reference File Index](#reference-file-index) at the top of this skill.
 
 ### External References
 

@@ -2,6 +2,11 @@
 
 Best practices for creating realistic and effective test data.
 
+From a conversation, seed data with `sobject_dml` (up to 200 records) or
+`bulk_dml` (more, or a CSV the user uploads) — see
+`bulk-operations-guide.md`. The Apex factory pattern below is for **sf-apex
+test classes** (run with `run_tests`); Cirra cannot execute anonymous Apex.
+
 ## Factory Pattern
 
 ### Standard Implementation
@@ -42,13 +47,13 @@ public class TestDataFactory_Account {
 
 ## Record Count Recommendations
 
-| Test Scenario   | Record Count | Why                |
-| --------------- | ------------ | ------------------ |
-| Basic unit test | 1-10         | Quick validation   |
-| Trigger testing | 201          | Batch boundary     |
-| Flow testing    | 200          | Single transaction |
-| Batch Apex      | 500+         | Multiple batches   |
-| Performance     | 1000+        | Stress testing     |
+| Test Scenario          | Record Count | Why                                     |
+| ---------------------- | ------------ | --------------------------------------- |
+| Basic unit test        | 1-10         | Quick validation                        |
+| Trigger testing        | 201          | Batch boundary                          |
+| Flow / bulk automation | 251          | Crosses the boundary with room to spare |
+| Batch Apex             | 500+         | Multiple batches                        |
+| Performance            | 1000+        | Stress testing                          |
 
 ## Edge Cases to Test
 

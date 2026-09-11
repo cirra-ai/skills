@@ -20,7 +20,8 @@ def _critical_messages(result: dict) -> list[str]:
 
 
 def _warning_messages(result: dict) -> list[str]:
-    return [i["message"] for i in result.get("issues", []) if i.get("severity") == "WARNING"]
+    """MODERATE is the advisory tier (legacy WARNING) on the five-level scale."""
+    return [i["message"] for i in result.get("issues", []) if i.get("severity") == "MODERATE"]
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -121,8 +122,8 @@ class TestSecurityEnforcedVersionAware:
         infos = [i["message"] for i in r["issues"] if i["severity"] == "INFO"]
         assert any("SECURITY_ENFORCED" in m for m in infos)
 
-    def test_warning_when_version_unknown(self):
-        """Unknown version — warn, since new deployments default to 67.0."""
+    def test_moderate_when_version_unknown(self):
+        """Unknown version — MODERATE, since new deployments default to 67.0."""
         r = self._validate_at(None)
         warns = _warning_messages(r)
         assert any("SECURITY_ENFORCED" in m for m in warns)

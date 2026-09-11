@@ -3,13 +3,40 @@
     "name": "AccountService",
     "score": 120,
     "max_score": 150,
-    "issues": ["Missing null checks in helper method", "No test class found"]
+    "issues": [
+      {
+        "severity": "MODERATE",
+        "message": "Missing null checks in helper method",
+        "line": 27
+      },
+      {
+        "severity": "LOW",
+        "message": "No test class found",
+        "line": 0
+      }
+    ]
   },
   {
     "name": "ContactTriggerHandler",
     "score": 95,
     "max_score": 150,
-    "issues": ["SOQL inside loop (line 42)", "Missing bulkification", "No error handling"]
+    "issues": [
+      {
+        "severity": "CRITICAL",
+        "message": "SOQL inside loop",
+        "line": 42
+      },
+      {
+        "severity": "HIGH",
+        "message": "Missing bulkification",
+        "line": 40
+      },
+      {
+        "severity": "MODERATE",
+        "message": "No error handling",
+        "line": 55
+      }
+    ]
   },
   {
     "name": "BatchProcessRecords",

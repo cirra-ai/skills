@@ -6,9 +6,14 @@
     "findings": [
       {
         "severity": "HIGH",
-        "message": "Logic inside trigger body instead of handler class"
+        "message": "Logic inside trigger body instead of handler class",
+        "line": 3
       },
-      { "severity": "MEDIUM", "message": "Missing before/after context checks" }
+      {
+        "severity": "MODERATE",
+        "message": "Missing before/after context checks",
+        "line": 0
+      }
     ]
   }
 ]

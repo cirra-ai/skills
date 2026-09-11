@@ -29,6 +29,10 @@ SKILLS_ROOT = os.path.dirname(PLUGIN_ROOT)  # skills root
 SHARED_DIR = os.path.join(SKILLS_ROOT, "shared")
 sys.path.insert(0, SHARED_DIR)
 
+# Single severity vocabulary (see validate_apex.SEVERITY_ORDER):
+# CRITICAL > HIGH > MODERATE > LOW > INFO
+SEVERITY_ORDER = ["CRITICAL", "HIGH", "MODERATE", "LOW", "INFO"]
+
 
 def validate_apex(file_path: str) -> dict:
     """
@@ -46,7 +50,7 @@ def validate_apex(file_path: str) -> dict:
         # ═══════════════════════════════════════════════════════════════════
         # PHASE 1: Custom 150-point validation
         # ═══════════════════════════════════════════════════════════════════
-        from validate_apex import ApexValidator
+        from validate_apex import ApexValidator, normalize_severity, severity_icon, severity_rank
 
         validator = ApexValidator(file_path)
         custom_results = validator.validate()
@@ -70,7 +74,7 @@ def validate_apex(file_path: str) -> dict:
             for issue in llm_issues:
                 custom_issues.append(
                     {
-                        "severity": issue.get("severity", "WARNING"),
+                        "severity": normalize_severity(issue.get("severity"), "MODERATE"),
                         "category": issue.get("category", "llm_pattern"),
                         "message": issue.get("message", ""),
                         "line": issue.get("line", 0),
@@ -121,7 +125,7 @@ def validate_apex(file_path: str) -> dict:
             output_parts.append("")
             output_parts.append("📋 Category Breakdown:")
             for cat, score in custom_scores.items():
-                max_score = validator.scores.get(cat, 0)
+                max_score = validator.max_scores.get(cat, 0)
                 if max_score > 0:
                     icon = "✅" if score == max_score else ("⚠️" if score >= max_score * 0.7 else "❌")
                     diff = f" (-{max_score - score})" if score < max_score else ""
@@ -133,28 +137,13 @@ def validate_apex(file_path: str) -> dict:
             output_parts.append("")
             output_parts.append(f"⚠️ Issues Found ({len(custom_issues)}):")
 
-            # Sort by severity
-            severity_order = {
-                "CRITICAL": 0,
-                "HIGH": 1,
-                "MODERATE": 2,
-                "WARNING": 3,
-                "LOW": 4,
-                "INFO": 5,
-            }
-            custom_issues.sort(key=lambda x: severity_order.get(x.get("severity", "INFO"), 5))
+            # Sort by severity (CRITICAL > HIGH > MODERATE > LOW > INFO)
+            custom_issues.sort(key=lambda x: severity_rank(x.get("severity")))
 
             # Display up to 12 issues
             for issue in custom_issues[:12]:
-                sev = issue.get("severity", "INFO")
-                icon = {
-                    "CRITICAL": "🔴",
-                    "HIGH": "🟠",
-                    "MODERATE": "🟡",
-                    "WARNING": "🟡",
-                    "LOW": "🔵",
-                    "INFO": "⚪",
-                }.get(sev, "⚪")
+                sev = normalize_severity(issue.get("severity"), "INFO")
+                icon = severity_icon(sev)
                 source = f"[{issue['source']}] " if issue.get("source") else ""
                 line_info = f"L{issue['line']}" if issue.get("line") else ""
                 message = (

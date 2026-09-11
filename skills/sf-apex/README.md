@@ -8,11 +8,11 @@ Generates and reviews Salesforce Apex code with 2026 best practices and 150-poin
 - **Code Review**: Analyze existing Apex for best practices violations with actionable fixes
 - **150-Point Scoring**: Automated validation across 8 categories
 - **Template Library**: Pre-built patterns for common class types
-- **LSP Integration**: Real-time syntax validation via Apex Language Server
+- **Test Execution**: Runs the delivered test classes with `run_tests` after every deploy and reports pass/fail + coverage
 
 ## Installation
 
-For full installation instructions (various AI tools), see the [root README](../../../../README.md).
+For full installation instructions (various AI tools), see the [root README](../../README.md).
 
 ## Quick Start
 
@@ -54,18 +54,20 @@ The skill generates:
 
 ## Scoring System (150 Points)
 
-| Category       | Points | Focus                                                    |
-| -------------- | ------ | -------------------------------------------------------- |
-| Bulkification  | 25     | No SOQL/DML in loops, collection patterns                |
-| Security       | 25     | CRUD/FLS checks, no injection, SOQL injection prevention |
-| Testing        | 25     | Test coverage, assertions, negative tests                |
-| Architecture   | 20     | SOLID principles, separation of concerns                 |
-| Error Handling | 15     | Try-catch, custom exceptions, logging                    |
-| Naming         | 15     | Consistent naming, ApexDoc comments                      |
-| Performance    | 15     | Async patterns, efficient queries                        |
-| Code Quality   | 10     | Clean code, no hardcoding                                |
+| Category       | Points | Focus                                                                            |
+| -------------- | ------ | -------------------------------------------------------------------------------- |
+| Bulkification  | 25     | NO SOQL/DML in loops; collect first, operate after; test 251+ records            |
+| Security       | 25     | `WITH USER_MODE`; bind variables; `with sharing`; `Security.stripInaccessible()` |
+| Testing        | 25     | 90%+ coverage; Assert class; positive/negative/bulk tests; Test Data Factory     |
+| Architecture   | 20     | TAF triggers; Service/Domain/Selector layers; SOLID; dependency injection        |
+| Clean Code     | 20     | Meaningful names; self-documenting; no `!= false`; single responsibility         |
+| Error Handling | 15     | Specific before generic catch; no empty catch; custom business exceptions        |
+| Performance    | 10     | Monitor with `Limits`; cache expensive ops; scope variables; async for heavy     |
+| Documentation  | 10     | ApexDoc on classes/methods; meaningful params                                    |
 
-**Thresholds**: 90+ | 80-89 | 70-79 | Block: <60
+**Thresholds**: ✅ 90+ (Deploy) | ⚠️ 70-89 (Review) | ❌ <70 (Block - fix required)
+
+Trivial classes (utilities, hello-world, single-purpose test helpers) are exempt from the <70 block; guardrail anti-pattern checks still apply.
 
 ## Templates
 
@@ -100,28 +102,31 @@ expected to stop on a 🚨 critical message; the hook does not deny the call.
 
 Use `/sf-apex validate` at any time for on-demand checks:
 
-| Invocation                              | What happens                                           |
-| --------------------------------------- | ------------------------------------------------------ |
-| `/sf-apex validate MyClass`             | Fetches the class from your org and validates it       |
-| `/sf-apex validate path/to/MyClass.cls` | Validates a local file                                 |
-| `/sf-apex validate MyClass,OtherClass`  | Validates multiple classes with a summary table        |
-| `/sf-apex validate All`                 | Validates all Apex classes in the org, sorted by score |
+| Invocation                              | What happens                                                 |
+| --------------------------------------- | ------------------------------------------------------------ |
+| `/sf-apex validate MyClass`             | Fetches the class body via `tooling_api_query`, validates it |
+| `/sf-apex validate path/to/MyClass.cls` | Validates a local file                                       |
+| `/sf-apex validate MyClass,OtherClass`  | Validates multiple classes with a summary table              |
+| `/sf-apex validate All`                 | Validates all Apex classes in the org, sorted by score       |
 
 ## Cross-Skill Integration
 
-| Related Skill | When to Use                                 |
-| ------------- | ------------------------------------------- |
-| sf-flow       | Create Flow to call @InvocableMethod        |
-| sf-lwc        | Create LWC to call @AuraEnabled controllers |
-| sf-data       | SOQL, field coverage, and test data         |
-| sf-metadata   | Describe objects/fields; non-Apex metadata  |
-| sf-audit      | Org-wide Apex/Flow/LWC audit                |
+| Related Skill | When to Use                                                                   |
+| ------------- | ----------------------------------------------------------------------------- |
+| sf-flow       | Create Flow to call @InvocableMethod                                          |
+| sf-lwc        | Create LWC to call @AuraEnabled controllers                                   |
+| sf-metadata   | Create the objects, fields and permission sets the Apex depends on            |
+| sf-data       | Create or query records to exercise deployed code                             |
+| sf-audit      | Org-wide Apex inventory and scoring (this skill validates individual classes) |
+
+Deployment and test execution are handled by this skill directly (`tooling_api_dml` and `run_tests`).
 
 ## Documentation
 
 - [Naming Conventions](references/naming-conventions.md)
 - [Best Practices](references/best-practices.md)
-- [Testing Guide](references/testing-guide.md)
+- [Testing Guide](references/testing-guide.md) — includes the `run_tests` test-fix loop
+- [Troubleshooting](references/troubleshooting.md)
 - [Flow Integration](references/flow-integration.md)
 - [Design Patterns](references/design-patterns.md)
 
@@ -165,7 +170,7 @@ Registered in the plugin's `hooks/hooks.json` as a `PreToolUse` hook. Fires befo
 | Result                                              | Action                                                     |
 | --------------------------------------------------- | ---------------------------------------------------------- |
 | Critical/High issues (SOQL/DML in loops, injection) | Allows the call; emits a 🚨 critical-issue context message |
-| Score < 67%                                         | Allows the call; emits a ⚠️ advisory context message       |
+| Score < 70%                                         | Allows the call; emits a ⚠️ advisory context message       |
 | Pass                                                | Allows the call; emits a ✅ score-summary context message  |
 | Non-Apex type (Flow, CustomObject, etc.)            | Passes through silently (no context emitted)               |
 

@@ -500,17 +500,13 @@ When you expect a single record (e.g., looking up by unique ID), enable `getFirs
 - Clearer intent
 - Simpler variable handling
 
-### Avoid storeOutputAutomatically
+### storeOutputAutomatically: keep the default, restrict it in system mode
 
-When `storeOutputAutomatically="true"`, ALL fields are retrieved and stored:
+`storeOutputAutomatically="true"` (the default) stores the whole queried record. In **user mode** that is fine — FLS still governs what the running user can read.
 
-**Risks**:
+The risk is **system mode** (`runInMode` = `SystemModeWithoutSharing` / `SystemModeWithSharing`): the lookup fetches every field regardless of FLS, so sensitive fields (SSN, salary, card numbers) can surface in screens, emails or logs.
 
-- Exposes sensitive data unintentionally
-- Impacts performance with large objects
-- Security issue in screen flows (external users see all data)
-
-**Fix**: Explicitly specify only the fields you need in the Get Records element.
+**Rule**: keep `true` by default. Set `false` with explicit `queriedFields` (and an `outputReference`) only when the flow runs in system mode AND the object carries sensitive fields. The validator flags `true` only in system-mode flows.
 
 ---
 
@@ -1338,7 +1334,7 @@ original end date is null (new contracts)."
 - [ ] Use `$Record` instead of querying trigger object
 - [ ] Add filters to all Get Records elements
 - [ ] Enable `getFirstRecordOnly` when expecting single record
-- [ ] Disable `storeOutputAutomatically` (specify fields explicitly)
+- [ ] Keep `storeOutputAutomatically` at its default (`true`); switch to `false` + explicit `queriedFields` only in system-mode flows touching sensitive fields
 - [ ] **For relationship data**: Use two-step query pattern (child → parent by ID)
 - [ ] Never query `Parent.Field` in queriedFields (not supported)
 
@@ -1357,7 +1353,7 @@ original end date is null (new contracts)."
 
 - [ ] Test with bulk data (200+ records)
 - [ ] Keep flows in Draft until fully tested
-- [ ] **Always use sf-deploy skill** - never direct CLI commands
+- [ ] **Deploy through the Cirra AI MCP Server** (`metadata_create` / `metadata_update`, verify with `tooling_api_query`, activate via `metadata_update` on `FlowDefinition`) — never direct CLI commands
 
 ---
 

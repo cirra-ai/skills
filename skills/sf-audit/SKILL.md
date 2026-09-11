@@ -15,7 +15,7 @@ description: >
   standalone analysis documents including a customer report and strategic engagement plan.
   Usage: /sf-audit [full|apex|flow|lwc|metadata|permissions|reports|integrations|coverage|licensing|team|change-history|data-quality] ...
 metadata:
-  version: 3.1.1
+  version: 3.2.0
 ---
 
 # Salesforce Org Audit
@@ -549,8 +549,13 @@ Choose your processing strategy based on what the environment supports:
      --threshold 70
    ```
 3. Read `./audit_output/pre_score_summary.json`. Only review components
-   listed in `needs_llm_review` (those scoring below 70% of max). Accept all
-   other scores as-is — **do not load their bodies into context**.
+   listed in `needs_llm_review` (those scoring below 70% of max — the same
+   threshold sf-apex blocks deployment on). Accept all other scores as-is —
+   **do not load their bodies into context**. Every Apex finding in
+   `apex_scores.json` / `trigger_findings.json` is a `{severity, message, line}`
+   object on the shared scale `CRITICAL > HIGH > MODERATE > LOW > INFO`
+   (see `references/report-input-schema.md`); keep that shape when you adjust
+   a score.
 4. For flagged components: read the body, apply the domain rubric, adjust the
    score if the script produced a false positive, and record the final score.
 5. Write the final JSON score files and proceed to Phase C9 / Phase D.
@@ -641,7 +646,7 @@ Update `audit_state.md`: mark C1 complete, record aggregate stats.
 | Logic in trigger body instead of a handler class                | HIGH     |
 | No bulkification (SOQL/DML inside loop over Trigger.new)        | CRITICAL |
 | Multiple triggers on same object + event (execution order risk) | HIGH     |
-| Missing before/after context checks                             | MEDIUM   |
+| Missing before/after context checks                             | MODERATE |
 | ApiVersion < 55.0                                               | LOW      |
 
 **Verify:** `scored + skipped + carried_forward == Phase A local trigger count`.
@@ -678,8 +683,8 @@ against the Flow rubric. Inventory and flag:
 | Finding                                         | Severity |
 | ----------------------------------------------- | -------- |
 | Active Process Builder (should migrate to Flow) | HIGH     |
-| > 10 criteria nodes                             | MEDIUM   |
-| Invokes Apex actions                            | MEDIUM   |
+| > 10 criteria nodes                             | MODERATE |
+| Invokes Apex actions                            | MODERATE |
 | Multiple Process Builders on same object        | HIGH     |
 
 Write to `./audit_output/intermediate/process_builders/inventory.md`.
@@ -747,7 +752,7 @@ Findings classification:
 | -------- | ------------------------------------------------------------------------------------------- |
 | CRITICAL | Non-admin PS with ModifyAllData; orphaned PS with broad access                              |
 | HIGH     | PS with ViewAllData on sensitive objects; outdated PSGs; custom Profiles with ModifyAllData |
-| MEDIUM   | Overlapping PSs that should be consolidated into PSGs                                       |
+| MODERATE | Overlapping PSs that should be consolidated into PSGs                                       |
 | LOW      | Missing descriptions on PSs; unused Profiles                                                |
 
 Write outputs to `./audit_output/intermediate/permissions/`.
@@ -791,13 +796,13 @@ Findings for validation rules:
 | ------------------------------------------------------------------ | -------- |
 | Formula contains hardcoded Record ID(s)                            | HIGH     |
 | Formula contains hardcoded Campaign name(s)                        | HIGH     |
-| Formula contains hardcoded Profile name(s)                         | MEDIUM   |
-| Formula contains hardcoded URL(s)                                  | MEDIUM   |
-| Formula contains hardcoded record-type or picklist value string(s) | MEDIUM   |
-| Active rule with no description                                    | MEDIUM   |
-| Rule with no bypass mechanism (`$Permission` or custom setting)    | MEDIUM   |
+| Formula contains hardcoded Profile name(s)                         | MODERATE |
+| Formula contains hardcoded URL(s)                                  | MODERATE |
+| Formula contains hardcoded record-type or picklist value string(s) | MODERATE |
+| Active rule with no description                                    | MODERATE |
+| Rule with no bypass mechanism (`$Permission` or custom setting)    | MODERATE |
 | Inactive rules (cleanup candidates)                                | LOW      |
-| Object with > 20 active rules (complexity risk)                    | MEDIUM   |
+| Object with > 20 active rules (complexity risk)                    | MODERATE |
 
 #### Formula fields
 
@@ -825,12 +830,12 @@ Additional formula-field-specific findings:
 | ------------------------------------------------------------------ | -------- |
 | Formula contains hardcoded Record ID(s)                            | HIGH     |
 | Formula contains hardcoded Campaign name(s)                        | HIGH     |
-| Formula contains hardcoded Profile name(s)                         | MEDIUM   |
-| Formula contains hardcoded URL(s)                                  | MEDIUM   |
-| Formula contains hardcoded record-type or picklist value string(s) | MEDIUM   |
+| Formula contains hardcoded Profile name(s)                         | MODERATE |
+| Formula contains hardcoded URL(s)                                  | MODERATE |
+| Formula contains hardcoded record-type or picklist value string(s) | MODERATE |
 | Formula references field that does not exist (compile error risk)  | HIGH     |
-| Formula exceeds 5 000 characters (readability / compile-size risk) | MEDIUM   |
-| Formula uses `VLOOKUP` (deprecated function)                       | MEDIUM   |
+| Formula exceeds 5 000 characters (readability / compile-size risk) | MODERATE |
+| Formula uses `VLOOKUP` (deprecated function)                       | MODERATE |
 | Formula has deeply nested `IF` statements (> 5 levels)             | LOW      |
 
 Write formula field findings to
@@ -933,8 +938,8 @@ For each custom field, assign a category:
 | Condition                   | Category           | Severity |
 | --------------------------- | ------------------ | -------- |
 | No data AND no references   | Unused             | HIGH     |
-| No data but has references  | Empty              | MEDIUM   |
-| Has data but no references  | Unreferenced       | MEDIUM   |
+| No data but has references  | Empty              | MODERATE |
+| Has data but no references  | Unreferenced       | MODERATE |
 | Has data and has references | Active (no action) | —        |
 
 For each custom object with no records:
@@ -942,8 +947,8 @@ For each custom object with no records:
 | Condition                      | Category           | Severity |
 | ------------------------------ | ------------------ | -------- |
 | No records AND no references   | Unused             | HIGH     |
-| No records but has references  | Empty              | MEDIUM   |
-| Has records but no references  | Unreferenced       | MEDIUM   |
+| No records but has references  | Empty              | MODERATE |
+| Has records but no references  | Unreferenced       | MODERATE |
 | Has records and has references | Active (no action) | —        |
 
 Write findings to:
@@ -1004,12 +1009,12 @@ Findings:
 | --------------------------------------------------------------------- | -------- |
 | Active Workflow Rule (should migrate to Flow)                         | HIGH     |
 | Field updates that may conflict with Flows on same object             | CRITICAL |
-| Outbound messages (integration dependency)                            | MEDIUM   |
+| Outbound messages (integration dependency)                            | MODERATE |
 | Multiple automation types on same object (Workflow + Flow + PB)       | CRITICAL |
 | Criteria formula contains hardcoded Record ID(s)                      | HIGH     |
 | Criteria formula contains hardcoded Campaign name(s)                  | HIGH     |
 | Field-update formula contains hardcoded Record ID(s)                  | HIGH     |
-| Field-update formula contains hardcoded value(s) (Profile, URL, etc.) | MEDIUM   |
+| Field-update formula contains hardcoded value(s) (Profile, URL, etc.) | MODERATE |
 
 Update `audit_state.md`: mark C8 complete.
 
@@ -1037,8 +1042,8 @@ Findings:
 | Finding                                                    | Severity |
 | ---------------------------------------------------------- | -------- |
 | Entry criteria contains hardcoded Record ID(s)             | HIGH     |
-| Entry criteria contains hardcoded Campaign/Profile name(s) | MEDIUM   |
-| Step criteria contains hardcoded value(s)                  | MEDIUM   |
+| Entry criteria contains hardcoded Campaign/Profile name(s) | MODERATE |
+| Step criteria contains hardcoded value(s)                  | MODERATE |
 | Active approval process with no description                | LOW      |
 
 #### Escalation rules
@@ -1076,10 +1081,10 @@ Inspect each `<autoResponseRule>` → `<ruleEntry>` for `<formula>` or
 | Finding                                                      | Severity |
 | ------------------------------------------------------------ | -------- |
 | Approval entry/step criteria contains hardcoded Record ID(s) | HIGH     |
-| Approval entry/step criteria contains hardcoded name(s)      | MEDIUM   |
-| Escalation rule criteria contains hardcoded value(s)         | MEDIUM   |
-| Assignment rule criteria contains hardcoded value(s)         | MEDIUM   |
-| Auto-response rule criteria contains hardcoded value(s)      | MEDIUM   |
+| Approval entry/step criteria contains hardcoded name(s)      | MODERATE |
+| Escalation rule criteria contains hardcoded value(s)         | MODERATE |
+| Assignment rule criteria contains hardcoded value(s)         | MODERATE |
+| Auto-response rule criteria contains hardcoded value(s)      | MODERATE |
 
 Write all C8b findings to
 `./audit_output/intermediate/declarative_logic/other_rules.md` and persist
@@ -1121,7 +1126,7 @@ For each item, classify:
 
 | Finding                                              | Severity |
 | ---------------------------------------------------- | -------- |
-| Report/Dashboard never run/viewed                    | MEDIUM   |
+| Report/Dashboard never run/viewed                    | MODERATE |
 | Report/Dashboard not run/viewed in > 12 months       | LOW      |
 | Duplicate report/dashboard names across folders      | LOW      |
 | Folder with > 50 items (organisational complexity)   | LOW      |
@@ -1153,7 +1158,7 @@ Persist to `reports_dashboards.json`.
       "is_stale": false
     }
   ],
-  "findings": [{ "severity": "MEDIUM", "message": "12 reports have never been run" }]
+  "findings": [{ "severity": "MODERATE", "message": "12 reports have never been run" }]
 }
 ```
 
@@ -1199,9 +1204,9 @@ soql_query: SELECT Id, DeveloperName
 | ----------------------------------------------------------- | -------- |
 | Named Credential with deprecated authentication protocol    | HIGH     |
 | Connected App with no description                           | LOW      |
-| Outbound Message using API version < 50.0                   | MEDIUM   |
-| Platform Event with no subscribers (orphaned)               | MEDIUM   |
-| External Service with no active references in Flows or Apex | MEDIUM   |
+| Outbound Message using API version < 50.0                   | MODERATE |
+| Platform Event with no subscribers (orphaned)               | MODERATE |
+| External Service with no active references in Flows or Apex | MODERATE |
 | Named Credential endpoint using HTTP (not HTTPS)            | CRITICAL |
 | > 10 Connected Apps (review consolidation opportunities)    | LOW      |
 
@@ -1264,7 +1269,7 @@ For each class/trigger in the coverage data:
 | ------------------------------------------------------------- | -------- |
 | Org-wide coverage below 75% (deployment risk)                 | CRITICAL |
 | Class with 0% test coverage                                   | HIGH     |
-| Class with coverage below 75%                                 | MEDIUM   |
+| Class with coverage below 75%                                 | MODERATE |
 | Coverage data is empty or stale (recommend running all tests) | HIGH     |
 | Trigger with no test coverage                                 | HIGH     |
 
@@ -1324,10 +1329,10 @@ For each license:
 | Finding                                               | Severity |
 | ----------------------------------------------------- | -------- |
 | License with < 10% utilisation (potential cost waste) | HIGH     |
-| License with > 90% utilisation (capacity risk)        | MEDIUM   |
+| License with > 90% utilisation (capacity risk)        | MODERATE |
 | Expired license still present                         | HIGH     |
-| Package license expiring within 90 days               | MEDIUM   |
-| Permission Set License with 0 assignments             | MEDIUM   |
+| Package license expiring within 90 days               | MODERATE |
+| Permission Set License with 0 assignments             | MODERATE |
 | License cost optimisation opportunity > $5K annually  | HIGH     |
 
 Write to `./audit_output/intermediate/licensing/`.
@@ -1420,11 +1425,11 @@ Cross-cutting analysis:
 | Finding                                                       | Severity |
 | ------------------------------------------------------------- | -------- |
 | User inactive > 90 days (security risk — should deactivate)   | HIGH     |
-| User with no Role assigned (visibility gap)                   | MEDIUM   |
+| User with no Role assigned (visibility gap)                   | MODERATE |
 | > 10 users on System Administrator profile                    | HIGH     |
-| User with > 15 Permission Set assignments (over-permissioned) | MEDIUM   |
+| User with > 15 Permission Set assignments (over-permissioned) | MODERATE |
 | Profile used by only 1 user (consolidation candidate)         | LOW      |
-| User created but never logged in                              | MEDIUM   |
+| User created but never logged in                              | MODERATE |
 
 Write to `./audit_output/intermediate/team/`.
 Persist to `team_evaluation.json`.
@@ -1498,10 +1503,10 @@ tooling_api_query: SELECT Id, Status, CreatedDate, CreatedBy.Name,
 | Finding                                                      | Severity |
 | ------------------------------------------------------------ | -------- |
 | Deployment failure rate > 20%                                | HIGH     |
-| Changes made by a now-deactivated user                       | MEDIUM   |
-| > 50 setup changes in a single day by one user (change risk) | MEDIUM   |
+| Changes made by a now-deactivated user                       | MODERATE |
+| > 50 setup changes in a single day by one user (change risk) | MODERATE |
 | No deployments in last 90 days (stale org / manual changes)  | LOW      |
-| Permission-related changes without documented change request | MEDIUM   |
+| Permission-related changes without documented change request | MODERATE |
 | Production changes outside business hours (> 50% of changes) | LOW      |
 
 Write to `./audit_output/intermediate/change_history/`.

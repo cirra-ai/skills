@@ -36,7 +36,7 @@ Objects with **>2M records** should display an LDV indicator to highlight potent
 ### Query Record Count
 
 ```python
-soql_query(sObject="Account", fields=["COUNT()"])
+soql_query(sObject="Account", fields=["COUNT(Id)"], whereClause="Id != null")
 ```
 
 ### In Diagram
@@ -208,30 +208,36 @@ style std fill:#f0f9ff,stroke:#0369a1,stroke-dasharray:5
 
 ## Query Commands Reference
 
-### Batch Query Script
+All org discovery goes through Cirra AI MCP tools (signatures in
+[shared/references/cirra-mcp-tools.md](../../../shared/references/cirra-mcp-tools.md)).
 
-Use the provided Python script for efficient metadata queries:
+**Enumerate objects** (when the user has not named them):
 
-```bash
-python3 ~/.claude/plugins/marketplaces/sf-skills/sf-diagram-mermaid/scripts/query-org-metadata.py \
-    --objects Account,Contact,Lead,Opportunity,Case \
-    --target-org myorg \
-    --output table
+```python
+sobjects_list()
 ```
 
-### Manual Queries
+**Relationships** (Lookup vs Master-Detail):
+
+```python
+sobject_describe(sObject="Account")
+```
+
+`childRelationships[].cascadeDelete` is `true` for Master-Detail children and `false` for Lookups; `fields[].referenceTo` lists the parent object(s) of each relationship field.
 
 **Record Count (LDV)**:
 
 ```python
-soql_query(sObject="Account", fields=["COUNT()"])
+soql_query(sObject="Account", fields=["COUNT(Id)"], whereClause="Id != null")
 ```
 
-**OWD Setting**:
+**OWD Setting** (`sobject_describe` does not return it):
 
-```bash
-sf sobject describe --sobject Account --target-org myorg --json | jq '.result.sharingModel'
+```python
+metadata_read(type="CustomObject", fullNames=["Account", "Invoice__c"])
 ```
+
+Read `sharingModel` from each result: `Private`, `Read`, `ReadWrite`, or `ControlledByParent` (shown as `OWD:Parent`).
 
 **Object Type Check**:
 

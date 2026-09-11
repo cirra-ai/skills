@@ -56,16 +56,18 @@ The skill generates:
 
 ## Scoring System (110 Points)
 
-| Category       | Points | Focus                                         |
-| -------------- | ------ | --------------------------------------------- |
-| Bulkification  | 25     | No DML/queries in loops, collection variables |
-| Entry Criteria | 20     | Selective, indexed fields                     |
-| Naming         | 20     | Consistent element names, descriptions        |
-| Fault Handling | 20     | Fault paths on all DML/queries                |
-| Performance    | 15     | Minimal elements, efficient paths             |
-| Documentation  | 10     | Element descriptions, flow description        |
+| Category                       | Points | Focus                                                                    |
+| ------------------------------ | ------ | ------------------------------------------------------------------------ |
+| Design & Naming                | 20     | Flow/element/variable naming conventions, flow description               |
+| Logic & Structure              | 20     | DML/SOQL/Apex in loops, decision complexity, Transform vs Loop           |
+| Architecture & Orchestration   | 15     | Subflow usage, unused variables, orphaned elements, Auto-Layout          |
+| Performance & Bulk Safety      | 20     | Get Records filters, same-object queries, hardcoded IDs, SOQL/DML counts |
+| Error Handling & Observability | 20     | Infinite-loop risk, fault connectors, null checks, error logging         |
+| Security & Governance          | 15     | System mode, sensitive fields, active scheduled flows, API version       |
 
-**Minimum Score**: 88 (80%) for deployment
+(Same categories and weights as `scripts/validate_flow.py`.)
+
+**Deploy gate**: CRITICAL/HIGH issues block deployment; a score below 88 (80%) is a hard stop unless the user explicitly accepts it
 
 ## Key Insights
 
@@ -79,28 +81,39 @@ The skill generates:
 
 ## Templates
 
-| Template                    | Use Case               |
-| --------------------------- | ---------------------- |
-| `before-save-template.xml`  | Field auto-population  |
-| `after-save-template.xml`   | Related record updates |
-| `screen-flow-template.xml`  | User interaction flows |
-| `autolaunched-template.xml` | Background automation  |
-| `scheduled-template.xml`    | Time-based automation  |
-| `wait-template.xml`         | Wait element patterns  |
+All templates live in `assets/` (element snippets in `assets/elements/`, reusable subflows in `assets/subflows/`):
+
+| Template                             | Use Case                              |
+| ------------------------------------ | ------------------------------------- |
+| `record-triggered-before-save.xml`   | Field auto-population (same record)   |
+| `record-triggered-after-save.xml`    | Related record updates, notifications |
+| `record-triggered-before-delete.xml` | Pre-delete validation / cleanup       |
+| `screen-flow-template.xml`           | User interaction flows                |
+| `screen-flow-with-lwc.xml`           | Screen flow embedding an LWC          |
+| `autolaunched-flow-template.xml`     | Background automation / subflows      |
+| `scheduled-flow-template.xml`        | Time-based automation                 |
+| `platform-event-flow-template.xml`   | Platform event subscribers            |
+| `apex-action-template.xml`           | Calling an Apex `@InvocableMethod`    |
+| `wait-template.xml`                  | Wait element patterns                 |
+
+For `metadata_create` deployments start from `assets/json-deployment-reference.md` — the XML templates are structural references.
 
 ## Cross-Skill Integration
 
-| Related Skill | When to Use                               |
-| ------------- | ----------------------------------------- |
-| sf-apex       | Create @InvocableMethod for complex logic |
-| sf-lwc        | Create screen components for custom UI    |
-| sf-metadata   | Deploy custom objects BEFORE flows        |
-| sf-deploy     | Deploy flows to org                       |
+| Related Skill   | When to Use                                                             |
+| --------------- | ----------------------------------------------------------------------- |
+| sf-apex         | Create @InvocableMethod for complex logic or external callouts          |
+| sf-lwc          | Create screen components for custom UI                                  |
+| sf-metadata     | Deploy custom objects BEFORE flows                                      |
+| sf-connect-rest | Named Credentials / External Services an HTTP Callout action depends on |
+| sf-data         | Create test data AFTER the flow is deployed                             |
+
+sf-flow deploys its own flows through the Cirra AI MCP Server (`metadata_create` / `metadata_update`, then `metadata_update` on `FlowDefinition` to activate) — there is no separate deploy skill.
 
 ## Orchestration Order
 
 ```
-sf-metadata → sf-flow → sf-deploy → sf-data
+sf-metadata → sf-flow → sf-data
 ```
 
 Always deploy custom objects/fields BEFORE flows that reference them.
@@ -197,14 +210,14 @@ Available for PostToolUse `Write|Edit` integration. The skill does not ship a `h
 
 **`validate_flow.py`: 110-point static analysis**
 
-| Category                       | Points | What it checks                                                      |
-| ------------------------------ | ------ | ------------------------------------------------------------------- |
-| Design & Naming                | 25     | Element naming conventions, alphabetical ordering, flow description |
-| Logic & Structure              | 20     | Entry criteria, flow variables, decision logic                      |
-| Architecture & Orchestration   | 20     | Flow type appropriateness, subflow usage, API versioning            |
-| Performance & Bulk Safety      | 20     | DML/queries in loops, 251-record bulk handling, collection patterns |
-| Error Handling & Observability | 15     | Fault connectors on all DML/queries, unhandled paths                |
-| Security & Governance          | 10     | Sharing mode, hardcoded IDs, API version ≥ 59.0                     |
+| Category                       | Points | What it checks                                                                           |
+| ------------------------------ | ------ | ---------------------------------------------------------------------------------------- |
+| Design & Naming                | 20     | Flow name prefix, element/variable naming conventions, `Copy_of` names, flow description |
+| Logic & Structure              | 20     | DML / SOQL / Apex actions inside loops, formula-in-loop CPU, decision count, Transform   |
+| Architecture & Orchestration   | 15     | Subflow usage, unused variables, orphaned elements, Auto-Layout, flow size               |
+| Performance & Bulk Safety      | 20     | Get Records filters, same-object queries, hardcoded IDs/URLs, SOQL/DML counts            |
+| Error Handling & Observability | 20     | Infinite-loop risk, fault connectors on fallible elements, null checks, error logging    |
+| Security & Governance          | 15     | System mode, sensitive fields, `storeOutputAutomatically` in system mode, API version    |
 
 ### Scripts
 

@@ -20,7 +20,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Should ask user**: yes (must present full provisioning plan and get explicit approval before any write)
 - **Follow-up skills**: `sf-permissions`, `sf-metadata`
 
-**Notes**: Full Provision User workflow. Discovery phase must query active contractor users to read off the org's username pattern, profile, license, and assigned permission sets BEFORE proposing any values. Username must be checked for global uniqueness with `soql_query` on `User`. `user_create` should prefer `template=<comparable contractor>` over inventing properties (see Cirra issue PLTFRM-752 — `properties` map fails with "No such column '0'"). Permission set assignments are added separately via `permission_set_assignments` because clones do not copy them. Verification `soql_query` follows. Final report includes a `link_build` to the user setup record.
+**Notes**: Full Provision User workflow. Discovery phase must query active contractor users to read off the org's username pattern, profile, license, and assigned permission sets BEFORE proposing any values. Username must be checked for global uniqueness with `soql_query` on `User`. `user_create` should prefer `template=<comparable contractor>` over inventing properties (the `properties` map has been seen to fail with "No such column '0'"). Permission set assignments are added separately via `permission_set_assignments` because clones do not copy them. Verification `soql_query` follows. Final report includes a `link_build` to the user setup record.
 
 ---
 
@@ -51,12 +51,12 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Path**: full
 - **First tool**: `cirra_ai_init`
 - **Tool params**: `(no parameters)`
-- **Should call**: `cirra_ai_init`, `soql_query`, `user_create`, `permission_set_assignments`, `link_build`
+- **Should call**: `cirra_ai_init`, `user_describe`, `soql_query`, `user_create`, `permission_set_assignments`, `link_build`
 - **Should NOT call**: `metadata_create`, `metadata_delete`
 - **Should ask user**: yes (must confirm new user identity fields — firstName/lastName/username/email — and approve plan)
 - **Follow-up skills**: `sf-permissions`
 
-**Notes**: Mirror workflow reads the model user via `soql_query` (profile, license, role, and all `PermissionSetAssignment` rows). `user_create` uses `template=<model user>` to clone profile/locale. CRITICAL: clones do NOT copy permission set assignments — each PS the model user has must be re-assigned via `permission_set_assignments` (`add`).
+**Notes**: Mirror workflow reads the model user via `user_describe` (profile, license, role, locale and all permission set assignments in one call); `soql_query` is used for the username-availability check. `user_create` uses `template=<model user>` to clone profile/locale. CRITICAL: clones do NOT copy permission set assignments — each PS the model user has must be re-assigned via `permission_set_assignments` (`add`).
 
 ---
 
@@ -69,12 +69,12 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Path**: full
 - **First tool**: `cirra_ai_init`
 - **Tool params**: `(no parameters)`
-- **Should call**: `cirra_ai_init`, `soql_query`, `user_update`
-- **Should NOT call**: `user_create`, `metadata_delete`
+- **Should call**: `cirra_ai_init`, `user_describe`, `soql_query`, `user_update`
+- **Should NOT call**: `user_create`, `metadata_delete`, `sobject_dml`
 - **Should ask user**: yes (must surface dependency check results and confirm deactivation)
 - **Follow-up skills**: `sf-permissions`, `sf-audit`
 
-**Notes**: Dependency-check phase queries record ownership and running automation owned by the user with `soql_query` and surfaces results BEFORE deactivation. Deactivation uses `user_update` with `IsActive=false`. Users cannot be deleted in Salesforce — only deactivated or frozen. For freeze instead, the skill uses `sobject_dml` on `UserLogin` with `IsFrozen=true`.
+**Notes**: Dependency-check phase queries record ownership and running automation owned by the user with `soql_query` and surfaces results BEFORE deactivation. Deactivation uses `user_update` with `operation="deactivate"`. Users cannot be deleted in Salesforce — only deactivated or frozen. For freeze instead, the skill uses `user_update` with `operation="freeze"` (`UserLogin` is only queried to verify `IsFrozen`).
 
 ---
 

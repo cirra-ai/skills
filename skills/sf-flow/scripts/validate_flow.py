@@ -45,7 +45,7 @@ v2.1.0 Fixes:
 - IMPROVED: Better understanding of $Record context in record-triggered flows
 
 v2.0.0 New Validations:
-- storeOutputAutomatically detection (data leak prevention)
+- storeOutputAutomatically=true flagged only for system-mode flows (default true is fine in user mode)
 - Same-object query anti-pattern ($Record recommendation)
 - Complex formula in loops warning
 - Missing filters on Get Records
@@ -556,16 +556,18 @@ class EnhancedFlowValidator:
             # Already added to critical issues in logic_structure
 
         # ═══════════════════════════════════════════════════════════════════════
-        # NEW v2.0.0: storeOutputAutomatically detection (data leak + performance)
+        # storeOutputAutomatically: `true` is the documented default and is fine in
+        # user mode (FLS applies). It is only a concern when the flow runs in system
+        # mode, where every field on the record is fetched regardless of FLS.
         # ═══════════════════════════════════════════════════════════════════════
         store_auto_issues = self._has_store_output_automatically()
-        if store_auto_issues:
+        if store_auto_issues and self._runs_in_system_mode():
             score -= 3
             warnings.append(
                 {
                     "severity": "MEDIUM",
-                    "message": f"⚠️ 'Store all fields' enabled in Get Records: {', '.join(store_auto_issues[:3])}",
-                    "suggestion": "Specify only needed fields to prevent data leaks and improve performance",
+                    "message": f"⚠️ 'Store all fields' (storeOutputAutomatically=true) in a system-mode flow: {', '.join(store_auto_issues[:3])}",
+                    "suggestion": "System mode bypasses FLS — set storeOutputAutomatically=false with explicit queriedFields when the object carries sensitive fields",
                 }
             )
 
@@ -1318,10 +1320,16 @@ class EnhancedFlowValidator:
     # NEW VALIDATION HELPERS (v2.0.0)
     # ═══════════════════════════════════════════════════════════════════════
 
+    def _runs_in_system_mode(self) -> bool:
+        """True when the flow declares a SystemMode* runInMode (bypasses FLS/CRUD)."""
+        run_in_mode = self.root.find("sf:runInMode", self.namespace)
+        return run_in_mode is not None and "SystemMode" in (run_in_mode.text or "")
+
     def _has_store_output_automatically(self) -> list[str]:
         """
         Check for recordLookups with storeOutputAutomatically=true.
-        This stores ALL fields and can cause data leaks and performance issues.
+        Only a concern in system-mode flows (see _validate_performance): there the
+        lookup fetches every field regardless of FLS.
 
         Returns:
             List of element names with this issue
@@ -2323,13 +2331,16 @@ class EnhancedFlowValidator:
         # Deployment reminder - always shown when approved
         if not results["critical_issues"]:
             report.append("")
-            report.append("📦 NEXT STEP - Use sf-deploy skill (REQUIRED):")
+            report.append("📦 NEXT STEP - Deploy via the Cirra AI MCP Server (see SKILL.md):")
             report.append("─" * 70)
-            report.append('   Skill(skill="sf-deploy")')
-            report.append('   Request: "Deploy flow to [target-org] with --dry-run first"')
+            report.append('   metadata_create(type="Flow", metadata=[{...}])        # new flow (status: Draft)')
+            report.append('   metadata_update(type="Flow", metadata=[{...}], upsert=True)  # new version')
+            report.append('   tooling_api_query(sObject="Flow", fields=["Id","VersionNumber","Status"],')
+            report.append("                     whereClause=\"Definition.DeveloperName = '<Flow>'\", orderBy=\"VersionNumber DESC\", limit=1)")
+            report.append('   metadata_update(type="FlowDefinition", metadata=[{"fullName": "<Flow>", "activeVersionNumber": N}])  # activate on request')
             report.append("")
             report.append("   ⚠️  NEVER use 'sf project deploy' directly via Bash")
-            report.append("   ✅  ALWAYS use metadata_create via Cirra AI MCP Server for deployment")
+            report.append("   ✅  ALWAYS deploy through metadata_create / metadata_update (Cirra AI MCP Server)")
             report.append("═" * 70)
 
         report.append("\n")
