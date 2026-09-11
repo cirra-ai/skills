@@ -2,8 +2,8 @@ name: Build & Publish
 
 # Every push and every release trigger the same core steps:
 #   - Package plugins and skills
-#   - Copy zips into docs/ alongside the HTML page
-#   - Generate downloads page with relative links (zips served from CF Pages)
+#   - Copy plugin zips and skill .zip/.skill files into docs/ alongside the HTML page
+#   - Generate downloads page with relative links (artifacts served from CF Pages)
 #   - Deploy to Cloudflare Pages
 #   - Post deployment URL as a commit status (visible on PRs)
 #
@@ -12,7 +12,7 @@ name: Build & Publish
 #   push to main      → branch 'preview' → preview.skills-cirra-ai.pages.dev
 #   push to <branch>  → branch '<branch>' → <branch>.skills-cirra-ai.pages.dev
 #
-# On release, zips are also attached to the GitHub release for the release record.
+# On release, plugin zips and skill .zip/.skill files are attached to the GitHub release.
 
 on:
   push:
@@ -61,13 +61,13 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
-          for artifact in install/plugins/*.zip install/skills/*.skill; do
+          for artifact in install/plugins/*.zip install/skills/*.zip install/skills/*.skill; do
             gh release upload "${RELEASE_TAG}" "$artifact" --clobber
           done
 
       - name: Generate downloads page
         run: |
-          cp install/plugins/*.zip install/skills/*.skill docs/
+          cp install/plugins/*.zip install/skills/*.zip install/skills/*.skill docs/
           bash scripts/generate-pages.sh --dl-base=.
 
       - name: Deploy to Cloudflare Pages

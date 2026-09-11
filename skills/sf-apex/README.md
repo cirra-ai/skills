@@ -1,6 +1,6 @@
 # sf-apex
 
-Generates and reviews Salesforce Apex code with 2025 best practices and 150-point scoring. Build production-ready, secure, and maintainable Apex.
+Generates and reviews Salesforce Apex code with 2026 best practices and 150-point scoring. Build production-ready, secure, and maintainable Apex.
 
 ## Features
 

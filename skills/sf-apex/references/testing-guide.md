@@ -401,6 +401,8 @@ private class MockFactory extends Factory {
 
 ### System.runAs()
 
+At API 67.0+, SOQL and DML default to user mode. A test that only runs as System Administrator does not prove CRUD/FLS behavior. Cover user-mode paths with `System.runAs` and a permissioned persona (or an assigned permission set). Use `AccessLevel.SYSTEM_MODE` in assertion queries only when verifying database state the test user cannot read.
+
 ```apex
 @isTest
 static void testAsStandardUser() {

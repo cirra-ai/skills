@@ -411,7 +411,7 @@ public static List<Response> createContacts(List<Request> requests) {
 ```apex
 @InvocableMethod(label='Send to External System')
 public static List<Response> sendData(List<Request> requests) {
-    // Note: Callouts in Flow require @future or Queueable
+    // Note: Callouts from Flow use Queueable (Database.AllowsCallouts), not @future
     // This is a sync example - for async, enqueue from here
 
     List<Response> responses = new List<Response>();
@@ -452,7 +452,7 @@ public static List<Response> sendData(List<Request> requests) {
 | Delay or de-duplicate a job                                                         | `Queueable` + `AsyncOptions`              | `MinimumQueueableDelayInMinutes`, `DuplicateSignature`, stack-depth cap | Duplicate enqueue throws `DuplicateMessageException` — catch it |
 | Large result set, no Batch lifecycle needed                                         | `Queueable` + `Database.Cursor`           | Fetch by position, re-enqueue with offset, no Batch overhead            | Cursor lives for the transaction chain; 50M row cap             |
 | Guaranteed cleanup / retry / logging                                                | `System.Finalizer`                        | Runs even on unhandled exception or limit failure                       | Queueable only; one per job                                     |
-| `QueryLocator` start → execute → finish, `Database.Stateful`, org-wide reprocessing | `Batch Apex`                              | Up to 50M rows, per-chunk transactions, `finish` hook                   | Heavier; one batch per `execute` transaction chain              |
+| `QueryLocator` start → execute → finish, `Database.Stateful`, org-wide reprocessing | `Batch Apex`                              | Up to 50M rows, per-chunk transactions, `finish` hook                   | Heavier; max 5 concurrent batch jobs                            |
 | Recurring schedule                                                                  | **Scheduled Flow** (preferred)            | Declarative, visible to admins, no test class                           | Use `Schedulable` only to enqueue Apex that Flow cannot express |
 | Long-running callout from LWC / Visualforce                                         | `Continuation`                            | Frees the request thread                                                | UI-initiated only                                               |
 | `@future`                                                                           | **Legacy — do not generate**              | —                                                                       | No chaining, primitives only, no job Id, no Finalizer           |

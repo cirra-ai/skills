@@ -392,6 +392,8 @@ public with sharing class CursorQueueable implements Queueable {
 
 ### System.Finalizer — guaranteed post-job hook
 
+Use `System.Finalizer` for cleanup that must run after the Queueable succeeds or fails.
+
 ```apex
 public with sharing class ProcessRecordsFinalizer implements System.Finalizer {
     private final Id parentJobId;
@@ -410,13 +412,13 @@ public with sharing class ProcessRecordsFinalizer implements System.Finalizer {
 
 ### @future (legacy — do not generate)
 
-`@future` cannot chain, cannot take complex parameters, returns no job Id and cannot attach a Finalizer. When you touch an existing `@future` method, migrate it to a Queueable; a straight port is usually one class with a constructor holding the former parameters.
+`@future` cannot chain, cannot be called from Batch, cannot take complex parameters (primitives only), returns no job Id and cannot attach a Finalizer. When you touch an existing `@future` method, migrate it to a Queueable; a straight port is usually one class with a constructor holding the former parameters.
 
 ### Batch Apex
 
 ```apex
-// Large data volumes (millions of records)
-public class ProcessAccountsBatch implements Database.Batchable<SObject> {
+// Large data volumes when start/finish or QueryLocator lifecycle is required
+public with sharing class ProcessAccountsBatch implements Database.Batchable<SObject> {
     public Database.QueryLocator start(Database.BatchableContext bc) {
         return Database.getQueryLocator('SELECT Id FROM Account');
     }

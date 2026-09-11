@@ -3,9 +3,9 @@ name: sf-apex
 plugin: cirra-ai-sf
 argument-hint: '[create|update|validate] [class|trigger|test-class] {name} ...'
 metadata:
-  version: 2.1.0
+  version: 2.2.0
 description: >
-  Generates and reviews Salesforce Apex code with best practices and 150-point scoring using the Cirra AI
+  Generates and reviews Salesforce Apex code with 2026 best practices and 150-point scoring using the Cirra AI
   MCP Server. Use when writing Apex classes, triggers, test classes, batch
   jobs, or reviewing existing Apex code for bulkification, security, and SOLID principles.
   Usage: /sf-apex [create|update|validate] [class|trigger|test-class] {name} ...
@@ -72,7 +72,17 @@ Load a reference only when the row's "read when" applies — SKILL.md is self-su
 
 ## Create Apex
 
-Create a new Apex class or trigger following 2025 best practices.
+Create a new Apex class or trigger following 2026 best practices.
+
+2026 authoring defaults:
+
+- API version **67.0** (Summer '26): user-mode SOQL/DML, explicit sharing on every class, `WITH USER_MODE` instead of `WITH SECURITY_ENFORCED`
+- **Queueable** (plus `System.Finalizer`) for new async work — do not generate `@future` methods
+- **Apex Cursors** (`Database.getCursor` / `Database.Cursor`) with Queueable chaining for large result sets; Batch Apex when `start`/`finish` or a `QueryLocator` lifecycle is required
+- Recurring work: prefer a **Scheduled Flow**; use `Schedulable` only when the job must chain to Batch or needs complex Apex
+- Isolate `without sharing` / `AccessLevel.SYSTEM_MODE` in small named helpers; entry points stay `with sharing`
+- Custom Metadata: use `getAll()` / `getInstance()` on the metadata type, not SOQL
+- No `System.debug()` on main code paths — use a logging framework if tracing is required
 
 ### 1. Gather requirements
 
@@ -152,7 +162,9 @@ Create the class and its test class following the sf-apex skill guidelines:
 - Proper naming conventions (PascalCase, type suffix where applicable)
 - ApexDoc comments on all public methods
 - Bulkification patterns (no SOQL/DML in loops)
-- Corresponding test class with 90%+ coverage patterns
+- Explicit sharing keyword; `WITH USER_MODE` / `AccessLevel.USER_MODE` on SOQL and `Database` DML
+- Corresponding test class with 90%+ coverage patterns, PNB (positive / negative / bulk 251+), `Assert` class, and `TestDataFactory`
+- User-mode SOQL/DML paths are covered with `System.runAs` and a permissioned persona, not only as an admin
 
 ### 4. Validate before deploying
 
@@ -286,7 +298,7 @@ For triggers, also check whether related handler/action classes need updating.
 
 ### 3. Apply changes
 
-Modify the code following sf-apex skill guidelines. Preserve:
+Modify the code following sf-apex skill guidelines and 2026 best practices (see Create Apex). Preserve:
 
 - Existing ApexDoc comments (update where relevant)
 - Existing test coverage patterns
@@ -569,17 +581,18 @@ Do **not** ask for org details before calling `cirra_ai_init()`.
 ### Phase 2: Design & Template Selection
 
 **Select template** (for reference - code is generated as strings):
-| Class Type | Reference Template |
-|------------|----------|
-| Trigger | Standard TAF trigger pattern |
-| Trigger Action | TA_ObjectName_Purpose naming |
-| Service | Service layer pattern |
-| Selector | Selector pattern for queries |
-| Batch | Batch Apex pattern |
-| Queueable | Queueable/async pattern |
-| Test | Test class with PNB patterns |
-| Test Data Factory | Factory pattern for test data |
-| Standard Class | Standard utility/controller class |
+
+| Class Type        | Reference Template                |
+| ----------------- | --------------------------------- |
+| Trigger           | Standard TAF trigger pattern      |
+| Trigger Action    | TA_ObjectName_Purpose naming      |
+| Service           | Service layer pattern             |
+| Selector          | Selector pattern for queries      |
+| Batch             | Batch Apex pattern                |
+| Queueable         | Queueable/async pattern           |
+| Test              | Test class with PNB patterns      |
+| Test Data Factory | Factory pattern for test data     |
+| Standard Class    | Standard utility/controller class |
 
 **Template-Free Design**: Generate Apex code directly as strings following naming conventions and patterns. No file system templates needed.
 
@@ -628,22 +641,22 @@ If ANY of these patterns would be generated, **STOP and ask the user**:
 > A) Refactor to use [correct pattern]
 > B) Proceed anyway (not recommended)"
 
-| Anti-Pattern                  | Detection                                                   | Impact                                                                               |
-| ----------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| SOQL inside loop              | `for(...) { [SELECT...] }`                                  | Governor limit failure (100 SOQL)                                                    |
-| DML inside loop               | `for(...) { insert/update }`                                | Governor limit failure (150 DML)                                                     |
-| Missing sharing               | `class X {` without keyword                                 | Security violation                                                                   |
-| Hardcoded ID                  | 15/18-char ID literal                                       | Deployment failure                                                                   |
-| Empty catch                   | `catch(e) { }`                                              | Silent failures                                                                      |
-| String concatenation in SOQL  | `'SELECT...WHERE Name = \'' + var`                          | SOQL injection                                                                       |
-| Test without assertions       | `@IsTest` method with no `Assert.*`                         | False positive tests                                                                 |
-| Java types in Apex            | `ArrayList`, `HashMap`, `int`, `boolean`                    | Compile error — use `List`, `Map`, `Integer`, `Boolean`                              |
-| Non-existent Apex methods     | `.size()` on SObject, `.get()` on non-Map                   | Compile error — verify API before using                                              |
-| Wrong Map initialization      | `new Map{'key' => val}` (curly-brace syntax)                | Compile error — use `new Map<K,V>()` then `.put()`                                   |
-| `@future` in new code         | `@future` annotation                                        | Legacy — use `Queueable` + `System.Finalizer` (see Async Decision Matrix)            |
-| `System.debug()` on main path | `System.debug(` outside tests / temporary diagnostics       | Log noise, CPU cost, leaks data — use a logging framework or remove before deploy    |
-| Custom metadata via SOQL      | `[SELECT ... FROM X__mdt]`                                  | Counts against SOQL limits — use `X__mdt.getAll()` / `getInstance()`                 |
-| Unhandled partial DML         | `Database.update(records, false)` with no `SaveResult` loop | Silent partial failures — iterate `Database.SaveResult`, log/raise per failed record |
+| Anti-Pattern                  | Detection                                                   | Impact                                                                                     |
+| ----------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| SOQL inside loop              | `for(...) { [SELECT...] }`                                  | Governor limit failure (100 SOQL)                                                          |
+| DML inside loop               | `for(...) { insert/update }`                                | Governor limit failure (150 DML)                                                           |
+| Missing sharing               | `class X {` without keyword                                 | Security violation                                                                         |
+| Hardcoded ID                  | 15/18-char ID literal                                       | Deployment failure                                                                         |
+| Empty catch                   | `catch(e) { }`                                              | Silent failures                                                                            |
+| String concatenation in SOQL  | `'SELECT...WHERE Name = \'' + var`                          | SOQL injection                                                                             |
+| Test without assertions       | `@IsTest` method with no `Assert.*`                         | False positive tests                                                                       |
+| Java types in Apex            | `ArrayList`, `HashMap`, `int`, `boolean`                    | Compile error — use `List`, `Map`, `Integer`, `Boolean`                                    |
+| Non-existent Apex methods     | `.size()` on SObject, `.get()` on non-Map                   | Compile error — verify API before using                                                    |
+| Wrong Map initialization      | `new Map{'key' => val}` (curly-brace syntax)                | Compile error — use `new Map<K,V>()` then `.put()`                                         |
+| `@future` in new code         | `@future` / `@future(callout=true)`                         | Cannot chain, cannot call from Batch, primitives only — use Queueable + `System.Finalizer` |
+| `System.debug()` on main path | `System.debug(` outside tests / temporary diagnostics       | Log noise, CPU cost, leaks data — use a logging framework or remove before deploy          |
+| Custom metadata via SOQL      | `[SELECT ... FROM X__mdt]`                                  | Counts against SOQL limits — use `X__mdt.getAll()` / `getInstance()`                       |
+| Unhandled partial DML         | `Database.update(records, false)` with no `SaveResult` loop | Silent partial failures — iterate `Database.SaveResult`, log/raise per failed record       |
 
 **DO NOT generate anti-patterns even if explicitly requested.** Ask user to confirm the exception with documented justification.
 
@@ -848,12 +861,13 @@ tooling_api_dml(
 | Scenario                                                                                                                   | Use                                                                                                                                                     |
 | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Any async work: callouts, heavy logic, chaining                                                                            | `Queueable` (`implements Queueable, Database.AllowsCallouts`) — supports complex state, chaining, job Id                                                |
-| Delay, or de-duplicate the same job                                                                                        | `Queueable` + `AsyncOptions` (`MinimumQueueableDelayInMinutes`, `DuplicateSignature`) passed to `System.enqueueJob`                                     |
+| Delay, or de-duplicate the same job                                                                                        | `Queueable` + `AsyncOptions` (`MinimumQueueableDelayInMinutes` up to 10 minutes, `DuplicateSignature`) passed to `System.enqueueJob`                    |
+| Delay longer than 10 minutes                                                                                               | `System.scheduleBatch()`                                                                                                                                |
 | Large result set without Batch overhead                                                                                    | `Queueable` + `Database.Cursor` (`Database.getCursor`, `cursor.fetch(position, 200)`, re-enqueue with position)                                         |
 | Guaranteed cleanup / retry / logging after a job                                                                           | `System.Finalizer` attached with `System.attachFinalizer` inside `execute`                                                                              |
-| Needs the `QueryLocator` start → execute → finish lifecycle (millions of rows, `Database.Stateful`, org-wide reprocessing) | `Batch Apex`                                                                                                                                            |
+| Needs the `QueryLocator` start → execute → finish lifecycle (millions of rows, `Database.Stateful`, org-wide reprocessing) | `Batch Apex` (max 5 concurrent jobs)                                                                                                                    |
 | Recurring schedule                                                                                                         | **Scheduled Flow** (declarative, no code) — `Schedulable` only when the schedule must enqueue Apex that Flow cannot express                             |
-| Long-running callout from LWC/Visualforce                                                                                  | `Continuation`                                                                                                                                          |
+| Long-running callout from LWC/Visualforce                                                                                  | `Continuation` (up to 3 callouts per transaction, run in parallel)                                                                                      |
 | `@future`                                                                                                                  | **Legacy — do not generate.** No chaining, no complex parameters, no job Id, no Finalizer. Migrate to `Queueable` when touching existing `@future` code |
 
 Chained Queueables must guard depth (`AsyncInfo.hasMaxStackDepth()` / `AsyncOptions.MaximumQueueableStackDepth`) and must never enqueue from a loop. Full examples: `references/best-practices.md` §7 and `references/patterns-deep-dive.md` → Async Patterns.
@@ -864,9 +878,11 @@ Chained Queueables must guard depth (`AsyncInfo.hasMaxStackDepth()` / `AsyncOpti
 
 - **Null coalescing**: `value ?? defaultValue`
 - **Safe navigation**: `record?.Field__c`
-- **User mode**: `WITH USER_MODE` in SOQL
+- **User mode**: `WITH USER_MODE` in SOQL; `AccessLevel.USER_MODE` on `Database` DML (defaults at 67.0+)
 - **Assert class**: `Assert.areEqual()`, `Assert.isTrue()`
-- **Async**: `AsyncOptions` (delay / duplicate signature), `Database.Cursor`, `System.Finalizer`
+- **Apex Cursors**: `Database.getCursor(query)` / `Database.getCursorWithBinds(...)` then `cursor.fetch(position, count)` — up to 50 million rows; combine with Queueable chaining instead of new Batch jobs when a `QueryLocator` lifecycle is not required
+- **Queueable delay / dedup**: `AsyncOptions` (delay up to 10 minutes, `DuplicateSignature`)
+- **Finalizers**: `System.Finalizer` attached with `System.attachFinalizer` for guaranteed post-job cleanup
 
 **Breaking Change (API 62.0)**: Cannot modify Set while iterating - throws `System.FinalException`
 
@@ -1344,6 +1360,18 @@ tooling_api_dml(operation="delete", sObject="ApexTrigger", recordId="<triggerId>
 
 ---
 
+## Cross-Skill Integration
+
+| Related Skill | When to Use                                              |
+| ------------- | -------------------------------------------------------- |
+| sf-flow       | Create a Flow that calls `@InvocableMethod`              |
+| sf-lwc        | Create an LWC that calls `@AuraEnabled` controllers      |
+| sf-data       | SOQL authoring, field coverage, and test data            |
+| sf-metadata   | Describe objects/fields before coding; non-Apex metadata |
+| sf-audit      | Org-wide Apex/Flow/LWC audit                             |
+
+---
+
 ## Dependencies
 
 ### Cirra AI MCP Server tools
@@ -1373,6 +1401,7 @@ tooling_api_dml(operation="delete", sObject="ApexTrigger", recordId="<triggerId>
 - **API 67.0 behavior changes** (Summer '26 — [release notes](https://help.salesforce.com/s/articleView?id=release-notes.rn_apex.htm&release=262&type=5)): database operations default to **user mode** (not system mode); classes without a sharing declaration default to **`with sharing`** (previously `without sharing`); **`WITH SECURITY_ENFORCED` is removed** — classes at 67.0+ that use it do not compile, use `WITH USER_MODE` instead; DML/SOQL inside trigger bodies also runs in user mode unless system mode is explicit. Keep declaring sharing mode explicitly and prefer `WITH USER_MODE` — code that intentionally needs system-mode access must say `without sharing` / `AccessLevel.SYSTEM_MODE` explicitly at 67.0. **These changes are versioned per class**: a class pinned at ApiVersion 66.0 or earlier keeps the old semantics and still compiles with `WITH SECURITY_ENFORCED` — do not report existing older classes as broken. When updating such a class, keep its ApiVersion unless asked to raise it; migrate `WITH SECURITY_ENFORCED` to `WITH USER_MODE` (available since API 58.0) whenever touching the code, and always before raising ApiVersion to 67.0. Pass the class's ApiVersion to the validator so this check applies at the right severity
 - **Invocable action parameters**: custom Apex classes used as invocable action parameters must have a visible no-argument constructor (global for packaged classes); API calls validate this from version 66.0
 - **TAF Optional**: Prefer TAF when package is installed, use standard trigger pattern as fallback
+- **2026 async**: Generate Queueable + Finalizer, not `@future`. Prefer Apex Cursors + Queueable over new Batch jobs unless start/finish or a `QueryLocator` is required. Prefer Scheduled Flow over `Schedulable`
 - **Scoring**: Block deployment if score < 70% (exempt trivial/test classes — see scoring thresholds)
 - **MCP Initialization**: ALWAYS call `cirra_ai_init` first
 - **Code as String**: Generate all Apex as strings, deploy via `tooling_api_dml`
