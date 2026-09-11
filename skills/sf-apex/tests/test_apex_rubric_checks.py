@@ -215,6 +215,51 @@ private class SingleRecordTest {
         r = _validate(tmp_path, code, "SingleRecordTest.cls")
         assert any("bulk" in m.lower() for m in _messages(r, category="testing", severity="MODERATE"))
 
+    def test_incidental_large_number_is_not_a_bulk_test(self, tmp_path):
+        """A year, an HTTP status or a timeout must not count as a bulk test."""
+        code = """@IsTest
+private class IncidentalNumbersTest {
+    @IsTest
+    static void one() {
+        Integer statusCode = 200;
+        Datetime stamp = Datetime.newInstance(2026, 1, 1);
+        Integer timeoutMs = 120000;
+        insert new Account(Name = 'a');
+        Assert.areEqual(200, statusCode, 'ok');
+    }
+}"""
+        r = _validate(tmp_path, code, "IncidentalNumbersTest.cls")
+        assert any("bulk" in m.lower() for m in _messages(r, category="testing", severity="MODERATE"))
+
+    def test_loop_bound_counts_as_a_bulk_test(self, tmp_path):
+        code = """@IsTest
+private class BulkLoopTest {
+    @IsTest
+    static void many() {
+        List<Account> accounts = new List<Account>();
+        for (Integer i = 0; i < 250; i++) {
+            accounts.add(new Account(Name = 'a' + i));
+        }
+        insert accounts;
+        Assert.areEqual(250, accounts.size(), 'ok');
+    }
+}"""
+        r = _validate(tmp_path, code, "BulkLoopTest.cls")
+        assert not any("bulk" in m.lower() for m in _messages(r, category="testing", severity="MODERATE"))
+
+    def test_factory_call_with_count_counts_as_a_bulk_test(self, tmp_path):
+        code = """@IsTest
+private class BulkFactoryTest {
+    @IsTest
+    static void many() {
+        List<Account> accounts = TestDataFactory.createAccounts(200);
+        insert accounts;
+        Assert.areEqual(200, accounts.size(), 'ok');
+    }
+}"""
+        r = _validate(tmp_path, code, "BulkFactoryTest.cls")
+        assert not any("bulk" in m.lower() for m in _messages(r, category="testing", severity="MODERATE"))
+
     def test_non_test_class_is_not_scored_on_testing(self, tmp_path):
         r = ApexValidator(os.path.join(FIXTURES_DIR, "perfect_service.cls")).validate()
         assert r["scores"]["testing"] == 25
@@ -319,6 +364,39 @@ public without sharing class Aggregator {
 
 
 class TestPerformanceChecks:
+    def test_istest_in_a_comment_does_not_exempt_a_production_class(self, tmp_path):
+        """The test-class exemptions must key off the annotation in code only."""
+        code = """/**
+ * Account helper. Covered by AccountServiceTest (@IsTest).
+ */
+public with sharing class AccountService {
+    /** All accounts. */
+    public static List<Account> all() {
+        String note = 'see @IsTest classes for coverage';
+        System.debug(note);
+        return [SELECT Id FROM Account];
+    }
+}"""
+        r = _validate(tmp_path, code, "AccountService.cls")
+        messages = _messages(r, category="performance")
+        assert any("unbounded" in m.lower() for m in messages)
+        assert any("system.debug" in m.lower() for m in messages)
+
+    def test_real_test_class_keeps_its_performance_exemptions(self, tmp_path):
+        code = """@IsTest
+private class AccountServiceTest {
+    @IsTest
+    static void all() {
+        List<Account> accounts = [SELECT Id FROM Account];
+        System.debug(accounts);
+        Assert.isNotNull(accounts, 'ok');
+    }
+}"""
+        r = _validate(tmp_path, code, "AccountServiceTest.cls")
+        messages = _messages(r, category="performance")
+        assert not any("unbounded" in m.lower() for m in messages)
+        assert not any("system.debug" in m.lower() for m in messages)
+
     def test_unbounded_soql_is_moderate(self, tmp_path):
         code = """public with sharing class Unbounded {
     /** doc */

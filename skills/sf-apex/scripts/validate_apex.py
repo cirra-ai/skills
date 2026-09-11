@@ -165,6 +165,28 @@ _ASYNC_CALL_RE = re.compile(
 _HARDCODED_ID_RE = re.compile(r"'([a-zA-Z0-9]{15}|[a-zA-Z0-9]{18})'")
 _NUMBER_RE = re.compile(r"(?<![\w.])(\d+)(?![\w.])")
 
+# A bulk test has to size something by a record count, so only read a number
+# that sits in a counting position. A bare literal anywhere in the file (a year,
+# an HTTP 200, a timeout) is not evidence that the test inserts 200 records.
+BULK_TEST_MIN_RECORDS = 200
+_BULK_COUNT_RES = (
+    # for (Integer i = 0; i < 250; i++)
+    re.compile(r"\bfor\s*\([^;]*;[^;<>]*[<>]=?\s*(\d+)\s*;", re.IGNORECASE),
+    # while (i < 250)
+    re.compile(r"\bwhile\s*\([^)]*[<>]=?\s*(\d+)\s*\)", re.IGNORECASE),
+    # createAccounts(250) / TestDataFactory.build(Account.SObjectType, 250)
+    re.compile(
+        r"\b(?:create|build|make|generate|insert|setup|populate|seed)\w*\s*\("
+        r"[^()]*?(?<![\w.])(\d+)(?![\w.])\s*\)",
+        re.IGNORECASE,
+    ),
+    # Integer BULK_SIZE = 250; / static final Integer RECORD_COUNT = 250;
+    re.compile(
+        r"\bInteger\s+\w*(?:COUNT|SIZE|RECORDS|ROWS|BULK|VOLUME|LIMIT)\w*\s*=\s*(\d+)",
+        re.IGNORECASE,
+    ),
+)
+
 
 class ApexValidator:
     """Validates Apex code for best practices."""
@@ -237,7 +259,11 @@ class ApexValidator:
         self._code_lines = _strip_comments(self.lines)  # comments gone, strings kept
         self._bare_lines = [_strip_strings(ln) for ln in self._code_lines]  # both gone
         self._code_text = "\n".join(self._code_lines)
-        self._is_test_class = bool(re.search(r"@istest\b", self.content, re.IGNORECASE))
+        self._bare_text = "\n".join(self._bare_lines)
+        # Read the annotation from code only: a mention of @IsTest in ApexDoc, a
+        # comment or a string literal must not give a production class the
+        # test-class exemptions granted by the performance and testing checks.
+        self._is_test_class = bool(re.search(r"@istest\b", self._bare_text, re.IGNORECASE))
         self._is_trigger = bool(
             re.search(r"^\s*trigger\s+\w+\s+on\s+\w+", self._code_text, re.IGNORECASE | re.MULTILINE)
         )
@@ -748,9 +774,10 @@ class ApexValidator:
         # 6. Bulk test: some loop / factory call sized 200+.
         if test_methods:
             has_bulk = any(
-                int(n) >= 200
+                int(n) >= BULK_TEST_MIN_RECORDS
                 for line in self._bare_lines
-                for n in _NUMBER_RE.findall(line)
+                for pattern in _BULK_COUNT_RES
+                for n in pattern.findall(line)
             )
             if not has_bulk:
                 self._add_issue(

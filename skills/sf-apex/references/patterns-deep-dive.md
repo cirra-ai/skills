@@ -516,7 +516,12 @@ public with sharing class AccountCursorQueueable implements Queueable {
     }
 
     public void execute(QueueableContext context) {
-        List<Account> scope = cursor.fetch(position, PAGE_SIZE);
+        // Clamp the count to what is left: never ask for rows past the end.
+        Integer remaining = cursor.getNumRecords() - position;
+        if (remaining <= 0) {
+            return;
+        }
+        List<Account> scope = cursor.fetch(position, Math.min(PAGE_SIZE, remaining));
         for (Account acc : scope) {
             acc.Description = 'Processed on ' + System.now();
         }

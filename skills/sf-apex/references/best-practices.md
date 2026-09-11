@@ -367,6 +367,7 @@ try {
 
 ```apex
 public with sharing class CursorQueueable implements Queueable {
+    private static final Integer PAGE_SIZE = 200;
     private final Database.Cursor cursor;
     private final Integer position;
 
@@ -380,7 +381,12 @@ public with sharing class CursorQueueable implements Queueable {
     }
 
     public void execute(QueueableContext context) {
-        List<Account> scope = cursor.fetch(position, 200);
+        // Clamp the count to what is left: never ask for rows past the end.
+        Integer remaining = cursor.getNumRecords() - position;
+        if (remaining <= 0) {
+            return;
+        }
+        List<Account> scope = cursor.fetch(position, Math.min(PAGE_SIZE, remaining));
         // ... process scope ...
         Integer next = position + scope.size();
         if (next < cursor.getNumRecords()) {

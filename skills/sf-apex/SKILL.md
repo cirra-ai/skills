@@ -3,7 +3,7 @@ name: sf-apex
 plugin: cirra-ai-sf
 argument-hint: '[create|update|validate] [class|trigger|test-class] {name} ...'
 metadata:
-  version: 2.2.0
+  version: 2.2.1
 description: >
   Generates and reviews Salesforce Apex code with 2026 best practices and 150-point scoring using the Cirra AI
   MCP Server. Use when writing Apex classes, triggers, test classes, batch
@@ -863,7 +863,7 @@ tooling_api_dml(
 | Any async work: callouts, heavy logic, chaining                                                                            | `Queueable` (`implements Queueable, Database.AllowsCallouts`) — supports complex state, chaining, job Id                                                |
 | Delay, or de-duplicate the same job                                                                                        | `Queueable` + `AsyncOptions` (`MinimumQueueableDelayInMinutes` up to 10 minutes, `DuplicateSignature`) passed to `System.enqueueJob`                    |
 | Delay longer than 10 minutes                                                                                               | `System.scheduleBatch()`                                                                                                                                |
-| Large result set without Batch overhead                                                                                    | `Queueable` + `Database.Cursor` (`Database.getCursor`, `cursor.fetch(position, 200)`, re-enqueue with position)                                         |
+| Large result set without Batch overhead                                                                                    | `Queueable` + `Database.Cursor` (`Database.getCursor`, `cursor.fetch(position, Math.min(200, remaining))`, re-enqueue with position)                    |
 | Guaranteed cleanup / retry / logging after a job                                                                           | `System.Finalizer` attached with `System.attachFinalizer` inside `execute`                                                                              |
 | Needs the `QueryLocator` start → execute → finish lifecycle (millions of rows, `Database.Stateful`, org-wide reprocessing) | `Batch Apex` (max 5 concurrent jobs)                                                                                                                    |
 | Recurring schedule                                                                                                         | **Scheduled Flow** (declarative, no code) — `Schedulable` only when the schedule must enqueue Apex that Flow cannot express                             |
