@@ -7,7 +7,7 @@ auto-generated cards derived from plugin.json files and skill READMEs.
 
 Placeholders in docs/index.html:
   <!-- @@PLUGIN_CARDS@@ -->  — replaced with one card per plugin
-  <!-- @@SKILL_CARDS@@ -->   — replaced with one card per skill (.skill files)
+  <!-- @@SKILL_CARDS@@ -->   — replaced with one card per skill (.zip default, .skill for Claude)
 
 Usage:
   # CI — overwrite docs/index.html with the generated page:
@@ -240,7 +240,8 @@ def _skill_card(skill: dict) -> str:
         desc = desc[:197].rstrip() + "\u2026"
     desc = _esc(desc)
     tags = _tags_html(skill["keywords"], version=skill.get("version", ""), extra=["skill-only"])
-    dl_url = f"{DL_BASE}/{skill['name']}.skill"
+    zip_url = f"{DL_BASE}/{skill['name']}.zip"
+    skill_url = f"{DL_BASE}/{skill['name']}.skill"
     return f"""\
       <div class="card">
         <div class="card-body">
@@ -250,7 +251,10 @@ def _skill_card(skill: dict) -> str:
             {tags}
           </div>
         </div>
-        <a class="btn btn-outline" href="{dl_url}">&#11015; Download</a>
+        <div class="card-dl">
+          <a class="btn btn-outline" href="{zip_url}">&#11015; Download</a>
+          <a class="dl-alt" href="{skill_url}">Claude .skill</a>
+        </div>
       </div>"""
 
 
