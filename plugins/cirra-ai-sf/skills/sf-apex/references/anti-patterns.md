@@ -224,18 +224,19 @@ static void testAccountCreation() {
 
 These patterns indicate poor code quality and should be refactored.
 
-| Anti-Pattern                           | Problem                                 | Fix                                        |
-| -------------------------------------- | --------------------------------------- | ------------------------------------------ |
-| **SOQL without WHERE or LIMIT**        | Returns all records, slow               | Always add `WHERE` clause or `LIMIT`       |
-| **Multiple triggers on object**        | Unpredictable execution order           | Single trigger + Trigger Actions Framework |
-| **Generic `Exception` only**           | Masks specific errors                   | Catch specific exceptions first            |
-| **No trigger bypass flag**             | Can't disable for data loads            | Add Custom Setting bypass                  |
-| **`System.debug()` everywhere**        | Performance impact, clutters logs       | Use logging framework with levels          |
-| **Unnecessary `isEmpty()` before DML** | Wastes CPU                              | Remove - DML handles empty lists           |
-| **`!= false` comparisons**             | Confusing double negative               | Use `== true` or just the boolean          |
-| **No Test Data Factory**               | Duplicated test data setup              | Centralize in factory class                |
-| **God Class**                          | Single class does everything            | Split into Service/Selector/Domain         |
-| **Magic Numbers**                      | Hardcoded values like `if (score > 75)` | Use named constants                        |
+| Anti-Pattern                           | Problem                                       | Fix                                        |
+| -------------------------------------- | --------------------------------------------- | ------------------------------------------ |
+| **SOQL without WHERE or LIMIT**        | Returns all records, slow                     | Always add `WHERE` clause or `LIMIT`       |
+| **Multiple triggers on object**        | Unpredictable execution order                 | Single trigger + Trigger Actions Framework |
+| **Generic `Exception` only**           | Masks specific errors                         | Catch specific exceptions first            |
+| **No trigger bypass flag**             | Can't disable for data loads                  | Add Custom Setting bypass                  |
+| **`System.debug()` everywhere**        | Performance impact, clutters logs             | Use logging framework with levels          |
+| **`@future` in new code**              | No chaining, no Batch caller, primitives only | Queueable + `System.Finalizer`             |
+| **Unnecessary `isEmpty()` before DML** | Wastes CPU                                    | Remove - DML handles empty lists           |
+| **`!= false` comparisons**             | Confusing double negative                     | Use `== true` or just the boolean          |
+| **No Test Data Factory**               | Duplicated test data setup                    | Centralize in factory class                |
+| **God Class**                          | Single class does everything                  | Split into Service/Selector/Domain         |
+| **Magic Numbers**                      | Hardcoded values like `if (score > 75)`       | Use named constants                        |
 
 ---
 

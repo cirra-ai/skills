@@ -3,7 +3,7 @@ name: sf-lwc
 plugin: cirra-ai-sf
 argument-hint: '[create|update|validate] {ComponentName} ...'
 metadata:
-  version: 2.0.3
+  version: 2.0.4
 description: >
   Lightning Web Components development with PICKLES architecture methodology, component
   scaffolding, wire service patterns, event handling, Apex integration, GraphQL support,
@@ -50,11 +50,12 @@ available for post-processing and how large query results are retrieved.
 
 Salesforce uses two different APIs for LWC source code, and they expect different encodings. Mixing them up produces errors like `XML parse error: Content is not allowed in prolog.: Source` or `Compilation` failures.
 
-| API path                                                                           | Field                               | Encoding                         |
-| ---------------------------------------------------------------------------------- | ----------------------------------- | -------------------------------- |
-| Metadata API — `metadata_create` / `metadata_update` on `LightningComponentBundle` | `lwcResources.lwcResource[].source` | **Base64-encoded**               |
-| Tooling API — `tooling_api_dml` on `LightningComponentResource`                    | `Source`                            | **Plain text** (NOT Base64)      |
-| Tooling API — `tooling_api_query` on `LightningComponentResource`                  | `Source` (returned)                 | **Plain text** (already decoded) |
+| API path                                                                           | Field                               | Encoding                                                                 |
+| ---------------------------------------------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------ |
+| Metadata API — `metadata_create` / `metadata_update` on `LightningComponentBundle` | `lwcResources.lwcResource[].source` | **Base64-encoded**                                                       |
+| Metadata API — `metadata_create` / `metadata_update` on `LightningComponentBundle` | `targetConfigs`                     | **Base64-encoded** XML of the `<targetConfigs>...</targetConfigs>` block |
+| Tooling API — `tooling_api_dml` on `LightningComponentResource`                    | `Source`                            | **Plain text** (NOT Base64)                                              |
+| Tooling API — `tooling_api_query` on `LightningComponentResource`                  | `Source` (returned)                 | **Plain text** (already decoded)                                         |
 
 When falling back from `metadata_update` to per-file Tooling API edits (see [Tooling API fallback](#tooling-api-fallback--per-file-edits)), do not re-encode. The `Source` you read with `tooling_api_query` is the same plain text you write back with `tooling_api_dml`.
 
@@ -112,6 +113,8 @@ Apply the PICKLES framework from the sf-lwc skill. Generate all four files:
 
 #### `<componentName>.js-meta.xml`
 
+Generate this file so you have the XML for bundle-level `targets` / `targetConfigs`. Do **not** send it as an `lwcResource` — Salesforce auto-generates `*.js-meta.xml` from those bundle fields.
+
 - Correct `targets` for the intended placement
 - `targetConfigs` with typed properties where applicable
 - `isExposed: true` for App Builder drag-and-drop
@@ -143,6 +146,8 @@ metadata_create(
     "apiVersion": "67.0",
     "isExposed": true,
     "masterLabel": "<Component Label>",
+    "targets": {"target": ["lightning__AppPage", "lightning__RecordPage"]},
+    "targetConfigs": "<Base64 of the <targetConfigs>...</targetConfigs> XML block>",
     "lwcResources": {
       "lwcResource": [
         {"filePath": "lwc/<componentName>/<componentName>.js", "source": "<Base64-encoded JS>"},
@@ -153,6 +158,8 @@ metadata_create(
   }]
 )
 ```
+
+Do **not** add a `*.js-meta.xml` entry to `lwcResources`. Salesforce rejects it and auto-generates that file from `apiVersion`, `isExposed`, `targets`, and `targetConfigs`. `targetConfigs` is a first-class bundle field ([LightningComponentBundle](https://developer.salesforce.com/docs/atlas.en-us.api_meta.meta/api_meta/meta_lightningcomponentbundle.htm)) — Base64-encode the same `<targetConfigs>...</targetConfigs>` XML you generated above. Omit `targetConfigs` only when the component has no App Builder / Flow / Experience Builder properties.
 
 ### 6. Report
 
@@ -226,6 +233,8 @@ metadata_update(
     "apiVersion": "67.0",
     "isExposed": true,
     "masterLabel": "<Component Label>",
+    "targets": {"target": ["lightning__AppPage", "lightning__RecordPage"]},
+    "targetConfigs": "<Base64 of the <targetConfigs>...</targetConfigs> XML block>",
     "lwcResources": {
       "lwcResource": [
         {"filePath": "lwc/<ComponentName>/<ComponentName>.js", "source": "<Base64-encoded JS>"},
@@ -236,6 +245,8 @@ metadata_update(
   }]
 )
 ```
+
+Same rule as create: do not send `*.js-meta.xml` as an `lwcResource`. Put App Builder properties on bundle-level `targetConfigs` (Base64 XML).
 
 > **If `metadata_update` reports a partial failure** (e.g. `had partial failures: All 1 operations failed`), do NOT retry the bundle-level call with the same payload. Switch to the [Tooling API fallback](#tooling-api-fallback--per-file-edits) and update one resource at a time with plain-text `Source`. Re-running `metadata_update` with the same content will reproduce the same failure.
 
@@ -863,7 +874,7 @@ Agent:
 
 ### Step 2: Deploy via metadata_create
 
-The `metadata_create` call requires a flat metadata structure with **Base64-encoded** sources in `lwcResources`:
+The `metadata_create` call requires a flat metadata structure with **Base64-encoded** sources in `lwcResources`. Put `targets` and `targetConfigs` on the bundle — do not send a `*.js-meta.xml` resource:
 
 ```
 metadata_create(
@@ -874,6 +885,8 @@ metadata_create(
     "isExposed": true,
     "masterLabel": "Account Dashboard",
     "description": "SLDS 2 compliant account metrics dashboard",
+    "targets": {"target": ["lightning__AppPage", "lightning__RecordPage", "lightning__HomePage"]},
+    "targetConfigs": "<Base64 of the <targetConfigs>...</targetConfigs> XML block>",
     "lwcResources": {
       "lwcResource": [
         {
@@ -894,7 +907,7 @@ metadata_create(
 )
 ```
 
-> **Encoding note**: `metadata_create` and `metadata_update` require **Base64-encoded** source files in `lwcResources.lwcResource[].source`. When updating an existing component via `tooling_api_dml` on `LightningComponentResource.Source`, use **plain text** (NOT Base64). This is an intentional Salesforce API difference between the Metadata API and Tooling API. See [Source encoding rules](#source-encoding-rules-read-this-before-any-deployupdate) at the top of this skill for the full reference.
+> **Encoding note**: `metadata_create` and `metadata_update` require **Base64-encoded** source files in `lwcResources.lwcResource[].source`, and **Base64-encoded** XML in bundle-level `targetConfigs`. When updating an existing component via `tooling_api_dml` on `LightningComponentResource.Source`, use **plain text** (NOT Base64). This is an intentional Salesforce API difference between the Metadata API and Tooling API. See [Source encoding rules](#source-encoding-rules-read-this-before-any-deployupdate) at the top of this skill for the full reference.
 
 ### Step 3: Verify Deployment
 

@@ -1,6 +1,6 @@
 # sf-apex
 
-Generates and reviews Salesforce Apex code with 2025 best practices and 150-point scoring. Build production-ready, secure, and maintainable Apex.
+Generates and reviews Salesforce Apex code with 2026 best practices and 150-point scoring. Build production-ready, secure, and maintainable Apex.
 
 ## Features
 
@@ -113,8 +113,9 @@ Use `/sf-apex validate` at any time for on-demand checks:
 | ------------- | ------------------------------------------- |
 | sf-flow       | Create Flow to call @InvocableMethod        |
 | sf-lwc        | Create LWC to call @AuraEnabled controllers |
-| sf-testing    | Run tests and analyze coverage              |
-| sf-deploy     | Deploy Apex to org                          |
+| sf-data       | SOQL, field coverage, and test data         |
+| sf-metadata   | Describe objects/fields; non-Apex metadata  |
+| sf-audit      | Org-wide Apex/Flow/LWC audit                |
 
 ## Documentation
 
