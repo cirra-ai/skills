@@ -242,6 +242,7 @@ def test_skill_card_includes_full_description():
     })
     assert full in html
     assert "Show more" in html
+    assert "sf-cms.zip" in html
     assert "sf-cms.skill" in html
 
 
@@ -253,8 +254,10 @@ def test_download_href_escapes_name():
         "version": "1.0.1",
         "keywords": ["cms"],
     })
+    assert 'href="./sf-&quot;cms&quot;.zip"' in skill_html
     assert 'href="./sf-&quot;cms&quot;.skill"' in skill_html
     assert 'href="./sf-"cms".skill"' not in skill_html
+    assert 'href="./sf-"cms".zip"' not in skill_html
 
     plugin_html = generate_pages._plugin_card({
         "name": 'plug<"in"',
@@ -277,6 +280,46 @@ def test_plugin_card_short_description_stays_simple():
     })
     assert '<div class="card-desc">' in html
     assert "card-desc--expandable" not in html
+
+
+def test_skill_card_defaults_to_zip_with_skill_alt():
+    """Skill cards download .zip by default and offer .skill for Claude."""
+    original = generate_pages.DL_BASE
+    try:
+        generate_pages.DL_BASE = "."
+        html = generate_pages._skill_card({
+            "name": "sf-demo",
+            "description": "A test skill.",
+            "keywords": ["demo"],
+            "version": "1.0.0",
+        })
+    finally:
+        generate_pages.DL_BASE = original
+
+    assert 'href="./sf-demo.zip"' in html
+    assert 'href="./sf-demo.skill"' in html
+    btn_start = html.index("btn btn-outline")
+    btn = html[btn_start:html.index("</a>", btn_start)]
+    assert ".zip" in btn
+    assert ".skill" not in btn
+
+
+def test_plugin_card_still_uses_zip():
+    """Plugin cards keep downloading the plugin zip."""
+    original = generate_pages.DL_BASE
+    try:
+        generate_pages.DL_BASE = "."
+        html = generate_pages._plugin_card({
+            "name": "my-plugin",
+            "description": "Test plugin",
+            "keywords": ["test"],
+            "version": "1.0.0",
+            "is_featured": False,
+        })
+    finally:
+        generate_pages.DL_BASE = original
+
+    assert 'href="./my-plugin.zip"' in html
 
 
 def test_skills_independent_of_plugins(fake_repo):

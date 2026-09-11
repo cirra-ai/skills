@@ -233,6 +233,21 @@
         color: var(--accent);
         border: 1px solid var(--accent);
       }
+      .card-dl {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.35rem;
+        flex-shrink: 0;
+      }
+      .dl-alt {
+        font-size: 0.75rem;
+        color: var(--muted);
+        white-space: nowrap;
+      }
+      .dl-alt:hover {
+        color: var(--accent);
+      }
 
       /* ── How to install section ── */
       .install-box {
@@ -299,6 +314,9 @@
         .card {
           flex-direction: column;
           gap: 0.75rem;
+        }
+        .card-dl {
+          align-items: flex-start;
         }
       }
     </style>
@@ -484,6 +502,10 @@
         the <code>SKILL.md</code> file and all supporting assets and scripts.
       </p>
       <p style="color: var(--muted); font-size: 0.875rem; margin-bottom: 1.25rem">
+        Downloads are <code>.zip</code> by default (works with most AI clients). A
+        <code>.skill</code> file is also available for Claude.
+      </p>
+      <p style="color: var(--muted); font-size: 0.875rem; margin-bottom: 1.25rem">
         See <a href="#how-to-install">below &#8595;</a> for detailed install instructions.
       </p>
 
@@ -586,7 +608,7 @@
         <p>ChatGPT does not support skills directly. We recommend you use Codex instead.</p>
         <p>However, if you only have access to ChatGPT you can still use the skills as follows:</p>
         <ol>
-          <li>Download the individual <code>.skill</code> file using the links above</li>
+          <li>Download the individual <code>.zip</code> file using the links above</li>
           <li>Add the skill to a chat that has the <strong>Cirra AI</strong> app enabled.</li>
         </ol>
         <p>

@@ -1,19 +1,21 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Package Cirra AI skills as standalone .skill files for distribution.
+# Package Cirra AI skills as standalone zip files for distribution.
 #
-# Each .skill package contains all files from the skill directory, with SKILL.md
+# Each package contains all files from the skill directory, with SKILL.md
 # processed to strip plugin-only frontmatter keys and append a License section.
 # LICENSE falls back to the repo root if not present in the skill dir.
 #
-# The .skill format is a zip archive with a .skill extension.
+# The default download format is .zip (works with most AI clients). A copy with
+# a .skill extension is also written for Claude, which expects that format.
+# Both files are the same zip archive.
 #
 # Usage:
 #   scripts/package-skills.sh          # warn on issues, fail on errors
 #   scripts/package-skills.sh --strict # also fail on warnings
 #
-# Output: install/skills/<skill-name>.skill
+# Output: install/skills/<skill-name>.zip and install/skills/<skill-name>.skill
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -161,8 +163,9 @@ PYEOF
     printf '\n%s\n' "$LICENSE_SECTION_BASE" >> "$tmp_dir/SKILL.md"
   fi
 
-  # Package contents as .skill file (zip archive with .skill extension)
-  (cd "$tmp_dir" && zip -r -q "$SKILLS_OUT_DIR/${skill_name}.skill" .)
+  # Package as .zip (default) and .skill (Claude-only extension on the same archive)
+  (cd "$tmp_dir" && zip -r -q "$SKILLS_OUT_DIR/${skill_name}.zip" .)
+  cp "$SKILLS_OUT_DIR/${skill_name}.zip" "$SKILLS_OUT_DIR/${skill_name}.skill"
 
   rm -rf "$tmp_dir"
   SKILL_COUNT=$((SKILL_COUNT + 1))
@@ -174,4 +177,4 @@ echo ""
 echo "=== Done ==="
 echo ""
 echo "Output in $SKILLS_OUT_DIR/:"
-ls -lh "$SKILLS_OUT_DIR"/*.skill 2>/dev/null || echo "  (none)"
+ls -lh "$SKILLS_OUT_DIR"/*.{zip,skill} 2>/dev/null || echo "  (none)"
