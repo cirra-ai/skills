@@ -3,7 +3,7 @@ name: sf-data
 plugin: cirra-ai-sf
 argument-hint: '[query|build-query|insert|update|upsert|delete|validate|describe] {target} ...'
 metadata:
-  version: 2.0.3
+  version: 2.0.4
 description: >
   Salesforce data and SOQL expert. Execute SOQL queries (natural language or raw SOQL),
   build optimized queries with selectivity analysis, insert/update/upsert/delete records,
@@ -97,7 +97,7 @@ Show the structure, fields, relationships, and record types of a Salesforce obje
 
 1. Call `sobject_describe(sObject="<ObjectName>")` to get metadata
 2. Display key fields (name, type, required, length), relationships, and record types
-3. Note any FLS caveats (describe is not authoritative for field accessibility)
+3. If a later SOQL or DML call returns `No such column` for a name that appeared here, treat it as connected-user FLS until `FieldDefinition` says otherwise — do not tell the user the field is missing
 
 ---
 
@@ -143,16 +143,16 @@ cirra_ai_init -> sf-metadata -> sf-data (SOQL/DML) -> sf-apex/sf-flow
 
 **sf-data operates on REMOTE org data.** Objects/fields must exist before sf-data can create records.
 
-| Error                               | Meaning                           | Fix                                                         |
-| ----------------------------------- | --------------------------------- | ----------------------------------------------------------- |
-| `INVALID_FIELD`                     | Field doesn't exist or FLS blocks | Use `sobject_describe` to verify field names                |
-| `MALFORMED_QUERY`                   | Invalid SOQL syntax               | Check relationship names, field types in SOQL pattern       |
-| `FIELD_CUSTOM_VALIDATION_EXCEPTION` | Validation rule triggered         | Use valid data matching validation logic                    |
-| `REQUIRED_FIELD_MISSING`            | Required field not set            | Include all required fields in records                      |
-| `INVALID_CROSS_REFERENCE_KEY`       | Invalid relationship ID           | Verify parent record exists before inserting child          |
-| `TOO_MANY_SOQL_QUERIES`             | 100 query limit                   | Batch queries, use relationships to avoid multiple queries  |
-| `TOO_MANY_DML_STATEMENTS`           | 150 DML limit                     | Batch records in single sobject_dml call (max 200 per call) |
-| `EXCEEDED_ID_LIMIT`                 | > 200 records in one DML call     | Split into batches of <= 200 records                        |
+| Error                               | Meaning                           | Fix                                                                                                                                                                                                                            |
+| ----------------------------------- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `INVALID_FIELD` / `No such column`  | Field missing **or** FLS hides it | Check `FieldDefinition` before saying the field does not exist. If it is in schema but not in REST describe / SOQL, grant Read FLS on the **connected user**. If it is absent from `FieldDefinition`, it is not on the object. |
+| `MALFORMED_QUERY`                   | Invalid SOQL syntax               | Check relationship names, field types in SOQL pattern                                                                                                                                                                          |
+| `FIELD_CUSTOM_VALIDATION_EXCEPTION` | Validation rule triggered         | Use valid data matching validation logic                                                                                                                                                                                       |
+| `REQUIRED_FIELD_MISSING`            | Required field not set            | Include all required fields in records                                                                                                                                                                                         |
+| `INVALID_CROSS_REFERENCE_KEY`       | Invalid relationship ID           | Verify parent record exists before inserting child                                                                                                                                                                             |
+| `TOO_MANY_SOQL_QUERIES`             | 100 query limit                   | Batch queries, use relationships to avoid multiple queries                                                                                                                                                                     |
+| `TOO_MANY_DML_STATEMENTS`           | 150 DML limit                     | Batch records in single sobject_dml call (max 200 per call)                                                                                                                                                                    |
+| `EXCEEDED_ID_LIMIT`                 | > 200 records in one DML call     | Split into batches of <= 200 records                                                                                                                                                                                           |
 
 ---
 
@@ -170,14 +170,14 @@ handled and whether local tooling is available for post-processing.
 
 ## Key Insights
 
-| Insight                    | Why                                                  | Action                                                               |
-| -------------------------- | ---------------------------------------------------- | -------------------------------------------------------------------- |
-| **Test with 201+ records** | Crosses 200-record batch boundary                    | Always bulk test with 201+ records (split into 200+1 batches)        |
-| **FLS blocks access**      | "Field does not exist" often = FLS not missing field | Query using user context; not all fields visible                     |
-| **Cleanup is essential**   | Test isolation and data hygiene                      | Always provide cleanup SOQL queries                                  |
-| **DML batch limit is 200** | MCP server enforces 200-record max per call          | Split operations into <= 200-record batches                          |
-| **Query default is 100**   | `soql_query` returns max 100 records by default      | Set explicit `limit` param; use artifact retrieval for large results |
-| **Delete uses recordIds**  | Delete param differs from insert/update              | Use `recordIds: ["id1", "id2"]` string array, not `records`          |
+| Insight                    | Why                                                                                                                                                      | Action                                                                                                                                           |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Test with 201+ records** | Crosses 200-record batch boundary                                                                                                                        | Always bulk test with 201+ records (split into 200+1 batches)                                                                                    |
+| **FLS hides a real field** | Salesforce uses the same `No such column` error for a missing field and for FLS. Cirra `sobject_describe` lists org schema; REST describe / SOQL do not. | Query `FieldDefinition` before telling the user the field does not exist. If it is in schema, grant Read (and Edit to write) on this connection. |
+| **Cleanup is essential**   | Test isolation and data hygiene                                                                                                                          | Always provide cleanup SOQL queries                                                                                                              |
+| **DML batch limit is 200** | MCP server enforces 200-record max per call                                                                                                              | Split operations into <= 200-record batches                                                                                                      |
+| **Query default is 100**   | `soql_query` returns max 100 records by default                                                                                                          | Set explicit `limit` param; use artifact retrieval for large results                                                                             |
+| **Delete uses recordIds**  | Delete param differs from insert/update                                                                                                                  | Use `recordIds: ["id1", "id2"]` string array, not `records`                                                                                      |
 
 ---
 
@@ -532,7 +532,7 @@ sobject_describe(
 
 Response includes: fields (name, type, required, length), relationships, record types, etc.
 
-> **IMPORTANT**: `sobject_describe` is NOT authoritative for field accessibility. A field may appear in the describe response but still fail SOQL queries (`No such column`), LWC schema imports, or Metadata API deployments due to FLS, profile restrictions, or org-level configuration. Always verify critical fields with a test SOQL query before relying on describe output for data operations or component development.
+> **`No such column` is not proof the field is missing.** Salesforce REST `describe()` and SOQL omit fields the connected user cannot read, and they return `INVALID_FIELD: No such column` — the same error as a field that is not on the object. Cirra `sobject_describe` and Tooling `FieldDefinition` return org schema (not FLS-filtered, FieldDefinition requires View Setup). If a name is in `FieldDefinition` / `sobject_describe` but SOQL or `bulk_dml` rejects it, the connected user lacks Field-Level Security: grant Read (and Edit, to write it) on that user's profile or a permission set. Both causes happen — a true missing field (typo, undeployed custom field) and an FLS-hidden field (including standard fields such as `DoNotCall`, `HasOptedOutOfEmail`, `HasOptedOutOfFax`). Check `FieldDefinition` before telling the user the field does not exist. Do not list other FLS-hidden fields the caller did not ask about.
 
 ### 5. Tooling API Queries
 
