@@ -34,6 +34,7 @@ _dl_base_args = [a[len("--dl-base="):] for a in sys.argv if a.startswith("--dl-b
 DL_BASE = _dl_base_args[0] if _dl_base_args else "."
 
 SUPPRESS_KEYWORDS = {"cirra-ai", "salesforce", "orchestration"}
+CARD_DESC_PREVIEW_LIMIT = 200
 
 
 # ---------------------------------------------------------------------------
@@ -214,17 +215,50 @@ def _tags_html(keywords: list[str], version: str = "", extra: list[str] | None =
     return "\n            ".join(tags)
 
 
+def _desc_preview(text: str, limit: int = CARD_DESC_PREVIEW_LIMIT) -> str | None:
+    """Return a truncated preview ending in an ellipsis, or None if no cut is needed."""
+    if len(text) <= limit:
+        return None
+    cut = text[:limit].rstrip()
+    space = cut.rfind(" ")
+    if space > limit // 2:
+        cut = cut[:space]
+    return cut.rstrip(".,;:") + "\u2026"
+
+
+def _card_desc_html(desc: str) -> str:
+    """Render a card description, expandable when the text exceeds the preview limit.
+
+    ``<summary>`` holds only the preview and the Show more/less label so the
+    full text (details body) can be selected without toggling the control.
+    """
+    escaped = _esc(desc)
+    preview = _desc_preview(desc)
+    if preview is None:
+        return f'<div class="card-desc">{escaped}</div>'
+    return (
+        '<details class="card-desc card-desc--expandable">'
+        "<summary>"
+        f'<span class="card-desc-preview">{_esc(preview)}</span>'
+        '<span class="desc-more">Show more</span>'
+        '<span class="desc-less">Show less</span>'
+        "</summary>"
+        f'<div class="card-desc-full">{escaped}</div>'
+        "</details>"
+    )
+
+
 def _plugin_card(plugin: dict) -> str:
     name = _esc(plugin["name"])
-    desc = _esc(plugin["description"])
+    desc_html = _card_desc_html(plugin["description"])
     tags = _tags_html(plugin["keywords"], plugin["version"])
-    dl_url = f"{DL_BASE}/{plugin['name']}.zip"
+    dl_url = _esc(f"{DL_BASE}/{plugin['name']}.zip")
     cls = "card featured" if plugin["is_featured"] else "card"
     return f"""\
       <div class="{cls}">
         <div class="card-body">
           <div class="card-title">{name}</div>
-          <div class="card-desc">{desc}</div>
+          {desc_html}
           <div class="card-tags">
             {tags}
           </div>
@@ -235,18 +269,15 @@ def _plugin_card(plugin: dict) -> str:
 
 def _skill_card(skill: dict) -> str:
     name = _esc(skill["name"])
-    desc = skill["description"]
-    if len(desc) > 200:
-        desc = desc[:197].rstrip() + "\u2026"
-    desc = _esc(desc)
+    desc_html = _card_desc_html(skill["description"])
     tags = _tags_html(skill["keywords"], version=skill.get("version", ""), extra=["skill-only"])
-    zip_url = f"{DL_BASE}/{skill['name']}.zip"
-    skill_url = f"{DL_BASE}/{skill['name']}.skill"
+    zip_url = _esc(f"{DL_BASE}/{skill['name']}.zip")
+    skill_url = _esc(f"{DL_BASE}/{skill['name']}.skill")
     return f"""\
       <div class="card">
         <div class="card-body">
           <div class="card-title">{name}</div>
-          <div class="card-desc">{desc}</div>
+          {desc_html}
           <div class="card-tags">
             {tags}
           </div>
