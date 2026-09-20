@@ -138,6 +138,57 @@
         font-size: 0.875rem;
         margin-bottom: 0.6rem;
       }
+      .card-desc--expandable > summary {
+        list-style: none;
+        display: block;
+        cursor: pointer;
+      }
+      .card-desc--expandable > summary::-webkit-details-marker,
+      .card-desc--expandable > summary::marker {
+        display: none;
+        content: none;
+      }
+      .card-desc--expandable[open] {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.15rem;
+      }
+      .card-desc--expandable[open] > .card-desc-full {
+        order: 1;
+      }
+      .card-desc--expandable[open] > summary {
+        order: 2;
+      }
+      .card-desc--expandable .desc-less {
+        display: none;
+      }
+      .card-desc--expandable[open] .card-desc-preview,
+      .card-desc--expandable[open] .desc-more {
+        display: none;
+      }
+      .card-desc--expandable[open] .desc-less {
+        display: inline;
+        margin-left: 0;
+      }
+      .card-desc--expandable .desc-more,
+      .card-desc--expandable .desc-less {
+        color: var(--accent);
+        font-weight: 600;
+        font-size: 0.8rem;
+        margin-left: 0.35rem;
+        white-space: nowrap;
+        cursor: pointer;
+      }
+      .card-desc--expandable summary:hover .desc-more,
+      .card-desc--expandable summary:hover .desc-less {
+        text-decoration: underline;
+      }
+      .card-desc--expandable summary:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+        border-radius: 3px;
+      }
       .card-tags {
         display: flex;
         flex-wrap: wrap;
