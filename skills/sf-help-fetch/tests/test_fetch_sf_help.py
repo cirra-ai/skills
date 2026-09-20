@@ -537,6 +537,9 @@ class TestDeveloperDocs:
             "HTTPS://developer.salesforce.com/docs/platform/lwc/guide/data-wire-service"
         )
         assert not mod.is_dev_docs_url("https://developer.salesforce.com")
+        # Explicit ports still identify the host; matching ignores the port.
+        assert mod.is_dev_docs_url("https://developer.salesforce.com:443/docs/x")
+        assert mod.is_dev_docs_url("https://developer.salesforce.com:80/docs/x")
 
     def test_main_routes_dev_docs_instead_of_exit_2(self, monkeypatch, capsys):
         # Regression: developer.salesforce.com used to be rejected with exit 2
@@ -680,6 +683,15 @@ class TestDevMarkdownTwin:
             "https://www.developer.salesforce.com/docs/platform/lwc/guide/data-wire-service/"
         ) == "https://developer.salesforce.com/docs/platform/lwc/guide/data-wire-service.md"
 
+    def test_twin_url_strips_https_default_port_only(self):
+        assert mod._dev_md_twin_url(
+            "https://developer.salesforce.com:443/docs/platform/lwc/guide/x.html"
+        ) == "https://developer.salesforce.com/docs/platform/lwc/guide/x.md"
+        # :80 is not the HTTPS default — keep it so the rewrite does not retarget.
+        assert mod._dev_md_twin_url(
+            "https://developer.salesforce.com:80/docs/platform/lwc/guide/x.html"
+        ) == "https://developer.salesforce.com:80/docs/platform/lwc/guide/x.md"
+
     def test_twin_url_for_undotted_landing_segment(self):
         # .../uiapi has no extension; we still *form* a twin URL and let
         # Content-Type decide. (Atlas fallback handles a text/html miss.)
@@ -760,6 +772,27 @@ class TestDevMarkdownTwin:
         assert out == "# md body"
         assert seen == [
             "https://developer.salesforce.com/docs/platform/lwc/guide/data-wire-service"
+        ]
+
+    def test_fetch_developer_docs_keeps_non_default_https_port(self, monkeypatch):
+        monkeypatch.setattr(mod, "assert_reachable", lambda *a, **k: None)
+        seen = []
+
+        def fake_twin(url):
+            seen.append(url)
+            return "# md body"
+
+        monkeypatch.setattr(mod, "_fetch_dev_md_twin", fake_twin)
+        monkeypatch.setattr(
+            mod, "_dev_get_json",
+            lambda url: (_ for _ in ()).throw(
+                AssertionError("Atlas JSON API should not be called when a twin exists")))
+        out = mod.fetch_developer_docs(
+            "https://www.developer.salesforce.com:80/docs/platform/lwc/guide/data-wire-service"
+        )
+        assert out == "# md body"
+        assert seen == [
+            "https://developer.salesforce.com:80/docs/platform/lwc/guide/data-wire-service"
         ]
 
     def test_fetch_developer_docs_no_twin_no_meta_raises(self, monkeypatch):

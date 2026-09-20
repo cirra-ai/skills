@@ -147,16 +147,40 @@ def _http_url(arg):
     return p
 
 
-def _canonical_host(netloc):
-    """Lowercase host, drop www. and explicit default ports."""
+def _split_host_port(netloc):
+    """Lowercase host, drop www.; return (hostname, port or None)."""
     host = (netloc or "").lower()
     if "@" in host:
         host = host.rsplit("@", 1)[-1]
     if host.startswith("www."):
         host = host[4:]
-    if host.endswith(":443") or host.endswith(":80"):
-        host = host.rsplit(":", 1)[0]
-    return host
+    if ":" in host:
+        name, port = host.rsplit(":", 1)
+        if port.isdigit():
+            return name, port
+    return host, None
+
+
+def _canonical_host(netloc):
+    """Hostname only (www. stripped, port ignored) for identity matching."""
+    return _split_host_port(netloc)[0]
+
+
+def _rewrite_netloc(netloc, scheme):
+    """www. stripped; drop the port only when it is the scheme's default.
+
+    https://host:443 -> host, http://host:80 -> host; any other explicit
+    port (https://host:80, http://host:443, :8080) is preserved so a rewrite
+    does not silently retarget the request."""
+    name, port = _split_host_port(netloc)
+    if not name:
+        return netloc
+    if port is None:
+        return name
+    scheme = (scheme or "").lower()
+    if (scheme == "https" and port == "443") or (scheme == "http" and port == "80"):
+        return name
+    return f"{name}:{port}"
 
 
 def _is_developer_host(netloc):
@@ -515,7 +539,7 @@ def _dev_md_twin_url(url):
     non-document segments (e.g. 'atlas.en-us.uiapi.meta') are not twins.
     Availability is still gated on Content-Type by the caller."""
     p = urllib.parse.urlparse(url)
-    netloc = _canonical_host(p.netloc) if p.netloc else p.netloc
+    netloc = _rewrite_netloc(p.netloc, p.scheme) if p.netloc else p.netloc
     path = (p.path or "").rstrip("/") or "/"
     segs = path.split("/")
     if not segs or not segs[-1] or segs[-1] == "docs":
@@ -576,10 +600,11 @@ def fetch_developer_docs(url):
          rather than the URL, so a version-less URL still resolves the current
          release."""
     assert_reachable("developer.salesforce.com", "*.salesforce.com")
-    # Canonicalize www. / default ports so the Markdown-twin and Atlas calls
-    # hit developer.salesforce.com rather than a host variant the CDN 404s.
+    # Canonicalize www. / the scheme's default port so Markdown-twin and Atlas
+    # calls hit developer.salesforce.com rather than a host variant the CDN 404s.
     p = urllib.parse.urlparse(url)
-    url = urllib.parse.urlunparse(p._replace(netloc=_canonical_host(p.netloc) or p.netloc))
+    url = urllib.parse.urlunparse(
+        p._replace(netloc=_rewrite_netloc(p.netloc, p.scheme) or p.netloc))
     md = _fetch_dev_md_twin(url)
     if md is not None:
         return md
