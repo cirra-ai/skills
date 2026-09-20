@@ -213,7 +213,7 @@ Use `style` declarations with 200-level fills and dark strokes:
 flowchart TB
     A["🤖 sf-ai-agentforce"]
     B["⚡ sf-apex"]
-    C["🔗 sf-integration"]
+    C["🔗 sf-connect-rest"]
 
     A --> B
     A --> C
@@ -278,7 +278,7 @@ flowchart TB
 
     subgraph integration["🔌 INTEGRATION & SECURITY"]
         connectedapps["🔐 sf-connected-apps"]
-        sfintegration["🔗 sf-integration"]
+        connectrest["🔗 sf-connect-rest"]
     end
 
     subgraph development["💻 DEVELOPMENT"]
@@ -291,27 +291,27 @@ flowchart TB
         data["💾 sf-data"]
     end
 
-    subgraph devops["🚀 DEVOPS"]
-        deploy["🚀 sf-deploy"]
+    subgraph devops["🔍 GOVERNANCE"]
+        audit["🔍 sf-audit"]
     end
 
     %% Relationships
     agentforce -->|"flow actions"| flow
-    agentforce -->|"API actions"| sfintegration
-    sfintegration -->|"OAuth apps"| connectedapps
+    agentforce -->|"API actions"| connectrest
+    connectrest -->|"OAuth apps"| connectedapps
     apex -->|"schema"| metadata
     flow -->|"schema"| metadata
-    apex -->|"deploys"| deploy
+    apex -->|"scored by"| audit
 
     %% Node Styling - 200-level fills
     style agentforce fill:#fbcfe8,stroke:#be185d,color:#1f2937
     style connectedapps fill:#fed7aa,stroke:#c2410c,color:#1f2937
-    style sfintegration fill:#99f6e4,stroke:#0f766e,color:#1f2937
+    style connectrest fill:#99f6e4,stroke:#0f766e,color:#1f2937
     style apex fill:#ddd6fe,stroke:#6d28d9,color:#1f2937
     style flow fill:#c7d2fe,stroke:#4338ca,color:#1f2937
     style metadata fill:#a5f3fc,stroke:#0e7490,color:#1f2937
     style data fill:#fde68a,stroke:#b45309,color:#1f2937
-    style deploy fill:#a7f3d0,stroke:#047857,color:#1f2937
+    style audit fill:#a7f3d0,stroke:#047857,color:#1f2937
 
     %% Subgraph Styling - 50-level fills with dashed borders
     style ai fill:#fdf2f8,stroke:#be185d,stroke-dasharray:5

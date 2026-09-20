@@ -2,6 +2,11 @@
 
 Strategies for test data isolation and proper cleanup.
 
+The Apex methods (1-5) run inside deployed test classes built with
+**sf-apex** and executed with `run_tests` — Cirra cannot run anonymous Apex.
+From a conversation, use the Cirra AI MCP calls shown in Method 2 and at the
+end of this file.
+
 ## Method 1: Savepoint/Rollback
 
 Best for synchronous operations in a single transaction.
@@ -121,16 +126,16 @@ System.debug('Cleanup complete');
 ```
 # Query records to delete
 soql_query(
-  query="SELECT Id FROM Account WHERE Name LIKE 'Test%'",
-  orgAlias="dev"
+  sObject="Account",
+  fields=["Id"],
+  whereClause="Name LIKE 'Test%'"
 )
 
-# Delete using the returned IDs
+# Delete using the returned IDs (recordIds, max 200 per call)
 sobject_dml(
   operation="delete",
-  sobjectType="Account",
-  records=[{Id: "<id_1>"}, {Id: "<id_2>"}, ...],
-  orgAlias="dev"
+  sObject="Account",
+  recordIds=["<id_1>", "<id_2>", ...]
 )
 ```
 
@@ -281,49 +286,57 @@ public class MyTestClass {
 ### Query Records for Cleanup
 
 ```
-# Query Account IDs to delete
+# Query Account IDs to delete (thousands of rows: use bulk_query instead)
 soql_query(
-  query="SELECT Id FROM Account WHERE Name LIKE 'Test%'",
-  orgAlias="dev"
+  sObject="Account",
+  fields=["Id"],
+  whereClause="Name LIKE 'Test%'",
+  limit=2000
 )
 
 # Query Contact IDs to delete
 soql_query(
-  query="SELECT Id FROM Contact WHERE Account.Name LIKE 'Test%'",
-  orgAlias="dev"
+  sObject="Contact",
+  fields=["Id"],
+  whereClause="Account.Name LIKE 'Test%'",
+  limit=2000
 )
 ```
 
 ### Execute Bulk Delete
 
+Up to 200 IDs per `sobject_dml` call; for more, one `bulk_dml` job per
+object (Bulk API 2.0 — ask for approval first).
+
 ```
 # Delete children first (using IDs from query above)
-sobject_dml(
+bulk_dml(
   operation="delete",
-  sobjectType="Contact",
-  records=[{Id: "<contact_id_1>"}, {Id: "<contact_id_2>"}, ...],
-  orgAlias="dev"
+  sObject="Contact",
+  recordIds=["<contact_id_1>", "<contact_id_2>", ...]
 )
 
 # Then delete parents
-sobject_dml(
+bulk_dml(
   operation="delete",
-  sobjectType="Account",
-  records=[{Id: "<account_id_1>"}, {Id: "<account_id_2>"}, ...],
-  orgAlias="dev"
+  sObject="Account",
+  recordIds=["<account_id_1>", "<account_id_2>", ...]
 )
 ```
 
+Both send rows to the Recycle Bin. `operation="hardDelete"` skips it and
+needs the Bulk API Hard Delete permission plus explicit approval.
+
 ## Best Practices Summary
 
-| Method             | Best For          | Limitations                   |
-| ------------------ | ----------------- | ----------------------------- |
-| Savepoint/Rollback | Synchronous tests | No async, max 5 savepoints    |
-| Name Pattern       | Ad-hoc cleanup    | May delete unintended records |
-| Time Window        | Post-test cleanup | Needs accurate timestamp      |
-| ID Tracking        | Precise cleanup   | Requires tracking discipline  |
-| @testSetup         | Unit tests        | Only in @isTest classes       |
-| Cirra AI MCP       | Large volumes     | MCP server connection needed  |
+| Method             | Best For             | Limitations                               |
+| ------------------ | -------------------- | ----------------------------------------- |
+| Savepoint/Rollback | Synchronous tests    | No async, max 5 savepoints                |
+| Name Pattern       | Ad-hoc cleanup       | May delete unintended records             |
+| Time Window        | Post-test cleanup    | Needs accurate timestamp                  |
+| ID Tracking        | Precise cleanup      | Requires tracking discipline              |
+| @testSetup         | Unit tests           | Only in @isTest classes                   |
+| Cirra AI MCP       | Any volume from chat | `sobject_dml` ≤200 IDs, `bulk_dml` beyond |
 
 ## Golden Rules
 

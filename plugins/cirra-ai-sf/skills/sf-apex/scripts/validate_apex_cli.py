@@ -14,9 +14,12 @@ Pass the ApiVersion the code is (or will be) deployed at so version-sensitive
 checks apply correctly (e.g. WITH SECURITY_ENFORCED: CRITICAL at 67.0+ where it
 no longer compiles, informational at <= 66.0 where it still does).
 
+Severity labels use the shared five-level scale defined in validate_apex.py
+(CRITICAL > HIGH > MODERATE > LOW > INFO).
+
 Exit codes:
-  0  — validation passed (score >= 67%)
-  1  — validation failed (score < 67%) or file not found
+  0  — validation passed (score >= 70% and no CRITICAL/HIGH findings)
+  1  — validation failed (score < 70%, or any CRITICAL/HIGH finding) or file not found
 """
 
 import os
@@ -25,7 +28,15 @@ import sys
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, SCRIPT_DIR)
 
-THRESHOLD_PCT = 67
+from validate_apex import (  # noqa: E402
+    SEVERITY_ORDER,
+    THRESHOLD_PCT,
+    normalize_severity,
+    severity_icon,
+    severity_rank,
+)
+
+__all__ = ["SEVERITY_ORDER", "THRESHOLD_PCT", "run_validation", "main"]
 
 
 def run_validation(file_path: str, api_version: float | None = None) -> dict:
@@ -39,7 +50,7 @@ def run_validation(file_path: str, api_version: float | None = None) -> dict:
         from validate_apex import ApexValidator
 
         validator = ApexValidator(file_path, api_version=api_version)
-        max_scores = dict(validator.scores)  # capture before validate() mutates in place
+        max_scores = dict(validator.max_scores)
         results = validator.validate()
 
         score = results.get("score", 0)
@@ -55,7 +66,7 @@ def run_validation(file_path: str, api_version: float | None = None) -> dict:
             for issue in llm_results.get("issues", []):
                 issues.append(
                     {
-                        "severity": issue.get("severity", "WARNING"),
+                        "severity": normalize_severity(issue.get("severity"), "MODERATE"),
                         "category": issue.get("category", "llm_pattern"),
                         "message": issue.get("message", ""),
                         "line": issue.get("line", 0),
@@ -100,14 +111,10 @@ def run_validation(file_path: str, api_version: float | None = None) -> dict:
         if issues:
             output_parts.append("")
             output_parts.append(f"⚠️  Issues Found ({len(issues)}):")
-            severity_order = {"CRITICAL": 0, "HIGH": 1, "MEDIUM": 2, "MODERATE": 3, "WARNING": 4, "LOW": 5, "INFO": 6}
-            issues.sort(key=lambda x: severity_order.get(x.get("severity", "INFO"), 6))
+            issues.sort(key=lambda x: severity_rank(x.get("severity")))
             for issue in issues[:12]:
-                sev = issue.get("severity", "INFO")
-                icon = {
-                    "CRITICAL": "🔴", "HIGH": "🟠", "MEDIUM": "🟡",
-                    "MODERATE": "🟡", "WARNING": "🟡", "LOW": "🔵", "INFO": "⚪",
-                }.get(sev, "⚪")
+                sev = normalize_severity(issue.get("severity"), "INFO")
+                icon = severity_icon(sev)
                 source = f"[{issue['source']}] " if issue.get("source") else ""
                 line_info = f"L{issue['line']}" if issue.get("line") else ""
                 msg = issue["message"][:65] + "..." if len(issue["message"]) > 65 else issue["message"]
@@ -122,12 +129,29 @@ def run_validation(file_path: str, api_version: float | None = None) -> dict:
             output_parts.append("✅ No issues found!")
 
         output_parts.append("═" * 60)
-        if pct >= THRESHOLD_PCT:
-            output_parts.append("✅ PASSED — safe to deploy")
+        blocking = [
+            i for i in issues if normalize_severity(i.get("severity"), "INFO") in ("CRITICAL", "HIGH")
+        ]
+        if pct < THRESHOLD_PCT:
+            output_parts.append(
+                f"❌ BELOW THRESHOLD ({pct:.0f}% < {THRESHOLD_PCT}%) — fix issues before deploying"
+            )
+        elif blocking:
+            output_parts.append(
+                f"❌ {len(blocking)} CRITICAL/HIGH finding(s) — fix before deploying regardless of score"
+            )
         else:
-            output_parts.append("❌ BELOW THRESHOLD — fix issues before deploying")
+            output_parts.append("✅ PASSED — safe to deploy")
 
-        return {"success": True, "output": "\n".join(output_parts), "score": score, "max_score": max_score, "pct": pct}
+        return {
+            "success": True,
+            "output": "\n".join(output_parts),
+            "score": score,
+            "max_score": max_score,
+            "pct": pct,
+            "blocking_count": len(blocking),
+            "passed": pct >= THRESHOLD_PCT and not blocking,
+        }
 
     except ImportError as e:
         return {"success": False, "output": f"⚠️  Validator not available: {e}", "pct": 0}
@@ -156,7 +180,7 @@ def main() -> int:
 
     result = run_validation(file_path, api_version=api_version)
     print(result["output"])
-    return 0 if result.get("success") and result.get("pct", 0) >= THRESHOLD_PCT else 1
+    return 0 if result.get("success") and result.get("passed") else 1
 
 
 if __name__ == "__main__":

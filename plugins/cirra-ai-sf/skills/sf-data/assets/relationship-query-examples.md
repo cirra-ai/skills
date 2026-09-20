@@ -15,10 +15,16 @@ WHERE Industry = 'Technology'
 
 ```
 soql_query(
-  query="SELECT Id, Name, (SELECT Id, FirstName, LastName FROM Contacts) FROM Account WHERE Industry = 'Technology' LIMIT 5",
-  orgAlias="dev"
+  sObject="Account",
+  fields=["Id", "Name", "(SELECT Id, FirstName, LastName FROM Contacts)"],
+  whereClause="Industry = 'Technology'",
+  limit=5
 )
 ```
+
+If the server rejects the subquery in `fields`, run two queries: Accounts,
+then Contacts with `whereClause="AccountId IN ('001...', '001...')"`.
+`bulk_query` never accepts subqueries.
 
 ### Multiple Subqueries
 
@@ -57,8 +63,10 @@ WHERE Account.Industry = 'Technology'
 
 ```
 soql_query(
-  query="SELECT Id, FirstName, LastName, Account.Name, Account.Industry FROM Contact WHERE Account.Industry = 'Technology' LIMIT 10",
-  orgAlias="dev"
+  sObject="Contact",
+  fields=["Id", "FirstName", "LastName", "Account.Name", "Account.Industry"],
+  whereClause="Account.Industry = 'Technology'",
+  limit=10
 )
 ```
 
@@ -103,10 +111,15 @@ WHERE Status = 'Open'
 
 ```
 soql_query(
-  query="SELECT Id, Subject, TYPEOF Who WHEN Contact THEN FirstName, LastName WHEN Lead THEN FirstName, LastName END FROM Task WHERE Status = 'Open' LIMIT 5",
-  orgAlias="dev"
+  sObject="Task",
+  fields=["Id", "Subject", "TYPEOF Who WHEN Contact THEN FirstName, LastName WHEN Lead THEN FirstName, LastName END"],
+  whereClause="Status = 'Open'",
+  limit=5
 )
 ```
+
+`TYPEOF` is REST-only — `bulk_query` does not support it. A portable
+alternative is `Who.Type` plus `Who.Name` in `fields`.
 
 ### Event Relationships
 
@@ -134,10 +147,18 @@ ORDER BY SUM(AnnualRevenue) DESC
 
 ```
 soql_query(
-  query="SELECT Industry, COUNT(Id) total, SUM(AnnualRevenue) revenue FROM Account GROUP BY Industry HAVING COUNT(Id) > 5",
-  orgAlias="dev"
+  sObject="Account",
+  fields=["Industry", "COUNT(Id) total", "SUM(AnnualRevenue) revenue"],
+  whereClause="Id != null",
+  groupBy="Industry",
+  havingClause="COUNT(Id) > 5",
+  orderBy="SUM(AnnualRevenue) DESC"
 )
 ```
+
+`groupBy`, `havingClause` and `orderBy` are separate parameters — never put
+them inside `whereClause`. `whereClause` is required; `Id != null` means
+"all rows". Aggregates are REST-only (`bulk_query` rejects them).
 
 ### Rollup by Date
 

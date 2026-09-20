@@ -1,6 +1,6 @@
 # Apex Troubleshooting Guide
 
-Comprehensive guide to debugging Apex code, LSP validation, dependency management, and common deployment issues.
+Comprehensive guide to debugging Apex code, static validation, dependency management, and common deployment issues.
 
 ---
 
@@ -18,14 +18,14 @@ Comprehensive guide to debugging Apex code, LSP validation, dependency managemen
 
 **Before deploying Apex code, verify these prerequisites:**
 
-| Prerequisite              | Check Command                                                 | Required For                |
-| ------------------------- | ------------------------------------------------------------- | --------------------------- |
-| **TAF Package**           | `tooling_api_query(sobjectType="InstalledSubscriberPackage")` | TAF trigger pattern         |
-| **Custom Fields**         | `sobject_describe(sobjectType="Lead")`                        | Field references in code    |
-| **Permission Sets**       | `soql_query(query="SELECT Id, Name FROM PermissionSet")`      | FLS for custom fields       |
-| **Trigger_Action\_\_mdt** | Check Setup → Custom Metadata Types                           | TAF trigger execution       |
-| **Named Credentials**     | Check Setup → Named Credentials                               | External callouts           |
-| **Custom Settings**       | Check Setup → Custom Settings                                 | Bypass flags, configuration |
+| Prerequisite              | Check Command                                                                             | Required For                |
+| ------------------------- | ----------------------------------------------------------------------------------------- | --------------------------- |
+| **TAF Package**           | `tooling_api_query` on `InstalledSubscriberPackage` (see "Verifying Prerequisites" below) | TAF trigger pattern         |
+| **Custom Fields**         | `sobject_describe(sObject="Lead")`                                                        | Field references in code    |
+| **Permission Sets**       | `soql_query(sObject="PermissionSet", fields=["Id", "Name"], whereClause="Id != null")`    | FLS for custom fields       |
+| **Trigger_Action\_\_mdt** | Check Setup → Custom Metadata Types                                                       | TAF trigger execution       |
+| **Named Credentials**     | Check Setup → Named Credentials                                                           | External callouts           |
+| **Custom Settings**       | Check Setup → Custom Settings                                                             | Bypass flags, configuration |
 
 ---
 
@@ -45,7 +45,7 @@ Comprehensive guide to debugging Apex code, LSP validation, dependency managemen
    └─> tooling_api_dml(operation="insert", sObject="ApexClass", record={"Name":"MyClass","Body":"...","Status":"Active","ApiVersion":"67.0"})
 
 4. sf-data: Create test data
-   └─> sobject_dml(operation="insert", sobjectType="Account", records=[{Name: "Test"}])
+   └─> sobject_dml(operation="insert", sObject="Account", records=[{"Name": "Test"}])
 ```
 
 ---
@@ -55,10 +55,14 @@ Comprehensive guide to debugging Apex code, LSP validation, dependency managemen
 **Check TAF Package:**
 
 ```
-tooling_api_query(sobjectType="InstalledSubscriberPackage")
+tooling_api_query(
+  sObject="InstalledSubscriberPackage",
+  fields=["Id", "SubscriberPackage.Name", "SubscriberPackageVersion.Name"],
+  whereClause="Id != null"
+)
 ```
 
-**Expected Result:** Look for "Trigger Actions Framework" in the response.
+**Expected Result:** Look for "Trigger Actions Framework" in `SubscriberPackage.Name`. Alternatively confirm the handler class exists: `tooling_api_query(sObject="ApexClass", fields=["Id"], whereClause="Name = 'MetadataTriggerHandler'")`.
 
 **If not installed:**
 
@@ -72,7 +76,11 @@ tooling_api_query(sobjectType="InstalledSubscriberPackage")
 **Check Custom Metadata Records:**
 
 ```
-soql_query(query="SELECT DeveloperName, Object__c, Apex_Class_Name__c FROM Trigger_Action__mdt")
+soql_query(
+  sObject="Trigger_Action__mdt",
+  fields=["DeveloperName", "Object__c", "Apex_Class_Name__c"],
+  whereClause="Id != null"
+)
 ```
 
 **Expected Output:**
@@ -105,7 +113,7 @@ Error: Field Account.Custom_Field__c does not exist
 1. Verify field exists:
 
    ```
-   sobject_describe(sobjectType="Account")
+   sobject_describe(sObject="Account")
    ```
 
 2. Deploy field first:
@@ -138,7 +146,7 @@ Error: Invalid type: TriggerAction.BeforeInsert
 # Install package 04tKZ000000gUEFYA2 via Salesforce Setup → Installed Packages
 
 # Verify
-tooling_api_query(sobjectType="InstalledSubscriberPackage")
+tooling_api_query(sObject="InstalledSubscriberPackage", fields=["Id", "SubscriberPackage.Name"], whereClause="Id != null")
 ```
 
 ---
@@ -172,10 +180,19 @@ Error: Average test coverage across all Apex Classes and Triggers is 68%, at lea
 
 **Fix:**
 
-1. Identify uncovered classes:
+1. Run the local tests and read per-class coverage (full poll/read sequence in SKILL.md → "Run tests via `run_tests`"):
 
    ```
-   # Test execution: use sf-testing skill or Salesforce Setup
+   run_tests(testLevel="RunLocalTests", category=["Apex"])
+
+   # after the job finishes:
+   tooling_api_query(
+     sObject="ApexCodeCoverageAggregate",
+     fields=["ApexClassOrTrigger.Name", "NumLinesCovered", "NumLinesUncovered"],
+     whereClause="NumLinesUncovered > 0",
+     orderBy="NumLinesUncovered DESC",
+     limit=50
+   )
    ```
 
 2. Add missing test classes
@@ -202,8 +219,14 @@ Error: FIELD_CUSTOM_VALIDATION_EXCEPTION: Annual Revenue must be greater than 0
 1. Check validation rules:
 
    ```
-   soql_query(query="SELECT ValidationName, ErrorDisplayField, ErrorMessage FROM ValidationRule WHERE EntityDefinition.QualifiedApiName = 'Account'")
+   tooling_api_query(
+     sObject="ValidationRule",
+     fields=["ValidationName", "Active", "ErrorDisplayField", "ErrorMessage"],
+     whereClause="EntityDefinitionId = 'Account'"
+   )
    ```
+
+   (`ValidationRule` is a Tooling API object — `soql_query` cannot see it.)
 
 2. Update Apex to satisfy validation logic:
    ```apex
@@ -227,13 +250,28 @@ Error: FIELD_CUSTOM_VALIDATION_EXCEPTION: Annual Revenue must be greater than 0
    - Database: `INFO`
    - Workflow: `INFO`
 
-**Via CLI:**
+**Via Cirra AI MCP** — `TraceFlag` and `DebugLevel` are Tooling API objects, so use `tooling_api_dml` (never `sobject_dml`):
 
 ```
-# Create trace flag
-sobject_dml(operation="insert", sobjectType="TraceFlag", records=[{StartDate: "2025-01-01T00:00:00Z", EndDate: "2025-01-02T00:00:00Z", LogType: "USER_DEBUG", TracedEntityId: "<USER_ID>", DebugLevelId: "<DEBUG_LEVEL_ID>"}])
+# 1. Find (or create) a DebugLevel
+tooling_api_query(sObject="DebugLevel", fields=["Id", "DeveloperName", "ApexCode", "Database"], whereClause="Id != null")
 
-# Debug logs: use sf-debug skill or Salesforce Setup
+tooling_api_dml(operation="insert", sObject="DebugLevel", record={"DeveloperName": "SFApexDebug", "MasterLabel": "SFApexDebug", "ApexCode": "DEBUG", "Database": "INFO", "Workflow": "INFO", "Validation": "INFO", "Callout": "INFO", "System": "INFO", "Visualforce": "INFO"})
+
+# 2. Create the trace flag for the user (max 24 h window)
+tooling_api_dml(operation="insert", sObject="TraceFlag", record={"TracedEntityId": "<USER_ID>", "DebugLevelId": "<DEBUG_LEVEL_ID>", "LogType": "USER_DEBUG", "StartDate": "2025-01-01T00:00:00Z", "ExpirationDate": "2025-01-02T00:00:00Z"})
+
+# 3. Reproduce the problem, then read the newest logs (at most 5 with Body per call)
+tooling_api_query(
+  sObject="ApexLog",
+  fields=["Id", "StartTime", "Operation", "Status", "DurationMilliseconds", "Body"],
+  whereClause="LogUserId = '<USER_ID>'",
+  orderBy="StartTime DESC",
+  limit=5
+)
+
+# 4. Clean up when done
+tooling_api_dml(operation="delete", sObject="TraceFlag", recordId="<TRACE_FLAG_ID>")
 ```
 
 ---
@@ -470,10 +508,18 @@ static void setup() {
 **Via Cirra AI MCP:**
 
 ```
-# Test execution: use sf-testing skill or Salesforce Setup
-# Run tests from Salesforce Setup → Apex Test Execution
-# Or use Developer Console → Test → Run All
+# 1. Start the run (returns a job id)
+run_tests(tests=[{"className": "AccountServiceTest"}])
+
+# 2. Poll until every Status is Completed / Failed / Aborted
+tooling_api_query(sObject="ApexTestQueueItem", fields=["Id", "Status", "ApexClass.Name", "ExtendedStatus"], whereClause="ParentJobId = '<jobId>'")
+
+# 3. Read results and coverage
+tooling_api_query(sObject="ApexTestResult", fields=["MethodName", "Outcome", "Message", "StackTrace", "RunTime"], whereClause="AsyncApexJobId = '<jobId>'")
+tooling_api_query(sObject="ApexCodeCoverageAggregate", fields=["ApexClassOrTrigger.Name", "NumLinesCovered", "NumLinesUncovered"], whereClause="ApexClassOrTrigger.Name = 'AccountService'")
 ```
+
+See `testing-guide.md` → "Test-fix loop" for what to do with each failure type.
 
 **Output:**
 

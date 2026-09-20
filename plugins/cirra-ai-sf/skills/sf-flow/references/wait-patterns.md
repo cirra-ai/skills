@@ -336,6 +336,6 @@ Consider Platform Events when:
 
 ## Related Templates
 
-- `sf-flow/templates/wait-template.xml` - All three wait patterns with examples
-- `sf-flow/templates/platform-event-flow-template.xml` - Event-driven alternative
-- `sf-flow/templates/scheduled-flow-template.xml` - Scheduled batch processing
+- `sf-flow/assets/wait-template.xml` - All three wait patterns with examples
+- `sf-flow/assets/platform-event-flow-template.xml` - Event-driven alternative
+- `sf-flow/assets/scheduled-flow-template.xml` - Scheduled batch processing

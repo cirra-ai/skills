@@ -652,9 +652,8 @@ connectedCallback() {
 
 ## Cross-Skill References
 
-| Topic                     | Resource                                                                                           |
-| ------------------------- | -------------------------------------------------------------------------------------------------- |
-| Platform Event definition | [sf-integration/docs/platform-events-guide.md](../../sf-integration/docs/platform-events-guide.md) |
-| Publishing from Apex      | [sf-apex/docs/best-practices.md](../../sf-apex/docs/best-practices.md)                             |
-| State management          | [state-management.md](state-management.md)                                                         |
-| Agentforce Models API     | [sf-ai-agentforce-legacy/docs/models-api.md](../../sf-ai-agentforce-legacy/docs/models-api.md)     |
+| Topic                     | Resource                                                                                                  |
+| ------------------------- | --------------------------------------------------------------------------------------------------------- |
+| Platform Event definition | [sf-metadata](../../sf-metadata/SKILL.md) — `metadata_create(type="CustomObject")` with an `__e` API name |
+| Publishing from Apex      | [sf-apex/references/best-practices.md](../../sf-apex/references/best-practices.md)                        |
+| State management          | [state-management.md](state-management.md)                                                                |

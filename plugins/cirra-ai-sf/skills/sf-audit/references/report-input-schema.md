@@ -3,6 +3,25 @@
 The report generator reads JSON files from the `--input-dir` directory.
 All files are optional — missing files produce empty sections.
 
+## Severity vocabulary
+
+Every `severity` value in these files uses one five-level scale, ordered
+worst-first (Salesforce Code Analyzer ordering). It is defined once in
+`sf-apex/scripts/validate_apex.py` (`SEVERITY_ORDER`) and re-declared
+identically in `pre_score.py` and `generate_reports.py`:
+
+| Severity   | Meaning                                                 |
+| ---------- | ------------------------------------------------------- |
+| `CRITICAL` | Must fix before deploy / immediate remediation (0-30 d) |
+| `HIGH`     | Fix soon (30-90 d); blocks a "healthy" rating           |
+| `MODERATE` | Advisory; address in the improvement backlog (90-180 d) |
+| `LOW`      | Minor / hygiene                                         |
+| `INFO`     | Informational only; never deducts points on its own     |
+
+Legacy labels are accepted on input and normalised by `generate_reports.py`:
+`WARNING` → `MODERATE`, `ERROR` → `HIGH`, `MEDIUM` → `MODERATE`. Write the
+canonical labels in any new file.
+
 ## counts.json
 
 Component inventory counts. Also carries org metadata used in report headers.
@@ -31,7 +50,11 @@ Component inventory counts. Also carries org metadata used in report headers.
 
 ## apex_scores.json
 
-Array of scored Apex classes.
+Array of scored Apex classes. `pre_score.py` writes each issue as a
+`{ severity, message, line }` object (severity from the vocabulary above,
+`line` = 1-based source line, `0` when not applicable) so reports can badge
+and locate findings. Plain strings are still accepted for hand-written input
+but carry no severity and are not counted in the severity roll-up.
 
 ```json
 [
@@ -39,14 +62,27 @@ Array of scored Apex classes.
     "name": "AccountService",
     "score": 120,
     "max_score": 150,
-    "issues": ["Missing null checks", "No test class found"]
+    "issues": [
+      { "severity": "CRITICAL", "message": "SOQL query inside loop", "line": 42 },
+      {
+        "severity": "MODERATE",
+        "message": "Class missing explicit sharing declaration",
+        "line": 1
+      },
+      { "severity": "INFO", "message": "Public method missing documentation", "line": 17 }
+    ]
   }
 ]
 ```
 
+`flow_scores.json`, `lwc_scores.json` and `metadata_scores.json` accept the
+same `issues` shape (objects or strings).
+
 ## trigger_findings.json
 
-Array of Apex triggers with qualitative findings (not scored).
+Array of Apex triggers with findings. `pre_score.py` also emits `score` /
+`max_score` (150) and a `line` on every finding; hand-written entries may omit
+them.
 
 ```json
 [
@@ -54,7 +90,15 @@ Array of Apex triggers with qualitative findings (not scored).
     "name": "ContactTrigger",
     "object": "Contact",
     "events": "before insert, before update",
-    "findings": [{ "severity": "HIGH", "message": "Logic inside trigger body" }]
+    "score": 105,
+    "max_score": 150,
+    "findings": [
+      {
+        "severity": "HIGH",
+        "message": "Trigger contains business logic (SOQL/DML/loops) instead of delegating to a handler",
+        "line": 3
+      }
+    ]
   }
 ]
 ```
@@ -161,7 +205,7 @@ findings when `ErrorConditionFormula` was retrieved.
     "object": "Opportunity",
     "active": true,
     "findings": [
-      { "severity": "MEDIUM", "message": "No bypass mechanism" },
+      { "severity": "MODERATE", "message": "No bypass mechanism" },
       { "severity": "HIGH", "message": "Formula contains hardcoded Record ID: 0015000000XyZaB" }
     ]
   }
@@ -182,7 +226,7 @@ Array of formula fields with anti-pattern findings.
     "findings": [
       { "severity": "HIGH", "message": "Formula contains hardcoded Record ID: 0125000000AbCdE" },
       {
-        "severity": "MEDIUM",
+        "severity": "MODERATE",
         "message": "Formula contains hardcoded Profile name: \"System Administrator\""
       }
     ]
@@ -241,7 +285,7 @@ Array of custom fields flagged as unused, empty, or unreferenced.
     "has_data": false,
     "referenced_in": ["AccountService.cls", "Account_Update_Flow"],
     "category": "Empty",
-    "severity": "MEDIUM"
+    "severity": "MODERATE"
   },
   {
     "object": "Contact",
@@ -250,7 +294,7 @@ Array of custom fields flagged as unused, empty, or unreferenced.
     "has_data": true,
     "referenced_in": [],
     "category": "Unreferenced",
-    "severity": "MEDIUM"
+    "severity": "MODERATE"
   }
 ]
 ```
@@ -260,8 +304,8 @@ Categories:
 | Category       | Condition                  | Severity |
 | -------------- | -------------------------- | -------- |
 | `Unused`       | No data AND no references  | HIGH     |
-| `Empty`        | No data but has references | MEDIUM   |
-| `Unreferenced` | Has data but no references | MEDIUM   |
+| `Empty`        | No data but has references | MODERATE |
+| `Unreferenced` | Has data but no references | MODERATE |
 
 `has_data` is a tri-state value: `true` (records contain data), `false`
 (no records with data), or `null` (population check was skipped, e.g. in
@@ -288,14 +332,14 @@ Array of custom objects flagged as unused, empty, or unreferenced.
     "record_count": 0,
     "referenced_in": ["StagingBatch.cls"],
     "category": "Empty",
-    "severity": "MEDIUM"
+    "severity": "MODERATE"
   },
   {
     "object": "Archive__c",
     "record_count": 1500,
     "referenced_in": [],
     "category": "Unreferenced",
-    "severity": "MEDIUM"
+    "severity": "MODERATE"
   }
 ]
 ```
@@ -327,7 +371,7 @@ and auto-response rules.
     "object": "Case",
     "findings": [
       {
-        "severity": "MEDIUM",
+        "severity": "MODERATE",
         "message": "Rule entry criteria contains hardcoded Profile name: \"Support Agent\""
       }
     ]
@@ -360,7 +404,7 @@ Reports and Dashboards inventory with stale detection.
       "is_stale": false
     }
   ],
-  "findings": [{ "severity": "MEDIUM", "message": "12 reports have never been run" }]
+  "findings": [{ "severity": "MODERATE", "message": "12 reports have never been run" }]
 }
 ```
 

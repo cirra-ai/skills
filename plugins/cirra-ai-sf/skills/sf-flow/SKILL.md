@@ -36,6 +36,30 @@ Do NOT guess the operation or default to one. Wait for the user's answer.
 
 ---
 
+## Reference File Index
+
+Read the reference _before_ the step it covers — do not work from memory. Paths are relative to this skill's directory.
+
+| File                                                                    | Read when                                                                                                                     |
+| ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `assets/json-deployment-reference.md`                                   | Before authoring any `metadata_create` / `metadata_update` Flow payload (XML-to-JSON translation, `start` patterns, wrappers) |
+| `assets/*.xml`, `assets/elements/*.xml`, `assets/subflows/*.xml`        | Structural reference for an unfamiliar flow type or element (wait, loop, transform, subflow)                                  |
+| `references/xml-gotchas.md`                                             | A deploy fails with a metadata error; before touching screen components or choice sets                                        |
+| `references/flow-best-practices.md`                                     | Deciding whether Flow is the right tool; error-handling strategy; screen UX; bypass patterns                                  |
+| `references/flow-quick-reference.md`                                    | Element / operator cheat sheet while generating                                                                               |
+| `references/transform-vs-loop-guide.md`                                 | Choosing Transform vs Loop for collection work                                                                                |
+| `references/subflow-library.md`                                         | Offering reusable subflows (`Sub_LogError`, `Sub_SendEmailAlert`, ...)                                                        |
+| `references/orchestration-guide.md`                                     | Multi-object / multi-step flows (parent-child, sequential composition)                                                        |
+| `references/orchestration.md`                                           | Cross-skill order (sf-metadata → sf-flow → sf-data) and Agentforce wiring                                                     |
+| `references/lwc-integration-guide.md`, `references/triangle-pattern.md` | Screen flows embedding LWC or calling Apex                                                                                    |
+| `references/wait-patterns.md`                                           | Any `waits` element                                                                                                           |
+| `references/testing-guide.md`, `references/testing-checklist.md`        | Phase 5 testing; `FlowInterview` / `FlowInterviewLogEntry` queries                                                            |
+| `references/governance-checklist.md`                                    | Complex automation sign-off                                                                                                   |
+| `references/execution-modes.md`, `references/mcp-pagination.md`         | Host detection; large MCP responses (`fetch_more`)                                                                            |
+| `../../shared/references/cirra-mcp-tools.md`                            | Exact Cirra MCP tool signatures (`soql_query`, `tooling_api_query`, `metadata_*`, `sobjects_list`, `fetch_more`)              |
+
+---
+
 ## Approval Processes: Choose the Engine First
 
 When a request is to build an approval (e.g. "create an approval process", "require approval before X", "deal/discount approval", "gate a stage until approved"), do NOT start building until the **engine** is decided:
@@ -113,7 +137,7 @@ Write the generated metadata to a temp file (`/tmp/<FlowApiName>.flow-meta.xml` 
 python3 "${CLAUDE_PLUGIN_ROOT}/skills/sf-flow/scripts/validate_flow_cli.py" "/tmp/<FlowApiName>.flow-meta.xml"
 ```
 
-Fix any **CRITICAL** or **HIGH** issues before deploying — including missing `faultConnector` on `actionCalls`, `recordCreates`, `recordUpdates`, `recordDeletes`, `recordLookups`, `apexPluginCalls`, and `waits` with callouts. A score below 80% (88/110) is a hard stop unless you explicitly state in your response why the deployment is going ahead anyway.
+Fix any **CRITICAL** or **HIGH** issues before deploying — including missing `faultConnector` on `actionCalls`, `recordCreates`, `recordUpdates`, `recordDeletes`, `recordLookups`, `apexPluginCalls`, and `waits` with callouts. A score below 80% (88/110) is a hard stop unless the user explicitly accepts the lower score after you state why (the **deploy gate** — the same rule applies everywhere in this skill; MEDIUM/LOW warnings and advisories never block, but list them in the report).
 
 **Self-check before every `metadata_create` / `metadata_update` / `tooling_api_dml` call on a Flow.** Answer these four questions out loud (in your reasoning) before invoking the tool:
 
@@ -135,9 +159,38 @@ metadata_create(
 )
 ```
 
-### Step 6. Report
+### Step 6. Verify the deployed version (REQUIRED)
 
-Show the final validation score and deployment status.
+The Metadata API accepts flows it cannot activate (`InvalidDraft`). Query the latest version immediately:
+
+```
+tooling_api_query(
+  sObject="Flow",
+  fields=["Id", "VersionNumber", "Status"],
+  whereClause="Definition.DeveloperName = '<FlowApiName>'",
+  orderBy="VersionNumber DESC",
+  limit=1
+)
+```
+
+Expected `Status = Draft`. If `InvalidDraft`, see _Common InvalidDraft Causes and Fixes_ below, fix, and redeploy with `metadata_update`.
+
+### Step 7. Activate — only when the user asks
+
+Flows deploy as `Draft`. Activate only on explicit request (never silently in production), using the `VersionNumber` from Step 6:
+
+```
+metadata_update(
+  type="FlowDefinition",
+  metadata=[{"fullName": "<FlowApiName>", "activeVersionNumber": <VersionNumber>}]
+)
+```
+
+Re-run the Step 6 query afterwards and confirm `Status = Active`. `activeVersionNumber: 0` deactivates every version.
+
+### Step 8. Report
+
+Show the final validation score, the deployed `VersionNumber` / `Status`, and whether the flow was activated.
 
 ---
 
@@ -187,20 +240,50 @@ The same four-question self-check from the **Create** workflow applies here. The
 python3 "${CLAUDE_PLUGIN_ROOT}/skills/sf-flow/scripts/validate_flow_cli.py" "/tmp/<FlowApiName>.flow-meta.xml"
 ```
 
-Fix any CRITICAL or HIGH issues before deploying. Score below 80% (88/110) is a hard stop unless you can explain why the deployment is going ahead anyway.
+Fix any CRITICAL or HIGH issues before deploying. The deploy gate is the same as in Create: a score below 80% (88/110) is a hard stop unless the user explicitly accepts the lower score after you state why.
 
 ### Step 5. Deploy
 
 ```
 metadata_update(
   type="Flow",
-  metadata=[{"fullName": "<FlowApiName>", "label": "<Flow Label>", "apiVersion": 67, "processType": "<ProcessType>", "status": "Draft", ...}]
+  metadata=[{"fullName": "<FlowApiName>", "label": "<Flow Label>", "apiVersion": 67, "processType": "<ProcessType>", "status": "Draft", ...}],
+  upsert=True
 )
 ```
 
-### Step 6. Report
+`upsert=True` is required when the latest version is Active (a plain update fails with _"active can't be overwritten"_) and creates a new version; if the latest version is already Draft the deploy overwrites that Draft in place (Lesson 4.6).
 
-Summarise the changes made and show the final validation score.
+### Step 6. Verify the deployed version (REQUIRED)
+
+```
+tooling_api_query(
+  sObject="Flow",
+  fields=["Id", "VersionNumber", "Status"],
+  whereClause="Definition.DeveloperName = '<FlowApiName>'",
+  orderBy="VersionNumber DESC",
+  limit=1
+)
+```
+
+Do not assume a new version number — read it. Expected `Status = Draft`; `InvalidDraft` means a missing field/object or `start` property (see _Common InvalidDraft Causes and Fixes_).
+
+### Step 7. Activate — only when the user asks
+
+The previous version stays active until you switch it. When the user asks to activate the new version:
+
+```
+metadata_update(
+  type="FlowDefinition",
+  metadata=[{"fullName": "<FlowApiName>", "activeVersionNumber": <VersionNumber>}]
+)
+```
+
+Re-run the Step 6 query and confirm `Status = Active` on the new version. In production, prefer deploying as Draft and letting the user activate unless they explicitly ask you to.
+
+### Step 8. Report
+
+Summarise the changes made, the final validation score, the deployed `VersionNumber` / `Status`, and whether the flow was activated.
 
 ---
 
@@ -301,6 +384,8 @@ metadata_read(
 
 **Backoff strategy**: If a batch of 20 fails (timeout or response size error), retry with 10, then 5, then fall back to individual reads for that batch.
 
+**Large responses are not failures.** When a `metadata_read` batch comes back paginated or as an artifact (`_pagination.nextCursor` / `artifactAccess.artifactId` in the response), page through it with `fetch_more(artifactId=..., cursor=...)` instead of shrinking the batch — see `references/mcp-pagination.md`.
+
 3. Validate each flow (write → validate → delete).
 4. Show the summary table sorted by score ascending.
 5. Highlight any below 88/110 (80%) as requiring attention.
@@ -318,10 +403,12 @@ metadata_read(
 4. Retrieve existing flows via metadata_read or metadata_list (Cirra AI MCP Server)
 5. Query Flow metadata via tooling_api_query for Flow/FlowDefinition;
    flow catalog via soql_query for FlowDefinitionView (see Query Tool Routing)
-6. Describe objects/fields via sobject_describe before flow creation
+6. Discover objects via sobjects_list, then describe fields via sobject_describe, before flow creation
+7. Verify the deployed version (tooling_api_query on Flow — Create workflow Step 6), then activate on
+   request via metadata_update on FlowDefinition (Step 7)
 ```
 
-**Scoring**: 110 points across 6 categories. Minimum 88 (80%) for deployment. Trivial flows (single-step automations, test/throwaway flows) are exempt from the minimum threshold — score them for informational purposes but do not block deployment. Guardrail anti-pattern checks (DML in loops, missing fault paths) still apply regardless of complexity.
+**Scoring**: 110 points across 6 categories. CRITICAL/HIGH issues block; a score below 88 (80%) is a hard stop unless the user explicitly accepts it. Trivial flows (single-step automations, test/throwaway flows) are exempt from the minimum threshold — score them for informational purposes but do not block deployment. Guardrail anti-pattern checks (DML in loops, missing fault paths) still apply regardless of complexity.
 
 ---
 
@@ -329,7 +416,8 @@ metadata_read(
 
 This skill supports four execution modes — see
 `references/execution-modes.md` for detection logic and full details,
-and `references/mcp-pagination.md` for handling large MCP responses.
+`references/mcp-pagination.md` for handling large MCP responses, and
+`../../shared/references/cirra-mcp-tools.md` for the exact Cirra MCP tool signatures.
 
 All Flow operations go through MCP tools regardless of mode. The mode
 determines whether local tooling (filesystem, code execution) is
@@ -361,7 +449,7 @@ an API approach carry you past that decision.
 cirra_ai_init()
 ```
 
-Call with no parameters — uses the default org. If a default is configured, confirm with the user before proceeding. If no default is configured, ask for the Salesforce user/alias.
+Call with no parameters — uses the default org. If a default is configured, confirm with the user before proceeding. If no default is configured, ask for the Salesforce user/alias. Pass `sf_user="<username>"` (with `cirra_ai_team` if needed) only when switching to a different connection mid-session.
 
 This initializes your Salesforce org connection. It must be called once per session before using any of these Cirra AI tools:
 
@@ -369,7 +457,7 @@ This initializes your Salesforce org connection. It must be called once per sess
 - `metadata_read` (retrieve flows)
 - `metadata_list` (list existing flows)
 - `tooling_api_query` (query Flow / FlowDefinition — Tooling API objects only)
-- `sobject_describe` (verify objects/fields)
+- `sobjects_list` (confirm an object exists) and `sobject_describe` (verify its fields)
 - `soql_query` (query org data, plus FlowDefinitionView / FlowInterview — standard objects)
 
 ---
@@ -407,11 +495,11 @@ See `references/orchestration.md` for extended orchestration patterns including 
 For simple, self-contained flows (single record update, basic field mapping, straightforward screen flow), bypass the detailed requirements/design elaboration and full scoring while still performing initialization and mandatory guardrails, then generate + deploy:
 
 1. Call `cirra_ai_init()` (always required)
-2. Use `sobject_describe` to verify the target object/fields exist
+2. Use `sobjects_list` to confirm the target object exists, then `sobject_describe` to verify its fields
 3. Generate the flow metadata as JSON
 4. Run guardrail checks (anti-patterns only — skip full 110-point scoring)
 5. Deploy via `metadata_create`
-6. Verify deployment
+6. Verify the deployed version with the `tooling_api_query` on `Flow` from Create workflow Step 6; activate only on request (Step 7)
 
 **Use the fast path when**: the request is explicit, the flow is a single straightforward automation, and there are no ambiguous requirements.
 
@@ -436,7 +524,7 @@ If the request is underspecified, ask concise follow-up questions to gather:
 **Then**:
 
 1. **Initialize**: Call `cirra_ai_init()` with no parameters. If a default org is configured, confirm with the user. If no default, ask for the Salesforce user/alias before proceeding.
-2. Use `sobject_describe` to verify object/field existence before referencing
+2. Use `sobjects_list` to confirm the object exists, then `sobject_describe` to verify its fields before referencing them
 3. Use `metadata_list` to check existing flows: `metadata_list(type="Flow")`
 4. Offer reusable subflows: Sub_LogError, Sub_SendEmailAlert, Sub_ValidateRecord, Sub_UpdateRelatedRecords, Sub_QueryRecordsWithRetry → See `references/subflow-library.md`
 5. If complex automation: Reference `references/governance-checklist.md`
@@ -487,6 +575,8 @@ Covers XML-to-JSON translation, property placement rules, start patterns for all
 | Autolaunched              | `Sub_` or `Util_` | `Sub_Send_Email`, `Util_Validate_Address`        |
 
 **Format**: `[Prefix]_Object_Action` using PascalCase (e.g., `Auto_Lead_Priority_Assignment`)
+
+> These prefixes apply to the **Flow API name** (`fullName`) and are what `naming_validator.py` checks. They are a separate namespace from element names inside a flow: a screen flow named `Screen_Case_Intake` can contain a screen element named `Screen_Welcome` — see Lesson 5 for element and variable prefixes (`var_`, `col_`, `rec_`, `inp_`, `out_`).
 
 **Screen Flow Button Config** (CRITICAL):
 
@@ -562,7 +652,9 @@ in the target org. Flows referencing missing fields will deploy but become
 `InvalidDraft` and cannot be activated.
 
 ```python
-# Check if custom field exists before deploying flow that references it
+# Confirm the object exists (custom objects especially) ...
+sobjects_list()
+# ... then check the fields the flow references
 sobject_describe(sObject="Lead")
 # Verify TEST_Priority__c (or any custom field) appears in the field list
 # If missing: create the field FIRST via sobject_field_create, then deploy the flow
@@ -571,8 +663,8 @@ sobject_describe(sObject="Lead")
 **Deploy via Cirra AI**:
 
 ```python
-# Initialize connection (ONCE per session)
-cirra_ai_init(sf_user="your-username")
+# Initialize connection (ONCE per session, no parameters — pass sf_user= only to switch connections)
+cirra_ai_init()
 
 # Create/deploy Flow — pass a JSON object, NOT XML
 metadata_create(
@@ -645,7 +737,7 @@ tooling_api_query(
 
 **New v2.0.0 Validations**:
 
-- `storeOutputAutomatically` detection (data leak prevention)
+- `storeOutputAutomatically=true` flagged **only in system-mode flows** (the default `true` is fine in user mode — see _recordLookups Best Practices_)
 - Same-object query anti-pattern (recommends $Record usage)
 - Complex formula in loops warning
 - Missing filters on Get Records
@@ -664,7 +756,7 @@ Score: 92/110 ⭐⭐⭐⭐ Very Good
 └─ Security: 15/15 (100%)
 ```
 
-**Strict Mode**: If ANY errors/warnings → Block with options: (1) Apply auto-fixes, (2) Show manual fixes, (3) Generate corrected version. **DO NOT PROCEED** until 100% clean.
+**Deploy gate** (the one rule, applied everywhere in this skill): CRITICAL/HIGH issues block deployment — offer (1) apply auto-fixes, (2) show manual fixes, (3) generate a corrected version, and do not deploy until they are resolved. A score below 88/110 (80%) is a hard stop unless the user explicitly accepts the lower score after you state why. MEDIUM/LOW warnings and advisories never block, but list them in the report.
 
 ### ⛔ GENERATION GUARDRAILS (MANDATORY)
 
@@ -684,7 +776,7 @@ If ANY of these patterns would be generated, **STOP and ask the user**:
 | Apex Action inside Loop                                                                                                                                                                                    | Callout limits                                                                                                                                                                                                                                        | Pass collection to single Apex invocation                                                                                                                                                                                                    |
 | Fallible element in `RecordAfterSave` flow without `faultConnector`                                                                                                                                        | **Blocks the originating save** (`CANNOT_EXECUTE_FLOW_TRIGGER`). Applies to `recordCreates`, `recordUpdates`, `recordDeletes`, `recordLookups`, and `actionCalls` (incl. `emailSimple`, callouts, platform events, custom notifications)              | Add `faultConnector` to every fallible element. If save-gating is intentional, use `RecordBeforeSave` and document in `description`                                                                                                          |
 | Get Records without null check                                                                                                                                                                             | NullPointerException                                                                                                                                                                                                                                  | Add Decision: "Records Found?" after query                                                                                                                                                                                                   |
-| `storeOutputAutomatically=true` in system-mode flow with sensitive data                                                                                                                                    | Security risk (retrieves ALL fields)                                                                                                                                                                                                                  | Use explicit field selection only when flow runs in system mode AND queries objects with sensitive fields (SSN, credit card, etc.)                                                                                                           |
+| `storeOutputAutomatically=true` in system-mode flow with sensitive data                                                                                                                                    | Security risk (system mode fetches ALL fields regardless of FLS)                                                                                                                                                                                      | Keep the default `true` in user-mode flows. Set `false` with explicit `queriedFields` only when the flow runs in system mode AND queries objects with sensitive fields (SSN, credit card, etc.)                                              |
 | Query same object as trigger in Record-Triggered                                                                                                                                                           | Wasted SOQL                                                                                                                                                                                                                                           | Use `{!$Record.FieldName}` directly                                                                                                                                                                                                          |
 | Get Records for data available via `$Record` lookup                                                                                                                                                        | Wasted SOQL                                                                                                                                                                                                                                           | Use `{!$Record.Lookup__r.Field}` — traversal works up to 5 levels                                                                                                                                                                            |
 | Hardcoded Salesforce ID                                                                                                                                                                                    | Deployment failure across orgs                                                                                                                                                                                                                        | Use input variable or Custom Label                                                                                                                                                                                                           |
@@ -1017,13 +1109,13 @@ Compound fields — the person **`Name`** (on Contact and Lead), **Address** fie
 
 ### recordLookups Best Practices
 
-| Element                            | Recommendation                          | Why                                                                                                                                                    |
-| ---------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `getFirstRecordOnly`               | Set to `true` for single-record queries | Avoids collection overhead                                                                                                                             |
-| `storeOutputAutomatically`         | Set to `true` (default)                 | Simpler, modern approach — auto-stores all fields. Only set to `false` with explicit field selection when handling sensitive data in system-mode flows |
-| `assignNullValuesIfNoRecordsFound` | Set to `false`                          | Preserves previous variable value                                                                                                                      |
-| `faultConnector`                   | Always include                          | Handle query failures gracefully                                                                                                                       |
-| `filterLogic`                      | Use `and` for multiple filters          | Clear filter behavior                                                                                                                                  |
+| Element                            | Recommendation                          | Why                                                                                                                                                                                                                                |
+| ---------------------------------- | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `getFirstRecordOnly`               | Set to `true` for single-record queries | Avoids collection overhead                                                                                                                                                                                                         |
+| `storeOutputAutomatically`         | Keep `true` (default)                   | Simpler, modern approach — auto-stores the record. Set `false` with explicit `queriedFields` only when the flow runs in system mode AND the object carries sensitive fields (the validator flags `true` only in system-mode flows) |
+| `assignNullValuesIfNoRecordsFound` | Set to `false`                          | Preserves previous variable value                                                                                                                                                                                                  |
+| `faultConnector`                   | Always include                          | Handle query failures gracefully                                                                                                                                                                                                   |
+| `filterLogic`                      | Use `and` for multiple filters          | Clear filter behavior                                                                                                                                                                                                              |
 
 ### Critical Requirements
 
@@ -1082,7 +1174,7 @@ screens → start → status → subflows → textTemplates → variables → wa
 
 ### Design & Security
 
-- **Variable Names (v2.0.0)**: Use prefixes for clarity:
+- **Variable Names (v2.0.0)**: Use these lowercase prefixes (enforced by `naming_validator.py`; `Var_` / `varAccount` style is flagged):
   - `var_` Regular variables (e.g., `var_AccountName`)
   - `col_` Collections (e.g., `col_ContactIds`)
   - `rec_` Record variables (e.g., `rec_Account`)
@@ -1150,12 +1242,12 @@ When creating records from a collection using `inputReference`, do **NOT** inclu
 
 ```json
 // WRONG:
-{ "name": "Create_All", "object": "Account", "inputReference": "Var_Col" }
+{ "name": "Create_All", "object": "Account", "inputReference": "col_Accounts" }
 
 // CORRECT: objectType goes on the variable, not the create element
-{ "variables": [{ "name": "Var_Col", "dataType": "SObject",
+{ "variables": [{ "name": "col_Accounts", "dataType": "SObject",
     "objectType": "Account", "isCollection": true }],
-  "recordCreates": [{ "name": "Create_All", "inputReference": "Var_Col" }] }
+  "recordCreates": [{ "name": "Create_All", "inputReference": "col_Accounts" }] }
 ```
 
 ### Lesson 3: Constants Cannot Be Collections
@@ -1204,17 +1296,17 @@ If the latest is already Draft, the deploy overwrites that Draft in place. Alway
 
 ### Lesson 5: All Element Names Must Be Globally Unique
 
-Every element name in a Flow must be unique across **ALL** element types. Use prefixes to enforce this:
+Every element name in a Flow must be unique across **ALL** element types. Use prefixes to enforce this (element names are a separate namespace from the Flow API name prefixes in Phase 2 — `Screen_` there names a screen _flow_, here it names a screen _element_):
 
-| Element Type  | Naming Convention | Example             |
-| ------------- | ----------------- | ------------------- |
-| Variables     | `Var_*`           | `Var_Account_Id`    |
-| Formulas      | `Formula_*`       | `Formula_Full_Name` |
-| Screens       | `Screen_*`        | `Screen_Welcome`    |
-| Decisions     | `Decision_*`      | `Decision_Route`    |
-| Assignments   | `Assign_*`        | `Assign_Defaults`   |
-| Choices       | `Choice_*`        | `Choice_Option_A`   |
-| Screen Fields | Descriptive       | `Account_Name`      |
+| Element Type  | Naming Convention                                                         | Example                                                         |
+| ------------- | ------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| Variables     | `var_*` / `col_*` / `rec_*` / `inp_*` / `out_*` (see _Design & Security_) | `var_Account_Id`, `col_Contacts`, `rec_Account`, `inp_RecordId` |
+| Formulas      | `Formula_*`                                                               | `Formula_Full_Name`                                             |
+| Screens       | `Screen_*` (screen element inside a flow)                                 | `Screen_Welcome`                                                |
+| Decisions     | `Decision_*`                                                              | `Decision_Route`                                                |
+| Assignments   | `Assign_*`                                                                | `Assign_Defaults`                                               |
+| Choices       | `Choice_*`                                                                | `Choice_Option_A`                                               |
+| Screen Fields | Descriptive                                                               | `Account_Name`                                                  |
 
 ### Lesson 6: Build Flows Iteratively, Not All At Once
 
@@ -1229,7 +1321,7 @@ Every element name in a Flow must be unique across **ALL** element types. Use pr
 
 Never create records one-by-one in a loop. Build a collection, then execute a single DML operation:
 
-1. **Build_Record** — Assign field values to `Var_Current_Record` (single SObject variable)
+1. **Build_Record** — Assign field values to `rec_Current_Record` (single SObject variable)
 2. **Add_To_Collection** — Use operator `Add` to append to the collection variable
 3. **After loop exits** — Single `recordCreates` with `inputReference` pointing to the collection
 
@@ -1342,17 +1434,17 @@ Always start with this complete template — include **ALL** empty arrays:
 
 ### Flow Element Types Reference
 
-| Element Type   | Purpose               | Key Notes                                                                    |
-| -------------- | --------------------- | ---------------------------------------------------------------------------- |
-| Start          | Entry point           | Contains connector to first element; record-triggered adds filters/object    |
-| Variables      | Store values          | Counter vars: `dataType` Number, `scale` 0. Collections: `isCollection` true |
-| Screens        | User interface        | Fields auto-create element references — do NOT create duplicate variables    |
-| Decisions      | Branching logic       | Must always include `defaultConnector`                                       |
-| Record Lookups | Query Salesforce data | Use `storeOutputAutomatically: false` for security                           |
-| Record Creates | Insert new records    | Use `inputReference` for collections — never combine with `object` field     |
-| Assignments    | Set variable values   | Operators: `Assign`, `Add`, `AssignCount`                                    |
-| Loops          | Iterate collections   | Auto-creates `currentItem_{LoopName}` variable                               |
-| Formulas       | Computed values       | Use `{!VarName}` syntax to reference other elements                          |
+| Element Type   | Purpose               | Key Notes                                                                                                        |
+| -------------- | --------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Start          | Entry point           | Contains connector to first element; record-triggered adds filters/object                                        |
+| Variables      | Store values          | Counter vars: `dataType` Number, `scale` 0. Collections: `isCollection` true                                     |
+| Screens        | User interface        | Fields auto-create element references — do NOT create duplicate variables                                        |
+| Decisions      | Branching logic       | Must always include `defaultConnector`                                                                           |
+| Record Lookups | Query Salesforce data | Keep `storeOutputAutomatically: true`; `false` + `queriedFields` only in system-mode flows with sensitive fields |
+| Record Creates | Insert new records    | Use `inputReference` for collections — never combine with `object` field                                         |
+| Assignments    | Set variable values   | Operators: `Assign`, `Add`, `AssignCount`                                                                        |
+| Loops          | Iterate collections   | Auto-creates `currentItem_{LoopName}` variable                                                                   |
+| Formulas       | Computed values       | Use `{!VarName}` syntax to reference other elements                                                              |
 
 ## Edge Cases
 
@@ -1395,8 +1487,8 @@ tool fails outright:
   `FlowDefinition` fails with `entity type Flow does not support search`,
   and `FlowDefinitionView` is not searchable either. To find a flow by
   name, use SOQL with `LIKE`:
-  - `soql_query`: `SELECT DurableId, ApiName, Label FROM FlowDefinitionView WHERE ApiName LIKE '%Lead%' OR Label LIKE '%Lead%'`
-  - or `tooling_api_query`: `SELECT Id, DeveloperName FROM FlowDefinition WHERE DeveloperName LIKE '%Lead%'`
+  - `soql_query(sObject="FlowDefinitionView", fields=["DurableId", "ApiName", "Label"], whereClause="ApiName LIKE '%Lead%' OR Label LIKE '%Lead%'")`
+  - or `tooling_api_query(sObject="FlowDefinition", fields=["Id", "DeveloperName"], whereClause="DeveloperName LIKE '%Lead%'")`
 
 **FlowDefinitionView columns** — it has **no `DeveloperName` and no `Status`**
 (use `ApiName` for the name and `IsActive` for active state). Available
@@ -1428,8 +1520,9 @@ It is a restricted read-only view
 "how many flows per ProcessType" cannot be pushed to the server here. Instead:
 
 - select the plain rows and tally them client-side —
-  `soql_query(query="SELECT ProcessType FROM FlowDefinitionView")`, then count
-  per value. Raise the limit or page through the artifact link for large orgs.
+  `soql_query(sObject="FlowDefinitionView", fields=["ProcessType"], whereClause="ProcessType != null", limit=2000)`,
+  then count per value. Raise the limit or page through the artifact link for
+  large orgs.
 - or aggregate over the Tooling API objects (`FlowDefinition`, `Flow`) via
   `tooling_api_query`, which does support `COUNT(Id)`. Note the different
   grain: `FlowDefinition` is one row per flow but carries no `ProcessType`,
@@ -1440,14 +1533,20 @@ Flow catalog query (summary info about flows, e.g. finding Process Builder
 processes to migrate):
 
 ```
-soql_query(query="SELECT DurableId, ApiName, Label, Description, ProcessType, TriggerType, IsActive, LastModifiedDate, LastModifiedBy FROM FlowDefinitionView WHERE ProcessType = 'Workflow'")
+soql_query(
+  sObject="FlowDefinitionView",
+  fields=["DurableId", "ApiName", "Label", "Description", "ProcessType", "TriggerType", "IsActive", "LastModifiedDate", "LastModifiedBy"],
+  whereClause="ProcessType = 'Workflow'"
+)
 ```
 
 ### List all flows (with active and latest version info)
 
 ```
-tooling_api_query(sObject="FlowDefinition", fields=["Id","DeveloperName","NamespacePrefix","MasterLabel","Description","ActiveVersionId","ActiveVersion.VersionNumber","LatestVersionId","LatestVersion.VersionNumber","LatestVersion.Status","LatestVersion.MasterLabel","LatestVersion.Description"])
+tooling_api_query(sObject="FlowDefinition", fields=["Id","DeveloperName","NamespacePrefix","MasterLabel","Description","ActiveVersionId","ActiveVersion.VersionNumber","LatestVersionId","LatestVersion.VersionNumber","LatestVersion.Status","LatestVersion.MasterLabel","LatestVersion.Description"], whereClause="Id != null")
 ```
+
+`whereClause` is required — use `Id != null` when you want every row.
 
 ### Retrieve a specific flow version
 
@@ -1473,6 +1572,8 @@ metadata_create(type="Flow", metadata=[{"fullName": "Flow_Name", "label": "Flow 
    - **`upsert=True` is required when the flow's latest version is Active** — a plain update errors with _"active can't be overwritten."_ Upsert creates a new version instead of overwriting the active one.
    - **Do NOT change the `fullName`** — version numbers are managed automatically
    - In production: deploy as `status: Draft` and ask user to activate manually if you get an error
+4. Verify: `tooling_api_query(sObject="Flow", fields=["Id", "VersionNumber", "Status"], whereClause="Definition.DeveloperName = 'Flow_Name'", orderBy="VersionNumber DESC", limit=1)` — expect `Draft`, not `InvalidDraft`
+5. Activate on request — see _Activate / deactivate a flow version_ below
 
 ### Activate / deactivate a flow version
 
@@ -1825,7 +1926,9 @@ Two correct options — see "Query Tool Routing" under Flow MCP Patterns:
 ```python
 # Option A: flow catalog via the standard object (soql_query, NOT tooling_api_query)
 soql_query(
-    query="SELECT DurableId, ApiName, Label, ProcessType, TriggerType, IsActive FROM FlowDefinitionView WHERE IsActive = true",
+    sObject="FlowDefinitionView",
+    fields=["DurableId", "ApiName", "Label", "ProcessType", "TriggerType", "IsActive"],
+    whereClause="IsActive = true",
     sf_user="prod-username"
 )
 
@@ -1843,17 +1946,19 @@ tooling_api_query(
 
 ## Cross-Skill Integration
 
-| From Skill     | To sf-flow | When                                 |
-| -------------- | ---------- | ------------------------------------ |
-| sf-apex        | → sf-flow  | "Create Flow wrapper for Apex logic" |
-| sf-integration | → sf-flow  | "Create HTTP Callout Flow"           |
+| From Skill      | To sf-flow | When                                                                                            |
+| --------------- | ---------- | ----------------------------------------------------------------------------------------------- |
+| sf-apex         | → sf-flow  | "Create Flow wrapper for Apex logic" (`@InvocableMethod`, incl. Apex that performs the callout) |
+| sf-connect-rest | → sf-flow  | "Create HTTP Callout Flow" once the Named Credential / External Service registration exists     |
 
-| From sf-flow | To Skill      | When                                                |
-| ------------ | ------------- | --------------------------------------------------- |
-| sf-flow      | → sf-metadata | "Describe Invoice\_\_c" (verify fields before flow) |
-| sf-flow      | → sf-data     | "Create 200 test Accounts" (after deploy)           |
+| From sf-flow | To Skill          | When                                                                                  |
+| ------------ | ----------------- | ------------------------------------------------------------------------------------- |
+| sf-flow      | → sf-metadata     | "Describe Invoice\_\_c" (verify fields before flow)                                   |
+| sf-flow      | → sf-apex         | External callout logic is easier in an `@InvocableMethod` than an HTTP Callout action |
+| sf-flow      | → sf-connect-rest | Named Credentials / External Services the callout action depends on                   |
+| sf-flow      | → sf-data         | "Create 200 test Accounts" (after deploy)                                             |
 
-**Deployment**: See Phase 4 above.
+**Deployment**: sf-flow deploys its own flows — `metadata_create` / `metadata_update` (Phase 4 above), then `metadata_update(type="FlowDefinition", ...)` to activate. There is no separate deploy skill.
 
 ---
 
@@ -2014,7 +2119,7 @@ Flow Created  →  Deployed to Org  →  Action Definition Created  →  Agent C
 
 ## Notes
 
-**Dependencies** (optional): sf-metadata, sf-data | **API**: 67.0 | **Mode**: Strict (warnings block) | **MCP Server**: Cirra AI (required)
+**Dependencies** (optional): sf-metadata, sf-data | **API**: 67.0 | **Deploy gate**: CRITICAL/HIGH block; below 88/110 needs explicit user acceptance | **MCP Server**: Cirra AI (required)
 
 **Required Setup**:
 

@@ -18,7 +18,13 @@ Validators invoked:
     - validate_slds.py   (SLDSValidator)      → lwc_scores.json
 
 Components scoring below --threshold (percentage of max) are flagged
-in pre_score_summary.json for LLM review.
+in pre_score_summary.json for LLM review. The default threshold (70%) is
+the same number sf-apex blocks deployment on (validate_apex.THRESHOLD_PCT).
+
+Every finding written to apex_scores.json / trigger_findings.json is a
+``{"severity", "message", "line"}`` object whose severity is on the shared
+five-level scale (CRITICAL > HIGH > MODERATE > LOW > INFO) defined once in
+sf-apex/scripts/validate_apex.py and re-declared identically below.
 """
 
 import argparse
@@ -26,6 +32,36 @@ import importlib.util
 import json
 import sys
 from pathlib import Path
+
+# Re-declared identically to validate_apex.SEVERITY_ORDER so this script works
+# even when the sf-apex validator is not installed alongside it.
+SEVERITY_ORDER = ["CRITICAL", "HIGH", "MODERATE", "LOW", "INFO"]
+_LEGACY_SEVERITY_MAP = {"WARNING": "MODERATE", "ERROR": "HIGH", "MEDIUM": "MODERATE"}
+DEFAULT_THRESHOLD_PCT = 70
+
+
+def normalize_severity(value, default="MODERATE"):
+    """Map any severity label (including legacy ones) onto SEVERITY_ORDER."""
+    if value is None:
+        return default
+    label = str(value).strip().upper()
+    if label in SEVERITY_ORDER:
+        return label
+    return _LEGACY_SEVERITY_MAP.get(label, default)
+
+
+def _finding(issue, default_severity="MODERATE"):
+    """Normalise a validator issue (dict or str) to {severity, message, line}."""
+    if isinstance(issue, dict):
+        finding = {
+            "severity": normalize_severity(issue.get("severity"), default_severity),
+            "message": issue.get("message", str(issue)),
+            "line": issue.get("line", 0) or 0,
+        }
+        if issue.get("category"):
+            finding["category"] = issue["category"]
+        return finding
+    return {"severity": default_severity, "message": str(issue), "line": 0}
 
 # ---------------------------------------------------------------------------
 # Dynamic module loading
@@ -63,6 +99,8 @@ def _score_apex_files(apex_dir: Path, trigger_dir: Path, threshold_pct: int):
     mod = _load_module("sf-apex/scripts/validate_apex.py")
     if mod is None:
         return [], [], []
+    # The validator owns the vocabulary; assert we re-declared it identically.
+    assert list(getattr(mod, "SEVERITY_ORDER", SEVERITY_ORDER)) == SEVERITY_ORDER
 
     apex_scores = []
     trigger_findings = []
@@ -88,25 +126,11 @@ def _score_apex_files(apex_dir: Path, trigger_dir: Path, threshold_pct: int):
             name = fp.stem
             score = result.get("score", 0)
             max_score = result.get("max_score", 150)
-            issues = [
-                i.get("message", str(i)) if isinstance(i, dict) else str(i)
-                for i in result.get("issues", [])
-            ]
+            # Keep severity and line on every finding (classes and triggers alike).
+            findings = [_finding(i) for i in result.get("issues", [])]
+            findings.sort(key=lambda f: SEVERITY_ORDER.index(f["severity"]))
 
             if is_trigger:
-                # Preserve original severity from validator; default MEDIUM.
-                raw_issues = result.get("issues", [])
-                findings = []
-                for ri in raw_issues:
-                    if isinstance(ri, dict):
-                        findings.append(
-                            {
-                                "severity": ri.get("severity", "MEDIUM"),
-                                "message": ri.get("message", str(ri)),
-                            }
-                        )
-                    else:
-                        findings.append({"severity": "MEDIUM", "message": str(ri)})
                 trigger_findings.append(
                     {
                         "name": name,
@@ -123,7 +147,7 @@ def _score_apex_files(apex_dir: Path, trigger_dir: Path, threshold_pct: int):
                         "name": name,
                         "score": score,
                         "max_score": max_score,
-                        "issues": issues,
+                        "issues": findings,
                     }
                 )
 
@@ -288,7 +312,7 @@ def _score_lwc_bundles(lwc_dir: Path, threshold_pct: int):
 # ---------------------------------------------------------------------------
 
 
-def pre_score(intermediate_dir: Path, output_dir: Path, threshold_pct: int = 70):
+def pre_score(intermediate_dir: Path, output_dir: Path, threshold_pct: int = DEFAULT_THRESHOLD_PCT):
     """Run all validators and write JSON score files.
 
     Returns a summary dict suitable for pre_score_summary.json.
@@ -372,8 +396,9 @@ def main():
     parser.add_argument(
         "--threshold",
         type=int,
-        default=70,
-        help="Percentage threshold below which components need LLM review (default: 70)",
+        default=DEFAULT_THRESHOLD_PCT,
+        help=f"Percentage threshold below which components need LLM review "
+        f"(default: {DEFAULT_THRESHOLD_PCT}, same as the sf-apex deploy threshold)",
     )
     args = parser.parse_args()
 

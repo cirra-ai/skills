@@ -4,36 +4,40 @@
 
 ## Agent Access Permissions
 
-Employee Agents require explicit access via the `<agentAccesses>` element in Permission Sets. Without this, users won't see the agent in the Lightning Experience Copilot panel.
+Employee Agents (Agentforce) require explicit access via the `agentAccesses` element of a Permission Set (or Profile). Without it, users do not see the agent in the Lightning Experience Agentforce panel.
 
-**Permission Set XML Structure:**
+**Permission Set metadata shape** (what `metadata_read` returns and what `metadata_create` accepts):
 
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
-    <agentAccesses>
-        <agentName>Case_Assist</agentName>
-        <enabled>true</enabled>
-    </agentAccesses>
-    <hasActivationRequired>false</hasActivationRequired>
-    <label>Case Assist Agent Access</label>
-</PermissionSet>
+```json
+{
+  "fullName": "Case_Assist_Access",
+  "label": "Case Assist Agent Access",
+  "hasActivationRequired": false,
+  "agentAccesses": [{ "agentName": "Case_Assist", "enabled": true }]
+}
 ```
 
-**Key Points:**
+**Key points:**
 
-- `<agentName>` must exactly match the `developer_name` in the agent's config block
-- Multiple `<agentAccesses>` elements can be included for multiple agents
-- `<enabled>true</enabled>` grants access; `false` or omission denies access
+- `agentName` must exactly match the agent's developer name (the `developer_name` in the agent's config)
+- Add one `agentAccesses` entry per agent
+- `enabled: true` grants access; `false` or omission denies access
 
-**Deploy and Assign:**
+**Create, grant and assign via MCP:**
 
-```bash
-# Deploy permission set
-sf project deploy start --source-dir force-app/main/default/permissionsets/Agent_Access.permissionset-meta.xml -o TARGET_ORG
-
-# Assign via Setup > Permission Sets > Manage Assignments
 ```
+# New dedicated PS carrying the access
+metadata_create(type="PermissionSet", metadata=[{"fullName": "Case_Assist_Access", "label": "Case Assist Agent Access", "hasActivationRequired": false, "agentAccesses": [{"agentName": "Case_Assist", "enabled": true}]}])
+
+# Or add access to an existing PS (JSON Patch)
+metadata_update(type="PermissionSet", fullName="Sales_Agent_Users", patch=[{"op": "add", "path": "/agentAccesses/-", "value": {"agentName": "Case_Assist", "enabled": true}}])
+# equivalent: permission_set_update(permissionSet="Sales_Agent_Users", patch=[...same patch...])
+
+# Assign to users
+permission_set_assignments(operation="add", permissionSets=["Case_Assist_Access"], users=["jane@company.com"])
+```
+
+To revoke, `replace` the entry's `enabled` with `false` or `remove` it (`{"op": "remove", "path": "/agentAccesses/0"}` — index from `metadata_read`).
 
 ---
 
@@ -43,41 +47,44 @@ When an Agentforce Employee Agent is deployed but not visible to users:
 
 ### Step 1: Verify Agent Status
 
-Navigate to Setup > Agentforce in your Salesforce org
+Setup > Agentforce Agents — the agent must show Status: Active. (`link_build` can produce the Setup link.)
 
-- Agent should show Status: Active
+### Step 2: Find which permission sets grant agent access
 
-### Step 2: Check for Agent Access Permission
+Inspect candidates directly — `agentAccesses` is part of the PS metadata:
 
-```bash
-# Retrieve permission sets to check for agentAccesses
-sf project retrieve start -m "PermissionSet:*" -o TARGET_ORG
-
-# Search for agentAccesses element
-grep -r "agentAccesses" force-app/main/default/permissionsets/
+```
+tooling_api_query(sObject="PermissionSet", fields=["Name", "Label"], whereClause="Name LIKE '%Agent%' OR Name LIKE '%Copilot%'")
+metadata_read(type="PermissionSet", fullNames=["Case_Assist_Access", "Sales_Agent_Users"])
 ```
 
-### Step 3: Create Permission Set (if needed)
+For an org-wide audit, agent access is stored as `SetupEntityAccess` rows. List the entity types in use first, then filter to the agent type:
 
-Create `force-app/main/default/permissionsets/MyAgent_Access.permissionset-meta.xml`:
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
-    <agentAccesses>
-        <agentName>MyAgent</agentName>
-        <enabled>true</enabled>
-    </agentAccesses>
-    <hasActivationRequired>false</hasActivationRequired>
-    <label>MyAgent Access</label>
-</PermissionSet>
 ```
+soql_query(sObject="SetupEntityAccess", fields=["SetupEntityType", "COUNT(Id) cnt"], whereClause="Id != null", groupBy="SetupEntityType")
+soql_query(sObject="SetupEntityAccess", fields=["Parent.Name", "Parent.Label", "SetupEntityId"], whereClause="SetupEntityType = '<agent entity type>'")
+```
+
+Cross-check the `SetupEntityId` values against the agent definitions (`BotDefinition` — `soql_query(sObject="BotDefinition", fields=["Id", "DeveloperName", "MasterLabel"], whereClause="Id != null")`) and resolve `Parent.Name` IDs to PS names.
+
+### Step 3: Check the user's assignments
+
+```
+soql_query(sObject="PermissionSetAssignment", fields=["PermissionSet.Name"], whereClause="Assignee.Username = 'jane@company.com'")
+```
+
+The user needs both the platform PS (`CopilotSalesforceUser` or the org's Agentforce user PS) and a PS whose `agentAccesses` includes the agent.
+
+### Step 4: Grant what is missing
+
+Use the patch and assignment calls from the first section.
 
 ### Common Issues
 
-| Symptom                         | Cause                                 | Solution                                              |
-| ------------------------------- | ------------------------------------- | ----------------------------------------------------- |
-| No Agentforce icon              | CopilotSalesforceUser PS not assigned | Assign CopilotSalesforceUser permission set           |
-| Icon visible, agent not in list | Missing agentAccesses                 | Add `<agentAccesses>` to permission set               |
-| Agent visible, errors on open   | Agent not fully published             | Check agent logs in Setup                             |
-| "Agent not found" error         | Name mismatch                         | Ensure `<agentName>` matches `developer_name` exactly |
+| Symptom                         | Cause                                 | Solution                                                       |
+| ------------------------------- | ------------------------------------- | -------------------------------------------------------------- |
+| No Agentforce icon              | CopilotSalesforceUser PS not assigned | `permission_set_assignments` add `CopilotSalesforceUser`       |
+| Icon visible, agent not in list | Missing `agentAccesses`               | Patch `/agentAccesses/-` on an assigned PS                     |
+| Agent visible, errors on open   | Agent not fully published             | Check agent status and logs in Setup                           |
+| "Agent not found" error         | Name mismatch                         | Ensure `agentName` matches the agent's developer name exactly  |
+| Patch rejected                  | Agent name unknown to the org         | Confirm the developer name via `BotDefinition` before patching |
