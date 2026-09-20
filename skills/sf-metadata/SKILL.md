@@ -3,7 +3,7 @@ name: sf-metadata
 plugin: cirra-ai-sf
 argument-hint: '[create|update|delete|clone|describe] {ObjectName|FieldName|type} ...'
 metadata:
-  version: 2.3.2
+  version: 2.3.3
 description: >
   Salesforce metadata operations expert. Use when creating custom objects, fields, validation
   rules, record types, permission sets, or querying org metadata structures via the Cirra AI
@@ -238,6 +238,8 @@ MATCH_DEFINITION_ERROR: Your organization doesn't have access to the following f
 ```
 
 `DuplicateRule` is built on `MatchingRule` and is presumed to share this for any field it references, though this hasn't been independently confirmed. Expect other metadata types that validate field references against the connected user's describe() to have their own error shape for the same root cause — when a creation/update error calls a field inaccessible, not found, or invalid in a way that contradicts what `sobject_describe`/the Tooling API shows, suspect connected-user FLS first.
+
+**The same FLS-vs-missing-field trap applies to data tools.** Salesforce SOQL and Bulk API return `INVALID_FIELD: No such column` both when a field is not on the object and when the connected user has no FLS Read. REST describe omits FLS-hidden fields; `FieldDefinition` (View Setup) and Cirra `sobject_describe` list org schema. Do not tell the user a field does not exist until `FieldDefinition` has been checked. If the field is in schema, grant Read (and Edit to write) on this connection. Both a true missing field and an FLS-hidden field happen — do not assume one is more common. Standard fields such as `DoNotCall`, `HasOptedOutOfEmail`, and `HasOptedOutOfFax` are a frequent example of FLS hiding a real field, not proof that every `No such column` is FLS.
 
 **How to avoid it:**
 
@@ -734,21 +736,22 @@ Parameters:
 
 ## Common Errors
 
-| Error                                                                                               | Fix                                                                                                                                                       |
-| --------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Cannot deploy to required field`                                                                   | Remove from fieldPermissions (auto-visible)                                                                                                               |
-| `Field does not exist`                                                                              | Create Permission Set with field access                                                                                                                   |
-| `SObject type 'X' not supported`                                                                    | Deploy metadata first                                                                                                                                     |
-| `Element X is duplicated`                                                                           | Check for duplicate field names                                                                                                                           |
-| `cirra_ai_init not called`                                                                          | Always call `cirra_ai_init()` FIRST                                                                                                                       |
-| `DUPLICATE_DEVELOPER_NAME`                                                                          | FlexiPage name already exists; use `metadata_update` or rename                                                                                            |
-| `FIELD_INTEGRITY_EXCEPTION` (vis rule)                                                              | Only EQUAL operator supported in visibility rules                                                                                                         |
-| `FIELD_INTEGRITY_EXCEPTION` (`Invalid related list:...` or `Invalid field:... in related list:...`) | Field has no FLS granted to the connected user — grant FLS (`sobject_field_update` with `flsUpdates`) and retry. See "CRITICAL: Connected-User FLS" above |
-| `MATCH_DEFINITION_ERROR` (`...doesn't have access to the following fields:...`)                     | Same connected-user FLS problem, on a `MatchingRule`. Same fix. See "CRITICAL: Connected-User FLS" above                                                  |
-| `force:recordDetail` not found                                                                      | Use `force:detailPanel` instead                                                                                                                           |
-| `Cannot read properties of undefined`                                                               | JSON Patch path is out of bounds; check section index                                                                                                     |
-| `DUPLICATE_VALUE` (`ExtlClntAppOauthSettingsId duplicates value on {name}`)                         | The ECA already has an OAuth policy record — `{name}` in the error IS its real `fullName`. Re-run against it. See "External Client Apps (ECA)" below      |
-| `INVALID_FIELD` (`We couldn't find permission sets called {id}`)                                    | `commaSeparatedPermissionSet` takes Permission Set **Names**, not `0PS…` IDs, despite the docs. See "External Client Apps (ECA)" below                    |
+| Error                                                                                               | Fix                                                                                                                                                                                                                                    |
+| --------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Cannot deploy to required field`                                                                   | Remove from fieldPermissions (auto-visible)                                                                                                                                                                                            |
+| `Field does not exist`                                                                              | Create Permission Set with field access                                                                                                                                                                                                |
+| `SObject type 'X' not supported`                                                                    | Deploy metadata first                                                                                                                                                                                                                  |
+| `Element X is duplicated`                                                                           | Check for duplicate field names                                                                                                                                                                                                        |
+| `cirra_ai_init not called`                                                                          | Always call `cirra_ai_init()` FIRST                                                                                                                                                                                                    |
+| `DUPLICATE_DEVELOPER_NAME`                                                                          | FlexiPage name already exists; use `metadata_update` or rename                                                                                                                                                                         |
+| `FIELD_INTEGRITY_EXCEPTION` (vis rule)                                                              | Only EQUAL operator supported in visibility rules                                                                                                                                                                                      |
+| `FIELD_INTEGRITY_EXCEPTION` (`Invalid related list:...` or `Invalid field:... in related list:...`) | Field has no FLS granted to the connected user — grant FLS (`sobject_field_update` with `flsUpdates`) and retry. See "CRITICAL: Connected-User FLS" above                                                                              |
+| `MATCH_DEFINITION_ERROR` (`...doesn't have access to the following fields:...`)                     | Same connected-user FLS problem, on a `MatchingRule`. Same fix. See "CRITICAL: Connected-User FLS" above                                                                                                                               |
+| `INVALID_FIELD` (`No such column`)                                                                  | Field missing **or** FLS hides it from the connected user. Query `FieldDefinition` before saying it does not exist. If it is in schema, grant FLS (`sobject_field_update` with `flsUpdates`). See "CRITICAL: Connected-User FLS" above |
+| `force:recordDetail` not found                                                                      | Use `force:detailPanel` instead                                                                                                                                                                                                        |
+| `Cannot read properties of undefined`                                                               | JSON Patch path is out of bounds; check section index                                                                                                                                                                                  |
+| `DUPLICATE_VALUE` (`ExtlClntAppOauthSettingsId duplicates value on {name}`)                         | The ECA already has an OAuth policy record — `{name}` in the error IS its real `fullName`. Re-run against it. See "External Client Apps (ECA)" below                                                                                   |
+| `INVALID_FIELD` (`We couldn't find permission sets called {id}`)                                    | `commaSeparatedPermissionSet` takes Permission Set **Names**, not `0PS…` IDs, despite the docs. See "External Client Apps (ECA)" below                                                                                                 |
 
 ---
 

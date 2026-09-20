@@ -45,12 +45,12 @@ CAUSE: the object has not been created in this org yet
 FIX:   sf-metadata (sobject_create) first, then sf-data
 ```
 
-| Error                                      | Cause                              | Fix                                                                        |
-| ------------------------------------------ | ---------------------------------- | -------------------------------------------------------------------------- |
-| `SObject type 'X' not supported`           | Object does not exist in the org   | sf-metadata `sobject_create` first                                         |
-| `INVALID_FIELD: No such column 'Field__c'` | Field missing **or** FLS blocks it | sf-metadata `sobject_field_create` (grants FLS) or `permission_set_update` |
-| `REQUIRED_FIELD_MISSING`                   | Required field not set             | `sobject_describe`, include every required field                           |
-| `FIELD_CUSTOM_VALIDATION_EXCEPTION`        | Validation rule fired              | Use values that satisfy the rule (sf-metadata can show it)                 |
+| Error                                      | Cause                                                                          | Fix                                                                                                                                                                                                        |
+| ------------------------------------------ | ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SObject type 'X' not supported`           | Object does not exist in the org                                               | sf-metadata `sobject_create` first                                                                                                                                                                         |
+| `INVALID_FIELD: No such column 'Field__c'` | Field missing **or** FLS hides it — Salesforce returns the same error for both | Query `FieldDefinition` before saying the field does not exist. In schema: grant Read (and Edit to write) via `permission_set_update`. Not in schema: sf-metadata `sobject_field_create`, which grants FLS |
+| `REQUIRED_FIELD_MISSING`                   | Required field not set                                                         | `sobject_describe`, include every required field                                                                                                                                                           |
+| `FIELD_CUSTOM_VALIDATION_EXCEPTION`        | Validation rule fired                                                          | Use values that satisfy the rule (sf-metadata can show it)                                                                                                                                                 |
 
 ---
 
