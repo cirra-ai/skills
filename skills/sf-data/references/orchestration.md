@@ -45,12 +45,12 @@ FIX:   Run sf-deploy BEFORE sf-data
 
 ## Common Errors from Wrong Order
 
-| Error                                      | Cause                          | Fix                           |
-| ------------------------------------------ | ------------------------------ | ----------------------------- |
-| `SObject type 'X' not supported`           | Object not deployed            | Deploy via sf-deploy first    |
-| `INVALID_FIELD: No such column 'Field__c'` | Field not deployed OR FLS      | Deploy field + Permission Set |
-| `REQUIRED_FIELD_MISSING`                   | Validation rule requires field | Include all required fields   |
-| `FIELD_CUSTOM_VALIDATION_EXCEPTION`        | Validation rule triggered      | Use valid test data values    |
+| Error                               | Cause                                                           | Fix                                                                                                                                                                                  |
+| ----------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `SObject type 'X' not supported`    | Object not deployed                                             | Deploy via sf-deploy first                                                                                                                                                           |
+| `INVALID_FIELD: No such column`     | Field not deployed, **or** FLS hides it from the connected user | Query `FieldDefinition`. If the field is there, grant Read/Edit FLS on this connection. If it is not, deploy the field. Do not treat "no such column" as proof the field is missing. |
+| `REQUIRED_FIELD_MISSING`            | Validation rule requires field                                  | Include all required fields                                                                                                                                                          |
+| `FIELD_CUSTOM_VALIDATION_EXCEPTION` | Validation rule triggered                                       | Use valid test data values                                                                                                                                                           |
 
 ---
 
