@@ -10,17 +10,15 @@ This document details how sf-flow fits into the multi-skill workflow for Salesfo
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │  STANDARD MULTI-SKILL ORCHESTRATION ORDER                                   │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│  1. sf-metadata                                                    │
-│     └── Create object/field definitions (LOCAL files)                       │
+│  1. sf-metadata                                                             │
+│     └── Create objects/fields (metadata_create / sobject_field_create)      │
 │                                                                             │
-│  2. sf-flow  ◀── YOU ARE HERE                                     │
-│     └── Create flow definitions (LOCAL files)                               │
+│  2. sf-flow  ◀── YOU ARE HERE                                               │
+│     └── Create + deploy the flow (metadata_create / metadata_update),       │
+│         verify with tooling_api_query, activate via FlowDefinition          │
 │                                                                             │
-│  3. sf-deploy                                                      │
-│     └── Deploy all metadata (REMOTE)                                        │
-│                                                                             │
-│  4. sf-data                                                        │
-│     └── Create test data (REMOTE - objects must exist!)                     │
+│  3. sf-data                                                                 │
+│     └── Create test data (objects and flow must exist!)                     │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -64,7 +62,7 @@ Flow acts as the **orchestrator** in the Flow-LWC-Apex triangle:
          └─────────────────────┘   Results back to Flow
 ```
 
-See `docs/triangle-pattern.md` for detailed Flow XML patterns.
+See `references/triangle-pattern.md` for detailed Flow XML patterns.
 
 ---
 
@@ -76,29 +74,21 @@ When building agents with Flow actions:
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │  AGENTFORCE FLOW ORCHESTRATION                                              │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│  1. sf-metadata                                                    │
+│  1. sf-metadata                                                             │
 │     └── Create object/field definitions                                     │
 │                                                                             │
-│  2. sf-connected-apps (if external API)                            │
-│     └── Create OAuth Connected App                                          │
+│  2. sf-metadata / sf-connect-rest (if external API)                         │
+│     └── Connected App, Named Credential, External Service registration      │
 │                                                                             │
-│  3. sf-integration (if external API)                               │
-│     └── Create Named Credential + External Service                          │
+│  3. sf-apex (if custom logic or a callout is needed)                        │
+│     └── Create @InvocableMethod classes (deployed by sf-apex)               │
 │                                                                             │
-│  4. sf-apex (if custom logic needed)                               │
-│     └── Create @InvocableMethod classes                                     │
+│  4. sf-flow  ◀── YOU ARE HERE                                               │
+│     └── Create + deploy the Flow (HTTP Callout, Apex wrapper, or standard)  │
+│         via metadata_create, verify, activate via FlowDefinition            │
 │                                                                             │
-│  5. sf-flow  ◀── YOU ARE HERE                                     │
-│     └── Create Flow (HTTP Callout, Apex wrapper, or standard)               │
-│                                                                             │
-│  6. sf-deploy                                                      │
-│     └── Deploy all metadata                                                 │
-│                                                                             │
-│  7. Agentforce Agent                                                        │
-│     └── Create agent with flow:// target                                    │
-│                                                                             │
-│  8. sf-deploy                                                      │
-│     └── Publish agent (metadata_create via Cirra AI MCP)                    │
+│  5. Agentforce Agent                                                        │
+│     └── Create agent with flow:// target; publish via metadata_create       │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -142,26 +132,29 @@ actions:
 
 ### 3. Common Integration Errors
 
-| Error                       | Cause                    | Fix                              |
-| --------------------------- | ------------------------ | -------------------------------- |
-| "Internal Error" on publish | Variable name mismatch   | Match Flow var names exactly     |
-| "Flow not found"            | Flow not deployed        | Deploy flow with sf-deploy first |
-| Agent can't read output     | Missing `isOutput: true` | Add output flag to Flow variable |
+| Error                       | Cause                    | Fix                                                    |
+| --------------------------- | ------------------------ | ------------------------------------------------------ |
+| "Internal Error" on publish | Variable name mismatch   | Match Flow var names exactly                           |
+| "Flow not found"            | Flow not deployed        | Deploy the flow with `metadata_create` (sf-flow) first |
+| Agent can't read output     | Missing `isOutput: true` | Add output flag to Flow variable                       |
 
 ---
 
 ## Cross-Skill Integration Table
 
-| From Skill     | To sf-flow | When                                 |
-| -------------- | ---------- | ------------------------------------ |
-| sf-apex        | → sf-flow  | "Create Flow wrapper for Apex logic" |
-| sf-integration | → sf-flow  | "Create HTTP Callout Flow"           |
+| From Skill      | To sf-flow | When                                                                    |
+| --------------- | ---------- | ----------------------------------------------------------------------- |
+| sf-apex         | → sf-flow  | "Create Flow wrapper for Apex logic" (incl. Apex that does the callout) |
+| sf-connect-rest | → sf-flow  | "Create HTTP Callout Flow" once the External Service is registered      |
 
-| From sf-flow | To Skill      | When                                                |
-| ------------ | ------------- | --------------------------------------------------- |
-| sf-flow      | → sf-metadata | "Describe Invoice\_\_c" (verify fields before flow) |
-| sf-flow      | → sf-deploy   | "Deploy flow with checkOnly"                        |
-| sf-flow      | → sf-data     | "Create 200 test Accounts" (after deploy)           |
+| From sf-flow | To Skill          | When                                                              |
+| ------------ | ----------------- | ----------------------------------------------------------------- |
+| sf-flow      | → sf-metadata     | "Describe Invoice\_\_c" (verify fields before flow)               |
+| sf-flow      | → sf-apex         | Callout logic belongs in an `@InvocableMethod`                    |
+| sf-flow      | → sf-connect-rest | Named Credential / External Service the callout action depends on |
+| sf-flow      | → sf-data         | "Create 200 test Accounts" (after deploy)                         |
+
+Deployment is done by sf-flow itself: `metadata_create` / `metadata_update` (JSON), then `tooling_api_query` on `Flow` to verify the version, then `metadata_update` on `FlowDefinition` to activate on request.
 
 ---
 
@@ -194,8 +187,8 @@ When deploying Flows that reference Apex or LWC:
 
 ## Related Documentation
 
-| Topic                               | Location                                     |
-| ----------------------------------- | -------------------------------------------- |
-| Triangle pattern (Flow perspective) | `sf-flow/docs/triangle-pattern.md`           |
-| LWC integration                     | `sf-flow/docs/lwc-integration-guide.md`      |
-| Apex action template                | `sf-flow/templates/apex-action-template.xml` |
+| Topic                               | Location                                      |
+| ----------------------------------- | --------------------------------------------- |
+| Triangle pattern (Flow perspective) | `sf-flow/references/triangle-pattern.md`      |
+| LWC integration                     | `sf-flow/references/lwc-integration-guide.md` |
+| Apex action template                | `sf-flow/assets/apex-action-template.xml`     |

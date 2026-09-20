@@ -16,6 +16,7 @@ CATEGORIES = {
 }
 MAX_SCORE = sum(CATEGORIES.values())
 
+# Keep in sync with the "Supported Metadata Types" table in SKILL.md.
 SUPPORTED_METADATA_TYPES = {
     "CustomObject",
     "CustomField",
@@ -24,6 +25,11 @@ SUPPORTED_METADATA_TYPES = {
     "PermissionSet",
     "FlexiPage",
     "Layout",
+    "ListView",
+    "QuickAction",
+    "GlobalValueSet",
+    "CustomTab",
+    "CustomApplication",
 }
 
 # FlexiPage page-type enum — keep in sync with
@@ -198,6 +204,11 @@ class MetadataOperationValidator:
             "PermissionSet": ("fullName", "label"),
             "FlexiPage": ("masterLabel", "type", "template"),
             "Layout": (),
+            "ListView": ("fullName", "label", "filterScope"),
+            "QuickAction": ("fullName", "label", "type"),
+            "GlobalValueSet": ("fullName", "masterLabel", "customValue"),
+            "CustomTab": ("fullName", "motif"),
+            "CustomApplication": ("fullName", "label"),
         }
         for key in required_by_type.get(self.metadata_type, ()):
             if key not in self.payload:

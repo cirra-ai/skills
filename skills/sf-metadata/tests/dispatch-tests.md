@@ -32,13 +32,13 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Path**: fast (single field, unambiguous)
 - **First tool**: `sobject_describe`
 - **Tool params**: `sObject: Account`
-- **Should call**: `metadata_create`
-- **Should NOT call**: `metadata_update`, `metadata_delete`, `tooling_api_dml`
+- **Should call**: `sobject_field_create`
+- **Should NOT call**: `metadata_create`, `metadata_update`, `metadata_delete`, `tooling_api_dml`
 - **Should ask user**: no (requirements are clear), but must propose an access strategy after creation
 - **Post-action**: propose a specific access strategy (Phase 3.5) — confirm exact permission sets/profiles for object+FLS access, plus page-layout / Lightning-page / list-view visibility as applicable; no guesswork
 - **Follow-up skills**: `sf-data`, `sf-permissions`
 
-**Notes**: The `create` keyword routes to Create Metadata. Even though the user gave all details, the workflow should first describe the target object to verify the field doesn't already exist, then call `metadata_create` with type `CustomField`. After creation, must propose an access strategy — deployed fields are invisible without FLS, and access must be pinned to specific profiles/permission sets rather than guessed. Fast path applies: single, unambiguous metadata operation.
+**Notes**: The `create` keyword routes to Create Metadata. Even though the user gave all details, the workflow should first describe the target object to verify the field doesn't already exist, then call `sobject_field_create` (never `metadata_create` with type `CustomField` — it grants no FLS, leaving the field invisible to the connected user). After creation, must propose an access strategy — deployed fields are invisible without FLS, and access must be pinned to specific profiles/permission sets rather than guessed. Fast path applies: single, unambiguous metadata operation.
 
 ---
 
@@ -122,13 +122,13 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Init timing**: `before-workflow`
 - **Path**: `full`
 - **First tool**: `cirra_ai_init`
-- **Should call**: `metadata_create`
+- **Should call**: `sobject_create`, `sobject_field_create`
 - **Should NOT call**: `metadata_delete`, `metadata_update`
 - **Should ask user**: no (object name and fields are specified)
 - **Post-action**: FLS prompt — ask user which Permission Sets need access to the new object and fields
 - **Follow-up skills**: `sf-permissions`, `sf-data`
 
-**Notes**: `create` keyword with "custom object" routes to Create Metadata. Should create the object first via `metadata_create`, then create each field. Must prompt about FLS after field creation — new fields are invisible without Permission Set access.
+**Notes**: `create` keyword with "custom object" routes to Create Metadata. Should create the object first via `sobject_create` (a regular `__c` object — `metadata_create(type="CustomObject")` is reserved for CMDT types and Custom Settings), then create each field via `sobject_field_create`. Must prompt about FLS after field creation — new fields are invisible without Permission Set access.
 
 ---
 
@@ -191,12 +191,12 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Init timing**: `before-workflow`
 - **Path**: `full`
 - **First tool**: `cirra_ai_init`
-- **Should call**: `sobject_describe`, `metadata_create`
-- **Should NOT call**: `metadata_delete`, `metadata_update`
+- **Should call**: `sobject_describe`, `record_type_create`
+- **Should NOT call**: `metadata_create`, `metadata_delete`, `metadata_update`
 - **Should ask user**: no (object, name, and purpose are specified)
 - **Follow-up skills**: `sf-permissions`
 
-**Notes**: `create` keyword with "record type" routes to Create Metadata. Should describe the Case object first to verify it exists, then create the RecordType via `metadata_create`. May need to set up page layout assignment after creation.
+**Notes**: `create` keyword with "record type" routes to Create Metadata. Should describe the Case object first to verify it exists, then create the record type via `record_type_create`, which takes the page-layout assignment and profile availability in the same call (`metadata_create(type="RecordType")` would leave it hidden from every profile).
 
 ---
 
@@ -208,13 +208,13 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Init timing**: `before-workflow`
 - **Path**: `full`
 - **First tool**: `cirra_ai_init`
-- **Should call**: `sobject_describe`, `metadata_create`
-- **Should NOT call**: `metadata_delete`, `metadata_update`
+- **Should call**: `sobject_describe`, `sobject_field_create`
+- **Should NOT call**: `metadata_create`, `metadata_delete`, `metadata_update`
 - **Should ask user**: no (all requirements are specified)
 - **Post-action**: FLS prompt — ask user which Permission Sets need access to the new field
 - **Follow-up skills**: `sf-permissions`
 
-**Notes**: Natural language "add a field" maps to Create Metadata. The request includes field type (picklist), API name, object, and values. Should describe Opportunity to verify it exists, then create the CustomField via `metadata_create` with picklist values. Must prompt about FLS after creation.
+**Notes**: Natural language "add a field" maps to Create Metadata. The request includes field type (picklist), API name, object, and values. Should describe Opportunity to verify it exists, then create the field via `sobject_field_create` with `fieldType="Picklist"` and the values in `properties`. Must prompt about FLS after creation.
 
 ---
 

@@ -150,7 +150,7 @@ class TestApiVersionAwareness:
         msgs = [i["message"] for i in r.get("issues", []) if i.get("severity") == "CRITICAL"]
         assert not any("SECURITY_ENFORCED" in m for m in msgs)
 
-    def test_security_enforced_warned_without_version(self):
+    def test_security_enforced_moderate_without_version(self):
         r = self._deploy(None)
-        msgs = [i["message"] for i in r.get("issues", []) if i.get("severity") == "WARNING"]
+        msgs = [i["message"] for i in r.get("issues", []) if i.get("severity") == "MODERATE"]
         assert any("SECURITY_ENFORCED" in m for m in msgs)

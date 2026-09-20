@@ -252,7 +252,7 @@ def test_lwc_bundle_with_no_scoreable_files(tmp_path):
 
 
 def test_trigger_findings_preserve_severity(tmp_path):
-    """Trigger findings preserve the severity from the validator."""
+    """Trigger findings preserve the severity and line from the validator."""
     inter = _setup_intermediate(tmp_path)
     output = tmp_path / "output"
 
@@ -261,8 +261,49 @@ def test_trigger_findings_preserve_severity(tmp_path):
     findings = json.loads((output / "trigger_findings.json").read_text())
     assert len(findings) == 1
     for f in findings[0]["findings"]:
-        assert "severity" in f
+        assert f["severity"] in pre_score_mod.SEVERITY_ORDER
         assert "message" in f
+        assert "line" in f
+
+
+def test_apex_class_issues_keep_severity_and_line(tmp_path):
+    """Class issues are {severity, message, line} objects, not flattened strings."""
+    inter = _setup_intermediate(tmp_path)
+    output = tmp_path / "output"
+
+    pre_score_mod.pre_score(inter, output)
+
+    scores = {e["name"]: e for e in json.loads((output / "apex_scores.json").read_text())}
+    bad = scores["BadService"]
+    assert bad["issues"], "BadService must have findings"
+    for issue in bad["issues"]:
+        assert set(issue) >= {"severity", "message", "line"}
+        assert issue["severity"] in pre_score_mod.SEVERITY_ORDER
+    dml = [i for i in bad["issues"] if "DML inside loop" in i["message"]]
+    assert dml and dml[0]["severity"] == "CRITICAL" and dml[0]["line"] == 4
+    # Worst severity first
+    ranks = [pre_score_mod.SEVERITY_ORDER.index(i["severity"]) for i in bad["issues"]]
+    assert ranks == sorted(ranks)
+
+
+def test_severity_vocabulary_matches_validator():
+    """pre_score re-declares validate_apex.SEVERITY_ORDER verbatim."""
+    validator = pre_score_mod._load_module("sf-apex/scripts/validate_apex.py")
+    assert validator is not None
+    assert pre_score_mod.SEVERITY_ORDER == validator.SEVERITY_ORDER
+    assert pre_score_mod.SEVERITY_ORDER == ["CRITICAL", "HIGH", "MODERATE", "LOW", "INFO"]
+    assert pre_score_mod.DEFAULT_THRESHOLD_PCT == validator.THRESHOLD_PCT == 70
+
+
+def test_legacy_severities_normalised():
+    assert pre_score_mod.normalize_severity("WARNING") == "MODERATE"
+    assert pre_score_mod.normalize_severity("ERROR") == "HIGH"
+    assert pre_score_mod.normalize_severity("MEDIUM") == "MODERATE"
+    assert pre_score_mod._finding("plain string") == {
+        "severity": "MODERATE",
+        "message": "plain string",
+        "line": 0,
+    }
 
 
 def test_malformed_flow_name_strips_suffix(tmp_path):

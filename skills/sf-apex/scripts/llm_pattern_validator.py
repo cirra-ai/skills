@@ -10,11 +10,17 @@ Detects common mistakes that LLMs make when generating Salesforce Apex code:
 
 This validator is ADVISORY - it provides warnings but does not block operations.
 
+Severity labels use the shared five-level scale (CRITICAL > HIGH > MODERATE >
+LOW > INFO) defined once in validate_apex.SEVERITY_ORDER and re-declared
+identically here so the script stays runnable standalone.
+
 Source: https://salesforcediaries.com/2026/01/16/llm-mistakes-in-apex-lwc-salesforce-code-generation-rules/
 """
 
 import re
 import os
+
+SEVERITY_ORDER = ["CRITICAL", "HIGH", "MODERATE", "LOW", "INFO"]
 
 
 class LLMPatternValidator:
@@ -160,7 +166,7 @@ class LLMPatternValidator:
         except Exception as e:
             self.issues.append(
                 {
-                    "severity": "ERROR",
+                    "severity": "HIGH",
                     "category": "file",
                     "message": f"Cannot read file: {e}",
                     "line": 0,
@@ -276,7 +282,7 @@ class LLMPatternValidator:
                 if not has_null_check:
                     self.issues.append(
                         {
-                            "severity": "WARNING",
+                            "severity": "MODERATE",
                             "category": "unsafe_map_access",
                             "message": f"Potential NPE: {map_var}.get() used without null check",
                             "line": i,
@@ -367,20 +373,20 @@ def format_output(results: dict) -> str:
     output_parts.append(f"🤖 LLM Pattern Check: {results['file']}")
     output_parts.append("─" * 50)
 
-    # Group by severity
-    critical = [i for i in issues if i["severity"] == "CRITICAL"]
-    warnings = [i for i in issues if i["severity"] == "WARNING"]
+    # Group by severity: CRITICAL/HIGH block-worthy, MODERATE/LOW advisory, INFO
+    critical = [i for i in issues if i["severity"] in ("CRITICAL", "HIGH")]
+    warnings = [i for i in issues if i["severity"] in ("MODERATE", "LOW")]
     info = [i for i in issues if i["severity"] == "INFO"]
 
     if critical:
-        output_parts.append(f"🔴 Critical ({len(critical)}):")
+        output_parts.append(f"🔴 Critical/High ({len(critical)}):")
         for issue in critical[:5]:
             output_parts.append(f"   L{issue['line']}: {issue['message']}")
             if issue.get("fix"):
                 output_parts.append(f"      💡 {issue['fix']}")
 
     if warnings:
-        output_parts.append(f"🟡 Warnings ({len(warnings)}):")
+        output_parts.append(f"🟡 Moderate/Low ({len(warnings)}):")
         for issue in warnings[:3]:
             output_parts.append(f"   L{issue['line']}: {issue['message']}")
             if issue.get("fix"):

@@ -6,9 +6,12 @@ Fires before metadata_create, metadata_update, or tooling_api_dml calls.
 Extracts the Apex code body from the MCP payload and validates it using
 the 150-point static analysis pipeline.
 
+Severity labels follow validate_apex.SEVERITY_ORDER (CRITICAL > HIGH >
+MODERATE > LOW > INFO); the threshold is validate_apex.THRESHOLD_PCT (70%).
+
 Decisions:
   - CRITICAL/HIGH issues (SOQL/DML in loops, injection)  → allow with critical warning
-  - Score < 67% (< 100/150)                              → allow with warning
+  - Score < 70% (< 105/150)                              → allow with warning
   - Pass                                                 → allow with score summary
   - Non-Apex type or validator unavailable               → allow silently
 """
@@ -20,7 +23,13 @@ import sys
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, SCRIPT_DIR)
 
-THRESHOLD_PCT = 67  # block advisory below this percentage
+try:
+    from validate_apex import THRESHOLD_PCT, normalize_severity
+except ImportError:  # validator missing — keep the same contract locally
+    THRESHOLD_PCT = 70  # block advisory below this percentage
+
+    def normalize_severity(value, default="MODERATE"):
+        return str(value or default).upper()
 
 
 def _allow(context: str = "") -> dict:
@@ -74,7 +83,9 @@ def main() -> int:
     pct = (score / max_score * 100) if max_score > 0 else 0
 
     # Critical/High issues → allow with prominent warning (never block)
-    blocking = [i for i in all_issues if i.get("severity") in ("CRITICAL", "HIGH")]
+    blocking = [
+        i for i in all_issues if normalize_severity(i.get("severity"), "INFO") in ("CRITICAL", "HIGH")
+    ]
     if blocking:
         lines = []
         for issue in blocking[:5]:

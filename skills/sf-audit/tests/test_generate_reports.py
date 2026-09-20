@@ -104,20 +104,83 @@ def test_compute_summary_below_threshold(gen):
 def test_compute_summary_severity_counts(gen):
     data = gen.load_inputs(str(FIXTURES_DIR))
     summary = gen.compute_summary(data)
-    # Original: CRITICAL=1, HIGH=3, MEDIUM=1, LOW=2
+    # Keys are exactly the shared five-level vocabulary.
+    assert list(summary["severity_counts"]) == gen.SEVERITY_ORDER
+    # Permissions/declarative: CRITICAL=1, HIGH=3, MODERATE=1 (legacy "MEDIUM"), LOW=2
     # + integrations: LOW=1
-    # + test_coverage: HIGH=1, MEDIUM=1
-    # + team_evaluation: HIGH=1, MEDIUM=1
+    # + test_coverage: HIGH=1, MODERATE=1
+    # + team_evaluation: HIGH=1, MODERATE=1
     # + change_history: HIGH=1
     # + licensing: HIGH=2
     # + data_quality: HIGH=1
-    # + reports_dashboards: MEDIUM=1
-    # + unused_fields: HIGH=1, MEDIUM=1
+    # + reports_dashboards: MODERATE=1
+    # + unused_fields: HIGH=1, MODERATE=1
     # + unused_objects: HIGH=1
-    assert summary["severity_counts"]["CRITICAL"] == 1
-    assert summary["severity_counts"]["HIGH"] == 11
-    assert summary["severity_counts"]["MEDIUM"] == 5
-    assert summary["severity_counts"]["LOW"] == 3
+    # + trigger_findings: HIGH=1, MODERATE=1
+    # + apex_scores issue objects: CRITICAL=1, HIGH=1, MODERATE=2, LOW=1
+    #   (the plain-string issue on BatchProcessRecords carries no severity)
+    assert summary["severity_counts"]["CRITICAL"] == 2
+    assert summary["severity_counts"]["HIGH"] == 13
+    assert summary["severity_counts"]["MODERATE"] == 8
+    assert summary["severity_counts"]["LOW"] == 4
+    assert summary["severity_counts"]["INFO"] == 0
+    assert "MEDIUM" not in summary["severity_counts"]
+
+
+# ── Severity vocabulary ─────────────────────────────────────────────────────
+
+
+def test_severity_order_matches_apex_validator(gen):
+    validator = load_script("skills/sf-apex/scripts/validate_apex.py")
+    assert gen.SEVERITY_ORDER == validator.SEVERITY_ORDER
+    assert gen.SEVERITY_ORDER == ["CRITICAL", "HIGH", "MODERATE", "LOW", "INFO"]
+
+
+def test_normalize_severity_maps_legacy_labels(gen):
+    assert gen.normalize_severity("MEDIUM") == "MODERATE"
+    assert gen.normalize_severity("warning") == "MODERATE"
+    assert gen.normalize_severity("ERROR") == "HIGH"
+    assert gen.normalize_severity(None, "LOW") == "LOW"
+    assert gen.normalize_severity("nonsense") == "MODERATE"
+
+
+def test_worst_severity_and_ranking(gen):
+    findings = [{"severity": "LOW"}, {"severity": "MEDIUM"}, {"severity": "HIGH"}]
+    assert gen._worst_severity(findings) == "HIGH"
+    assert gen._worst_severity([]) == "LOW"
+    assert gen._sev_rank("CRITICAL") < gen._sev_rank("HIGH") < gen._sev_rank("MODERATE")
+    assert gen._sev_rank("LOW") < gen._sev_rank("INFO")
+    assert gen._sev_weight("CRITICAL") > gen._sev_weight("INFO")
+
+
+def test_severity_badge_normalises_label(gen):
+    html = gen._severity_badge_html("MEDIUM")
+    assert ">MODERATE<" in html
+    assert "MEDIUM" not in html
+
+
+def test_issue_text_and_html(gen):
+    issue = {"severity": "WARNING", "message": "SOQL inside loop", "line": 42}
+    assert gen._issue_text(issue) == "[MODERATE] SOQL inside loop (line 42)"
+    assert gen._issue_text("legacy string") == "legacy string"
+    html = gen._issue_html(issue)
+    assert ">MODERATE<" in html and "SOQL inside loop" in html and "line 42" in html
+    assert gen._issue_html("<b>") == "&lt;b&gt;"
+
+
+def test_html_apex_table_shows_severity_and_line(gen, output_dir):
+    data = gen.load_inputs(str(FIXTURES_DIR))
+    summary = gen.compute_summary(data)
+    output_dir.mkdir(parents=True)
+    html_path = output_dir / "report.html"
+    gen.generate_html(data, summary, "Test Org", "", "", "2026-01-01", html_path)
+    content = html_path.read_text(encoding="utf-8")
+    # ContactTriggerHandler fixture: CRITICAL "SOQL inside loop" at line 42
+    assert ">CRITICAL<" in content
+    assert "SOQL inside loop" in content
+    assert "line 42" in content
+    # Legacy "MEDIUM" inputs never leak into the rendered report
+    assert "MEDIUM" not in content
 
 
 def test_score_rating_boundaries(gen):

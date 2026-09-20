@@ -57,11 +57,14 @@ Request: "Create a JWT Bearer OAuth flow diagram"
 
 > This section is for Salesforce developers building integrations. Admins can skip it.
 
-| Operation       | MCP Tool                                    |
-| --------------- | ------------------------------------------- |
-| Describe Object | `sobject_describe(sObject)`                 |
-| Record Counts   | `soql_query(fields=["COUNT(Id)"])`          |
-| Custom Objects  | `tooling_api_query(sObject="CustomObject")` |
+| Operation       | MCP Tool                                                                                                     |
+| --------------- | ------------------------------------------------------------------------------------------------------------ |
+| List Objects    | `sobjects_list` — enumerate standard / custom / external objects                                             |
+| Describe Object | `sobject_describe` on each object — `childRelationships[].cascadeDelete` separates Master-Detail from Lookup |
+| Record Counts   | `soql_query` on the object with `fields=["COUNT(Id)"]` and `whereClause="Id != null"`                        |
+| Sharing Model   | `metadata_read` with `type="CustomObject"` — read `sharingModel` for `OWD:` annotations                      |
+
+See [shared/references/cirra-mcp-tools.md](../../shared/references/cirra-mcp-tools.md) for the full signatures.
 
 ## Execution Modes
 

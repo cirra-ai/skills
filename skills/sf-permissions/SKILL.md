@@ -2,21 +2,39 @@
 name: sf-permissions
 plugin: cirra-ai-sf
 metadata:
-  version: 2.0.2
-argument-hint: '[hierarchy|audit|analyze|create|clone|update|delete|agent-access] ...'
+  version: 2.1.0
+argument-hint: '[hierarchy|audit|analyze|create|clone|update|delete|assign|profile|agent-access] ...'
 description: >
-  Permission Set analysis, hierarchy viewer, and "Who has X?" auditing. Use when analyzing
-  permissions, visualizing PS/PSG hierarchies, finding which Permission Sets grant access
-  to specific objects, fields, or Apex classes, or auditing user permissions via the Cirra
-  AI MCP Server.
-  Usage: /sf-permissions [hierarchy|audit|analyze|create|clone|update|delete|agent-access] ...
+  Permission Set and Profile analysis, hierarchy viewer, and "Who has X?" auditing. Use when
+  analyzing permissions, visualizing PS/PSG hierarchies, finding which Permission Sets or
+  Profiles grant access to specific objects, fields, or Apex classes, auditing user
+  permissions, or creating, updating, cloning and assigning Permission Sets and Profiles via
+  the Cirra AI MCP Server.
+  Usage: /sf-permissions [hierarchy|audit|analyze|create|clone|update|delete|assign|profile|agent-access] ...
 ---
 
 # Salesforce Permission Analysis & Management
 
-You are an expert Salesforce security administrator specializing in Permission Sets, Permission Set Groups, field-level security, and access auditing. You help admins understand, analyze, and document their org's permission model using the Cirra AI MCP Server.
+You are an expert Salesforce security administrator specializing in Permission Sets, Permission Set Groups, Profiles, field-level security, and access auditing. You help admins understand, analyze, document and change their org's permission model using the Cirra AI MCP Server.
 
 This skill uses **Cirra AI MCP tools directly** for all org operations. No sf CLI, Python scripts, or developer tools are needed.
+
+## Reference File Index
+
+| File                                                 | Use it for                                                                                     |
+| ---------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `../../shared/references/cirra-mcp-tools.md`         | Authoritative Cirra MCP tool signatures — check every call shape here                          |
+| `references/permission-model.md`                     | How profiles, permission sets, PSGs, FLS, and system permissions layer together                |
+| `references/permission-soql-queries.md`              | The full SOQL library for PS/PSG/ObjectPermissions/FieldPermissions/SetupEntityAccess          |
+| `references/workflow-examples.md`                    | Step-by-step examples: audits, troubleshooting, documentation, creation                        |
+| `references/usage-examples.md`                       | Copy-paste MCP call examples per operation                                                     |
+| `references/agent-access-guide.md`                   | Agentforce `agentAccesses` — grant, inspect, audit, and troubleshoot agent visibility          |
+| `references/permissionset-metadata-schema.json`      | JSON Schema of the `PermissionSet` metadata type (payload shape for `metadata_create`/patches) |
+| `references/permissionsetgroup-metadata-schema.json` | JSON Schema of the `PermissionSetGroup` metadata type                                          |
+| `references/profile-metadata-schema.json`            | JSON Schema of the `Profile` metadata type (payload shape for `profile_update` patches)        |
+| `references/sharingrules-metadata-schema.json`       | JSON Schema of the `SharingRules` metadata type                                                |
+| `references/execution-modes.md`                      | Execution mode detection and how large responses are handled                                   |
+| `references/mcp-pagination.md`                       | Paging through large MCP responses (`fetch_more`, artifact downloads)                          |
 
 ## Dispatch
 
@@ -31,13 +49,15 @@ Parse `$ARGUMENTS` to determine which workflow to run:
 | `clone`, copy existing PS/PSG                                            | Clone Permission Set     |
 | `update`, modify permissions                                             | Update Permission Set    |
 | `delete`, remove PS/PSG                                                  | Delete Permission Set    |
+| `assign`, `unassign`, add/remove PS from users                           | Assign Permission Set    |
+| `profile`, inspect/change/clone a profile                                | Profile Management       |
 | `agent-access`, `agentforce`                                             | Agent Access Permissions |
 | _(no argument or unclear)_                                               | Ask the user (see below) |
 
 When the operation is missing or unclear, **you MUST use `AskUserQuestion`** before proceeding:
 
 ```
-AskUserQuestion(question="What would you like to do?\n\n1. **Hierarchy** — visualize all Permission Sets and Permission Set Groups as structured trees\n2. **Audit** — identify security risks: overly broad permissions, orphaned PS, outdated PSGs\n3. **Analyze** — find who has a specific permission, list a user's permissions, or debug access issues\n4. **Create** — create a new Permission Set with object/field/system permissions\n5. **Clone** — clone an existing Permission Set or Permission Set Group\n6. **Update** — modify permissions on an existing Permission Set\n7. **Delete** — remove a Permission Set or Permission Set Group\n8. **Agent access** — query and manage Agentforce agent access permissions")
+AskUserQuestion(question="What would you like to do?\n\n1. **Hierarchy** — visualize all Permission Sets and Permission Set Groups as structured trees\n2. **Audit** — identify security risks: overly broad permissions, orphaned PS, outdated PSGs\n3. **Analyze** — find who has a specific permission, list a user's permissions, or debug access issues\n4. **Create** — create a new Permission Set with object/field/system permissions\n5. **Clone** — clone an existing Permission Set or Permission Set Group\n6. **Update** — modify permissions on an existing Permission Set\n7. **Delete** — remove a Permission Set or Permission Set Group\n8. **Assign** — assign or remove Permission Sets for users\n9. **Profile** — inspect, change, or clone a Profile\n10. **Agent access** — query and manage Agentforce agent access permissions")
 ```
 
 Do NOT guess the operation or default to one. Wait for the user's answer.
@@ -49,41 +69,47 @@ The sf-permissions skill provides comprehensive permission analysis and manageme
 - **Hierarchy Viewer**: Visualize all PS/PSG in an org as structured trees
 - **Permission Detector**: Find which PS/PSG grant a specific permission ("Who has X?")
 - **User Analyzer**: Show all permissions assigned to a specific user
-- **Security Audit**: Identify overly broad permissions, unused PS, and security risks
-- **Permission Set Creation**: Generate Permission Sets via `metadata_create`
-- **Clone/Update/Delete**: Full lifecycle management of Permission Sets and Groups
-- **Integration**: Works with sf-metadata, sf-data, sf-diagram skills
+- **Security Audit**: Identify overly broad permissions and security risks
+- **Permission Set Lifecycle**: Create, clone, update, delete and assign Permission Sets
+- **Profile Management**: Inspect, patch and clone Profiles
+- **Agent Access**: Grant and audit Agentforce agent visibility
 
----
+## Execution Modes
 
-## Execution modes
-
-This skill supports four execution modes — see
+This skill operates in one of four modes, detected at startup. See
 `references/execution-modes.md` for detection logic and full details,
 and `references/mcp-pagination.md` for handling large MCP responses.
 
-All permission operations go through MCP tools regardless of mode. The
-mode determines whether local tooling is available and how large query
-results (e.g. PermissionSet/PSG datasets) are retrieved.
+| Mode                      | When                                              | Speed   |
+| ------------------------- | ------------------------------------------------- | ------- |
+| `sfdx-repo`               | Working directory is an SFDX project              | Fastest |
+| `cli`                     | Salesforce CLI installed and authed               | Fast    |
+| `mcp-plus-code-execution` | MCP + filesystem + code execution (Cowork, Codex) | Medium  |
+| `mcp-core`                | MCP only, no filesystem (chat interfaces)         | Slowest |
+
+All permission operations go through MCP tools regardless of mode. The mode determines how large responses (e.g. PermissionSet/PSG datasets) are handled.
 
 ## Execution Model
 
-**REMOTE-ONLY MODE**: Cirra AI MCP operates directly against Salesforce orgs.
+**REMOTE-ONLY MODE**: Cirra AI MCP operates directly against the connected org. The tool signatures below are summarized from `../../shared/references/cirra-mcp-tools.md` — that page wins if anything here disagrees.
 
-| Operation                    | Tool                | Org Required? | Output                     |
-| ---------------------------- | ------------------- | ------------- | -------------------------- |
-| **Query Permission Sets**    | `soql_query`        | Yes           | PS/PSG records             |
-| **Query Object Permissions** | `soql_query`        | Yes           | CRUD access per object     |
-| **Query Field Permissions**  | `soql_query`        | Yes           | FLS per field              |
-| **Query Setup Entity**       | `soql_query`        | Yes           | Apex/VF/Flow access        |
-| **Query via Tooling API**    | `tooling_api_query` | Yes           | Tab settings, system perms |
-| **Create Permission Set**    | `metadata_create`   | Yes           | PS deployed to org         |
-| **Read PS Metadata**         | `metadata_read`     | Yes           | Full PS/PSG metadata       |
-| **Update Permission Set**    | `metadata_update`   | Yes           | PS updated in org          |
-| **Delete Permission Set**    | `metadata_delete`   | Yes           | PS/PSG removed from org    |
-| **Add Object/Field Perms**   | `sobject_dml`       | Yes           | Permission records created |
+| Operation                        | Tool                         | Notes                                                                                                                |
+| -------------------------------- | ---------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| **Query PS / PSG / assignments** | `soql_query`                 | `PermissionSet`, `PermissionSetGroup`, `PermissionSetGroupComponent`, `PermissionSetAssignment`                      |
+| **Query object / field perms**   | `soql_query`                 | `ObjectPermissions`, `FieldPermissions`                                                                              |
+| **Query setup entity access**    | `soql_query`                 | `SetupEntityAccess` — Apex, VF, Flow, custom permissions, agents                                                     |
+| **Query via Tooling API**        | `tooling_api_query`          | `PermissionSet.Type` (PS vs Group), tab settings                                                                     |
+| **Read full PS / PSG metadata**  | `metadata_read`              | `type="PermissionSet"` or `"PermissionSetGroup"`, `fullNames=[...]`                                                  |
+| **Create Permission Set**        | `metadata_create`            | `type="PermissionSet"`, `metadata=[{fullName, label, ...}]`                                                          |
+| **Change PS contents**           | `permission_set_update`      | `permissionSet=` name or ID, `patch=` JSON Patch over the PS metadata (objects, fields, system perms, classes, tabs) |
+| **Assign / remove PS**           | `permission_set_assignments` | `operation="add"`/`"remove"`, `permissionSets=[...]`, `users=[...]`                                                  |
+| **Delete PS / PSG**              | `metadata_delete`            | `type`, `fullNames`                                                                                                  |
+| **Inspect a Profile**            | `profile_describe`           | `profile=`, `permissionTypes=[...]`, `sObject=`                                                                      |
+| **Change a Profile**             | `profile_update`             | `profile=`, `patch=` JSON Patch over the Profile metadata                                                            |
+| **Copy a Profile**               | `profile_clone`              | `profile=` new name, `clonedProfileName=` source                                                                     |
+| **Raw permission-record DML**    | `sobject_dml`                | **Fallback only** — `ObjectPermissions`/`FieldPermissions` rows when a patch is not possible                         |
 
-**CRITICAL**: Always call `cirra_ai_init()` FIRST before any Cirra AI operations!
+**CRITICAL**: Always call `cirra_ai_init()` FIRST before any Cirra AI operations! Every write (create, patch, assign, delete) must be presented as a plan and explicitly approved by the user before it runs.
 
 ---
 
@@ -93,13 +119,27 @@ results (e.g. PermissionSet/PSG datasets) are retrieved.
 2. **Permission Detection** - Find which PS/PSG grant access to a specific object, field, Apex class, or custom permission
 3. **User Analysis** - Trace all permissions for a specific user through PS/PSG assignments
 4. **Security Audit** - Identify overly broad permissions (ModifyAllData, ViewAllData), unused PS, and risks
-5. **Permission Set Creation** - Generate and deploy Permission Sets via `metadata_create`
-6. **Clone/Update/Delete** - Full lifecycle management of Permission Sets and Permission Set Groups
+5. **Permission Set Lifecycle** - Create (`metadata_create`), patch (`permission_set_update`), clone, delete and assign (`permission_set_assignments`) Permission Sets and Permission Set Groups
+6. **Profile Management** - Inspect (`profile_describe`), patch (`profile_update`) and clone (`profile_clone`) Profiles
 7. **Documentation** - Export permission structures for auditing and compliance
 
 ---
 
 ## Action Workflows
+
+### Hierarchy Viewer Workflow
+
+1. Query all non-profile Permission Sets, all Permission Set Groups, and all `PermissionSetGroupComponent` rows (queries under "Phase 2" below).
+2. Build a tree: each PSG with its member PS, then standalone PS that belong to no PSG.
+3. Count assignees per PS/PSG with an aggregate on `PermissionSetAssignment` (`groupBy`).
+4. Render in the format shown under "Phase 4". Offer a Mermaid diagram via sf-diagram.
+
+### Security Audit Workflow
+
+1. Query `PermissionSet` for `PermissionsModifyAllData = true` / `PermissionsViewAllData = true` (with `IsOwnedByProfile = false`) and list their assignees.
+2. Query `PermissionSetGroup` with `Status = 'Outdated'`.
+3. Find orphaned PS: PS with no `PermissionSetAssignment` rows.
+4. Flag the findings under "Phase 3" and recommend actions under "Phase 5".
 
 ### Analyze Permissions Workflow
 
@@ -144,7 +184,8 @@ Use when the user asks "What can John do?" or provides a username/email/user ID.
 1. Look up user ID if an email/name was given: `soql_query(sObject="User", fields=["Id", "Name", "Username"], whereClause="Username = '<email>'")`
 2. Get all PS/PSG assignments: `soql_query(sObject="PermissionSetAssignment", fields=["PermissionSetId", "PermissionSet.Name", "PermissionSetGroupId", "PermissionSetGroup.DeveloperName"], whereClause="AssigneeId = '<UserId>'")`
 3. For each assigned PS, query ObjectPermissions and FieldPermissions
-4. Aggregate and display a consolidated view of all effective permissions
+4. Include the user's profile: `profile_describe(profile="<Profile.Name>", permissionTypes=["objectPermissions", "fieldPermissions", "userPermissions"], sObject="<ObjectName>")` when a specific object is in question
+5. Aggregate and display a consolidated view of all effective permissions
 
 #### Sub-case 3: Debug access — Troubleshoot why a user cannot perform an action
 
@@ -153,7 +194,7 @@ Use for "Why can't John edit Opportunities?" style questions.
 1. Query PermissionSetAssignment for the user's ID
 2. For each assigned PS, query ObjectPermissions for the target object (e.g., Opportunity with PermissionsEdit)
 3. If no PS grants the permission, identify the gap
-4. Suggest which PS/PSG to assign to resolve the issue
+4. Suggest which PS/PSG to assign (then use the Assign workflow) — or, if the gap is on the profile, the Profile workflow
 
 Example: "Why can't John edit Opportunities?":
 
@@ -162,6 +203,63 @@ soql_query(sObject="PermissionSetAssignment", fields=["PermissionSetId", "Permis
 -- then for each PS:
 soql_query(sObject="ObjectPermissions", fields=["Parent.Name", "PermissionsEdit"], whereClause="ParentId IN ('<ps_id_1>', ...) AND SobjectType = 'Opportunity' AND PermissionsEdit = true")
 ```
+
+---
+
+### Create Permission Set Workflow
+
+**Step 1 — Create the permission set shell** (validate the payload against `references/permissionset-metadata-schema.json` first):
+
+```
+metadata_create(
+  type="PermissionSet",
+  metadata=[{
+    "fullName": "Sales_Account_Edit",
+    "label": "Sales Account Edit",
+    "description": "Grants sales team edit access to Accounts",
+    "hasActivationRequired": false
+  }],
+  sf_user="<sf_user>"
+)
+```
+
+You may include `objectPermissions`, `fieldPermissions`, `userPermissions`, etc. directly in this payload. Splitting shell creation from content is usually clearer, and lets you patch incrementally.
+
+**Step 2 — Add object, field and system permissions with `permission_set_update`.** The patch is JSON Patch applied to the `PermissionSet` metadata shape (same element names as the schema: `objectPermissions`, `fieldPermissions`, `userPermissions`, `classAccesses`, `tabSettings`, `pageAccesses`, `flowAccesses`, `customPermissions`, `recordTypeVisibilities`, `agentAccesses`):
+
+```
+permission_set_update(
+  permissionSet="Sales_Account_Edit",
+  patch=[
+    {"op": "add", "path": "/objectPermissions/-", "value": {"object": "Account", "allowRead": true, "allowCreate": true, "allowEdit": true, "allowDelete": false, "viewAllRecords": false, "modifyAllRecords": false, "viewAllFields": false}},
+    {"op": "add", "path": "/fieldPermissions/-", "value": {"field": "Account.AnnualRevenue", "readable": true, "editable": true}},
+    {"op": "add", "path": "/fieldPermissions/-", "value": {"field": "Account.Industry", "readable": true, "editable": false}},
+    {"op": "add", "path": "/userPermissions/-", "value": {"name": "ApiEnabled", "enabled": true}},
+    {"op": "add", "path": "/classAccesses/-", "value": {"apexClass": "AccountService", "enabled": true}},
+    {"op": "add", "path": "/tabSettings/-", "value": {"tab": "standard-Account", "visibility": "Visible"}}
+  ],
+  sf_user="<sf_user>"
+)
+```
+
+Authoring rules that avoid a failed save: never grant FLS on required fields or master-detail fields (they are always readable/editable); formula and roll-up fields can only be `readable`; use `standard-<Object>` for standard tabs and the object API name for custom tabs; `tabSettings.visibility` is `Available`, `Hidden` or `Visible`.
+
+**Step 3 — Verify** with `metadata_read(type="PermissionSet", fullNames=["Sales_Account_Edit"])` and, if requested, assign it (Assign workflow).
+
+**Fallback — raw permission-record DML.** Only if `permission_set_update` cannot express the change, insert rows directly. `ParentId` must be the PS record ID (starts with `0PS`), not the API name — fetch it with `soql_query(sObject="PermissionSet", fields=["Id"], whereClause="Name = 'Sales_Account_Edit' AND IsOwnedByProfile = false")`:
+
+```
+sobject_dml(
+  operation="insert",
+  sObject="ObjectPermissions",
+  records=[
+    {"ParentId": "0PSXX0000004ABC", "SobjectType": "Account", "PermissionsRead": true, "PermissionsEdit": true, "PermissionsCreate": true, "PermissionsDelete": false, "PermissionsViewAllRecords": false, "PermissionsModifyAllRecords": false}
+  ],
+  sf_user="<sf_user>"
+)
+```
+
+`FieldPermissions` (`ParentId`, `SobjectType`, `Field`, `PermissionsRead`, `PermissionsEdit`), `PermissionSetTabSetting` (`ParentId`, `Name`, `Visibility`) and `SetupEntityAccess` (`ParentId`, `SetupEntityId`) work the same way. System permissions have no DML-able object — they always go through `permission_set_update` (`/userPermissions/-`).
 
 ---
 
@@ -191,43 +289,55 @@ metadata_create(
 )
 ```
 
-3. Confirm success and display the new PS details.
+3. Confirm success and display the new PS details. To clone a **Profile**, use `profile_clone` (Profile workflow).
 
 ---
 
 ### Update Permission Set Workflow
 
-Use to modify permissions on an existing Permission Set.
+Use to modify permissions on an existing Permission Set. All changes go through `permission_set_update`, a JSON Patch over the PS metadata (read the current state first with `metadata_read` so you know what exists).
 
-**For system permissions** (e.g., ModifyAllData, ViewAllData):
-
-```
-metadata_update(
-  type="PermissionSet",
-  metadata=[{
-    "fullName": "<PSName>",
-    "userPermissions": [
-      {"enabled": true, "name": "<PermissionName>"}
-    ]
-  }],
-  sf_user="<sf_user>"
-)
-```
-
-**For object/field permissions**, use `sobject_dml` to insert or update permission records:
+**Add an object permission** (e.g., "add delete access to Opportunity on Sales_Admin"):
 
 ```
-sobject_dml(
-  operation="upsert",
-  sObject="ObjectPermissions",
-  records=[
-    {"ParentId": "0PSXX0000004ABC", "SobjectType": "Account", "PermissionsRead": true, "PermissionsEdit": true, "PermissionsCreate": true, "PermissionsDelete": false, "PermissionsViewAllRecords": false, "PermissionsModifyAllRecords": false}
+permission_set_update(
+  permissionSet="Sales_Admin",
+  patch=[
+    {"op": "add", "path": "/objectPermissions/-", "value": {"object": "Opportunity", "allowRead": true, "allowCreate": true, "allowEdit": true, "allowDelete": true, "viewAllRecords": false, "modifyAllRecords": false, "viewAllFields": false}}
   ],
   sf_user="<sf_user>"
 )
 ```
 
-Get the PS record ID first if needed: `soql_query(sObject="PermissionSet", fields=["Id"], whereClause="Name = '<PSName>'")`
+**Add a field permission:**
+
+```
+permission_set_update(
+  permissionSet="Sales_Admin",
+  patch=[
+    {"op": "add", "path": "/fieldPermissions/-", "value": {"field": "Opportunity.Amount", "readable": true, "editable": true}}
+  ],
+  sf_user="<sf_user>"
+)
+```
+
+**Grant a system permission** (e.g., ModifyAllData, ViewAllData, ApiEnabled):
+
+```
+permission_set_update(
+  permissionSet="Sales_Admin",
+  patch=[
+    {"op": "add", "path": "/userPermissions/-", "value": {"name": "ModifyAllData", "enabled": true}}
+  ],
+  sf_user="<sf_user>"
+)
+```
+
+**Change or remove an existing entry:** `metadata_read` the PS, locate the entry in the array, then `replace` or `remove` it by index — e.g. `{"op": "replace", "path": "/objectPermissions/3/allowDelete", "value": false}` or `{"op": "remove", "path": "/fieldPermissions/0"}`. Enhanced JSON Pointer paths may also address array children by their `name`/`fullName` key (`/userPermissions/ModifyAllData`); numeric indices always work. Several operations can go in one `patch` array.
+
+**Fallback:** `sobject_dml` `update`/`upsert` on `ObjectPermissions`/`FieldPermissions` rows (see the fallback under Create) when a patch is not possible. Get the PS record ID first: `soql_query(sObject="PermissionSet", fields=["Id"], whereClause="Name = '<PSName>'")`.
+
+`metadata_update(type="PermissionSet", fullName="<PSName>", patch=[...])` accepts the same patch and is equivalent; prefer `permission_set_update` because it accepts the PS name or ID and validates the permission shape.
 
 ---
 
@@ -237,7 +347,7 @@ Use to remove a Permission Set or Permission Set Group from the org.
 
 1. Confirm with the user before proceeding — deletion is irreversible.
 2. Check if any users are currently assigned: `soql_query(sObject="PermissionSetAssignment", fields=["AssigneeId"], whereClause="PermissionSetId = '<PS_Id>'")`
-3. If users are assigned, warn and ask for confirmation.
+3. If users are assigned, warn and ask for confirmation (remove assignments first with `permission_set_assignments` operation `remove` if the user wants a clean removal).
 4. Delete using `metadata_delete`:
 
 ```
@@ -245,6 +355,83 @@ metadata_delete(type="PermissionSet", fullNames=["<PSName>"], sf_user="<sf_user>
 ```
 
 For PSGs: `metadata_delete(type="PermissionSetGroup", fullNames=["<PSGName>"], sf_user="<sf_user>")`
+
+---
+
+### Assign Permission Set Workflow
+
+Use to assign or remove Permission Sets (or PSGs) for one or many users. Names, labels or IDs are accepted for both lists.
+
+```
+permission_set_assignments(operation="add", permissionSets=["Sales_Account_Edit"], users=["jane@example.com", "john@example.com"], sf_user="<sf_user>")
+```
+
+```
+permission_set_assignments(operation="remove", permissionSets=["Legacy_PS"], users=["jane@example.com"], sf_user="<sf_user>")
+```
+
+Verify with `soql_query(sObject="PermissionSetAssignment", fields=["Assignee.Username", "PermissionSet.Name"], whereClause="PermissionSet.Name = 'Sales_Account_Edit'")`. For user onboarding/offboarding as a whole (create the user, mirror access, deactivate) hand off to **sf-provisioning**.
+
+---
+
+### Profile Management Workflow
+
+Profiles are the base layer every user has exactly one of. Prefer minimal profiles plus Permission Sets; change a profile only when the requirement really is profile-level (login hours/IP ranges, default apps, page layout and record type defaults, or when the org's convention is profile-based).
+
+**Inspect** — always narrow with `permissionTypes` (and `sObject` when a specific object is in question) to keep the response small:
+
+```
+profile_describe(profile="Custom Sales User", permissionTypes=["objectPermissions", "fieldPermissions", "userPermissions"], sObject="Account", sf_user="<sf_user>")
+```
+
+Valid `permissionTypes`: `objectPermissions`, `fieldPermissions`, `userPermissions`, `tabVisibilities`, `classAccesses`, `pageAccesses`, `flowAccesses`, `applicationVisibilities`, `recordTypeVisibilities`, `layoutAssignments`, `customPermissions`, `customMetadataTypeAccesses`, `customSettingAccesses`, `externalDataSourceAccesses`, `loginHours`, `loginIpRanges`, `loginFlows`, `agentAccesses`.
+
+**Change** — JSON Patch over the `Profile` metadata shape (`references/profile-metadata-schema.json`); same element names as a PS except tab visibility is `tabVisibilities` with `DefaultOn` / `DefaultOff` / `Hidden`:
+
+```
+profile_update(
+  profile="Custom Sales User",
+  patch=[
+    {"op": "add", "path": "/objectPermissions/-", "value": {"object": "Account", "allowRead": true, "allowCreate": true, "allowEdit": true, "allowDelete": false, "viewAllRecords": false, "modifyAllRecords": false}},
+    {"op": "add", "path": "/fieldPermissions/-", "value": {"field": "Account.AnnualRevenue", "readable": true, "editable": false}},
+    {"op": "add", "path": "/tabVisibilities/-", "value": {"tab": "standard-Account", "visibility": "DefaultOn"}}
+  ],
+  sf_user="<sf_user>"
+)
+```
+
+**Copy** — "make a profile like X but ...":
+
+```
+profile_clone(profile="Sales User - Read Only", clonedProfileName="Custom Sales User", sf_user="<sf_user>")
+```
+
+Then adjust the clone with `profile_update`. Standard profiles cannot be edited in most respects — clone them first. To see who uses a profile: `soql_query(sObject="User", fields=["Id", "Username", "IsActive"], whereClause="Profile.Name = 'Custom Sales User' AND IsActive = true")`. Each profile also owns a hidden Permission Set (`IsOwnedByProfile = true`), which is how profile permissions show up in `ObjectPermissions`/`FieldPermissions` SOQL.
+
+---
+
+### Agent Access Permissions Workflow
+
+Employee Agents (Agentforce) require `agentAccesses` on a Permission Set (or Profile); the `agentName` must match the agent's developer name exactly. Ask whether the user wants to **query** existing agent access or **grant** it, then follow `references/agent-access-guide.md`. Quick versions:
+
+Find candidate permission sets:
+
+```
+tooling_api_query(
+  sObject="PermissionSet",
+  fields=["Name", "Label"],
+  whereClause="Name LIKE '%Agent%'",
+  sf_user="<sf_user>"
+)
+```
+
+Inspect one (look at its `agentAccesses` array): `metadata_read(type="PermissionSet", fullNames=["<PSName>"])`. Grant access with a patch:
+
+```
+permission_set_update(permissionSet="<PSName>", patch=[{"op": "add", "path": "/agentAccesses/-", "value": {"agentName": "Case_Assist", "enabled": true}}], sf_user="<sf_user>")
+```
+
+Then assign the PS with `permission_set_assignments`.
 
 ---
 
@@ -256,22 +443,24 @@ For PSGs: `metadata_delete(type="PermissionSetGroup", fullNames=["<PSGName>"], s
 
 **Then determine the capability needed**:
 
-| User Says                          | Capability          | Approach                                                             |
-| ---------------------------------- | ------------------- | -------------------------------------------------------------------- |
-| "Show permission hierarchy"        | Hierarchy Viewer    | Query PermissionSet, PermissionSetGroup, PermissionSetGroupComponent |
-| "Who has access to Account?"       | Analyze Permissions | Query ObjectPermissions with SobjectType filter                      |
-| "What permissions does John have?" | Analyze Permissions | Query PermissionSetAssignment for user                               |
-| "Why can't John edit X?"           | Analyze Permissions | Cross-check user PS assignments with required permissions            |
-| "Find PS with ModifyAllData"       | Security Audit      | Query PermissionSet for system permissions                           |
-| "Create a PS for contractors"      | PS Creation         | Use metadata_create                                                  |
-| "Clone Sales_Manager PS"           | Clone PS            | metadata_read then metadata_create with new name                     |
-| "Update permissions on X"          | Update PS           | metadata_update or sobject_dml                                       |
-| "Delete the old PS"                | Delete PS           | metadata_delete                                                      |
-| "Export Sales_Manager PS"          | Documentation       | Query all permission types for the PS                                |
+| User Says                            | Capability          | Approach                                                                    |
+| ------------------------------------ | ------------------- | --------------------------------------------------------------------------- |
+| "Show permission hierarchy"          | Hierarchy Viewer    | Query PermissionSet, PermissionSetGroup, PermissionSetGroupComponent        |
+| "Who has access to Account?"         | Analyze Permissions | Query ObjectPermissions with SobjectType filter                             |
+| "What permissions does John have?"   | Analyze Permissions | Query PermissionSetAssignment for user (+ `profile_describe`)               |
+| "Why can't John edit X?"             | Analyze Permissions | Cross-check user PS assignments with required permissions                   |
+| "Find PS with ModifyAllData"         | Security Audit      | Query PermissionSet for system permissions                                  |
+| "Create a PS for contractors"        | Create PS           | `metadata_create` then `permission_set_update`                              |
+| "Clone Sales_Manager PS"             | Clone PS            | `metadata_read` then `metadata_create` with new name                        |
+| "Update permissions on X"            | Update PS           | `permission_set_update` (JSON Patch)                                        |
+| "Delete the old PS"                  | Delete PS           | `metadata_delete`                                                           |
+| "Give Jane the Sales PS"             | Assign PS           | `permission_set_assignments`                                                |
+| "What does the Sales profile grant?" | Profile             | `profile_describe`; change with `profile_update`, copy with `profile_clone` |
+| "Export Sales_Manager PS"            | Documentation       | `metadata_read` or query all permission types for the PS                    |
 
 ### Phase 2: Query Permissions
 
-Use `soql_query` with the appropriate SOQL for each capability.
+Use `soql_query` with the appropriate SOQL for each capability. The full library is in `references/permission-soql-queries.md`; the core queries:
 
 #### Permission Set & Group Queries
 
@@ -288,6 +477,7 @@ soql_query(
 soql_query(
   sObject="PermissionSetGroup",
   fields=["Id", "DeveloperName", "MasterLabel", "Status", "Description"],
+  whereClause="Id != null",
   sf_user="<sf_user>"
 )
 ```
@@ -298,6 +488,7 @@ soql_query(
 soql_query(
   sObject="PermissionSetGroupComponent",
   fields=["PermissionSetGroupId", "PermissionSetGroup.DeveloperName", "PermissionSetId", "PermissionSet.Name"],
+  whereClause="Id != null",
   sf_user="<sf_user>"
 )
 ```
@@ -336,6 +527,18 @@ soql_query(
   sObject="PermissionSetAssignment",
   fields=["AssigneeId", "PermissionSetId", "PermissionSet.Name", "PermissionSetGroupId", "PermissionSetGroup.DeveloperName"],
   whereClause="AssigneeId = '005...'",
+  sf_user="<sf_user>"
+)
+```
+
+#### Users per Permission Set
+
+```
+soql_query(
+  sObject="PermissionSetAssignment",
+  fields=["PermissionSetId", "PermissionSet.Name", "COUNT(AssigneeId) cnt"],
+  whereClause="PermissionSet.IsOwnedByProfile = false",
+  groupBy="PermissionSetId, PermissionSet.Name",
   sf_user="<sf_user>"
 )
 ```
@@ -416,7 +619,7 @@ Based on the analysis, recommend improvements:
 
 ## Salesforce Permission Model
 
-### Key Concepts
+Full guide: `references/permission-model.md`.
 
 ```
 USER
@@ -429,201 +632,28 @@ USER
 - **Permission Sets (PS)**: Additive only - can grant access, cannot revoke. Multiple PS per user.
 - **Permission Set Groups (PSG)**: Container for multiple PS. Assign one PSG instead of many individual PS.
 
-### Permission Types
-
-| Type                 | Description                    | Query Object           |
-| -------------------- | ------------------------------ | ---------------------- |
-| Object CRUD          | Create, Read, Edit, Delete     | `ObjectPermissions`    |
-| Field-Level Security | Read, Edit per field           | `FieldPermissions`     |
-| Apex Class Access    | Access to Apex classes         | `SetupEntityAccess`    |
-| VF Page Access       | Access to Visualforce pages    | `SetupEntityAccess`    |
-| Flow Access          | Access to Flows                | `SetupEntityAccess`    |
-| Custom Permissions   | Feature flags                  | `SetupEntityAccess`    |
-| System Permissions   | ViewSetup, ModifyAllData, etc. | `PermissionSet` fields |
-
----
-
-## Common SOQL Patterns for Permission Analysis
-
-```sql
--- All Permission Sets (non-profile)
-SELECT Id, Name, Label FROM PermissionSet WHERE IsOwnedByProfile = false AND Type != 'Group'
-
--- User's PS Assignments
-SELECT PermissionSetId, PermissionSet.Name FROM PermissionSetAssignment WHERE AssigneeId = '005...'
-
--- Find PS with delete access to Account
-SELECT Parent.Name FROM ObjectPermissions WHERE SobjectType = 'Account' AND PermissionsDelete = true
-
--- Find PS with edit access to a specific field
-SELECT Parent.Name, Field FROM FieldPermissions WHERE Field = 'Account.AnnualRevenue' AND PermissionsEdit = true
-
--- Find PS with access to specific Apex class
-SELECT Parent.Name FROM SetupEntityAccess WHERE SetupEntityType = 'ApexClass' AND SetupEntityId IN (SELECT Id FROM ApexClass WHERE Name = 'MyClass')
-
--- Find PS with custom permission
-SELECT Parent.Name FROM SetupEntityAccess WHERE SetupEntityType = 'CustomPermission' AND SetupEntityId IN (SELECT Id FROM CustomPermission WHERE DeveloperName = 'Can_Approve')
-
--- PSGs and their component Permission Sets
-SELECT PermissionSetGroup.DeveloperName, PermissionSet.Name FROM PermissionSetGroupComponent
-
--- Count users per Permission Set
-SELECT PermissionSetId, PermissionSet.Name, COUNT(AssigneeId) FROM PermissionSetAssignment GROUP BY PermissionSetId, PermissionSet.Name
-```
+| Type                 | Description                    | Query Object              | Patch element                                      |
+| -------------------- | ------------------------------ | ------------------------- | -------------------------------------------------- |
+| Object CRUD          | Create, Read, Edit, Delete     | `ObjectPermissions`       | `/objectPermissions`                               |
+| Field-Level Security | Read, Edit per field           | `FieldPermissions`        | `/fieldPermissions`                                |
+| Apex Class Access    | Access to Apex classes         | `SetupEntityAccess`       | `/classAccesses`                                   |
+| VF Page Access       | Access to Visualforce pages    | `SetupEntityAccess`       | `/pageAccesses`                                    |
+| Flow Access          | Access to Flows                | `SetupEntityAccess`       | `/flowAccesses`                                    |
+| Custom Permissions   | Feature flags                  | `SetupEntityAccess`       | `/customPermissions`                               |
+| Tab visibility       | Tab settings                   | `PermissionSetTabSetting` | `/tabSettings` (PS) / `/tabVisibilities` (Profile) |
+| System Permissions   | ViewSetup, ModifyAllData, etc. | `PermissionSet` fields    | `/userPermissions`                                 |
+| Agent access         | Agentforce agents              | `SetupEntityAccess`       | `/agentAccesses`                                   |
 
 ---
 
-## Schema Validation for Permission Sets
+## Metadata Schemas
 
-A baseline JSON Schema is bundled at `references/permissionset-metadata-schema.json`
-(API v66.0 — the version stamped in the schema itself; regenerate with
-`scripts/pull_schema.sh` against a Summer '26 org to refresh). Before calling
-`metadata_create`, validate the JSON payload against
-this schema to catch structural errors offline:
+Baseline JSON Schemas for the `PermissionSet`, `PermissionSetGroup`, `Profile` and `SharingRules` metadata types are bundled under `references/*-metadata-schema.json` (each is stamped with the API version it was generated from — currently v66.0, Spring '26; Summer '26 is v67.0 and may add elements the schema lacks). Use them to:
 
-- Required fields (`label`)
-- Valid child types (`objectPermissions`, `fieldPermissions`, `userPermissions`, etc.)
-- Correct field formats (e.g., `field` in `fieldPermissions` must be `Object.Field`)
-- Valid enum values for `tabSettings.visibility` (`Available`, `Hidden`, `Visible`)
+- Validate a `metadata_create` payload or a `permission_set_update`/`profile_update` patch value offline before sending it — required fields (`label`), valid child element names (`objectPermissions`, `fieldPermissions`, `userPermissions`, …), field formats (`field` must be `Object.Field`), enum values (`tabSettings.visibility`: `Available`, `Hidden`, `Visible`).
+- Look up the exact property names for a patch `value`.
 
-To refresh the schema from a live org (requires sf CLI):
-
-```bash
-scripts/pull_schema.sh --type PermissionSet          # default org
-scripts/pull_schema.sh --type PermissionSet myOrg    # specific org
-scripts/pull_schema.sh --type PermissionSetGroup
-scripts/pull_schema.sh --type Profile
-scripts/pull_schema.sh --type SharingRules
-```
-
----
-
-## Creating Permission Sets via MCP
-
-**Step 1 — Create the permission set:**
-
-```
-metadata_create(
-  type="PermissionSet",
-  metadata=[{
-    "fullName": "Sales_Account_Edit",
-    "label": "Sales Account Edit",
-    "description": "Grants sales team edit access to Accounts",
-    "hasActivationRequired": false
-  }],
-  sf_user="<sf_user>"
-)
-```
-
-**Step 2 — Get the permission set's record ID:**
-
-```
-soql_query(
-  sObject="PermissionSet",
-  fields=["Id", "Name"],
-  whereClause="Name = 'Sales_Account_Edit' AND IsOwnedByProfile = false",
-  sf_user="<sf_user>"
-)
-```
-
-**Step 3 — Add permissions via `sobject_dml`:**
-
-Use `sobject_dml` to insert permission records. The `ParentId` must be the Salesforce record ID from step 2 (starts with `0PS`), NOT the API name.
-
-```
-sobject_dml(
-  operation="insert",
-  sObject="ObjectPermissions",
-  records=[
-    {"ParentId": "0PSXX0000004ABC", "SobjectType": "Account", "PermissionsRead": true, "PermissionsEdit": true, "PermissionsCreate": true, "PermissionsDelete": false, "PermissionsViewAllRecords": false, "PermissionsModifyAllRecords": false}
-  ],
-  sf_user="<sf_user>"
-)
-```
-
-For field-level permissions:
-
-```
-sobject_dml(
-  operation="insert",
-  sObject="FieldPermissions",
-  records=[
-    {"ParentId": "0PSXX0000004ABC", "SobjectType": "Account", "Field": "Account.AnnualRevenue", "PermissionsRead": true, "PermissionsEdit": true},
-    {"ParentId": "0PSXX0000004ABC", "SobjectType": "Account", "Field": "Account.Industry", "PermissionsRead": true, "PermissionsEdit": true}
-  ],
-  sf_user="<sf_user>"
-)
-```
-
-Other permission types that can be added via `sobject_dml`:
-
-| sObject                   | Purpose                                             | Key fields                       |
-| ------------------------- | --------------------------------------------------- | -------------------------------- |
-| `PermissionSetTabSetting` | Tab visibility                                      | `ParentId`, `Name`, `Visibility` |
-| `SetupEntityAccess`       | Apex class, VF page, Flow, Custom Permission access | `ParentId`, `SetupEntityId`      |
-
-For system permissions (e.g., ModifyAllData) that have no DML-able object, use `metadata_update` to patch `userPermissions`:
-
-```
-metadata_update(
-  type="PermissionSet",
-  metadata=[{
-    "fullName": "Sales_Account_Edit",
-    "userPermissions": [
-      {"enabled": true, "name": "ModifyAllData"}
-    ]
-  }],
-  sf_user="<sf_user>"
-)
-```
-
----
-
-## Agent Access Permissions
-
-Employee Agents (Agentforce) require `agentAccesses` in a Permission Set. The `agentName` must match the agent's `developer_name` exactly.
-
-Query existing agent access:
-
-```
-tooling_api_query(
-  sObject="PermissionSet",
-  fields=["Name", "Label"],
-  whereClause="Name LIKE '%Agent%'",
-  sf_user="<sf_user>"
-)
-```
-
----
-
-## Common Workflows
-
-### Audit: "Who can delete Accounts?"
-
-1. Query ObjectPermissions for Account with PermissionsDelete = true
-2. For each PS found, query PSG membership
-3. Count assigned users per PS/PSG
-4. Display results in table format
-
-### Troubleshoot: "Why can't John edit Opportunities?"
-
-1. Query PermissionSetAssignment for John's user ID
-2. For each assigned PS, query ObjectPermissions for Opportunity
-3. Check if any PS grants Opportunity edit
-4. If not, suggest which PS/PSG to assign
-
-### Security Review: "Find all PS with ModifyAllData"
-
-1. Query PermissionSet for PermissionsModifyAllData = true
-2. List PS names and assigned user counts
-3. Flag any non-admin PS with this powerful permission
-
-### Full Org Audit
-
-1. Query all PS and PSG to show hierarchy
-2. Identify PSGs with "Outdated" status
-3. Count users per PS
-4. Flag overly broad permissions
+For the live shape in the connected org (which may be newer than the bundled schema), read an existing component with `metadata_read(type="PermissionSet", fullNames=["<PSName>"])` and mirror its structure; `metadata_describe` lists the metadata types the org supports.
 
 ---
 
@@ -643,17 +673,19 @@ Examples:
 
 ## Cross-Skill Integration
 
-| From Skill  | To sf-permissions | When                                        |
-| ----------- | ----------------- | ------------------------------------------- |
-| sf-metadata | -> sf-permissions | "Create Permission Set for new object"      |
-| sf-apex     | -> sf-permissions | "Grant access to Apex class"                |
-| sf-data     | -> sf-permissions | "Query user assignments in bulk"            |
-| sf-diagram  | -> sf-permissions | "Visualize permission hierarchy as Mermaid" |
+| From Skill      | To sf-permissions | When                                        |
+| --------------- | ----------------- | ------------------------------------------- |
+| sf-metadata     | -> sf-permissions | "Create Permission Set for new object"      |
+| sf-apex         | -> sf-permissions | "Grant access to Apex class"                |
+| sf-data         | -> sf-permissions | "Query user assignments in bulk"            |
+| sf-diagram      | -> sf-permissions | "Visualize permission hierarchy as Mermaid" |
+| sf-provisioning | -> sf-permissions | "What access does this user/PS grant?"      |
 
-| From sf-permissions | To Skill       | When                             |
-| ------------------- | -------------- | -------------------------------- |
-| sf-permissions      | -> sf-metadata | Generate Permission Set metadata |
-| sf-permissions      | -> sf-diagram  | Create hierarchy visualization   |
+| From sf-permissions | To Skill           | When                                                |
+| ------------------- | ------------------ | --------------------------------------------------- |
+| sf-permissions      | -> sf-provisioning | Create users, mirror a user's access, offboard      |
+| sf-permissions      | -> sf-metadata     | Objects/fields the PS should cover do not exist yet |
+| sf-permissions      | -> sf-diagram      | Create hierarchy visualization                      |
 
 ---
 
@@ -662,22 +694,11 @@ Examples:
 | Issue                                              | Solution                                                                                                                                                                                                                                                                                                                                                   |
 | -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | No results for permission query                    | Check if PS exists; use correct API name                                                                                                                                                                                                                                                                                                                   |
-| Missing field permissions                          | FLS may be controlled at Profile level                                                                                                                                                                                                                                                                                                                     |
+| Missing field permissions                          | FLS may be controlled at Profile level — check with `profile_describe`                                                                                                                                                                                                                                                                                     |
 | PSG shows "Outdated"                               | PSG needs to be recalculated in Setup                                                                                                                                                                                                                                                                                                                      |
 | Can't find user's permissions                      | Check both direct PS and PSG assignments                                                                                                                                                                                                                                                                                                                   |
+| `permission_set_update` patch rejected             | Read the PS with `metadata_read` first; check the element name and value shape against `references/permissionset-metadata-schema.json`; never set FLS on required/master-detail fields; formula fields are read-only                                                                                                                                       |
 | `metadata_read` fails silently on a PS that exists | The record may be a Permission Set **Group** (`Type = 'Group'`). Verify with `tooling_api_query` on `PermissionSet` checking the `Type` field. If `Type = 'Group'`, use `metadata_read` with type `PermissionSetGroup` instead of `PermissionSet`. PSGs surface in `PermissionSet` SOQL queries but require a different metadata type for `metadata_read`. |
-
----
-
-## Removed Capabilities
-
-The following developer-focused features from the original sf-permissions are **NOT needed** in the Cirra AI version:
-
-- Python scripts (`cli.py`, `hierarchy_viewer.py`, etc.) - Replaced with SOQL via MCP
-- `simple-salesforce` Python library - Not needed
-- `rich` terminal library - Not needed
-- sf CLI authentication commands - Use `cirra_ai_init()` instead
-- CSV export scripts - Use SOQL queries and format results directly
 
 ---
 
@@ -685,9 +706,9 @@ The following developer-focused features from the original sf-permissions are **
 
 - **Cirra AI MCP Server** (required): All permission operations use Cirra AI tools
   - Initialize with: `cirra_ai_init()`
-  - Tools: soql_query, tooling_api_query, metadata_create
-
-- **sf-metadata** (optional): For creating Permission Sets
+  - Tools: `soql_query`, `tooling_api_query`, `metadata_read`, `metadata_create`, `metadata_update`, `metadata_delete`, `permission_set_update`, `permission_set_assignments`, `profile_describe`, `profile_update`, `profile_clone`, `sobject_dml` (fallback)
+- **sf-provisioning** (optional): For user creation, mirroring and offboarding
+- **sf-metadata** (optional): For objects and fields the permissions refer to
 - **sf-diagram** (optional): For visualizing permission hierarchies as Mermaid diagrams
 
 ---

@@ -1,37 +1,59 @@
 # Bulk Operations Guide
 
-When and how to use Salesforce Bulk API operations.
+How to move more than a few hundred records in or out of an org through the
+Cirra AI MCP Server. Two tools wrap Salesforce **Bulk API 2.0**:
 
-## Decision Matrix
+- `bulk_dml` — insert, update, upsert, delete, hardDelete (ingest jobs)
+- `bulk_query` — large extracts (query jobs)
 
-| Record Count | Recommended API | Command                                        |
-| ------------ | --------------- | ---------------------------------------------- |
-| 1-10         | Single Record   | `sobject_dml(operation="insert", ...)`         |
-| 11-2000      | Standard API    | `sobject_dml(operation="insert", ...)`         |
-| 2000-10M     | Bulk API 2.0    | `sobject_dml(operation="insert", ...)` (batch) |
-| 10M+         | Data Loader     | External tool                                  |
+Both are asynchronous: the tool submits the job, waits up to **90 seconds**,
+and either returns the finished result or a `jobId` you pass back to keep
+waiting or to abort. Full parameter tables live in
+`../../../shared/references/cirra-mcp-tools.md`.
 
-## Execution via Cirra AI MCP (sf-data)
+## Decision Matrix — pick the smallest correct mechanism
 
-### Insert
+| Situation                                                     | Use                                         | Why                                                                                         |
+| ------------------------------------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| Up to 200 records to insert / update / upsert / delete        | `sobject_dml`                               | Synchronous, per-record results in the response, one call                                   |
+| More than 200 records, data already in the conversation       | `bulk_dml` with inline `records`            | One job instead of N batches; Salesforce handles chunking                                   |
+| More than 200 records, data in a CSV the user has             | `bulk_dml` with **no** `records`            | Opens a job the user fills by uploading the CSV from chat — the file never transits the LLM |
+| Delete more than 200 records by ID                            | `bulk_dml(operation="delete", recordIds=…)` | Records go to the Recycle Bin                                                               |
+| Permanently delete (skip Recycle Bin)                         | `bulk_dml(operation="hardDelete", …)`       | Needs the **Bulk API Hard Delete** permission and explicit user approval                    |
+| Read up to a few hundred rows, aggregates, subqueries, TYPEOF | `soql_query`                                | REST; supports every SOQL clause; default `limit` 200                                       |
+| Export thousands of rows, or `soql_query` times out           | `bulk_query`                                | PK-chunked extract; no GROUP BY / aggregates / OFFSET / TYPEOF / subqueries                 |
+| Include deleted or archived rows in an export                 | `bulk_query(queryAll=true)`                 |                                                                                             |
+
+Apex test-data factories in `assets/factories/` are **not** a bulk mechanism:
+Cirra cannot run anonymous Apex, so they only run inside a deployed test class
+(see `anonymous-apex-guide.md`). Seed data with `sobject_dml` or `bulk_dml`.
+
+## `bulk_dml` — ingest jobs
+
+Always ask for explicit user approval before starting a job; every
+operation changes data. For `hardDelete` restate that the rows will skip the
+Recycle Bin and cannot be undeleted.
+
+### Insert with inline records
 
 ```
-sobject_dml(
+bulk_dml(
   operation="insert",
-  sobjectType="Account",
+  sObject="Account",
   records=[
     {"Name": "Acme Corp", "Industry": "Technology"},
     {"Name": "Globex Inc", "Industry": "Finance"}
+    // ... any number of rows
   ]
 )
 ```
 
-### Update
+### Update (records must carry `Id`)
 
 ```
-sobject_dml(
+bulk_dml(
   operation="update",
-  sobjectType="Account",
+  sObject="Account",
   records=[
     {"Id": "001xx000003DGbYAAW", "Industry": "Healthcare"},
     {"Id": "001xx000003DGbZAAW", "Industry": "Finance"}
@@ -39,12 +61,12 @@ sobject_dml(
 )
 ```
 
-### Upsert (Insert or Update)
+### Upsert (needs an External ID field)
 
 ```
-sobject_dml(
+bulk_dml(
   operation="upsert",
-  sobjectType="Account",
+  sObject="Account",
   externalIdField="External_Id__c",
   records=[
     {"External_Id__c": "EXT-001", "Name": "Acme Corp"},
@@ -53,47 +75,135 @@ sobject_dml(
 )
 ```
 
-### Delete
+The external ID field must exist and be flagged External ID — verify with
+`sobject_describe` first, or create it with `sobject_field_create`.
+
+### Delete / hardDelete by ID
 
 ```
-sobject_dml(
+bulk_dml(
   operation="delete",
-  sobjectType="Account",
-  records=[
-    {"Id": "001xx000003DGbYAAW"},
-    {"Id": "001xx000003DGbZAAW"}
-  ]
+  sObject="Account",
+  recordIds=["001xx000003DGbYAAW", "001xx000003DGbZAAW", ...]
 )
 ```
 
-### Export (Query)
+`recordIds` takes precedence over `records` for delete and hardDelete. Get
+the IDs from `soql_query` (a few hundred) or `bulk_query` (thousands).
+
+### CSV upload from chat (data never passes through the LLM)
+
+Omit both `records` and `recordIds`:
 
 ```
-soql_query(query="SELECT Id, Name FROM Account")
+bulk_dml(operation="insert", sObject="Account")
 ```
 
-## CSV Format Requirements
+The response contains an upload control / URL. The user uploads the CSV
+there; the file goes straight to Salesforce. Before opening the job:
 
-- First row: Field API names
-- UTF-8 encoding
-- Comma delimiter (default)
-- Max 100MB per file
+1. `sobject_describe` the object and confirm the CSV header uses **field API
+   names** (`Industry`, not `Industry Label`), that required fields are
+   present, and that picklist values are valid.
+2. Tell the user the expected header row.
+3. After the upload, pass the returned `jobId` back to `bulk_dml` to wait for
+   the result. If the job is still Open (no CSV yet), the response repeats
+   the upload URL instead of closing an empty job.
 
-## Bulk API Limits
+**CSV format:** first row = field API names, UTF-8, comma delimiter, one
+object per file, relationship fields as `Account.External_Id__c` style
+columns when upserting by external ID on the parent.
 
-| Limit                | Value      |
-| -------------------- | ---------- |
-| Batches per 24 hours | 10,000     |
-| Records per 24 hours | 10,000,000 |
-| Max file size        | 100 MB     |
-| Max concurrent jobs  | 100        |
+### Waiting and aborting
 
-## Error Handling
+```
+bulk_dml(jobId="7508b00000ABCDEAA4")             # wait again for the same job
+bulk_dml(jobId="7508b00000ABCDEAA4", abort=true) # cancel it
+```
 
-The MCP `sobject_dml` tool returns results directly, including any per-record errors. No separate job status or result retrieval commands are needed.
+When `jobId` is set, `records`/`operation`/`sObject` are ignored.
 
-## Best Practices
+## `bulk_query` — query jobs
 
-1. **Chunk large record sets** - Split into batches for large operations
-2. **Handle partial failures** - Check per-record results from `sobject_dml`
-3. **Test in sandbox** - Validate before production
+```
+bulk_query(
+  sObject="Contact",
+  fields=["Id", "Name", "Email", "Account.Name"],
+  whereClause="CreatedDate = LAST_N_DAYS:365"
+)
+```
+
+Rules:
+
+- `whereClause` is optional here — omit it to export every row.
+- **Omit `limit` and `orderBy`** for real extracts. Both disable PK chunking
+  and can make the job slow or time out. If a limited query times out, retry
+  without `limit`.
+- Child-to-parent fields (`Account.Name`) are fine. **Not supported:**
+  `GROUP BY`, aggregate functions, `OFFSET`, `TYPEOF`, parent-to-child
+  subqueries. For those use `soql_query`.
+- `queryAll=true` includes deleted and archived rows (useful for Recycle Bin
+  audits and for finding rows to `hardDelete`).
+- Same `jobId` / `abort` handling as `bulk_dml`.
+
+Large results come back paginated or as an artifact — follow
+`mcp-pagination.md` (download `artifactAccess.downloadUrl` when the host
+can write files, otherwise `fetch_more` with the cursor).
+
+## End-to-end patterns
+
+### Mass update from an export
+
+1. `bulk_query` the rows with the fields you need (`Id` plus the fields you
+   will change).
+2. Transform locally (or in context for small sets).
+3. `bulk_dml(operation="update", records=[...])` — or open an empty job and
+   let the user upload the edited CSV.
+4. Verify with an aggregate `soql_query` (`COUNT(Id)` grouped by the changed
+   field).
+
+### Purge test data
+
+1. `soql_query`/`bulk_query` for `Id` with a tight filter
+   (`Name LIKE 'DATATEST_%'`).
+2. Show the count and a sample; get approval.
+3. `bulk_dml(operation="delete", sObject=..., recordIds=[...])` — children
+   before parents.
+4. Re-run the count query; expect 0.
+
+## Bulk API limits (per 24 hours, rolling)
+
+| Limit                        | Value                             |
+| ---------------------------- | --------------------------------- |
+| Records ingested             | 150,000,000                       |
+| Batches (Bulk API 1.0 + 2.0) | 15,000                            |
+| Max CSV upload per job       | 150 MB                            |
+| Query job result retention   | 7 days                            |
+| Query wait per tool call     | 90 s, then `jobId` for re-polling |
+
+## Error handling
+
+- Ingest results list **successful**, **failed** and **unprocessed** rows.
+  Failed rows carry the Salesforce error (`REQUIRED_FIELD_MISSING`,
+  `FIELD_CUSTOM_VALIDATION_EXCEPTION`, `DUPLICATES_DETECTED`, ...). Fix the
+  rows and resubmit only those.
+- A job stuck in `InProgress` after several re-polls is usually blocked by
+  a trigger or flow doing too much per chunk; `abort` and consult sf-apex /
+  sf-flow.
+- `INVALID_OPERATION` on `hardDelete` means the user lacks the Bulk API Hard
+  Delete permission (grant via a permission set with sf-permissions, or fall
+  back to `delete`).
+- Bulk API triggers still fire in chunks of 200 records, so bulkification
+  bugs surface here exactly as with `sobject_dml`.
+
+## Best practices
+
+1. **Describe first** — validate field API names, required fields and
+   picklist values before the job, not after 10,000 failures.
+2. **Sandbox first** — run the same job in a sandbox before production.
+3. **Get approval** — every `bulk_dml` operation, and especially
+   `hardDelete`, needs an explicit yes from the user.
+4. **Keep the result** — record the `jobId`, counts and the failed-row list in
+   the completion summary so the user can retry or audit.
+5. **Prefer CSV upload** for anything the user already has in a file; it
+   avoids pasting thousands of rows into the conversation.

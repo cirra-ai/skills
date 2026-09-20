@@ -3,7 +3,7 @@ name: sf-diagram
 plugin: cirra-ai-sf
 argument-hint: '[oauth|erd|integration|landscape|hierarchy|agentforce] ...'
 metadata:
-  version: 2.0.3
+  version: 2.0.4
 description: >
   Creates Salesforce architecture diagrams using Mermaid with ASCII fallback. Use when
   visualizing OAuth flows, data models (ERDs), integration sequences, system landscapes,
@@ -25,6 +25,23 @@ and `references/mcp-pagination.md` for handling large MCP responses.
 
 Diagram generation works in all modes. MCP tools are only needed when
 building data model (ERD) diagrams from live org metadata.
+
+## Reference File Index
+
+Read the relevant file **before generating** — this SKILL.md only summarises them.
+
+| File                                                                                     | Read when                                                                                               |
+| ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| [../../shared/references/cirra-mcp-tools.md](../../shared/references/cirra-mcp-tools.md) | Before any MCP call — authoritative tool signatures (`soql_query`, `sobject_describe`, `metadata_read`) |
+| [references/execution-modes.md](references/execution-modes.md)                           | Detecting the execution mode                                                                            |
+| [references/mcp-pagination.md](references/mcp-pagination.md)                             | An MCP response is truncated or paginated (`fetch_more`)                                                |
+| [references/diagram-conventions.md](references/diagram-conventions.md)                   | Any diagram — naming, layout direction, actor order, ASCII fallback rules                               |
+| [references/erd-conventions.md](references/erd-conventions.md)                           | ERD / data model diagrams — LDV thresholds, OWD notation, relationship arrows, org queries              |
+| [references/mermaid-reference.md](references/mermaid-reference.md)                       | Unsure of Mermaid syntax (`sequenceDiagram`, `flowchart`, `erDiagram`, subgraphs, notes)                |
+| [references/mermaid-styling.md](references/mermaid-styling.md)                           | Applying `style` / `classDef` declarations, init directives, spacing                                    |
+| [references/color-palette.md](references/color-palette.md)                               | Choosing fills/strokes — full palette, subgraph backgrounds, status colors, casing, icons               |
+| [references/usage-examples.md](references/usage-examples.md)                             | Want a complete worked example (input -> Mermaid -> ASCII -> score) for a diagram type                  |
+| [assets/](assets/)                                                                       | Templates — see the [Phase 2](#phase-2-template-selection) table                                        |
 
 ---
 
@@ -97,21 +114,22 @@ If the diagram requires org metadata (ERDs, permission hierarchies), call `cirra
 
 Select the appropriate template from `assets/`:
 
-| Diagram Type              | Template File                      |
-| ------------------------- | ---------------------------------- |
-| Authorization Code Flow   | `oauth/authorization-code.md`      |
-| Authorization Code + PKCE | `oauth/authorization-code-pkce.md` |
-| JWT Bearer Flow           | `oauth/jwt-bearer.md`              |
-| Client Credentials Flow   | `oauth/client-credentials.md`      |
-| Device Authorization Flow | `oauth/device-authorization.md`    |
-| Refresh Token Flow        | `oauth/refresh-token.md`           |
-| Data Model (ERD)          | `datamodel/salesforce-erd.md`      |
-| Sales Cloud ERD           | `datamodel/sales-cloud-erd.md`     |
-| Service Cloud ERD         | `datamodel/service-cloud-erd.md`   |
-| Integration Sequence      | `integration/api-sequence.md`      |
-| System Landscape          | `architecture/system-landscape.md` |
-| Role Hierarchy            | `role-hierarchy/user-hierarchy.md` |
-| Agentforce Flow           | `agentforce/agent-flow.md`         |
+| Diagram Type                | Template File                        |
+| --------------------------- | ------------------------------------ |
+| Authorization Code Flow     | `oauth/authorization-code.md`        |
+| Authorization Code + PKCE   | `oauth/authorization-code-pkce.md`   |
+| JWT Bearer Flow             | `oauth/jwt-bearer.md`                |
+| Client Credentials Flow     | `oauth/client-credentials.md`        |
+| Device Authorization Flow   | `oauth/device-authorization.md`      |
+| Refresh Token Flow          | `oauth/refresh-token.md`             |
+| User-Agent + Social Sign-On | `oauth/user-agent-social-sign-on.md` |
+| Data Model (ERD)            | `datamodel/salesforce-erd.md`        |
+| Sales Cloud ERD             | `datamodel/sales-cloud-erd.md`       |
+| Service Cloud ERD           | `datamodel/service-cloud-erd.md`     |
+| Integration Sequence        | `integration/api-sequence.md`        |
+| System Landscape            | `architecture/system-landscape.md`   |
+| Role Hierarchy              | `role-hierarchy/user-hierarchy.md`   |
+| Agentforce Flow             | `agentforce/agent-flow.md`           |
 
 ### Phase 3: Data Collection
 
@@ -122,7 +140,9 @@ Select the appropriate template from `assets/`:
 
 **For ERD/Data Model Diagrams**:
 
-1. If org connected, query object metadata for accurate relationships:
+1. If the org is connected and the user did not name the objects, enumerate them with `sobjects_list()` (returns API names, labels, and `custom` / `customSetting` flags — enough to tell Standard, Custom `__c` and External `__x` objects apart).
+
+2. Describe each object in scope for accurate relationships:
 
 ```
 sobject_describe(
@@ -131,21 +151,34 @@ sobject_describe(
 )
 ```
 
-2. For record counts (LDV indicators):
+Read `childRelationships[]` on the parent: an entry with `cascadeDelete: true` is a **Master-Detail** child (`==>`), `cascadeDelete: false` is a **Lookup** (`-->`). The child's `fields[].referenceTo` gives the parent object(s) of each relationship field.
+
+3. For record counts (LDV indicators):
 
 ```
 soql_query(
   sObject="Account",
   fields=["COUNT(Id)"],
+  whereClause="Id != null",
   sf_user="<sf_user>"
 )
 ```
 
-> **whereClause caveat**: Never pass an empty string `""` for `whereClause` — it generates malformed SQL (`WHERE ""`). Either omit `whereClause` entirely or use `"Id != null"` to select all records.
+> **whereClause caveat**: `whereClause` is required. Never pass an empty string `""` — it generates malformed SQL (`WHERE ""`). Use `"Id != null"` to count or select all records.
 
-3. Identify relationships (Lookup vs Master-Detail)
-4. Determine object types (Standard, Custom, External)
-5. Generate `flowchart LR` with color coding
+4. For OWD annotations (`OWD:Private` etc.), `sobject_describe` does not return the sharing model — read it from metadata:
+
+```
+metadata_read(
+  type="CustomObject",
+  fullNames=["Account", "Invoice__c"]
+)
+```
+
+Use the `sharingModel` value (`Private`, `Read`, `ReadWrite`, `ControlledByParent` -> `OWD:Parent`). Standard objects are read by their plain API name; skip this step if the user does not want OWD shown.
+
+5. Determine object types (Standard, Custom, External)
+6. Generate `flowchart LR` with color coding
 
 **For Integration Diagrams**:
 
@@ -269,14 +302,15 @@ Display sharing model on entities: `OWD:Private`, `OWD:ReadWrite`, `OWD:Parent`
 
 ## OAuth Flow Quick Reference
 
-| Flow                     | Use Case                     | Key Detail                       | Template                           |
-| ------------------------ | ---------------------------- | -------------------------------- | ---------------------------------- |
-| **Authorization Code**   | Web apps with backend        | User -> Browser -> App -> SF     | `oauth/authorization-code.md`      |
-| **Auth Code + PKCE**     | Mobile, SPAs, public clients | code_verifier + SHA256 challenge | `oauth/authorization-code-pkce.md` |
-| **JWT Bearer**           | Server-to-server, CI/CD      | Sign JWT with private key        | `oauth/jwt-bearer.md`              |
-| **Client Credentials**   | Service accounts, background | No user context                  | `oauth/client-credentials.md`      |
-| **Device Authorization** | CLI, IoT, Smart TVs          | Poll for token after user auth   | `oauth/device-authorization.md`    |
-| **Refresh Token**        | Extend access                | Reuse existing tokens            | `oauth/refresh-token.md`           |
+| Flow                            | Use Case                               | Key Detail                       | Template                             |
+| ------------------------------- | -------------------------------------- | -------------------------------- | ------------------------------------ |
+| **Authorization Code**          | Web apps with backend                  | User -> Browser -> App -> SF     | `oauth/authorization-code.md`        |
+| **Auth Code + PKCE**            | Mobile, SPAs, public clients           | code_verifier + SHA256 challenge | `oauth/authorization-code-pkce.md`   |
+| **JWT Bearer**                  | Server-to-server, CI/CD                | Sign JWT with private key        | `oauth/jwt-bearer.md`                |
+| **Client Credentials**          | Service accounts, background           | No user context                  | `oauth/client-credentials.md`        |
+| **Device Authorization**        | CLI, IoT, Smart TVs                    | Poll for token after user auth   | `oauth/device-authorization.md`      |
+| **Refresh Token**               | Extend access                          | Reuse existing tokens            | `oauth/refresh-token.md`             |
+| **User-Agent + Social Sign-On** | Mobile/SPA with Google, Facebook, etc. | Salesforce as OIDC relying party | `oauth/user-agent-social-sign-on.md` |
 
 ---
 
@@ -289,17 +323,7 @@ Use Tailwind 200-level pastel fills with dark strokes:
 style A fill:#fbcfe8,stroke:#be185d,color:#1f2937
 ```
 
-**Common Color Palette**:
-
-| Purpose                 | Fill      | Stroke    |
-| ----------------------- | --------- | --------- |
-| Standard Object (Blue)  | `#bae6fd` | `#0369a1` |
-| Custom Object (Orange)  | `#fed7aa` | `#c2410c` |
-| External Object (Green) | `#a7f3d0` | `#047857` |
-| Salesforce Cloud        | `#ecfeff` | `#0e7490` |
-| External System         | `#ecfdf5` | `#047857` |
-| Process/Action          | `#c7d2fe` | `#4338ca` |
-| Error/Warning           | `#fecaca` | `#b91c1c` |
+The full palette (object types, Salesforce clouds, external systems, process/action, error/warning, subgraph backgrounds, status colors) is in [references/color-palette.md](references/color-palette.md); `style` / `classDef` mechanics are in [references/mermaid-styling.md](references/mermaid-styling.md). Do not invent colors — pick from the palette.
 
 ---
 
@@ -381,6 +405,8 @@ sobject_describe(
 )
 ```
 
+Use `childRelationships[].cascadeDelete` to distinguish Master-Detail (`true`) from Lookup (`false`).
+
 ### Query Record Counts
 
 **Tool**: `soql_query`
@@ -390,19 +416,33 @@ sobject_describe(
 soql_query(
   sObject="Account",
   fields=["COUNT(Id)"],
+  whereClause="Id != null",
   sf_user="<sf_user>"
 )
 ```
 
-### Query Metadata
+### List Objects
 
-**Tool**: `tooling_api_query`
-**Purpose**: Query custom objects and relationships
+**Tool**: `sobjects_list`
+**Purpose**: Enumerate the org's objects (standard, custom `__c`, external `__x`) when the user has not named them
 
 ```
-tooling_api_query(
-  sObject="CustomObject",
-  fields=["DeveloperName", "Label"],
+sobjects_list(
+  sf_user="<sf_user>"
+)
+```
+
+Then call `sobject_describe` on each object in scope.
+
+### Read Sharing Model (OWD)
+
+**Tool**: `metadata_read`
+**Purpose**: `sharingModel` for `OWD:` annotations (not returned by `sobject_describe`)
+
+```
+metadata_read(
+  type="CustomObject",
+  fullNames=["Account", "Invoice__c"],
   sf_user="<sf_user>"
 )
 ```
@@ -415,14 +455,14 @@ The following developer-focused features are **NOT needed** in the Cirra AI vers
 
 - `scripts/query-org-metadata.py` (Python CLI) - Use MCP tools instead
 - `scripts/mermaid_preview.py` (localhost preview) - Not needed in sandboxed environments
-- sf CLI metadata commands - Use `sobject_describe` / `tooling_api_query` instead
+- sf CLI metadata commands - Use `sobjects_list` / `sobject_describe` / `metadata_read` instead
 
 ---
 
 ## Dependencies
 
 - **Cirra AI MCP Server** (optional): For org metadata discovery in ERD diagrams
-  - Tools: sobject_describe, soql_query, tooling_api_query
+  - Tools: `sobjects_list`, `sobject_describe`, `soql_query`, `metadata_read`
   - Diagrams can also be created from user-provided specifications without org connection
 
 ---

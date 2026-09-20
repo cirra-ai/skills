@@ -248,7 +248,27 @@ For flows running in System Mode:
 **Query Recent Executions**:
 
 ```
-soql_query(query="SELECT Id, Status, CreatedDate FROM FlowInterview WHERE FlowDeveloperName='[FlowName]' ORDER BY CreatedDate DESC LIMIT 10")
+soql_query(
+  sObject="FlowInterview",
+  fields=["Id", "InterviewStatus", "CurrentElement", "CreatedDate"],
+  whereClause="InterviewStatus IN ('Paused', 'Error') AND CreatedDate = TODAY",
+  orderBy="CreatedDate DESC",
+  limit=10
+)
+```
+
+`FlowInterview` only holds **paused and failed** interviews (completed runs are not
+stored) and has no flow-name column — filter by `InterviewStatus` / `CreatedDate`, or
+query `FlowInterviewLogEntry` (see _Query Flow Errors_ below) for per-element failures:
+
+```
+soql_query(
+  sObject="FlowInterviewLogEntry",
+  fields=["Id", "ElementApiName", "ErrorMessage", "FlowVersionId", "CreatedDate"],
+  whereClause="CreatedDate = TODAY",
+  orderBy="CreatedDate DESC",
+  limit=10
+)
 ```
 
 ### Autolaunched Flows
@@ -292,7 +312,11 @@ System.assertEquals('Success', result);
 **Verify Schedule**:
 
 ```
-soql_query(query="SELECT Id, CronJobDetail.Name, State, NextFireTime FROM CronTrigger WHERE CronJobDetail.Name LIKE '%[FlowName]%'")
+soql_query(
+  sObject="CronTrigger",
+  fields=["Id", "CronJobDetail.Name", "State", "NextFireTime"],
+  whereClause="CronJobDetail.Name LIKE '%[FlowName]%'"
+)
 ```
 
 ### Platform Event-Triggered Flows
@@ -487,7 +511,13 @@ If approaching limits:
 ### Query Flow Errors
 
 ```
-soql_query(query="SELECT Id, ElementApiName, ErrorMessage, FlowVersionId, InterviewGuid FROM FlowInterviewLogEntry WHERE CreatedDate = TODAY ORDER BY CreatedDate DESC LIMIT 20")
+soql_query(
+  sObject="FlowInterviewLogEntry",
+  fields=["Id", "ElementApiName", "ErrorMessage", "FlowVersionId", "InterviewGuid"],
+  whereClause="CreatedDate = TODAY",
+  orderBy="CreatedDate DESC",
+  limit=20
+)
 ```
 
 ---
@@ -495,14 +525,17 @@ soql_query(query="SELECT Id, ElementApiName, ErrorMessage, FlowVersionId, Interv
 ## Quick Reference Commands
 
 ```
-# Deploy via Cirra AI MCP Server
-metadata_create(type="Flow", fullName="My_Flow", metadata={...})
+# Deploy via Cirra AI MCP Server (JSON object, deployed as Draft)
+metadata_create(type="Flow", metadata=[{"fullName": "My_Flow", "label": "My Flow", "apiVersion": 67, "processType": "AutoLaunchedFlow", "status": "Draft", ...}])
 
-# Query flow interviews
-soql_query(query="SELECT Id, Status FROM FlowInterview WHERE FlowDeveloperName='MyFlow' LIMIT 10")
+# Activate a version
+metadata_update(type="FlowDefinition", metadata=[{"fullName": "My_Flow", "activeVersionNumber": 1}])
+
+# Query paused / failed flow interviews
+soql_query(sObject="FlowInterview", fields=["Id", "InterviewStatus", "CurrentElement"], whereClause="InterviewStatus IN ('Paused', 'Error')", limit=10)
 
 # Check scheduled jobs
-soql_query(query="SELECT Id, CronJobDetail.Name, State, NextFireTime FROM CronTrigger")
+soql_query(sObject="CronTrigger", fields=["Id", "CronJobDetail.Name", "State", "NextFireTime"], whereClause="Id != null")
 
 # Authentication: use cirra_ai_init via Cirra AI MCP Server
 ```

@@ -905,10 +905,12 @@ static void testEveryMethod() {
 1. Run tests: `Ctrl+Shift+P` → "SFDX: Run Apex Tests"
 2. View coverage in Problems panel
 
-**CLI:**
+**Cirra AI MCP:**
 
 ```
-# Test execution: use sf-testing skill or Salesforce Setup
+run_tests(tests=[{"className": "AccountServiceTest"}])
+# then poll ApexTestQueueItem and read ApexTestResult / ApexCodeCoverageAggregate
+# — full sequence in SKILL.md → "Run tests via run_tests" and testing-guide.md → "Test-fix loop"
 ```
 
 ---

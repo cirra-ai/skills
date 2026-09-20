@@ -97,12 +97,12 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Init required**: yes
 - **Init timing**: `before-workflow`
 - **Path**: `full`
-- **Should call**: `metadata_create`, `sobject_dml`
+- **Should call**: `metadata_create`, `permission_set_update`
 - **Should NOT call**: `metadata_delete`, `tooling_api_query`
-- **Should ask user**: no (requirements are clear)
-- **Follow-up skills**: `sf-permissions update`, `sf-permissions clone`, `sf-permissions hierarchy`
+- **Should ask user**: yes (present the plan and get approval before the write)
+- **Follow-up skills**: `sf-permissions update`, `sf-permissions assign`, `sf-permissions hierarchy`
 
-**Notes**: `create` keyword routes to Create Permission Set. Should create the PS shell via `metadata_create`, get its record ID, then add ObjectPermissions (Account read-only) via `sobject_dml`. Follow naming convention: `Contractor_Account_ReadOnly_PS` or similar.
+**Notes**: `create` keyword routes to Create Permission Set. Should create the PS shell via `metadata_create`, then add the Account read-only object permission with `permission_set_update` (JSON Patch `add` on `/objectPermissions/-`). `sobject_dml` on `ObjectPermissions` is a documented fallback only. Follow naming convention: `Contractor_Account_ReadOnly_PS` or similar.
 
 ---
 
@@ -129,12 +129,12 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Init required**: yes
 - **Init timing**: `before-workflow`
 - **Path**: `full`
-- **Should call**: `soql_query`, `sobject_dml`
+- **Should call**: `metadata_read`, `permission_set_update`
 - **Should NOT call**: `metadata_delete`, `metadata_create`
-- **Should ask user**: no
+- **Should ask user**: yes (present the patch and get approval before the write)
 - **Follow-up skills**: `sf-permissions analyze`, `sf-permissions hierarchy`
 
-**Notes**: `update` keyword routes to Update Permission Set. Should first query the PS record ID, then insert/update ObjectPermissions via `sobject_dml` to add PermissionsDelete = true for Opportunity.
+**Notes**: `update` keyword routes to Update Permission Set. Should read the current PS with `metadata_read`, then apply `permission_set_update(permissionSet="Sales_Admin", patch=[...])` — an `add` on `/objectPermissions/-` for Opportunity with `allowDelete: true` (or a `replace` on the existing entry's `allowDelete`). `sobject_dml` on `ObjectPermissions` is a documented fallback only.
 
 ---
 
@@ -154,6 +154,39 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 
 ---
 
+## assign permission set
+
+- **Input**: `/sf-permissions assign Sales_Admin to jane@company.com`
+- **Dispatch**: Assign Permission Set
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `fast`
+- **Should call**: `permission_set_assignments`, `soql_query`
+- **Should NOT call**: `metadata_create`, `metadata_update`, `metadata_delete`, `sobject_dml`
+- **Should ask user**: yes (confirm the assignment before the write)
+- **Follow-up skills**: `sf-permissions analyze`, `sf-provisioning`
+
+**Notes**: `assign` keyword routes to Assign Permission Set. Uses `permission_set_assignments(operation="add", permissionSets=["Sales_Admin"], users=["jane@company.com"])`, then verifies with a `soql_query` on `PermissionSetAssignment`. `unassign`/remove requests use `operation="remove"`. Whole-user onboarding/offboarding is handed to sf-provisioning.
+
+---
+
+## profile inspect and patch
+
+- **Input**: `/sf-permissions profile Custom Sales User add read access to Invoice__c`
+- **Dispatch**: Profile Management
+- **Init required**: yes
+- **Init timing**: `before-workflow`
+- **Path**: `full`
+- **First tool**: `profile_describe`
+- **Should call**: `profile_describe`, `profile_update`
+- **Should NOT call**: `metadata_create`, `metadata_delete`, `sobject_dml`, `permission_set_update`
+- **Should ask user**: yes (present the patch and get approval; suggest a Permission Set if the org convention is PS-based)
+- **Follow-up skills**: `sf-permissions analyze`, `sf-permissions assign`
+
+**Notes**: `profile` keyword routes to Profile Management. Inspect first with `profile_describe(profile="Custom Sales User", permissionTypes=["objectPermissions"], sObject="Invoice__c")`, then apply `profile_update(profile="Custom Sales User", patch=[{"op": "add", "path": "/objectPermissions/-", "value": {...}}])`. "Copy this profile" requests use `profile_clone(profile="<new>", clonedProfileName="<source>")`.
+
+---
+
 ## agent access
 
 - **Input**: `/sf-permissions agent-access`
@@ -165,9 +198,9 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Should call**: `tooling_api_query`
 - **Should NOT call**: `metadata_delete`, `metadata_create`
 - **Should ask user**: yes (query or manage?)
-- **Follow-up skills**: `sf-permissions update`, `sf-permissions hierarchy`
+- **Follow-up skills**: `sf-permissions update`, `sf-permissions assign`
 
-**Notes**: `agent-access` keyword routes to Agent Access Permissions. Should ask whether the user wants to query existing agent access or modify it. Query uses `tooling_api_query` on PermissionSet with Name LIKE '%Agent%'.
+**Notes**: `agent-access` keyword routes to Agent Access Permissions. Should ask whether the user wants to query existing agent access or modify it. Query uses `tooling_api_query` on PermissionSet with Name LIKE '%Agent%', then `metadata_read` to inspect `agentAccesses`; granting is a `permission_set_update` patch on `/agentAccesses/-` followed by `permission_set_assignments`.
 
 ---
 
@@ -181,10 +214,10 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Should call**: (none until user selects)
 - **Should NOT call**: `soql_query`, `metadata_create`, `metadata_update`, `metadata_delete`, `tooling_api_query`
 - **Should ask user**: yes
-- **Menu options**: Hierarchy, Audit, Analyze, Create, Clone, Update, Delete, Agent access
+- **Menu options**: Hierarchy, Audit, Analyze, Create, Clone, Update, Delete, Assign, Profile, Agent access
 - **Follow-up skills**: (depends on user selection)
 
-**Notes**: No arguments. Present the eight-option dispatch menu. No tools called until user selects.
+**Notes**: No arguments. Present the ten-option dispatch menu. No tools called until user selects.
 
 ---
 

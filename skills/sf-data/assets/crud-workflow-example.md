@@ -14,7 +14,7 @@ Create a Deal Desk workflow test environment with:
 
 ```
 Skill(skill="sf-metadata")
-Request: "Describe object Account in org dev - show required fields and picklist values"
+Request: "Describe object Account - show required fields and picklist values"
 ```
 
 **Response shows:**
@@ -29,9 +29,8 @@ Request: "Describe object Account in org dev - show required fields and picklist
 ```
 sobject_dml(
   operation="insert",
-  sobjectType="Account",
-  records=[{Name: "Enterprise Corp", Industry: "Technology", AnnualRevenue: 5000000}],
-  orgAlias="dev"
+  sObject="Account",
+  records=[{"Name": "Enterprise Corp", "Industry": "Technology", "AnnualRevenue": 5000000}]
 )
 ```
 
@@ -51,8 +50,9 @@ sobject_dml(
 
 ```
 soql_query(
-  query="SELECT Id, Name, Industry, AnnualRevenue FROM Account WHERE Name = 'Enterprise Corp'",
-  orgAlias="dev"
+  sObject="Account",
+  fields=["Id", "Name", "Industry", "AnnualRevenue"],
+  whereClause="Name = 'Enterprise Corp'"
 )
 ```
 
@@ -63,9 +63,8 @@ soql_query(
 ```
 sobject_dml(
   operation="update",
-  sobjectType="Account",
-  records=[{Id: "001XXXXXXXXXXXX", Rating: "Hot", Type: "Customer - Direct"}],
-  orgAlias="dev"
+  sObject="Account",
+  records=[{"Id": "001XXXXXXXXXXXX", "Rating": "Hot", "Type": "Customer - Direct"}]
 )
 ```
 
@@ -73,8 +72,9 @@ sobject_dml(
 
 ```
 soql_query(
-  query="SELECT Id, Name, Rating, Type FROM Account WHERE Id = '001XXXXXXXXXXXX'",
-  orgAlias="dev"
+  sObject="Account",
+  fields=["Id", "Name", "Rating", "Type"],
+  whereClause="Id = '001XXXXXXXXXXXX'"
 )
 ```
 
@@ -85,9 +85,8 @@ soql_query(
 ```
 sobject_dml(
   operation="insert",
-  sobjectType="Contact",
-  records=[{FirstName: "John", LastName: "Smith", AccountId: "001XXXXXXXXXXXX", Title: "CTO"}],
-  orgAlias="dev"
+  sObject="Contact",
+  records=[{"FirstName": "John", "LastName": "Smith", "AccountId": "001XXXXXXXXXXXX", "Title": "CTO"}]
 )
 ```
 
@@ -96,9 +95,8 @@ sobject_dml(
 ```
 sobject_dml(
   operation="insert",
-  sobjectType="Opportunity",
-  records=[{Name: "Enterprise Deal", AccountId: "001XXXXXXXXXXXX", StageName: "Prospecting", CloseDate: "2025-03-31", Amount: 250000}],
-  orgAlias="dev"
+  sObject="Opportunity",
+  records=[{"Name": "Enterprise Deal", "AccountId": "001XXXXXXXXXXXX", "StageName": "Prospecting", "CloseDate": "2025-03-31", "Amount": 250000}]
 )
 ```
 
@@ -108,17 +106,22 @@ sobject_dml(
 
 ```
 soql_query(
-  query="SELECT Id, Name, (SELECT Id, Name, Title FROM Contacts), (SELECT Id, Name, Amount, StageName FROM Opportunities) FROM Account WHERE Name = 'Enterprise Corp'",
-  orgAlias="dev"
+  sObject="Account",
+  fields=["Id", "Name", "(SELECT Id, Name, Title FROM Contacts)", "(SELECT Id, Name, Amount, StageName FROM Opportunities)"],
+  whereClause="Name = 'Enterprise Corp'"
 )
 ```
+
+If the server rejects a subquery in `fields`, run two queries instead: the
+parent, then the children filtered by `AccountId IN (...)`.
 
 ### Child-to-Parent (Dot Notation)
 
 ```
 soql_query(
-  query="SELECT Id, Name, Account.Name, Account.Industry FROM Contact WHERE Account.Name = 'Enterprise Corp'",
-  orgAlias="dev"
+  sObject="Contact",
+  fields=["Id", "Name", "Account.Name", "Account.Industry"],
+  whereClause="Account.Name = 'Enterprise Corp'"
 )
 ```
 
@@ -130,36 +133,26 @@ Children first, then parents:
 
 ```
 # Delete Opportunities
-sobject_dml(
-  operation="delete",
-  sobjectType="Opportunity",
-  records=[{Id: "006XXXXXXXXXXXX"}],
-  orgAlias="dev"
-)
+sobject_dml(operation="delete", sObject="Opportunity", recordIds=["006XXXXXXXXXXXX"])
 
 # Delete Contacts
-sobject_dml(
-  operation="delete",
-  sobjectType="Contact",
-  records=[{Id: "003XXXXXXXXXXXX"}],
-  orgAlias="dev"
-)
+sobject_dml(operation="delete", sObject="Contact", recordIds=["003XXXXXXXXXXXX"])
 
 # Delete Account
-sobject_dml(
-  operation="delete",
-  sobjectType="Account",
-  records=[{Id: "001XXXXXXXXXXXX"}],
-  orgAlias="dev"
-)
+sobject_dml(operation="delete", sObject="Account", recordIds=["001XXXXXXXXXXXX"])
 ```
 
-## Anonymous Apex Alternative
+Delete takes `recordIds` (a string array), never `records`. For more than
+200 IDs use `bulk_dml(operation="delete", ...)`.
 
-For complex operations, use Anonymous Apex:
+## Apex Test-Class Alternative
+
+Cirra cannot run anonymous Apex. When the hierarchy must be built inside a
+test transaction, hand this to **sf-apex** as a test class (or `@testSetup`
+method) and run it with `run_tests`:
 
 ```apex
-// Create complete hierarchy in one transaction
+// Inside an @isTest method: create the complete hierarchy in one transaction
 Account acc = new Account(
     Name = 'Enterprise Corp',
     Industry = 'Technology',
@@ -191,9 +184,11 @@ System.debug('Created hierarchy: Account=' + acc.Id + ', Contact=' + con.Id + ',
 Execute:
 
 ```
-# Execute via Apex execution in Salesforce Setup or Cirra AI MCP tooling_api_dml
-# No direct MCP equivalent for anonymous Apex execution
+run_tests(tests=[{"className": "DealDeskDataTest"}])
 ```
+
+For persistent demo data, stay with the `sobject_dml` calls above — or
+`bulk_dml` once the set grows past 200 records.
 
 ## Validation Score
 

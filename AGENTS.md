@@ -45,6 +45,25 @@ These have broken published skills. Verify every one before pushing a skill chan
    For a deliberate case it misreads, put `md-api-names: allow` in an HTML comment on the
    offending line or the line above.
 
+6. **Every MCP tool call in a skill must match the Cirra AI MCP Server schema.** `soql_query`
+   and `tooling_api_query` take `sObject`, `fields` and `whereClause` (all required;
+   `orderBy`/`limit`/`groupBy` are separate parameters and there is no `query=` string);
+   `sobject_dml` delete takes `recordIds`, not `records`; there is no `orgAlias` parameter. The
+   canonical signatures live in
+   [`shared/references/cirra-mcp-tools.md`](shared/references/cirra-mcp-tools.md) — link it from
+   the skill rather than re-describing tools.
+
+   **This one is enforced.** `scripts/validate-skills.sh` runs `scripts/check_mcp_signatures.py`
+   on every skill (fenced blocks and inline code spans only). To check a tree yourself:
+
+   ```sh
+   python3 scripts/check_mcp_signatures.py            # skills/ (what CI enforces)
+   python3 scripts/check_mcp_signatures.py skills/sf-data
+   ```
+
+   For an example that shows a wrong call on purpose, put `mcp-signatures: allow` in an HTML
+   comment on the line above it.
+
 ## Before every push
 
 Run the gates and fix any issues:

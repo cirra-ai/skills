@@ -6,7 +6,7 @@ Lightning Web Components development skill with PICKLES architecture methodology
 
 - **Component Scaffolding**: Generate complete LWC bundles (JS, HTML, CSS, meta.xml)
 - **PICKLES Architecture**: Structured methodology for robust, maintainable components
-- **165-Point Scoring**: SLDS 2 validation across 8 categories including dark mode readiness
+- **165-Point Scoring**: SLDS 2 validation across 9 categories including dark mode readiness
 - **Wire Service Patterns**: @wire decorators for Apex & GraphQL data fetching
 - **Jest Testing**: Comprehensive unit test generation with async patterns
 - **Spring '26 Features**: TypeScript, lwc:on directive, GraphQL mutations, Agentforce discoverability
@@ -70,16 +70,19 @@ S → Security     │ Enforce permissions, FLS, and data protection
 
 ## Scoring System (165 Points)
 
-| Category            | Points | Focus                             |
-| ------------------- | ------ | --------------------------------- |
-| Component Structure | 25     | File organization, naming         |
-| Data Layer          | 25     | Wire service, error handling      |
-| UI/UX               | 25     | SLDS 2, responsiveness, dark mode |
-| Accessibility       | 20     | WCAG, ARIA, keyboard navigation   |
-| Testing             | 20     | Jest coverage, async patterns     |
-| Performance         | 20     | Lazy loading, debouncing          |
-| Events              | 15     | Component communication           |
-| Security            | 15     | FLS, permissions                  |
+Categories and weights match `scripts/validate_slds.py` (`SLDSValidator.max_scores`).
+
+| Category            | Points | Focus                                                        |
+| ------------------- | ------ | ------------------------------------------------------------ |
+| SLDS Class Usage    | 25     | Valid `slds-*` class names and utilities                     |
+| Accessibility       | 25     | ARIA labels, roles, alt-text, keyboard navigation            |
+| Dark Mode Readiness | 25     | No hardcoded colors, CSS variables only                      |
+| SLDS Migration      | 20     | No deprecated SLDS 1 patterns/tokens                         |
+| Styling Hooks       | 20     | Proper `--slds-g-*` variable usage                           |
+| Component Structure | 15     | Uses `lightning-*` base components                           |
+| GraphQL Patterns    | 15     | Wire result stored, pagination with `first:`, error handling |
+| Performance         | 10     | Efficient selectors, no `!important`                         |
+| Focus Management    | 10     | Modals/dialogs handle Escape, trap and restore focus         |
 
 **Thresholds**: 150+ (Production-ready) | 100-149 (Minor issues) | <100 (Needs work)
 
@@ -114,7 +117,8 @@ Results appear as a scored report with a star rating and prioritised issue list.
 | sf-apex       | Create @AuraEnabled controllers   |
 | sf-flow       | Embed components in Flow screens  |
 | sf-metadata   | Create Lightning Message Channels |
-| sf-deploy     | Deploy component to org           |
+
+Deployment is handled by this skill itself: `metadata_create` / `metadata_update` of `LightningComponentBundle` (with a per-file `tooling_api_dml` fallback on `LightningComponentResource`). There is no separate deploy skill.
 
 ## Spring '26 Features (API 66.0)
 

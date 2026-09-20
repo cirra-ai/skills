@@ -466,3 +466,91 @@ static void testPrivateMethod() {
 | Different user profiles               | ✓        |
 | Assert statements in every test       | ✓        |
 | Test.startTest()/stopTest() for async | ✓        |
+
+---
+
+## Running Tests via Cirra AI MCP
+
+Cirra cannot execute anonymous Apex or `sf apex run test`; the only way to execute tests is the `run_tests` MCP tool, which enqueues an asynchronous run and returns a job id. Tests roll back their own DML, so a throwaway `@IsTest` class deployed with `tooling_api_dml` is also the safe way to "just try" a piece of logic in an org.
+
+### The call sequence
+
+```
+# 1. Enqueue — specific classes (optionally specific methods)
+run_tests(tests=[{"className": "AccountServiceTest"}])
+run_tests(tests=[{"className": "AccountServiceTest", "testMethods": ["testBulk"]}])
+
+# Org-wide (production coverage gate) — warn the user first, this can take minutes
+run_tests(testLevel="RunLocalTests", category=["Apex"], maxFailedTests="-1")
+
+# 2. Poll every ~10–15 s until every Status is Completed, Failed or Aborted
+tooling_api_query(
+  sObject="ApexTestQueueItem",
+  fields=["Id", "Status", "ApexClass.Name", "ExtendedStatus"],
+  whereClause="ParentJobId = '<jobId>'"
+)
+
+# 3. Results — one row per test method
+tooling_api_query(
+  sObject="ApexTestResult",
+  fields=["ApexClass.Name", "MethodName", "Outcome", "Message", "StackTrace", "RunTime"],
+  whereClause="AsyncApexJobId = '<jobId>'"
+)
+
+# 4. Coverage of the class under test (not the test class)
+tooling_api_query(
+  sObject="ApexCodeCoverageAggregate",
+  fields=["ApexClassOrTrigger.Name", "NumLinesCovered", "NumLinesUncovered"],
+  whereClause="ApexClassOrTrigger.Name = 'AccountService'"
+)
+```
+
+`Outcome` is `Pass`, `Fail`, `CompileFail` or `Skip`. Coverage % = `NumLinesCovered / (NumLinesCovered + NumLinesUncovered) × 100`. `ExtendedStatus` on the queue item carries the `(n/m)` pass count while a class is still running.
+
+`ApexTestResult` has no `TestClassName` field — filter on `AsyncApexJobId` for one run, or on `ApexClass.Name` (with `orderBy="TestTimestamp DESC"`) for history.
+
+### Test-fix loop
+
+Run this loop after every deploy. **Stop after three iterations** — report what still fails, show the last `Message`/`StackTrace`, and ask the user how to proceed rather than looping indefinitely.
+
+```
+iteration = 0
+loop:
+  run_tests → poll → read ApexTestResult + ApexCodeCoverageAggregate
+  if all Outcome == Pass and coverage acceptable → report, done
+  iteration += 1
+  if iteration > 3 → stop and report
+  classify each failure (table below) → fix the class or the test
+  tooling_api_dml(operation="update", ...) the changed class(es)
+```
+
+Fix the **code under test** when the test encodes the requirement correctly and the code does not; fix the **test** when the assertion, data setup or mock is wrong. Never "fix" a failure by deleting the assertion or by widening it to a range.
+
+| Failure signal (`Outcome` / `Message`)                                                                                             | Usual cause                                                                    | Fix                                                                                                                         |
+| ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| `CompileFail` — `Invalid type`, `Method does not exist`, `Variable does not exist`                                                 | Hallucinated method / Java type / wrong signature (see `llm-anti-patterns.md`) | Correct the API; re-run the validator on the file before redeploying                                                        |
+| `CompileFail` — `Dependent class is invalid and needs recompilation`                                                               | Class under test changed signature after the test compiled                     | Redeploy the test class (`tooling_api_dml update` with its unchanged body) so it recompiles                                 |
+| `System.AssertException: Assertion Failed: Expected: X, Actual: Y`                                                                 | Logic bug, or the test's expectation is wrong                                  | Compare with the requirement; fix code if the expectation is right, otherwise fix the assertion (keep it exact — no ranges) |
+| `System.DmlException: REQUIRED_FIELD_MISSING` / `FIELD_CUSTOM_VALIDATION_EXCEPTION`                                                | Test data violates required fields or validation rules                         | Extend the `TestDataFactory` to satisfy the rule; do not disable the rule                                                   |
+| `System.DmlException: DUPLICATES_DETECTED`                                                                                         | Duplicate rules fire on factory data                                           | Vary names per loop index; or set `Database.DMLOptions.DuplicateRuleHeader.allowSave = true` in the factory                 |
+| `System.QueryException: List has no rows for assignment`                                                                           | Test assumes data that `@TestSetup` did not create, or `SeeAllData` reliance   | Create the data in `@TestSetup`; never use `SeeAllData=true`                                                                |
+| `System.LimitException: Too many SOQL queries: 101` in the **bulk** test                                                           | SOQL/DML in a loop in the code under test                                      | Bulkify (collect Ids → one query → Map); this is a code fix, not a test fix                                                 |
+| `System.CalloutException: You have uncommitted work pending` / `Methods defined as TestMethod do not support Web service callouts` | Callout without `Test.setMock`, or DML before the callout                      | Add `HttpCalloutMock`; move DML after the callout or into a Queueable                                                       |
+| `System.NullPointerException`                                                                                                      | Unsafe `Map.get()` dereference or missing null guard                           | `containsKey` / `?.` / `??` in the code; add the null-input negative test                                                   |
+| `System.AsyncException: Maximum stack depth has been reached`                                                                      | Queueable re-enqueues itself in a test                                         | Guard with `Test.isRunningTest()` or `AsyncInfo.hasMaxStackDepth()`; enqueue between `Test.startTest()`/`stopTest()`        |
+| `INSUFFICIENT_ACCESS_OR_READONLY` inside `System.runAs`                                                                            | Test user lacks object/field permission for the code path                      | Assign a Permission Set in `@TestSetup`; confirm the class's sharing mode is intentional                                    |
+| `Pass` but coverage < 75%                                                                                                          | Branches not exercised (negative / bulk paths missing)                         | Add the missing PNB test; read `NumLinesUncovered` and target those methods                                                 |
+| Job stuck in `Queued` / `Processing` for > 10 minutes                                                                              | Org test queue backed up, or another run holding the classes                   | Query `AsyncApexJob` for the job `Status`; wait, or abort via Setup → Apex Test Execution and re-enqueue                    |
+
+### Reporting
+
+Always paste real numbers, never assumptions:
+
+```
+Tests: 5 passed / 1 failed (job 707xx0000012345)
+  ✗ testNegative — System.AssertException: Assertion Failed: Expected: DmlException, Actual: none
+    Class.AccountServiceTest.testNegative: line 42, column 1
+Coverage: AccountService 84% (63/75 lines)
+```
+
+If `run_tests` is unavailable or the run could not be completed, report `Tests: not run — <reason>` instead of an estimate.

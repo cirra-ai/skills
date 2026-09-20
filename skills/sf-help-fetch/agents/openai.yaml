@@ -1,0 +1,7 @@
+interface:
+  display_name: "Cirra AI Salesforce Docs Reader"
+  short_description: "Read Salesforce Help, developer docs and release notes headlessly"
+  icon_small: "./assets/icon-small.png"
+  icon_large: "./assets/icon-large.png"
+  brand_color: "#4068EB"
+  default_prompt: "Use $sf-help-fetch to read the body of a Salesforce Help article, developer doc page, or release note and quote the relevant section."

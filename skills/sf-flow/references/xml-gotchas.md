@@ -2,19 +2,19 @@
 
 Critical XML metadata constraints and known issues when deploying flows via Metadata API.
 
-## storeOutputAutomatically Data Leak Risk (v2.0.0)
+## storeOutputAutomatically in System-Mode Flows
 
-**⚠️ SECURITY WARNING**: When `storeOutputAutomatically="true"` in recordLookups, **ALL fields** are retrieved and stored.
+`storeOutputAutomatically="true"` is the default and is the right choice for user-mode flows — FLS still limits what the running user can read. The rule this skill applies everywhere: **keep `true`; set `false` with explicit `queriedFields` only when the flow runs in system mode AND the object carries sensitive fields.**
 
-### Risks
+### Why system mode is different
 
-1. **Data Leak**: Sensitive fields (SSN, salary, etc.) may be exposed unintentionally
+1. **Data Leak**: `runInMode` = `SystemMode*` bypasses FLS, so sensitive fields (SSN, salary, etc.) are fetched and can surface in screens, emails or logs
 2. **Performance**: Large objects with many fields impact query performance
-3. **Screen Flow Exposure**: In screen flows, external users could access all data
+3. **Screen Flow Exposure**: In system-mode screen flows, external users could see all data
 
-### Recommended Pattern
+### Recommended Pattern (system mode + sensitive fields)
 
-**Always specify only the fields you need:**
+**Specify only the fields you need:**
 
 ```xml
 <recordLookups>
@@ -28,12 +28,12 @@ Critical XML metadata constraints and known issues when deploying flows via Meta
 </recordLookups>
 ```
 
-**Avoid:**
+**Avoid in system-mode flows with sensitive fields** (fine elsewhere):
 
 ```xml
 <recordLookups>
     <name>Get_Account</name>
-    <!-- Retrieves ALL fields - security risk! -->
+    <!-- Retrieves ALL fields regardless of FLS when runInMode is SystemMode* -->
     <storeOutputAutomatically>true</storeOutputAutomatically>
 </recordLookups>
 ```
@@ -727,7 +727,7 @@ Even for simple pass-through flows, add at least one assignment:
 ### Deployment
 
 - **Problem**: Using direct CLI commands
-- **Solution**: Always use sf-deploy skill
+- **Solution**: Deploy through the Cirra AI MCP Server — `metadata_create` / `metadata_update`, verify with `tooling_api_query` on `Flow`, activate via `metadata_update` on `FlowDefinition`
 
 ### $Record Context
 
