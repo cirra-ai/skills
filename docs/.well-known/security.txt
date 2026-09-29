@@ -1,0 +1,8 @@
+# Cirra AI security contact (RFC 9116). Report security vulnerabilities in
+# Cirra AI services to the address below. We have no bug bounty program and
+# reply only to reports we can reproduce and that show a concrete security
+# impact.
+Contact: mailto:security@cirra.ai
+Expires: 2027-09-28T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://skills.cirra.ai/.well-known/security.txt
