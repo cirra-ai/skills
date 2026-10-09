@@ -111,3 +111,21 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Follow-up skills**: `sf-permissions`
 
 **Notes**: Archetype is ambiguous. Per SKILL.md, the skill MUST call `AskUserQuestion` to clarify "Is this an internal admin, a contractor, or an integration user?" before running discovery queries. License/profile must not be guessed.
+
+---
+
+## missing field access — permission set, not a profile edit
+
+- **Input**: `/sf-provisioning grant Account.Site field access for a Standard User`
+- **Dispatch**: Grant Capability
+- **Init required**: yes
+- **Init timing**: before-workflow
+- **Path**: full
+- **First tool**: `cirra_ai_init`
+- **Tool params**: `(no parameters)`
+- **Should call**: `cirra_ai_init`, `soql_query`
+- **Should NOT call**: `profile_update`, `profile_clone`, `user_create`
+- **Should ask user**: yes (present the permission-set plan and get approval before any write)
+- **Follow-up skills**: `sf-permissions`, `sf-metadata`
+
+**Notes**: Routes to Grant Capability. The user cannot see `Account.Site` and the Standard User profile has no `FieldPermissions` row for it. The plan MUST recommend an existing permission set (`IsOwnedByProfile = false`) that already grants `Account.Site`, or a new minimal permission set created with `metadata_create` / `permission_set_update` and assigned with `permission_set_assignments`. MUST NOT recommend editing the Standard User profile, and MUST NOT call `profile_update`, unless the user explicitly says they prefer a profile change. Also mention checking the Account page layout as a separate step. A profile that lacks the field explains the symptom; it is not the fix.

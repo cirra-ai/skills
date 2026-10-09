@@ -5,7 +5,7 @@ Salesforce user and access provisioning skill for AI coding tools. Create users,
 ## Features
 
 - **Provision User**: Onboard a new user with the right license, profile, locale, and permission sets — discovered from comparable existing users, not invented.
-- **Grant Capability**: Enable a specific ability (scratch org creation, API access, a feature, an object) by finding the existing permission set that already grants it.
+- **Grant Capability**: Enable a specific ability (scratch org creation, API access, a feature, an object, a field) by reusing the permission set that already grants it, or creating a minimal one when none does. Profile permission edits are plan B and only when you explicitly prefer them.
 - **Revoke / Deactivate**: Narrow revoke of a permission set, or deactivate/freeze a user for offboarding (with dependency checks).
 - **Mirror a User**: Create a new user with the same access as an existing one — profile, license, locale, and every permission set assignment.
 
@@ -37,7 +37,7 @@ The skill will:
 
 - Connect to your org via `cirra_ai_init()`
 - Query comparable existing users to read off your org's username pattern, profile, license, and permission set conventions
-- Find the existing permission set that grants the requested capability (instead of creating a new one)
+- Find the existing permission set that grants the requested capability (create a new one only when none exists; do not edit a profile unless you explicitly prefer that)
 - Present the full plan and wait for your approval before any write
 
 ### 3. Review results
@@ -50,6 +50,7 @@ After approval, the skill creates the user, assigns permission sets, verifies th
 | -------------------- | ------------------------------------------------------- |
 | Provision contractor | "Create a contractor user for Jane Doe"                 |
 | Grant capability     | "Give jane@cirra.ai the ability to create scratch orgs" |
+| Grant field access   | "Let this user see Account.Site"                        |
 | Mirror access        | "Give Jane the same access as John"                     |
 | Revoke a permission  | "Remove the SFDX permission set from jane@cirra.ai"     |
 | Offboard             | "Deactivate john@cirra.ai — he left the company"        |
@@ -73,7 +74,7 @@ After approval, the skill creates the user, assigns permission sets, verifies th
 | Create user                    | `user_create` (prefer `template=` to clone)                                                                                            |
 | Assign / remove PS             | `permission_set_assignments(operation="add", permissionSets=[...], users=[...])` — or `operation="remove"`                             |
 | Deactivate / freeze / update   | `user_update(user=..., operation="deactivate")` — also `freeze`, `unfreeze`, `activate`, `reset_password`, `unlock_password`, `update` |
-| Create permission set          | `metadata_create(type="PermissionSet", metadata=[...])` (last resort)                                                                  |
+| Create permission set          | `metadata_create(type="PermissionSet", metadata=[...])` when no existing set grants the access                                         |
 
 Full signatures: [`shared/references/cirra-mcp-tools.md`](../../shared/references/cirra-mcp-tools.md).
 
