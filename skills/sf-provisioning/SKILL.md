@@ -58,7 +58,9 @@ Grant access with a permission set. This covers object CRUD, field-level securit
 permissions, tab visibility, Apex, Visualforce, Flow, and custom permissions.
 
 1. **Reuse.** Search for a permission set that already grants the access
-   (`IsOwnedByProfile = false`). Assign it with `permission_set_assignments`.
+   (`IsOwnedByProfile = false`). Before assigning it, confirm it does not grant
+   materially more than was asked and that the user's licenses can take it
+   (Grant Capability, step 4). Then assign it with `permission_set_assignments`.
 2. **Create.** When no permission set grants it, create a minimal permission set for exactly
    that access and assign it. This is the default fix, including when the gap you found is on
    the user's profile.
@@ -168,7 +170,19 @@ For granting an ability to a **new or existing** user.
    `ObjectPermissions` or `FieldPermissions` for the object or field, and `PermissionSet`
    user-permission fields for system permissions. Exclude profile-owned sets
    (`Parent.IsOwnedByProfile = false` / `IsOwnedByProfile = false`). Check what comparable
-   users are assigned via `PermissionSetAssignment`. Reuse the existing set.
+   users are assigned via `PermissionSetAssignment`. A matching row is only a candidate.
+   Before the plan reuses it:
+   - Read the rest of that permission set (`metadata_read` type `PermissionSet`, or
+     `ObjectPermissions`, `FieldPermissions`, and its system-permission fields). If it
+     grants more than was asked — other objects, other fields, or a broad system
+     permission such as `PermissionsModifyAllData` — do not assign it. Create a minimal
+     permission set (step 5), or name the extra access and let the user opt in.
+   - Read `PermissionSet.LicenseId`. When it is set, the assignee needs that user
+     license or an existing `PermissionSetLicenseAssign` for that permission-set
+     license. Without it, `permission_set_assignments` fails. Pick another candidate
+     or create a permission set with no license requirement.
+     Reuse the candidate only when it grants the requested access, nothing materially
+     broader, and the user's licenses can accept it.
 5. **When none exists, create a minimal permission set** and assign that. Hand off the create
    to `sf-permissions` or `sf-metadata` (`metadata_create` for `PermissionSet`, then
    `permission_set_update` for the object, field, or system permission). Scope it to exactly
@@ -180,10 +194,10 @@ For granting an ability to a **new or existing** user.
 
 **Example — "I can't see Account.Site":** the Standard User profile has no `FieldPermissions`
 row for `Account.Site`. Recommend a permission set that grants `Account.Site` read (and edit,
-if they need to change it). Reuse one if it exists; otherwise create one and assign it. Also
-check that the field is on the Account page layout they use. Do not recommend adding
-field-level security to the Standard User profile unless they explicitly ask for a profile
-change.
+if they need to change it). Reuse one only after step 4's extra-permission and license
+checks pass; otherwise create a minimal one and assign it. Also check that the field is on
+the Account page layout they use. Do not recommend adding field-level security to the
+Standard User profile unless they explicitly ask for a profile change.
 
 ### Revoke / Deactivate
 

@@ -123,9 +123,9 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Path**: full
 - **First tool**: `cirra_ai_init`
 - **Tool params**: `(no parameters)`
-- **Should call**: `cirra_ai_init`, `soql_query`
+- **Should call**: `cirra_ai_init`, `soql_query`, `permission_set_assignments`
 - **Should NOT call**: `profile_update`, `profile_clone`, `user_create`
 - **Should ask user**: yes (present the permission-set plan and get approval before any write)
 - **Follow-up skills**: `sf-permissions`, `sf-metadata`
 
-**Notes**: Routes to Grant Capability. The user cannot see `Account.Site` and the Standard User profile has no `FieldPermissions` row for it. The plan MUST recommend an existing permission set (`IsOwnedByProfile = false`) that already grants `Account.Site`, or a new minimal permission set created with `metadata_create` / `permission_set_update` and assigned with `permission_set_assignments`. MUST NOT recommend editing the Standard User profile, and MUST NOT call `profile_update`, unless the user explicitly says they prefer a profile change. Also mention checking the Account page layout as a separate step. A profile that lacks the field explains the symptom; it is not the fix.
+**Notes**: Routes to Grant Capability. The user cannot see `Account.Site` and the Standard User profile has no `FieldPermissions` row for it. The plan MUST recommend an existing permission set (`IsOwnedByProfile = false`) that already grants `Account.Site`, or a new minimal permission set created with `metadata_create` / `permission_set_update`. Reuse only after `soql_query` shows the candidate does not grant materially more than `Account.Site` and the user's license can accept it (`PermissionSet.LicenseId`). Both branches assign with `permission_set_assignments` after approval. MUST NOT recommend editing the Standard User profile, and MUST NOT call `profile_update`, unless the user explicitly says they prefer a profile change. Also mention checking the Account page layout as a separate step. A profile that lacks the field explains the symptom; it is not the fix.
