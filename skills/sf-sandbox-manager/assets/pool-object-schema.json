@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Environment_Pool__c Field Definitions",
+  "description": "Schema for the Environment_Pool__c custom object used to track sandbox pool lifecycle. Used by the sf-sandbox-manager skill's Pool Setup workflow to auto-create the object and fields.",
+  "object": {
+    "apiName": "Environment_Pool__c",
+    "label": "Environment Pool",
+    "pluralLabel": "Environment Pool",
+    "description": "Tracks sandbox environments for pool checkout/checkin lifecycle management",
+    "nameField": {
+      "label": "Pool Entry Name",
+      "type": "AutoNumber",
+      "displayFormat": "ENV-{0000}"
+    },
+    "sharingModel": "Private"
+  },
+  "fields": [
+    {
+      "apiName": "Environment_Name__c",
+      "label": "Environment Name",
+      "type": "Text",
+      "length": 80,
+      "required": true,
+      "unique": true,
+      "externalId": true,
+      "description": "Sandbox name as it appears in Salesforce Setup"
+    },
+    {
+      "apiName": "Environment_Type__c",
+      "label": "Environment Type",
+      "type": "Picklist",
+      "required": true,
+      "description": "Sandbox type (maps to SandboxInfo.LicenseType)",
+      "picklistValues": [
+        { "value": "Developer", "default": true },
+        { "value": "Developer_Pro", "default": false },
+        { "value": "Partial", "default": false },
+        { "value": "Full", "default": false }
+      ]
+    },
+    {
+      "apiName": "Status__c",
+      "label": "Status",
+      "type": "Picklist",
+      "required": true,
+      "description": "Current lifecycle state of this environment",
+      "picklistValues": [
+        { "value": "Available", "default": true },
+        { "value": "Checked_Out", "default": false },
+        { "value": "Pending_Reset", "default": false },
+        { "value": "Creating", "default": false },
+        { "value": "Error", "default": false }
+      ]
+    },
+    {
+      "apiName": "Checked_Out_By__c",
+      "label": "Checked Out By",
+      "type": "Text",
+      "length": 255,
+      "required": false,
+      "description": "Email or name of the user who has this environment checked out"
+    },
+    {
+      "apiName": "Checkout_Timestamp__c",
+      "label": "Checkout Timestamp",
+      "type": "DateTime",
+      "required": false,
+      "description": "When this environment was checked out"
+    },
+    {
+      "apiName": "Expected_Return__c",
+      "label": "Expected Return",
+      "type": "DateTime",
+      "required": false,
+      "description": "When the user expects to be done with this environment"
+    },
+    {
+      "apiName": "Expiry_Date__c",
+      "label": "Expiry Date",
+      "type": "Date",
+      "required": false,
+      "description": "Sandbox refresh eligibility date"
+    },
+    {
+      "apiName": "Purpose__c",
+      "label": "Purpose",
+      "type": "Text",
+      "length": 255,
+      "required": false,
+      "description": "What this checkout is for (feature name, ticket number, etc.)"
+    },
+    {
+      "apiName": "Org_Id__c",
+      "label": "Org ID",
+      "type": "Text",
+      "length": 18,
+      "required": false,
+      "description": "18-character org ID of the sandbox"
+    },
+    {
+      "apiName": "Login_Url__c",
+      "label": "Login URL",
+      "type": "Url",
+      "required": false,
+      "description": "Login URL for the sandbox environment"
+    },
+    {
+      "apiName": "Last_Reset__c",
+      "label": "Last Reset",
+      "type": "DateTime",
+      "required": false,
+      "description": "Last time this sandbox was refreshed/reset"
+    },
+    {
+      "apiName": "Sandbox_Process_Id__c",
+      "label": "Sandbox Process ID",
+      "type": "Text",
+      "length": 18,
+      "required": false,
+      "description": "SandboxProcess record ID for polling creation/refresh status"
+    }
+  ],
+  "permissionSet": {
+    "fullName": "Environment_Pool_Access",
+    "label": "Environment Pool Access",
+    "description": "Grants full access to Environment_Pool__c for sandbox pool management"
+  }
+}
