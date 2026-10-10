@@ -1,0 +1,4 @@
+# Cloudflare Pages response headers (https://developers.cloudflare.com/pages/configuration/headers/).
+# HSTS on the production custom domain only; *.pages.dev is already HSTS-preloaded via the .dev TLD.
+https://skills.cirra.ai/*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
