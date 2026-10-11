@@ -2,7 +2,7 @@
 name: sf-permissions
 plugin: cirra-ai-sf
 metadata:
-  version: 2.1.0
+  version: 2.1.1
 argument-hint: '[hierarchy|audit|analyze|create|clone|update|delete|assign|profile|agent-access] ...'
 description: >
   Permission Set and Profile analysis, hierarchy viewer, and "Who has X?" auditing. Use when
@@ -194,7 +194,7 @@ Use for "Why can't John edit Opportunities?" style questions.
 1. Query PermissionSetAssignment for the user's ID
 2. For each assigned PS, query ObjectPermissions for the target object (e.g., Opportunity with PermissionsEdit)
 3. If no PS grants the permission, identify the gap
-4. Suggest which PS/PSG to assign (then use the Assign workflow) — or, if the gap is on the profile, the Profile workflow
+4. Recommend the fix as a permission set: an existing PS/PSG that already grants the access (then the Assign workflow), or a new minimal permission set (Create / Update workflow). A missing permission on the user's profile explains the gap. It is not a reason to edit the profile. Hand the grant to **sf-provisioning** (Grant Capability) when the request is "give this user access." Call `profile_update` only when the user explicitly says they prefer a profile change.
 
 Example: "Why can't John edit Opportunities?":
 
@@ -376,7 +376,11 @@ Verify with `soql_query(sObject="PermissionSetAssignment", fields=["Assignee.Use
 
 ### Profile Management Workflow
 
-Profiles are the base layer every user has exactly one of. Prefer minimal profiles plus Permission Sets; change a profile only when the requirement really is profile-level (login hours/IP ranges, default apps, page layout and record type defaults, or when the org's convention is profile-based).
+Profiles are the base layer every user has exactly one of. Inspect them with `profile_describe` to explain a gap.
+
+Object CRUD, field-level security, system permissions, tabs, Apex, Visualforce, Flow, and custom permissions are granted with a permission set. When one of those is missing, recommend an existing permission set or a new one (sf-provisioning Grant Capability, or the Create / Update workflows here). Edit the profile for that access only when the user explicitly says they prefer a profile change.
+
+`profile_update` is the right tool for settings a permission set cannot express: login hours, login IP ranges, the default app, page-layout assignment, and the record-type default.
 
 **Inspect** — always narrow with `permissionTypes` (and `sObject` when a specific object is in question) to keep the response small:
 
@@ -386,7 +390,7 @@ profile_describe(profile="Custom Sales User", permissionTypes=["objectPermission
 
 Valid `permissionTypes`: `objectPermissions`, `fieldPermissions`, `userPermissions`, `tabVisibilities`, `classAccesses`, `pageAccesses`, `flowAccesses`, `applicationVisibilities`, `recordTypeVisibilities`, `layoutAssignments`, `customPermissions`, `customMetadataTypeAccesses`, `customSettingAccesses`, `externalDataSourceAccesses`, `loginHours`, `loginIpRanges`, `loginFlows`, `agentAccesses`.
 
-**Change** — JSON Patch over the `Profile` metadata shape (`references/profile-metadata-schema.json`); same element names as a PS except tab visibility is `tabVisibilities` with `DefaultOn` / `DefaultOff` / `Hidden`:
+**Change** — only after the user explicitly asked for a profile change, or for a profile-only setting listed above. JSON Patch over the `Profile` metadata shape (`references/profile-metadata-schema.json`); same element names as a PS except tab visibility is `tabVisibilities` with `DefaultOn` / `DefaultOff` / `Hidden`:
 
 ```
 profile_update(
@@ -443,20 +447,20 @@ Then assign the PS with `permission_set_assignments`.
 
 **Then determine the capability needed**:
 
-| User Says                            | Capability          | Approach                                                                    |
-| ------------------------------------ | ------------------- | --------------------------------------------------------------------------- |
-| "Show permission hierarchy"          | Hierarchy Viewer    | Query PermissionSet, PermissionSetGroup, PermissionSetGroupComponent        |
-| "Who has access to Account?"         | Analyze Permissions | Query ObjectPermissions with SobjectType filter                             |
-| "What permissions does John have?"   | Analyze Permissions | Query PermissionSetAssignment for user (+ `profile_describe`)               |
-| "Why can't John edit X?"             | Analyze Permissions | Cross-check user PS assignments with required permissions                   |
-| "Find PS with ModifyAllData"         | Security Audit      | Query PermissionSet for system permissions                                  |
-| "Create a PS for contractors"        | Create PS           | `metadata_create` then `permission_set_update`                              |
-| "Clone Sales_Manager PS"             | Clone PS            | `metadata_read` then `metadata_create` with new name                        |
-| "Update permissions on X"            | Update PS           | `permission_set_update` (JSON Patch)                                        |
-| "Delete the old PS"                  | Delete PS           | `metadata_delete`                                                           |
-| "Give Jane the Sales PS"             | Assign PS           | `permission_set_assignments`                                                |
-| "What does the Sales profile grant?" | Profile             | `profile_describe`; change with `profile_update`, copy with `profile_clone` |
-| "Export Sales_Manager PS"            | Documentation       | `metadata_read` or query all permission types for the PS                    |
+| User Says                            | Capability          | Approach                                                                                                                                                                               |
+| ------------------------------------ | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| "Show permission hierarchy"          | Hierarchy Viewer    | Query PermissionSet, PermissionSetGroup, PermissionSetGroupComponent                                                                                                                   |
+| "Who has access to Account?"         | Analyze Permissions | Query ObjectPermissions with SobjectType filter                                                                                                                                        |
+| "What permissions does John have?"   | Analyze Permissions | Query PermissionSetAssignment for user (+ `profile_describe`)                                                                                                                          |
+| "Why can't John edit X?"             | Analyze Permissions | Cross-check assignments; recommend an existing or new permission set                                                                                                                   |
+| "Find PS with ModifyAllData"         | Security Audit      | Query PermissionSet for system permissions                                                                                                                                             |
+| "Create a PS for contractors"        | Create PS           | `metadata_create` then `permission_set_update`                                                                                                                                         |
+| "Clone Sales_Manager PS"             | Clone PS            | `metadata_read` then `metadata_create` with new name                                                                                                                                   |
+| "Update permissions on X"            | Update PS           | `permission_set_update` (JSON Patch)                                                                                                                                                   |
+| "Delete the old PS"                  | Delete PS           | `metadata_delete`                                                                                                                                                                      |
+| "Give Jane the Sales PS"             | Assign PS           | `permission_set_assignments`                                                                                                                                                           |
+| "What does the Sales profile grant?" | Profile             | `profile_describe`. `profile_update` / `profile_clone` only when the user explicitly wants a profile change, or for login hours, IP ranges, default app, layouts, record-type defaults |
+| "Export Sales_Manager PS"            | Documentation       | `metadata_read` or query all permission types for the PS                                                                                                                               |
 
 ### Phase 2: Query Permissions
 
@@ -694,7 +698,7 @@ Examples:
 | Issue                                              | Solution                                                                                                                                                                                                                                                                                                                                                   |
 | -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | No results for permission query                    | Check if PS exists; use correct API name                                                                                                                                                                                                                                                                                                                   |
-| Missing field permissions                          | FLS may be controlled at Profile level — check with `profile_describe`                                                                                                                                                                                                                                                                                     |
+| Missing field permissions                          | The profile does not grant the field. Say so, then grant it with a permission set (existing, or a new minimal one) assigned to the user. `profile_describe` can confirm the gap. `profile_update` only when the user explicitly prefers a profile change.                                                                                                  |
 | PSG shows "Outdated"                               | PSG needs to be recalculated in Setup                                                                                                                                                                                                                                                                                                                      |
 | Can't find user's permissions                      | Check both direct PS and PSG assignments                                                                                                                                                                                                                                                                                                                   |
 | `permission_set_update` patch rejected             | Read the PS with `metadata_read` first; check the element name and value shape against `references/permissionset-metadata-schema.json`; never set FLS on required/master-detail fields; formula fields are read-only                                                                                                                                       |
@@ -716,6 +720,7 @@ Examples:
 ## Notes
 
 - **Permissions are additive**: Permission Sets can only grant, never revoke access
+- **Permission sets over profile edits**: Object, field, and system access goes on a permission set. A profile permission edit is plan B and only when the user explicitly prefers it. See sf-provisioning, "Permission sets over profile changes."
 - **Profile-owned PS**: Each Profile has an auto-created PS. Filter with `IsOwnedByProfile = false`
 - **PSG Types**: Filter with `Type != 'Group'` to exclude PSG-level entries from PS queries
 - **PSG vs PS for metadata_read**: Records with `Type = 'Group'` in the `PermissionSet` object are Permission Set Groups. Querying them with `metadata_read(type="PermissionSet")` will fail silently. Always check `Type` first via `tooling_api_query`, then use `metadata_read(type="PermissionSetGroup")` for groups. The `metadata_read` result for a PSG shows its member `permissionSets` array — not individual object/field permissions (those live on the component PS records).

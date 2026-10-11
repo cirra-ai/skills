@@ -69,7 +69,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Should ask user**: yes (need to identify which John — may need email or UserId)
 - **Follow-up skills**: `sf-permissions update`, `sf-permissions clone`
 
-**Notes**: Routes to Analyze Permissions, sub-case "Debug access". The name "John" is ambiguous — should ask for email or UserId. Then check the user's PS assignments against ObjectPermissions for Opportunity with PermissionsEdit. If no PS grants edit, suggest which PS/PSG to assign.
+**Notes**: Routes to Analyze Permissions, sub-case "Debug access". The name "John" is ambiguous — should ask for email or UserId. Then check the user's PS assignments against ObjectPermissions for Opportunity with PermissionsEdit. If no PS grants edit, recommend an existing permission set or a new minimal one. Do not recommend a profile edit unless the user explicitly says they prefer one.
 
 ---
 

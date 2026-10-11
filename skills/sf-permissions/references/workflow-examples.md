@@ -21,7 +21,7 @@ User: "Why can't John edit Opportunities?"
 1. Look up John's User Id, then his PermissionSetAssignment rows
 2. Check whether any assigned PS grants Opportunity edit (ObjectPermissions)
 3. Check the profile with profile_describe(profile=..., permissionTypes=["objectPermissions"], sObject="Opportunity")
-4. If nothing grants it, suggest which PS/PSG to assign (permission_set_assignments) or which PS to patch
+4. If nothing grants it, recommend an existing permission set to assign, or a new minimal permission set to create and assign. Do not recommend editing the profile unless the user explicitly says they prefer a profile change.
 ```
 
 ## Workflow 3: Document Permission Set
@@ -75,8 +75,9 @@ Agent:
 User: "Give the Custom Sales User profile read access to Invoice__c"
 
 Agent:
-1. profile_describe(profile="Custom Sales User", permissionTypes=["objectPermissions"], sObject="Invoice__c") — confirm current state
-2. Presents the plan; suggests a Permission Set instead if the org convention is PS-based
-3. profile_update(profile="Custom Sales User", patch=[{"op": "add", "path": "/objectPermissions/-", "value": {"object": "Invoice__c", "allowRead": true, "allowCreate": false, "allowEdit": false, "allowDelete": false, "viewAllRecords": false, "modifyAllRecords": false}}])
-4. Re-runs profile_describe to verify
+1. The user explicitly asked to change that profile, so a profile edit is allowed — but still say that a permission set is the usual way to grant this, and proceed with the profile only because they asked for it
+2. profile_describe(profile="Custom Sales User", permissionTypes=["objectPermissions"], sObject="Invoice__c") — confirm current state
+3. Present the profile-edit plan and get approval
+4. profile_update(profile="Custom Sales User", patch=[{"op": "add", "path": "/objectPermissions/-", "value": {"object": "Invoice__c", "allowRead": true, "allowCreate": false, "allowEdit": false, "allowDelete": false, "viewAllRecords": false, "modifyAllRecords": false}}])
+5. Re-runs profile_describe to verify
 ```
