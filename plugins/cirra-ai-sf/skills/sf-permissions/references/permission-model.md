@@ -163,7 +163,13 @@ Examples:
   - HR_Employee_Data_Access_PS
 ```
 
-### 5. Document Custom Permissions
+### 5. Grant access with permission sets
+
+Object, field, and system access goes on a permission set. Reuse one that already grants the access; otherwise create a minimal permission set and assign it. A missing permission on the user's profile explains the gap. Change that profile only when the user explicitly says they prefer a profile change.
+
+Login hours, login IP ranges, the default app, page-layout assignment, and record-type defaults stay on the profile, because a permission set cannot express them.
+
+### 6. Document Custom Permissions
 
 Custom Permissions should have clear names:
 

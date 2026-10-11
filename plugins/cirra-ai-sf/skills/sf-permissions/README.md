@@ -9,7 +9,7 @@ Salesforce permission analysis and management skill for AI coding tools. Analyze
 - **User Analyzer**: Show all permissions assigned to a specific user
 - **Security Audit**: Identify overly broad permissions and security risks
 - **Permission Set Lifecycle**: Create, update (JSON Patch), clone, delete and assign Permission Sets
-- **Profile Management**: Inspect, patch and clone Profiles
+- **Profile Management**: Inspect profiles. Patch or clone one when the user explicitly wants a profile change, or for settings a permission set cannot express (login hours, IP ranges, default app, page layouts, record-type defaults)
 - **Agent Access**: Grant and audit Agentforce agent visibility
 
 ## Installation
