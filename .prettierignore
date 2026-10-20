@@ -9,3 +9,9 @@
 *.txt
 *.yaml
 *.yml
+
+# Synced from cirra-ai/processes by sync-dev-agents.yml. Do not reformat
+# them in this repo: prettier 3.8.1 rewrites AGENTS.shared.md and drops
+# backticks inside markdown tables, and the next sync overwrites local edits.
+AGENTS.shared.md
+.claude/settings.json
