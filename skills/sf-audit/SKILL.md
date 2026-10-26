@@ -3,7 +3,7 @@ name: sf-audit
 plugin: cirra-ai-sf
 argument-hint: '[full|apex|flow|lwc|metadata|permissions|reports|integrations|coverage|licensing|team|change-history|data-quality] ...'
 description: >
-  Run a comprehensive Salesforce org audit producing 18 documents from a single scan.
+  Run a comprehensive Salesforce org audit producing 15 documents from a single scan.
   Inventories and scores Apex classes, triggers, Flows, Process Builders, Workflow Rules,
   LWC components, custom objects/fields, validation rules, formula fields, approval
   processes, escalation/assignment/auto-response rules, Profiles, and Permission Sets.
@@ -15,7 +15,7 @@ description: >
   standalone analysis documents including a customer report and strategic engagement plan.
   Usage: /sf-audit [full|apex|flow|lwc|metadata|permissions|reports|integrations|coverage|licensing|team|change-history|data-quality] ...
 metadata:
-  version: 3.2.0
+  version: 3.2.1
 ---
 
 # Salesforce Org Audit
@@ -1681,7 +1681,7 @@ Same content as Word, formatted for browser. Include:
 ### Standalone documents (12 additional files)
 
 After generating the 3 core reports, produce 12 standalone documents. This
-brings the total output to **18 documents** from a single org scan.
+brings the total output to **15 documents** from a single org scan.
 
 Run `generate_reports.py` with `--standalone` to produce all standalone
 documents. The script reads the same intermediate JSON files and generates:
@@ -1746,7 +1746,7 @@ For each object, check 3–5 key fields for null/blank rates. Write results to
 }
 ```
 
-#### Complete file manifest (18 documents)
+#### Complete file manifest (15 documents)
 
 After Phase D, `audit_output/` should contain:
 
@@ -1772,14 +1772,14 @@ Customer_Report.docx
 Strategic_Engagement_Plan.docx
 Technical_Team_Briefing.html
 
-# Always present
+# Working files (not part of the 15 reports)
 audit_state.md
 audit_summary.json
 ```
 
 ### Post-generation review
 
-After all 18 reports are written, ask the user:
+After all 15 reports are written, ask the user:
 
 > "Reports are ready. Would you like to adjust the style, layout, or structure
 > of any of the reports before we wrap up?"
@@ -1817,7 +1817,7 @@ Tell the user:
   managed packages)
 - [If incremental] **Delta summary**: what changed since last audit,
   score trends (improved / regressed / unchanged)
-- **Where report files were saved** (list all 18 documents)
+- **Where report files were saved** (list all 15 documents)
 
 Update `audit_state.md`: mark all phases complete.
 
