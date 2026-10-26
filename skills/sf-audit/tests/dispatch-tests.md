@@ -92,7 +92,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Should ask user**: yes (Phase B approval gate; Scale Gate in A6 if custom object count exceeds 10)
 - **Follow-up skills**: `sf-metadata`
 
-**Notes**: Scopes the Deep Dive to the Data Model (C7, C7b, C8, C8b): custom objects, fields, validation rules, formula fields, and unused fields. Validation-rule formulas come from `Metadata.errorConditionFormula`, one rule at a time. Formula bodies come from `FieldDefinition.Metadata.formula`, one field at a time. Layouts and reports are listed with `metadata_list` and read by exact `fullName` — no wildcards, and `Report` is not queried through `tooling_api_query`. A population check that returns `INVALID_FIELD` records `has_data: null` and a field-level security finding. The 120-point rubric is sourced from `sf-metadata`. Output for this scoped audit is one HTML report, not the 18-document full pack.
+**Notes**: Scopes the Deep Dive to the Data Model (C7, C7b, C8, C8b): custom objects, fields, validation rules, formula fields, and unused fields. Validation-rule formulas come from `Metadata.errorConditionFormula`, one rule at a time. Formula bodies come from `FieldDefinition.Metadata.formula`, one field at a time. Layouts and reports are listed with `metadata_list` and read by exact `fullName` — no wildcards, and `Report` is not queried through `tooling_api_query`. A population check that returns `INVALID_FIELD` records `has_data: null` and a field-level security finding. The 120-point rubric is sourced from `sf-metadata`. Output for this scoped audit is one HTML report, not the 15-document full pack.
 
 ---
 
@@ -146,7 +146,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Should ask user**: yes (Phase B presents a scoped approval gate — "Yes, just Apex and Flows" path — before deep-dive begins; Scale Gate A6 applies to Apex class/trigger and Flow counts)
 - **Follow-up skills**: `sf-apex`, `sf-flow`
 
-**Notes**: Every scope token counts, not only the first. `apex` and `flow` together run C1–C4 and do not run LWC, metadata, or permissions. Phase C9 checks only those domains. The report is the scoped HTML report, not the 18-document pack. Phase B confirms the combined scope before the deep dive.
+**Notes**: Every scope token counts, not only the first. `apex` and `flow` together run C1–C4 and do not run LWC, metadata, or permissions. Phase C9 checks only those domains. The report is the scoped HTML report, not the 15-document pack. Phase B confirms the combined scope before the deep dive.
 
 ---
 

@@ -4,7 +4,7 @@ plugin: cirra-ai-sf
 argument-hint: '[full|apex|flow|lwc|metadata|permissions|reports|integrations|coverage|licensing|team|change-history|data-quality] ...'
 description: >
   Run a Salesforce org audit across Apex, Flows, LWC, the data model, permissions,
-  and the other domains in the argument hint. A full scan can produce 18 documents.
+  and the other domains in the argument hint. A full scan can produce 15 documents.
   A scoped scan reports only the domains that were audited. Inventories and scores
   Apex classes, triggers, Flows, Process Builders, Workflow Rules, LWC components,
   custom objects and fields, validation rules, formula fields, approval processes,
@@ -1744,7 +1744,7 @@ instead run `generate_reports.py --no-standalone` on the JSON files you
 actually wrote. The script omits sections that have no data.
 
 **Full audit**: produce the three core reports below. Produce a standalone
-document only when its source JSON exists. The 18-file list further down is
+document only when its source JSON exists. The 15-file list further down is
 the full-audit ceiling, not a requirement for a scoped audit or a small org.
 In `mcp-core`, write the one HTML report and skip `generate_reports.py`.
 
@@ -1838,7 +1838,7 @@ Same content as Word, formatted for browser. Include:
 ### Standalone documents (12 additional files)
 
 After generating the 3 core reports, produce 12 standalone documents. This
-brings the total output to **18 documents** from a single org scan.
+brings the total output to **15 documents** from a single org scan.
 
 Run `generate_reports.py` with `--standalone` to produce all standalone
 documents. The script reads the same intermediate JSON files and generates:
@@ -1903,7 +1903,7 @@ For each object, check 3–5 key fields for null/blank rates. Write results to
 }
 ```
 
-#### Complete file manifest (18 documents)
+#### Complete file manifest (15 documents)
 
 After Phase D, `audit_output/` should contain:
 
@@ -1929,7 +1929,7 @@ Customer_Report.docx
 Strategic_Engagement_Plan.docx
 Technical_Team_Briefing.html
 
-# Always present
+# Working files (not part of the 15 reports)
 audit_state.md
 audit_summary.json
 ```

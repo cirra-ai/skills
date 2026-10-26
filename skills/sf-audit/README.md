@@ -16,7 +16,7 @@ Run a comprehensive Salesforce org audit that inventories and evaluates all majo
 - **Actionable summary**: Overall health score, components needing attention, findings by severity, migration priorities
 - **Incremental audits**: Re-score only components that changed since the last audit, carrying forward unchanged scores
 - **Four execution modes**: Works with local SFDX repos (fastest), Salesforce CLI, MCP with code execution, or MCP-only
-- **Scoped output**: A full audit can produce 18 documents. A scoped audit writes one HTML report for the domains that ran, including dark-mode colours for a page published in a dark host
+- **Scoped output**: A full audit can produce 15 documents. A scoped audit writes one HTML report for the domains that ran, including dark-mode colours for a page published in a dark host
 
 ## Installation
 
