@@ -20,6 +20,21 @@ These values were extracted directly from the Cirra AI logo (assets/icon-large.p
 | `--body-bg`      | `#F4F6F9` | Page background                                            |
 | `--border`       | `#E0E4EA` | Card borders, table borders                                |
 | `--muted`        | `#6B7280` | Labels, meta text                                          |
+| `--text`         | `#1A1A2E` | Body text                                                  |
+| `--row-hover`    | `#F8F9FB` | Table row hover                                            |
+
+Dark mode uses the same brand blue banner and the same severity colours. It
+changes only the page surface so a claude.ai artifact published in a dark
+host is readable. Tokens under `@media (prefers-color-scheme: dark)`:
+
+| Token         | Dark value |
+| ------------- | ---------- |
+| `--body-bg`   | `#0F1419`  |
+| `--surface`   | `#1B2433`  |
+| `--text`      | `#E7ECF3`  |
+| `--border`    | `#2C3A4D`  |
+| `--muted`     | `#A8B3C4`  |
+| `--row-hover` | `#243044`  |
 
 > **Design decision:** Use `#417AE4` as a flat solid colour for the banner,
 > table headers, footer, and numbered bullets. Do **not** use gradients —
@@ -85,8 +100,26 @@ The org name, ID, instance, and date serve as the identity anchor.
 ```css
 /* ── Cirra AI brand tokens ── */
 :root {
+  color-scheme: light dark;
   --brand-blue: #417ae4;
   --brand-cyan: #14dddd;
+  --body-bg: #f4f6f9;
+  --surface: #ffffff;
+  --text: #1a1a2e;
+  --border: #e0e4ea;
+  --muted: #6b7280;
+  --row-hover: #f8f9fb;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --body-bg: #0f1419;
+    --surface: #1b2433;
+    --text: #e7ecf3;
+    --border: #2c3a4d;
+    --muted: #a8b3c4;
+    --row-hover: #243044;
+  }
 }
 
 .banner {
@@ -200,6 +233,32 @@ thead th {
 .finding.positive .finding-badge {
   background: #e9f7ef;
   color: #27ae60;
+}
+
+/* Surfaces follow the tokens so dark mode repaints the page */
+body {
+  background: var(--body-bg);
+  color: var(--text);
+}
+.card,
+.score-card,
+.finding {
+  background: var(--surface);
+  color: var(--text);
+}
+.card,
+.score-card {
+  border: 1px solid var(--border);
+}
+.score-card-label {
+  color: var(--muted);
+}
+tbody td {
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+tbody tr:hover {
+  background: var(--row-hover);
 }
 
 /* Footer */

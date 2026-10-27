@@ -47,6 +47,94 @@ BODY_BG = "#F4F6F9"
 BORDER = "#E0E4EA"
 MUTED = "#6B7280"
 
+REPORT_CSS = f"""
+:root {{
+  color-scheme: light dark;
+  --brand-blue: {BRAND_BLUE};
+  --brand-cyan: {BRAND_CYAN};
+  --body-bg: {BODY_BG};
+  --surface: #ffffff;
+  --text: #1a1a2e;
+  --border: {BORDER};
+  --muted: {MUTED};
+  --row-hover: #f8f9fb;
+}}
+@media (prefers-color-scheme: dark) {{
+  :root {{
+    --body-bg: #0f1419;
+    --surface: #1b2433;
+    --text: #e7ecf3;
+    --border: #2c3a4d;
+    --muted: #a8b3c4;
+    --row-hover: #243044;
+  }}
+}}
+* {{ margin: 0; padding: 0; box-sizing: border-box; }}
+body {{ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+       background: var(--body-bg); color: var(--text); line-height: 1.5; }}
+.banner {{
+  background: var(--brand-blue);
+  padding: 28px 40px 32px;
+  display: flex; align-items: center; gap: 24px;
+}}
+.banner-text {{ flex: 1; }}
+.banner-title {{ font-size: 26px; font-weight: 700; color: #fff; letter-spacing: -0.3px; }}
+.banner-subtitle {{ font-size: 13px; color: rgba(255,255,255,.80); margin-top: 4px; }}
+.banner-score {{ text-align: right; flex-shrink: 0; }}
+.banner-score-value {{ font-size: 48px; font-weight: 800; color: #fff; line-height: 1; }}
+.banner-score-label {{ font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
+                       color: rgba(255,255,255,.75); margin-top: 4px; }}
+.banner-score-rating {{
+  display: inline-block; margin-top: 6px;
+  background: rgba(255,255,255,.20); border: 1px solid rgba(255,255,255,.35);
+  border-radius: 20px; padding: 2px 12px;
+  font-size: 12px; font-weight: 600; color: #fff;
+}}
+.card {{ background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+         padding: 24px; margin: 16px 40px; color: var(--text); }}
+.card h2 {{ color: var(--brand-blue); font-size: 18px; margin-bottom: 16px; }}
+table {{ width: 100%; border-collapse: collapse; margin-top: 8px; }}
+thead th {{
+  background: var(--brand-blue); color: #fff; font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.6px;
+  padding: 10px 14px; text-align: left;
+}}
+tbody td {{ padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 13px;
+           color: var(--text); }}
+tbody tr:hover {{ background: var(--row-hover); }}
+.score-card {{
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 16px 20px; min-width: 140px; text-align: center;
+}}
+.score-card-label {{ font-size: 12px; font-weight: 600; color: var(--muted);
+                     text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }}
+.rec-num {{
+  width: 28px; height: 28px; border-radius: 50%; background: var(--brand-blue);
+  color: #fff; font-size: 13px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}}
+.finding {{ border-left: 4px solid; border-radius: 6px; padding: 12px 16px; margin-bottom: 8px;
+            background: var(--surface); color: var(--text); }}
+.finding.critical {{ border-left-color: #E74C3C; }}
+.finding.warning {{ border-left-color: #E67E22; }}
+.finding.info {{ border-left-color: var(--brand-blue); }}
+.finding.positive {{ border-left-color: #27AE60; }}
+.finding-badge {{
+  display: inline-block; padding: 2px 8px; border-radius: 10px;
+  font-size: 11px; font-weight: 600; margin-right: 8px;
+}}
+.finding.critical .finding-badge {{ background: #FDE8E8; color: #E74C3C; }}
+.finding.warning .finding-badge {{ background: #FEF3CD; color: #E67E22; }}
+.finding.info .finding-badge {{ background: #EBF1FB; color: var(--brand-blue); }}
+.finding.positive .finding-badge {{ background: #E9F7EF; color: #27AE60; }}
+.footer {{
+  background: var(--brand-blue);
+  padding: 20px 40px; text-align: center;
+  font-size: 12px; color: rgba(255,255,255,.80); margin-top: 24px;
+}}
+.footer a {{ color: #fff; }}
+"""
+
 SCORE_THRESHOLDS = [
     (80, "Excellent", "#E8FBF9", "#14DDDD"),
     (70, "Good", "#E9F7EF", "#27AE60"),
@@ -133,6 +221,29 @@ def score_rating(pct):
         if pct >= threshold:
             return label, bg, text
     return SCORE_THRESHOLDS[-1][1:]
+
+
+def _finding_messages(item):
+    """Plain-text finding messages on an inventory row."""
+    messages = []
+    for finding in item.get("findings") or []:
+        if isinstance(finding, str) and finding.strip():
+            messages.append(finding.strip())
+        elif isinstance(finding, dict):
+            message = finding.get("message") or finding.get("finding")
+            if message:
+                messages.append(str(message))
+    return messages
+
+
+def _unused_field_category(item):
+    """Category cell, with an FLS (or other) finding appended when present."""
+    category = item.get("category") or ""
+    messages = _finding_messages(item)
+    if not messages:
+        return category
+    note = "; ".join(messages)
+    return f"{category} — {note}" if category else note
 
 
 def _esc(value):
@@ -637,8 +748,8 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
             f'<div class="score-card">'
             f'<div class="score-card-label">{label}</div>'
             f'<div style="font-size:28px;font-weight:700;color:{fg}">{pct}%</div>'
-            f'<div style="font-size:11px;color:{MUTED}">{r}</div>'
-            f'<div style="font-size:11px;color:{MUTED}">{below} below 70%</div>'
+            f'<div style="font-size:11px;color:var(--muted)">{r}</div>'
+            f'<div style="font-size:11px;color:var(--muted)">{below} below 70%</div>'
             f"</div>"
         )
     sections.append(
@@ -784,7 +895,7 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
                     _esc(item.get("data_type", "")),
                     _esc(has_data_label),
                     _esc(refs),
-                    _esc(item.get("category", "")),
+                    _esc(_unused_field_category(item)),
                     _severity_badge_html(normalize_severity(item.get("severity"), "LOW")),
                 ])
             uf_parts.append(
@@ -1081,80 +1192,7 @@ def generate_html(data, summary, org_name, org_id, instance, run_date, output_pa
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Salesforce Org Audit Report — {_esc(org_name)}</title>
 <style>
-:root {{
-  --brand-blue: {BRAND_BLUE};
-  --brand-cyan: {BRAND_CYAN};
-}}
-* {{ margin: 0; padding: 0; box-sizing: border-box; }}
-body {{ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-       background: {BODY_BG}; color: #1a1a2e; line-height: 1.5; }}
-
-.banner {{
-  background: {BRAND_BLUE};
-  padding: 28px 40px 32px;
-  display: flex; align-items: center; gap: 24px;
-}}
-.banner-text {{ flex: 1; }}
-.banner-title {{ font-size: 26px; font-weight: 700; color: #fff; letter-spacing: -0.3px; }}
-.banner-subtitle {{ font-size: 13px; color: rgba(255,255,255,.80); margin-top: 4px; }}
-.banner-score {{ text-align: right; flex-shrink: 0; }}
-.banner-score-value {{ font-size: 48px; font-weight: 800; color: #fff; line-height: 1; }}
-.banner-score-label {{ font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
-                       color: rgba(255,255,255,.75); margin-top: 4px; }}
-.banner-score-rating {{
-  display: inline-block; margin-top: 6px;
-  background: rgba(255,255,255,.20); border: 1px solid rgba(255,255,255,.35);
-  border-radius: 20px; padding: 2px 12px;
-  font-size: 12px; font-weight: 600; color: #fff;
-}}
-
-.card {{ background: #fff; border: 1px solid {BORDER}; border-radius: 8px;
-         padding: 24px; margin: 16px 40px; }}
-.card h2 {{ color: {BRAND_BLUE}; font-size: 18px; margin-bottom: 16px; }}
-
-table {{ width: 100%; border-collapse: collapse; margin-top: 8px; }}
-thead th {{
-  background: {BRAND_BLUE}; color: #fff; font-size: 11px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.6px;
-  padding: 10px 14px; text-align: left;
-}}
-tbody td {{ padding: 10px 14px; border-bottom: 1px solid {BORDER}; font-size: 13px; }}
-tbody tr:hover {{ background: #f8f9fb; }}
-
-.score-card {{
-  background: #fff; border: 1px solid {BORDER}; border-radius: 8px;
-  padding: 16px 20px; min-width: 140px; text-align: center;
-}}
-.score-card-label {{ font-size: 12px; font-weight: 600; color: {MUTED};
-                     text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }}
-
-.rec-num {{
-  width: 28px; height: 28px; border-radius: 50%; background: {BRAND_BLUE};
-  color: #fff; font-size: 13px; font-weight: 700;
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-}}
-
-.finding {{ border-left: 4px solid; border-radius: 6px; padding: 12px 16px; margin-bottom: 8px;
-            background: #fff; }}
-.finding.critical {{ border-left-color: #E74C3C; }}
-.finding.warning {{ border-left-color: #E67E22; }}
-.finding.info {{ border-left-color: {BRAND_BLUE}; }}
-.finding.positive {{ border-left-color: #27AE60; }}
-.finding-badge {{
-  display: inline-block; padding: 2px 8px; border-radius: 10px;
-  font-size: 11px; font-weight: 600; margin-right: 8px;
-}}
-.finding.critical .finding-badge {{ background: #FDE8E8; color: #E74C3C; }}
-.finding.warning .finding-badge {{ background: #FEF3CD; color: #E67E22; }}
-.finding.info .finding-badge {{ background: #EBF1FB; color: {BRAND_BLUE}; }}
-.finding.positive .finding-badge {{ background: #E9F7EF; color: #27AE60; }}
-
-.footer {{
-  background: {BRAND_BLUE};
-  padding: 20px 40px; text-align: center;
-  font-size: 12px; color: rgba(255,255,255,.80); margin-top: 24px;
-}}
-.footer a {{ color: #fff; }}
+{REPORT_CSS}
 </style>
 </head>
 <body>
@@ -1374,7 +1412,7 @@ def generate_docx(data, summary, org_name, org_id, instance, run_date, output_pa
                 row[2].text = item.get("data_type", "")
                 row[3].text = "Unknown" if has_data is None else ("Yes" if has_data else "No")
                 row[4].text = ", ".join(item.get("referenced_in") or []) or "None"
-                row[5].text = item.get("category", "")
+                row[5].text = _unused_field_category(item)
                 row[6].text = normalize_severity(item.get("severity"), "LOW")
         if data.get("unused_objects"):
             doc.add_heading("Unused Objects", level=2)
@@ -1847,7 +1885,7 @@ def generate_xlsx(data, summary, org_name, org_id, instance, run_date, output_pa
         ws9.cell(row=i, column=3, value=item.get("data_type", ""))
         ws9.cell(row=i, column=4, value="Unknown" if has_data is None else ("Yes" if has_data else "No"))
         ws9.cell(row=i, column=5, value=", ".join(item.get("referenced_in") or []) or "None")
-        ws9.cell(row=i, column=6, value=item.get("category", ""))
+        ws9.cell(row=i, column=6, value=_unused_field_category(item))
         ws9.cell(row=i, column=7, value=normalize_severity(item.get("severity"), "LOW"))
     auto_width(ws9)
 
@@ -2133,35 +2171,7 @@ def _standalone_html(title, org_name, run_date, body_html):
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{_esc(title)} — {_esc(org_name)}</title>
 <style>
-* {{ margin: 0; padding: 0; box-sizing: border-box; }}
-body {{ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-       background: {BODY_BG}; color: #1a1a2e; line-height: 1.5; }}
-.banner {{ background: {BRAND_BLUE}; padding: 24px 40px; }}
-.banner-title {{ font-size: 22px; font-weight: 700; color: #fff; }}
-.banner-subtitle {{ font-size: 12px; color: rgba(255,255,255,.80); margin-top: 4px; }}
-.card {{ background: #fff; border: 1px solid {BORDER}; border-radius: 8px;
-         padding: 24px; margin: 16px 40px; }}
-.card h2 {{ color: {BRAND_BLUE}; font-size: 18px; margin-bottom: 16px; }}
-table {{ width: 100%; border-collapse: collapse; margin-top: 8px; }}
-thead th {{ background: {BRAND_BLUE}; color: #fff; font-size: 11px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.6px; padding: 10px 14px; text-align: left; }}
-tbody td {{ padding: 10px 14px; border-bottom: 1px solid {BORDER}; font-size: 13px; }}
-tbody tr:hover {{ background: #f8f9fb; }}
-.finding {{ border-left: 4px solid; border-radius: 6px; padding: 12px 16px; margin-bottom: 8px;
-            background: #fff; }}
-.finding.critical {{ border-left-color: #E74C3C; }}
-.finding.warning {{ border-left-color: #E67E22; }}
-.finding.info {{ border-left-color: {BRAND_BLUE}; }}
-.finding.positive {{ border-left-color: #27AE60; }}
-.finding-badge {{ display: inline-block; padding: 2px 8px; border-radius: 10px;
-  font-size: 11px; font-weight: 600; margin-right: 8px; }}
-.finding.critical .finding-badge {{ background: #FDE8E8; color: #E74C3C; }}
-.finding.warning .finding-badge {{ background: #FEF3CD; color: #E67E22; }}
-.finding.info .finding-badge {{ background: #EBF1FB; color: {BRAND_BLUE}; }}
-.finding.positive .finding-badge {{ background: #E9F7EF; color: #27AE60; }}
-.footer {{ background: {BRAND_BLUE}; padding: 16px 40px; text-align: center;
-  font-size: 12px; color: rgba(255,255,255,.80); margin-top: 24px; }}
-.footer a {{ color: #fff; }}
+{REPORT_CSS}
 </style>
 </head>
 <body>

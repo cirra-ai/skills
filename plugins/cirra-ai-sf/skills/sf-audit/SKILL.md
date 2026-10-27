@@ -3,19 +3,20 @@ name: sf-audit
 plugin: cirra-ai-sf
 argument-hint: '[full|apex|flow|lwc|metadata|permissions|reports|integrations|coverage|licensing|team|change-history|data-quality] ...'
 description: >
-  Run a comprehensive Salesforce org audit producing 15 documents from a single scan.
-  Inventories and scores Apex classes, triggers, Flows, Process Builders, Workflow Rules,
-  LWC components, custom objects/fields, validation rules, formula fields, approval
-  processes, escalation/assignment/auto-response rules, Profiles, and Permission Sets.
-  Detects unused custom fields and objects (no data and/or no references in code, flows,
-  layouts, or reports). Also covers Reports & Dashboards, integrations, test coverage,
-  licensing, team evaluation, change history, data quality, and architectural analysis.
-  Scans all formula and criteria logic for hardcoded Record IDs, Campaign names, Profile
-  names, URLs, and other fragile values. Generates Word, Excel, HTML reports plus 12
-  standalone analysis documents including a customer report and strategic engagement plan.
+  Run a Salesforce org audit across Apex, Flows, LWC, the data model, permissions,
+  and the other domains in the argument hint. A full scan can produce 15 documents.
+  A scoped scan reports only the domains that were audited. Inventories and scores
+  Apex classes, triggers, Flows, Process Builders, Workflow Rules, LWC components,
+  custom objects and fields, validation rules, formula fields, approval processes,
+  escalation, assignment, and auto-response rules, Profiles, and Permission Sets.
+  Detects unused custom fields and objects (no data and/or no references in code,
+  flows, layouts, or reports). Also covers Reports and Dashboards, integrations,
+  test coverage, licensing, team evaluation, change history, data quality, and
+  architectural analysis. Scans formula and criteria logic for hardcoded Record IDs,
+  Campaign names, Profile names, URLs, and other fragile values.
   Usage: /sf-audit [full|apex|flow|lwc|metadata|permissions|reports|integrations|coverage|licensing|team|change-history|data-quality] ...
 metadata:
-  version: 3.2.1
+  version: 3.3.0
 ---
 
 # Salesforce Org Audit
@@ -36,32 +37,54 @@ with qualitative findings and severity classifications.
 
 ## Dispatch
 
-Parse `$ARGUMENTS` to determine the audit scope:
+Parse every scope token in `$ARGUMENTS` and in the user's sentence. Scope is the
+union of those tokens, not the first token only. Ignore words that are not
+scopes (`review`, `audit`, `and`, `the`). `metadata and permissions` runs the
+metadata domains and C6. `apex flow` runs C1–C4. `full` means every domain and
+overrides any other token.
 
-| First argument or intent                | Workflow                            |
-| --------------------------------------- | ----------------------------------- |
-| `full`, no scope specified after asking | Full Org Audit (all domains)        |
-| `apex`                                  | Apex-only audit (C1-C2)             |
-| `flow`                                  | Flow/automation-only audit (C3-C4)  |
-| `lwc`                                   | LWC-only audit (C5)                 |
-| `metadata`, `data-model`                | Metadata/data-model-only audit (C7) |
-| `permissions`                           | Permissions-only audit (C6)         |
-| `reports`                               | Reports & Dashboards only (C10)     |
-| `integrations`                          | Integration analysis only (C11)     |
-| `coverage`                              | Test coverage only (C12)            |
-| `licensing`                             | Licensing analysis only (C13)       |
-| `team`                                  | Team evaluation only (C14)          |
-| `change-history`                        | Change history audit only (C15)     |
-| `data-quality`                          | Data quality report only (C7 + DQ)  |
-| _(no argument or unclear)_              | Ask the user (see below)            |
+| Scope (not only the First argument) | Workflow                                     |
+| ----------------------------------- | -------------------------------------------- |
+| `full`                              | Full Org Audit (all domains)                 |
+| `apex`                              | Apex-only audit (C1-C2)                      |
+| `flow`                              | Flow/automation-only audit (C3-C4)           |
+| `lwc`                               | LWC-only audit (C5)                          |
+| `metadata`, `data-model`            | Metadata/data-model-only audit (C7)          |
+| `permissions`                       | Permissions-only audit (C6)                  |
+| `reports`                           | Reports & Dashboards only (C10)              |
+| `integrations`                      | Integration analysis only (C11)              |
+| `coverage`                          | Test coverage only (C12)                     |
+| `licensing`                         | Licensing analysis only (C13)                |
+| `team`                              | Team evaluation only (C14)                   |
+| `change-history`                    | Change history audit only (C15)              |
+| `data-quality`                      | Data quality report only (C7 + DQ)           |
+| two or more scope tokens            | Combined scopes (union of the named domains) |
+| _(no argument or unclear)_          | Ask the user (see below)                     |
 
-When the audit scope is missing or unclear, **you MUST use `AskUserQuestion`** before proceeding:
+`metadata` / `data-model` includes C7, C7b, C8, and C8b. Record the selected
+domains in `audit_state.md` and do not run the others.
 
-```
-AskUserQuestion(question="What would you like to audit?\n\n1. **Full** — comprehensive audit of the entire org\n2. **Apex** — Apex classes and triggers only\n3. **Flow** — Flows, Process Builders, and Workflow Rules only\n4. **LWC** — Lightning Web Components only\n5. **Metadata** — custom objects, fields, and data model only\n6. **Permissions** — Profiles, Permission Sets, and Permission Set Groups only")
-```
+When the scope is missing or unclear, ask the user in the conversation before
+doing anything else. Do not guess, and do not default to a full audit. Wait
+for the answer. The user may name more than one scope.
 
-Do NOT guess the scope or default to a full audit. Wait for the user's answer.
+Ask in plain text. Some hosts cap a question tool at 4 options (claude.ai
+allows at most 4 per question). Do not call a question tool with more options
+than that host allows; the catalog below does not fit in one such question.
+
+1. **Full** — every domain
+2. **Apex** — classes and triggers (C1–C2)
+3. **Flow** — Flows, Process Builders, and Workflow Rules (C3–C4)
+4. **LWC** — Lightning Web Components (C5)
+5. **Metadata** — data model, validation rules, formula fields, unused fields (C7, C7b, C8, C8b)
+6. **Permissions** — Profiles, Permission Sets, and Permission Set Groups (C6)
+7. **Reports** — Reports and Dashboards (C10)
+8. **Integrations** — connected apps, named credentials, external services (C11)
+9. **Coverage** — test coverage (C12)
+10. **Licensing** — licence utilisation (C13)
+11. **Team** — users and roles (C14)
+12. **Change history** — setup audit trail and deployments (C15)
+13. **Data quality** — data model plus completeness spot checks (C7 + DQ)
 
 ---
 
@@ -199,7 +222,21 @@ reference. Key points for audits:
 
 1. **Flow single-row constraint** — Tooling query on `Flow` with `Metadata`
    returns only one row. Fetch Flow IDs first, then one row per ID.
-2. **Permission queries** — PermissionSet/PSG datasets hit limits quickly.
+2. **ValidationRule formula** — `ErrorConditionFormula` is not a queryable
+   column (`INVALID_FIELD`). The formula is `Metadata.errorConditionFormula`,
+   and `Metadata` returns one row. List rules, then query `Metadata` per Id.
+   Same pattern as Flow. Details in C7.
+3. **Formula fields** — `CustomField` has no `Formula` column, and
+   `WHERE Formula != null` fails. List calculated fields with
+   `FieldDefinition.IsCalculated`, then read `Metadata.formula` one row at a
+   time. Do not pass `format=xml` on `CustomField`: that retrieve attaches
+   the whole parent object file to every field. Details in C7.
+4. **`metadata_read` names are exact** — a wildcard such as `Account-*` is
+   rejected. Call `metadata_list` first, then read the exact `fullName`s.
+5. **`Report` is not a Tooling object** — inventory and field-reference
+   checks use `soql_query` plus `metadata_read` of exact report names.
+   `DeveloperName LIKE '%Object%'` does not detect a field reference.
+6. **Permission queries** — PermissionSet/PSG datasets hit limits quickly.
    Use cursor windows and persist per-batch.
 
 ---
@@ -232,7 +269,6 @@ tooling_api_query: SELECT COUNT(Id) total FROM LightningComponentBundle WHERE Na
 tooling_api_query: SELECT COUNT(Id) total FROM CustomObject WHERE NamespacePrefix = null
 tooling_api_query: SELECT COUNT(Id) total FROM ValidationRule WHERE NamespacePrefix = null
 tooling_api_query: SELECT COUNT(Id) total FROM WorkflowRule WHERE NamespacePrefix = null
-tooling_api_query: SELECT COUNT(Id) total FROM CustomField WHERE NamespacePrefix = null AND Formula != null
 metadata_list: type=ApprovalProcess
 soql_query: SELECT COUNT(Id) total FROM PermissionSet WHERE IsOwnedByProfile = false AND NamespacePrefix = null AND Type != 'Group'
 soql_query: SELECT COUNT(Id) total FROM PermissionSetGroup
@@ -255,6 +291,9 @@ find force-app/main/default/lwc -mindepth 1 -maxdepth 1 -type d | wc -l
 
 Supplement with MCP queries for live-only data (Profiles, Permission Sets,
 PSGs, user counts).
+
+Formula fields have no quick-pass `COUNT`. `CustomField.Formula` is not a
+column. C7 counts them after reading `Metadata.formula`.
 
 ### A2 — Surface metadata for Apex classes (local only)
 
@@ -405,8 +444,8 @@ AUDIT_TYPE: fresh | incremental (previous: {PREV_DATE})
 
 ### A6 — Scale Gate
 
-After writing `audit_state.md`, check whether the org is large enough to
-warrant special handling. Count the scoreable components per domain:
+After writing `audit_state.md`, check whether the selected scope is large
+enough to warrant special handling. Count only domains in that scope:
 
 | Domain       | Count | Over 10? |
 | ------------ | ----- | -------- |
@@ -509,11 +548,15 @@ generate reports based on what Phase A collected. Mark unscored domains as
 
 ## Phase C — Deep Dive
 
-> **MANDATORY (when user chose "Score all" in A6): Score EVERY component. No sampling. No shortcuts.**
+Run only the domains selected at dispatch. `metadata and permissions` runs
+C6, C7, C7b, C8, and C8b. It does not run C1–C5. Phase C9 checks only those
+domains.
+
+> **MANDATORY (when user chose "Score all" in A6): Score EVERY component in the selected domains. No sampling. No shortcuts.**
 >
 > When the user chose "Score all" in A6, you MUST individually fetch, read, and
-> score **every single** Apex class, trigger, Flow, and LWC component in the
-> org (minus the generated/skip list and managed packages). Do NOT:
+> score **every component in the selected domains** (minus the generated/skip
+> list and managed packages). Do NOT:
 >
 > - Score a "representative sample" and extrapolate
 > - Score only the first N items and summarize the rest
@@ -771,15 +814,32 @@ For each custom object:
 
 #### Validation rules
 
-Fetch the **full formula body** so hardcoded values can be detected:
+`ErrorConditionFormula` is not a column on Tooling `ValidationRule`. Selecting
+it returns `INVALID_FIELD`. The formula is `Metadata.errorConditionFormula`,
+and a query that selects `Metadata` returns one row — the same constraint as
+Flow.
+
+List the rules first (this query can return many rows):
 
 ```
-tooling_api_query: SELECT Id, EntityDefinition.QualifiedApiName, ValidationName,
-  Active, Description, ErrorConditionFormula, ErrorMessage
-  FROM ValidationRule WHERE NamespacePrefix = null
+tooling_api_query: SELECT Id, ValidationName, Active, Description, ErrorMessage,
+  EntityDefinition.QualifiedApiName
+  FROM ValidationRule
+  WHERE NamespacePrefix = null
 ```
 
-For each validation rule, scan `ErrorConditionFormula` for anti-patterns using
+Then, for each Id, one query:
+
+```
+tooling_api_query: SELECT Id, Metadata
+  FROM ValidationRule
+  WHERE Id = '<ruleId>'
+```
+
+Read `Metadata.errorConditionFormula`. Do not select `ErrorConditionFormula`,
+and do not select `Metadata` for more than one rule at a time.
+
+For each validation rule, scan that formula for anti-patterns using
 these regex patterns:
 
 | Pattern (case-insensitive)                                                                                                                                                 | What it catches                                               |
@@ -806,21 +866,55 @@ Findings for validation rules:
 
 #### Formula fields
 
-Fetch formula field definitions for every local custom object:
+`CustomField` has no `Formula`, `QualifiedApiName`, `DataType`, or
+`EntityDefinition` column. `WHERE Formula != null` returns `INVALID_FIELD`.
+The formula text is `Metadata.formula` on `FieldDefinition`, and `Metadata`
+returns one row. Do not pass `format=xml` (or `format=source`) on a
+`CustomField` query to get the formula: that retrieve returns the parent
+object file once per field, so several Account fields produce several copies
+of the same `Account.object`.
+
+`FieldDefinition` must be filtered by `EntityDefinition.QualifiedApiName`.
+Run it for every local custom object, and for every standard object that has
+local custom fields. Standard object names are the `CustomField.TableEnumOrId`
+values that are API names. On a custom object, `TableEnumOrId` is the object
+Id, not the API name — do not filter `CustomField` with a custom object's
+API name.
 
 ```
-tooling_api_query: SELECT Id, EntityDefinition.QualifiedApiName, DeveloperName,
-  QualifiedApiName, DataType, TableEnumOrId, Formula
+tooling_api_query: SELECT TableEnumOrId
   FROM CustomField
-  WHERE NamespacePrefix = null AND Formula != null
+  WHERE NamespacePrefix = null
 ```
 
-> **Note:** The `Formula` field is only available via the Tooling API on
-> `CustomField`. In `sfdx-repo` mode, read formula bodies from
-> `force-app/main/default/objects/<Object>/fields/<Field>.field-meta.xml`
-> (the `<formula>` element).
+For each object API name:
 
-For each formula field, scan the `Formula` body for the same anti-patterns
+```
+tooling_api_query: SELECT QualifiedApiName, DataType
+  FROM FieldDefinition
+  WHERE EntityDefinition.QualifiedApiName = '<ObjectApiName>'
+    AND IsCalculated = true
+    AND NamespacePrefix = null
+```
+
+Then one query per calculated field:
+
+```
+tooling_api_query: SELECT QualifiedApiName, Metadata
+  FROM FieldDefinition
+  WHERE EntityDefinition.QualifiedApiName = '<ObjectApiName>'
+    AND QualifiedApiName = '<FieldApiName>'
+```
+
+Read `Metadata.formula`. When it is null, the field is calculated but not a
+formula (a roll-up summary). Do not scan it as a formula. The Phase A formula
+count is the number of non-null formulas. There is no single `COUNT` for it.
+
+> **`sfdx-repo` mode:** read formula bodies from
+> `force-app/main/default/objects/<Object>/fields/<Field>.field-meta.xml`
+> (the `<formula>` element). Do not call the Tooling queries above.
+
+For each formula field, scan the formula body for the same anti-patterns
 listed above for validation rules (hardcoded IDs, Campaign names, Profile
 names, URLs, record-type/picklist strings).
 
@@ -863,29 +957,43 @@ independently — either one in isolation is worth surfacing.
 
 #### Step 1 — Identify custom fields with no data
 
-For each local custom object (from C7), query for custom fields that have zero
-populated records. Use a single Tooling API query per object to get all custom
-fields, then check population via SOQL:
+For each local custom object (from C7), and for each standard object found in
+C7, list custom fields with `FieldDefinition`. `CustomField` has no
+`QualifiedApiName` or `DataType` column, and its `TableEnumOrId` is the object
+Id for a custom object, so filtering it by API name returns nothing.
 
 ```
-tooling_api_query: SELECT DeveloperName, QualifiedApiName, DataType,
-  Description, TableEnumOrId
-  FROM CustomField
-  WHERE NamespacePrefix = null
-    AND TableEnumOrId = '<CustomObject__c>'
+tooling_api_query: SELECT QualifiedApiName, DataType, Description
+  FROM FieldDefinition
+  WHERE EntityDefinition.QualifiedApiName = '<ObjectApiName>'
+    AND NamespacePrefix = null
 ```
 
-For each custom field, check whether any record has data:
+Keep rows whose `QualifiedApiName` ends in `__c`.
+
+For each of those fields, check whether any record has data:
 
 ```
-soql_query: SELECT COUNT(Id) total FROM <Object__c> WHERE <Field__c> != null LIMIT 1
+soql_query: SELECT COUNT(Id) total
+  FROM <ObjectApiName>
+  WHERE <FieldApiName> != null
 ```
+
+When that query returns `INVALID_FIELD` or `INSUFFICIENT_ACCESS`, the field
+exists — it was just listed — and the auditing user cannot read it. Salesforce
+returns `INVALID_FIELD` for a hidden field even when the user is a System
+Administrator. Do not retry under another name, and do not treat the error as
+"no data" or as a reason to stop C7b. Set `has_data` to `null`, `category` to
+`Unknown`, `severity` to `MODERATE`, and add a finding whose message is
+"Field-level security blocks the auditing user from reading this field, so
+population is unknown." Continue with the other fields. Include the row in
+`unused_fields.json` so the report shows the gap.
 
 > **Performance note:** For objects with many custom fields, batch the
 > population checks — run up to 10 in parallel where the mode supports it.
 > In `sfdx-repo` mode, skip population checks (record data is not available
-> locally) and set `has_data: null` in the output JSON. The report generator
-> renders this as "Unknown" in all formats.
+> locally) and set `has_data` to `null` with no FLS finding. The report
+> generator renders `null` as "Unknown" in all formats.
 
 #### Step 2 — Identify custom objects with no records
 
@@ -906,41 +1014,73 @@ artifacts. A field/object is "unreferenced" if it does not appear in any of:
    fetched bodies (from C1/C2 intermediate files)
 2. **Flows** — search Flow XML for the field/object API name (from C3
    intermediate files)
-3. **Validation rules** — search `ErrorConditionFormula` for the field API name
-   (from C7 data)
-4. **Formula fields** — search `Formula` body for the field API name (from C7
-   data)
+3. **Validation rules** — search the formula retrieved in C7
+   (`Metadata.errorConditionFormula`) for the field API name
+4. **Formula fields** — search the formula body retrieved in C7 for the field
+   API name
 5. **Workflow rules** — search criteria and field-update formulas (from C8 data)
-6. **Page layouts** — query layout assignments:
+6. **Page layouts** — list exact layout names, then read those names.
+   `metadata_read` does not accept a wildcard; `Project__c-*` is rejected.
+
    ```
-   metadata_read: type=Layout, fullNames=["<Object__c>-*"]
+   metadata_list: type=Layout
    ```
-   Check whether the field appears in any layout section.
-7. **Reports and list views** — query via Tooling API:
+
+   Keep `fullName` values that start with the object API name and a hyphen,
+   then:
+
    ```
-   tooling_api_query: SELECT Id, DeveloperName FROM Report
-     WHERE DeveloperName LIKE '%<ObjectName>%'
+   metadata_read: type=Layout, fullNames=["Project__c-Project Layout"]
    ```
+
+   Use the names `metadata_list` returned. Check whether the field appears in
+   any layout section.
+
+7. **Reports** — `Report` is not a Tooling object, so `tooling_api_query` on
+   `Report` is invalid. A `DeveloperName` filter does not detect a field
+   reference. Inventory with `soql_query` (same object C10 uses):
+
+   ```
+   soql_query: SELECT Id, Name, DeveloperName, FolderName
+     FROM Report
+   ```
+
+   The metadata full name is `<FolderName>/<DeveloperName>`. Unfiled public
+   reports use the folder `unfiled$public`. When the SOQL folder name does not
+   match a metadata name, list the folder with `metadata_list`
+   (`type=Report`, `folder` set to that report folder) and use the `fullName`
+   it returns. Then read exact names only:
+
+   ```
+   metadata_read: type=Report, fullNames=["Sales_Reports/Pipeline_by_Stage"]
+   ```
+
+   A field is referenced when its API name appears in the report's columns,
+   filters, groupings, or buckets. If a read fails, record that report check
+   as unknown. Do not mark the field unreferenced because the read failed.
+   List views are the same rule: `metadata_list` type `ListView`, then
+   `metadata_read` of the exact `ObjectApiName.ListViewName`.
 
 > **`sfdx-repo` mode:** search for the field/object API name across all files
 > in `force-app/` using `grep -r`. For page layouts, check
 > `force-app/main/default/layouts/<Object>-*.layout-meta.xml`.
 
 > **Shortcut for large orgs:** If the org has more than 500 custom fields
-> total, limit the cross-reference search to fields that already failed the
-> population check (no data). Fields with data are less likely to be truly
-> unused.
+> total, limit the cross-reference search to fields that already have no data.
+> Fields with data are less likely to be truly unused. A population check
+> blocked by field-level security is not "no data"; leave those rows Unknown.
 
 #### Step 4 — Classify and write findings
 
 For each custom field, assign a category:
 
-| Condition                   | Category           | Severity |
-| --------------------------- | ------------------ | -------- |
-| No data AND no references   | Unused             | HIGH     |
-| No data but has references  | Empty              | MODERATE |
-| Has data but no references  | Unreferenced       | MODERATE |
-| Has data and has references | Active (no action) | —        |
+| Condition                                        | Category           | Severity |
+| ------------------------------------------------ | ------------------ | -------- |
+| No data AND no references                        | Unused             | HIGH     |
+| No data but has references                       | Empty              | MODERATE |
+| Has data but no references                       | Unreferenced       | MODERATE |
+| Has data and has references                      | Active (no action) | —        |
+| Population check blocked by field-level security | Unknown            | MODERATE |
 
 For each custom object with no records:
 
@@ -963,6 +1103,7 @@ Update `audit_state.md`: mark C7b complete, record counts:
 - Unused fields (no data + no references): {n}
 - Empty fields (no data, but referenced): {n}
 - Unreferenced fields (has data, but not referenced): {n}
+- Fields blocked by field-level security (population unknown): {n}
 - Unused objects: {n}
 - Empty objects: {n}
 - Unreferenced objects: {n}
@@ -1591,11 +1732,27 @@ should be marked "Not audited" and do not block report generation.
 
 ## Phase D — Reports
 
-Produce three report files in `./audit_output/`. See `references/report-template.md`
-for brand tokens (Cirra AI blue `#417AE4`, cyan `#14DDDD`), HTML CSS, docx-js
-patterns, and openpyxl patterns — follow it exactly for consistent output.
-If the user provides their own template, use that instead — their template
-always takes precedence over the default.
+What you write depends on the scope from dispatch.
+
+**Scoped audit** (anything other than `full`): write one HTML report covering
+only the domains that ran. Do not add empty sections for domains that did not
+run, and do not produce the 12 standalone documents. In `mcp-core`, and in any
+chat host with no Python (including a page published as a claude.ai artifact),
+write that HTML yourself from `references/report-template.md`. Copy its CSS
+verbatim, including the dark-mode tokens. Where Python is available you may
+instead run `generate_reports.py --no-standalone` on the JSON files you
+actually wrote. The script omits sections that have no data.
+
+**Full audit**: produce the three core reports below. Produce a standalone
+document only when its source JSON exists. The 15-file list further down is
+the full-audit ceiling, not a requirement for a scoped audit or a small org.
+In `mcp-core`, write the one HTML report and skip `generate_reports.py`.
+
+See `references/report-template.md` for brand tokens (Cirra AI blue `#417AE4`,
+cyan `#14DDDD`), HTML CSS including dark mode, docx-js patterns, and openpyxl
+patterns — follow it exactly for consistent output. If the user provides their
+own template, use that instead — their template always takes precedence over
+the default.
 
 **For incremental audits:** include all components (changed + unchanged) in
 reports. Mark each component's status:
@@ -1779,7 +1936,7 @@ audit_summary.json
 
 ### Post-generation review
 
-After all 15 reports are written, ask the user:
+After the reports for this scope are written, ask the user:
 
 > "Reports are ready. Would you like to adjust the style, layout, or structure
 > of any of the reports before we wrap up?"
@@ -1817,7 +1974,7 @@ Tell the user:
   managed packages)
 - [If incremental] **Delta summary**: what changed since last audit,
   score trends (improved / regressed / unchanged)
-- **Where report files were saved** (list all 15 documents)
+- **Where report files were saved** (list the files this scope produced)
 
 Update `audit_state.md`: mark all phases complete.
 
