@@ -301,18 +301,43 @@ Array of custom fields flagged as unused, empty, or unreferenced.
 
 Categories:
 
-| Category       | Condition                  | Severity |
-| -------------- | -------------------------- | -------- |
-| `Unused`       | No data AND no references  | HIGH     |
-| `Empty`        | No data but has references | MODERATE |
-| `Unreferenced` | Has data but no references | MODERATE |
+| Category       | Condition                                        | Severity |
+| -------------- | ------------------------------------------------ | -------- |
+| `Unused`       | No data AND no references                        | HIGH     |
+| `Empty`        | No data but has references                       | MODERATE |
+| `Unreferenced` | Has data but no references                       | MODERATE |
+| `Unknown`      | Population check blocked by field-level security | MODERATE |
 
 `has_data` is a tri-state value: `true` (records contain data), `false`
 (no records with data), or `null` (population check was skipped, e.g. in
-`sfdx-repo` mode). Reports render `null` as "Unknown".
+`sfdx-repo` mode, or the auditing user cannot read the field). Reports render
+`null` as "Unknown".
+
+When the population query fails with `INVALID_FIELD` or `INSUFFICIENT_ACCESS`,
+the field is still included. `category` is `Unknown`, `severity` is
+`MODERATE`, and `findings` explains the field-level security gap. The report
+appends that message to the category cell.
+
+```json
+{
+  "object": "Account",
+  "field": "Secret__c",
+  "data_type": "Text",
+  "has_data": null,
+  "referenced_in": [],
+  "category": "Unknown",
+  "severity": "MODERATE",
+  "findings": [
+    {
+      "severity": "MODERATE",
+      "message": "Field-level security blocks the auditing user from reading this field, so population is unknown"
+    }
+  ]
+}
+```
 
 Fields in the `Active` category (has data AND has references) are **not**
-included in this file.
+included in this file. `Unknown` rows are included.
 
 ## unused_objects.json
 

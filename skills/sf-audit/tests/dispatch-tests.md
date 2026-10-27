@@ -87,12 +87,12 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Path**: full
 - **First tool**: `cirra_ai_init`
 - **Tool params**: `(none — init takes no arguments)`
-- **Should call**: `tooling_api_query`, `sobject_describe`, `soql_query`
-- **Should NOT call**: `metadata_read`, `fetch_more`
+- **Should call**: `tooling_api_query`, `sobject_describe`, `soql_query`, `metadata_list`, `metadata_read`
+- **Should NOT call**: `fetch_more`
 - **Should ask user**: yes (Phase B approval gate; Scale Gate in A6 if custom object count exceeds 10)
 - **Follow-up skills**: `sf-metadata`
 
-**Notes**: Scopes the Deep Dive to the Data Model (C7), which covers custom objects, fields, relationships, and validation rules. Uses `sobject_describe` per object and `tooling_api_query` for `ValidationRule`. The 120-point rubric is sourced from `sf-metadata`. Workflow Rule inventory (C8) should also run since it is metadata-adjacent and lightweight.
+**Notes**: Scopes the Deep Dive to the Data Model (C7, C7b, C8, C8b): custom objects, fields, validation rules, formula fields, and unused fields. Validation-rule formulas come from `Metadata.errorConditionFormula`, one rule at a time. Formula bodies come from `FieldDefinition.Metadata.formula`, one field at a time. Layouts and reports are listed with `metadata_list` and read by exact `fullName` — no wildcards, and `Report` is not queried through `tooling_api_query`. A population check that returns `INVALID_FIELD` records `has_data: null` and a field-level security finding. The 120-point rubric is sourced from `sf-metadata`. Output for this scoped audit is one HTML report, not the 15-document full pack.
 
 ---
 
@@ -117,7 +117,7 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 ## no arguments — default behavior
 
 - **Input**: `/sf-audit`
-- **Dispatch**: Full Org Audit (all domains)
+- **Dispatch**: Ask the user (see below)
 - **Init required**: yes
 - **Init timing**: before-workflow
 - **Path**: full
@@ -125,17 +125,17 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Tool params**: `(none — init takes no arguments)`
 - **Should call**: `tooling_api_query`, `soql_query`, `sobject_describe`, `metadata_read`
 - **Should NOT call**: `fetch_more`
-- **Should ask user**: yes (no argument-hint was given, so the skill runs a full audit by default; it must still ask at Phase B before starting the Deep Dive, and at Scale Gate A6 if any domain exceeds 10 components)
+- **Should ask user**: yes (no scope was given, so ask in plain text which domains to audit; do not default to a full audit and do not call a question tool with more than 4 options)
 - **Follow-up skills**: `sf-apex`, `sf-flow`, `sf-lwc`, `sf-metadata`, `sf-permissions`
 
-**Notes**: With no argument hint the skill defaults to a full audit across all domains. It must first check for `audit_state.md` to determine whether this is a fresh or resuming run. The Phase B approval gate is mandatory before any body downloads begin. All domain follow-up skills are relevant since the full audit covers every Phase C sub-phase.
+**Notes**: With no argument hint the skill asks which scope to run and does not default to a full audit. The question is plain text because the catalog has more than 4 options and claude.ai's question tool allows at most 4. It must first check for `audit_state.md` to determine whether this is a fresh or resuming run. After the user picks a scope, the Phase B approval gate is mandatory before any body downloads begin.
 
 ---
 
 ## scoped apex-and-flow audit
 
 - **Input**: `/sf-audit apex flow`
-- **Dispatch**: Full Org Audit (all domains)
+- **Dispatch**: Combined scopes (union of the named domains)
 - **Init required**: yes
 - **Init timing**: before-workflow
 - **Path**: full
@@ -146,31 +146,31 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Should ask user**: yes (Phase B presents a scoped approval gate — "Yes, just Apex and Flows" path — before deep-dive begins; Scale Gate A6 applies to Apex class/trigger and Flow counts)
 - **Follow-up skills**: `sf-apex`, `sf-flow`
 
-**Notes**: Multiple argument hints narrow the audit to Apex Classes (C1), Apex Triggers (C2), Flows (C3), and Process Builders (C4). The Phase B prompt should reflect the scoped selection, matching the "Yes, just Apex and Flows" option described in Phase B. Phase C9 (Completeness Gate) only validates the approved domains. LWC, Metadata, and Permissions domains are excluded and should be marked "Not audited" in the reports.
+**Notes**: Every scope token counts, not only the first. `apex` and `flow` together run C1–C4 and do not run LWC, metadata, or permissions. Phase C9 checks only those domains. The report is the scoped HTML report, not the 15-document pack. Phase B confirms the combined scope before the deep dive.
 
 ---
 
 ## natural language — audit my org
 
 - **Input**: `/sf-audit run an audit on my org`
-- **Dispatch**: Full Org Audit (all domains)
+- **Dispatch**: Ask the user (see below)
 - **Init required**: yes
 - **Init timing**: `before-workflow`
 - **Path**: `full`
 - **First tool**: `cirra_ai_init`
 - **Should call**: `soql_query`, `tooling_api_query`, `sobject_describe`, `metadata_read`
 - **Should NOT call**: `metadata_create`, `metadata_update`
-- **Should ask user**: yes (confirm full audit scope before proceeding)
+- **Should ask user**: yes (no scope keyword, so ask which domains to audit; do not assume a full audit)
 - **Follow-up skills**: `sf-apex`, `sf-flow`, `sf-lwc`, `sf-metadata`, `sf-permissions`
 
-**Notes**: Natural language without an explicit scope keyword should be interpreted as a full audit request. The dispatch table maps unclear/no-argument to full audit. Should confirm scope with the user before starting the multi-phase process. All eight audit domains (C1–C8) should be included.
+**Notes**: Natural language without a scope keyword is unclear. Ask in plain text and wait. Do not start a full audit until the user says so. The user may name more than one scope, and those tokens are a union.
 
 ---
 
 ## metadata and permissions combined scope
 
 - **Input**: `/sf-audit metadata permissions`
-- **Dispatch**: Full Org Audit (all domains)
+- **Dispatch**: Combined scopes (union of the named domains)
 - **Init required**: yes
 - **Init timing**: `before-workflow`
 - **Path**: `full`
@@ -180,14 +180,14 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Should ask user**: yes (Phase B approval required before deep-dive scoring)
 - **Follow-up skills**: `sf-metadata`, `sf-permissions`
 
-**Notes**: Multiple scope keywords combine — `metadata` activates C7 (Data Model) + C8 (Workflow Rules), and `permissions` activates C6 (Profiles and Permissions). Should NOT run C1–C5 phases. Phase B user approval is required before deep-dive begins, consistent with other scoped audit tests.
+**Notes**: `metadata and permissions` is a combined scope, not "first token wins". `metadata` runs C7, C7b, C8, and C8b. `permissions` runs C6. C1–C5 do not run. Phase B confirms that set. The report is one HTML document for those domains.
 
 ---
 
 ## lwc and metadata combined scope
 
 - **Input**: `/sf-audit lwc metadata`
-- **Dispatch**: Full Org Audit (all domains)
+- **Dispatch**: Combined scopes (union of the named domains)
 - **Init required**: yes
 - **Init timing**: `before-workflow`
 - **Path**: `full`
@@ -197,14 +197,14 @@ Phase 2 (prompt) constructs the full prompt and validates its structure.
 - **Should ask user**: yes (Phase B approval required before deep-dive scoring)
 - **Follow-up skills**: `sf-lwc`, `sf-metadata`
 
-**Notes**: Combines LWC (C5) with Data Model (C7+C8) scopes. Tests that non-adjacent scope keywords are properly combined. Should skip C1–C4 and C6. Phase B user approval is required before deep-dive begins.
+**Notes**: Combines LWC (C5) with metadata (C7, C7b, C8, C8b). Both tokens are kept. Skip C1–C4 and C6. Phase B confirms the union before the deep dive.
 
 ---
 
 ## review synonym for audit
 
 - **Input**: `/sf-audit review apex`
-- **Dispatch**: Full Org Audit (all domains)
+- **Dispatch**: Apex-only audit (C1-C2)
 - **Init required**: yes
 - **Init timing**: `before-workflow`
 - **Path**: `full`

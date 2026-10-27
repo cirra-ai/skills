@@ -214,6 +214,37 @@ def test_generate_html_creates_file(gen, output_dir):
     assert "2026-03-06" in content
     assert "banner" in content
     assert "417AE4" in content.upper() or "417ae4" in content
+    assert "prefers-color-scheme: dark" in content
+    assert "--body-bg: #0f1419" in content
+    assert "color-scheme: light dark" in content
+
+
+def test_html_unused_field_fls_finding(gen, output_dir):
+    data = gen.load_inputs(str(FIXTURES_DIR))
+    data["unused_fields"].append({
+        "object": "Account",
+        "field": "Secret__c",
+        "data_type": "Text",
+        "has_data": None,
+        "referenced_in": [],
+        "category": "Unknown",
+        "severity": "MODERATE",
+        "findings": [{
+            "severity": "MODERATE",
+            "message": (
+                "Field-level security blocks the auditing user from reading "
+                "this field, so population is unknown"
+            ),
+        }],
+    })
+    summary = gen.compute_summary(data)
+    output_dir.mkdir(parents=True)
+    html_path = output_dir / "report.html"
+    gen.generate_html(data, summary, "Test Org", "", "", "2026-01-01", html_path)
+    content = html_path.read_text(encoding="utf-8")
+    assert "Unknown" in content
+    assert "Field-level security blocks the auditing user" in content
+    assert gen._unused_field_category(data["unused_fields"][-1]).startswith("Unknown —")
 
 
 def test_html_contains_all_sections(gen, output_dir):
