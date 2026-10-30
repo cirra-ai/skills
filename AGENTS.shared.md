@@ -879,6 +879,35 @@ of something else.
 - A nickname for a question from a previous turn, a questionnaire, or a
   form the user cannot see without scrolling
 
+## ⛔ Decisions and explanations go in a document, not only in chat
+
+**When the user must decide something, or asked for an explanation, write it in
+a persistent document they can open later, and link it from chat.** Chat
+scrolls: an explanation given once is gone a few turns later, and a question
+asked again as a short reminder ("may I add the fix?") cannot be answered by
+someone who no longer has the explanation in front of them.
+
+- **Where:** a Claude Docs doc when the session has that connector; otherwise a
+  comment on the GitHub issue or pull request the work belongs to. One document
+  per piece of work, kept current, not a new one per question.
+- **Shape:** an *At a glance* table first (question, recommendation, a column
+  for the user's answer), then a Terms table (term, meaning, example) for every
+  word a reader could take two ways, then one section per decision: what
+  happens today, a concrete example, the options with what each costs and buys
+  as behavior someone can observe, the recommendation, and one plain question
+  with its possible answers.
+- **In chat:** the link, and each question restated in one full sentence (see
+  "Re-ask; do not point at 'the XXX question'" above). Never a nickname for a
+  question ("the delete check"), and never an ask whose context is only in an
+  earlier message.
+- **When answered:** record the answer in the document, then act on it.
+
+Past failure this rule exists to prevent (Oct 2026): in a long session on
+`cirra-ai/app`'s sandbox worker, two decisions were each explained once in chat
+and later asked as one-line reminders. The user could not find the
+explanations and could not tell what was being asked. The decisions now live
+in a doc.
+
 ## Tone
 
 Do not use the word "honest" or synonyms unless you are actually talking about honesty vs. dishonesty. You should be honest by default, you do not need to say it.
@@ -903,6 +932,24 @@ policy `CLAUDE.md` from `cirra-ai/processes`. Put Claude-specific rules in
 this subsection, not in the adapter. On Windows, use the `@AGENTS.md`
 import — a symlink needs Developer Mode or Administrator
 ([same docs](https://code.claude.com/docs/en/claude-md#agentsmd)).
+
+### ⛔ `AskUserQuestion` prompts are not reliably shown
+
+The question UI does not always render for the user. A result of "the user did
+not answer" therefore means **the question may never have reached them** — it is
+not evidence of a decision, a preference, or a refusal to engage.
+
+Two consequences, both mandatory:
+
+- **Never describe an unanswered question as the user's choice.** No "you didn't
+  pick", "since you didn't answer", "you opted not to choose". The user is
+  entitled to be annoyed at being blamed for a prompt they were never shown.
+  Say what you actually know: "I need a decision on X; assuming Y for now
+  because Z — tell me if that's wrong."
+- **Never block on one.** Treat the answer as unavailable, pick the option you
+  would have recommended, state the assumption and its consequences in the chat
+  where it *will* be read, and carry on. Put the question in ordinary prose too,
+  so it survives even when the widget doesn't.
 
 ### Hooks
 
