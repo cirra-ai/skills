@@ -9,7 +9,9 @@
 > `agents/dev/AGENTS-SHARED.md`. A GitHub Action syncs it into each consumer
 > repo as `AGENTS.shared.md`, which the repo's `AGENTS.md` imports via
 > `@AGENTS.shared.md`. **Edit it only in `cirra-ai/processes`** — never edit the
-> synced `AGENTS.shared.md` copies.
+> synced `AGENTS.shared.md` copies. The sync workflow merges each copy's PR
+> itself once that repo's required checks pass: the review happens on the
+> change in `processes`.
 >
 > This is the team-wide policy that applies to every Cirra AI repo and every
 > agent (Claude Code, Cursor, Codex, and anything else). Anything
@@ -281,6 +283,14 @@ When adding or updating a step in a workflow file:
    than bundling it with feature work, so the upgrade is reviewable on its
    own.
 
+**Exception: Cirra AI's own reusable workflows in `cirra-ai/processes` are
+called at `@main`, not pinned.** Today that is `security-scan-reusable.yml`.
+Rule 2 protects against code from outside; this code is ours and is reviewed
+in `processes`, and following `main` lets a fix there reach every repo on its
+next run instead of after a PR in each one. The caller grants every
+permission the workflow uses, and a change that needs a new permission or
+input reaches the callers first. Details: `processes`' `security/README.md`.
+
 ## ⛔ DO NOT HACK
 
 Unless specifically requested, EVERYTHING you do must follow industry best
@@ -376,9 +386,10 @@ Includes everything in the pre-push checklist above, plus:
 
 - [ ] PR is still `draft: true` — auto-merge will ship unreviewed code to the
       base branch if it isn't.
-- [ ] Automated review (Bugbot / Copilot) addressed: invoked after
-      creating/updating the PR and polled until complete with no remaining
-      issues. See "Automated PR Review".
+- [ ] Every finding the automated reviewer has posted so far is fixed,
+      answered, or deferred with an issue. Do **not** request a review as part
+      of this checklist: a review is requested once, when the PR is marked
+      ready for review, and only if it has none yet. See "Automated PR Review".
 - [ ] If you fixed a defect, you searched for and fixed all other occurrences of
       the same pattern (see "Fix all instances, not just one").
 - [ ] If you deferred any reviewer-flagged issue, a follow-up issue exists and
@@ -622,7 +633,42 @@ mandates is where you catch this: after any `create_pull_request` or
 back empty. A pair of adjacent backticks with nothing between them is the
 signature.
 
-## ⛔ Automated PR Review (Bugbot AND Copilot) — ACT WITHOUT BEING PROMPTED
+## ⛔ Automated PR Review — request once at ready for review; act on findings unprompted
+
+**The reviewer is Bugbot** unless the consuming repo's `AGENTS.md` names a
+different automated reviewer (for example Copilot). When it does, the repo's
+`AGENTS.md` wins.
+
+### Requesting a review: once, when the PR is marked ready for review
+
+Request an automated review **only when both are true**:
+
+1. **The PR has been marked ready for review** — it is no longer a draft. You
+   may learn this from a PR event, from the user, or because you marked it
+   ready at the user's explicit request.
+2. **The PR has no previous review from that reviewer.** Check first with
+   `mcp__github__pull_request_read` (`method: "get_reviews"` and
+   `"get_comments"` — a reviewer can post either way). If one exists — the
+   reviewer ran on its own, or the PR went back to draft and was marked ready
+   again — do not request another.
+
+**Do not request a review** when you create a PR, when you push, after you fix
+findings, or while the PR is a draft. A second review happens only when the
+user asks for one. If the reviewer is configured to re-run on push, it does
+that on its own; you still handle its findings as described below.
+
+How to request:
+
+- **Bugbot:** post `bugbot run` as a top-level PR comment
+  (`mcp__github__add_issue_comment`). Cursor's
+  [Bugbot docs](https://cursor.com/docs/bugbot): "To trigger a review manually,
+  comment `cursor review` or `bugbot run` on any PR." A reply inside a review
+  thread does not trigger it
+  ([Cursor forum](https://forum.cursor.com/t/bugbot-cursor-review-only-works-as-a-standalone-comment-not-as-a-reply-in-a-pr/155876)).
+- **Copilot** (only when the repo's `AGENTS.md` names it):
+  `mcp__github__request_copilot_review`.
+
+### Acting on findings: without being prompted
 
 **Non-negotiable. The moment an automated reviewer (`bugbot` / `cursor[bot]`,
 `copilot-pull-request-reviewer[bot]` / `github-copilot[bot]`, or any other
@@ -631,18 +677,15 @@ arriving as a `github-webhook-activity` event — you MUST fetch it, triage ever
 finding, and fix or explicitly defer it in that same turn. Do NOT wait for the
 user to say "address the bugbot issues." The bot comment is the trigger.**
 
-On every PR you open or push to:
-
-1. **After creating/updating the PR**, proactively invoke the repo's automated
-   review loop (e.g. `/bugbot` / `/address-feedback`) — do not wait for the user.
-2. **On every bot-review event**, in the same turn: pull the threads
+1. **On every bot-review event**, in the same turn: pull the threads
    (`mcp__github__pull_request_read` with `method: "get_reviews"` /
    `"get_review_comments"`), then for each unresolved finding either fix it (if
    confident and small), ask the user (if ambiguous, architecturally
    significant, or user-visible), or skip with a written reason (duplicate /
    spam / already handled). Reply to the thread per "Responding to PR review
-   threads".
-3. **Never end a turn on an open bot finding without acting on it.**
+   threads". Pushing the fixes does not call for a new review request (see
+   above).
+2. **Never end a turn on an open bot finding without acting on it.**
 
 **Never change user-visible functionality based solely on bot advice without
 checking with the user first.** Bots are good at dead code, type issues, race
@@ -879,6 +922,35 @@ of something else.
 - A nickname for a question from a previous turn, a questionnaire, or a
   form the user cannot see without scrolling
 
+## ⛔ Decisions and explanations go in a document, not only in chat
+
+**When the user must decide something, or asked for an explanation, write it in
+a persistent document they can open later, and link it from chat.** Chat
+scrolls: an explanation given once is gone a few turns later, and a question
+asked again as a short reminder ("may I add the fix?") cannot be answered by
+someone who no longer has the explanation in front of them.
+
+- **Where:** a Claude Docs doc when the session has that connector; otherwise a
+  comment on the GitHub issue or pull request the work belongs to. One document
+  per piece of work, kept current, not a new one per question.
+- **Shape:** an *At a glance* table first (question, recommendation, a column
+  for the user's answer), then a Terms table (term, meaning, example) for every
+  word a reader could take two ways, then one section per decision: what
+  happens today, a concrete example, the options with what each costs and buys
+  as behavior someone can observe, the recommendation, and one plain question
+  with its possible answers.
+- **In chat:** the link, and each question restated in one full sentence (see
+  "Re-ask; do not point at 'the XXX question'" above). Never a nickname for a
+  question ("the delete check"), and never an ask whose context is only in an
+  earlier message.
+- **When answered:** record the answer in the document, then act on it.
+
+Past failure this rule exists to prevent (Oct 2026): in a long session on
+`cirra-ai/app`'s sandbox worker, two decisions were each explained once in chat
+and later asked as one-line reminders. The user could not find the
+explanations and could not tell what was being asked. The decisions now live
+in a doc.
+
 ## Tone
 
 Do not use the word "honest" or synonyms unless you are actually talking about honesty vs. dishonesty. You should be honest by default, you do not need to say it.
@@ -903,6 +975,24 @@ policy `CLAUDE.md` from `cirra-ai/processes`. Put Claude-specific rules in
 this subsection, not in the adapter. On Windows, use the `@AGENTS.md`
 import — a symlink needs Developer Mode or Administrator
 ([same docs](https://code.claude.com/docs/en/claude-md#agentsmd)).
+
+### ⛔ `AskUserQuestion` prompts are not reliably shown
+
+The question UI does not always render for the user. A result of "the user did
+not answer" therefore means **the question may never have reached them** — it is
+not evidence of a decision, a preference, or a refusal to engage.
+
+Two consequences, both mandatory:
+
+- **Never describe an unanswered question as the user's choice.** No "you didn't
+  pick", "since you didn't answer", "you opted not to choose". The user is
+  entitled to be annoyed at being blamed for a prompt they were never shown.
+  Say what you actually know: "I need a decision on X; assuming Y for now
+  because Z — tell me if that's wrong."
+- **Never block on one.** Treat the answer as unavailable, pick the option you
+  would have recommended, state the assumption and its consequences in the chat
+  where it *will* be read, and carry on. Put the question in ordinary prose too,
+  so it survives even when the widget doesn't.
 
 ### Hooks
 
