@@ -29,6 +29,63 @@
 > import, or `ln -s AGENTS.md CLAUDE.md`. That adapter is **not** copied from
 > this repo. Do not put policy in it.
 
+## ⛔ EVERY QUESTION GOES IN A DOCUMENT, NEVER IN CHAT
+
+**NO EXCEPTIONS. This applies to every agent, in every session, in every
+message.** If you are about to type a question, a set of options or a
+recommendation into chat, stop: write it in the document and post the link.
+
+**Every question for the user lives in a persistent document, and only there.
+Chat carries the link and how many questions wait there, nothing else about
+them: not the question restated, not its options, not its context.** The same
+holds for an explanation the user asked for and for a report of failing tests.
+Chat scrolls: an explanation given once is gone a few turns later, a question
+in chat leans on text the user then has to hunt for, and a question asked again
+as a short reminder ("may I add the fix?") cannot be answered by someone who no
+longer has the explanation in front of them.
+
+A **question** is anything the user has to answer: a decision, a choice between
+options, a yes or no ("may I push?"), a fact only they know. An instruction
+(press a button, paste a key into a form) is not a question and may be given in
+chat.
+
+- **Where:** a Claude Docs doc when the session has that connector; otherwise a
+  comment on the GitHub issue or pull request the work belongs to. One document
+  per piece of work, kept current, not a new one per question.
+- **In chat:** the link and the number of open questions ("2 questions wait in
+  [the doc]"). Nothing else about them.
+- **Every question stands on its own.** It quotes everything it refers to: the
+  exact value, message or wording, the test and the run, with links. Never "the
+  value in quotes", "the earlier error", "as above", or a nickname ("the delete
+  check").
+- **Shape:** an *At a glance* table first (question, recommendation, a column
+  for the user's answer), then a Terms table (term, meaning, example) for every
+  word a reader could take two ways, then one section per decision: what
+  happens today, a concrete example, the options with what each costs and buys
+  as behavior someone can observe, the recommendation, and one plain question
+  with its possible answers.
+- **A failing test** gets one section with these four parts, in this order:
+  1. **Expected behavior:** what the test requires, quoted from the test, as
+     something someone can observe (the request it sends, the reply or the
+     change it looks for).
+  2. **Actual behavior:** what happened instead, quoted from the run, the
+     stored record or the log, with a link to the run.
+  3. **Options to fix it**, each concrete: the exact change (the file, and the
+     text before and after), what it changes for users or for the test, and
+     what it costs.
+  4. **Recommendation:** which option, and why, in one or two sentences.
+- **When answered:** record the answer in the document, then act on it.
+
+Past failures this rule exists to prevent:
+
+- (Oct 2026) In a long session on `cirra-ai/app`'s sandbox worker, two
+  decisions were each explained once in chat and later asked as one-line
+  reminders. The user could not find the explanations and could not tell what
+  was being asked.
+- (Nov 2026) Two failing live-suite tests were explained in chat, and the
+  question asked about "the value in quotes": text the user had to go and find
+  in an earlier message.
+
 ## ⛔ VERIFY BEFORE ASSERTING — NO GUESSING
 
 Every factual claim about state, code, deploys, vendor behavior, config, or
@@ -457,8 +514,9 @@ branch carrying commits that already landed on the base branch via a release,
 producing phantom conflicts), the **non-destructive alternative is almost
 always `git merge origin/<base>` into the feature branch** — it preserves every
 commit SHA and needs no force-push. If a rebase + force-push is genuinely right
-(user asked, or the branch was never pushed), proceed. Otherwise **ask first, in
-the same message you would have run the destructive op.**
+(user asked, or the branch was never pushed), proceed. Otherwise **ask first**
+in the questions document (see "EVERY QUESTION GOES IN A DOCUMENT, NEVER IN
+CHAT") and run it only once the answer is in.
 
 ## ⛔ Working copy — do not write in the user's primary checkout
 
@@ -869,10 +927,10 @@ after it's committed.
 
 ## Chat response style — be concise
 
-Default to short chat replies. For analysis / options questions, answer in this
-shape: **Issue** (1-2 sentences) → **Possible fixes** (one sentence each) →
-**Pros / cons** (brief) → **Recommendation** (which and why, 1 sentence). If a
-topic genuinely needs more detail, expand, then end with a one-line **TLDR**.
+Default to short chat replies: what you did, what is next, the links. Anything
+the user has to answer, compare or come back to (a question, a set of options,
+an explanation they asked for, a report of failing tests) goes in a document,
+not in chat: see "EVERY QUESTION GOES IN A DOCUMENT, NEVER IN CHAT".
 This governs chat prose only; it does not relax the mandatory checklists,
 PR-description, or evidence rules above. Watching CI is not chat: see
 "CI monitoring is silent unless something needs attention".
@@ -889,31 +947,23 @@ around or guess.
 - **Commands**: show the exact command, not a paraphrase.
 - **Config locations**: name the exact file, dashboard URL, or UI path.
 - **Error references**: quote the exact error message and the file/line.
-- **Questions**: restate the ask in this turn (see "Re-ask; do not point at
-  'the XXX question'").
+- **Questions**: in their document, linked from this turn (see
+  "EVERY QUESTION GOES IN A DOCUMENT, NEVER IN CHAT").
 
 If you are unsure of the exact path or name, say so explicitly rather than
 giving a vague reference.
 
 ## ⛔ Re-ask; do not point at "the XXX question"
 
-When you need something from the user (an answer, a secret, a click, a
-decision), **ask it again in this message** — short, complete, and
-self-contained. Do not refer to it as "the XXX question", "the earlier
-prompt", "as above", or "see my previous message" when that ask is buried
-in an earlier wall of text.
+When you need something from the user (an answer, a decision, a secret, a
+click), **the ask is complete where the user reads it.** A question lives in
+its document (see "EVERY QUESTION GOES IN A DOCUMENT, NEVER IN CHAT") and this
+turn links it. An instruction (press a button, paste a key into a form) is
+spelled out in this turn.
 
 The user is human. They will not scroll 200 lines to reconstruct what
 "the deploy question" was. You have the transcript; they are in the middle
 of something else.
-
-**Do:**
-
-- Restate the ask in one or two sentences in this turn.
-- If the source is a doc, issue, or PR comment: include the URL and enough
-  quoted or searchable text that they can find it without rereading the
-  chat.
-- Repeat the options and your recommended default if you already had them.
 
 **Do not:**
 
@@ -921,35 +971,8 @@ of something else.
 - "Once you answer the earlier question I can proceed"
 - A nickname for a question from a previous turn, a questionnaire, or a
   form the user cannot see without scrolling
-
-## ⛔ Decisions and explanations go in a document, not only in chat
-
-**When the user must decide something, or asked for an explanation, write it in
-a persistent document they can open later, and link it from chat.** Chat
-scrolls: an explanation given once is gone a few turns later, and a question
-asked again as a short reminder ("may I add the fix?") cannot be answered by
-someone who no longer has the explanation in front of them.
-
-- **Where:** a Claude Docs doc when the session has that connector; otherwise a
-  comment on the GitHub issue or pull request the work belongs to. One document
-  per piece of work, kept current, not a new one per question.
-- **Shape:** an *At a glance* table first (question, recommendation, a column
-  for the user's answer), then a Terms table (term, meaning, example) for every
-  word a reader could take two ways, then one section per decision: what
-  happens today, a concrete example, the options with what each costs and buys
-  as behavior someone can observe, the recommendation, and one plain question
-  with its possible answers.
-- **In chat:** the link, and each question restated in one full sentence (see
-  "Re-ask; do not point at 'the XXX question'" above). Never a nickname for a
-  question ("the delete check"), and never an ask whose context is only in an
-  earlier message.
-- **When answered:** record the answer in the document, then act on it.
-
-Past failure this rule exists to prevent (Oct 2026): in a long session on
-`cirra-ai/app`'s sandbox worker, two decisions were each explained once in chat
-and later asked as one-line reminders. The user could not find the
-explanations and could not tell what was being asked. The decisions now live
-in a doc.
+- A question that points at text somewhere else ("the value in quotes", "the
+  earlier error") instead of quoting it
 
 ## Tone
 
@@ -990,9 +1013,10 @@ Two consequences, both mandatory:
   Say what you actually know: "I need a decision on X; assuming Y for now
   because Z — tell me if that's wrong."
 - **Never block on one.** Treat the answer as unavailable, pick the option you
-  would have recommended, state the assumption and its consequences in the chat
-  where it *will* be read, and carry on. Put the question in ordinary prose too,
-  so it survives even when the widget doesn't.
+  would have recommended, state the assumption and its consequences in the
+  questions document (see "EVERY QUESTION GOES IN A DOCUMENT, NEVER IN
+  CHAT") and link it from chat, and carry on. The document is where the
+  question survives when the widget doesn't.
 
 ### Hooks
 
