@@ -3,7 +3,7 @@ name: sf-data
 plugin: cirra-ai-sf
 argument-hint: '[query|build-query|insert|update|upsert|delete|bulk|export|csv|validate|describe] {target} ...'
 metadata:
-  version: 2.1.1
+  version: 2.1.2
 description: >
   Salesforce data and SOQL expert. Execute SOQL queries (natural language or raw SOQL),
   build optimized queries with selectivity analysis, insert/update/upsert/delete records,
@@ -372,7 +372,7 @@ Simple pass/fail. No score — just errors and warnings.
 | Check                                                       | Tool        | Severity |
 | ----------------------------------------------------------- | ----------- | -------- |
 | Missing `sObject`                                           | Both        | Error    |
-| Missing `sf_user`                                           | Both        | Warning  |
+| No `context_handle`, and no `cirra_ai_team` + `sf_user`     | Both        | Warning  |
 | Invalid DML `operation`                                     | sobject_dml | Error    |
 | Empty records array                                         | sobject_dml | Error    |
 | Update/delete missing `Id`                                  | sobject_dml | Error    |
@@ -472,7 +472,7 @@ Parameters:
   - groupBy: "Industry" (optional; required for aggregates with grouping)
   - havingClause: "COUNT(Id) > 5" (optional; needs groupBy)
   - pageSize: (optional; page size when the response paginates)
-  - sf_user: Connection identifier (optional; default connection when omitted)
+  - sf_user: Connection identifier (optional; omit it to use the connection the context_handle carries)
 ```
 
 There is no `query=` parameter — a raw SOQL string is not accepted. Split

@@ -292,18 +292,75 @@ class TestDmlWarnings:
         ))
         assert any("External_Id__c" in m for m in _warning_messages(r))
 
-    def test_no_sf_user_warned(self):
-        """TC-DW3: Missing sf_user triggers warning."""
+    def test_no_connection_selector_warned(self):
+        """TC-DW3: A call with no context_handle and no cirra_ai_team + sf_user is warned."""
         r = _validate({"tool": "sobject_dml", "params": {
             "sObject": "Account", "operation": "insert",
             "records": [{"Name": "Test"}],
         }})
-        assert any("sf_user" in m for m in _warning_messages(r))
+        assert any("context_handle" in m for m in _warning_messages(r))
+        # The server never falls back to the account's default connection.
+        assert not any("default org connection" in m for m in _warning_messages(r))
 
     def test_invalid_sobject_name_warned(self):
         """TC-DW4: Invalid sObject name pattern triggers warning."""
         r = _validate(_sobject_dml("123Bad-Name!", "insert", [{"Name": "Test"}]))
         assert any("pattern" in m.lower() or "sObject" in m for m in _warning_messages(r))
+
+
+class TestConnectionSelector:
+    """Which team and Salesforce connection the call names (PLTFRM-784).
+
+    The server takes them from 'cirra_ai_team' + 'sf_user', else from the
+    'context_handle' cirra_ai_init returned. Only a call with neither, or with
+    a team and no connection, gets a warning.
+    """
+
+    @staticmethod
+    def _selector_warnings(**params) -> list[str]:
+        base = {"sObject": "Account", "fields": ["Id"], "whereClause": "Id != null"}
+        r = _validate({"tool": "soql_query", "params": {**base, **params}})
+        return [m for m in _warning_messages(r) if "context_handle" in m or "cirra_ai_team" in m]
+
+    def test_context_handle_without_sf_user_not_warned(self):
+        """TC-CS1: The context_handle pins the team and connection; no sf_user needed."""
+        assert self._selector_warnings(context_handle="ctx_abc123") == []
+
+    def test_context_handle_with_sf_user_not_warned(self):
+        """TC-CS2: sf_user on a call that carries the handle picks a connection on the handle's team."""
+        assert self._selector_warnings(context_handle="ctx_abc123", sf_user="admin@example.com") == []
+
+    def test_team_and_sf_user_not_warned(self):
+        """TC-CS3: cirra_ai_team + sf_user name the team and connection."""
+        assert self._selector_warnings(cirra_ai_team="org_abc", sf_user="admin@example.com") == []
+
+    def test_dml_with_context_handle_not_warned(self):
+        """TC-CS4: sobject_dml with only the context_handle passes too."""
+        r = _validate({"tool": "sobject_dml", "params": {
+            "sObject": "Account", "operation": "insert",
+            "records": [{"Name": "Test"}], "context_handle": "ctx_abc123",
+        }})
+        assert not any("context_handle" in m or "sf_user" in m for m in _warning_messages(r))
+
+    def test_neither_warned(self):
+        """TC-CS5: No handle and no team: the server refuses it when the user has several places to work."""
+        warnings = self._selector_warnings()
+        assert len(warnings) == 1
+        assert "context_handle" in warnings[0]
+
+    def test_sf_user_alone_without_handle_warned(self):
+        """TC-CS6: sf_user does not name the team; without the handle the team is unnamed."""
+        assert len(self._selector_warnings(sf_user="admin@example.com")) == 1
+
+    def test_current_team_sentinel_counts_as_unnamed(self):
+        """TC-CS7: The server reads cirra_ai_team 'current' as no team named."""
+        assert len(self._selector_warnings(sf_user="admin@example.com", cirra_ai_team="current")) == 1
+
+    def test_team_without_sf_user_warned_even_with_handle(self):
+        """TC-CS8: The server refuses cirra_ai_team without sf_user, handle or not."""
+        warnings = self._selector_warnings(cirra_ai_team="org_abc", context_handle="ctx_abc123")
+        assert len(warnings) == 1
+        assert "without 'sf_user'" in warnings[0]
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

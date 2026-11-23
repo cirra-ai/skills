@@ -42,6 +42,35 @@ PII_PATTERNS = {
 }
 
 
+# The 'cirra_ai_team' value the Cirra AI MCP Server reads as "no team named".
+_CURRENT_SENTINEL = "current"
+
+
+def _check_connection_selector(params: dict[str, Any], warnings: list[dict[str, str]]) -> None:
+    """Warn when the call does not say which team and connection it runs on.
+
+    The Cirra AI MCP Server takes the team and Salesforce connection from, in
+    order: 'cirra_ai_team' + 'sf_user' on the call, then the 'context_handle'
+    from cirra_ai_init (which pins both for the conversation). It never falls
+    back to the account's default connection: a call that names neither runs
+    only when the user has exactly one place to work, and is refused otherwise.
+    """
+    team = params.get("cirra_ai_team")
+    has_team = bool(team) and team != _CURRENT_SENTINEL
+    has_user = bool(params.get("sf_user"))
+    if has_team and not has_user:
+        warnings.append({
+            "message": "'cirra_ai_team' without 'sf_user' is refused by the server — "
+                       "pass 'sf_user' too, or drop both and pass the 'context_handle' from cirra_ai_init"
+        })
+    elif not has_team and not params.get("context_handle"):
+        warnings.append({
+            "message": "No 'context_handle' (or 'cirra_ai_team' + 'sf_user') — the server refuses this call "
+                       "when the user has more than one Cirra AI team or account; pass the 'context_handle' "
+                       "from cirra_ai_init"
+        })
+
+
 def validate_data_params(input_data: dict[str, Any]) -> dict[str, Any]:
     """Validate soql_query or sobject_dml parameters.
 
@@ -72,8 +101,7 @@ def validate_data_params(input_data: dict[str, Any]) -> dict[str, Any]:
     elif isinstance(params.get("sObject"), str) and not SOBJECT_NAME_PATTERN.match(params["sObject"]):
         warnings.append({"message": f"sObject name '{params['sObject']}' doesn't match expected pattern"})
 
-    if not params.get("sf_user"):
-        warnings.append({"message": "No 'sf_user' specified — will use default org connection"})
+    _check_connection_selector(params, warnings)
 
     # ── soql_query checks ───────────────────────────────────────────
     if tool == "soql_query":
