@@ -43,7 +43,7 @@ Each skill also works independently without the orchestrator.
 ## What data it sends
 
 - **To the Cirra AI MCP Server (`mcp.cirra.ai`).** Each tool call sends its arguments — for example a SOQL query, record values, or metadata — to Cirra AI, which runs it against the Salesforce org you connected and returns the result to Claude. Salesforce data passes through Cirra AI's infrastructure and may appear briefly in transient operational logs and short-lived response caches. See the [Cirra AI Privacy Policy](https://cirra.ai/legal/privacy-policy/).
-- **To Salesforce documentation sites (`sf-help-fetch` only).** The skill sends the documentation URL, topic ID or Salesforce instance name you ask about to `help.salesforce.com`, `developer.salesforce.com`, `zd-ht-prod.zoominsoftware.io` and `api.status.salesforce.com`. It sends no data from your org.
+- **To Salesforce documentation sites (`sf-help-fetch` only).** The skill requests the page you ask about, sending its URL path, article or topic ID, or Salesforce instance name to `help.salesforce.com`, `developer.salesforce.com` and `api.status.salesforce.com`. It contacts `zd-ht-prod.zoominsoftware.io` only if you supply credentials for that service. It sends no data from your org.
 - **To the npm registry (`sf-lwc` only, optional).** If Claude runs the optional Salesforce SLDS linter, `npx` downloads `@salesforce-ux/slds-linter` from the npm registry. Your component files are linted on your machine and are not uploaded.
 - **Nowhere else.** The validation hook runs on your machine and makes no network calls. Reports and files that skills such as `sf-audit` create are saved in your own workspace.
 

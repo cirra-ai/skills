@@ -12,7 +12,9 @@ name: Build & Publish
 #   push to main      → branch 'preview' → preview.skills-cirra-ai.pages.dev
 #   push to <branch>  → branch '<branch>' → <branch>.skills-cirra-ai.pages.dev
 #
-# On release, plugin zips and skill .zip/.skill files are attached to the GitHub release.
+# On release, plugin zips and skill .zip/.skill files are attached to the GitHub release,
+# and the `release` branch is moved to the release commit. The Claude Directory listing
+# tracks `release`, so it sees published releases only, not every merge to `main`.
 
 on:
   push:
@@ -54,6 +56,13 @@ jobs:
       - name: Verify plugin skills are in sync
         if: github.event_name == 'release'
         run: scripts/sync-plugin-skills.sh --check
+
+      # Creates `release` on the first run. Later runs fast-forward it; a release
+      # cut from a commit that does not descend from the current `release` fails
+      # here instead of rewinding the branch.
+      - name: Move the release branch to this release
+        if: github.event_name == 'release'
+        run: git push origin "${GITHUB_SHA}:refs/heads/release"
 
       - name: Attach artifacts to published release
         if: github.event_name == 'release'
