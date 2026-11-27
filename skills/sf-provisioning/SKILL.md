@@ -2,7 +2,7 @@
 name: sf-provisioning
 plugin: cirra-ai-sf
 metadata:
-  version: 1.0.4
+  version: 1.1.0
 argument-hint: '[create-user|grant|revoke|deactivate|mirror] {user|capability} ...'
 description: >
   Salesforce user and access provisioning expert. Use whenever the user wants to create a
@@ -89,13 +89,14 @@ fixed by a permission set.
 
 Parse the request to determine which workflow to follow:
 
-| Intent                                                                                             | Workflow            |
-| -------------------------------------------------------------------------------------------------- | ------------------- |
-| `create-user`, add login, onboard, "set up <person>"                                               | Provision User      |
-| `grant`, give ability to, enable capability/feature/object/field access, "can't see" / missing FLS | Grant Capability    |
-| `revoke`, `deactivate`, remove access, freeze, offboard                                            | Revoke / Deactivate |
-| `mirror`, "same access as <person>", clone access                                                  | Mirror a User       |
-| _(unclear)_                                                                                        | Ask the user        |
+| Intent                                                                                           | Workflow            |
+| ------------------------------------------------------------------------------------------------ | ------------------- |
+| `create-user`, add login, onboard, "set up <person>"                                             | Provision User      |
+| "why can't I see / edit / do X", "can't see this field" asked as a question, no change asked yet | Explain Access      |
+| `grant`, give ability to, enable capability/feature/object/field access, missing FLS             | Grant Capability    |
+| `revoke`, `deactivate`, remove access, freeze, offboard                                          | Revoke / Deactivate |
+| `mirror`, "same access as <person>", clone access                                                | Mirror a User       |
+| _(unclear)_                                                                                      | Ask the user        |
 
 When the archetype or scope is ambiguous, **you MUST use `AskUserQuestion`** before acting
 (e.g. "Is this an internal admin, a contractor, or an integration user?"). Do not guess the
@@ -198,6 +199,36 @@ if they need to change it). Reuse one only after step 4's extra-permission and l
 checks pass; otherwise create a minimal one and assign it. Also check that the field is on
 the Account page layout they use. Do not recommend adding field-level security to the
 Standard User profile unless they explicitly ask for a profile change.
+
+### Explain Access
+
+For a question about why someone can or cannot see or do something, before anyone has asked for
+a change. It changes nothing: it finds the cause and says it. When they then want the access,
+continue with Grant Capability.
+
+1. **Find the person by `Username`**, never by `Email` (it is not unique):
+   `user_describe(user="<username>")` gives their profile and assignments, or
+   `soql_query(sObject="User", fields=["Id", "Username", "Profile.Name", "IsActive"], whereClause="Username = '<username>'")`.
+2. **What their profile grants.** A profile's grants live on its own hidden permission set
+   (`IsOwnedByProfile = true`). For a field:
+   `soql_query(sObject="FieldPermissions", fields=["Parent.Profile.Name", "PermissionsRead", "PermissionsEdit"], whereClause="Field = '<Object.Field>' AND Parent.IsOwnedByProfile = true AND Parent.Profile.Name = '<profile>'")`.
+   For an object, the same on `ObjectPermissions` with `SobjectType = '<Object>'` and
+   `PermissionsRead`, `PermissionsEdit`. No row, or `PermissionsRead = false`, means the profile
+   does not grant it.
+3. **What is assigned to them**, and whether any of it grants the access:
+   `soql_query(sObject="PermissionSetAssignment", fields=["PermissionSetId", "PermissionSet.Name", "PermissionSet.Label", "PermissionSetGroupId"], whereClause="Assignee.Username = '<username>' AND PermissionSet.IsOwnedByProfile = false")`,
+   then step 2's query with `ParentId IN ('<permission set id>', ...)` instead of the profile
+   filter. A permission set group grants what its member permission sets grant.
+4. **Which permission sets in the org grant it**: the Discovery Cookbook's field-level security
+   (or object) query, which leaves out profiles.
+5. **A field they still cannot see.** When the access is granted and the field still does not
+   show, check the page layout assigned to their profile and record type
+   (`metadata_read` of the `Layout`): field-level security can allow a field the layout leaves
+   off.
+6. **Say what you found, in the terms of the question.** How it works today: which profile they
+   have and that it does not grant the access, that none of the permission sets assigned to
+   them does (or which one does, when the cause is the layout), and which permission sets
+   would. Change nothing. A fix is the Grant Capability workflow, once they ask for it.
 
 ### Revoke / Deactivate
 

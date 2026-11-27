@@ -5,6 +5,7 @@ Salesforce user and access provisioning skill for AI coding tools. Create users,
 ## Features
 
 - **Provision User**: Onboard a new user with the right license, profile, locale, and permission sets — discovered from comparable existing users, not invented.
+- **Explain Access**: Say why someone cannot see or do something — what their profile and assigned permission sets grant, which permission sets would, and whether a page layout leaves a field off — without changing anything.
 - **Grant Capability**: Enable a specific ability (scratch org creation, API access, a feature, an object, a field) by reusing the permission set that already grants it, or creating a minimal one when none does. Profile permission edits are plan B and only when you explicitly prefer them.
 - **Revoke / Deactivate**: Narrow revoke of a permission set, or deactivate/freeze a user for offboarding (with dependency checks).
 - **Mirror a User**: Create a new user with the same access as an existing one — profile, license, locale, and every permission set assignment.
