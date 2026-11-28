@@ -1,6 +1,7 @@
 // resize-images-by-percentage.js
 // Usage: node resize-images-by-percentage.js
-// Requires: npm install sharp
+// Requires a local install that is not saved to this repo:
+//   npm install --no-save sharp
 
 const fs = require('fs');
 const path = require('path');
